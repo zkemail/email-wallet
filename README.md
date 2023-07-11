@@ -1,4 +1,4 @@
 # ZK Email Wallet
 
-A smart contract wallet powered by your email address.
+A smart contract wallet controlled using email.
 
