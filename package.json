@@ -5,7 +5,7 @@
   "description": "A smart contract wallet controlled by email.",
   "packageManager": "yarn@3.2.3",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "yarn workspaces -pt run test"
   },
   "workspaces": [
     "packages/*"
