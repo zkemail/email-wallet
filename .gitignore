@@ -10,3 +10,9 @@ cache
 artifacts
 
 *.log
+
+# Relayer
+packages/relayer/sendgrid.env
+packages/relayer/target/
+packages/relayer/received_eml/*.eml
+packages/relayer/received_eml/*.json

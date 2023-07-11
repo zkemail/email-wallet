@@ -1,0 +1,58 @@
+[package]
+name = "relayer"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# axum = { version = "0.6.12", features = ["multipart"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.68"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+# tracing-subscriber = { version = "0   .3", features = ["env-filter"] }
+reqwest = { version = "0.11", features = ["json"] }
+mail-auth = { git = "https://github.com/Divide-By-0/mail-auth.git", version = "0.3.0", branch = "main" }
+regex = "1.5"
+dotenv = "0.15.0"
+base64 = "0.21.0"
+hyper = "0.14.25"
+# embed_js = "0.1.4"
+# duct = "0.13.6"
+futures = "0.3.28"
+trust-dns-resolver = "0.22.0"
+sha2 = "0.10.6"
+# tower = "0.4.13"
+# tower-http = "0.4.0"
+async-trait = "0.1.68"
+# multipart = "0.18.0"
+bytes = "1.4.0"
+http = "0.2.9"
+futures-util = "0.3.28"
+imap = "3.0.0-alpha.10"
+urlencoding = "1.1"
+anyhow = "1.0.70"
+native-tls = "0.2.11"
+oauth2 = "4.3.0"
+# cfdkim = { version = "0.2.6", git = "https://github.com/SoraSuegami/dkim.git" }
+fancy-regex = "0.11.0"
+ethers-providers = "2.0.2"
+ethers-signers = "2.0.2"
+ethers-core = "2.0.2"
+ethers = "2.0.3"
+rand = "0.8.5"
+hex = "0.4.3"
+hex-literal = "0.4.1"
+lettre = "0.10.4"
+sled = "0.34.7"
+# arkworks-mimc = { version = "0.3.0", features = ["mimc-5-220-bn254"] }
+ark-ff = { version = "^0.3.0", default-features = false }
+ark-ec = { version = "^0.3.0", default-features = false }
+ark-ed-on-bn254 = { version = "^0.3.0", default-features = false, features = ["r1cs"] }
+ark-bn254 = { version = "^0.3.0", default-features = false, features = ["curve"] }
+ark-std = { version = "^0.3.0", default-features = false }
+arkworks-mimc = { version = "^0.2.0", default-features = false, features = ["r1cs", "mimc-5-220-bn254"] }
+rustc-hex = "2.1.0"
+num-bigint = "0.4.3"
+num-traits = "0.2.15"
+# mailparse = "0.14.0"
