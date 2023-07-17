@@ -15,11 +15,13 @@ from enum import Enum
 
 class Prover(Enum):
     LOCAL = "local"
+    MODAL_CLOUD = "cloud"
     MODAL_ENDPOINT = "modal_endpoint"
-    MODAL_STUB = "modal_stub"
+    MODAL_STUB = "modal_stub_deprecated"
 
 
-PROVER_TYPE = Prover.MODAL_ENDPOINT
+load_dotenv()  # Load environment variables from .env file
+PROVER_LOCATION = Prover(os.getenv('PROVER_LOCATION', Prover.MODAL_ENDPOINT.value))
 bucket_name = "relayer-emails"  # Replace with your S3 bucket name
 object_key_template = "emls/wallet_[nonce].txt"  # Replace with the desired object key (name) in S3
 s3_url = "https://" + bucket_name + ".s3.amazonaws.com/" + object_key_template
@@ -200,11 +202,12 @@ class DirectoryChangeHandler(FileSystemEventHandler):
                 nonce = file_name[file_name.find('wallet_') + 7:file_name.rfind('.')]
                 aws_url = upload_file_to_s3(event.src_path, bucket_name, nonce)
 
-                if PROVER_TYPE == Prover.LOCAL:
+                if PROVER_LOCATION == Prover.LOCAL:
                     subprocess.run(["./src/circom_proofgen.sh", nonce])
-                elif PROVER_TYPE == Prover.MODAL_ENDPOINT:
+                elif PROVER_LOCATION == Prover.MODAL_ENDPOINT or PROVER_LOCATION == Prover.MODAL_CLOUD:
                     send_to_modal(aws_url, nonce)
-                elif PROVER_TYPE == Prover.MODAL_STUB:
+                elif PROVER_LOCATION == Prover.MODAL_STUB:
+                    # Note that this is deprecated and will be removed in the future
                     with stub.run():
                         prove_email.call(aws_url, nonce)
 

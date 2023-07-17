@@ -5,15 +5,15 @@ use crate::config::{
 };
 // use crate::imap_client::{ImapClient, IMAPAuth};
 use crate::parse_email::*;
-use crate::chain::{query_address};
+use crate::chain::{query_address, query_balance};
 use crate::smtp_client::EmailSenderClient;
 use crate::db::{get_or_store_salt};
 use crate::strings::{first_reply, invalid_reply, pending_reply};
 use anyhow::{anyhow, Result};
+use arkworks_mimc::params::round_keys_contants_to_vec;
 use arkworks_mimc::{
     params::{
         mimc_5_220_bn254::{MIMC_5_220_BN254_PARAMS, MIMC_5_220_BN254_ROUND_KEYS},
-        round_keys_contants_to_vec,
     },  
     MiMC, MiMCParameters
 };
@@ -129,7 +129,7 @@ pub fn calculate_hash(raw_email: &String) -> String {
 
 pub async fn handle_email(raw_email: String, zk_email_circom_dir: &String, nonce: Option<String>) -> Result<()> {
     // Path 1: Write raw_email to ../wallet_{nonce}.eml
-    // This nonce is usually (from_message_id)_(to_message_id), but absent of that is the hash 
+    // This nonce is usually (from_message_id)_(to_message_id)_(hash), but absent of that is the hash 
     let file_id = match nonce {
         Some(s) => s,
         None => calculate_hash(&raw_email),
@@ -204,7 +204,6 @@ pub async fn validate_email_envelope(raw_email: &str, emailer: &EmailSenderClien
         Some(value) => value,
         None => true,
     };
-    
 
     // Validate subject, and send rejection/reformatting email if necessary
     let re = Regex::new(
@@ -244,13 +243,7 @@ pub async fn validate_email_envelope(raw_email: &str, emailer: &EmailSenderClien
             recipient_salt = Some(recipient_salt_raw.clone());
             sender_address = Some(calculate_address(from.as_str(), sender_salt_raw.as_str()).await.unwrap());
             let recipient_address = calculate_address(recipient, recipient_salt_raw.as_str()).await.unwrap();
-            // TODO: Check balance here, then send the right email.
-            // Technically no difference between these two cases
-            // if sender_salt_exists {
-            //     custom_reply = first_reply(amount, currency, recipient);
-            //     valid = ValidationStatus::Ready;
-            // } else {
-            custom_reply = pending_reply(sender_address.clone().unwrap().as_str(), amount, currency, recipient);
+            custom_reply = pending_reply(sender_address.clone().unwrap().as_str(), amount, currency, recipient).await;
             valid = ValidationStatus::Pending;
             // }
             balance_request = Some(BalanceRequest {
@@ -259,11 +252,11 @@ pub async fn validate_email_envelope(raw_email: &str, emailer: &EmailSenderClien
                 token_name: currency.to_string(),
             });
         } else {
-            custom_reply = invalid_reply("seems to match regex but is invalid");
+            custom_reply = invalid_reply("seems to match format, but is invalid");
             valid = ValidationStatus::Failure;
         }
     } else {
-        custom_reply = invalid_reply("failed regex");
+        custom_reply = invalid_reply("failed formatting!");
         valid = ValidationStatus::Failure;
     }
     if ValidationStatus::Ready == valid {
@@ -274,7 +267,7 @@ pub async fn validate_email_envelope(raw_email: &str, emailer: &EmailSenderClien
         println!("Send invalid! Regex failed...");
     }
     if send_reply {
-        let confirmation: std::result::Result<(), Box<dyn Error>> = emailer.reply_all(raw_email, &custom_reply);
+        let confirmation: std::result::Result<(), Box<dyn Error>> = emailer.reply_all(raw_email, &custom_reply, false);
         match confirmation {
             Ok(_) => println!("Confirmation email sent successfully."),
             Err(e) => println!("Error sending confirmation email: {}", e),
@@ -310,7 +303,7 @@ mod tests {
         let address = result_address.unwrap();
         assert!(!address.is_empty(), "address is empty");
         println!("address: {}", address);
-        assert!(address == "0xc9fa80d22635e4a040385114b9fd7d66a8f7ef91", "Address is incorrect");
+        assert!(address == "0x93b3c87c76c8a9e580e5cbf58fa20e579e76414e", "Address is incorrect");
         Ok(())
     }
 }

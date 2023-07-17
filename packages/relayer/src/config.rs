@@ -16,3 +16,4 @@ pub const SMTP_PORT_KEY: &'static str = "SMTP_PORT";
 
 pub const LOGIN_ID_KEY: &'static str = "LOGIN_ID";
 pub const LOGIN_PASSWORD_KEY: &'static str = "LOGIN_PASSWORD";
+pub const ETHERSCAN_KEY: &'static str = "ETHERSCAN_KEY";

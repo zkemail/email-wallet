@@ -38,7 +38,13 @@ impl EmailSenderClient {
         }
     }
 
-    pub fn reply_all(&self, raw_email: &str, reply_body: &str) -> Result<(), Box<dyn Error>> {
+
+    /// This function replies to all recipients of the original email.
+    /// The subject of the reply email is prefixed with "Re: " followed by the original subject.
+    /// The original subject is extracted from the raw_email parameter.
+    /// If send_to_recipient, the email recipient mentioned in the subject will be added to the final confirmation
+
+    pub fn reply_all(&self, raw_email: &str, reply_body: &str, send_to_recipient: bool) -> Result<(), Box<dyn Error>> {
         let mut original_to = vec![];
         let mut original_cc = vec![];
         let mut original_from = None;
@@ -96,6 +102,18 @@ impl EmailSenderClient {
                 }
                 email = email.to(mbox);
             }
+            
+            if send_to_recipient {
+                // Extract and send to any email address from the subject
+                let email_regex = regex::Regex::new(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}").unwrap();
+                if let Some(email_match) = email_regex.find(&original_subject) {
+                    let recipient_email = email_match.as_str();
+                    print!("Found email in subject, sending with to: {}", recipient_email);
+                    let recipient = Mailbox::new(None, recipient_email.parse::<Address>()?);
+                    email = email.to(recipient);
+                }
+            }
+
         }
 
         for cc in original_cc {

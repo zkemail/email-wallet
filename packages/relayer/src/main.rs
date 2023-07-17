@@ -8,13 +8,13 @@ pub mod db;
 pub mod smtp_client;
 pub mod strings;
 use anyhow::{anyhow, Result};
-use chain::query_balance;
+use chain::{query_balance};
 use config::{
     IMAP_AUTH_TYPE_KEY, IMAP_AUTH_URL_KEY, IMAP_CLIENT_ID_KEY, IMAP_CLIENT_SECRET_KEY,
     IMAP_DOMAIN_NAME_KEY, IMAP_PORT_KEY, IMAP_REDIRECT_URL_KEY, IMAP_TOKEN_URL_KEY, LOGIN_ID_KEY,
     LOGIN_PASSWORD_KEY, SMTP_DOMAIN_NAME_KEY, SMTP_PORT_KEY, ZK_EMAIL_PATH_KEY,
 };
-use db::{EmailData, get_or_store_salt, set_email_state, update_email_state_with_raw_email, update_email_state_with_hash, get_pending_and_unvalidated_emails, get_email_data, get_email_data_from_email};
+use db::{EmailData, migrate_email_dbs, set_email_state, update_email_state_with_raw_email, update_email_state_with_hash, get_pending_and_unvalidated_emails, get_email_data, get_email_data_from_email};
 use coordinator::{calculate_address, BalanceRequest, calculate_hash, handle_email, send_to_modal, validate_email_envelope, ValidationStatus};
 use core::future::Future;
 use dotenv::dotenv;
@@ -48,6 +48,11 @@ async fn main() -> Result<()> {
             }
             "relayer" => {
                 run_relayer().await?;
+                Ok(())
+            }
+            "migrate" => {
+                // Unused for now
+                migrate_email_dbs().await?;
                 Ok(())
             }
             _ => Err(anyhow!("Invalid function! Use either 'chain' or 'relayer'")),
@@ -214,9 +219,10 @@ async fn process_email(email_data: &EmailData, sender: &EmailSenderClient, zk_em
         Ok((validation_status, salt_sender, salt_receiver, balance_request)) => {
             // Calculate the nonce used in the filename
             let file_id = format!(
-                "({})_({})",
+                "({})_({})_({})",
                 salt_sender.unwrap(),
-                salt_receiver.unwrap().as_str()
+                salt_receiver.unwrap().as_str(),
+                calculate_hash(&email_data.body)
             );
             println!("File ID/Nonce: {}", file_id);
             println!("Validation status: {:?}", validation_status);
@@ -248,10 +254,10 @@ async fn process_email(email_data: &EmailData, sender: &EmailSenderClient, zk_em
                                 Ok(balance) => {
                                     let cloned_amount = amount.clone();
                                     println!("Balance of address {}: {}", address, balance);
-                                    let amount_u256 =
-                                        U256::from_dec_str(&cloned_amount)
-                                            .unwrap_or_else(|_| U256::zero());
-                                    balance >= amount_u256
+                                    let amount_f64 =
+                                        cloned_amount.parse::<f64>()
+                                            .unwrap_or_else(|_| 0.0);
+                                    balance >= amount_f64
                                 }
                                 Err(error) => {
                                     println!("error: {}", error);
