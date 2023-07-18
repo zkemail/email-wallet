@@ -5,11 +5,13 @@ coverage.json
 typechain
 typechain-types
 
-# Hardhat files
-cache
-artifacts
-
 *.log
+
+# Contracts
+packages/contracts/broadcast
+packages/contracts/cache
+packages/contracts/out
+
 
 # Relayer
 packages/relayer/sendgrid.env
@@ -20,3 +22,5 @@ packages/relayer/received_eml/*.json
 
 #Mac
 .DS_Store
+
+
