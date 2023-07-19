@@ -7,11 +7,13 @@ typechain-types
 
 *.log
 
+# Circuits
+packages/circuits/build
+
 # Contracts
 packages/contracts/broadcast
 packages/contracts/cache
 packages/contracts/out
-
 
 # Relayer
 packages/relayer/sendgrid.env
