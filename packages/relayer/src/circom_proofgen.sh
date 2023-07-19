@@ -5,7 +5,7 @@ if source "/home/ubuntu/relayer/.env"; then
     echo "Sourced from /home/ubuntu/relayer/.env"
 elif source "/root/relayer/.env"; then
     echo "Sourcing from /home/ubuntu/relayer/.env failed, sourced from /root/relayer/.env"
-elif source "./.env"; then
+elif source "../.env"; then
     echo "Sourcing from /home/ubuntu/relayer/.env and /root/relayer/.env failed, sourced from ./.env"
 else
     echo "Sourcing from /home/ubuntu/relayer/.env, /root/relayer/.env, and ./.env failed, please write args to /root/relayer/.env"

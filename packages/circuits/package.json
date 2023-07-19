@@ -2,10 +2,12 @@
   "name": "@zk-email-wallet/circom",
   "version": "1.0.0",
   "scripts": {
+    "build": "circom wallet.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {
-    "@zk-email/circuits": "^1.0.0",
+    "@zk-email/circuits": "^1.0.1",
+    "@zk-email/helpers": "^1.0.1",
     "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
   },
   "devDependencies": {
