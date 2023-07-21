@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "mkdir -p build && circom src/wallet.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",
+    "generate-keys": "npx ts-node scripts/generate-keys.ts",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {

@@ -10,6 +10,7 @@ typechain-types
 # Circuits
 packages/circuits/build
 packages/circuits/inputs
+packages/circuits/*.ptau
 
 # Contracts
 packages/contracts/broadcast
