@@ -1024,10 +1024,10 @@
   resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.0.1.tgz#615d96b4c3752f8e4d125b985c1f4b390b7c94a6"
   integrity sha512-a5RfL1PPgyOOG/AaMrDlr4AhgcFtVpscs2y9sm+qLP2s4AGSDaCUMJb7eKNNaoTs1e1TJzJ3oBr9rRQIUdHHLA==
 
-"@zk-email/helpers@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@zk-email/helpers/-/helpers-1.0.1.tgz#b8de29934b286ec4bf5c19bda1a92822c243d593"
-  integrity sha512-01wwFol0dAOo88II3oU6UIJahKMswarlHpTDcNfdksGXIWHKCq/WArSYtQwUutEpCk/R3ZDGrGkUzXxn6bQqtA==
+"@zk-email/helpers@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@zk-email/helpers/-/helpers-1.0.3.tgz#eda6de352c785e0378a06acbb185f852bfa7e7b1"
+  integrity sha512-lpNBG6NsTOd6qVW0yeFr2T4mrGVbGaXPslCiXs22biARRHsE2HPG/pA2AC+eePEMyDpeFOE8GTP1YQduYFIfAQ==
   dependencies:
     addressparser "^1.0.1"
     atob "^2.1.2"
@@ -1035,6 +1035,7 @@
     libmime "^5.2.1"
     localforage "^1.10.0"
     lodash "^4.17.21"
+    node-forge "^1.3.1"
     pako "^2.1.0"
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
@@ -1500,6 +1501,11 @@ color-name@~1.1.4:
   resolved "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
 
+commander@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-11.0.0.tgz#43e19c25dbedc8256203538e8d7e9346877a6f67"
+  integrity sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"
@@ -1571,6 +1577,11 @@ diff@5.0.0:
 "ds-test@https://github.com/dapphub/ds-test":
   version "1.0.0"
   resolved "https://github.com/dapphub/ds-test#e282159d5170298eb2455a6c05280ab5a73a4ef0"
+
+easydl@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/easydl/-/easydl-1.0.3.tgz#361302c4c194397349704f2783e21b7752d83caa"
+  integrity sha512-sKBNYCecrPkrE4UmpVv70l1wqs7qqACjT5ftRVqlJiZeZcN0IC+vNoWFVJioNcDVR7TQWj9RhqMg+bUHOMBfkg==
 
 ejs@^3.1.6:
   version "3.1.9"
@@ -2775,6 +2786,11 @@ node-addon-api@^3.0.0:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.2.1.tgz#81325e0a2117789c0128dab65e7e38f07ceba161"
   integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
 
+node-forge@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.3.1.tgz#be8da2af243b2417d5f646a770663a92b7e9ded3"
+  integrity sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==
+
 node-gyp-build@^4.2.2:
   version "4.6.0"
   resolved "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.6.0.tgz"
@@ -2910,6 +2926,11 @@ pkg-dir@^4.2.0:
   integrity sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   dependencies:
     find-up "^4.0.0"
+
+prettier@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.0.tgz#e7b19f691245a21d618c68bc54dc06122f6105ae"
+  integrity sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==
 
 pretty-format@^29.6.1:
   version "29.6.1"
