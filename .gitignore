@@ -9,6 +9,7 @@ typechain-types
 
 # Circuits
 packages/circuits/build
+packages/circuits/inputs
 
 # Contracts
 packages/contracts/broadcast
@@ -21,6 +22,7 @@ target
 packages/relayer/db/*
 packages/relayer/received_eml/*.eml
 packages/relayer/received_eml/*.json
+packages/relayer/inputs
 
 #Mac
 .DS_Store
