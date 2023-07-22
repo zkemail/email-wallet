@@ -1,5 +1,16 @@
+/**
+ * 
+ * This script is for generating zKey and Verification Key for the circuit.
+ * Running this will download the phase1 file (if not already present), 
+ * generate the zKey, and also export solidity and json verification keys.
+ * 
+ * Running this will overwrite any existing zKey and verification key files.
+ * 
+ */
+
+
 // @ts-ignore
-import { groth16, zKey } from "snarkjs";
+import { zKey } from "snarkjs";
 import https from "https";
 import fs from "fs";
 import path from "path";
@@ -16,7 +27,7 @@ const zKeyPath = path.join(buildDir, "wallet.zkey");
 const vKeyPath = path.join(buildDir, "vkey.json");
 
 function log(...message: any) {
-  console.log('\n', ...message);
+  console.log(...message, '\n');
 }
 
 async function downloadPhase1() {
@@ -41,15 +52,14 @@ async function downloadPhase1() {
         });
     });
   }
-
-  log("✓ Phase 1:", phase1Path);
 }
 
 async function exec() {
   await downloadPhase1();  
+  log("✓ Phase 1:", phase1Path);
 
   await zKey.newZKey(r1cPath, phase1Path, path.join(buildDir, "wallet_0.zkey"), console);
-  log("✓ Partial ZKey generated", path.join(buildDir, "wallet_0.zkey"));
+  log("✓ Partial ZKey generated");
 
   await zKey.contribute(path.join(buildDir, "wallet_0.zkey"), path.join(buildDir, "wallet_1.zkey"), "Contributer 1", ZKEY_ENTROPY);
   log("✓ First contribution completed");

@@ -1,6 +1,14 @@
+/**
+ * 
+ * This script is for generating input for the circuit.
+ * 
+ * Usage: npx ts-node packages/circuits/scripts/generate-input.ts --email-file <path-to-eml-file> --nonce <nonce> --output <path-to-output> 
+ * 
+ */
+
+
 import { program } from "commander";
 import fs from "fs";
-import path from "path";
 import { generateWalletCircuitInputsFromEmail } from "../helpers/input";
 
 program

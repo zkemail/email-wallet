@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "build": "mkdir -p build && circom src/wallet.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",
-    "generate-keys": "npx ts-node scripts/generate-keys.ts",
-    "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
+    "generate-keys": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/generate-keys.ts",
+    "test": "jest"
   },
   "dependencies": {
     "@zk-email/circuits": "^1.0.1",
     "@zk-email/helpers": "^1.0.3",
     "commander": "^11.0.0",
-    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+    "snarkjs": "^0.7.0"
   },
   "devDependencies": {
     "chai": "^4.3.7",
