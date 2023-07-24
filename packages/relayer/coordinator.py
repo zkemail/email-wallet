@@ -200,14 +200,15 @@ class DirectoryChangeHandler(FileSystemEventHandler):
                 # with open(event.src_path, 'r') as file:
                 #     email_content = file.read()
                 nonce = file_name[file_name.find('wallet_') + 7:file_name.rfind('.')]
-                aws_url = upload_file_to_s3(event.src_path, bucket_name, nonce)
 
                 if PROVER_LOCATION == Prover.LOCAL:
-                    subprocess.run(["./src/circom_proofgen.sh", nonce])
+                    subprocess.run(["./proofgen.sh", nonce])
                 elif PROVER_LOCATION == Prover.MODAL_ENDPOINT or PROVER_LOCATION == Prover.MODAL_CLOUD:
+                    aws_url = upload_file_to_s3(event.src_path, bucket_name, nonce)
                     send_to_modal(aws_url, nonce)
                 elif PROVER_LOCATION == Prover.MODAL_STUB:
                     # Note that this is deprecated and will be removed in the future
+                    aws_url = upload_file_to_s3(event.src_path, bucket_name, nonce)
                     with stub.run():
                         prove_email.call(aws_url, nonce)
 
