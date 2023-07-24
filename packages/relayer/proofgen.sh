@@ -49,6 +49,15 @@ echo "✓ Witness generated successfuly"
 
 
 # Generate proof using Rapidsnark
-docker -v ${RELAYER_PATH}/inputs:/tmp ${CIRCUITS_BUILD_PATH}:/circuit run rapidsnark /circuit/${CIRCUIT_NAME}.zkey /tmp/witness_${NONCE}.wtns /tmp/proof_${NONCE}.json /tmp/public_${NONCE}.json
+docker run \
+    --rm \
+    -it \
+    -v ${RELAYER_PATH}/proofs:/tmp \
+    -v ${CIRCUITS_BUILD_PATH}:/circuit \
+    rapidsnark \
+        /circuit/${CIRCUIT_NAME}.zkey \
+        /tmp/witness_${NONCE}.wtns \
+        /tmp/proof_${NONCE}.json \
+        /tmp/public_${NONCE}.json
 
 # TODO: Call relayer with proof
