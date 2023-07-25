@@ -205,3 +205,14 @@ Anyone would be able to run a relayer node. The steps to run a relayer node will
 
 We will be publishing more guides on how to deploy and run on cloud as well.
 
+
+<br />
+<hr />
+
+### History
+
+This monorepo was originally created from below individual repo. You can check them for old commit history if needed.
+
+- Circuit from [zk-email-verify / anon_wallet branch](https://github.com/zkemail/zk-email-verify/tree/anon_wallet)
+- Contracts from [zk-email-verify / anon_wallet branch](https://github.com/zkemail/zk-email-verify/tree/anon_wallet)
+- Relayer from [relayer / modal_anon](https://github.com/zkemail/relayer)
