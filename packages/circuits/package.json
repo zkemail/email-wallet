@@ -7,7 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@zk-email/circuits": "^1.0.1",
+    "@zk-email/circuits": "^1.1.0",
     "@zk-email/helpers": "^1.0.3",
     "commander": "^11.0.0",
     "snarkjs": "^0.7.0"

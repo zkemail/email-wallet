@@ -6,42 +6,25 @@ include "@zk-email/circuits/helpers/sha.circom";
 include "@zk-email/circuits/helpers/rsa.circom";
 include "@zk-email/circuits/helpers/base64.circom";
 include "@zk-email/circuits/helpers/extract.circom";
-
 include "@zk-email/circuits/regexes/from_regex.circom";
 include "@zk-email/circuits/regexes/tofrom_domain_regex.circom";
 include "@zk-email/circuits/regexes/body_hash_regex.circom";
 include "@zk-email/circuits/regexes/subject_regex_operation.circom";
 include "@zk-email/circuits/regexes/message_id_regex.circom";
+include "@zk-email/circuits/email-verifier.circom";
 
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
-// Max header bytes shouldn't need to be changed much per email,
-// but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
-// TODO: split into header and body
-template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculate_from, expose_to, expose_emails_anon) {
-    assert(max_header_bytes % 64 == 0);
-    assert(max_body_bytes % 64 == 0);
+template EmailWallet(max_header_bytes, max_body_bytes, n, k, pack_size, calculate_from, expose_to, expose_emails_anon) {
     assert(calculate_from < 2); // 1 if we should expose the from, 0 if we should not
     assert(expose_emails_anon < 2);
     assert(expose_to == 0); // 1 if we should expose the to, 0 if we should not: due to hotmail restrictions, we force-disable this
-    assert(n * k > 2048); // constraints for 2048 bit RSA
-    assert(n < (255 \ 2)); // we want a multiplication to fit into a circom signal
 
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
-    // Precomputed sha vars for big body hashing
-    // Next 3 signals are for decreasing SHA constraints for parsing out information from the in-body text
-    // The precomputed_sha value is the Merkle-Damgard state of our SHA hash uptil our first regex match
-    // This allows us to save a ton of SHA constraints by only hashing the relevant part of the body
-    // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
-    // The lower two body signals describe the suffix of the body that we care about
-    // The part before these signals, a significant prefix of the body, has been pre-hashed into precomputed_sha.
-    // signal input precomputed_sha[32];
-    // signal input in_body_padded[max_body_bytes];
-    // signal input in_body_len_padded_bytes;
 
     // Header reveal vars
     // TODO: In reality, this max value is 320, and would allow people to break our gaurantees and spoof arbitrary email addresses by registering disgustingly subdomains and going past the end of the 30
@@ -66,63 +49,20 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
-    // Body reveal vars
-    // var max_twitter_len = 21;
-    // var max_twitter_packed_bytes = count_packed(max_twitter_len, pack_size); // ceil(max_num_bytes / 7)
-    // signal input twitter_username_idx;
-    // signal output reveal_twitter_packed[max_twitter_packed_bytes];
-
     // Identity commitment variables
-    // Note we don't need to constrain the address+1 due to https://geometry.xyz/notebook/groth16-malleability
     // Note that you CANNOT use --O1 with this circuit, as it will break the malleability protection: circom 2.1.5: "Improving --O1 simplification: removing signals that do not appear in any constraint and avoiding unnecessary constraint normalizations."
     signal input nullifier;
     signal input relayer;
-
-    // Base 64 body hash variables
-    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, due to base64 encoding.
     signal input body_hash_idx;
 
-    // SHA HEADER: 506,670 constraints
-    // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
-    // The header signs the fields in the "h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;"
-    // section of the "DKIM-Signature:"" line, along with the body hash.
-    // Note that nothing above the "DKIM-Signature:" line is signed.
-    component sha = Sha256Bytes(max_header_bytes);
-    sha.in_padded <== in_padded;
-    sha.in_len_padded_bytes <== in_len_padded_bytes;
-    var msg_len = (256+n)\n;
-
-    component base_msg[msg_len];
-    for (var i = 0; i < msg_len; i++) {
-        base_msg[i] = Bits2Num(n);
-    }
-    for (var i = 0; i < 256; i++) {
-        base_msg[i\n].in[i%n] <== sha.out[255 - i];
-    }
-    for (var i = 256; i < n*msg_len; i++) {
-        base_msg[i\n].in[i%n] <== 0;
-    }
-
-    // VERIFY RSA SIGNATURE: 149,251 constraints
-    // The fields that this signature actually signs are defined as the body and the values in the header
-    component rsa = RSAVerify65537(n, k);
-    for (var i = 0; i < msg_len; i++) {
-        rsa.base_message[i] <== base_msg[i].out;
-    }
-    for (var i = msg_len; i < k; i++) {
-        rsa.base_message[i] <== 0;
-    }
-    rsa.modulus <== modulus;
-    rsa.signature <== signature;
-
-    // BODY HASH REGEX: 617,597 constraints
-    // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
-    // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
-    signal bh_regex_out, bh_reveal[max_header_bytes];
-    (bh_regex_out, bh_reveal) <== BodyHashRegex(max_header_bytes)(in_padded);
-    bh_regex_out === 1;
-    signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
-    // log(body_hash_regex.out);
+    // Verify email signature
+    // ignore_body_hash_check is set to true as we dont care about body contents
+    component verifier = EmailVerifier(max_header_bytes, max_body_bytes, n, k, 1);
+    verifier.in_padded <== in_padded;
+    verifier.modulus <== modulus;
+    verifier.signature <== signature;
+    verifier.in_len_padded_bytes <== in_len_padded_bytes;
+    verifier.body_hash_idx <== body_hash_idx;
 
     // SUBJECT HEADER REGEX: 736,553 constraints
     // This extracts the subject, and the precise regex format can be viewed in the README
@@ -196,9 +136,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     }
 }
 
-// In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
-// This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
-
 // Args:
 // * max_header_bytes = 1024 is the max number of bytes in the header
 // * max_body_bytes = 1536 is the max number of bytes in the body after precomputed slice
@@ -208,4 +145,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
 // * calculate_from = 1 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
 // * expose_emails_anon = 1 means it will prevent revealing plaintext emails, and instead expose the hash(from/recipient email address, custom message id)
-component main { public [ modulus, nullifier, relayer ] } = EmailVerify(1024, 1536, 121, 17, 30, 1, 0, 1);
+component main { public [ modulus, nullifier, relayer ] } = EmailWallet(1024, 1536, 121, 17, 30, 1, 0, 1);

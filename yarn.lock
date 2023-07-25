@@ -1019,10 +1019,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@zk-email/circuits@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.0.1.tgz#615d96b4c3752f8e4d125b985c1f4b390b7c94a6"
-  integrity sha512-a5RfL1PPgyOOG/AaMrDlr4AhgcFtVpscs2y9sm+qLP2s4AGSDaCUMJb7eKNNaoTs1e1TJzJ3oBr9rRQIUdHHLA==
+"@zk-email/circuits@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.1.0.tgz#ee23f8c5736da04070943692e901a23b5e884a88"
+  integrity sha512-lMSC+w/ulAY1UvW8uf5QX0meWQiFlEb63kz0fop10Crb5GPJN5knL+wLNy6OiEtwQZICOnQkcHLl8QWJvnpxPw==
 
 "@zk-email/helpers@^1.0.3":
   version "1.0.3"
