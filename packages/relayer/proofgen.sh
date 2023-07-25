@@ -41,7 +41,7 @@ echo "✓ Input generated successfuly"
 node "${CIRCUITS_BUILD_PATH}/${CIRCUIT_NAME}_js/generate_witness.js" "${CIRCUITS_BUILD_PATH}/${CIRCUIT_NAME}_js/${CIRCUIT_NAME}.wasm" "${INPUT_JSON_PATH}" "${WITNESS_PATH}"
 echo "✓ Witness generated successfuly"
 
-# Generate proof using Rapidsnark - This works for both docker and local rapidsnark
+# Generate proof using Rapidsnark - This should work for both docker and local rapidsnark
 ${RAPIDSNARK_PATH} \
         ${ZKEY_PATH} \
         ${PROOF_DIR_PATH}/witness_${NONCE}.wtns \

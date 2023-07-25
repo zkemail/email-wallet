@@ -2,6 +2,7 @@
   "name": "@zk-email-wallet/contracts",
   "version": "1.0.0",
   "scripts": {
+    "build": "forge build",
     "test": "forge test"
   },
   "dependencies": {

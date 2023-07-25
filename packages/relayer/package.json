@@ -1,0 +1,10 @@
+{
+  "name": "@zk-email-wallet/relayer",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "cargo run relayer",
+    "build": "cargo build --release",
+    "test": "cargo test"
+  }
+}
