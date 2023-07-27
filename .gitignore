@@ -16,6 +16,8 @@ packages/circuits/*.ptau
 packages/contracts/broadcast
 packages/contracts/cache
 packages/contracts/out
+packages/contracts/artifacts
+
 
 # Relayer
 packages/relayer/sendgrid.env
