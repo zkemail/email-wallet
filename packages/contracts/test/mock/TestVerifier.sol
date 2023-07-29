@@ -9,7 +9,6 @@ import "../../src/interfaces/IVerifier.sol";
 contract TestVerifier is IVerifier {
     function verifyAccountCreationProof(
         bytes32 /* relayerHash */,
-        bytes32 /* viewingKey */,
         bytes32 /* pointer */,
         bytes32 /* indicator */,
         bytes memory proof

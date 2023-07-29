@@ -5,9 +5,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
+import "./WalletHandler.sol";
 import "./helpers/DKIMPublicKeyStorage.sol";
 
-contract EmailWalletCore is DKIMPublicKeyStorage {
+contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     IVerifier public verifier;
 
     // Mapping of relayer's wallet address to hash(relayerRand)
@@ -33,10 +34,6 @@ contract EmailWalletCore is DKIMPublicKeyStorage {
         return address(verifier);
     }
 
-    function getAddressFromSalt(bytes32 salt) public pure returns (address) {
-        return address(uint160(uint256(keccak256(abi.encodePacked(salt)))));
-    }
-
     function registerRelayer(bytes32 _relayerHash) public {
         require(
             relayers[msg.sender] == bytes32(0),
@@ -49,7 +46,6 @@ contract EmailWalletCore is DKIMPublicKeyStorage {
     }
 
     function createAccount(
-        bytes32 viewingKey,
         bytes32 pointer,
         bytes32 indicator,
         bytes memory proof
@@ -70,7 +66,6 @@ contract EmailWalletCore is DKIMPublicKeyStorage {
         require(
             verifier.verifyAccountCreationProof(
                 relayerHash,
-                viewingKey,
                 pointer,
                 indicator,
                 proof
@@ -119,7 +114,7 @@ contract EmailWalletCore is DKIMPublicKeyStorage {
         // TODO: Implement subject computation for transport, ext management, ext calling, etc.
     }
 
-    function validateEmailOp(EmailOperation memory emailOp) internal view {
+    function validateEmailOp(EmailOperation memory emailOp) public view {
         bytes32 relayerHash = relayers[msg.sender];
 
         require(
@@ -230,10 +225,19 @@ contract EmailWalletCore is DKIMPublicKeyStorage {
         );
     }
 
-    function executeEmailOp(EmailOperation memory emailOp) internal {
+    function executeEmailOp(EmailOperation memory emailOp) public {
+        validateEmailOp(emailOp);
+
         emailNullifiers[emailOp.emailNullifier] = true;
 
-        // TODO: Implement execution of email op
+        if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
+            WalletHandler.processTransferRequest(
+                emailOp.senderPointer,
+                emailOp.recipientPointer,
+                emailOp.tokenName,
+                emailOp.amount
+            );
+        }
 
     }
 
