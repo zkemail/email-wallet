@@ -8,17 +8,34 @@ import "../../src/interfaces/IVerifier.sol";
  */
 contract TestVerifier is IVerifier {
     function verifyAccountCreationProof(
-        bytes32 relayerHash,
-        bytes32 viewingKey,
-        bytes32 pointer,
-        bytes32 indicator,
+        bytes32 /* relayerHash */,
+        bytes32 /* viewingKey */,
+        bytes32 /* pointer */,
+        bytes32 /* indicator */,
         bytes memory proof
     ) external pure returns (bool) {
-        relayerHash;
-        viewingKey;
-        pointer;
-        indicator;
+        if (proof[0] == 0x01) {
+            return true;
+        }
 
+        return false;
+    }
+
+    function verifyEmailProof(
+        bytes32 /* senderRelayerHash */,
+        bytes32 /* senderPointer */,
+        bytes32 /* senderIndicator */,
+        bytes32 /* recipientRelayerHash */,
+        bytes32 /* recipientPointer */,
+        bytes32 /* recipientIndicator */,
+        bytes32 /* emailNullifier */,
+        bytes32 /* dkimPublicKeyHash */,
+        string memory /* domainName */,
+        string memory /* maskedSubjectStr */,
+        bool /* hasRecipient */,
+        bool /* isRecipientExternal */,
+        bytes memory proof
+    ) external pure returns (bool) {
         if (proof[0] == 0x01) {
             return true;
         }

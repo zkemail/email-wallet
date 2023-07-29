@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.12;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interfaces/IVerifier.sol";
+import "./interfaces/Types.sol";
+import "./interfaces/Constants.sol";
+import "./helpers/DKIMPublicKeyStorage.sol";
 
-contract EmailWalletCore {
-    IVerifier public globalVerifier;
+contract EmailWalletCore is DKIMPublicKeyStorage {
+    IVerifier public verifier;
 
     // Mapping of relayer's wallet address to hash(relayerRand)
     mapping(address => bytes32) public relayers;
@@ -12,14 +16,25 @@ contract EmailWalletCore {
     // Mapping from pointer (emailAddress commitment) to indicator (viewingKey commitment)
     mapping(bytes32 => bytes32) public indicatorOfPointer;
 
-    // Flag to indicate whether a ViewingKey is initialized
+    // Flag to indicate whether an indicator is initialized
     mapping(bytes32 => bool) public isInitialized;
 
-    // Mapping from ViewingKey to RelayerHash - to track the current relayer of a user
-    mapping(bytes32 => bytes32) public relayerOfViewingKey;
+    // Flag to indicate whether an indicator is nullifed
+    mapping(bytes32 => bool) public isNullifed;
 
-    constructor(address _globalVerifier) {
-        globalVerifier = IVerifier(_globalVerifier);
+    // Mapping to store email nullifiers
+    mapping(bytes32 => bool) public emailNullifiers;
+
+    constructor(address _verifier) {
+        verifier = IVerifier(_verifier);
+    }
+
+    function getVerifier() external view returns (address) {
+        return address(verifier);
+    }
+
+    function getAddressFromSalt(bytes32 salt) public pure returns (address) {
+        return address(uint160(uint256(keccak256(abi.encodePacked(salt)))));
     }
 
     function registerRelayer(bytes32 _relayerHash) public {
@@ -53,7 +68,7 @@ contract EmailWalletCore {
 
         // Verify proof
         require(
-            globalVerifier.verifyAccountCreationProof(
+            verifier.verifyAccountCreationProof(
                 relayerHash,
                 viewingKey,
                 pointer,
@@ -64,6 +79,162 @@ contract EmailWalletCore {
         );
 
         indicatorOfPointer[pointer] = indicator;
-        relayerOfViewingKey[viewingKey] = relayers[msg.sender];
     }
+
+    // TODO: Case insensitive comparison
+    function computeEmailSubjectForEmailOp(
+        EmailOperation memory emailOp
+    ) public pure returns (string memory expectedSubject) {
+        // Sample: Send 1 ETH to recipient@domain.com
+        if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
+            expectedSubject = string.concat(
+                Constants.SEND_COMMAND,
+                " ",
+                Strings.toString(emailOp.amount / 1 ether),
+                " ",
+                emailOp.tokenName,
+                " to "
+            );
+
+            if (emailOp.isRecipientExternal) {
+                expectedSubject = string.concat(
+                    expectedSubject,
+                    Strings.toHexString(
+                        uint256(uint160(emailOp.recipientExternalAddress)),
+                        20
+                    )
+                );
+            }
+        }
+
+        // Sample: Transport account to new.relayer@domain.com
+        // if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
+        //     expectedSubject = string.concat(
+        //         Constants.TRANSPORT_COMMAND,
+        //         " account to ",
+        //         emailOp.newRelayerEmail
+        //     );
+        // }
+
+        // TODO: Implement subject computation for transport, ext management, ext calling, etc.
+    }
+
+    function validateEmailOp(EmailOperation memory emailOp) internal view {
+        bytes32 relayerHash = relayers[msg.sender];
+
+        require(
+            emailOp.senderPointer != bytes32(0),
+            "sender pointer must not be zero"
+        );
+        require(
+            indicatorOfPointer[emailOp.senderPointer] ==
+                emailOp.senderIndicator,
+            "invalid sender indicator"
+        );
+        require(
+            !isNullifed[emailOp.senderIndicator],
+            "relayer of sender pointer must be the sender's relayer"
+        );
+        require(
+            isInitialized[emailOp.senderIndicator],
+            "sender is not initialized"
+        );
+
+        // If the recipient is not presnet, then sender values should be used for recipient
+        if (!emailOp.hasRecipient) {
+            require(
+                emailOp.recipientPointer == emailOp.senderPointer,
+                "recipient pointer must be same as sender pointer"
+            );
+            require(
+                emailOp.recipientIndicator == emailOp.senderIndicator,
+                "recipient indicator must be same as sender indicator"
+            );
+            require(
+                isInitialized[emailOp.recipientPointer],
+                "recipient is not initialized"
+            );
+        }
+
+        // If the recipient email is specified in the subject, verify the recipient's viewing key.
+        if (emailOp.hasRecipient && !emailOp.isRecipientExternal) {
+            require(
+                emailOp.recipientPointer != bytes32(0),
+                "recipient pointer must not be zero"
+            );
+            require(
+                indicatorOfPointer[emailOp.recipientPointer] ==
+                    emailOp.recipientIndicator,
+                "invalid recipient indicator"
+            );
+            require(
+                emailOp.recipientRelayer != address(0),
+                "recipient relayer must not be zero address"
+            );
+            require(
+                relayers[emailOp.recipientRelayer] != bytes32(0),
+                "recipient relayer is not registered"
+            );
+        }
+
+        // Verify nullifier is not used
+        require(
+            emailNullifiers[emailOp.emailNullifier] == false,
+            "email nullifier already used"
+        );
+
+        // Verify DKIM key is same as the one stored in the contract
+        require(
+            keccak256(
+                abi.encodePacked(dkimPublicKeyHashes[emailOp.domainName])
+            ) == keccak256(abi.encodePacked(emailOp.dkimPublicKeyHash)),
+            "invalid pubkey hash"
+        );
+
+        /**
+            Verify email proof (proof of dkim verification)
+            This will verify:
+                - the email is sent from the sender's email address
+                - sender pointer and indicator is computed from relayer hash
+                - if the subject has email address, the pointer and indicator 
+                    for relayer is calculated correctly
+                - the amount and token name extracted from subject is correct
+                - recipient pointer and indicator is computed from recipient relayer's hash
+        */
+        require(
+            verifier.verifyEmailProof(
+                relayerHash, // senderRelayerHash
+                emailOp.senderPointer,
+                emailOp.senderIndicator,
+                relayers[emailOp.recipientRelayer], // recipientRelayerHash
+                emailOp.recipientPointer,
+                emailOp.recipientIndicator,
+                emailOp.emailNullifier,
+                emailOp.dkimPublicKeyHash,
+                emailOp.domainName,
+                emailOp.maskedSubjectStr,
+                emailOp.hasRecipient,
+                emailOp.isRecipientExternal,
+                emailOp.emailProof
+            ),
+            "invalid email proof"
+        );
+
+        // Verify the EmailOp parms are properly derived from subject line from email
+        require(
+            Strings.equal(
+                computeEmailSubjectForEmailOp(emailOp),
+                emailOp.maskedSubjectStr
+            ),
+            "computed subject line does not match"
+        );
+    }
+
+    function executeEmailOp(EmailOperation memory emailOp) internal {
+        emailNullifiers[emailOp.emailNullifier] = true;
+
+        // TODO: Implement execution of email op
+
+    }
+
 }

@@ -63,10 +63,6 @@ describe("Email Wallet", function () {
       expect(await coreContract.indicatorOfPointer(pointer)).to.equal(
         indicator
       );
-
-      expect(await coreContract.relayerOfViewingKey(viewingKey)).to.equal(
-        relayerHash
-      );
     });
   });
 });
