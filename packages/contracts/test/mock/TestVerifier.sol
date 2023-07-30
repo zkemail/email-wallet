@@ -20,6 +20,19 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
+    function verifyAccountInitializaionProof(
+        bytes32 /* relayerHash */,
+        bytes32 /* pointer */,
+        bytes32 /* indicator */,
+        bytes memory proof
+    ) external pure returns (bool) {
+        if (proof[0] == 0x01) {
+            return true;
+        }
+
+        return false;
+    }
+
     function verifyEmailProof(
         bytes32 /* senderRelayerHash */,
         bytes32 /* senderPointer */,

@@ -9,6 +9,13 @@ interface IVerifier {
         bytes memory proof
     ) external view returns (bool);
 
+    function verifyAccountInitializaionProof(
+        bytes32 relayerHash,
+        bytes32 pointer,
+        bytes32 indicator,
+        bytes memory proof
+    ) external view returns (bool);
+
     function verifyEmailProof(
         bytes32 senderRelayerHash,
         bytes32 senderPointer,

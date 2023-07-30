@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract DKIMPublicKeyStorage is Ownable {
     // Mapping from domain name to DKIM public key hash
-    mapping(string => string) public dkimPublicKeyHashes;
+    mapping(string => bytes32) public dkimPublicKeyHashes;
 
-    function setDKIMPublicKey(string memory domainName, string memory publicKeyHash) public onlyOwner {
+    function setDKIMPublicKeyHash(string memory domainName, bytes32 publicKeyHash) public onlyOwner {
         dkimPublicKeyHashes[domainName] = publicKeyHash;
     }
 }

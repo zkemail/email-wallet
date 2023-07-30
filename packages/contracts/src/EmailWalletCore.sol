@@ -76,6 +76,40 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         indicatorOfPointer[pointer] = indicator;
     }
 
+    function initializeAccount(
+        bytes32 pointer,
+        bytes32 indicator,
+        bytes memory proof
+    ) public {
+        require(pointer != bytes32(0), "pointer must not be zero");
+        require(indicator != bytes32(0), "indicator must not be zero");
+
+        require(
+            indicatorOfPointer[pointer] == indicator,
+            "invalid pointer and indicator"
+        );
+
+        require(!isInitialized[indicator], "account already initialized");
+
+        // This will prove that relayer received an email from the user as a reply
+        // to invitation email:
+        //  - the pointer is derived from senders address using relayer's rand
+        //  - the indicator is derived from sender's viewing key using relayer's hash
+        //  - the viewing key is present in the email header
+        // TODO: Check if the recipient of the email is the relayer's email on chain?
+        require(
+            verifier.verifyAccountInitializaionProof(
+                relayers[msg.sender],
+                pointer,
+                indicator,
+                proof
+            ),
+            "invalid account creation proof"
+        );
+
+        isInitialized[indicator] = true;
+    }
+
     // TODO: Case insensitive comparison
     function computeEmailSubjectForEmailOp(
         EmailOperation memory emailOp
