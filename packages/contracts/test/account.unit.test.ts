@@ -29,16 +29,29 @@ describe("Email Wallet Contracts > Account", function () {
   });
 
   it("should be able to create a new account", async function () {
-    const viewingKey = encodeBytes32String("123456");
     const pointer = encodeBytes32String("100");
     const indicator = encodeBytes32String("200");
 
     await coreContract
       .connect(relayer)
-      .createAccount(viewingKey, pointer, indicator, mockProof);
+      .createAccount(pointer, indicator, mockProof);
 
     expect(await coreContract.indicatorOfPointer(pointer)).to.equal(
       indicator
     );
+  });
+
+  it("should not allow creating two accounts for same pointer", async function () {
+    const pointer = encodeBytes32String("1000");
+    const indicator1 = encodeBytes32String("2001");
+    const indicator2 = encodeBytes32String("2002");
+
+    await coreContract
+      .connect(relayer)
+      .createAccount(pointer, indicator1, mockProof);
+
+    expect(
+      coreContract.connect(relayer).createAccount(pointer, indicator2, mockProof)
+    ).to.be.revertedWith("account already exists");
   });
 });
