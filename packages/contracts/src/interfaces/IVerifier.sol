@@ -31,4 +31,10 @@ interface IVerifier {
         bool isRecipientExternal,
         bytes memory proof
     ) external view returns (bool);
+
+    function verifyDepositProof(
+        bytes32 depositCommitment,
+        bytes32 recipientSalt,
+        bytes memory proof
+    ) external view returns (bool);
 }

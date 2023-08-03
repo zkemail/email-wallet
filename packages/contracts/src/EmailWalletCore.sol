@@ -265,14 +265,37 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         emailNullifiers[emailOp.emailNullifier] = true;
 
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            WalletHandler.processTransferRequest(
+            WalletHandler._processTransferRequest(
                 emailOp.senderPointer,
                 emailOp.recipientPointer,
                 emailOp.tokenName,
                 emailOp.amount
             );
         }
-
     }
 
+    function initializeDepositRequest(
+        bytes32 depositCommitment,
+        address tokenAddress,
+        uint256 amount
+    ) public {
+        WalletHandler._initializeDepositRequest(
+            depositCommitment,
+            tokenAddress,
+            amount
+        );
+    }
+
+    function processDepositRequest(
+        bytes32 depositCommitment,
+        bytes32 recipientSalt,
+        bytes memory depositProof
+    ) public {
+        WalletHandler._processDepositRequest(
+            verifier,
+            depositCommitment,
+            recipientSalt,
+            depositProof
+        );
+    }
 }

@@ -1,6 +1,7 @@
 // @ts-ignore
 import { ethers } from "hardhat";
 import {
+  AbiCoder,
   Signer,
   encodeBytes32String,
   formatEther,
@@ -8,6 +9,7 @@ import {
   id,
   keccak256,
   parseEther,
+  stripZerosLeft,
 } from "ethers";
 import { expect } from "chai";
 import { EmailWalletCore } from "../typechain-types";
@@ -17,7 +19,7 @@ const mockProof = new Uint8Array([1]);
 /**
  * Units tests use mock verifier - only test logic and flows; not ZK proofs
  */
-describe.only("Email Wallet Contracts > Wallet", function () {
+describe("Email Wallet Contracts > Wallet", function () {
   let coreContract: EmailWalletCore;
   let owner: Signer;
   let relayer: Signer;
