@@ -10,7 +10,8 @@ import "./interfaces/Constants.sol";
 
 contract WalletHandler is TokenRegistry {
     function getAddressOfSalt(bytes32 salt) public view returns (address) {
-        return Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
+        return
+            Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
     }
 
     function _processETHTransferRequest(
@@ -38,12 +39,16 @@ contract WalletHandler is TokenRegistry {
         address tokenAddress = getTokenAddress(tokenName);
         require(tokenAddress != address(0), "unsupported token");
 
-        IERC20 token = IERC20(tokenAddress);
+        Wallet sender = Wallet(payable(getAddressOfSalt(senderSalt)));
 
-        token.transferFrom(
-            getAddressOfSalt(senderSalt),
-            getAddressOfSalt(recipientSalt),
-            amount
+        sender.execute(
+            tokenAddress,
+            0,
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                getAddressOfSalt(recipientSalt),
+                amount
+            )
         );
     }
 
@@ -56,7 +61,12 @@ contract WalletHandler is TokenRegistry {
         if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
             _processETHTransferRequest(senderSalt, recipientSalt, amount);
         } else {
-            _processERC20TransferRequest(senderSalt, recipientSalt, tokenName, amount);
+            _processERC20TransferRequest(
+                senderSalt,
+                recipientSalt,
+                tokenName,
+                amount
+            );
         }
     }
 }
