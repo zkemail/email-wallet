@@ -5,6 +5,10 @@ pragma solidity ^0.8.12;
 contract Wallet {
     address public owner;
 
+    fallback() external payable {}
+
+    receive() external payable {}
+
     modifier onlyOwner() {
         require(msg.sender == owner, "only owner");
         _;

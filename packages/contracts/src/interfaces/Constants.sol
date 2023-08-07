@@ -18,4 +18,6 @@ library Constants {
     string public constant TRANSPORT_COMMAND = "Transport";
     string public constant SET_EXTENSION_COMMAND = "Set extension";
     string public constant REMOVE_EXTENSION_COMMAND = "Remove extension";
+
+    string public constant ETH_TOKEN_NAME = "ETH";
 }

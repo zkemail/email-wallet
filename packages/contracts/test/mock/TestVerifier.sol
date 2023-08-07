@@ -55,9 +55,10 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
-    function verifyDepositProof(
-        bytes32 /* depositCommitment */,
-        bytes32 /* recipientSalt */,
+    function verifyWalletSaltProof(
+        bytes32 /* salt */,
+        bytes32 /* indicator */,
+        uint256 /* randomNonce */,
         bytes memory proof
     ) external view returns (bool) {
         if (proof[0] == 0x01) {

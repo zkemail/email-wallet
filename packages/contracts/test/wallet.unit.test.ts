@@ -44,12 +44,15 @@ describe("Email Wallet Contracts > Wallet", function () {
     );
   });
 
-  it("should be able to send ETH to another email", async function () {
+  it.only("should be able to send ETH to another email", async function () {
     // Create sender and initialize it
     const senderPointer = encodeBytes32String("SP");
     const senderIndicator = encodeBytes32String("SI");
     const recipientPointer = encodeBytes32String("RP");
     const recipientIndicator = encodeBytes32String("RI");
+
+    const senderWalletSalt = encodeBytes32String("SND");
+    const recipientWalletSalt = encodeBytes32String("RCP");
 
     await coreContract
       .connect(relayer)
@@ -57,6 +60,25 @@ describe("Email Wallet Contracts > Wallet", function () {
     await coreContract
       .connect(relayer)
       .initializeAccount(senderPointer, senderIndicator, mockProof);
+    await coreContract
+      .connect(relayer)
+      .createWallet(senderWalletSalt, 123, senderIndicator, mockProof);
+    await coreContract
+      .connect(relayer)
+      .createWallet(recipientWalletSalt, 123, senderIndicator, mockProof);
+
+    const senderAddress = await coreContract.getAddressOfSalt(senderWalletSalt);
+    console.log(senderAddress);
+
+    // Transfer some ETH to the sender
+    await owner.sendTransaction({
+      to: senderAddress,
+      value: parseEther("5"),
+    });
+
+    expect(await ethers.provider.getBalance(senderAddress)).to.equal(
+      parseEther("5")
+    );
 
     // Register recipient
     await coreContract
@@ -66,6 +88,11 @@ describe("Email Wallet Contracts > Wallet", function () {
     await coreContract.connect(relayer).executeEmailOp({
       senderPointer,
       senderIndicator,
+      senderWalletSaltProof: {
+        walletSalt: senderWalletSalt,
+        randomNonce: 123,
+        proof: mockProof,
+      },
       hasRecipient: true,
       isRecipientExternal: false,
       isRecipientInitialized: false,
@@ -75,14 +102,23 @@ describe("Email Wallet Contracts > Wallet", function () {
       recipientExternalAddress: getAddress(
         "0x0000000000000000000000000000000000000000"
       ),
+      recipientWalletSaltProof: {
+        walletSalt: recipientWalletSalt,
+        randomNonce: 456,
+        proof: mockProof,
+      },
       command: "Send",
       emailNullifier: encodeBytes32String("NULLIFIER"),
       dkimPublicKeyHash: domainPublicKeyHash,
       domainName: "ethereum.org",
-      maskedSubjectStr: "Send 1 ETH to ",
+      maskedSubjectStr: "Send 2 ETH to ",
       emailProof: mockProof,
-      amount: parseEther("1"),
+      amount: parseEther("2"),
       tokenName: "ETH",
     });
+
+    expect(await ethers.provider.getBalance(senderAddress)).to.equal(
+      parseEther("3") // 5 - 2
+    );
   });
 });

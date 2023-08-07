@@ -2,6 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Create2.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
@@ -10,6 +11,13 @@ import "./helpers/DKIMPublicKeyStorage.sol";
 
 contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     IVerifier public verifier;
+
+    event WalletCreated(
+        address walletAddress,
+        bytes32 salt,
+        bytes32 indicator,
+        uint256 randomNonce
+    );
 
     // Mapping of relayer's wallet address to hash(relayerRand)
     mapping(address => bytes32) public relayers;
@@ -110,6 +118,33 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         isInitialized[indicator] = true;
     }
 
+    function createWallet(
+        bytes32 salt,
+        uint256 randomNonce,
+        bytes32 indicator,
+        bytes memory proof
+    ) external returns (address) {
+        require(
+            IVerifier(verifier).verifyWalletSaltProof(
+                salt,
+                indicator,
+                randomNonce,
+                proof
+            ),
+            "invalid proof"
+        );
+
+        address walletAddress = Create2.deploy(
+            0,
+            salt,
+            type(Wallet).creationCode
+        );
+
+        emit WalletCreated(walletAddress, salt, indicator, randomNonce);
+
+        return walletAddress;
+    }
+
     // TODO: Case insensitive comparison
     function computeEmailSubjectForEmailOp(
         EmailOperation memory emailOp
@@ -183,6 +218,11 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                 isInitialized[emailOp.recipientPointer],
                 "recipient is not initialized"
             );
+            require(
+                emailOp.recipientWalletSaltProof.walletSalt ==
+                    emailOp.senderWalletSaltProof.walletSalt,
+                "recipient wallet salt must be same as sender wallet salt"
+            );
         }
 
         // If the recipient email is specified in the subject, verify the recipient's viewing key.
@@ -220,6 +260,33 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
             "invalid pubkey hash"
         );
 
+        // Verify the EmailOp parms are properly derived from subject line from email
+        require(
+            Strings.equal(
+                computeEmailSubjectForEmailOp(emailOp),
+                emailOp.maskedSubjectStr
+            ),
+            "computed subject line does not match"
+        );
+
+        // Verify senders wallet salt is derived from the same viewing key as in indicator
+        verifier.verifyWalletSaltProof(
+            emailOp.senderWalletSaltProof.walletSalt,
+            emailOp.senderIndicator,
+            emailOp.senderWalletSaltProof.randomNonce,
+            emailOp.senderWalletSaltProof.proof
+        );
+
+        // Verify recipient wallet salt is derived from the same viewing key as in indicator
+        if (emailOp.hasRecipient && !emailOp.isRecipientExternal) {
+            verifier.verifyWalletSaltProof(
+                emailOp.recipientWalletSaltProof.walletSalt,
+                emailOp.recipientIndicator,
+                emailOp.recipientWalletSaltProof.randomNonce,
+                emailOp.recipientWalletSaltProof.proof
+            );
+        }
+
         /**
             Verify email proof (proof of dkim verification)
             This will verify:
@@ -248,15 +315,6 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
             ),
             "invalid email proof"
         );
-
-        // Verify the EmailOp parms are properly derived from subject line from email
-        require(
-            Strings.equal(
-                computeEmailSubjectForEmailOp(emailOp),
-                emailOp.maskedSubjectStr
-            ),
-            "computed subject line does not match"
-        );
     }
 
     function executeEmailOp(EmailOperation memory emailOp) public {
@@ -266,36 +324,11 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletHandler._processTransferRequest(
-                emailOp.senderPointer,
-                emailOp.recipientPointer,
+                emailOp.senderWalletSaltProof.walletSalt,
+                emailOp.recipientWalletSaltProof.walletSalt,
                 emailOp.tokenName,
                 emailOp.amount
             );
         }
-    }
-
-    function initializeDepositRequest(
-        bytes32 depositCommitment,
-        address tokenAddress,
-        uint256 amount
-    ) public {
-        WalletHandler._initializeDepositRequest(
-            depositCommitment,
-            tokenAddress,
-            amount
-        );
-    }
-
-    function processDepositRequest(
-        bytes32 depositCommitment,
-        bytes32 recipientSalt,
-        bytes memory depositProof
-    ) public {
-        WalletHandler._processDepositRequest(
-            verifier,
-            depositCommitment,
-            recipientSalt,
-            depositProof
-        );
     }
 }
