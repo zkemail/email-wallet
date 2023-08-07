@@ -6,8 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
     Registry for storing tokenName to address
-    Return address(0x11) if tokenName is 1
-
     TODO: Store popular token address as constants would save gas
  */
 contract TokenRegistry is Ownable {
@@ -17,10 +15,6 @@ contract TokenRegistry is Ownable {
     function getTokenAddress(
         string memory tokenName
     ) public view returns (address) {
-        if (Strings.equal(tokenName, "ETH")) {
-            return address(0x1111111111111111111111111111111111111111);
-        }
-
         return tokenAddressMapping[tokenName];
     }
 
@@ -28,11 +22,6 @@ contract TokenRegistry is Ownable {
         string memory tokenName,
         address tokenAddress
     ) public onlyOwner {
-        require(
-            !Strings.equal(tokenName, "ETH"),
-            "ETH is a reserved token name"
-        );
-
         tokenAddressMapping[tokenName] = tokenAddress;
     }
 }

@@ -118,6 +118,8 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         isInitialized[indicator] = true;
     }
 
+    // Deploy a wallet for the user account with the given salt
+    // TODO: Use clone factory to deploy proxy Wallet contracts
     function createWallet(
         bytes32 salt,
         uint256 randomNonce,
