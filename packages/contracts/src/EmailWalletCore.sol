@@ -125,7 +125,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         uint256 randomNonce,
         bytes32 indicator,
         bytes memory proof
-    ) external returns (address) {
+    ) public returns (address) {
         require(
             IVerifier(verifier).verifyWalletSaltProof(
                 salt,
@@ -323,6 +323,22 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         validateEmailOp(emailOp);
 
         emailNullifiers[emailOp.emailNullifier] = true;
+
+        // Deploy wallet for recipient if not already deployed
+        if (emailOp.hasRecipient && !emailOp.isRecipientExternal) {
+            address recipientWallet = getAddressOfSalt(
+                emailOp.recipientWalletSaltProof.walletSalt
+            );
+
+            if (recipientWallet.code.length == 0) {
+                createWallet(
+                    emailOp.recipientWalletSaltProof.walletSalt,
+                    emailOp.recipientWalletSaltProof.randomNonce,
+                    emailOp.recipientIndicator,
+                    emailOp.recipientWalletSaltProof.proof
+                );
+            }
+        }
 
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletHandler._processTransferRequest(

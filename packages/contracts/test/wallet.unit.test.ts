@@ -77,11 +77,6 @@ describe("Email Wallet Contracts > Wallet", function () {
     await coreContract
       .connect(relayer)
       .createAccount(recipientPointer, recipientIndicator, mockProof);
-
-    // Create recipient wallet
-    await coreContract
-      .connect(relayer)
-      .createWallet(recipientWalletSalt, 123, senderIndicator, mockProof);
   });
 
   it("should be able to send ETH to another email", async function () {
