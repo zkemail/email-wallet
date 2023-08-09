@@ -22,7 +22,7 @@ template EmailRecipient() {
     signal recipient_relayer_rand_hash_input[1];
     recipient_relayer_rand_hash_input[0] <== recipient_relayer_rand;
     recipient_relayer_rand_hash <== Poseidon(1)(recipient_relayer_rand_hash_input);
-     var num_email_ints = compute_ints_size(email_max_bytes);
+    var num_email_ints = compute_ints_size(email_max_bytes);
     signal recipient_email_addr_ints[num_email_ints] <== Bytes2Ints(email_max_bytes)(recipient_email);
     recipient_pointer <== Pointer(num_email_ints)(recipient_relayer_rand, recipient_email_addr_ints);
     recipient_indicator <== Indicator(num_email_ints)(recipient_viewing_key, recipient_email_addr_ints, recipient_relayer_rand_hash);
