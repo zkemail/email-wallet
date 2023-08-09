@@ -11,6 +11,10 @@ typechain-types
 packages/circuits/build
 packages/circuits/inputs
 packages/circuits/*.ptau
+*.r1cs
+*.sym
+*.wasm
+*.c
 
 # Contracts
 packages/contracts/broadcast
