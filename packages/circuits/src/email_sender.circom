@@ -119,7 +119,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
         masked_subject_str[i] <== subject_all[i] - has_email_recipient * recipient_email_regex_reveal[i];
     }
     signal recipient_eth_regex_out, recipient_eth_regex_reveal[max_subject_bytes];
-    (recipient_eth_regex_out, recipient_eth_regex_reveal) <== EmailAddrRegex(max_subject_bytes)(subject_all);
+    (recipient_eth_regex_out, recipient_eth_regex_reveal) <== EthAddrRegex(max_subject_bytes)(subject_all);
     has_eth_recipient <== recipient_eth_regex_out;
     has_email_recipient * has_eth_recipient === 0;
 
