@@ -9,9 +9,32 @@ import "./interfaces/IVerifier.sol";
 import "./interfaces/Constants.sol";
 
 contract WalletHandler is TokenRegistry {
+    struct Transfer {
+        uint256 amount;
+        address token;
+        address sender;
+        address recipient;
+    }
+
+    // Mapping of transfers that are refundable after block number
+    // if the recipient account is not initialized
+    mapping(uint256 => Transfer[]) public refundableTransfersAfterBlock;
+
     function getAddressOfSalt(bytes32 salt) public view returns (address) {
         return
             Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
+    }
+
+    // Deploy a wallet for the user account with the given salt
+    // TODO: Use clone factory to deploy proxy Wallet contracts
+    function _deployWallet(bytes32 salt) internal returns (address) {
+        address walletAddress = Create2.deploy(
+            0,
+            salt,
+            type(Wallet).creationCode
+        );
+
+        return walletAddress;
     }
 
     function _processETHTransferRequest(

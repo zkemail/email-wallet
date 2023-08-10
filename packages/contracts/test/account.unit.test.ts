@@ -34,7 +34,7 @@ describe("Email Wallet Contracts > Account", function () {
 
     await coreContract
       .connect(relayer)
-      .createAccount(pointer, indicator, mockProof);
+      .createAccount(pointer, indicator, indicator, mockProof);
 
     expect(await coreContract.indicatorOfPointer(pointer)).to.equal(
       indicator
@@ -43,15 +43,15 @@ describe("Email Wallet Contracts > Account", function () {
 
   it("should not allow creating two accounts for same pointer", async function () {
     const pointer = encodeBytes32String("1000");
-    const indicator1 = encodeBytes32String("2001");
+    const indicator1 = encodeBytes32String("2001"); // using for salt as well
     const indicator2 = encodeBytes32String("2002");
 
     await coreContract
       .connect(relayer)
-      .createAccount(pointer, indicator1, mockProof);
+      .createAccount(pointer, indicator1, indicator1, mockProof);
 
     expect(
-      coreContract.connect(relayer).createAccount(pointer, indicator2, mockProof)
+      coreContract.connect(relayer).createAccount(pointer, indicator2, indicator2, mockProof)
     ).to.be.revertedWith("account already exists");
   });
 });
