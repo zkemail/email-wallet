@@ -1,0 +1,6 @@
+[book]
+authors = ["Magamedrasul Ibragimov"]
+language = "en"
+multilingual = false
+src = "src"
+title = "ZK-Email Wallet"

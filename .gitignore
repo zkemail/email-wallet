@@ -28,4 +28,5 @@ packages/relayer/proofs
 #Mac
 .DS_Store
 
-
+# mdbook
+book
