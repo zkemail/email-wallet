@@ -63,20 +63,16 @@ describe("Email Wallet Contracts > Wallet", function () {
     // Create Sender
     await coreContract
       .connect(relayer)
-      .createAccount(senderPointer, senderIndicator, mockProof);
+      .createAccount(senderPointer, senderIndicator, senderWalletSalt, mockProof);
+
     await coreContract
       .connect(relayer)
       .initializeAccount(senderPointer, senderIndicator, mockProof);
 
-    // Create sender wallet
-    await coreContract
-      .connect(relayer)
-      .createWallet(senderWalletSalt, 123, senderIndicator, mockProof);
-
     // Register recipient
     await coreContract
       .connect(relayer)
-      .createAccount(recipientPointer, recipientIndicator, mockProof);
+      .createAccount(recipientPointer, recipientIndicator, recipientWalletSalt, mockProof);
   });
 
   it("should be able to send ETH to another email", async function () {

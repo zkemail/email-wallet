@@ -56,8 +56,9 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     function createAccount(
         bytes32 pointer,
         bytes32 indicator,
+        bytes32 salt,
         bytes memory proof
-    ) public {
+    ) public returns (address) {
         bytes32 relayerHash = relayers[msg.sender];
         require(relayerHash != bytes32(0), "relayer not registered");
 
@@ -70,7 +71,17 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
             "pointer already exists"
         );
 
-        // Verify proof
+        /*
+            This will verify that pointer is hash(relayerRand, emailAddress)
+            and the hash(relayerRand) is relayerHash previously registered.
+            This will also prove that same relayerHash and emailAdress is used to compute 
+            the indicator = hash("INDICATOR", viewingKey, emailAddress, relayerHash).
+
+            This will prevent Relayer from creating two pointers for same email.
+            This will prevent Relayer from creating two indiator/VK for same email.
+
+            It also verify salt = hash(viewingKey, 0)
+         */
         require(
             verifier.verifyAccountCreationProof(
                 relayerHash,
@@ -82,6 +93,8 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         );
 
         indicatorOfPointer[pointer] = indicator;
+
+        return _deployWallet(salt);
     }
 
     function initializeAccount(
@@ -118,34 +131,6 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         isInitialized[indicator] = true;
     }
 
-    // Deploy a wallet for the user account with the given salt
-    // TODO: Use clone factory to deploy proxy Wallet contracts
-    function createWallet(
-        bytes32 salt,
-        uint256 randomNonce,
-        bytes32 indicator,
-        bytes memory proof
-    ) public returns (address) {
-        require(
-            IVerifier(verifier).verifyWalletSaltProof(
-                salt,
-                indicator,
-                randomNonce,
-                proof
-            ),
-            "invalid proof"
-        );
-
-        address walletAddress = Create2.deploy(
-            0,
-            salt,
-            type(Wallet).creationCode
-        );
-
-        emit WalletCreated(walletAddress, salt, indicator, randomNonce);
-
-        return walletAddress;
-    }
 
     // TODO: Case insensitive comparison
     function computeEmailSubjectForEmailOp(
@@ -323,22 +308,6 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         validateEmailOp(emailOp);
 
         emailNullifiers[emailOp.emailNullifier] = true;
-
-        // Deploy wallet for recipient if not already deployed
-        if (emailOp.hasRecipient && !emailOp.isRecipientExternal) {
-            address recipientWallet = getAddressOfSalt(
-                emailOp.recipientWalletSaltProof.walletSalt
-            );
-
-            if (recipientWallet.code.length == 0) {
-                createWallet(
-                    emailOp.recipientWalletSaltProof.walletSalt,
-                    emailOp.recipientWalletSaltProof.randomNonce,
-                    emailOp.recipientIndicator,
-                    emailOp.recipientWalletSaltProof.proof
-                );
-            }
-        }
 
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletHandler._processTransferRequest(
