@@ -16,6 +16,3 @@ function pack_bytes_const() {
     return 31;
 }
 
-function indicator_tag() {
-    return 0x494e444341544f52;
-}

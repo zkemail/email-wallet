@@ -7,8 +7,8 @@ include "circomlib/circuits/poseidon.circom";
 include "./constants.circom";
 include "./bytes2ints.circom";
 
-// pointer = hash(relayerRand, emailAddr||0..0)
-template Pointer(num_ints) {
+// email_addr_pointer = hash(relayerRand, emailAddr||0..0)
+template EmailAddrPointer(num_ints) {
     signal input relayer_rand;
     signal input email_addr_ints[num_ints];
     signal output pointer;

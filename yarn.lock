@@ -1617,10 +1617,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@zk-email/circuits@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.1.0.tgz#ee23f8c5736da04070943692e901a23b5e884a88"
-  integrity sha512-lMSC+w/ulAY1UvW8uf5QX0meWQiFlEb63kz0fop10Crb5GPJN5knL+wLNy6OiEtwQZICOnQkcHLl8QWJvnpxPw==
+"@zk-email/circuits@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.1.2.tgz#a3228cb3a23cb08791a736e8bf365fa639d65981"
+  integrity sha512-Yzkb9On1dkHll3SQdCvIPyygcWPbG+kUtoEMg5k608E86yWwtw9uJuK1CEh4qBaEPx77omq5/ezJnNuQhKvJbw==
 
 "@zk-email/helpers@^1.0.3":
   version "1.0.3"
