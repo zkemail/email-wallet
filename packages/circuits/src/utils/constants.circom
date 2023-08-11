@@ -8,6 +8,10 @@ function domain_len_const() {
     return 255;
 }
 
+function invitation_code_len_const() {
+    return 62;
+}
+
 function field_pack_bits_const() {
     return 248;
 }

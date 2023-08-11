@@ -1,0 +1,15 @@
+{
+    "max_byte_size": 69,
+    "parts": [
+        {
+            "is_public": false,
+            "regex_def": "CODE:0x",
+            "max_size": 7
+        },
+        {
+            "is_public": true,
+            "regex_def": "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f)+",
+            "max_size": 62
+        }
+    ]
+}

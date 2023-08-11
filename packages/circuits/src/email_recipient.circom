@@ -19,7 +19,7 @@ template EmailRecipient() {
     signal output recipient_vk_commit;
     signal output recipient_wallet_salt;
     signal output recipient_email_addr_wtns;
-    signal output recipient_vk_wtns;
+    // signal output recipient_vk_wtns;
 
     signal recipient_relayer_rand_hash_input[1];
     recipient_relayer_rand_hash_input[0] <== recipient_relayer_rand;
@@ -30,10 +30,10 @@ template EmailRecipient() {
     recipient_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(recipient_vk, recipient_email_addr_ints, recipient_relayer_rand_hash);
     recipient_wallet_salt <== WalletSalt()(recipient_vk, 0);
     recipient_email_addr_wtns <== EmailAddrWtns(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
-    signal recipient_vk_wtns_input[2];
-    recipient_vk_wtns_input[0] <== cm_rand;
-    recipient_vk_wtns_input[1] <== recipient_vk;
-    recipient_vk_wtns <== Poseidon(2)(recipient_vk_wtns_input);
+    // signal recipient_vk_wtns_input[2];
+    // recipient_vk_wtns_input[0] <== cm_rand;
+    // recipient_vk_wtns_input[1] <== recipient_vk;
+    // recipient_vk_wtns <== Poseidon(2)(recipient_vk_wtns_input);
 }
 
 component main  = EmailRecipient();

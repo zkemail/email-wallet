@@ -2485,7 +2485,7 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
 
 "circom-grumpkin@https://github.com/zkemail/circom-grumpkin.git":
   version "0.0.1"
-  resolved "https://github.com/zkemail/circom-grumpkin.git#bc9469faf5a25de3020a1f4c9aca7f7c058a025a"
+  resolved "https://github.com/zkemail/circom-grumpkin.git#344ae08027cebbbdd0de12b9af9e47bcfb785f78"
   dependencies:
     abdk-libraries-circom "https://github.com/abdk-consulting/abdk-libraries-circom.git"
     circom-helper "^0.3.5"
