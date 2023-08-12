@@ -1,13 +1,15 @@
-# ZK Email Wallet
+# Email Wallet
 
 A smart contract wallet controlled using emails.
 
-ZK Email Wallet (ZKEW) is an Ethereum wallet that can be controlled using your email account. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. The wallet is non-custodial and does not require any trusted third parties.
+Email Wallet is an Ethereum wallet that can be controlled by sending an email. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. The assets in Email Wallet remains secure as long as your email domain server of your email account such as Gmail does not forge your emails.
+
+This is first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
 
 In the current version, you can:
 - ✓ Send ETH to email address.
 - ✓ Send ERC20 to email address.
-- ✓ Email address to wallet link not exposed publicly.
+- ✓ Hide a link from an email address to a wallet address.
 
 In the future, you will be able to:
 - ✓ Swap tokens using Uniswap, and use other DeFi using extensions.
@@ -17,7 +19,7 @@ In the future, you will be able to:
 
 ## ☞ How it works
 
-Emails you send are (usually) signed using a private key controlled by your email provider. This signature, also known as DKIM is included in the headers section of the email.
+Emails you send are (usually) signed using a private key controlled by your email domain server according to a DKIM protocol. This signature is included in the headers section of the email.
 
 DKIM signature is used to verify the email was sent by you and lets you securely control your wallet. Instead of verifying the signature directly on-chain, a zk proof of signature is created (by a permissionless entity called Relayer) and verified on-chain.
 
@@ -30,7 +32,14 @@ Here is how a typical interaction with the wallet looks like:
 - The Relayer create an Ethereum transaction that reflect the intended action in the subject.
 - The smart contract verify the ZK Proof and ensure the subject line matches the transaction.
 - The smart contract executes the transaction and sends 1 ETH to recipient's Email Wallet address.
-- The Relayer wait for the transaction confirmation, and send you and the recipient and email with the transaction details.
+- The Relayer wait for the transaction confirmation, and send you and the recipient an email with the transaction details.
+
+<br />
+
+## Security Assumptions 
+1. Safety guarantee: if your email domain server does not forge your emails, no one can send assets in your wallet.
+2. Liveness guarantee: if your email domain server does not block your emails and you stores an invitation email that you have received before, you can execute a new transaction on-chain.
+3. Privacy protection against DoS scanning attacks: no adversary can learn an address or existence of the wallet for your email address for free.
 
 <br />
 
@@ -199,7 +208,7 @@ python3 coordinator.py
 
 ## ☞ Running Relayer in production
 
-ZKEW is currently in test phase. Before releasing to production, we will be running a trusted setup ceremony for the circuits and deploy the contracts to mainnet (probably L2).
+Email Wallet is currently in test phase. Before releasing to production, we will be running a trusted setup ceremony for the circuits and deploy the contracts to mainnet (probably L2).
 
 Anyone would be able to run a relayer node. The steps to run a relayer node will be mostly same, except you would be using the production contracts and circuit `zkey`.
 
@@ -216,3 +225,6 @@ This monorepo was originally created from below individual repo. You can check t
 - Circuit from [zk-email-verify / anon_wallet branch](https://github.com/zkemail/zk-email-verify/tree/anon_wallet)
 - Contracts from [zk-email-verify / anon_wallet branch](https://github.com/zkemail/zk-email-verify/tree/anon_wallet)
 - Relayer from [relayer / modal_anon](https://github.com/zkemail/relayer)
+
+## References
+1. S. Suegami and K. Shibano, "Contract Wallet Using Emails," 2023 IEEE International Conference on Blockchain and Cryptocurrency (ICBC), Dubai, United Arab Emirates, 2023, pp. 1-2, doi: 10.1109/ICBC56567.2023.10174932.
