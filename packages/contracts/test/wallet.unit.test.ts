@@ -26,10 +26,10 @@ describe("Email Wallet Contracts > Wallet", function () {
   let relayer: Signer;
   const domainPublicKeyHash = keccak256(new Uint8Array([4, 3, 6]));
 
-  const senderPointer = encodeBytes32String("SP");
-  const senderIndicator = encodeBytes32String("SI");
-  const recipientPointer = encodeBytes32String("RP");
-  const recipientIndicator = encodeBytes32String("RI");
+  const senderEmailAddressPointer = encodeBytes32String("SP");
+  const senderVKCommitment = encodeBytes32String("SI");
+  const recipientEmailAddressPointer = encodeBytes32String("RP");
+  const recipientVKCommitment = encodeBytes32String("RI");
 
   const senderWalletSalt = encodeBytes32String("SND");
   const recipientWalletSalt = encodeBytes32String("RCP");
@@ -55,24 +55,26 @@ describe("Email Wallet Contracts > Wallet", function () {
     // Register main relayer used in all other tests
     await coreContract.connect(relayer).registerRelayer(id("R1"));
 
-    await coreContract.setDKIMPublicKeyHash(
-      "ethereum.org",
-      domainPublicKeyHash
-    );
+    await coreContract.setDKIMPublicKeyHash("ethereum.org", domainPublicKeyHash);
 
     // Create Sender
     await coreContract
       .connect(relayer)
-      .createAccount(senderPointer, senderIndicator, senderWalletSalt, mockProof);
+      .createAccount(senderEmailAddressPointer, senderVKCommitment, senderWalletSalt, mockProof);
 
     await coreContract
       .connect(relayer)
-      .initializeAccount(senderPointer, senderIndicator, mockProof);
+      .initializeAccount(senderEmailAddressPointer, senderVKCommitment, "gmail.com", mockProof);
 
     // Register recipient
     await coreContract
       .connect(relayer)
-      .createAccount(recipientPointer, recipientIndicator, recipientWalletSalt, mockProof);
+      .createAccount(
+        recipientEmailAddressPointer,
+        recipientVKCommitment,
+        recipientWalletSalt,
+        mockProof
+      );
   });
 
   it("should be able to send ETH to another email", async function () {
@@ -84,40 +86,27 @@ describe("Email Wallet Contracts > Wallet", function () {
       value: parseEther("5"),
     });
 
-    expect(await ethers.provider.getBalance(senderAddress)).to.equal(
-      parseEther("5")
-    );
+    expect(await ethers.provider.getBalance(senderAddress)).to.equal(parseEther("5"));
 
     await coreContract.connect(relayer).executeEmailOp({
-      senderPointer,
-      senderIndicator,
-      senderWalletSaltProof: {
-        walletSalt: senderWalletSalt,
-        randomNonce: 123,
-        proof: mockProof,
-      },
+      senderEmailAddressPointer: senderEmailAddressPointer,
+      senderAccountProof: mockProof,
+
       hasRecipient: true,
       isRecipientExternal: false,
-      isRecipientInitialized: false,
       recipientRelayer: await relayer.getAddress(),
-      recipientPointer,
-      recipientIndicator,
-      recipientExternalAddress: getAddress(
-        "0x0000000000000000000000000000000000000000"
-      ),
-      recipientWalletSaltProof: {
-        walletSalt: recipientWalletSalt,
-        randomNonce: 456,
-        proof: mockProof,
-      },
+      recipientEmailAddressPointer: recipientEmailAddressPointer,
+      recipientEmailAddressWitness: encodeBytes32String("wtns"),
+      recipientExternalAddress: getAddress("0x0000000000000000000000000000000000000000"),
+      recipientAccountProof: mockProof,
+
       command: "Send",
       emailNullifier: encodeBytes32String("NULLIFIER"),
-      dkimPublicKeyHash: domainPublicKeyHash,
-      domainName: "ethereum.org",
+      emailDomain: "ethereum.org",
       maskedSubjectStr: "Send 2 ETH to ",
-      emailProof: mockProof,
       amount: parseEther("2"),
       tokenName: "ETH",
+      emailProof: mockProof,
     });
 
     expect(await ethers.provider.getBalance(senderAddress)).to.equal(
@@ -130,40 +119,27 @@ describe("Email Wallet Contracts > Wallet", function () {
 
     await erc20Contract.transfer(senderAddress, parseEther("5"));
 
-    expect(await erc20Contract.balanceOf(senderAddress)).to.equal(
-      parseEther("5")
-    );
+    expect(await erc20Contract.balanceOf(senderAddress)).to.equal(parseEther("5"));
 
     await coreContract.connect(relayer).executeEmailOp({
-      senderPointer,
-      senderIndicator,
-      senderWalletSaltProof: {
-        walletSalt: senderWalletSalt,
-        randomNonce: 123,
-        proof: mockProof,
-      },
+      senderEmailAddressPointer: senderEmailAddressPointer,
+      senderAccountProof: mockProof,
+
       hasRecipient: true,
       isRecipientExternal: false,
-      isRecipientInitialized: false,
       recipientRelayer: await relayer.getAddress(),
-      recipientPointer,
-      recipientIndicator,
-      recipientExternalAddress: getAddress(
-        "0x0000000000000000000000000000000000000000"
-      ),
-      recipientWalletSaltProof: {
-        walletSalt: recipientWalletSalt,
-        randomNonce: 456,
-        proof: mockProof,
-      },
+      recipientEmailAddressPointer: recipientEmailAddressPointer,
+      recipientEmailAddressWitness: encodeBytes32String("wtns"),
+      recipientExternalAddress: getAddress("0x0000000000000000000000000000000000000000"),
+      recipientAccountProof: mockProof,
+
       command: "Send",
-      emailNullifier: encodeBytes32String("NULLIFIER 2"),
-      dkimPublicKeyHash: domainPublicKeyHash,
-      domainName: "ethereum.org",
+      emailNullifier: encodeBytes32String("NULLIFIER2"),
+      emailDomain: "ethereum.org",
       maskedSubjectStr: "Send 2 TST to ",
-      emailProof: mockProof,
       amount: parseEther("2"),
       tokenName: "TST",
+      emailProof: mockProof,
     });
 
     expect(await erc20Contract.balanceOf(senderAddress)).to.equal(

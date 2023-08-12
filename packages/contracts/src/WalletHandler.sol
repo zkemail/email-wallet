@@ -5,20 +5,16 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "./TokenRegistry.sol";
 import "./Wallet.sol";
+import "./interfaces/Types.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Constants.sol";
 
 contract WalletHandler is TokenRegistry {
-    struct Transfer {
-        uint256 amount;
-        address token;
-        address sender;
-        address recipient;
-    }
+    // // Time in block count for a transfer to be refundable (for uninitialized recipient)
+    // uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30;  // 30 days (5 blocks per minute)
 
-    // Mapping of transfers that are refundable after block number
-    // if the recipient account is not initialized
-    mapping(uint256 => Transfer[]) public refundableTransfersAfterBlock;
+    // // Mapping of transfers that are refundable after block number
+    // mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
 
     function getAddressOfSalt(bytes32 salt) public view returns (address) {
         return
@@ -38,14 +34,14 @@ contract WalletHandler is TokenRegistry {
     }
 
     function _processETHTransferRequest(
-        bytes32 senderSalt,
-        bytes32 recipientSalt,
+        address senderAddress,
+        address recipientAddress,
         uint256 amount
     ) internal {
-        Wallet sender = Wallet(payable(getAddressOfSalt(senderSalt)));
+        Wallet sender = Wallet(payable(senderAddress));
 
         (bool success, bytes memory returnData) = sender.execute(
-            getAddressOfSalt(recipientSalt),
+            recipientAddress,
             amount,
             ""
         );
@@ -54,26 +50,43 @@ contract WalletHandler is TokenRegistry {
     }
 
     function _processERC20TransferRequest(
-        bytes32 senderSalt,
-        bytes32 recipientSalt,
+        address senderAddress,
+        address recipientAddress,
         string memory tokenName,
         uint256 amount
     ) internal {
         address tokenAddress = getTokenAddress(tokenName);
         require(tokenAddress != address(0), "unsupported token");
 
-        Wallet sender = Wallet(payable(getAddressOfSalt(senderSalt)));
+        Wallet sender = Wallet(payable(senderAddress));
 
         sender.execute(
             tokenAddress,
             0,
             abi.encodeWithSignature(
                 "transfer(address,uint256)",
-                getAddressOfSalt(recipientSalt),
+                recipientAddress,
                 amount
             )
         );
     }
+
+    // function registerRefundableTransfer(
+    //     address sender, 
+    //     address recipient, 
+    //     string memory tokenName,
+    //     uint256 amount
+    // ) internal {
+    //     uint256 refundableAfterBlock = block.number + REFUND_PERIOD_IN_BLOCKS;
+    //     refundableTransfersAfterBlock[refundableAfterBlock].push(
+    //         TransferNote({
+    //             amount: amount,
+    //             tokenName: tokenName,
+    //             sender: sender,
+    //             recipient: recipient
+    //         })
+    //     );
+    // }
 
     function _processTransferRequest(
         bytes32 senderSalt,
@@ -81,15 +94,19 @@ contract WalletHandler is TokenRegistry {
         string memory tokenName,
         uint256 amount
     ) internal {
+        address senderAddress = getAddressOfSalt(senderSalt);
+        address recipientAddress = getAddressOfSalt(recipientSalt);
+
         if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
-            _processETHTransferRequest(senderSalt, recipientSalt, amount);
+            _processETHTransferRequest(senderAddress, recipientAddress, amount);
         } else {
             _processERC20TransferRequest(
-                senderSalt,
-                recipientSalt,
+                senderAddress,
+                recipientAddress,
                 tokenName,
                 amount
             );
         }
     }
+        
 }

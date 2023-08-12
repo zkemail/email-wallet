@@ -29,29 +29,30 @@ describe("Email Wallet Contracts > Account", function () {
   });
 
   it("should be able to create a new account", async function () {
-    const pointer = encodeBytes32String("100");
-    const indicator = encodeBytes32String("200");
+    const emailPointer = encodeBytes32String("100");
+    const vkCommitment = encodeBytes32String("200");
+    const walletSalt = encodeBytes32String("200");
 
     await coreContract
       .connect(relayer)
-      .createAccount(pointer, indicator, indicator, mockProof);
+      .createAccount(emailPointer, vkCommitment, walletSalt, mockProof);
 
-    expect(await coreContract.indicatorOfPointer(pointer)).to.equal(
-      indicator
-    );
+    expect(await coreContract.vkCommitmentOfPointer(emailPointer)).to.equal(vkCommitment);
   });
 
   it("should not allow creating two accounts for same pointer", async function () {
-    const pointer = encodeBytes32String("1000");
-    const indicator1 = encodeBytes32String("2001"); // using for salt as well
-    const indicator2 = encodeBytes32String("2002");
+    const emailPointer = encodeBytes32String("1000");
+    const vkCommitment1 = encodeBytes32String("2001"); // using for salt as well
+    const vkCommitment2 = encodeBytes32String("2002");
 
     await coreContract
       .connect(relayer)
-      .createAccount(pointer, indicator1, indicator1, mockProof);
+      .createAccount(emailPointer, vkCommitment1, vkCommitment1, mockProof);
 
     expect(
-      coreContract.connect(relayer).createAccount(pointer, indicator2, indicator2, mockProof)
+      coreContract
+        .connect(relayer)
+        .createAccount(emailPointer, vkCommitment2, vkCommitment2, mockProof)
     ).to.be.revertedWith("account already exists");
   });
 });
