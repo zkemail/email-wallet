@@ -1,5 +1,5 @@
 {
-  "name": "@zk-email-wallet/relayer",
+  "name": "@email-wallet/relayer",
   "private": true,
   "version": "1.0.0",
   "scripts": {

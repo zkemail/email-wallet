@@ -1,5 +1,5 @@
 {
-  "name": "@zk-email-wallet/circom",
+  "name": "@email-wallet/circom",
   "version": "1.0.0",
   "scripts": {
     "build": "mkdir -p build && circom src/wallet.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",

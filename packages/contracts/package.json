@@ -1,5 +1,5 @@
 {
-  "name": "@zk-email-wallet/contracts",
+  "name": "@email-wallet/contracts",
   "version": "1.0.0",
   "scripts": {
     "build": "forge build",
