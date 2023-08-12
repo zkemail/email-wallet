@@ -31,6 +31,13 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
+    // Mapping of transfers that are refundable after block number
+    mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
+
+    // Time in block count for a transfer to be refundable (for uninitialized recipient)
+    uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30;  // 30 days (5 blocks per minute)
+
+
     constructor(address _verifier) {
         verifier = IVerifier(_verifier);
     }
@@ -112,7 +119,8 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         initializedVKCommitments[viewingKeyCommitment] = true;
     }
 
-    // TODO: Case insensitive comparison?
+    /// Calculate email subject based on paramteres of EmailOp
+    /// TODO: Case insensitive comparison?
     function _computeEmailSubjectForEmailOp(
         EmailOperation memory emailOp
     ) internal pure returns (string memory expectedSubject) {
@@ -147,6 +155,8 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         // TODO: Implement subject computation for transport, ext management, ext calling, etc.
     }
 
+    /// Validate an EmailOperation - proof of email, proof of account, etc.
+    /// @param emailOp EmailOperation to be validated
     function _validateEmailOp(EmailOperation memory emailOp) internal view {
         bytes32 senderRelayerHash = relayers[msg.sender];
 
@@ -204,6 +214,31 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         );
     }
 
+    /// Create a transfer note refundable after REFUND_PERIOD_IN_BLOCKS blocks
+    /// @param senderEmailAddressPointer pointer of the sender - recipient during refund
+    /// @param recipientEmailAddressPointer pointer of the recipient - sender during refund
+    /// @param tokenName name of the token to be refunded
+    /// @param amount amount of the token to be refunded
+    function _registerRefundableTransfer(
+        bytes32 senderEmailAddressPointer,
+        bytes32 recipientEmailAddressPointer,
+        string memory tokenName,
+        uint256 amount
+    ) internal {
+        uint256 refundableAfterBlock = block.number + REFUND_PERIOD_IN_BLOCKS;
+
+        refundableTransfersAfterBlock[refundableAfterBlock].push(
+            TransferNote({
+                senderEmailAddressPointer: senderEmailAddressPointer,
+                recipientEmailAddressPointer: recipientEmailAddressPointer,
+                tokenName: tokenName,
+                amount: amount
+            })
+        );
+    }
+
+    /// Execute an EmailOperation
+    /// @param emailOp EmailOperation to be executed
     function executeEmailOp(EmailOperation memory emailOp) external {
         _validateEmailOp(emailOp);
 
@@ -216,29 +251,49 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                 emailOp.tokenName,
                 emailOp.amount
             );
+
+            // Create refundable transfer note if recipient account is not initialized
+            bytes32 recipientVKCommitment = vkCommitmentOfPointer[emailOp.recipientEmailAddressPointer];
+            if (!initializedVKCommitments[recipientVKCommitment]) {
+                _registerRefundableTransfer(
+                    emailOp.senderEmailAddressPointer,
+                    emailOp.recipientEmailAddressPointer,
+                    emailOp.tokenName,
+                    emailOp.amount
+                );
+            }
         }
     }
 
-    // function processRefunds(uint256 startBlock, uint256 endBlock) public {
-    //     require(startBlock <= block.number, "invalid start block");
-    //     require(endBlock <= block.number, "invalid end block");
-    //     require(startBlock <= endBlock, "invalid block range");
+    /// Process refundable transfers in the given block range
+    /// @param startBlock start block of the range
+    /// @param endBlock end block of the range
+    function processRefunds(uint256 startBlock, uint256 endBlock) external {
+        require(startBlock <= block.number, "invalid start block");
+        require(endBlock <= block.number, "invalid end block");
+        require(startBlock <= endBlock, "invalid block range");
 
-    //     for (uint256 i = startBlock; i <= endBlock; i++) {
-    //         TransferNote[] storage transfers = refundableTransfersAfterBlock[i];
+        for (uint256 i = startBlock; i <= endBlock; i++) {
+            TransferNote[] storage transfers = refundableTransfersAfterBlock[i];
 
-    //         for (uint256 j = 0; j < transfers.length; j++) {
-    //             TransferNote memory transfer = transfers[j];
+            for (uint256 j = 0; j < transfers.length; j++) {
+                TransferNote memory transfer = transfers[j];
 
-    //             if (!isInitialized[indicatorOfPointer[pointerOfAddress[transfer.recipient]]]) {
-    //                 WalletHandler._processTransferRequest(
-    //                     saltOfAddress[transfer.sender],
-    //                     saltOfAddress[transfer.recipient],
-    //                     getTokenName(transfer.token),
-    //                     transfer.amount
-    //                 );
-    //             }
-    //         }
-    //     }
-    // }
+                bytes32 recipientVKCommitment = vkCommitmentOfPointer[transfer.recipientEmailAddressPointer];
+
+                if (!initializedVKCommitments[recipientVKCommitment]) {
+                    // Refund transfer
+                    WalletHandler._processTransferRequest(
+                        walletSaltOfPointer[transfer.recipientEmailAddressPointer],
+                        walletSaltOfPointer[transfer.senderEmailAddressPointer],
+                        transfer.tokenName,
+                        transfer.amount
+                    );
+                }
+            }
+
+            // Cleanup storage
+            delete refundableTransfersAfterBlock[i];
+        }
+    }
 }

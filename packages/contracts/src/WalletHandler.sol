@@ -10,12 +10,6 @@ import "./interfaces/IVerifier.sol";
 import "./interfaces/Constants.sol";
 
 contract WalletHandler is TokenRegistry {
-    // // Time in block count for a transfer to be refundable (for uninitialized recipient)
-    // uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30;  // 30 days (5 blocks per minute)
-
-    // // Mapping of transfers that are refundable after block number
-    // mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
-
     function getAddressOfSalt(bytes32 salt) public view returns (address) {
         return Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
     }
@@ -57,23 +51,6 @@ contract WalletHandler is TokenRegistry {
             abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
         );
     }
-
-    // function registerRefundableTransfer(
-    //     address sender,
-    //     address recipient,
-    //     string memory tokenName,
-    //     uint256 amount
-    // ) internal {
-    //     uint256 refundableAfterBlock = block.number + REFUND_PERIOD_IN_BLOCKS;
-    //     refundableTransfersAfterBlock[refundableAfterBlock].push(
-    //         TransferNote({
-    //             amount: amount,
-    //             tokenName: tokenName,
-    //             sender: sender,
-    //             recipient: recipient
-    //         })
-    //     );
-    // }
 
     function _processTransferRequest(
         bytes32 senderSalt,
