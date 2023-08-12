@@ -41,13 +41,13 @@ describe("Email Wallet Contracts > Wallet", function () {
     coreContract = (await ethers.deployContract(
       "EmailWalletCore",
       [testVerifier.getAddress()],
-      owner
+      owner,
     )) as EmailWalletCore;
 
     erc20Contract = (await ethers.deployContract(
       "TestERC20",
       [parseEther("10")],
-      owner
+      owner,
     )) as TestERC20;
 
     await coreContract.setTokenAddress("TST", erc20Contract.getAddress());
@@ -73,7 +73,7 @@ describe("Email Wallet Contracts > Wallet", function () {
         recipientEmailAddressPointer,
         recipientVKCommitment,
         recipientWalletSalt,
-        mockProof
+        mockProof,
       );
   });
 
@@ -110,7 +110,7 @@ describe("Email Wallet Contracts > Wallet", function () {
     });
 
     expect(await ethers.provider.getBalance(senderAddress)).to.equal(
-      parseEther("3") // 5 - 2
+      parseEther("3"), // 5 - 2
     );
   });
 
@@ -143,7 +143,7 @@ describe("Email Wallet Contracts > Wallet", function () {
     });
 
     expect(await erc20Contract.balanceOf(senderAddress)).to.equal(
-      parseEther("3") // 5 - 2
+      parseEther("3"), // 5 - 2
     );
   });
 });

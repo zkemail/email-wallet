@@ -12,16 +12,11 @@ contract TokenRegistry is Ownable {
     // Mapping of token name to token address
     mapping(string => address) public tokenAddressMapping;
 
-    function getTokenAddress(
-        string memory tokenName
-    ) public view returns (address) {
+    function getTokenAddress(string memory tokenName) public view returns (address) {
         return tokenAddressMapping[tokenName];
     }
 
-    function setTokenAddress(
-        string memory tokenName,
-        address tokenAddress
-    ) public onlyOwner {
+    function setTokenAddress(string memory tokenName, address tokenAddress) public onlyOwner {
         tokenAddressMapping[tokenName] = tokenAddress;
     }
 }

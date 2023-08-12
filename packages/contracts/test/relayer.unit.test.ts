@@ -18,7 +18,7 @@ describe("Email Wallet Contracts > Relayer", function () {
     coreContract = (await ethers.deployContract(
       "EmailWalletCore",
       [testVerifier.getAddress()],
-      owner
+      owner,
     )) as EmailWalletCore;
   });
 
@@ -28,9 +28,7 @@ describe("Email Wallet Contracts > Relayer", function () {
     const hash = id("R2");
 
     await coreContract.connect(testRelayer).registerRelayer(hash);
-    expect(await coreContract.relayers(testRelayer.getAddress())).to.equal(
-      hash
-    );
+    expect(await coreContract.relayers(testRelayer.getAddress())).to.equal(hash);
   });
 
   it("should not allow relayer to register twice", async function () {
@@ -38,8 +36,8 @@ describe("Email Wallet Contracts > Relayer", function () {
 
     coreContract.connect(testRelayer2).registerRelayer(id("R9"));
 
-    expect(
-      coreContract.connect(testRelayer2).registerRelayer(id("R9"))
-    ).to.be.revertedWith("relayer already registered");
+    expect(coreContract.connect(testRelayer2).registerRelayer(id("R9"))).to.be.revertedWith(
+      "relayer already registered",
+    );
   });
 });

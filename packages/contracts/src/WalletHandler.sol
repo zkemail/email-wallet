@@ -17,18 +17,13 @@ contract WalletHandler is TokenRegistry {
     // mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
 
     function getAddressOfSalt(bytes32 salt) public view returns (address) {
-        return
-            Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
+        return Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
     }
 
     // Deploy a wallet for the user account with the given salt
     // TODO: Use clone factory to deploy proxy Wallet contracts
     function _deployWallet(bytes32 salt) internal returns (address) {
-        address walletAddress = Create2.deploy(
-            0,
-            salt,
-            type(Wallet).creationCode
-        );
+        address walletAddress = Create2.deploy(0, salt, type(Wallet).creationCode);
 
         return walletAddress;
     }
@@ -40,11 +35,7 @@ contract WalletHandler is TokenRegistry {
     ) internal {
         Wallet sender = Wallet(payable(senderAddress));
 
-        (bool success, bytes memory returnData) = sender.execute(
-            recipientAddress,
-            amount,
-            ""
-        );
+        (bool success, bytes memory returnData) = sender.execute(recipientAddress, amount, "");
 
         require(success, string(returnData));
     }
@@ -63,17 +54,13 @@ contract WalletHandler is TokenRegistry {
         sender.execute(
             tokenAddress,
             0,
-            abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                recipientAddress,
-                amount
-            )
+            abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
         );
     }
 
     // function registerRefundableTransfer(
-    //     address sender, 
-    //     address recipient, 
+    //     address sender,
+    //     address recipient,
     //     string memory tokenName,
     //     uint256 amount
     // ) internal {
@@ -100,13 +87,7 @@ contract WalletHandler is TokenRegistry {
         if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
             _processETHTransferRequest(senderAddress, recipientAddress, amount);
         } else {
-            _processERC20TransferRequest(
-                senderAddress,
-                recipientAddress,
-                tokenName,
-                amount
-            );
+            _processERC20TransferRequest(senderAddress, recipientAddress, tokenName, amount);
         }
     }
-        
 }

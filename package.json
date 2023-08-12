@@ -5,13 +5,15 @@
   "description": "A smart contract wallet controlled using email",
   "packageManager": "yarn@3.2.3",
   "scripts": {
-    "test": "yarn workspaces -pt run test"
+    "test": "yarn workspaces -pt run test",
+    "prettier": "prettier --write \"packages/contracts/**/*.{js,jsx,ts,tsx,json,sol}\""
   },
   "workspaces": [
     "packages/*"
   ],
   "license": "MIT",
   "devDependencies": {
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "prettier-plugin-solidity": "^1.1.3"
   }
 }

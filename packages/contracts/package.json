@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "hardhat compile",
-    "test": "hardhat test --v"
+    "test": "hardhat test --v",
+    "lint": "solhint 'src/**/*.sol'"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",

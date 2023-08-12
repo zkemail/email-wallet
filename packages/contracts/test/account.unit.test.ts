@@ -21,7 +21,7 @@ describe("Email Wallet Contracts > Account", function () {
     coreContract = (await ethers.deployContract(
       "EmailWalletCore",
       [testVerifier.getAddress()],
-      owner
+      owner,
     )) as EmailWalletCore;
 
     // Register main relayer used in all other tests
@@ -52,7 +52,7 @@ describe("Email Wallet Contracts > Account", function () {
     expect(
       coreContract
         .connect(relayer)
-        .createAccount(emailPointer, vkCommitment2, vkCommitment2, mockProof)
+        .createAccount(emailPointer, vkCommitment2, vkCommitment2, mockProof),
     ).to.be.revertedWith("account already exists");
   });
 });
