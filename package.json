@@ -1,5 +1,5 @@
 {
-  "name": "zk-email-wallet",
+  "name": "email-wallet",
   "private": true,
   "version": "1.0.0",
   "description": "A smart contract wallet controlled using email",
