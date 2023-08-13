@@ -36,3 +36,6 @@ packages/relayer/proofs
 
 # mdbook
 book
+
+# Vs code settings
+.vscode

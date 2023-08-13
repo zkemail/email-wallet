@@ -35,8 +35,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
 
     // Time in block count for a transfer to be refundable (for uninitialized recipient)
-    uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30;  // 30 days (5 blocks per minute)
-
+    uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30; // 30 days (5 blocks per minute)
 
     constructor(address _verifier) {
         verifier = IVerifier(_verifier);
@@ -253,7 +252,9 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
             );
 
             // Create refundable transfer note if recipient account is not initialized
-            bytes32 recipientVKCommitment = vkCommitmentOfPointer[emailOp.recipientEmailAddressPointer];
+            bytes32 recipientVKCommitment = vkCommitmentOfPointer[
+                emailOp.recipientEmailAddressPointer
+            ];
             if (!initializedVKCommitments[recipientVKCommitment]) {
                 _registerRefundableTransfer(
                     emailOp.senderEmailAddressPointer,
@@ -279,7 +280,9 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
             for (uint256 j = 0; j < transfers.length; j++) {
                 TransferNote memory transfer = transfers[j];
 
-                bytes32 recipientVKCommitment = vkCommitmentOfPointer[transfer.recipientEmailAddressPointer];
+                bytes32 recipientVKCommitment = vkCommitmentOfPointer[
+                    transfer.recipientEmailAddressPointer
+                ];
 
                 if (!initializedVKCommitments[recipientVKCommitment]) {
                     // Refund transfer
