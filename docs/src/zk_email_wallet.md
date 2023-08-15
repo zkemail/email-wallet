@@ -1,12 +1,15 @@
-# ZK-Email Wallet
+# ZK-Email Wallet Documentation
 
-ZK-Email Wallet is a non-custodial crypto wallet, which is managed through email. 
-The wallet supports:
-* ETH transfers (from plain ETH addresses to email wallets and the other way, and also between email wallets);
-* ERC20 transfers;
-* Uniswap 
+The ZK-Email Wallet is a unique type of non-custodial cryptocurrency wallet that is managed via email. This document provides an overview of its features and future development plans.
 
----
+## Features
 
-The first version of the wallet doesn't support privacy; however in future, core parts will be reimplemented/redesigned (user flow will be the same) to achieve it.
+The ZK-Email Wallet currently supports the following features:
 
+- **ETH Transfers**: Users can transfer ETH from standard ETH addresses to email wallets, from email wallets to standard ETH addresses, and between email wallets.
+- **ERC20 Transfers**: The wallet also supports transfers of ERC20 tokens.
+- **Uniswap Integration**: Uniswap is integrated into the wallet for seamless token swaps.
+
+## Future Development
+
+The initial version of the ZK-Email Wallet does not support privacy features. However, we intend to build a full UTXO model by the end of 2023. The core components of the wallet will be redesigned and reimplemented to support these features, but the user flow will remain the same.
