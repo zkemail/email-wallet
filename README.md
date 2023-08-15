@@ -133,11 +133,9 @@ cargo install mdbook
 
 And to serve the website:
 ```
+cd docs
 mdbook serve
 ```
-
-in the docs/.
-
 ## ☞ Running Locally
 
 1. Firstly, start a local ETH testnet. For example `anvil`
