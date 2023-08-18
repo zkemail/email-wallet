@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.12;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/**
+    Registry for storing tokenName to address across chains
+    Return address(0x11...) if tokenName is 1
+
+    TODO: Store popular token address as constants would save gas
+ */
 contract TokenRegistry is Ownable {
     // Define a structure that represents a token
     struct Token {
