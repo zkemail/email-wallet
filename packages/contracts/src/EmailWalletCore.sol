@@ -36,10 +36,10 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
 
     // Global mapping of command name to extension address
-    mapping(string => address) public extensionAddressOfCommand;
+    mapping(string => address) public extensionOfCommand;
 
     // User level mapping of command name to extension address (pointer -> (command -> extension))
-    mapping(bytes32 => mapping(string => address)) public userExtensionAddressOfCommand;
+    mapping(bytes32 => mapping(string => address)) public userExtensionOfCommand;
 
     // Time in block count for a transfer to be refundable (for uninitialized recipient)
     uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30; // 30 days (5 blocks per minute)
@@ -147,16 +147,36 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                     Strings.toHexString(uint256(uint160(emailOp.recipientExternalAddress)), 20)
                 );
             }
-        }  else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
+        }
+        // Sample: Set extension for Swap as 0x1234...
+        else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
+            expectedSubject = string.concat(
+                Constants.SET_EXTENSION_COMMAND,
+                " for ",
+                emailOp.command,
+                " as ",
+                Strings.toHexString(uint256(uint160(emailOp.extensionAddress)), 20)
+            );
+        }
+        // Sample: Remove extension for Swap
+        else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
+            expectedSubject = string.concat(
+                Constants.REMOVE_EXTENSION_COMMAND,
+                " for ",
+                emailOp.command
+            );
+        }
+        // TODO: Implement transport
+        else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
             // TODO: Implement transport
-        } else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
-            // TODO: Implement set extension
-        } else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
-            // TODO: Implement remove extension
-        } else {
-            address extensionAddress = extensionAddressOfCommand[emailOp.command];
+        }
+        // The command is for an extension
+        else {
+            address extensionAddress = extensionOfCommand[emailOp.command];
 
-            address userExtensionAddress = userExtensionAddressOfCommand[emailOp.senderEmailAddressPointer][emailOp.command];
+            address userExtensionAddress = userExtensionOfCommand[
+                emailOp.senderEmailAddressPointer
+            ][emailOp.command];
             if (userExtensionAddress != address(0)) {
                 extensionAddress = userExtensionAddress;
             }
@@ -257,6 +277,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
         emailNullifiers[emailOp.emailNullifier] = true;
 
+        // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletHandler._processTransferRequest(
                 walletSaltOfPointer[emailOp.senderEmailAddressPointer],
@@ -277,17 +298,28 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                     emailOp.amount
                 );
             }
-        } else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
-            // TODO: Implement transport
-        } else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
-            // TODO: Implement set extension
-        } else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
-            // TODO: Implement remove extension
-        } else {
-            // The command is for an extension
-            address extensionAddress = extensionAddressOfCommand[emailOp.command];
+        }
+        // Set custom extension for the user
+        else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
+            userExtensionOfCommand[emailOp.senderEmailAddressPointer][emailOp.command] = emailOp
+                .extensionAddress;
+        }
+        // Remove custom extension for the user
+        else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
+            userExtensionOfCommand[emailOp.senderEmailAddressPointer][emailOp.command] = address(0);
+        }
+        // Transport to a new relayer
+        else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
+            // TODO: Implement transport command
+        }
+        // The command is for an extension
+        else {
+            address extensionAddress = extensionOfCommand[emailOp.command];
 
-            address userExtensionAddress = userExtensionAddressOfCommand[emailOp.senderEmailAddressPointer][emailOp.command];
+            address userExtensionAddress = userExtensionOfCommand[
+                emailOp.senderEmailAddressPointer
+            ][emailOp.command];
+
             if (userExtensionAddress != address(0)) {
                 extensionAddress = userExtensionAddress;
             }
