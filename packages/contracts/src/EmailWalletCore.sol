@@ -4,6 +4,7 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "./interfaces/IVerifier.sol";
+import "./interfaces/IExtension.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
 import "./WalletHandler.sol";
@@ -33,6 +34,12 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
     // Mapping of transfers that are refundable after block number
     mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
+
+    // Global mapping of command name to extension address
+    mapping(string => address) public extensionAddressOfCommand;
+
+    // User level mapping of command name to extension address (pointer -> (command -> extension))
+    mapping(bytes32 => mapping(string => address)) public userExtensionAddressOfCommand;
 
     // Time in block count for a transfer to be refundable (for uninitialized recipient)
     uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30; // 30 days (5 blocks per minute)
@@ -122,7 +129,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     /// TODO: Case insensitive comparison?
     function _computeEmailSubjectForEmailOp(
         EmailOperation memory emailOp
-    ) internal pure returns (string memory expectedSubject) {
+    ) internal view returns (string memory expectedSubject) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             expectedSubject = string.concat(
@@ -140,18 +147,25 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                     Strings.toHexString(uint256(uint160(emailOp.recipientExternalAddress)), 20)
                 );
             }
+        }  else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
+            // TODO: Implement transport
+        } else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
+            // TODO: Implement set extension
+        } else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
+            // TODO: Implement remove extension
+        } else {
+            address extensionAddress = extensionAddressOfCommand[emailOp.command];
+
+            address userExtensionAddress = userExtensionAddressOfCommand[emailOp.senderEmailAddressPointer][emailOp.command];
+            if (userExtensionAddress != address(0)) {
+                extensionAddress = userExtensionAddress;
+            }
+
+            require(extensionAddress != address(0), "extension not registered");
+
+            IExtension extension = IExtension(extensionAddress);
+            expectedSubject = extension.computeEmailSubject(emailOp.extensionParams);
         }
-
-        // Sample: Transport account to new.relayer@domain.com
-        // if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
-        //     expectedSubject = string.concat(
-        //         Constants.TRANSPORT_COMMAND,
-        //         " account to ",
-        //         emailOp.newRelayerEmail
-        //     );
-        // }
-
-        // TODO: Implement subject computation for transport, ext management, ext calling, etc.
     }
 
     /// Validate an EmailOperation - proof of email, proof of account, etc.
@@ -263,6 +277,35 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                     emailOp.amount
                 );
             }
+        } else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
+            // TODO: Implement transport
+        } else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
+            // TODO: Implement set extension
+        } else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
+            // TODO: Implement remove extension
+        } else {
+            // The command is for an extension
+            address extensionAddress = extensionAddressOfCommand[emailOp.command];
+
+            address userExtensionAddress = userExtensionAddressOfCommand[emailOp.senderEmailAddressPointer][emailOp.command];
+            if (userExtensionAddress != address(0)) {
+                extensionAddress = userExtensionAddress;
+            }
+
+            require(extensionAddress != address(0), "extension not registered");
+
+            IExtension extension = IExtension(extensionAddress);
+
+            (address target, bytes memory data) = extension.getExecutionCalldata(
+                emailOp.extensionParams
+            );
+
+            // Execute on wallet
+            WalletHandler._executeExtensionCalldata(
+                walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                target,
+                data
+            );
         }
     }
 

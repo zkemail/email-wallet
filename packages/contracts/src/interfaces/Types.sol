@@ -14,6 +14,8 @@ struct EmailOperation {
     bytes32 recipientEmailAddressWitness; // A commitment to recipient's email address to cross check with other proofs
     bytes recipientAccountProof; // Proof of recipient's account created by recipient relayer
     //
+    bytes extensionParams; // Params for the extension (like swap params)
+    //
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email

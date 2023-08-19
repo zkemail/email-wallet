@@ -67,4 +67,15 @@ contract WalletHandler is TokenRegistry {
             _processERC20TransferRequest(senderAddress, recipientAddress, tokenName, amount);
         }
     }
+
+    function _executeExtensionCalldata(
+        bytes32 senderSalt,
+        address target,
+        bytes memory extensionCallData
+    ) internal {
+        address senderAddress = getAddressOfSalt(senderSalt);
+        Wallet sender = Wallet(payable(senderAddress));
+
+        sender.execute(target, 0, extensionCallData);
+    }
 }
