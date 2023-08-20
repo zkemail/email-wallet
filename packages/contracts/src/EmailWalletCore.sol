@@ -2,10 +2,10 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Create2.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
+import "./Wallet.sol";
 import "./WalletHandler.sol";
 import "./helpers/DKIMPublicKeyStorage.sol";
 

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./TokenRegistry.sol";
 import "./Wallet.sol";
@@ -11,16 +10,20 @@ import "./interfaces/IVerifier.sol";
 import "./interfaces/Constants.sol";
 
 contract WalletHandler is TokenRegistry {
-    function getAddressOfSalt(bytes32 salt) public view returns (address) {
-        return Create2.computeAddress(salt, keccak256(type(Wallet).creationCode));
+    address public immutable walletImplementation;
+
+    constructor() {
+        Wallet wallet = new Wallet();
+        wallet.initialize();
+        walletImplementation = address(wallet);
     }
 
-    // Deploy a wallet for the user account with the given salt
-    // TODO: Use clone factory to deploy proxy Wallet contracts
-    function _deployWallet(bytes32 salt) internal returns (address) {
-        address walletAddress = Create2.deploy(0, salt, type(Wallet).creationCode);
+    function getAddressOfSalt(bytes32 salt) public view returns (address) {
+        return Clones.predictDeterministicAddress(walletImplementation, salt);
+    }
 
-        return walletAddress;
+    function _deployWallet(bytes32 salt) internal returns (address) {
+        return Clones.cloneDeterministic(walletImplementation, salt);
     }
 
     function _processETHTransferRequest(

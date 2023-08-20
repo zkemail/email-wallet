@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-// TODO: Use clone factory methods to save gas for each deployment
 contract Wallet {
     address public owner;
+    bool private initialized;
 
     fallback() external payable {}
 
@@ -14,7 +14,13 @@ contract Wallet {
         _;
     }
 
-    constructor() {
+    modifier notInitialized() {
+        require(!initialized, "already initialized");
+        _;
+    }
+
+    function initialize() external notInitialized {
+        initialized = true;
         owner = msg.sender;
     }
 
@@ -22,7 +28,6 @@ contract Wallet {
         owner = newOwner;
     }
 
-    // Execute any all requested by the owner - works like a EOA
     function execute(
         address target,
         uint256 value,
