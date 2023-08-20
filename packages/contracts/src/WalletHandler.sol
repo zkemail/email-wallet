@@ -3,6 +3,7 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./TokenRegistry.sol";
 import "./Wallet.sol";
 import "./interfaces/Types.sol";
@@ -60,6 +61,21 @@ contract WalletHandler is TokenRegistry {
     ) internal {
         address senderAddress = getAddressOfSalt(senderSalt);
         address recipientAddress = getAddressOfSalt(recipientSalt);
+
+        if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
+            _processETHTransferRequest(senderAddress, recipientAddress, amount);
+        } else {
+            _processERC20TransferRequest(senderAddress, recipientAddress, tokenName, amount);
+        }
+    }
+
+    function _processTransferRequest(
+        bytes32 senderSalt,
+        address recipientAddress,
+        string memory tokenName,
+        uint256 amount
+    ) internal {
+        address senderAddress = getAddressOfSalt(senderSalt);
 
         if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
             _processETHTransferRequest(senderAddress, recipientAddress, amount);

@@ -244,24 +244,33 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         emailNullifiers[emailOp.emailNullifier] = true;
 
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            WalletHandler._processTransferRequest(
-                walletSaltOfPointer[emailOp.senderEmailAddressPointer],
-                walletSaltOfPointer[emailOp.recipientEmailAddressPointer],
-                emailOp.tokenName,
-                emailOp.amount
-            );
-
-            // Create refundable transfer note if recipient account is not initialized
-            bytes32 recipientVKCommitment = vkCommitmentOfPointer[
-                emailOp.recipientEmailAddressPointer
-            ];
-            if (!initializedVKCommitments[recipientVKCommitment]) {
-                _registerRefundableTransfer(
-                    emailOp.senderEmailAddressPointer,
-                    emailOp.recipientEmailAddressPointer,
+            if (emailOp.isRecipientExternal) {
+                WalletHandler._processTransferRequest(
+                    walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                    emailOp.recipientExternalAddress,
                     emailOp.tokenName,
                     emailOp.amount
                 );
+            } else {
+                WalletHandler._processTransferRequest(
+                    walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                    walletSaltOfPointer[emailOp.recipientEmailAddressPointer],
+                    emailOp.tokenName,
+                    emailOp.amount
+                );
+
+                // Create refundable transfer note if recipient account is not initialized
+                bytes32 recipientVKCommitment = vkCommitmentOfPointer[
+                    emailOp.recipientEmailAddressPointer
+                ];
+                if (!initializedVKCommitments[recipientVKCommitment]) {
+                    _registerRefundableTransfer(
+                        emailOp.senderEmailAddressPointer,
+                        emailOp.recipientEmailAddressPointer,
+                        emailOp.tokenName,
+                        emailOp.amount
+                    );
+                }
             }
         }
     }
