@@ -124,6 +124,20 @@ cargo build   # output binary is in target/debug/relayer
 
 <br />
 
+#### To build the docs
+
+To run you should:
+```
+cargo install mdbook
+```
+
+And to serve the website:
+```
+mdbook serve
+```
+
+in the docs/.
+
 ## ☞ Running Locally
 
 1. Firstly, start a local ETH testnet. For example `anvil`

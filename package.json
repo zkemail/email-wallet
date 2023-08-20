@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "description": "A smart contract wallet controlled using email",
   "packageManager": "yarn@3.2.3",
+  "engines": {
+    "node": "18"
+  },
+  
   "scripts": {
     "test": "yarn workspaces -pt run test",
     "prettier": "prettier --write \"packages/contracts/**/*.{js,jsx,ts,tsx,json,sol}\""
