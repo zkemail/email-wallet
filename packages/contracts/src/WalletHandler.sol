@@ -23,7 +23,9 @@ contract WalletHandler is TokenRegistry {
     }
 
     function _deployWallet(bytes32 salt) internal returns (address) {
-        return Clones.cloneDeterministic(walletImplementation, salt);
+        Wallet wallet = Wallet(payable(Clones.cloneDeterministic(walletImplementation, salt)));
+        wallet.initialize();
+        return address(wallet);
     }
 
     function _processETHTransferRequest(
