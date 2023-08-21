@@ -2,11 +2,11 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Create2.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/IExtension.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
+import "./Wallet.sol";
 import "./WalletHandler.sol";
 import "./helpers/DKIMPublicKeyStorage.sol";
 
@@ -279,24 +279,33 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            WalletHandler._processTransferRequest(
-                walletSaltOfPointer[emailOp.senderEmailAddressPointer],
-                walletSaltOfPointer[emailOp.recipientEmailAddressPointer],
-                emailOp.tokenName,
-                emailOp.amount
-            );
-
-            // Create refundable transfer note if recipient account is not initialized
-            bytes32 recipientVKCommitment = vkCommitmentOfPointer[
-                emailOp.recipientEmailAddressPointer
-            ];
-            if (!initializedVKCommitments[recipientVKCommitment]) {
-                _registerRefundableTransfer(
-                    emailOp.senderEmailAddressPointer,
-                    emailOp.recipientEmailAddressPointer,
+            if (emailOp.isRecipientExternal) {
+                WalletHandler._processTransferRequest(
+                    walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                    emailOp.recipientExternalAddress,
                     emailOp.tokenName,
                     emailOp.amount
                 );
+            } else {
+                WalletHandler._processTransferRequest(
+                    walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                    walletSaltOfPointer[emailOp.recipientEmailAddressPointer],
+                    emailOp.tokenName,
+                    emailOp.amount
+                );
+
+                // Create refundable transfer note if recipient account is not initialized
+                bytes32 recipientVKCommitment = vkCommitmentOfPointer[
+                    emailOp.recipientEmailAddressPointer
+                ];
+                if (!initializedVKCommitments[recipientVKCommitment]) {
+                    _registerRefundableTransfer(
+                        emailOp.senderEmailAddressPointer,
+                        emailOp.recipientEmailAddressPointer,
+                        emailOp.tokenName,
+                        emailOp.amount
+                    );
+                }
             }
         }
         // Set custom extension for the user
