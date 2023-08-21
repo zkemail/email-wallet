@@ -51,11 +51,22 @@ contract WalletHandler is TokenRegistry {
 
         Wallet sender = Wallet(payable(senderAddress));
 
-        sender.execute(
+        (bool success, bytes memory returnData) = sender.execute(
             tokenAddress,
             0,
             abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
         );
+
+        require(success, string(returnData));
+
+        // UNCOMMENT THIS TO HANDLE NON-STANDARD ERC-20, THAT RETURNS BOOL INSTEAD OF REVERT ON FAIL
+        // if (returnData.length > 0) {
+        //     bool internalSuccess;
+        //     assembly {
+        //         internalSuccess := mload(add(returnData, 0x20))
+        //     }
+        //     require(internalSuccess, "ERC20 transfer failed");
+        // }
     }
 
     function _processTransferRequest(
