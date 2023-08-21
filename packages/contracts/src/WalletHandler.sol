@@ -76,6 +76,8 @@ contract WalletHandler is TokenRegistry {
         address senderAddress = getAddressOfSalt(senderSalt);
         Wallet sender = Wallet(payable(senderAddress));
 
-        sender.execute(target, 0, extensionCallData);
+        (bool success, bytes memory returnData) = sender.execute(target, 0, extensionCallData);
+
+        require(success, string(returnData));
     }
 }

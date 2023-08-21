@@ -1,15 +1,12 @@
 // @ts-ignore
 import { ethers } from "hardhat";
 import {
-  AbiCoder,
   Signer,
   encodeBytes32String,
-  formatEther,
   getAddress,
   id,
   keccak256,
   parseEther,
-  stripZerosLeft,
 } from "ethers";
 import { expect } from "chai";
 import { EmailWalletCore, TestERC20 } from "../typechain-types";
@@ -100,6 +97,9 @@ describe("Email Wallet Contracts > Wallet", function () {
       recipientExternalAddress: getAddress("0x0000000000000000000000000000000000000000"),
       recipientAccountProof: mockProof,
 
+      extensionAddress:  getAddress("0x0000000000000000000000000000000000000000"),
+      extensionParams: new Uint8Array(0),
+
       command: "Send",
       emailNullifier: encodeBytes32String("NULLIFIER"),
       emailDomain: "ethereum.org",
@@ -132,6 +132,9 @@ describe("Email Wallet Contracts > Wallet", function () {
       recipientEmailAddressWitness: encodeBytes32String("wtns"),
       recipientExternalAddress: getAddress("0x0000000000000000000000000000000000000000"),
       recipientAccountProof: mockProof,
+
+      extensionAddress:  getAddress("0x0000000000000000000000000000000000000000"),
+      extensionParams: new Uint8Array(0),
 
       command: "Send",
       emailNullifier: encodeBytes32String("NULLIFIER2"),

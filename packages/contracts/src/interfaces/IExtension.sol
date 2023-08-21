@@ -7,7 +7,7 @@ interface IExtension {
     function getCommand() external pure returns (string memory);
 
     /// @notice Returns the email subject template with expected types of params
-    /// @notice Eg: `Swap (uint) (string) to (string) and send to (recipient)`
+    /// @notice Eg: `Swap (amount) (string) to (string) and send to (recipient)`
     /// @return emailSubjectTemplate Email subject template
     function getSubjectTemplate() external pure returns (string memory);
 

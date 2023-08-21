@@ -328,11 +328,12 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
             IExtension extension = IExtension(extensionAddress);
 
+            // Get the target and calldata from extension
             (address target, bytes memory data) = extension.getExecutionCalldata(
                 emailOp.extensionParams
             );
 
-            // Execute on wallet
+            // Ask the wallet to execute the calldata
             WalletHandler._executeExtensionCalldata(
                 walletSaltOfPointer[emailOp.senderEmailAddressPointer],
                 target,
