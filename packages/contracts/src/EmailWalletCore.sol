@@ -289,7 +289,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
             } else {
                 WalletHandler._processTransferRequest(
                     walletSaltOfPointer[emailOp.senderEmailAddressPointer],
-                    walletSaltOfPointer[emailOp.recipientEmailAddressPointer],
+                    getAddressOfSalt(walletSaltOfPointer[emailOp.recipientEmailAddressPointer]),
                     emailOp.tokenName,
                     emailOp.amount
                 );
@@ -373,7 +373,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                     // Refund transfer
                     WalletHandler._processTransferRequest(
                         walletSaltOfPointer[transfer.recipientEmailAddressPointer],
-                        walletSaltOfPointer[transfer.senderEmailAddressPointer],
+                        getAddressOfSalt(walletSaltOfPointer[transfer.senderEmailAddressPointer]),
                         transfer.tokenName,
                         transfer.amount
                     );
