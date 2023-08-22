@@ -59,14 +59,13 @@ contract WalletHandler is TokenRegistry {
 
         require(success, string(returnData));
 
-        // UNCOMMENT THIS TO HANDLE NON-STANDARD ERC-20, THAT RETURNS BOOL INSTEAD OF REVERT ON FAIL
-        // if (returnData.length > 0) {
-        //     bool internalSuccess;
-        //     assembly {
-        //         internalSuccess := mload(add(returnData, 0x20))
-        //     }
-        //     require(internalSuccess, "ERC20 transfer failed");
-        // }
+        if (returnData.length > 0) {
+            bool internalSuccess;
+            assembly {
+                internalSuccess := mload(add(returnData, 0x20))
+            }
+            require(internalSuccess, "ERC20 transfer failed");
+        }
     }
 
     function _processTransferRequest(
