@@ -281,14 +281,14 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             if (emailOp.isRecipientExternal) {
                 WalletHandler._processTransferRequest(
-                    walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                    getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
                     emailOp.recipientExternalAddress,
                     emailOp.tokenName,
                     emailOp.amount
                 );
             } else {
                 WalletHandler._processTransferRequest(
-                    walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                    getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
                     getAddressOfSalt(walletSaltOfPointer[emailOp.recipientEmailAddressPointer]),
                     emailOp.tokenName,
                     emailOp.amount
@@ -344,7 +344,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
             // Ask the wallet to execute the calldata
             WalletHandler._executeExtensionCalldata(
-                walletSaltOfPointer[emailOp.senderEmailAddressPointer],
+                getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
                 target,
                 data
             );
@@ -372,7 +372,9 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                 if (!initializedVKCommitments[recipientVKCommitment]) {
                     // Refund transfer
                     WalletHandler._processTransferRequest(
-                        walletSaltOfPointer[transfer.recipientEmailAddressPointer],
+                        getAddressOfSalt(
+                            walletSaltOfPointer[transfer.recipientEmailAddressPointer]
+                        ),
                         getAddressOfSalt(walletSaltOfPointer[transfer.senderEmailAddressPointer]),
                         transfer.tokenName,
                         transfer.amount

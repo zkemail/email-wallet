@@ -70,13 +70,11 @@ contract WalletHandler is TokenRegistry {
     }
 
     function _processTransferRequest(
-        bytes32 senderSalt,
+        address senderAddress,
         address recipientAddress,
         string memory tokenName,
         uint256 amount
     ) internal {
-        address senderAddress = getAddressOfSalt(senderSalt);
-
         if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
             _processETHTransferRequest(senderAddress, recipientAddress, amount);
         } else {
@@ -85,11 +83,10 @@ contract WalletHandler is TokenRegistry {
     }
 
     function _executeExtensionCalldata(
-        bytes32 senderSalt,
+        address senderAddress,
         address target,
         bytes memory extensionCallData
     ) internal {
-        address senderAddress = getAddressOfSalt(senderSalt);
         Wallet sender = Wallet(payable(senderAddress));
 
         (bool success, bytes memory returnData) = sender.execute(target, 0, extensionCallData);
