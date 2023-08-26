@@ -7,8 +7,9 @@ include "./utils/email_addr_pointer.circom";
 include "./utils/viewing_key_commit.circom";
 include "./utils/email_addr_wtns.circom";
 include "./utils/wallet_salt.circom";
+include "./utils/ext_user_id.circom";
 
-template EmailRecipient() {
+template Claim() {
     var email_max_bytes = email_max_bytes_const();
     signal input recipient_email_addr[email_max_bytes];
     signal input recipient_relayer_rand;
@@ -18,8 +19,8 @@ template EmailRecipient() {
     signal output recipient_pointer;
     signal output recipient_vk_commit;
     signal output recipient_wallet_salt;
+    signal output recipient_ext_user_id;
     signal output recipient_email_addr_wtns;
-    // signal output recipient_vk_wtns;
 
     signal recipient_relayer_rand_hash_input[1];
     recipient_relayer_rand_hash_input[0] <== recipient_relayer_rand;
@@ -28,12 +29,9 @@ template EmailRecipient() {
     signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
     recipient_pointer <== EmailAddrPointer(num_email_addr_ints)(recipient_relayer_rand, recipient_email_addr_ints);
     recipient_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(recipient_vk, recipient_email_addr_ints, recipient_relayer_rand_hash);
-    recipient_wallet_salt <== WalletSalt()(recipient_vk, 0);
+    recipient_wallet_salt <== WalletSalt()(recipient_vk);
+    recipient_ext_user_id <== ExtUserId()(recipient_vk);
     recipient_email_addr_wtns <== EmailAddrWtns(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
-    // signal recipient_vk_wtns_input[2];
-    // recipient_vk_wtns_input[0] <== cm_rand;
-    // recipient_vk_wtns_input[1] <== recipient_vk;
-    // recipient_vk_wtns <== Poseidon(2)(recipient_vk_wtns_input);
 }
 
-component main  = EmailRecipient();
+component main  = Claim();

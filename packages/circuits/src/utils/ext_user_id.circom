@@ -6,14 +6,14 @@ include "./constants.circom";
 include "./email_addr_pointer.circom";
 include "./viewing_key_commit.circom";
 
-template WalletSalt() {
+template ExtUserId() {
     signal input viewing_key;
 
-    signal output salt;
+    signal output id;
 
-    signal salt_input[2];
-    salt_input[0] <== viewing_key;
-    salt_input[1] <== 0;
-    salt <== Poseidon(2)(salt_input);
+    signal id_input[2];
+    id_input[0] <== viewing_key;
+    id_input[1] <== 1;
+    id <== Poseidon(2)(id_input);
 }
 

@@ -11,7 +11,7 @@ template ViewingKeyCommit(num_ints) {
     signal input viewing_key;
     signal input email_addr_ints[num_ints];
     signal input relayer_rand_hash;
-    signal output indicator;
+    signal output vk_commit;
     
     component poseidon = Poseidon(2+num_ints);
     poseidon.inputs[0] <== viewing_key;
@@ -19,6 +19,6 @@ template ViewingKeyCommit(num_ints) {
         poseidon.inputs[1+i] <== email_addr_ints[i];
     }
     poseidon.inputs[1+num_ints] <== relayer_rand_hash;
-    indicator <== poseidon.out;
+    vk_commit <== poseidon.out;
 }
 

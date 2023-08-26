@@ -7,13 +7,14 @@ include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/email-verifier.circom";
 include "@zk-email/circuits/helpers/extract.circom";
 include "@zk-email/circuits/regexes/from_regex.circom";
-include "circom-grumpkin/circuits/hash_to_curve.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
 include "./utils/viewing_key_commit.circom";
 include "./utils/email_addr_wtns.circom";
 include "./utils/wallet_salt.circom";
 include "./utils/hex2int.circom";
+include "./utils/hash_pubkey_and_sign.circom";
+include "./utils/email_nullifier.circom";
 include "./regexes/email_addr_regex.circom";
 include "./regexes/email_domain_regex.circom";
 include "./regexes/invitation_code_regex.circom";
@@ -41,14 +42,8 @@ template AccountInit(n, k, max_header_bytes) {
     signal output email_nullifier;
     signal output sender_pointer;
     signal output sender_vk_commit;
-    signal output psi_point[2];
-    // signal output sender_wallet_salt;
+    signal output sender_wallet_salt;
     
-    var field_pack_bits = field_pack_bits_const();
-    var k2_chunked_size = k >> 1;
-    if(k % 2 == 1) {
-        k2_chunked_size += 1;
-    }
     
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
     email_verifier.in_padded <== in_padded;
@@ -79,43 +74,19 @@ template AccountInit(n, k, max_header_bytes) {
     domain_regex_out === 1;
     domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
 
-    signal pubkey_hash_input[k2_chunked_size];
-    for(var i = 0; i < k2_chunked_size; i++) {
-        if(i==k2_chunked_size-1 && k2_chunked_size % 2 == 1) {
-            pubkey_hash_input[i] <== pubkey[2*i];
-        } else {
-            pubkey_hash_input[i] <== pubkey[2*i] + (1<<n) * pubkey[2*i+1];
-        }
-    }
-    pubkey_hash <== Poseidon(k2_chunked_size)(pubkey_hash_input);
+    signal cm_rand;
+    (pubkey_hash, cm_rand) <== HashPubkeyAndSign(n,k)(pubkey, signature);
     signal sender_relayer_rand_hash_input[1];
     sender_relayer_rand_hash_input[0] <== sender_relayer_rand;
     sender_relayer_rand_hash <== Poseidon(1)(sender_relayer_rand_hash_input);
 
-    signal cm_rand_input[k2_chunked_size];
-    for(var i = 0; i < k2_chunked_size; i++) {
-        if(i==k2_chunked_size-1 && k2_chunked_size % 2 == 1) {
-            cm_rand_input[i] <== signature[2*i];
-        } else {
-            cm_rand_input[i] <== signature[2*i] + (1<<n) * signature[2*i+1];
-        }
-    }
-    signal cm_rand <== Poseidon(k2_chunked_size)(cm_rand_input);
-    signal header_hash_int[field_pack_bits+1];
-    header_hash_int[0] <== 0;
-    for(var i = 0; i < field_pack_bits; i++) {
-        header_hash_int[i+1] <== 2 * header_hash_int[i] + header_hash[i];
-    }
-    signal email_nullifier_input[2];
-    email_nullifier_input[0] <== cm_rand;
-    email_nullifier_input[1] <== header_hash_int[field_pack_bits];
-    email_nullifier <== Poseidon(2)(email_nullifier_input);
+    email_nullifier <== EmailNullifier()(header_hash, cm_rand);
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
     sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
     sender_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(sender_vk, sender_email_addr_ints, sender_relayer_rand_hash);
-    psi_point <== HashToCurve(email_max_bytes)(sender_email_addr);
+    sender_wallet_salt <== WalletSalt()(sender_vk);
 }
 
 // Args:
