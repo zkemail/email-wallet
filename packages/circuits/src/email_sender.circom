@@ -12,7 +12,7 @@ include "./utils/email_addr_pointer.circom";
 include "./utils/viewing_key_commit.circom";
 include "./utils/email_addr_wtns.circom";
 include "./utils/wallet_salt.circom";
-include "./utils/ext_user_id.circom";
+include "./utils/ext_account_salt.circom";
 include "./utils/hash_pubkey_and_sign.circom";
 include "./utils/email_nullifier.circom";
 include "./regexes/email_addr_regex.circom";
@@ -45,7 +45,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal output sender_pointer;
     signal output sender_vk_commit;
     signal output sender_wallet_salt;
-    signal output sender_ext_user_id;
+    signal output sender_ext_account_salt;
     // signal output sender_vk_wtns;
     signal output recipient_email_addr_wtns;
     
@@ -101,7 +101,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
     sender_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(sender_vk, sender_email_addr_ints, sender_relayer_rand_hash);
     sender_wallet_salt <== WalletSalt()(sender_vk);
-    sender_ext_user_id <== ExtUserId()(sender_vk);
+    sender_ext_account_salt <== ExtAccountSalt()(sender_vk);
     // signal sender_vk_wtns_input[2];
     // sender_vk_wtns_input[0] <== cm_rand;
     // sender_vk_wtns_input[1] <== sender_vk;

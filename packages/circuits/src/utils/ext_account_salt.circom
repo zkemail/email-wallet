@@ -6,7 +6,7 @@ include "./constants.circom";
 include "./email_addr_pointer.circom";
 include "./viewing_key_commit.circom";
 
-template ExtUserId() {
+template ExtAccountSalt() {
     signal input viewing_key;
 
     signal output id;
