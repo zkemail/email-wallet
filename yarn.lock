@@ -1268,6 +1268,11 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.2.tgz#1cb2d5e4d3360141a17dbc45094a8cad6aac16c1"
   integrity sha512-mO+y6JaqXjWeMh9glYVzVu8HYPGknAAnWyxTRhGeckOruyXQMNnlcW6w/Dx9ftLeIQk6N+ZJFuVmTwF7lEIFrg==
 
+"@openzeppelin/contracts@^4.9.3":
+  version "4.9.3"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.3.tgz#00d7a8cf35a475b160b3f0293a6403c511099364"
+  integrity sha512-He3LieZ1pP2TNt5JbkPA4PNT9WC3gOTOlDcFGJW4Le4QKqwmiNJCRt44APfxMxvq7OugU/cqYuPcSBzOw38DAg==
+
 "@scure/base@~1.1.0":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.1.tgz#ebb651ee52ff84f420097055f4bf46cfba403938"
@@ -1621,6 +1626,13 @@
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.1.2.tgz#a3228cb3a23cb08791a736e8bf365fa639d65981"
   integrity sha512-Yzkb9On1dkHll3SQdCvIPyygcWPbG+kUtoEMg5k608E86yWwtw9uJuK1CEh4qBaEPx77omq5/ezJnNuQhKvJbw==
+
+"@zk-email/contracts@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-2.0.0.tgz#7f844ce94a2db28cdd072b72d3f4ecbec04e8ddb"
+  integrity sha512-qVk5uRG80wy8aKVmTmCKaXvZ1A3o3ilvPG+eutuv0+RKRNF7DANd18/uKfl4K+k0VZClr6G9L/TavSZI01FCTQ==
+  dependencies:
+    "@openzeppelin/contracts" "^4.9.3"
 
 "@zk-email/helpers@^1.0.3":
   version "1.0.3"

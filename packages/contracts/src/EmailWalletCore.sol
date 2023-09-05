@@ -2,17 +2,22 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@zk-email/contracts/DKIMRegistry.sol";
+import "./utils/TokenRegistry.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/IExtension.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
 import "./Wallet.sol";
 import "./WalletHandler.sol";
-import "./helpers/DKIMPublicKeyStorage.sol";
 
-contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
+contract EmailWalletCore is WalletHandler {
     // ZK proof verifier
     IVerifier public verifier;
+
+    // DKIM public key hashes registry
+    DKIMRegistry public immutable dkimRegistry;
 
     // Mapping of relayer's wallet address to hash(relayerRand)
     mapping(address => bytes32) public relayers;
@@ -32,8 +37,9 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
-    // Mapping of transfers that are refundable after block number
-    mapping(uint256 => TransferNote[]) public refundableTransfersAfterBlock;
+    // Mapping of recipient's emailAddressCommitment (hash(email, randomness)) to the unclaimedFund
+    // Note: The array only include funds from a single sender using the same randomness; not all the funds claimable by recipient user
+    mapping(bytes32 => UnclaimedFund[]) public unclaimedFundOfRecipient;
 
     // Global mapping of command name to extension address
     mapping(string => address) public extensionOfCommand;
@@ -44,8 +50,19 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
     // Time in block count for a transfer to be refundable (for uninitialized recipient)
     uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30; // 30 days (5 blocks per minute)
 
-    constructor(address _verifier) {
+    event UnclaimedFundRegistered(
+        bytes32 recipientEmailAddressCommitment,
+        address indexed sender,
+        uint256 expiryTime
+    );
+
+    constructor(
+        address _verifier,
+        address _tokenRegistry,
+        address _dkimRegistry
+    ) WalletHandler(_tokenRegistry) {
         verifier = IVerifier(_verifier);
+        dkimRegistry = DKIMRegistry(_dkimRegistry);
     }
 
     function getVerifier() external view returns (address) {
@@ -116,7 +133,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                 emailAddressPointer,
                 viewingKeyCommitment,
                 emailDomain,
-                dkimPublicKeyHashes[emailDomain],
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
                 proof
             ),
             "invalid account creation proof"
@@ -240,33 +257,10 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                 emailOp.maskedSubjectStr,
                 emailOp.emailNullifier,
                 emailOp.emailDomain,
-                dkimPublicKeyHashes[emailOp.emailDomain],
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain)),
                 emailOp.emailProof
             ),
             "invalid email proof"
-        );
-    }
-
-    /// Create a transfer note refundable after REFUND_PERIOD_IN_BLOCKS blocks
-    /// @param senderEmailAddressPointer pointer of the sender - recipient during refund
-    /// @param recipientEmailAddressPointer pointer of the recipient - sender during refund
-    /// @param tokenName name of the token to be refunded
-    /// @param amount amount of the token to be refunded
-    function _registerRefundableTransfer(
-        bytes32 senderEmailAddressPointer,
-        bytes32 recipientEmailAddressPointer,
-        string memory tokenName,
-        uint256 amount
-    ) internal {
-        uint256 refundableAfterBlock = block.number + REFUND_PERIOD_IN_BLOCKS;
-
-        refundableTransfersAfterBlock[refundableAfterBlock].push(
-            TransferNote({
-                senderEmailAddressPointer: senderEmailAddressPointer,
-                recipientEmailAddressPointer: recipientEmailAddressPointer,
-                tokenName: tokenName,
-                amount: amount
-            })
         );
     }
 
@@ -279,6 +273,7 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
 
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
+            // Transfer to external address
             if (emailOp.isRecipientExternal) {
                 WalletHandler._processTransferRequest(
                     getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
@@ -286,26 +281,24 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
                     emailOp.tokenName,
                     emailOp.amount
                 );
-            } else {
+            }
+            // Transfer to email wallet user if recipient is set
+            else if (emailOp.recipientEmailAddressPointer != bytes32(0)) {
                 WalletHandler._processTransferRequest(
                     getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
                     getAddressOfSalt(walletSaltOfPointer[emailOp.recipientEmailAddressPointer]),
                     emailOp.tokenName,
                     emailOp.amount
                 );
-
-                // Create refundable transfer note if recipient account is not initialized
-                bytes32 recipientVKCommitment = vkCommitmentOfPointer[
-                    emailOp.recipientEmailAddressPointer
-                ];
-                if (!initializedVKCommitments[recipientVKCommitment]) {
-                    _registerRefundableTransfer(
-                        emailOp.senderEmailAddressPointer,
-                        emailOp.recipientEmailAddressPointer,
-                        emailOp.tokenName,
-                        emailOp.amount
-                    );
-                }
+            }
+            // Register unclaimed fund otherwise
+            else {
+                _registerUnclaimedFund(
+                    emailOp.recipientEmailAddressCommitment,
+                    emailOp.tokenName,
+                    emailOp.amount,
+                    getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer])
+                );
             }
         }
         // Set custom extension for the user
@@ -351,39 +344,87 @@ contract EmailWalletCore is WalletHandler, DKIMPublicKeyStorage {
         }
     }
 
-    /// Process refundable transfers in the given block range
-    /// @param startBlock start block of the range
-    /// @param endBlock end block of the range
-    function processRefunds(uint256 startBlock, uint256 endBlock) external {
-        require(startBlock <= block.number, "invalid start block");
-        require(endBlock <= block.number, "invalid end block");
-        require(startBlock <= endBlock, "invalid block range");
+    function _registerUnclaimedFund(
+        bytes32 recipientEmailAddressPointer,
+        string memory tokenName,
+        uint256 amount,
+        address senderAddress
+    ) private {
+        uint256 expiryTime = block.timestamp + 30 days;
 
-        for (uint256 i = startBlock; i <= endBlock; i++) {
-            TransferNote[] storage transfers = refundableTransfersAfterBlock[i];
+        UnclaimedFund memory fund = UnclaimedFund({
+            tokenName: tokenName,
+            amount: amount,
+            expiryTime: expiryTime,
+            sender: senderAddress
+        });
 
-            for (uint256 j = 0; j < transfers.length; j++) {
-                TransferNote memory transfer = transfers[j];
+        unclaimedFundOfRecipient[recipientEmailAddressPointer].push(fund);
 
-                bytes32 recipientVKCommitment = vkCommitmentOfPointer[
-                    transfer.recipientEmailAddressPointer
-                ];
+        emit UnclaimedFundRegistered(recipientEmailAddressPointer, senderAddress, expiryTime);
+    }
 
-                if (!initializedVKCommitments[recipientVKCommitment]) {
-                    // Refund transfer
-                    WalletHandler._processTransferRequest(
-                        getAddressOfSalt(
-                            walletSaltOfPointer[transfer.recipientEmailAddressPointer]
-                        ),
-                        getAddressOfSalt(walletSaltOfPointer[transfer.senderEmailAddressPointer]),
-                        transfer.tokenName,
-                        transfer.amount
-                    );
-                }
+    function registerUnclaimedFund(
+        bytes32 recipientEmailAddressPointer,
+        string memory tokenName,
+        uint256 amount
+    ) public {
+        _registerUnclaimedFund(recipientEmailAddressPointer, tokenName, amount, msg.sender);
+    }
+
+    function claimUnclaimedFund(
+        bytes32 recipientEmailAddressPointer,
+        bytes32 recipientEmailAddressCommitment,
+        bytes memory proof
+    ) public {
+        require(
+            verifier.verifyClaimFundProof(
+                relayers[msg.sender],
+                recipientEmailAddressPointer,
+                vkCommitmentOfPointer[recipientEmailAddressPointer],
+                walletSaltOfPointer[recipientEmailAddressPointer],
+                recipientEmailAddressCommitment,
+                proof
+            ),
+            "invalid proof"
+        );
+
+        UnclaimedFund[] storage funds = unclaimedFundOfRecipient[recipientEmailAddressPointer];
+
+        for (uint256 i = 0; i < funds.length; i++) {
+            UnclaimedFund storage fund = funds[i];
+
+            if (fund.expiryTime < block.timestamp) {
+                delete funds[i];
+
+                address recipientWallet = getAddressOfSalt(
+                    walletSaltOfPointer[recipientEmailAddressPointer]
+                );
+                transferUnclaimedFund(fund, recipientWallet);
             }
+        }
+    }
 
-            // Cleanup storage
-            delete refundableTransfersAfterBlock[i];
+    function transferUnclaimedFund(UnclaimedFund storage fund, address recipient) internal {
+        if (Strings.equal(fund.tokenName, Constants.ETH_TOKEN_NAME)) {
+            (bool sent, bytes memory data) = recipient.call{value: fund.amount}("");
+            require(sent, "unclaimed eth send failed");
+        } else {
+            IERC20 token = IERC20(tokenRegistry.getTokenAddress(fund.tokenName));
+            token.transfer(recipient, fund.amount);
+        }
+    }
+
+    function refundUnclaimedFund(bytes32 recipientEmailAddressPointer) external {
+        UnclaimedFund[] storage funds = unclaimedFundOfRecipient[recipientEmailAddressPointer];
+
+        for (uint256 i = 0; i < funds.length; i++) {
+            UnclaimedFund storage fund = funds[i];
+
+            if (fund.expiryTime > block.timestamp) {
+                delete funds[i];
+                transferUnclaimedFund(fund, fund.sender); // setting sender as recipient
+            }
         }
     }
 }
