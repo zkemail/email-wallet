@@ -21,12 +21,12 @@ include "./regexes/invitation_code_regex.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
-template AccountInit(n, k, max_header_bytes) {
+template AccountTransport(n, k, max_header_bytes) {
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_padded_len; // length of in email data including the padding, which will inform the sha256 block length
-    signal input sender_relayer_rand;
+    signal input sender_relayer_rand_hash;
     signal input sender_email_idx; // index of the from email address (= sender email address) in the header
     signal input code_idx; // index of the invitation code in the header
     signal input domain_idx;
@@ -37,9 +37,7 @@ template AccountInit(n, k, max_header_bytes) {
 
     signal output domain_name[domain_len];
     signal output pubkey_hash;
-    signal output sender_relayer_rand_hash;
     signal output email_nullifier;
-    signal output sender_pointer;
     signal output sender_vk_commit;
     
     
@@ -74,15 +72,11 @@ template AccountInit(n, k, max_header_bytes) {
 
     signal cm_rand;
     (pubkey_hash, cm_rand) <== HashPubkeyAndSign(n,k)(pubkey, signature);
-    signal sender_relayer_rand_hash_input[1];
-    sender_relayer_rand_hash_input[0] <== sender_relayer_rand;
-    sender_relayer_rand_hash <== Poseidon(1)(sender_relayer_rand_hash_input);
 
     email_nullifier <== EmailNullifier()(header_hash, cm_rand);
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
-    sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
     sender_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(sender_vk, sender_email_addr_ints, sender_relayer_rand_hash);
 }
 
@@ -90,4 +84,4 @@ template AccountInit(n, k, max_header_bytes) {
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
 // * max_header_bytes = 1024 is the max number of bytes in the header
-component main  = AccountInit(121, 17, 1024);
+component main  = AccountTransport(121, 17, 1024);

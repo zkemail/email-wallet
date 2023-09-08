@@ -10,7 +10,7 @@ include "@zk-email/circuits/regexes/from_regex.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
 include "./utils/viewing_key_commit.circom";
-include "./utils/email_addr_wtns.circom";
+include "./utils/email_addr_commit.circom";
 include "./utils/wallet_salt.circom";
 include "./utils/ext_account_salt.circom";
 include "./utils/hash_pubkey_and_sign.circom";
@@ -27,7 +27,6 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_padded_len; // length of in email data including the padding, which will inform the sha256 block length
     signal input sender_relayer_rand;
-    signal input sender_vk;
     signal input sender_email_idx; // index of the from email address (= sender email address) in the header
     signal input subject_idx; // index of the subject in the header
     signal input recipient_email_idx; // index of the recipient email address in the subject
@@ -36,18 +35,14 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     var email_max_bytes = email_max_bytes_const();
     var domain_len = domain_len_const();
 
-    signal output has_email_recipient;
     signal output masked_subject_str[max_subject_bytes];
     signal output domain_name[domain_len];
     signal output pubkey_hash;
     signal output sender_relayer_rand_hash;
     signal output email_nullifier;
     signal output sender_pointer;
-    signal output sender_vk_commit;
-    signal output sender_wallet_salt;
-    signal output sender_ext_account_salt;
-    // signal output sender_vk_wtns;
-    signal output recipient_email_addr_wtns;
+    signal output has_email_recipient;
+    signal output recipient_email_addr_commit;
     
     
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
@@ -99,9 +94,6 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
     sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
-    sender_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(sender_vk, sender_email_addr_ints, sender_relayer_rand_hash);
-    sender_wallet_salt <== WalletSalt()(sender_vk);
-    sender_ext_account_salt <== ExtAccountSalt()(sender_vk);
     // signal sender_vk_wtns_input[2];
     // sender_vk_wtns_input[0] <== cm_rand;
     // sender_vk_wtns_input[1] <== sender_vk;
@@ -110,7 +102,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     cm_rand2_input[0] <== cm_rand;
     signal cm_rand2 <== Poseidon(1)(cm_rand2_input);
     signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
-    recipient_email_addr_wtns <== EmailAddrWtns(num_email_addr_ints)(cm_rand2, recipient_email_addr_ints);
+    recipient_email_addr_commit <== EmailAddrCommit(num_email_addr_ints)(cm_rand2, recipient_email_addr_ints);
 }
 
 // Args:

@@ -5,9 +5,11 @@ include "@zk-email/circuits/helpers/extract.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
 include "./utils/viewing_key_commit.circom";
-include "./utils/email_addr_wtns.circom";
 include "./utils/wallet_salt.circom";
+include "./utils/ext_account_salt.circom";
 include "circom-grumpkin/circuits/hash_to_curve.circom";
+include "circom-grumpkin/circuits/point_mul.circom";
+
 
 template AccountCreation() {
     var email_max_bytes = email_max_bytes_const();
@@ -18,6 +20,7 @@ template AccountCreation() {
     signal output pointer;
     signal output vk_commit;
     signal output wallet_salt;
+    signal output ext_account_salt;
     signal output psi_point[2];
 
     signal relayer_rand_hash_input[1];
@@ -28,7 +31,10 @@ template AccountCreation() {
     pointer <== EmailAddrPointer(num_email_addr_ints)(relayer_rand, email_addr_ints);
     vk_commit <== ViewingKeyCommit(num_email_addr_ints)(vk, email_addr_ints, relayer_rand_hash);
     wallet_salt <== WalletSalt()(vk);
-    psi_point <== HashToCurve(email_max_bytes)(email_addr);
+    ext_account_salt <== ExtAccountSalt()(vk);
+    signal hashed_point[2];
+    hashed_point <== HashToCurve(email_max_bytes)(email_addr);
+    psi_point <== PointScalarMul(254)(hashed_point, relayer_rand);
 }
 
 component main  = AccountCreation();

@@ -7,8 +7,8 @@ include "circomlib/circuits/poseidon.circom";
 include "./constants.circom";
 include "./bytes2ints.circom";
 
-// email_addr_wtns = hash(rand, emailAddr||0..0)
-template EmailAddrWtns(num_ints) {
+// email_addr_commit = hash(rand, emailAddr||0..0)
+template EmailAddrCommit(num_ints) {
     signal input rand;
     signal input email_addr_ints[num_ints];
     signal output commit;
