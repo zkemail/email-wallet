@@ -3,16 +3,20 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "./TokenRegistry.sol";
 import "./Wallet.sol";
+import "./utils/TokenRegistry.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Constants.sol";
 
-contract WalletHandler is TokenRegistry {
+contract WalletHandler {
+    TokenRegistry public immutable tokenRegistry;
+
     address public immutable walletImplementation;
 
-    constructor() {
+    constructor(address _tokenRegistry) {
+        tokenRegistry = TokenRegistry(_tokenRegistry);
+
         Wallet wallet = new Wallet();
         wallet.initialize();
         walletImplementation = address(wallet);
@@ -46,7 +50,7 @@ contract WalletHandler is TokenRegistry {
         string memory tokenName,
         uint256 amount
     ) internal {
-        address tokenAddress = getTokenAddress(tokenName);
+        address tokenAddress = tokenRegistry.getTokenAddress(tokenName);
         require(tokenAddress != address(0), "unsupported token");
 
         Wallet sender = Wallet(payable(senderAddress));

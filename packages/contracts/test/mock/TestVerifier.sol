@@ -70,4 +70,19 @@ contract TestVerifier is IVerifier {
 
         return false;
     }
+
+    function verifyClaimFundProof(
+        bytes32 /* recipientRelayerHash */,
+        bytes32 /* recipientEmailAddressPointer */,
+        bytes32 /* recipientViewingKeyCommitment */,
+        bytes32 /* recipientWalletSalt */,
+        bytes32 /* recipientEmailAddressCommitment */,
+        bytes memory proof
+    ) external view returns (bool) {
+        if (proof[0] == 0x01) {
+            return true;
+        }
+
+        return false;
+    }
 }

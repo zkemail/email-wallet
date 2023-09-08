@@ -13,6 +13,7 @@ struct EmailOperation {
     bytes32 recipientEmailAddressPointer; // emailAddressPointer of recipient's account
     bytes32 recipientEmailAddressWitness; // A commitment to recipient's email address to cross check with other proofs
     bytes recipientAccountProof; // Proof of recipient's account created by recipient relayer
+    bytes32 recipientEmailAddressCommitment; // Commitment to recipient's email address to register unclaimed funds
     //
     address extensionAddress; // Address of the extension to set for the command (SET_EXTENSION)
     bytes extensionParams; // Params for the extension (like swap params)
@@ -26,10 +27,9 @@ struct EmailOperation {
     bytes emailProof; // ZK Proof of Email receipt
 }
 
-// Struct to represent a transfer - used for refunds of uninitalized accounts
-struct TransferNote {
-    bytes32 senderEmailAddressPointer;
-    bytes32 recipientEmailAddressPointer;
+struct UnclaimedFund {
     string tokenName;
     uint256 amount;
+    uint256 expiryTime;
+    address sender;
 }
