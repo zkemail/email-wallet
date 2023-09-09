@@ -3,6 +3,7 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
 import "./utils/TokenRegistry.sol";
 import "./interfaces/IVerifier.sol";
@@ -19,14 +20,20 @@ contract EmailWalletCore is WalletHandler {
     // DKIM public key hashes registry
     DKIMRegistry public immutable dkimRegistry;
 
-    // Mapping of relayer's wallet address to hash(relayerRand)
-    mapping(address => bytes32) public relayers;
+    // Mapping of relayer's wallet address to relayer config
+    mapping(address => RelayerConfig) public relayers;
 
     // Mapping of emailAddressPointer to viewingKeyCommitment
     mapping(bytes32 => bytes32) public vkCommitmentOfPointer;
 
     // Mapping of emailAddressPointer to walletSalt
-    mapping(bytes32 => bytes32) public walletSaltOfPointer;
+    mapping(bytes32 => bytes32) public walletSaltOfVKCommitment;
+
+    // Mapping of PSI point to emailAddressPointer
+    mapping(bytes => bytes32) public pointerOfPSIPoint;
+
+    // Mapping of viewingKeyCommitment to Relayer's address
+    mapping(bytes32 => address) public relayerOfVKCommitment;
 
     // Flag to indicate whether viewingKeyCommitment is initialized
     mapping(bytes32 => bool) public initializedVKCommitments;
@@ -38,8 +45,7 @@ contract EmailWalletCore is WalletHandler {
     mapping(bytes32 => bool) public emailNullifiers;
 
     // Mapping of recipient's emailAddressCommitment (hash(email, randomness)) to the unclaimedFund
-    // Note: The array only include funds from a single sender using the same randomness; not all the funds claimable by recipient user
-    mapping(bytes32 => UnclaimedFund[]) public unclaimedFundOfRecipient;
+    mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommitment;
 
     // Global mapping of command name to extension address
     mapping(string => address) public extensionOfCommand;
@@ -56,6 +62,10 @@ contract EmailWalletCore is WalletHandler {
         uint256 expiryTime
     );
 
+    event RelayerRegistered(bytes32 randHash, bytes32 emailAddressHash, string hostname);
+
+    event RelayerConfigUpdated(bytes32 randHash, string hostname);
+
     constructor(
         address _verifier,
         address _tokenRegistry,
@@ -65,18 +75,40 @@ contract EmailWalletCore is WalletHandler {
         dkimRegistry = DKIMRegistry(_dkimRegistry);
     }
 
-    function getVerifier() external view returns (address) {
-        return address(verifier);
+
+    /// @notice Register as a relayer
+    /// @param randHash hash of relayed private randomness `relayerRand`
+    /// @param emailAddressHash hash of relayer's email address
+    /// @param hostname hostname of relayer's server - used by other relayers for PSI communication
+    function registerRelayer(
+        bytes32 randHash,
+        bytes32 emailAddressHash,
+        string memory hostname
+    ) public {
+        require(randHash != bytes32(0), "ransHash cannot be empty");
+        require(emailAddressHash != bytes32(0), "emailAddressHash cannot be empty");
+        require(bytes(hostname).length != 0, "hostname cannot be empty");
+
+        require(relayers[msg.sender].randHash == bytes32(0), "relayer already registered");
+
+        relayers[msg.sender] = RelayerConfig({
+            randHash: randHash,
+            emailAddressHash: emailAddressHash,
+            hostname: hostname
+        });
+
+        emit RelayerRegistered(randHash, emailAddressHash, hostname);
     }
 
-    /// Register as a relayer
-    /// @param relayerHash hash of relayed private randomness `relayerRand`
-    function registerRelayer(bytes32 relayerHash) public {
-        require(relayers[msg.sender] == bytes32(0), "relayer already registered");
+    /// @notice Update relayer's config (hostname only for now)
+    /// @param hostname new hostname of relayer's server
+    function updateRelayerConfig(string memory hostname) public {
+        require(bytes(hostname).length != 0, "hostname cannot be empty");
+        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
 
-        require(relayerHash != bytes32(0), "relayerHash must not be zero");
+        relayers[msg.sender].hostname = hostname;
 
-        relayers[msg.sender] = relayerHash;
+        emit RelayerConfigUpdated(relayers[msg.sender].randHash, hostname);
     }
 
     /// Create new account and wallet for a user
@@ -88,23 +120,31 @@ contract EmailWalletCore is WalletHandler {
         bytes32 emailAddressPointer,
         bytes32 viewingKeyCommitment,
         bytes32 walletSalt,
+        bytes memory psiPoint,
         bytes memory proof
     ) public returns (address) {
-        require(vkCommitmentOfPointer[emailAddressPointer] == bytes32(0), "pointer already exists");
+        require(vkCommitmentOfPointer[emailAddressPointer] == bytes32(0), "VK commitment already exists");
+        require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point already exists");
+        require(walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0), "wallet salt already exists");
+        require(initializedVKCommitments[viewingKeyCommitment] == false, "account already initialized");
+        require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
+        require(Address.isContract(getAddressOfSalt(walletSalt)) == false, "wallet already deployed");
+
 
         require(
             verifier.verifyAccountCreationProof(
-                relayers[msg.sender],
+                relayers[msg.sender].randHash,
                 emailAddressPointer,
                 viewingKeyCommitment,
                 walletSalt,
+                psiPoint,
                 proof
             ),
             "invalid account creation proof"
         );
 
         vkCommitmentOfPointer[emailAddressPointer] = viewingKeyCommitment;
-        walletSaltOfPointer[emailAddressPointer] = walletSalt;
+        walletSaltOfVKCommitment[viewingKeyCommitment] = walletSalt;
 
         return _deployWallet(walletSalt);
     }
@@ -237,7 +277,7 @@ contract EmailWalletCore is WalletHandler {
                     recipientRelayerHash,
                     emailOp.recipientEmailAddressPointer,
                     vkCommitmentOfPointer[emailOp.recipientEmailAddressPointer],
-                    walletSaltOfPointer[emailOp.recipientEmailAddressPointer],
+                    walletSaltOfVKCommitment[emailOp.recipientEmailAddressPointer],
                     emailOp.recipientEmailAddressWitness,
                     emailOp.recipientAccountProof
                 ),
@@ -276,7 +316,7 @@ contract EmailWalletCore is WalletHandler {
             // Transfer to external address
             if (emailOp.isRecipientExternal) {
                 WalletHandler._processTransferRequest(
-                    getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
+                    getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer]),
                     emailOp.recipientExternalAddress,
                     emailOp.tokenName,
                     emailOp.amount
@@ -285,8 +325,10 @@ contract EmailWalletCore is WalletHandler {
             // Transfer to email wallet user if recipient is set
             else if (emailOp.recipientEmailAddressPointer != bytes32(0)) {
                 WalletHandler._processTransferRequest(
-                    getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
-                    getAddressOfSalt(walletSaltOfPointer[emailOp.recipientEmailAddressPointer]),
+                    getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer]),
+                    getAddressOfSalt(
+                        walletSaltOfVKCommitment[emailOp.recipientEmailAddressPointer]
+                    ),
                     emailOp.tokenName,
                     emailOp.amount
                 );
@@ -297,7 +339,7 @@ contract EmailWalletCore is WalletHandler {
                     emailOp.recipientEmailAddressCommitment,
                     emailOp.tokenName,
                     emailOp.amount,
-                    getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer])
+                    getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer])
                 );
             }
         }
@@ -337,7 +379,7 @@ contract EmailWalletCore is WalletHandler {
 
             // Ask the wallet to execute the calldata
             WalletHandler._executeExtensionCalldata(
-                getAddressOfSalt(walletSaltOfPointer[emailOp.senderEmailAddressPointer]),
+                getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer]),
                 target,
                 data
             );
@@ -359,7 +401,7 @@ contract EmailWalletCore is WalletHandler {
             sender: senderAddress
         });
 
-        unclaimedFundOfRecipient[recipientEmailAddressPointer].push(fund);
+        unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer].push(fund);
 
         emit UnclaimedFundRegistered(recipientEmailAddressPointer, senderAddress, expiryTime);
     }
@@ -382,14 +424,14 @@ contract EmailWalletCore is WalletHandler {
                 relayers[msg.sender],
                 recipientEmailAddressPointer,
                 vkCommitmentOfPointer[recipientEmailAddressPointer],
-                walletSaltOfPointer[recipientEmailAddressPointer],
+                walletSaltOfVKCommitment[recipientEmailAddressPointer],
                 recipientEmailAddressCommitment,
                 proof
             ),
             "invalid proof"
         );
 
-        UnclaimedFund[] storage funds = unclaimedFundOfRecipient[recipientEmailAddressPointer];
+        UnclaimedFund[] storage funds = unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer];
 
         for (uint256 i = 0; i < funds.length; i++) {
             UnclaimedFund storage fund = funds[i];
@@ -398,7 +440,7 @@ contract EmailWalletCore is WalletHandler {
                 delete funds[i];
 
                 address recipientWallet = getAddressOfSalt(
-                    walletSaltOfPointer[recipientEmailAddressPointer]
+                    walletSaltOfVKCommitment[recipientEmailAddressPointer]
                 );
                 transferUnclaimedFund(fund, recipientWallet);
             }
@@ -416,7 +458,7 @@ contract EmailWalletCore is WalletHandler {
     }
 
     function refundUnclaimedFund(bytes32 recipientEmailAddressPointer) external {
-        UnclaimedFund[] storage funds = unclaimedFundOfRecipient[recipientEmailAddressPointer];
+        UnclaimedFund[] storage funds = unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer];
 
         for (uint256 i = 0; i < funds.length; i++) {
             UnclaimedFund storage fund = funds[i];

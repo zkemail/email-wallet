@@ -2,21 +2,19 @@
 pragma solidity ^0.8.9;
 
 interface IVerifier {
-    /**
-        The proof should verify that:
-            - relayerHash is hash(relayerRand) where relayerRand is a randomness
-            - emailAddressPointer is hash(relayerRand, emailAddress)
-            - viewingKeyCommitment is hash(viewingKey, emailAddress, relayerHash)
-                where viewingKey is a randomness
-            - walletSalt is hash(viewingKey, 0)
-
-        Note: relayerHash was previously registered by the relayer
-     */
+    /// @notice Verify the proof to create an account
+    /// @notice Verify `emailAddressPointer`, `viewingKeyCommitment` and `walletSalt` are calculated from the same `emailAddress`, `viewingKey` and `relayerRandomness`
+    /// @param relayerHash The hash of the relayer randomness
+    /// @param emailAddressPointer The hash of the relayer randomness and email address
+    /// @param viewingKeyCommitment The hash of the viewing key, email address and relayer randomness
+    /// @param walletSalt The hash of the viewing key and 01
+    /// @param psiPoint The psi point of the email address
     function verifyAccountCreationProof(
         bytes32 relayerHash,
         bytes32 emailAddressPointer,
         bytes32 viewingKeyCommitment,
         bytes32 walletSalt,
+        bytes memory psiPoint,
         bytes memory proof
     ) external view returns (bool);
 
