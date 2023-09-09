@@ -130,7 +130,6 @@ contract EmailWalletCore is WalletHandler {
         require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
         require(Address.isContract(getAddressOfSalt(walletSalt)) == false, "wallet already deployed");
 
-
         require(
             verifier.verifyAccountCreationProof(
                 relayers[msg.sender].randHash,
@@ -145,41 +144,47 @@ contract EmailWalletCore is WalletHandler {
 
         vkCommitmentOfPointer[emailAddressPointer] = viewingKeyCommitment;
         walletSaltOfVKCommitment[viewingKeyCommitment] = walletSalt;
+        relayerOfVKCommitment[viewingKeyCommitment] = msg.sender;
+        pointerOfPSIPoint[psiPoint] = emailAddressPointer;
 
         return _deployWallet(walletSalt);
     }
 
     /// Initialize the account when user reply to invitation email
     /// @param emailAddressPointer hash(relayerRand, emailAddress)
-    /// @param viewingKeyCommitment hash(viewingKey, emailAddress, relayerHash)
     /// @param emailDomain domain name of the sender's email
+    /// @param emailNullifier nullifier of the email used for proof generation
     /// @param proof ZK proof as required by the verifier
     function initializeAccount(
         bytes32 emailAddressPointer,
-        bytes32 viewingKeyCommitment,
         string memory emailDomain,
+        bytes32 emailNullifier,
         bytes memory proof
     ) public {
-        require(
-            vkCommitmentOfPointer[emailAddressPointer] == viewingKeyCommitment,
-            "invalid viewingKeyCommitment"
-        );
+        bytes32 viewingKeyCommitment = vkCommitmentOfPointer[emailAddressPointer];
 
-        require(!initializedVKCommitments[viewingKeyCommitment], "account already initialized");
+        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(viewingKeyCommitment != bytes32(0), "account not registered");
+        require(relayerOfVKCommitment[viewingKeyCommitment] == msg.sender, "invalid relayer");
+        require(initializedVKCommitments[viewingKeyCommitment] == false, "account already initialized");
+        require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
+        require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
 
         require(
             verifier.verifyAccountInitializaionProof(
-                relayers[msg.sender],
+                relayers[msg.sender].randHash,
                 emailAddressPointer,
                 viewingKeyCommitment,
                 emailDomain,
                 bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
+                emailNullifier,
                 proof
             ),
             "invalid account creation proof"
         );
 
         initializedVKCommitments[viewingKeyCommitment] = true;
+        emailNullifiers[emailNullifier] = true;
     }
 
     /// Calculate email subject based on paramteres of EmailOp

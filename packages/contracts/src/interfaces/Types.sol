@@ -15,7 +15,7 @@ struct EmailOperation {
     address recipientETHAddress; // ETH address of recipient - when recipient email address in not present in
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
-    string domainName; // Domain name of the sender's email
+    string emailDomain; // Domain name of the sender's email
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
