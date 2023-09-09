@@ -1,5 +1,2 @@
 [workspace]
-
-members = [
-    "packages/relayer",
-]
+members = ["packages/relayer", "packages/utils"]
