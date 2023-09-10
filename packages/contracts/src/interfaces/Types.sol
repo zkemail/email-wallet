@@ -9,10 +9,10 @@ struct RelayerConfig {
 
 // Struct to represent an operation from the user
 struct EmailOperation {
-    bytes32 senderEmailAddressPointer; // emailAddressPointer of sender's account
+    bytes32 emailAddressPointer; // emailAddressPointer of sender's account
     bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
-    bytes32 recipientEmailAddressCommitment; // Commitment to recipient's email address - to register unclaimed funds
-    address recipientETHAddress; // ETH address of recipient - when recipient email address in not present in
+    bytes32 recipientEmailAddressCommitment; // Commitment to recipient's email address if `hasEmailRecipient` is true
+    address recipientETHAddress; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email

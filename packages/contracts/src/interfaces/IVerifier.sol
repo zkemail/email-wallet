@@ -40,33 +40,31 @@ interface IVerifier {
         bytes memory proof
     ) external view returns (bool);
 
-
-    /**
-        This proof will verify that:
-            - relayer received an email from seder which contained the maskedSubjectStr
-            and DKIM signed by public key whose hash is dkimPublicKeyHash
-            - senderEmailAddressPointer, senderViewingKeyCommitment are calculated
-            from the same emailAddress
-            - emailNullifier is hash of the email headers
-            - hasRecipient is true if the subject has a recipient
-            - isRecipientExternal is true if the recipient is ETH address instead of email 
-            - recipientEmailAddressWitness is hash of emailAddress and a randomness
-
-        Note: relayerHash, senderEmailAddressPointer, senderViewingKeyCommitment are previously
-        registered by the relayer. dkimPublicKeyHash is from the stored mapping.
-     */
+    /// @notice Verify the proof of email from user - used to verify EmailOp
+    /// @notice Verify that relayer received an email where:
+    ///         sender's email address domain is `emailDomain`,
+    ///         sender's email address and relayer randmness derives `emailAddressPointer`,
+    ///         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,
+    ///         the subject is same as `maskedSubject` with email address masked (if any),
+    ///         and email address in subject is used to derive `recipientEmailAddressCommitment`
+    /// @param emailDomain The domain of the user's email address
+    /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
+    /// @param maskedSubject The subject of the email with (any) email address masked
+    /// @param emailNullifier The nullifier computed for the email
+    /// @param relayerHash The hash of the relayer randomness
+    /// @param emailAddressPointer The hash of the relayer randomness and users's email address
+    /// @param recipientEmailAddressCommitment The hash of recipeint's email address (from subject) and a randomness
+    /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
+    /// @dev `relayerHash`, `emailAddressPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
     function verifyEmailProof(
-        bytes32 senderRelayerHash,
-        bytes32 senderEmailAddressPointer,
-        bytes32 senderViewingKeyCommitment,
-        bool hasRecipient,
-        bool isRecipientExternal,
-        bytes32 recipientEmailAddressWitness,
-        string memory maskedSubjectStr,
-        bytes32 emailNullifier,
-        string memory senderEmailDomain,
+        string memory emailDomain,
         bytes32 dkimPublicKeyHash,
-        bytes memory proof
+        string memory maskedSubject,
+        bytes32 emailNullifier,
+        bytes32 relayerHash,
+        bytes32 emailAddressPointer,
+        bool hasEmailRecipient,
+        bytes32 recipientEmailAddressCommitment
     ) external view returns (bool);
 
     /// @notice Verify the proof to claim and unclaimed to a recipient account

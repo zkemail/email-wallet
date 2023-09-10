@@ -53,9 +53,6 @@ contract EmailWalletCore is WalletHandler {
     // Mapping of recipient's emailAddressCommitment (hash(email, randomness)) to the unclaimedFund
     mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommitment;
 
-    // Time in block count for a transfer to be refundable (for uninitialized recipient)
-    uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30; // 30 days (5 blocks per minute)
-
     event RelayerRegistered(bytes32 randHash, bytes32 emailAddressHash, string hostname);
 
     event RelayerConfigUpdated(bytes32 randHash, string hostname);
@@ -406,7 +403,9 @@ contract EmailWalletCore is WalletHandler {
         IERC20(fund.tokenAddress).transfer(fund.senderAddress, fund.amount);
 
         // Transfer claim fee to the sender - either emailWallet user or external wallet
-        (bool sent, ) = payable(fund.senderAddress).call{value: Constants.UNCLAIMED_FUNDS_REFUND_FEE}("");
+        (bool sent, ) = payable(fund.senderAddress).call{
+            value: Constants.UNCLAIMED_FUNDS_REFUND_FEE
+        }("");
         require(sent, "failed to transfer refund fee");
 
         emit UnclaimedFundRefunded(
@@ -480,60 +479,46 @@ contract EmailWalletCore is WalletHandler {
         }
     }
 
-    /// Validate an EmailOperation - proof of email, proof of account, etc.
+    /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOperation to be validated
     function _validateEmailOp(EmailOperation memory emailOp) internal view {
-        bytes32 senderRelayerHash = relayers[msg.sender];
+        bytes32 relayerHash = relayers[msg.sender].randHash;
+        bytes32 vkCommitment = vkCommitmentOfPointer[emailOp.emailAddressPointer];
+        bytes32 walletSalt = walletSaltOfVKCommitment[vkCommitment];
+        bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
 
-        // Verify email is not nullified
+        require(relayerHash != bytes32(0), "relayer not registered");
+        require(relayerOfVKCommitment[vkCommitment] == msg.sender, "invalid relayer");
+        require(initializedVKCommitments[vkCommitment], "account not initialized");
+        require(!nullifiedVKCommitments[vkCommitment], "account is nullified");
+        require(walletSalt != bytes32(0), "wallet salt not set");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
+        require(emailOp.command != "", "command cannot be empty");
+        require(emailOp.feeTokenName != "", "token name cannot be empty");
+        require(dkimPublicKeyHash == emailOp.dkimPublicKeyHash, "DKIM pubkey mismatch");
 
-        // Verify the EmailOp parms are properly derived from subject line from email
-        require(
-            Strings.equal(_computeEmailSubjectForEmailOp(emailOp), emailOp.maskedSubjectStr),
-            "computed subject mismatch"
-        );
-
-        bytes32 viewingKeyCommitment = vkCommitmentOfPointer[emailOp.senderEmailAddressPointer];
-
-        require(initializedVKCommitments[viewingKeyCommitment], "account not initialized");
-
-        require(!nullifiedVKCommitments[viewingKeyCommitment], "account is nullified");
-
-        // If the recipient email is specified in the subject, verify the recipient's account
-        if (emailOp.hasRecipient && !emailOp.isRecipientExternal) {
-            bytes32 recipientRelayerHash = relayers[emailOp.recipientRelayer];
-
-            require(recipientRelayerHash != bytes32(0), "recipient relayer not registered");
-
-            // Verify recipient account proof
+        if (emailOp.hasEmailRecipient) {
             require(
-                verifier.verifyRecipientAccountProof(
-                    recipientRelayerHash,
-                    emailOp.recipientEmailAddressPointer,
-                    vkCommitmentOfPointer[emailOp.recipientEmailAddressPointer],
-                    walletSaltOfVKCommitment[emailOp.recipientEmailAddressPointer],
-                    emailOp.recipientEmailAddressWitness,
-                    emailOp.recipientAccountProof
-                ),
-                "invalid recipient account proof"
+                emailOp.recipientEmailAddressCommitment != bytes32(0),
+                "recipientEmailAddressCommitment cannot be empty"
             );
         }
 
-        // Verify senders account and email proof
+        require(
+            Strings.equal(_computeEmailSubjectForEmailOp(emailOp), emailOp.maskedSubject),
+            "computed subject mismatch"
+        );
+
         require(
             verifier.verifyEmailProof(
-                senderRelayerHash,
-                emailOp.senderEmailAddressPointer,
-                vkCommitmentOfPointer[emailOp.senderEmailAddressPointer],
-                emailOp.hasRecipient,
-                emailOp.isRecipientExternal,
-                emailOp.recipientEmailAddressWitness,
-                emailOp.maskedSubjectStr,
-                emailOp.emailNullifier,
                 emailOp.emailDomain,
-                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain)),
-                emailOp.emailProof
+                emailOp.dkimPublicKeyHash,
+                emailOp.maskedSubject,
+                emailOp.emailNullifier,
+                relayerHash,
+                emailOp.emailAddressPointer,
+                emailOp.hasEmailRecipient,
+                emailOp.recipientEmailAddressCommitment
             ),
             "invalid email proof"
         );
