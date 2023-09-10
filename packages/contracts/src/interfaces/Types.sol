@@ -38,8 +38,8 @@ struct ExtensionManagerParams {
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
-    string tokenName;
+    address senderAddress;
+    address tokenAddress;
     uint256 amount;
     uint256 expiryTime;
-    address sender;
 }

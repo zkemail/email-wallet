@@ -11,7 +11,7 @@ import "./interfaces/IExtension.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
 import "./Wallet.sol";
-import "./WalletHandler.sol";
+import "./handlers/WalletHandler.sol";
 
 contract EmailWalletCore is WalletHandler {
     // ZK proof verifier
@@ -44,28 +44,49 @@ contract EmailWalletCore is WalletHandler {
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
-    // Mapping of recipient's emailAddressCommitment (hash(email, randomness)) to the unclaimedFund
-    mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommitment;
-
     // Global mapping of command name to extension address
     mapping(string => address) public extensionOfCommand;
 
     // User level mapping of command name to extension address (pointer -> (command -> extension))
     mapping(bytes32 => mapping(string => address)) public userExtensionOfCommand;
 
+    // Mapping of recipient's emailAddressCommitment (hash(email, randomness)) to the unclaimedFund
+    mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommitment;
+
     // Time in block count for a transfer to be refundable (for uninitialized recipient)
     uint256 public constant REFUND_PERIOD_IN_BLOCKS = 5 * 60 * 24 * 30; // 30 days (5 blocks per minute)
-
-    event UnclaimedFundRegistered(
-        bytes32 recipientEmailAddressCommitment,
-        address indexed sender,
-        uint256 expiryTime
-    );
 
     event RelayerRegistered(bytes32 randHash, bytes32 emailAddressHash, string hostname);
 
     event RelayerConfigUpdated(bytes32 randHash, string hostname);
 
+    event UnclaimedFundRegistered(
+        bytes32 emailAddressCommitment,
+        address tokenAddress,
+        uint256 amount,
+        address sender,
+        uint256 expiryTime,
+        bytes32 commitmentRandomness,
+        string emailAddress
+    );
+
+    event UnclaimedFundClaimed(
+        bytes32 emailAddressCommitment,
+        address tokenAddress,
+        uint256 amount,
+        address recipient
+    );
+
+    event UnclaimedFundRefunded(
+        bytes32 emailAddressCommitment,
+        address tokenAddress,
+        uint256 amount,
+        address sender
+    );
+
+    /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
+    /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
+    /// @param _dkimRegistry DKIM public key hashes registry - must implement `DKIMRegistry` interface
     constructor(
         address _verifier,
         address _tokenRegistry,
@@ -74,7 +95,6 @@ contract EmailWalletCore is WalletHandler {
         verifier = IVerifier(_verifier);
         dkimRegistry = DKIMRegistry(_dkimRegistry);
     }
-
 
     /// @notice Register as a relayer
     /// @param randHash hash of relayed private randomness `relayerRand`
@@ -123,12 +143,24 @@ contract EmailWalletCore is WalletHandler {
         bytes memory psiPoint,
         bytes memory proof
     ) public returns (address) {
-        require(vkCommitmentOfPointer[emailAddressPointer] == bytes32(0), "VK commitment already exists");
+        require(
+            vkCommitmentOfPointer[emailAddressPointer] == bytes32(0),
+            "VK commitment already exists"
+        );
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point already exists");
-        require(walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0), "wallet salt already exists");
-        require(initializedVKCommitments[viewingKeyCommitment] == false, "account already initialized");
+        require(
+            walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0),
+            "wallet salt already exists"
+        );
+        require(
+            initializedVKCommitments[viewingKeyCommitment] == false,
+            "account already initialized"
+        );
         require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
-        require(Address.isContract(getAddressOfSalt(walletSalt)) == false, "wallet already deployed");
+        require(
+            Address.isContract(getAddressOfSalt(walletSalt)) == false,
+            "wallet already deployed"
+        );
 
         require(
             verifier.verifyAccountCreationProof(
@@ -166,7 +198,10 @@ contract EmailWalletCore is WalletHandler {
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(viewingKeyCommitment != bytes32(0), "account not registered");
         require(relayerOfVKCommitment[viewingKeyCommitment] == msg.sender, "invalid relayer");
-        require(initializedVKCommitments[viewingKeyCommitment] == false, "account already initialized");
+        require(
+            initializedVKCommitments[viewingKeyCommitment] == false,
+            "account already initialized"
+        );
         require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
 
@@ -185,6 +220,201 @@ contract EmailWalletCore is WalletHandler {
 
         initializedVKCommitments[viewingKeyCommitment] = true;
         emailNullifiers[emailNullifier] = true;
+    }
+
+    /// @notice Register unclaimed fund for the recipient - only for internal email wallet transfers.
+    /// @notice `UNCLAIMED_FUNDS_REGISTRATION_FEE` ETH should be supplied to this function.
+    /// @param emailAddressCommitment Hash of the recipient's email address and a random number.
+    /// @param tokenAddress Address of ERC20 token contract.
+    /// @param amount Amount in WEI of the token.
+    /// @param senderAddress ETH address of the sender.
+    function _registerUnclaimedFundInternal(
+        bytes32 emailAddressCommitment,
+        address tokenAddress,
+        uint256 amount,
+        address senderAddress
+    ) private payable {
+        // Ensure the relayer has paid ETH needed for claiming the unclaimed fee
+        require(
+            msg.value == Constants.UNCLAIMED_FUNDS_REGISTRATION_FEE,
+            "invalid unclaimed fund fee"
+        );
+
+        require(amount > 0, "token amount should be greater than 0");
+        require(tokenAddress != address(0), "invalid token contract");
+        require(senderAddress != address(0), "invalid sender address");
+        require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
+        require(
+            unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].amount == 0,
+            "unclaimed fund already registered"
+        );
+
+        // Transfer token from sender's wallet to Core contract
+        WalletHandler(this)._processERC20TransferRequest(
+            senderAddress,
+            address(this),
+            tokenAddress,
+            amount
+        );
+
+        uint256 expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
+
+        UnclaimedFund memory fund = UnclaimedFund({
+            tokenAddress: tokenAddress,
+            amount: amount,
+            expiryTime: expiryTime,
+            senderAddress: senderAddress
+        });
+
+        unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].push(fund);
+
+        emit UnclaimedFundRegistered(
+            emailAddressCommitment,
+            tokenAddress,
+            amount,
+            senderAddress,
+            expiryTime
+        );
+    }
+
+    /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
+    /// @param emailAddressCommitment Hash of the recipient's email address and a random number.
+    /// @param tokenAddress Address of ERC20 token contract.
+    /// @param amount Amount in WEI of the token.
+    /// @param expiryTime Expiry time to claim the unclaimed fund. Set `0` to use default expiry.
+    /// @param announceCommitmentRandomness Randomness used to generate the `emailAddressCommitment` - if needs to be public.
+    /// @param announceEmailAddress Email address of the recipient - if needs to be public.
+    /// @dev   `UNCLAIMED_FUNDS_REGISTRATION_FEE` ETH should be supplied to this function.
+    /// @dev   `announceCommitmentRandomness` and `announceEmailAddress` are optional. They are not validated as well.
+    function registerUnclaimedFund(
+        bytes32 emailAddressCommitment,
+        address tokenAddress,
+        uint256 amount,
+        uint256 expiryTime,
+        uint256 announceCommitmentRandomness,
+        string announceEmailAddress
+    ) public payable {
+        if (expiryTime == 0) {
+            expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
+        }
+
+        // Ensure the sender has paid ETH needed for claiming the unclaimed fee
+        require(
+            msg.value == Constants.UNCLAIMED_FUNDS_REGISTRATION_FEE,
+            "invalid unclaimed fund fee"
+        );
+
+        require(amount > 0, "token amount should be greater than 0");
+        require(tokenAddress != address(0), "invalid token contract");
+        require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
+        require(expiryTime > block.timestamp, "invalid expiry time");
+        require(
+            unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].amount == 0,
+            "unclaimed fund already registered"
+        );
+
+        // Transfer token from sender to Core contract - sender should have set enough allowance for Core contract
+        IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
+
+        UnclaimedFund memory fund = UnclaimedFund({
+            tokenAddress: tokenAddress,
+            amount: amount,
+            expiryTime: expiryTime,
+            senderAddress: msg.sender
+        });
+
+        unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].push(fund);
+
+        emit UnclaimedFundRegistered(
+            emailAddressCommitment,
+            tokenAddress,
+            amount,
+            msg.sender,
+            expiryTime,
+            announceCommitmentRandomness,
+            announceEmailAddress
+        );
+    }
+
+    /// Claim an unclaimed fund to the recipient's (initialized) wallet.
+    /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @param recipientEmailAddressPointer The pointer to the recipient's email address.
+    /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
+    function claimUnclaimedFund(
+        bytes32 emailAddressCommitment,
+        bytes32 recipientEmailAddressPointer,
+        bytes memory proof
+    ) public {
+        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[
+            recipientEmailAddressPointer
+        ];
+        bytes32 vkCommitment = vkCommitmentOfPointer[recipientEmailAddressPointer];
+        bytes32 walletSalt = walletSaltOfVKCommitment[vkCommitment];
+
+        require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
+        require(relayerOfVKCommitment[vkCommitment] == msg.sender, "invalid relayer for account");
+        require(fund.amount > 0, "unclaimed fund not registered");
+        require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
+        require(
+            vkCommitmentOfPointer[recipientEmailAddressPointer] != bytes32(0),
+            "invalid VK commitment"
+        );
+        require(initializedVKCommitments[vkCommitment], "account not initialized");
+        require(!nullifiedVKCommitments[vkCommitment], "account is nullified");
+        require(walletSalt != bytes32(0), "invalid wallet salt");
+
+        require(
+            verifier.verifyClaimFundProof(
+                relayers[msg.sender].randHash,
+                recipientEmailAddressPointer,
+                emailAddressCommitment,
+                proof
+            ),
+            "invalid proof"
+        );
+
+        address recipientAddress = getAddressOfSalt(walletSalt);
+
+        delete unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer];
+
+        // Transfer token from Core contract to recipient's wallet
+        IERC20(fund.tokenAddress).transfer(recipientAddress, fund.amount);
+
+        // Transfer claim fee to the sender (relayer)
+        (bool sent, ) = payable(msg.sender).call{value: Constants.UNCLAIMED_FUNDS_CLAIM_FEE}("");
+        require(sent, "failed to transfer claim fee");
+
+        emit UnclaimedFundClaimed(
+            emailAddressCommitment,
+            fund.tokenAddress,
+            fund.amount,
+            recipientAddress
+        );
+    }
+
+    /// @notice Return unclaimed fund after expiry time
+    /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
+    function refundUnclaimedFund(bytes32 emailAddressCommitment) external {
+        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[emailAddressCommitment];
+
+        require(fund.amount > 0, "unclaimed fund not registered");
+        require(fund.expiryTime < block.timestamp, "unclaimed fund not expired");
+
+        delete unclaimedFundOfEmailAddrCommitment[emailAddressCommitment];
+
+        // Transfer token from Core contract to sender's wallet
+        IERC20(fund.tokenAddress).transfer(fund.senderAddress, fund.amount);
+
+        // Transfer claim fee to the sender - either emailWallet user or external wallet
+        (bool sent, ) = payable(fund.senderAddress).call{value: Constants.UNCLAIMED_FUNDS_REFUND_FEE}("");
+        require(sent, "failed to transfer refund fee");
+
+        emit UnclaimedFundRefunded(
+            emailAddressCommitment,
+            fund.tokenAddress,
+            fund.amount,
+            fund.senderAddress
+        );
     }
 
     /// Calculate email subject based on paramteres of EmailOp
@@ -388,90 +618,6 @@ contract EmailWalletCore is WalletHandler {
                 target,
                 data
             );
-        }
-    }
-
-    function _registerUnclaimedFund(
-        bytes32 recipientEmailAddressPointer,
-        string memory tokenName,
-        uint256 amount,
-        address senderAddress
-    ) private {
-        uint256 expiryTime = block.timestamp + 30 days;
-
-        UnclaimedFund memory fund = UnclaimedFund({
-            tokenName: tokenName,
-            amount: amount,
-            expiryTime: expiryTime,
-            sender: senderAddress
-        });
-
-        unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer].push(fund);
-
-        emit UnclaimedFundRegistered(recipientEmailAddressPointer, senderAddress, expiryTime);
-    }
-
-    function registerUnclaimedFund(
-        bytes32 recipientEmailAddressPointer,
-        string memory tokenName,
-        uint256 amount
-    ) public {
-        _registerUnclaimedFund(recipientEmailAddressPointer, tokenName, amount, msg.sender);
-    }
-
-    function claimUnclaimedFund(
-        bytes32 recipientEmailAddressPointer,
-        bytes32 recipientEmailAddressCommitment,
-        bytes memory proof
-    ) public {
-        require(
-            verifier.verifyClaimFundProof(
-                relayers[msg.sender],
-                recipientEmailAddressPointer,
-                vkCommitmentOfPointer[recipientEmailAddressPointer],
-                walletSaltOfVKCommitment[recipientEmailAddressPointer],
-                recipientEmailAddressCommitment,
-                proof
-            ),
-            "invalid proof"
-        );
-
-        UnclaimedFund[] storage funds = unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer];
-
-        for (uint256 i = 0; i < funds.length; i++) {
-            UnclaimedFund storage fund = funds[i];
-
-            if (fund.expiryTime < block.timestamp) {
-                delete funds[i];
-
-                address recipientWallet = getAddressOfSalt(
-                    walletSaltOfVKCommitment[recipientEmailAddressPointer]
-                );
-                transferUnclaimedFund(fund, recipientWallet);
-            }
-        }
-    }
-
-    function transferUnclaimedFund(UnclaimedFund storage fund, address recipient) internal {
-        if (Strings.equal(fund.tokenName, Constants.ETH_TOKEN_NAME)) {
-            (bool sent, bytes memory data) = recipient.call{value: fund.amount}("");
-            require(sent, "unclaimed eth send failed");
-        } else {
-            IERC20 token = IERC20(tokenRegistry.getTokenAddress(fund.tokenName));
-            token.transfer(recipient, fund.amount);
-        }
-    }
-
-    function refundUnclaimedFund(bytes32 recipientEmailAddressPointer) external {
-        UnclaimedFund[] storage funds = unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer];
-
-        for (uint256 i = 0; i < funds.length; i++) {
-            UnclaimedFund storage fund = funds[i];
-
-            if (fund.expiryTime > block.timestamp) {
-                delete funds[i];
-                transferUnclaimedFund(fund, fund.sender); // setting sender as recipient
-            }
         }
     }
 }

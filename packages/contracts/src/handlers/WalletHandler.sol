@@ -3,11 +3,11 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "./Wallet.sol";
-import "./utils/TokenRegistry.sol";
-import "./interfaces/Types.sol";
-import "./interfaces/IVerifier.sol";
-import "./interfaces/Constants.sol";
+import "../Wallet.sol";
+import "../utils/TokenRegistry.sol";
+import "../interfaces/Types.sol";
+import "../interfaces/IVerifier.sol";
+import "../interfaces/Constants.sol";
 
 contract WalletHandler {
     TokenRegistry public immutable tokenRegistry;
@@ -32,26 +32,16 @@ contract WalletHandler {
         return address(wallet);
     }
 
-    function _processETHTransferRequest(
-        address senderAddress,
-        address recipientAddress,
-        uint256 amount
-    ) internal {
-        Wallet sender = Wallet(payable(senderAddress));
-
-        (bool success, bytes memory returnData) = sender.execute(recipientAddress, amount, "");
-
-        require(success, string(returnData));
-    }
-
     function _processERC20TransferRequest(
         address senderAddress,
         address recipientAddress,
-        string memory tokenName,
+        address tokenAddress,
         uint256 amount
     ) internal {
-        address tokenAddress = tokenRegistry.getTokenAddress(tokenName);
-        require(tokenAddress != address(0), "unsupported token");
+        require(tokenAddress != address(0), "invalid token address");
+        require(amount > 0, "invalid amount");
+        require(senderAddress != address(0), "invalid sender address");
+        require(recipientAddress != address(0), "invalid recipient address");
 
         Wallet sender = Wallet(payable(senderAddress));
 
@@ -72,28 +62,13 @@ contract WalletHandler {
         }
     }
 
-    function _processTransferRequest(
+    function _processERC20TransferRequest(
         address senderAddress,
         address recipientAddress,
         string memory tokenName,
         uint256 amount
     ) internal {
-        if (Strings.equal(tokenName, Constants.ETH_TOKEN_NAME)) {
-            _processETHTransferRequest(senderAddress, recipientAddress, amount);
-        } else {
-            _processERC20TransferRequest(senderAddress, recipientAddress, tokenName, amount);
-        }
-    }
-
-    function _executeExtensionCalldata(
-        address senderAddress,
-        address target,
-        bytes memory extensionCallData
-    ) internal {
-        Wallet sender = Wallet(payable(senderAddress));
-
-        (bool success, bytes memory returnData) = sender.execute(target, 0, extensionCallData);
-
-        require(success, string(returnData));
+        address tokenAddress = tokenRegistry.getTokenAddress(tokenName);
+        _processERC20TransferRequest(senderAddress, recipientAddress, tokenAddress, amount);
     }
 }

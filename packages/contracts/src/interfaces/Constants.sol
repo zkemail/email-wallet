@@ -20,4 +20,8 @@ library Constants {
     string public constant REMOVE_EXTENSION_COMMAND = "Remove extension";
 
     string public constant ETH_TOKEN_NAME = "ETH";
+    string public constant WETH_TOKEN_NAME = "WETH";
+
+    uint256 public constant DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION = 30 days;
+    uint256 public constant UNCLAIMED_FUND_REGISTRATION_FEE = 0.001 ether;
 }

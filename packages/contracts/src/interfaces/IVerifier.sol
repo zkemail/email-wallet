@@ -40,24 +40,6 @@ interface IVerifier {
         bytes memory proof
     ) external view returns (bool);
 
-    /**
-        The proof should verify that:
-            - relayerHash is hash(relayerRand) where relayerRand is a randomness
-            - emailAddressPointer is hash(relayerRand, emailAddress)
-            - viewingKeyCommitment is hash(viewingKey, emailAddress, relayerHash)
-                where viewingKey is a randomness
-            - walletSalt is hash(viewingKey, 0)
-
-        Note: relayerHash was previously registered by the relayer
-     */
-    function verifyRecipientAccountProof(
-        bytes32 relayerHash,
-        bytes32 emailAddressPointer,
-        bytes32 viewingKeyCommitment,
-        bytes32 walletSalt,
-        bytes32 emailAddressWitness,
-        bytes memory proof
-    ) external view returns (bool);
 
     /**
         This proof will verify that:
@@ -91,14 +73,11 @@ interface IVerifier {
     /// @notice This verify that same email address is used in `recipientEmailAddressPointer` and `recipientEmailAddressCommitment`
     /// @param recipientRelayerHash The hash of the relayer randomness
     /// @param recipientEmailAddressPointer The hash of the relayer randomness and recipient email address
-    /// @param recipientViewingKeyCommitment The hash of the recipient viewing key, recipient email address and relayer randomness
-    /// @param recipientWalletSalt The hash of the recipient viewing key and 01
     /// @param recipientEmailAddressCommitment The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer
+    /// @param proof ZK proof of the circuit
     function verifyClaimFundProof(
         bytes32 recipientRelayerHash,
         bytes32 recipientEmailAddressPointer,
-        bytes32 recipientViewingKeyCommitment,
-        bytes32 recipientWalletSalt,
         bytes32 recipientEmailAddressCommitment,
         bytes memory proof
     ) external view returns (bool);
