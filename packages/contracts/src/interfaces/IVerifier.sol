@@ -64,7 +64,8 @@ interface IVerifier {
         bytes32 relayerHash,
         bytes32 emailAddressPointer,
         bool hasEmailRecipient,
-        bytes32 recipientEmailAddressCommitment
+        bytes32 recipientEmailAddressCommitment,
+        bytes memory proof
     ) external view returns (bool);
 
     /// @notice Verify the proof to claim and unclaimed to a recipient account

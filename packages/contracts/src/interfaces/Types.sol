@@ -16,6 +16,7 @@ struct EmailOperation {
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email
+    bytes32 dkimPublicKeyHash; // Hash of DKIM public key of the sender's email
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
