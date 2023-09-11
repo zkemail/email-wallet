@@ -44,7 +44,10 @@ contract EmailWalletCore is WalletHandler {
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
-    // Global mapping of command name to extension address
+    // Mapping from extensio name to extension address, as published by the developer
+    mapping(string => address) public addressOfExtension;
+
+    // Global mapping of command name to extension address enabled for all users by default
     mapping(string => address) public extensionOfCommand;
 
     // User level mapping of command name to extension address (pointer -> (command -> extension))
@@ -416,66 +419,89 @@ contract EmailWalletCore is WalletHandler {
         );
     }
 
-    /// Calculate email subject based on paramteres of EmailOp
-    /// TODO: Case insensitive comparison?
-    function _computeEmailSubjectForEmailOp(
+    /// @notice Return the extension address for a command and user
+    /// @param command Command for which the extension address is to be returned
+    /// @param emailAddressPointer Pointer of the user's email address
+    function getExtensionForCommand(
+        string memory command,
+        bytes32 emailAddressPointer
+    ) public view returns (address) {
+        address extensionAddress = extensionOfCommand[command]; // Global extension installed by default for all users
+        address userExtensionAddress = userExtensionOfCommand[emailAddressPointer][command];
+
+        if (userExtensionAddress != address(0)) {
+            extensionAddress = userExtensionAddress;
+        }
+
+        return extensionAddress;
+    }
+
+    /// @notice Calculate the masked subject for an EmailOp from command and other params
+    ///         This also validates certain parameters like tokenName, extensionName, extension command are registered.
+    /// @param emailOp EmailOp from which the masked subject is to be computed
+    function _computeMaskedSubjectForEmailOp(
         EmailOperation memory emailOp
-    ) internal view returns (string memory expectedSubject) {
+    ) internal view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            expectedSubject = string.concat(
+            WalletParams memory walletParams = emailOp.walletParams;
+            IERC20 token = IERC20(tokenRegistry.getTokenAddress(walletParams.tokenName));
+
+            require(token != IERC20(address(0)), "token not supported");
+
+            maskedSubject = string.concat(
                 Constants.SEND_COMMAND,
                 " ",
-                Strings.toString(emailOp.amount / 1 ether),
+                Strings.toString(walletParams.amount / (10 ** token.decimals())),
                 " ",
-                emailOp.tokenName,
+                walletParams.tokenName,
                 " to "
             );
 
-            if (emailOp.isRecipientExternal) {
-                expectedSubject = string.concat(
-                    expectedSubject,
+            if (emailOp.recipientETHAddress != address(0)) {
+                maskedSubject = string.concat(
+                    maskedSubject,
                     Strings.toHexString(uint256(uint160(emailOp.recipientExternalAddress)), 20)
                 );
             }
         }
-        // Sample: Set extension for Swap as 0x1234...
+        // Sample: Set extension for Swap as Uniswap
         else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
-            expectedSubject = string.concat(
+            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
+
+            require(
+                addressOfExtension[extManagerParams.extensionName] != address(0),
+                "extension not registered"
+            );
+
+            maskedSubject = string.concat(
                 Constants.SET_EXTENSION_COMMAND,
                 " for ",
-                emailOp.command,
+                extManagerParams.command,
                 " as ",
-                Strings.toHexString(uint256(uint160(emailOp.extensionAddress)), 20)
+                extManagerParams.extensionName
             );
         }
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
-            expectedSubject = string.concat(
+            maskedSubject = string.concat(
                 Constants.REMOVE_EXTENSION_COMMAND,
                 " for ",
-                emailOp.command
+                emailOp.extManagerParams.command
             );
-        }
-        // TODO: Implement transport
-        else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
-            // TODO: Implement transport
         }
         // The command is for an extension
         else {
-            address extensionAddress = extensionOfCommand[emailOp.command];
+            isExtension = true;
+            address extensionAddress = getExtensionForCommand(
+                emailOp.command,
+                emailOp.emailAddressPointer
+            );
 
-            address userExtensionAddress = userExtensionOfCommand[
-                emailOp.senderEmailAddressPointer
-            ][emailOp.command];
-            if (userExtensionAddress != address(0)) {
-                extensionAddress = userExtensionAddress;
-            }
-
-            require(extensionAddress != address(0), "extension not registered");
+            require(extensionAddress != address(0), "invalid command or extension");
 
             IExtension extension = IExtension(extensionAddress);
-            expectedSubject = extension.computeEmailSubject(emailOp.extensionParams);
+            maskedSubject = extension.computeEmailSubject(emailOp.extensionParams);
         }
     }
 
@@ -495,19 +521,28 @@ contract EmailWalletCore is WalletHandler {
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(emailOp.command != "", "command cannot be empty");
         require(emailOp.feeTokenName != "", "token name cannot be empty");
-        require(dkimPublicKeyHash == emailOp.dkimPublicKeyHash, "DKIM pubkey mismatch");
+        require(emailOp.dkimPublicKeyHash != bytes32(0), "DKIM pubkey hash cannot be empty");
+        require(dkimPublicKeyHash == emailOp.dkimPublicKeyHash, "DKIM pubkey hash mismatch");
 
         if (emailOp.hasEmailRecipient) {
+            require(emailOp.recipientETHAddress == address(0), "cannot have both recipient types");
             require(
                 emailOp.recipientEmailAddressCommitment != bytes32(0),
-                "recipientEmailAddressCommitment cannot be empty"
+                "recipient  emailCommitment cannot be empty"
+            );
+        } else {
+            require(
+                emailOp.recipientEmailAddressCommitment == bytes32(0),
+                "recipient emailCommitment not allowed"
             );
         }
 
-        require(
-            Strings.equal(_computeEmailSubjectForEmailOp(emailOp), emailOp.maskedSubject),
-            "computed subject mismatch"
-        );
+        (string memory maskedSubject, bool isExtension) = _computeMaskedSubjectForEmailOp(emailOp);
+        require(Strings.equal(maskedSubject, emailOp.maskedSubject), "computed subject mismatch");
+
+        if (isExtension) {
+            require(emailOp.extParams.length > 0, "extension params cannot be empty");
+        }
 
         require(
             verifier.verifyEmailProof(
@@ -527,82 +562,68 @@ contract EmailWalletCore is WalletHandler {
     /// Execute an EmailOperation
     /// @param emailOp EmailOperation to be executed
     function executeEmailOp(EmailOperation memory emailOp) external {
+        uint256 initialGas = gasleft();
+
         _validateEmailOp(emailOp);
 
         emailNullifiers[emailOp.emailNullifier] = true;
 
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            // Transfer to external address
-            if (emailOp.isRecipientExternal) {
-                WalletHandler._processTransferRequest(
-                    getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer]),
-                    emailOp.recipientExternalAddress,
-                    emailOp.tokenName,
-                    emailOp.amount
-                );
-            }
-            // Transfer to email wallet user if recipient is set
-            else if (emailOp.recipientEmailAddressPointer != bytes32(0)) {
-                WalletHandler._processTransferRequest(
-                    getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer]),
-                    getAddressOfSalt(
-                        walletSaltOfVKCommitment[emailOp.recipientEmailAddressPointer]
-                    ),
-                    emailOp.tokenName,
-                    emailOp.amount
-                );
-            }
-            // Register unclaimed fund otherwise
-            else {
-                _registerUnclaimedFund(
+            WalletParams memory walletParams = emailOp.walletParams;
+            address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
+            address sender = getAddressOfSalt(
+                walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
+            );
+            address recipient = emailOp.hasEmailRecipient
+                ? address(this)
+                : emailOp.recipientETHAddress;
+
+            WalletHandler._processTransferRequest(
+                sender,
+                recipient,
+                tokenAddress,
+                walletParams.amount
+            );
+
+            // Register unclaimed fund for the recipient if the recipient is an email address
+            if (emailOp.hasEmailRecipient) {
+                _registerUnclaimedFundInternal(
                     emailOp.recipientEmailAddressCommitment,
-                    emailOp.tokenName,
-                    emailOp.amount,
-                    getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer])
+                    tokenAddress,
+                    walletParams.amount,
+                    sender
                 );
             }
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
-            userExtensionOfCommand[emailOp.senderEmailAddressPointer][emailOp.command] = emailOp
-                .extensionAddress;
+            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
+            address extensionAddress = addressOfExtension[extManagerParams.extensionName];
+
+            userExtensionOfCommand[emailOp.emailAddressPointer][
+                extManagerParams.command
+            ] = extensionAddress;
         }
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
             userExtensionOfCommand[emailOp.senderEmailAddressPointer][emailOp.command] = address(0);
         }
-        // Transport to a new relayer
-        else if (Strings.equal(emailOp.command, Constants.TRANSPORT_COMMAND)) {
-            // TODO: Implement transport command
-        }
         // The command is for an extension
         else {
-            address extensionAddress = extensionOfCommand[emailOp.command];
-
-            address userExtensionAddress = userExtensionOfCommand[
-                emailOp.senderEmailAddressPointer
-            ][emailOp.command];
-
-            if (userExtensionAddress != address(0)) {
-                extensionAddress = userExtensionAddress;
-            }
-
-            require(extensionAddress != address(0), "extension not registered");
-
-            IExtension extension = IExtension(extensionAddress);
-
-            // Get the target and calldata from extension
-            (address target, bytes memory data) = extension.getExecutionCalldata(
-                emailOp.extensionParams
+            address extAddress = getExtensionForCommand(
+                emailOp.command,
+                emailOp.emailAddressPointer
             );
 
-            // Ask the wallet to execute the calldata
-            WalletHandler._executeExtensionCalldata(
-                getAddressOfSalt(walletSaltOfVKCommitment[emailOp.senderEmailAddressPointer]),
-                target,
-                data
-            );
+            require(extAddress != address(0), "extension not registered");
+
+            IExtension extension = IExtension(extAddress);
+
+            // TODO: Call extension
         }
+
+        // Refund gas to the relayer from sender
+        uint256 consumedGas = initialGas - gasleft();
     }
 }

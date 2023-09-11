@@ -32,8 +32,8 @@ struct WalletParams {
 
 // When command = "Install Extension" / "Uninstall Extension"
 struct ExtensionManagerParams {
-    bool isInstall; // Flag to indicate whether the extension is being installed or uninstalled
     string command; // Command name to set the extension for (like "swap")
+    string extensionName; // Name of the extension to install/uninstall (like "uniswap")
 }
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
