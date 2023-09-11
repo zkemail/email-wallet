@@ -59,6 +59,9 @@ contract EmailWalletCore is WalletHandler {
     // Mapping of token used for fees to this value in ETH
     mapping(string => uint256) public conversionRateOfFeeToken;
 
+    // Max fee per gas in ETH
+    uint256 maxFeePerGas;
+
     event RelayerRegistered(bytes32 randHash, bytes32 emailAddressHash, string hostname);
 
     event RelayerConfigUpdated(bytes32 randHash, string hostname);
@@ -98,9 +101,11 @@ contract EmailWalletCore is WalletHandler {
         verifier = IVerifier(_verifier);
         dkimRegistry = DKIMRegistry(_dkimRegistry);
 
-        conversionRateOfFeeToken["ETH"] = 1;
+        conversionRateOfFeeToken["WETH"] = 1;
         conversionRateOfFeeToken["DAI"] = 1600; // TODO: Get actual conversion rate
         conversionRateOfFeeToken["USDC"] = 1600;
+
+        maxFeePerGas = 10 gwei; // TODO: Compute this properly
     }
 
     /// @notice Register as a relayer
@@ -257,12 +262,7 @@ contract EmailWalletCore is WalletHandler {
         );
 
         // Transfer token from sender's wallet to Core contract
-        _processERC20TransferRequest(
-            senderAddress,
-            address(this),
-            tokenAddress,
-            amount
-        );
+        _processERC20TransferRequest(senderAddress, address(this), tokenAddress, amount);
 
         uint256 expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
 
@@ -533,7 +533,12 @@ contract EmailWalletCore is WalletHandler {
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(emailOp.dkimPublicKeyHash != bytes32(0), "DKIM pubkey hash cannot be empty");
         require(dkimPublicKeyHash == emailOp.dkimPublicKeyHash, "DKIM pubkey hash mismatch");
-        require(conversionRateOfFeeToken[emailOp.feeTokenName] != 0, "invalid fee token");
+        require(
+            tokenRegistry.getTokenAddress(emailOp.feeTokenName) != address(0),
+            "invalid fee token"
+        );
+        require(conversionRateOfFeeToken[emailOp.feeTokenName] != 0, "unsupported fee token");
+        require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
 
         if (emailOp.hasEmailRecipient) {
             require(emailOp.recipientETHAddress == address(0), "cannot have both recipient types");
@@ -581,23 +586,19 @@ contract EmailWalletCore is WalletHandler {
 
         emailNullifiers[emailOp.emailNullifier] = true;
 
+        address sender = getAddressOfSalt(
+            walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
+        );
+
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletParams memory walletParams = emailOp.walletParams;
             address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
-            address sender = getAddressOfSalt(
-                walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
-            );
             address recipient = emailOp.hasEmailRecipient
                 ? address(this)
                 : emailOp.recipientETHAddress;
 
-            _processERC20TransferRequest(
-                sender,
-                recipient,
-                tokenAddress,
-                walletParams.amount
-            );
+            _processERC20TransferRequest(sender, recipient, tokenAddress, walletParams.amount);
 
             // Register unclaimed fund for the recipient if the recipient is an email address
             if (emailOp.hasEmailRecipient) {
@@ -638,6 +639,13 @@ contract EmailWalletCore is WalletHandler {
         }
 
         // Refund gas to the relayer from sender
-        uint256 consumedGas = initialGas - gasleft();
+        uint256 consumedGas = initialGas - gasleft();   // TODO: Add gas for refund operation
+        uint256 feePerGas = emailOp.feePerGas != 0 ? emailOp.feePerGas : maxFeePerGas;
+        uint256 gasFeeAmount = consumedGas * feePerGas;
+
+        uint256 feeAmount = gasFeeAmount / conversionRateOfFeeToken[emailOp.feeTokenName];
+        address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
+
+        _processERC20TransferRequest(sender, msg.sender, feeToken, feeAmount);
     }
 }
