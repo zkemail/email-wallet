@@ -22,6 +22,66 @@ pub struct ParsedEmail {
     pub dkim_domain: String,
 }
 
+pub async fn parse_email(raw_email: &str) -> Result<ParsedEmail> {
+    let resolver = Resolver::new_cloudflare_tls()?;
+    let authenticated_message = AuthenticatedMessage::parse(raw_email.as_bytes())
+        .ok_or_else(|| anyhow!("AuthenticatedMessage is not found."))?;
+
+    // Validate signature
+    let result = resolver.verify_dkim(&authenticated_message).await;
+    for s in result.iter() {
+        if s.result() != &DkimResult::Pass {
+            return Err(anyhow!("DKIM validation failed for {:?}.", s));
+        }
+    }
+
+    // Extract the parsed + canonicalized headers along with the signed value for them
+    let (canonicalized_header, signed_header) = authenticated_message
+        .get_canonicalized_header()
+        .or_else(|err| Err(anyhow!("canonicalized header is not extracted: {}", err)))?;
+    let signature = result[0]
+        .signature()
+        .ok_or_else(|| anyhow!("signature is not found"))?;
+
+    let dkim_domain = signature.domain_key();
+    let public_key_str = get_public_key(&dkim_domain).await?;
+    let public_key = public_key_str.as_bytes().to_vec();
+    let parsed_email = ParsedEmail {
+        canonicalized_header,
+        signed_header: signed_header.to_vec(),
+        signature: signature.signature().to_vec(),
+        public_key,
+        dkim_domain,
+    };
+    Ok(parsed_email)
+}
+
+async fn get_public_key(domain: &str) -> Result<String> {
+    let resolver = AsyncResolver::tokio(ResolverConfig::default(), ResolverOpts::default());
+    let response = resolver.lookup(domain, RecordType::TXT).await?;
+    // println!("Response: {:?}", response);
+    for record in response.iter() {
+        if let RData::TXT(ref txt) = *record {
+            let txt_data = txt.txt_data();
+            // Format txt data to convert from u8 to string
+            let data_bytes: Vec<u8> = txt_data.iter().flat_map(|b| b.as_ref()).cloned().collect();
+            let data = String::from_utf8_lossy(&data_bytes);
+            // println!("Data from txt record: {:?}", data);
+
+            if data.contains("k=rsa;") {
+                let parts: Vec<_> = data.split("; ").collect();
+                for part in parts {
+                    if part.starts_with("p=") {
+                        assert_eq!(part.strip_prefix("p=").unwrap(), part[2..].to_string());
+                        return Ok(part.strip_prefix("p=").unwrap().to_string());
+                    }
+                }
+            }
+        }
+    }
+    return Err(anyhow!("RSA public key is not found."));
+}
+
 pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
     let raw_email = cx.argument::<JsString>(0)?.value(&mut cx);
     let channel = cx.channel();
@@ -60,66 +120,6 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
     });
 
     Ok(promise)
-}
-
-pub async fn parse_email(raw_email: &str) -> Result<ParsedEmail> {
-    let resolver = Resolver::new_cloudflare_tls()?;
-    let authenticated_message = AuthenticatedMessage::parse(raw_email.as_bytes())
-        .ok_or_else(|| anyhow!("AuthenticatedMessage is not found."))?;
-
-    // Validate signature
-    let result = resolver.verify_dkim(&authenticated_message).await;
-    for s in result.iter() {
-        if s.result() != &DkimResult::Pass {
-            return Err(anyhow!("DKIM validation failed for {:?}.", s));
-        }
-    }
-
-    // Extract the parsed + canonicalized headers along with the signed value for them
-    let (canonicalized_header, signed_header) = authenticated_message
-        .get_canonicalized_header()
-        .or_else(|err| Err(anyhow!("canonicalized header is not extracted: {}", err)))?;
-    let signature = result[0]
-        .signature()
-        .ok_or_else(|| anyhow!("signature is not found"))?;
-
-    let dkim_domain = signature.domain_key();
-    let public_key_str = get_public_key(&dkim_domain).await?;
-    let public_key = public_key_str.as_bytes().to_vec();
-    let parsed_email = ParsedEmail {
-        canonicalized_header,
-        signed_header: signed_header.to_vec(),
-        signature: signature.signature().to_vec(),
-        public_key,
-        dkim_domain,
-    };
-    Ok(parsed_email)
-}
-
-async fn get_public_key(domain: &str) -> Result<String> {
-    let resolver = AsyncResolver::tokio(ResolverConfig::default(), ResolverOpts::default())?;
-    let response = resolver.lookup(domain, RecordType::TXT).await?;
-    // println!("Response: {:?}", response);
-    for record in response.iter() {
-        if let RData::TXT(ref txt) = *record {
-            let txt_data = txt.txt_data();
-            // Format txt data to convert from u8 to string
-            let data_bytes: Vec<u8> = txt_data.iter().flat_map(|b| b.as_ref()).cloned().collect();
-            let data = String::from_utf8_lossy(&data_bytes);
-            // println!("Data from txt record: {:?}", data);
-
-            if data.contains("k=rsa;") {
-                let parts: Vec<_> = data.split("; ").collect();
-                for part in parts {
-                    if part.starts_with("p=") {
-                        assert_eq!(part.strip_prefix("p=").unwrap(), part[2..].to_string());
-                        return Ok(part.strip_prefix("p=").unwrap().to_string());
-                    }
-                }
-            }
-        }
-    }
-    return Err(anyhow!("RSA public key is not found."));
 }
 
 // pub fn extract_from(email: &str) -> Result<String, Box<dyn Error>> {
