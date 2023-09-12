@@ -12,6 +12,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* emailAddressPointer */,
         bytes32 /* viewingKeyCommitment */,
         bytes32 /* walletSalt */,
+        bytes memory /* psiPoint */,
         bytes memory proof
     ) external view returns (bool) {
         if (proof[0] == 0x01) {
@@ -27,21 +28,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* viewingKeyCommitment */,
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
-        bytes memory proof
-    ) external view returns (bool) {
-        if (proof[0] == 0x01) {
-            return true;
-        }
-
-        return false;
-    }
-
-    function verifyRecipientAccountProof(
-        bytes32 /* relayerHash */,
-        bytes32 /* emailAddressPointer */,
-        bytes32 /* viewingKeyCommitment */,
-        bytes32 /* walletSalt */,
-        bytes32 /* emailAddressWitness */,
+        bytes32 /* emailNullifier */,
         bytes memory proof
     ) external view returns (bool) {
         if (proof[0] == 0x01) {
@@ -52,16 +39,14 @@ contract TestVerifier is IVerifier {
     }
 
     function verifyEmailProof(
-        bytes32 /* senderRelayerHash */,
-        bytes32 /* senderEmailAddressPointer */,
-        bytes32 /* senderViewingKeyCommitment */,
-        bool /* hasRecipient */,
-        bool /* isRecipientExternal */,
-        bytes32 /* recipientEmailAddressWitness */,
-        string memory /* maskedSubjectStr */,
-        bytes32 /* emailNullifier */,
-        string memory /* senderEmailDomain */,
+        string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
+        string memory /* maskedSubject */,
+        bytes32 /* emailNullifier */,
+        bytes32 /* relayerHash */,
+        bytes32 /* emailAddressPointer */,
+        bool /* hasEmailRecipient */,
+        bytes32 /* recipientEmailAddressCommitment */,
         bytes memory proof
     ) external view returns (bool) {
         if (proof[0] == 0x01) {
@@ -74,8 +59,6 @@ contract TestVerifier is IVerifier {
     function verifyClaimFundProof(
         bytes32 /* recipientRelayerHash */,
         bytes32 /* recipientEmailAddressPointer */,
-        bytes32 /* recipientViewingKeyCommitment */,
-        bytes32 /* recipientWalletSalt */,
         bytes32 /* recipientEmailAddressCommitment */,
         bytes memory proof
     ) external view returns (bool) {
