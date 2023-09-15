@@ -45,3 +45,12 @@ struct UnclaimedFund {
     uint256 amount;
     uint256 expiryTime;
 }
+
+// Struct to store context when executing an EmailOp
+struct ExecutionContext {
+    address walletAddress;
+    address relayer;
+    address extensionAddress;
+    bool unclaimedFundRegistered;
+    uint256 consumedETH;
+}
