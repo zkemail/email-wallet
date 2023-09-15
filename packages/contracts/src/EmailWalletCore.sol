@@ -62,6 +62,8 @@ contract EmailWalletCore is WalletHandler {
     // Max fee per gas in ETH
     uint256 maxFeePerGas;
 
+    ExecutionContext private currentContext;
+
     event RelayerRegistered(bytes32 randHash, bytes32 emailAddressHash, string hostname);
 
     event RelayerConfigUpdated(bytes32 randHash, string hostname);
@@ -234,24 +236,26 @@ contract EmailWalletCore is WalletHandler {
         emailNullifiers[emailNullifier] = true;
     }
 
-    /// @notice Register unclaimed fund for the recipient - only for internal email wallet transfers.
-    /// @notice `UNCLAIMED_FUNDS_REGISTRATION_FEE` ETH should be supplied to this function.
+    /// @notice Register unclaimed fund for the recipient - to be called by Core contract and extensions
     /// @param emailAddressCommitment Hash of the recipient's email address and a random number.
     /// @param tokenAddress Address of ERC20 token contract.
     /// @param amount Amount in WEI of the token.
     /// @param senderAddress ETH address of the sender.
-    function _registerUnclaimedFundInternal(
+    /// @dev This function is public so extensions can call it
+    function registerUnclaimedFundInternal(
         bytes32 emailAddressCommitment,
         address tokenAddress,
         uint256 amount,
         address senderAddress
-    ) private {
-        // Ensure the relayer has paid ETH needed for claiming the unclaimed fee
+    ) public {
         require(
-            msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE,
-            "invalid unclaimed fund fee"
+            msg.sender == address(this) || msg.sender == currentContext.extensionAddress,
+            "invalid caller"
         );
-
+        require(
+            currentContext.unclaimedFundRegistered == false,
+            "unclaimed fund already registered in the context"
+        );
         require(amount > 0, "token amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
         require(senderAddress != address(0), "invalid sender address");
@@ -272,6 +276,9 @@ contract EmailWalletCore is WalletHandler {
             expiryTime: expiryTime,
             senderAddress: senderAddress
         });
+
+        currentContext.unclaimedFundRegistered = true;
+        currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
 
         unclaimedFundOfEmailAddrCommitment[emailAddressCommitment] = fund;
 
@@ -582,13 +589,19 @@ contract EmailWalletCore is WalletHandler {
     function executeEmailOp(EmailOperation memory emailOp) public payable {
         uint256 initialGas = gasleft();
 
+        currentContext = ExecutionContext({
+            extensionAddress: address(0),
+            unclaimedFundRegistered: false,
+            relayer: msg.sender,
+            consumedETH: 0,
+            walletAddress: getAddressOfSalt(
+                walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
+            )
+        });
+
         _validateEmailOp(emailOp);
 
         emailNullifiers[emailOp.emailNullifier] = true;
-
-        address sender = getAddressOfSalt(
-            walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
-        );
 
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
@@ -598,17 +611,22 @@ contract EmailWalletCore is WalletHandler {
                 ? address(this)
                 : emailOp.recipientETHAddress;
 
-            _processERC20TransferRequest(sender, recipient, tokenAddress, walletParams.amount);
+            _processERC20TransferRequest(
+                currentContext.walletAddress,
+                recipient,
+                tokenAddress,
+                walletParams.amount
+            );
 
             // Register unclaimed fund for the recipient if the recipient is an email address
             if (emailOp.hasEmailRecipient) {
-                require(msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE, "invalid fund fee");
+                require(msg.value > currentContext.consumedETH, "insufficient fee");
 
-                _registerUnclaimedFundInternal(
+                registerUnclaimedFundInternal(
                     emailOp.recipientEmailAddressCommitment,
                     tokenAddress,
                     walletParams.amount,
-                    sender
+                    currentContext.walletAddress
                 );
             }
         }
@@ -634,18 +652,30 @@ contract EmailWalletCore is WalletHandler {
 
             require(extAddress != address(0), "extension not registered");
 
+            currentContext.extensionAddress = extAddress;
+
             // IExtension extension = IExtension(extAddress);
             // TODO: Call extension
         }
 
-        // Refund gas to the relayer from sender
-        uint256 consumedGas = initialGas - gasleft();   // TODO: Add gas for refund operation
-        uint256 feePerGas = emailOp.feePerGas != 0 ? emailOp.feePerGas : maxFeePerGas;
-        uint256 gasFeeAmount = consumedGas * feePerGas;
+        // Refund excess ETH to the relayer
+        // TODO: There is a chance code dont reach here. Relayer should be refunded still.
+        if (currentContext.consumedETH < msg.value) {
+            (bool sent, ) = payable(currentContext.relayer).call{
+                value: msg.value - currentContext.consumedETH
+            }("");
+            require(sent, "failed to refund excess ETH");
+        }
 
-        uint256 feeAmount = gasFeeAmount / conversionRateOfFeeToken[emailOp.feeTokenName];
+        // Refund gas cost to the relayer from sender (in the fee token)
+        uint256 feeForRefund = 2100; // TODO : Calculate actual cost to process the refund
+        uint256 consumedGas = initialGas - gasleft() + feeForRefund;
+        uint256 feePerGas = emailOp.feePerGas != 0 ? emailOp.feePerGas : maxFeePerGas;
+
+        uint256 totalFee = (consumedGas * feePerGas) + currentContext.consumedETH;
+        uint256 feeAmount = totalFee / conversionRateOfFeeToken[emailOp.feeTokenName];
         address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
 
-        _processERC20TransferRequest(sender, msg.sender, feeToken, feeAmount);
+        _processERC20TransferRequest(currentContext.walletAddress, msg.sender, feeToken, feeAmount);
     }
 }
