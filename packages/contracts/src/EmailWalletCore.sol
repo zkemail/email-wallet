@@ -157,19 +157,11 @@ contract EmailWalletCore is WalletHandler {
         bytes memory psiPoint,
         bytes memory proof
     ) public returns (address) {
-        require(
-            vkCommitmentOfPointer[emailAddressPointer] == bytes32(0),
-            "VK commitment already exists"
-        );
-        require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point already exists");
-        require(
-            walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0),
-            "wallet salt already exists"
-        );
-        require(
-            initializedVKCommitments[viewingKeyCommitment] == false,
-            "account already initialized"
-        );
+        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(vkCommitmentOfPointer[emailAddressPointer] == bytes32(0), "VK commitment exists");
+        require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
+        require(walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0), "walletSalt exists");
+        require(initializedVKCommitments[viewingKeyCommitment] == false, "account is initialized");
         require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
         require(
             Address.isContract(getAddressOfSalt(walletSalt)) == false,
@@ -677,5 +669,79 @@ contract EmailWalletCore is WalletHandler {
         address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
 
         _processERC20TransferRequest(currentContext.walletAddress, msg.sender, feeToken, feeAmount);
+    }
+
+    /// @notice Transport an account to a new Relayer - to be called by the new relayer
+    /// @param oldVKCommitment Viewing Key commitment of the account under old (current) relayer
+    /// @param newEmailAddressPointer Email Address pointer of the account under new relayer
+    /// @param newVKCommitment Viewing Key commitment of the account under new relayer
+    /// @param newPSIPoint PSI point of the email address under new relayer
+    /// @param emailNullifier Nullifier of the email used for proof generation (reply to invite email)
+    /// @param emailDomain Domain name of the user's email address
+    /// @param accountCreationProof Proof for new account creation under new relayer
+    /// @param accountTransportProof Proof of user's transport email
+    function transportAccount(
+        bytes32 oldVKCommitment,
+        bytes32 newEmailAddressPointer,
+        bytes32 newVKCommitment,
+        bytes memory newPSIPoint,
+        bytes32 emailNullifier,
+        string memory emailDomain,
+        bytes memory accountCreationProof,
+        bytes memory accountTransportProof
+    ) public {
+        bytes32 walletSalt = walletSaltOfVKCommitment[oldVKCommitment];
+        address oldRelayer = relayerOfVKCommitment[oldVKCommitment];
+
+        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(oldRelayer != address(0), "old relayer not registered");
+        require(oldRelayer != msg.sender, "new relayer cannot be same");
+        require(initializedVKCommitments[oldVKCommitment], "account not initialized");
+        require(!nullifiedVKCommitments[oldVKCommitment], "account is nullified");
+        require(walletSalt != bytes32(0), "walletSalt not set");
+        require(
+            vkCommitmentOfPointer[newEmailAddressPointer] == bytes32(0),
+            "new pointer already exist"
+        );
+        require(walletSaltOfVKCommitment[newVKCommitment] == bytes32(0), "salt already exists");
+        require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
+        require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
+
+        require(
+            verifier.verifyAccountCreationProof(
+                relayers[msg.sender].randHash,
+                newEmailAddressPointer,
+                newVKCommitment,
+                walletSalt,
+                newPSIPoint,
+                accountCreationProof
+            ),
+            "invalid account creation proof"
+        );
+
+        require(
+            verifier.verifiyAccountTransportProof(
+                emailDomain,
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
+                emailNullifier,
+                relayers[oldRelayer].randHash,
+                oldVKCommitment,
+                accountTransportProof
+            ),
+            "invalid account transport proof"
+        );
+
+        emailNullifiers[emailNullifier] = true;
+        
+        vkCommitmentOfPointer[oldVKCommitment] = bytes32(0);
+        walletSaltOfVKCommitment[oldVKCommitment] = bytes32(0);
+        nullifiedVKCommitments[oldVKCommitment] = true;
+
+        vkCommitmentOfPointer[newEmailAddressPointer] = newVKCommitment;
+        walletSaltOfVKCommitment[newVKCommitment] = walletSalt;
+        relayerOfVKCommitment[newVKCommitment] = msg.sender;
+        pointerOfPSIPoint[newPSIPoint] = newEmailAddressPointer;
+        initializedVKCommitments[newVKCommitment] = true;
+        nullifiedVKCommitments[newVKCommitment] = false;
     }
 }

@@ -80,4 +80,24 @@ interface IVerifier {
         bytes32 recipientEmailAddressCommitment,
         bytes memory proof
     ) external view returns (bool);
+
+
+    /// @notice Verify the proof to transport account from one relayer to another
+    /// @notice This will verify that relayer received an email from user with their VK somewhere in header
+    ///         and the email is DKIM signed by the public key of `emailDomain` whose hash is `dkimPublicKeyHash`.
+    ///         Also proved that the vkCommitment of old relayer with hash `oldRelayerRandHash` is same as `oldVKCommitment`
+    /// @param emailDomain The domain of the user's email address
+    /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
+    /// @param emailNullifier The nullifier computed for the email
+    /// @param oldRelayerRandHash The hash of the old relayer randomness
+    /// @param oldVKCommitment The hash of the viewing key, email address and old relayer randomness
+    /// @param proof Proof of email with above constraints
+    function verifiyAccountTransportProof(
+        string memory emailDomain,
+        bytes32 dkimPublicKeyHash,
+        bytes32 emailNullifier,
+        bytes32 oldRelayerRandHash,
+        bytes32 oldVKCommitment,
+        bytes memory proof
+    ) external view returns (bool);
 }
