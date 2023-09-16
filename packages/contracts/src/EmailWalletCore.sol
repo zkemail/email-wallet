@@ -744,4 +744,13 @@ contract EmailWalletCore is WalletHandler {
         initializedVKCommitments[newVKCommitment] = true;
         nullifiedVKCommitments[newVKCommitment] = false;
     }
+
+    /// Register a new extension
+    /// @param name Name of the extension
+    /// @param extensionAddress Address of the extension contract
+    function publishExtension(string memory name, address extensionAddress) public {
+        require(addressOfExtension[name] == address(0), "extension name already used");
+
+        addressOfExtension[name] = extensionAddress;
+    }
 }
