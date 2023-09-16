@@ -84,4 +84,4 @@ template AccountTransport(n, k, max_header_bytes) {
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
 // * max_header_bytes = 1024 is the max number of bytes in the header
-component main  = AccountTransport(121, 17, 1024);
+component main { public [sender_relayer_rand_hash] }  = AccountTransport(121, 17, 1024);
