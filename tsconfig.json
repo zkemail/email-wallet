@@ -29,6 +29,8 @@
   },
   "exclude": [
     "node_modules",
-    "**/tests/*.test.ts"
+    "./node_modules",
+    "./node_modules/*",
+    "./node_modules/@types/node/index.d.ts",
   ]
 }

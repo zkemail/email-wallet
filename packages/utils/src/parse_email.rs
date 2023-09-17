@@ -98,12 +98,15 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
                     let canonicalized_header =
                         cx.string(&String::from_utf8(parsed_email.canonicalized_header).unwrap());
                     obj.set(&mut cx, "canonicalizedHeader", canonicalized_header)?;
-                    let signed_header =
-                        cx.string(&String::from_utf8(parsed_email.signed_header).unwrap());
-                    obj.set(&mut cx, "signedHeader", signed_header)?;
-                    let signature = cx.string(&hex::encode(parsed_email.signature));
+                    // let signed_header = cx.string(
+                    //     "0x".to_string() + hex::encode(parsed_email.signed_header).as_str(),
+                    // );
+                    // obj.set(&mut cx, "signedHeader", signed_header)?;
+                    let signature =
+                        cx.string("0x".to_string() + hex::encode(parsed_email.signature).as_str());
                     obj.set(&mut cx, "signature", signature)?;
-                    let public_key = cx.string(&hex::encode(parsed_email.public_key));
+                    let public_key =
+                        cx.string("0x".to_string() + hex::encode(parsed_email.public_key).as_str());
                     obj.set(&mut cx, "publicKey", public_key)?;
                     let dkim_domain = cx.string(&parsed_email.dkim_domain);
                     obj.set(&mut cx, "dkimDomain", dkim_domain)?;
