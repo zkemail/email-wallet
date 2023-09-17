@@ -23,5 +23,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("viewingKeyCommit", viewing_key_commit_node)?;
     cx.export_function("walletSalt", wallet_salt_node)?;
     cx.export_function("extAccountSalt", ext_account_salt_node)?;
+    cx.export_function("publicKeyHash", public_key_hash_node)?;
+    cx.export_function("emailNullifier", email_nullifier_node)?;
     Ok(())
 }

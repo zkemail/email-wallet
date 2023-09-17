@@ -29,7 +29,7 @@ template Hex2Ints(n) {
     for(var i = 0; i < bytes; i++) {
         for(var j = 0; j < 2; j++) {
             hex2int[2*i+j] = Hex2Int1();
-            hex2int[2*i+j].in <== in[i];
+            hex2int[2*i+j].in <== in[2*i+j];
         }
         out[i] <== 16 * hex2int[2*i].out + hex2int[2*i+1].out;  
     }

@@ -8,6 +8,7 @@ use itertools::Itertools;
 use neon::prelude::*;
 use neon::result::Throw;
 use num_bigint::BigUint;
+use num_traits::Zero;
 use poseidon_rs::*;
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
@@ -102,6 +103,87 @@ fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
             Fr::from_bytes(&bytes32).expect("fail to convert bytes to a field value")
         })
         .collect_vec()
+}
+
+/// `public_key_n` is little endian.
+pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
+    let bits = public_key_n
+        .into_iter()
+        .flat_map(|byte| {
+            let mut bits = vec![];
+            for i in 0..8 {
+                bits.push((byte >> i) & 1);
+            }
+            bits
+        })
+        .collect_vec();
+    let words = bits
+        .chunks(121)
+        .map(|bits| {
+            let mut word = Fr::zero();
+            for (i, bit) in bits.iter().enumerate() {
+                if *bit == 1 {
+                    word += Fr::from_u128(1u128 << i);
+                }
+            }
+            word
+        })
+        .collect_vec();
+    let inputs = words
+        .chunks(2)
+        .map(|words| {
+            let mut input = Fr::zero();
+            let mut coeff = Fr::one();
+            let offset = Fr::from_u128(1u128 << 121);
+            for (i, word) in words.iter().enumerate() {
+                input += coeff * word;
+                coeff *= offset;
+            }
+            input
+        })
+        .collect_vec();
+    poseidon_fields(&inputs)
+}
+
+/// `signature` is little endian.
+pub fn email_nullifier(signature: &[u8]) -> Result<Fr, PoseidonError> {
+    let bits = signature
+        .into_iter()
+        .flat_map(|byte| {
+            let mut bits = vec![];
+            for i in 0..8 {
+                bits.push((byte >> i) & 1);
+            }
+            bits
+        })
+        .collect_vec();
+    let words = bits
+        .chunks(121)
+        .map(|bits| {
+            let mut word = Fr::zero();
+            for (i, bit) in bits.iter().enumerate() {
+                if *bit == 1 {
+                    word += Fr::from_u128(1u128 << i);
+                }
+            }
+            word
+        })
+        .collect_vec();
+    let inputs = words
+        .chunks(2)
+        .map(|words| {
+            let mut input = Fr::zero();
+            let mut coeff = Fr::one();
+            let offset = Fr::from_u128(1u128 << 121);
+            for (i, word) in words.iter().enumerate() {
+                input += coeff * word;
+                coeff *= offset;
+            }
+            input
+        })
+        .collect_vec();
+    let sign_rand = poseidon_fields(&inputs)?;
+    poseidon_fields(&[sign_rand, Fr::one()])
 }
 
 pub fn gen_relayer_rand_node(mut cx: FunctionContext) -> JsResult<JsString> {
@@ -225,6 +307,36 @@ pub fn ext_account_salt_node(mut cx: FunctionContext) -> JsResult<JsString> {
     };
     let ext_account_salt_str = field2str(&ext_account_salt.0);
     Ok(cx.string(ext_account_salt_str))
+}
+
+pub fn public_key_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let public_key_n = cx.argument::<JsString>(0)?.value(&mut cx);
+    let mut public_key_n = match hex::decode(&public_key_n[2..]) {
+        Ok(bytes) => bytes,
+        Err(e) => return cx.throw_error(&format!("public_key_n is an invalid hex string: {}", e)),
+    };
+    public_key_n.reverse();
+    let hash_field = match public_key_hash(&public_key_n) {
+        Ok(hash_field) => hash_field,
+        Err(e) => return cx.throw_error(&format!("public_key_hash failed: {}", e)),
+    };
+    let hash_str = field2str(&hash_field);
+    Ok(cx.string(hash_str))
+}
+
+pub fn email_nullifier_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let signature = cx.argument::<JsString>(0)?.value(&mut cx);
+    let mut signature = match hex::decode(&signature[2..]) {
+        Ok(bytes) => bytes,
+        Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
+    };
+    signature.reverse();
+    let nullifier = match email_nullifier(&signature) {
+        Ok(nullifier) => nullifier,
+        Err(e) => return cx.throw_error(&format!("email_nullifier failed: {}", e)),
+    };
+    let nullifier_str = field2str(&nullifier);
+    Ok(cx.string(nullifier_str))
 }
 
 fn str2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {

@@ -52,7 +52,6 @@ template AccountTransport(n, k, max_header_bytes) {
     // FROM HEADER REGEX: 736,553 constraints
     signal from_regex_out, from_regex_reveal[max_header_bytes];
     (from_regex_out, from_regex_reveal) <== FromAddrRegex(max_header_bytes)(in_padded);
-    log(from_regex_out);
     from_regex_out === 1;
     signal sender_email_addr[email_max_bytes];
     sender_email_addr <== VarShiftLeft(max_header_bytes, email_max_bytes)(from_regex_reveal, sender_email_idx);
@@ -60,7 +59,6 @@ template AccountTransport(n, k, max_header_bytes) {
     // INVITATION CODE REGEX
     signal code_regex_out, code_regex_reveal[max_header_bytes];
     (code_regex_out, code_regex_reveal) <== InvitationCodeRegex(max_header_bytes)(in_padded);
-    log(code_regex_out);
     code_regex_out === 1;
     signal invitation_code_hex[code_len] <== VarShiftLeft(max_header_bytes, code_len)(code_regex_reveal, code_idx);
     signal sender_vk <== Hex2Field()(invitation_code_hex);
@@ -74,7 +72,7 @@ template AccountTransport(n, k, max_header_bytes) {
     signal cm_rand;
     (pubkey_hash, cm_rand) <== HashPubkeyAndSign(n,k)(pubkey, signature);
 
-    email_nullifier <== EmailNullifier()(header_hash, cm_rand);
+    email_nullifier <== EmailNullifier()(cm_rand);
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);

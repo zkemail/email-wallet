@@ -1,5 +1,5 @@
 {
-    "max_byte_size": 256,
+    "max_byte_size": 512,
     "parts": [
         {
             "is_public": true,
