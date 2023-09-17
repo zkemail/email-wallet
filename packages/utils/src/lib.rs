@@ -11,11 +11,13 @@ use parse_email::*;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("parseEmail", parse_email_node)?;
+    cx.export_function("padString", pad_string_node)?;
     cx.export_function("extractSubstrIdxes", extract_substr_idxes_node)?;
     cx.export_function("genRelayerRand", gen_relayer_rand_node)?;
     cx.export_function("relayerRandHash", relayer_rand_hash_node)?;
-    cx.export_function("paddedEmailAddr", padded_email_addr_node)?;
+    cx.export_function("padEmailAddr", pad_email_addr_node)?;
     cx.export_function("emailAddrPointer", email_addr_pointer_node)?;
+    cx.export_function("emailAddrCommitRand", email_addr_commit_rand_node)?;
     cx.export_function("emailAddrCommit", email_addr_commit_node)?;
     cx.export_function("genViewingKey", gen_viewing_key_node)?;
     cx.export_function("viewingKeyCommit", viewing_key_commit_node)?;

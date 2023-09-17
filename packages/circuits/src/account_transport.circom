@@ -6,7 +6,7 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/email-verifier.circom";
 include "@zk-email/circuits/helpers/extract.circom";
-include "@zk-email/circuits/regexes/from_regex.circom";
+// include "@zk-email/circuits/regexes/from_regex.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
 include "./utils/viewing_key_commit.circom";
@@ -14,6 +14,7 @@ include "./utils/wallet_salt.circom";
 include "./utils/hex2int.circom";
 include "./utils/hash_pubkey_and_sign.circom";
 include "./utils/email_nullifier.circom";
+include "./regexes/from_addr_regex.circom";
 include "./regexes/email_addr_regex.circom";
 include "./regexes/email_domain_regex.circom";
 include "./regexes/invitation_code_regex.circom";
@@ -50,7 +51,7 @@ template AccountTransport(n, k, max_header_bytes) {
 
     // FROM HEADER REGEX: 736,553 constraints
     signal from_regex_out, from_regex_reveal[max_header_bytes];
-    (from_regex_out, from_regex_reveal) <== FromRegex(max_header_bytes)(in_padded);
+    (from_regex_out, from_regex_reveal) <== FromAddrRegex(max_header_bytes)(in_padded);
     log(from_regex_out);
     from_regex_out === 1;
     signal sender_email_addr[email_max_bytes];

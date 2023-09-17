@@ -10,21 +10,20 @@ const emailWalletUtils = require("../../utils");
 const option = {
     include: path.join(__dirname, "../../../node_modules")
 };
-import { hash_to_curve, point_scalar_mul } from "circom-grumpkin";
 // const grumpkin = require("circom-grumpkin");
 jest.setTimeout(120000);
-describe("Account Creation", () => {
-    it("create an account", async () => {
+describe("Claim", () => {
+    it("claim an unclaimed funds/states", async () => {
         const emailAddr = "suegamisora@gmail.com";
         const paddedEmailAddr = emailWalletUtils.padEmailAddr(emailAddr);
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const viewingKey = emailWalletUtils.genViewingKey();
+        const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
         const circuitInputs = {
-            email_addr: paddedEmailAddr,
-            relayer_rand: relayerRand,
-            viewing_key: viewingKey,
+            recipient_email_addr: paddedEmailAddr,
+            recipient_relayer_rand: relayerRand,
+            cm_rand: emailAddrRand,
         };
-        const circuit = await wasm_tester(path.join(__dirname, "../src/account_creation.circom"), option);
+        const circuit = await wasm_tester(path.join(__dirname, "../src/claim.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
         const expectedRelayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
@@ -32,16 +31,7 @@ describe("Account Creation", () => {
         expect(BigInt(expectedRelayerRandHash)).toEqual(witness[1]);
         const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
         expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[2]);
-        const expectedVkCommit = emailWalletUtils.viewingKeyCommit(viewingKey, emailAddr, expectedRelayerRandHash);
-        // expect(expectedVkCommit).toEqual("0x" + witness[2].toString(16));
-        expect(BigInt(expectedVkCommit)).toEqual(witness[3]);
-        const expectedWalletSalt = emailWalletUtils.walletSalt(viewingKey);
-        expect(BigInt(expectedWalletSalt)).toEqual(witness[4]);
-        const expectedExtAccountSalt = emailWalletUtils.extAccountSalt(viewingKey);
-        expect(BigInt(expectedExtAccountSalt)).toEqual(witness[5]);
-        const hashedPoint = hash_to_curve(paddedEmailAddr);
-        const expectedPsiPoint = point_scalar_mul(hashedPoint.x, hashedPoint.y, BigInt(relayerRand));
-        expect(expectedPsiPoint.x).toEqual(witness[6]);
-        expect(expectedPsiPoint.y).toEqual(witness[7]);
+        const expectedEmailAddrCommit = emailWalletUtils.emailAddrCommit(emailAddr, emailAddrRand);
+        expect(BigInt(expectedEmailAddrCommit)).toEqual(witness[3]);
     });
 });

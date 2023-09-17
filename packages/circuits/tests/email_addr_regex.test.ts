@@ -13,9 +13,9 @@ const option = {
 // const grumpkin = require("circom-grumpkin");
 jest.setTimeout(120000);
 describe("Email Address Regex", () => {
-    it("test a regex of an email address", async () => {
+    it("only an email address", async () => {
         const emailAddr = "suegamisora@gmail.com";
-        const paddedEmailAddr = emailWalletUtils.paddedEmailAddr(emailAddr);
+        const paddedEmailAddr = emailWalletUtils.padEmailAddr(emailAddr);
         const circuitInputs = {
             msg: paddedEmailAddr,
         };
@@ -25,6 +25,24 @@ describe("Email Address Regex", () => {
         expect(1n).toEqual(witness[1]);
         for (let idx = 0; idx < emailAddr.length; ++idx) {
             expect(BigInt(paddedEmailAddr[idx])).toEqual(witness[2 + idx]);
+        }
+    });
+
+    it("with a prefix", async () => {
+        const prefix = "subject:";
+        const emailAddr = "suegamisora@gmail.com";
+        const string = prefix + emailAddr;
+        console.log(string);
+        const paddedStr = emailWalletUtils.padString(string, 256);
+        const circuitInputs = {
+            msg: paddedStr,
+        };
+        const circuit = await wasm_tester(path.join(__dirname, "./circuits/test_email_addr_regex.circom"), option);
+        const witness = await circuit.calculateWitness(circuitInputs);
+        await circuit.checkConstraints(witness);
+        expect(1n).toEqual(witness[1]);
+        for (let idx = 0; idx < emailAddr.length; ++idx) {
+            expect(BigInt(paddedStr[prefix.length + idx])).toEqual(witness[2 + prefix.length + idx]);
         }
     });
 });

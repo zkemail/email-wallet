@@ -15,7 +15,7 @@ jest.setTimeout(120000);
 describe("Email Domain Regex", () => {
     it("test a regex of an email domain", async () => {
         const emailAddr = "suegamisora@gmail.com";
-        const paddedEmailAddr = emailWalletUtils.paddedEmailAddr(emailAddr);
+        const paddedEmailAddr = emailWalletUtils.padEmailAddr(emailAddr);
         const circuitInputs = {
             msg: paddedEmailAddr,
         };

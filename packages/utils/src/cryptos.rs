@@ -122,7 +122,22 @@ pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
     Ok(cx.string(relayer_rand_hash_str))
 }
 
-pub fn padded_email_addr_node(mut cx: FunctionContext) -> JsResult<JsArray> {
+pub fn pad_string_node(mut cx: FunctionContext) -> JsResult<JsArray> {
+    let string = cx.argument::<JsString>(0)?.value(&mut cx);
+    let padded_bytes_size = cx.argument::<JsNumber>(1)?.value(&mut cx) as usize;
+    let padded_bytes = JsArray::new(&mut cx, padded_bytes_size as u32);
+    for (idx, byte) in string.as_bytes().into_iter().enumerate() {
+        let js_byte = cx.number(*byte);
+        padded_bytes.set(&mut cx, idx as u32, js_byte)?;
+    }
+    for idx in string.len()..padded_bytes_size {
+        let js_byte = cx.number(0);
+        padded_bytes.set(&mut cx, idx as u32, js_byte)?;
+    }
+    Ok(padded_bytes)
+}
+
+pub fn pad_email_addr_node(mut cx: FunctionContext) -> JsResult<JsArray> {
     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
     let padded_email_addr_bytes =
@@ -145,6 +160,13 @@ pub fn email_addr_pointer_node(mut cx: FunctionContext) -> JsResult<JsString> {
     };
     let email_addr_pointer_str = field2str(&email_addr_pointer);
     Ok(cx.string(email_addr_pointer_str))
+}
+
+pub fn email_addr_commit_rand_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let mut rng = OsRng;
+    let commit_rand = Fr::random(&mut rng);
+    let commit_rand_str = field2str(&commit_rand);
+    Ok(cx.string(commit_rand_str))
 }
 
 pub fn email_addr_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
