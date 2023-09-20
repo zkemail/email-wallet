@@ -10,6 +10,7 @@ const emailWalletUtils = require("../../utils");
 const option = {
     include: path.join(__dirname, "../../../node_modules")
 };
+import { readFileSync } from "fs";
 // const grumpkin = require("circom-grumpkin");
 jest.setTimeout(120000);
 describe("Invitation Code Regex", () => {
@@ -28,6 +29,26 @@ describe("Invitation Code Regex", () => {
         expect(1n).toEqual(witness[1]);
         for (let idx = 0; idx < revealed.length; ++idx) {
             expect(BigInt(paddedStr[prefixLen + idx])).toEqual(witness[2 + prefixLen + idx]);
+        }
+    });
+
+    it("invitation code in the subject", async () => {
+        const codeStr = "subject: Email Wallet CODE:0x123abc";
+        const prefixLen = "subject: Email Wallet CODE:0x".length;
+        const revealed = "123abc";
+        const paddedStr = emailWalletUtils.padString(codeStr, 256);
+        const circuitInputs = {
+            msg: paddedStr,
+        };
+        const circuit = await wasm_tester(path.join(__dirname, "./circuits/test_invitation_code_regex.circom"), option);
+        const witness = await circuit.calculateWitness(circuitInputs);
+        await circuit.checkConstraints(witness);
+        // console.log(witness);
+        expect(1n).toEqual(witness[1]);
+        const revealedStartIdx = emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0];
+        console.log(emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8")));
+        for (let idx = 0; idx < revealed.length; ++idx) {
+            expect(BigInt(paddedStr[revealedStartIdx + idx])).toEqual(witness[2 + prefixLen + idx]);
         }
     });
 

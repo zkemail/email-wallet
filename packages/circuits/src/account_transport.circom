@@ -70,7 +70,7 @@ template AccountTransport(n, k, max_header_bytes) {
     domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
 
     signal cm_rand;
-    (pubkey_hash, cm_rand) <== HashPubkeyAndSign(n,k)(pubkey, signature);
+    (pubkey_hash, cm_rand, _) <== HashPubkeyAndSign(n,k)(pubkey, signature);
 
     email_nullifier <== EmailNullifier()(cm_rand);
 

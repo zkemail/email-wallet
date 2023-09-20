@@ -19,6 +19,10 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("emailAddrPointer", email_addr_pointer_node)?;
     cx.export_function("emailAddrCommitRand", email_addr_commit_rand_node)?;
     cx.export_function("emailAddrCommit", email_addr_commit_node)?;
+    cx.export_function(
+        "emailAddrCommitWithSignature",
+        email_addr_commit_with_signature_node,
+    )?;
     cx.export_function("genViewingKey", gen_viewing_key_node)?;
     cx.export_function("viewingKeyCommit", viewing_key_commit_node)?;
     cx.export_function("walletSalt", wallet_salt_node)?;

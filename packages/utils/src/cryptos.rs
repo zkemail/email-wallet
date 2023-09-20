@@ -56,6 +56,13 @@ impl PaddedEmailAddr {
         inputs.append(&mut self.to_email_addr_fields());
         poseidon_fields(&inputs)
     }
+
+    pub fn to_commitment_with_signature(&self, signature: &[u8]) -> Result<Fr, PoseidonError> {
+        let mut inputs = bytes_chunk_fields(signature, 121, 2);
+        inputs.push(Fr::one());
+        let cm_rand = poseidon_fields(&inputs)?;
+        poseidon_fields(&[vec![cm_rand], self.to_email_addr_fields()].concat())
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -105,9 +112,8 @@ fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
         .collect_vec()
 }
 
-/// `public_key_n` is little endian.
-pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
-    let bits = public_key_n
+fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: usize) -> Vec<Fr> {
+    let bits = bytes
         .into_iter()
         .flat_map(|byte| {
             let mut bits = vec![];
@@ -118,7 +124,7 @@ pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
         })
         .collect_vec();
     let words = bits
-        .chunks(121)
+        .chunks(chunk_size)
         .map(|bits| {
             let mut word = Fr::zero();
             for (i, bit) in bits.iter().enumerate() {
@@ -129,12 +135,12 @@ pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
             word
         })
         .collect_vec();
-    let inputs = words
-        .chunks(2)
+    let fields = words
+        .chunks(num_chunk_in_field)
         .map(|words| {
             let mut input = Fr::zero();
             let mut coeff = Fr::one();
-            let offset = Fr::from_u128(1u128 << 121);
+            let offset = Fr::from_u128(1u128 << chunk_size);
             for (i, word) in words.iter().enumerate() {
                 input += coeff * word;
                 coeff *= offset;
@@ -142,48 +148,20 @@ pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
             input
         })
         .collect_vec();
+    fields
+}
+
+/// `public_key_n` is little endian.
+pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
+    let inputs = bytes_chunk_fields(public_key_n, 121, 2);
     poseidon_fields(&inputs)
 }
 
 /// `signature` is little endian.
 pub fn email_nullifier(signature: &[u8]) -> Result<Fr, PoseidonError> {
-    let bits = signature
-        .into_iter()
-        .flat_map(|byte| {
-            let mut bits = vec![];
-            for i in 0..8 {
-                bits.push((byte >> i) & 1);
-            }
-            bits
-        })
-        .collect_vec();
-    let words = bits
-        .chunks(121)
-        .map(|bits| {
-            let mut word = Fr::zero();
-            for (i, bit) in bits.iter().enumerate() {
-                if *bit == 1 {
-                    word += Fr::from_u128(1u128 << i);
-                }
-            }
-            word
-        })
-        .collect_vec();
-    let inputs = words
-        .chunks(2)
-        .map(|words| {
-            let mut input = Fr::zero();
-            let mut coeff = Fr::one();
-            let offset = Fr::from_u128(1u128 << 121);
-            for (i, word) in words.iter().enumerate() {
-                input += coeff * word;
-                coeff *= offset;
-            }
-            input
-        })
-        .collect_vec();
+    let inputs = bytes_chunk_fields(signature, 121, 2);
     let sign_rand = poseidon_fields(&inputs)?;
-    poseidon_fields(&[sign_rand, Fr::one()])
+    poseidon_fields(&[sign_rand])
 }
 
 pub fn gen_relayer_rand_node(mut cx: FunctionContext) -> JsResult<JsString> {
@@ -257,6 +235,23 @@ pub fn email_addr_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let rand = str2field_node(&mut cx, &rand)?;
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
     let email_addr_commit = match padded_email_addr.to_commitment(&rand) {
+        Ok(fr) => fr,
+        Err(e) => return cx.throw_error(&format!("EmailAddrCommit failed: {}", e)),
+    };
+    let email_addr_commit_str = field2str(&email_addr_commit);
+    Ok(cx.string(email_addr_commit_str))
+}
+
+pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
+    let signature = cx.argument::<JsString>(1)?.value(&mut cx);
+    let mut signature = match hex::decode(&signature[2..]) {
+        Ok(bytes) => bytes,
+        Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
+    };
+    signature.reverse();
+    let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
+    let email_addr_commit = match padded_email_addr.to_commitment_with_signature(&signature) {
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("EmailAddrCommit failed: {}", e)),
     };

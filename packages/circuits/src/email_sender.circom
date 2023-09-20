@@ -35,6 +35,11 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
 
     var email_max_bytes = email_max_bytes_const();
     var domain_len = domain_len_const();
+    var k2_chunked_size = k >> 1;
+    if(k % 2 == 1) {
+        k2_chunked_size += 1;
+    }
+    var timestamp_len = timestamp_len_const();
 
     signal output masked_subject_str[max_subject_bytes];
     signal output domain_name[domain_len];
@@ -80,14 +85,15 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
     domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
-
-    signal cm_rand;
-    (pubkey_hash, cm_rand) <== HashPubkeyAndSign(n,k)(pubkey, signature);
+    
+    signal sign_hash;
+    signal sign_ints[k2_chunked_size];
+    (pubkey_hash, sign_hash, sign_ints) <== HashPubkeyAndSign(n,k)(pubkey, signature);
     signal sender_relayer_rand_hash_input[1];
     sender_relayer_rand_hash_input[0] <== sender_relayer_rand;
     sender_relayer_rand_hash <== Poseidon(1)(sender_relayer_rand_hash_input);
 
-    email_nullifier <== EmailNullifier()(cm_rand);
+    email_nullifier <== EmailNullifier()(sign_hash);
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
@@ -96,11 +102,14 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     // sender_vk_wtns_input[0] <== cm_rand;
     // sender_vk_wtns_input[1] <== sender_vk;
     // sender_vk_wtns <== Poseidon(2)(sender_vk_wtns_input);
-    signal cm_rand2_input[1];
-    cm_rand2_input[0] <== cm_rand;
-    signal cm_rand2 <== Poseidon(1)(cm_rand2_input);
+    signal cm_rand_input[k2_chunked_size+1];
+    for(var i=0; i<k2_chunked_size;i++){
+        cm_rand_input[i] <== sign_ints[i];
+    }
+    cm_rand_input[k2_chunked_size] <== 1;
+    signal cm_rand <== Poseidon(k2_chunked_size+1)(cm_rand_input);
     signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
-    recipient_email_addr_commit <== EmailAddrCommit(num_email_addr_ints)(cm_rand2, recipient_email_addr_ints);
+    recipient_email_addr_commit <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
 }
 
 // Args:

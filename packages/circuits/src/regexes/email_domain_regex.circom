@@ -264,8 +264,8 @@ template EmailDomainRegex(msg_bytes) {
 	signal output reveal0[msg_bytes];
 	for (var i = 0; i < msg_bytes; i++) {
 		is_substr0[i][0] <== 0;
-		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][3] * states[i+2][3];
-		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][2] * states[i+2][3];
+		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][2] * states[i+2][3];
+		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][3] * states[i+2][3];
 		is_reveal0[i] <== is_substr0[i][2] * is_consecutive[i][1];
 		reveal0[i] <== in[i+1] * is_reveal0[i];
 	}

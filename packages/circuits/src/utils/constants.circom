@@ -20,3 +20,7 @@ function pack_bytes_const() {
     return 31;
 }
 
+function timestamp_len_const() {
+    return 10;
+}
+

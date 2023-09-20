@@ -17,10 +17,9 @@ template EmailNullifier() {
     // for(var i = 0; i < field_pack_bits; i++) {
     //     header_hash_int[i+1] <== 2 * header_hash_int[i] + header_hash[i];
     // }
-    signal email_nullifier_input[2];
+    signal email_nullifier_input[1];
     email_nullifier_input[0] <== sign_hash;
-    email_nullifier_input[1] <== 1;
-    email_nullifier <== Poseidon(2)(email_nullifier_input);
+    email_nullifier <== Poseidon(1)(email_nullifier_input);
 }
 
 

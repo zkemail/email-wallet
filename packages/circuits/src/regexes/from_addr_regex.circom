@@ -738,20 +738,20 @@ template FromAddrRegex(msg_bytes) {
 	signal output reveal0[msg_bytes];
 	for (var i = 0; i < msg_bytes; i++) {
 		is_substr0[i][0] <== 0;
-		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][7] * states[i+2][9];
-		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][15] * states[i+2][14];
-		is_substr0[i][3] <== is_substr0[i][2] + states[i+1][7] * states[i+2][7];
-		is_substr0[i][4] <== is_substr0[i][3] + states[i+1][1] * states[i+2][1];
-		is_substr0[i][5] <== is_substr0[i][4] + states[i+1][13] * states[i+2][7];
-		is_substr0[i][6] <== is_substr0[i][5] + states[i+1][1] * states[i+2][12];
-		is_substr0[i][7] <== is_substr0[i][6] + states[i+1][9] * states[i+2][14];
-		is_substr0[i][8] <== is_substr0[i][7] + states[i+1][12] * states[i+2][14];
-		is_substr0[i][9] <== is_substr0[i][8] + states[i+1][1] * states[i+2][7];
-		is_substr0[i][10] <== is_substr0[i][9] + states[i+1][14] * states[i+2][14];
-		is_substr0[i][11] <== is_substr0[i][10] + states[i+1][5] * states[i+2][7];
-		is_substr0[i][12] <== is_substr0[i][11] + states[i+1][12] * states[i+2][15];
-		is_substr0[i][13] <== is_substr0[i][12] + states[i+1][13] * states[i+2][1];
-		is_substr0[i][14] <== is_substr0[i][13] + states[i+1][15] * states[i+2][15];
+		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][5] * states[i+2][7];
+		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][13] * states[i+2][7];
+		is_substr0[i][3] <== is_substr0[i][2] + states[i+1][1] * states[i+2][7];
+		is_substr0[i][4] <== is_substr0[i][3] + states[i+1][7] * states[i+2][9];
+		is_substr0[i][5] <== is_substr0[i][4] + states[i+1][13] * states[i+2][1];
+		is_substr0[i][6] <== is_substr0[i][5] + states[i+1][12] * states[i+2][15];
+		is_substr0[i][7] <== is_substr0[i][6] + states[i+1][7] * states[i+2][7];
+		is_substr0[i][8] <== is_substr0[i][7] + states[i+1][15] * states[i+2][15];
+		is_substr0[i][9] <== is_substr0[i][8] + states[i+1][1] * states[i+2][1];
+		is_substr0[i][10] <== is_substr0[i][9] + states[i+1][15] * states[i+2][14];
+		is_substr0[i][11] <== is_substr0[i][10] + states[i+1][9] * states[i+2][14];
+		is_substr0[i][12] <== is_substr0[i][11] + states[i+1][14] * states[i+2][14];
+		is_substr0[i][13] <== is_substr0[i][12] + states[i+1][1] * states[i+2][12];
+		is_substr0[i][14] <== is_substr0[i][13] + states[i+1][12] * states[i+2][14];
 		is_reveal0[i] <== is_substr0[i][14] * is_consecutive[i][1];
 		reveal0[i] <== in[i+1] * is_reveal0[i];
 	}
