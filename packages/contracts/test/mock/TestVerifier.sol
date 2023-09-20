@@ -68,4 +68,19 @@ contract TestVerifier is IVerifier {
 
         return false;
     }
+
+    function verifiyAccountTransportProof(
+        string memory /* emailDomain */,
+        bytes32 /* dkimPublicKeyHash */,
+        bytes32 /* emailNullifier */,
+        bytes32 /* oldRelayerRandHash */,
+        bytes32 /* oldVKCommitment */,
+        bytes memory proof
+    ) external view returns (bool) {
+        if (proof[0] == 0x01) {
+            return true;
+        }
+
+        return false;
+    }
 }

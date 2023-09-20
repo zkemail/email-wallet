@@ -20,9 +20,10 @@ struct EmailOperation {
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of ETH to be charged per gas
+    uint8 extensionSubjectTemplateIndex; // Index of the extension subject template
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
-    bytes extParams; // Serialized params for the extension based on the template
+    bytes extensionParams; // Serialized params for the extension based on the template
     bytes emailProof; // ZK Proof of Email receipt
 }
 
@@ -40,10 +41,18 @@ struct ExtensionManagerParams {
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
+    bytes32 emailAddressCommitment;
     address senderAddress;
     address tokenAddress;
     uint256 amount;
     uint256 expiryTime;
+}
+
+struct UnclaimedState {
+    bytes32 emailAddressCommitment;
+    address extensionAddress;
+    address senderAddress;
+    bytes state;
 }
 
 // Struct to store context when executing an EmailOp
@@ -52,5 +61,6 @@ struct ExecutionContext {
     address relayer;
     address extensionAddress;
     bool unclaimedFundRegistered;
+    bool unclaimedStateRegistered;
     uint256 consumedETH;
 }
