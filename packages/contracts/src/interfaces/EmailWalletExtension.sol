@@ -26,18 +26,11 @@ abstract contract EmailWalletExtension {
     /// @param templateIndex Index of the subjectTemplate to which the subject was matched
     /// @param wallet Address of users wallet
     /// @param emailNullifier Nullifier of the email
-    function execute(
-        bytes memory params,
-        uint8 templateIndex,
-        address wallet,
-        bytes32 emailNullifier
-    ) external virtual;
+    function execute(bytes memory params, uint8 templateIndex, address wallet, bytes32 emailNullifier) external virtual;
 
     /// Register unclaimed state for a recipient emailCommitment
     /// @param unclaimedState Unclaimed state that is registered
-    function registerUnclaimedState(
-        UnclaimedState memory unclaimedState
-    ) public virtual returns (bool) {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState) public virtual returns (bool) {
         unclaimedState;
         revert("Not implemented");
     }
@@ -45,10 +38,7 @@ abstract contract EmailWalletExtension {
     /// Claim an unclaimed state to recipient user
     /// @param unclaimedState Unclaimed state that is being claimed
     /// @param wallet Address of users wallet
-    function claimUnclaimedState(
-        UnclaimedState memory unclaimedState,
-        address wallet
-    ) external virtual;
+    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external virtual;
 
     /// Revert an expired inclaimed state
     /// @param unclaimedState Unclaimed state that is expired

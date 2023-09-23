@@ -81,7 +81,6 @@ interface IVerifier {
         bytes memory proof
     ) external view returns (bool);
 
-
     /// @notice Verify the proof to transport account from one relayer to another
     /// @notice This will verify that relayer received an email from user with their VK somewhere in header
     ///         and the email is DKIM signed by the public key of `emailDomain` whose hash is `dkimPublicKeyHash`.
