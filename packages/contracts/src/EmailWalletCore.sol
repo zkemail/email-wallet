@@ -731,6 +731,7 @@ contract EmailWalletCore is WalletHandler {
         bytes32 walletSalt = walletSaltOfVKCommitment[vkCommitment];
         bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
 
+        require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayerHash != bytes32(0), "relayer not registered");
         require(relayerOfVKCommitment[vkCommitment] == msg.sender, "invalid relayer");
         require(initializedVKCommitments[vkCommitment], "account not initialized");
@@ -738,8 +739,6 @@ contract EmailWalletCore is WalletHandler {
         require(walletSalt != bytes32(0), "wallet salt not set");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
-        require(emailOp.dkimPublicKeyHash != bytes32(0), "DKIM pubkey hash cannot be empty");
-        require(dkimPublicKeyHash == emailOp.dkimPublicKeyHash, "DKIM pubkey hash mismatch");
         require(
             tokenRegistry.getTokenAddress(emailOp.feeTokenName) != address(0),
             "invalid fee token"
@@ -770,7 +769,7 @@ contract EmailWalletCore is WalletHandler {
         require(
             verifier.verifyEmailProof(
                 emailOp.emailDomain,
-                emailOp.dkimPublicKeyHash,
+                dkimPublicKeyHash,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
                 relayerHash,
