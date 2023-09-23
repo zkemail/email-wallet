@@ -4,6 +4,7 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
 import "./utils/TokenRegistry.sol";
 import "./interfaces/IVerifier.sol";
@@ -13,7 +14,7 @@ import "./interfaces/Constants.sol";
 import "./Wallet.sol";
 import "./handlers/WalletHandler.sol";
 
-contract EmailWalletCore is WalletHandler {
+contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     // ZK proof verifier
     IVerifier public verifier;
 
@@ -265,6 +266,11 @@ contract EmailWalletCore is WalletHandler {
             currentContext.unclaimedFundRegistered == false,
             "unclaimed fund already registered in the context"
         );
+        require(
+            currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <=
+                currentContext.receivedETH,
+            "insufficient ETH"
+        );
         require(amount > 0, "token amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
         require(senderAddress != address(0), "invalid sender address");
@@ -329,7 +335,11 @@ contract EmailWalletCore is WalletHandler {
             msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE,
             "invalid unclaimed fund fee"
         );
-
+        require(
+            currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <=
+                currentContext.receivedETH,
+            "insufficient ETH"
+        );
         require(amount > 0, "token amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
         require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
@@ -371,7 +381,7 @@ contract EmailWalletCore is WalletHandler {
         bytes32 emailAddressCommitment,
         bytes32 recipientEmailAddressPointer,
         bytes memory proof
-    ) public {
+    ) public nonReentrant {
         UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[
             recipientEmailAddressPointer
         ];
@@ -423,7 +433,7 @@ contract EmailWalletCore is WalletHandler {
 
     /// @notice Return unclaimed fund after expiry time
     /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
-    function revertUnclaimedFund(bytes32 emailAddressCommitment) external {
+    function revertUnclaimedFund(bytes32 emailAddressCommitment) public nonReentrant {
         UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[emailAddressCommitment];
 
         require(fund.amount > 0, "unclaimed fund not registered");
@@ -568,7 +578,7 @@ contract EmailWalletCore is WalletHandler {
         bytes32 emailAddressCommitment,
         bytes32 recipientEmailAddressPointer,
         bytes memory proof
-    ) public {
+    ) public nonReentrant {
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommitment[
             recipientEmailAddressPointer
         ];
@@ -615,7 +625,7 @@ contract EmailWalletCore is WalletHandler {
 
     /// @notice Return unclaimed state after expiry time
     /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed state was registered.
-    function revertUnclaimedState(bytes32 emailAddressCommitment) external {
+    function revertUnclaimedState(bytes32 emailAddressCommitment) public nonReentrant {
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommitment[emailAddressCommitment];
 
         require(us.senderAddress != address(0), "unclaimed state not registered");
@@ -725,7 +735,7 @@ contract EmailWalletCore is WalletHandler {
 
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOperation to be validated
-    function _validateEmailOp(EmailOperation memory emailOp) internal view {
+    function validateEmailOp(EmailOperation memory emailOp) public view {
         bytes32 relayerHash = relayers[msg.sender].randHash;
         bytes32 vkCommitment = vkCommitmentOfPointer[emailOp.emailAddressPointer];
         bytes32 walletSalt = walletSaltOfVKCommitment[vkCommitment];
@@ -782,27 +792,13 @@ contract EmailWalletCore is WalletHandler {
         );
     }
 
-    /// Execute an EmailOperation
+    /// @notice Execute an EmailOperation
     /// @param emailOp EmailOperation to be executed
-    /// @dev Fee for unclaimed fund registration should be send if the recipient is an email address
-    function executeEmailOp(EmailOperation memory emailOp) public payable {
-        uint256 initialGas = gasleft();
-
-        currentContext = ExecutionContext({
-            extensionAddress: address(0),
-            unclaimedFundRegistered: false,
-            unclaimedStateRegistered: false,
-            relayer: msg.sender,
-            consumedETH: 0,
-            walletAddress: getAddressOfSalt(
-                walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
-            )
-        });
-
-        _validateEmailOp(emailOp);
-
-        emailNullifiers[emailOp.emailNullifier] = true;
-
+    /// @return success Whether the operation is successful
+    /// @return returnData Return data from the operation (error)
+    function _executeEmailOp(
+        EmailOperation memory emailOp
+    ) internal returns (bool success, bytes memory returnData) {
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletParams memory walletParams = emailOp.walletParams;
@@ -811,17 +807,19 @@ contract EmailWalletCore is WalletHandler {
                 ? address(this)
                 : emailOp.recipientETHAddress;
 
-            _processERC20TransferRequest(
+            (success, returnData) = _processERC20TransferRequest(
                 currentContext.walletAddress,
                 recipient,
                 tokenAddress,
                 walletParams.amount
             );
 
+            if (!success) {
+                return (success, returnData);
+            }
+
             // Register unclaimed fund for the recipient if the recipient is an email address
             if (emailOp.hasEmailRecipient) {
-                require(msg.value > currentContext.consumedETH, "insufficient fee");
-
                 registerUnclaimedFundInternal(
                     emailOp.recipientEmailAddressCommitment,
                     tokenAddress,
@@ -849,22 +847,52 @@ contract EmailWalletCore is WalletHandler {
                 emailOp.emailAddressPointer
             );
 
-            require(extAddress != address(0), "extension not registered");
-
             currentContext.extensionAddress = extAddress;
 
             EmailWalletExtension extension = EmailWalletExtension(extAddress);
 
-            extension.execute(
-                emailOp.extensionParams,
-                emailOp.extensionSubjectTemplateIndex,
-                currentContext.walletAddress,
-                emailOp.emailNullifier
-            );
+            try
+                extension.execute(
+                    emailOp.extensionParams,
+                    emailOp.extensionSubjectTemplateIndex,
+                    currentContext.walletAddress,
+                    emailOp.emailNullifier
+                )
+            {} catch Error(string memory reason) {
+                return (false, bytes(reason));
+            } catch {
+                return (false, bytes("error while executing extension"));
+            }
         }
+    }
+
+    /// @notice Handle an EmailOperation - the main function relayer should call for each Email
+    /// @param emailOp EmailOperation to be executed
+    /// @dev Fee for unclaimed fund/state registration should be send if the recipient is an email address
+    function handleEmailOp(
+        EmailOperation calldata emailOp
+    ) public payable nonReentrant returns (bool success, bytes memory returnData) {
+        uint256 initialGas = gasleft();
+
+        currentContext = ExecutionContext({
+            extensionAddress: address(0),
+            unclaimedFundRegistered: false,
+            unclaimedStateRegistered: false,
+            relayer: msg.sender,
+            receivedETH: msg.value,
+            consumedETH: 0,
+            walletAddress: getAddressOfSalt(
+                walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
+            )
+        });
+
+        validateEmailOp(emailOp);
+
+        emailNullifiers[emailOp.emailNullifier] = true;
+
+        (success, returnData) = _executeEmailOp(emailOp);
 
         // Refund excess ETH to the relayer
-        // TODO: There is a chance code dont reach here. Relayer should be refunded still.
         if (currentContext.consumedETH < msg.value) {
             (bool sent, ) = payable(currentContext.relayer).call{
                 value: msg.value - currentContext.consumedETH

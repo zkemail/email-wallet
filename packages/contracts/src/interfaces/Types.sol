@@ -62,5 +62,6 @@ struct ExecutionContext {
     address extensionAddress;
     bool unclaimedFundRegistered;
     bool unclaimedStateRegistered;
+    uint256 receivedETH;
     uint256 consumedETH;
 }

@@ -37,7 +37,7 @@ contract WalletHandler {
         address recipientAddress,
         address tokenAddress,
         uint256 amount
-    ) internal {
+    ) internal returns (bool success, bytes memory returnData) {
         require(tokenAddress != address(0), "invalid token address");
         require(amount > 0, "invalid amount");
         require(senderAddress != address(0), "invalid sender address");
@@ -45,21 +45,11 @@ contract WalletHandler {
 
         Wallet sender = Wallet(payable(senderAddress));
 
-        (bool success, bytes memory returnData) = sender.execute(
+        (success, returnData) = sender.execute(
             tokenAddress,
             0,
             abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
         );
-
-        require(success, string(returnData));
-
-        if (returnData.length > 0) {
-            bool internalSuccess;
-            assembly {
-                internalSuccess := mload(add(returnData, 0x20))
-            }
-            require(internalSuccess, "ERC20 transfer failed");
-        }
     }
 
     function _processERC20TransferRequest(
