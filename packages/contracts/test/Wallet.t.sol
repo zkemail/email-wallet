@@ -6,7 +6,6 @@ import "forge-std/console.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/Wallet.sol";
-import "../src/EmailWalletCore.sol";
 import "./mock/TestWallet.sol";
 
 contract WalletTest is Test {
@@ -42,7 +41,7 @@ contract WalletTest is Test {
         walletImplementation = new Wallet();
     }
 
-    function test_deploy_upgradeable_deterministic_wallet() public {
+    function testWalletDeploy() public {
         bytes32 salt = bytes32(uint(1001));
         Wallet wallet = _deployWallet(salt);
 
@@ -50,7 +49,24 @@ contract WalletTest is Test {
         assertEq(wallet.owner(), address(this));  // Verify deployed (test contract) is owner
     }
 
-    function test_wallet_ownership_change() public {
+    function testWalletExecution() public {
+        bytes32 salt = bytes32(uint(1002));
+        Wallet wallet = _deployWallet(salt);
+
+        wallet.execute(address(wallet), 0, ""); // Should be able to execute as new owner
+    }
+
+    function testCannotExecuteAsNonOwner() public {
+        bytes32 salt = bytes32(uint(1003));
+        Wallet wallet = _deployWallet(salt);
+
+        vm.startPrank(vm.addr(10));
+        vm.expectRevert();
+        wallet.execute(address(wallet), 0, ""); // Should not be able to execute as non-owner
+        vm.stopPrank();
+    }
+
+    function testWalletOwnershipChange() public {
         bytes32 salt = bytes32(uint(1002));
         address newOwner = vm.addr(2);
         Wallet wallet = _deployWallet(salt);
@@ -63,7 +79,7 @@ contract WalletTest is Test {
         vm.stopPrank();
     }
 
-    function test_wallet_upgrade() public {
+    function testWalletUpgrade() public {
         bytes32 salt = bytes32(uint(1003));
         Wallet wallet = _deployWallet(salt);
 
