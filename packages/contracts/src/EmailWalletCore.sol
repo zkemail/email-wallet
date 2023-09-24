@@ -54,10 +54,10 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     // User level mapping of command name to extension address (pointer -> (command -> extension))
     mapping(bytes32 => mapping(string => address)) public userExtensionOfCommand;
 
-    // Mapping of recipient's emailAddressCommitment (hash(email, randomness)) to the unclaimedFund
+    // Mapping of recipient's emailAddrCommitment (hash(email, randomness)) to the unclaimedFund
     mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommitment;
 
-    // Mapping of emailAddressCommitment to unclaimed state
+    // Mapping of emailAddrCommitment to unclaimed state
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommitment;
 
     // Mapping of token used for fees to this value in ETH
@@ -73,7 +73,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     event RelayerConfigUpdated(bytes32 randHash, string hostname);
 
     event UnclaimedFundRegistered(
-        bytes32 emailAddressCommitment,
+        bytes32 emailAddrCommitment,
         address tokenAddress,
         uint256 amount,
         address sender,
@@ -82,12 +82,12 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         string emailAddress
     );
 
-    event UnclaimedFundClaimed(bytes32 emailAddressCommitment, address tokenAddress, uint256 amount, address recipient);
+    event UnclaimedFundClaimed(bytes32 emailAddrCommitment, address tokenAddress, uint256 amount, address recipient);
 
-    event UnclaimedFundReverted(bytes32 emailAddressCommitment, address tokenAddress, uint256 amount, address sender);
+    event UnclaimedFundReverted(bytes32 emailAddrCommitment, address tokenAddress, uint256 amount, address sender);
 
     event UnclaimedStateRegistered(
-        bytes32 emailAddressCommitment,
+        bytes32 emailAddrCommitment,
         address extensionAddress,
         address sender,
         uint256 expiryTime,
@@ -96,9 +96,9 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         string emailAddress
     );
 
-    event UnclaimedStateClaimed(bytes32 emailAddressCommitment, address recipient);
+    event UnclaimedStateClaimed(bytes32 emailAddrCommitment, address recipient);
 
-    event UnclaimedStateReverted(bytes32 emailAddressCommitment, address sender);
+    event UnclaimedStateReverted(bytes32 emailAddrCommitment, address sender);
 
     /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
     /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
@@ -222,75 +222,61 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         emailNullifiers[emailNullifier] = true;
     }
 
-    /// @notice Register unclaimed fund for the recipient - to be called by Core contract and extensions
-    /// @param emailAddressCommitment Hash of the recipient's email address and a random number.
+    /// @notice Register unclaimed fund for the recipient - can be called by Core contract directly
+    /// @param emailAddrCommitment Hash of the recipient's email address and a random number.
     /// @param tokenAddress Address of ERC20 token contract.
     /// @param amount Amount in WEI of the token.
-    /// @dev This function is public so extensions can call it
-    function registerUnclaimedFundInternal(
-        bytes32 emailAddressCommitment,
+    function _registerUnclaimedFund(
+        address senderAddress,
+        bytes32 emailAddrCommitment,
         address tokenAddress,
-        uint256 amount
-    ) public {
-        address senderAddress = currentContext.walletAddress;
-
-        require(msg.sender == address(this) || msg.sender == currentContext.extensionAddress, "invalid caller");
-        require(currentContext.unclaimedFundRegistered == false, "unclaimed fund already registered in the context");
-        require(
-            currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <= currentContext.receivedETH,
-            "insufficient ETH"
-        );
-        require(amount > 0, "token amount should be greater than 0");
-        require(tokenAddress != address(0), "invalid token contract");
-        require(senderAddress != address(0), "invalid sender address");
-        require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
-        require(
-            unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].amount == 0,
-            "unclaimed fund already registered"
-        );
-
-        // Transfer token from sender's wallet to Core contract
-        _processERC20TransferRequest(senderAddress, address(this), tokenAddress, amount);
-
-        uint256 expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
+        uint256 amount,
+        uint256 expiryTime,
+        uint256 announceCommitmentRandomness,
+        string memory announceEmailAddress
+    ) private {
+        uint256 _expiryTime = expiryTime != 0
+            ? expiryTime
+            : (block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION);
 
         UnclaimedFund memory fund = UnclaimedFund({
-            emailAddressCommitment: emailAddressCommitment,
+            emailAddrCommitment: emailAddrCommitment,
             tokenAddress: tokenAddress,
             amount: amount,
-            expiryTime: expiryTime,
+            expiryTime: _expiryTime,
             senderAddress: senderAddress
         });
 
-        currentContext.unclaimedFundRegistered = true;
-        currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
+        unclaimedFundOfEmailAddrCommitment[emailAddrCommitment] = fund;
 
-        unclaimedFundOfEmailAddrCommitment[emailAddressCommitment] = fund;
-
-        emit UnclaimedFundRegistered(emailAddressCommitment, tokenAddress, amount, senderAddress, expiryTime, 0, "");
+        emit UnclaimedFundRegistered(
+            emailAddrCommitment,
+            tokenAddress,
+            amount,
+            senderAddress,
+            expiryTime,
+            announceCommitmentRandomness,
+            announceEmailAddress
+        );
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
-    /// @param emailAddressCommitment Hash of the recipient's email address and a random number.
+    /// @param emailAddrCommitment Hash of the recipient's email address and a random number.
     /// @param tokenAddress Address of ERC20 token contract.
     /// @param amount Amount in WEI of the token.
     /// @param expiryTime Expiry time to claim the unclaimed fund. Set `0` to use default expiry.
-    /// @param announceCommitmentRandomness Randomness used to generate the `emailAddressCommitment` - if needs to be public.
+    /// @param announceCommitmentRandomness Randomness used to generate the `emailAddrCommitment` - if needs to be public.
     /// @param announceEmailAddress Email address of the recipient - if needs to be public.
     /// @dev   `UNCLAIMED_FUNDS_REGISTRATION_FEE` ETH should be supplied to this function.
     /// @dev   `announceCommitmentRandomness` and `announceEmailAddress` are optional. They are not validated as well.
     function registerUnclaimedFund(
-        bytes32 emailAddressCommitment,
+        bytes32 emailAddrCommitment,
         address tokenAddress,
         uint256 amount,
         uint256 expiryTime,
         uint256 announceCommitmentRandomness,
         string memory announceEmailAddress
     ) public payable {
-        if (expiryTime == 0) {
-            expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
-        }
-
         // Ensure the sender has paid ETH needed for claiming the unclaimed fee
         require(msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE, "invalid unclaimed fund fee");
         require(
@@ -299,31 +285,21 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         );
         require(amount > 0, "token amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
-        require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
+        require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
         require(expiryTime > block.timestamp, "invalid expiry time");
         require(
-            unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].amount == 0,
+            unclaimedFundOfEmailAddrCommitment[emailAddrCommitment].amount == 0,
             "unclaimed fund already registered"
         );
 
         // Transfer token from sender to Core contract - sender should have set enough allowance for Core contract
         ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
 
-        UnclaimedFund memory fund = UnclaimedFund({
-            emailAddressCommitment: emailAddressCommitment,
-            tokenAddress: tokenAddress,
-            amount: amount,
-            expiryTime: expiryTime,
-            senderAddress: msg.sender
-        });
-
-        unclaimedFundOfEmailAddrCommitment[emailAddressCommitment] = fund;
-
-        emit UnclaimedFundRegistered(
-            emailAddressCommitment,
+        _registerUnclaimedFund(
+            msg.sender,
+            emailAddrCommitment,
             tokenAddress,
             amount,
-            msg.sender,
             expiryTime,
             announceCommitmentRandomness,
             announceEmailAddress
@@ -331,11 +307,11 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     }
 
     /// Claim an unclaimed fund to the recipient's (initialized) wallet.
-    /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @param emailAddrCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @param recipientEmailAddressPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
     function claimUnclaimedFund(
-        bytes32 emailAddressCommitment,
+        bytes32 emailAddrCommitment,
         bytes32 recipientEmailAddressPointer,
         bytes memory proof
     ) public nonReentrant {
@@ -356,7 +332,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
             verifier.verifyClaimFundProof(
                 relayers[msg.sender].randHash,
                 recipientEmailAddressPointer,
-                emailAddressCommitment,
+                emailAddrCommitment,
                 proof
             ),
             "invalid proof"
@@ -373,18 +349,18 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         (bool sent, ) = payable(msg.sender).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
         require(sent, "failed to transfer claim fee");
 
-        emit UnclaimedFundClaimed(emailAddressCommitment, fund.tokenAddress, fund.amount, recipientAddress);
+        emit UnclaimedFundClaimed(emailAddrCommitment, fund.tokenAddress, fund.amount, recipientAddress);
     }
 
     /// @notice Return unclaimed fund after expiry time
-    /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
-    function revertUnclaimedFund(bytes32 emailAddressCommitment) public nonReentrant {
-        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[emailAddressCommitment];
+    /// @param emailAddrCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
+    function revertUnclaimedFund(bytes32 emailAddrCommitment) public nonReentrant {
+        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[emailAddrCommitment];
 
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime < block.timestamp, "unclaimed fund not expired");
 
-        delete unclaimedFundOfEmailAddrCommitment[emailAddressCommitment];
+        delete unclaimedFundOfEmailAddrCommitment[emailAddrCommitment];
 
         // Transfer token from Core contract to sender's wallet
         ERC20(fund.tokenAddress).transfer(fund.senderAddress, fund.amount);
@@ -393,24 +369,24 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         (bool sent, ) = payable(fund.senderAddress).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
         require(sent, "failed to transfer refund fee");
 
-        emit UnclaimedFundReverted(emailAddressCommitment, fund.tokenAddress, fund.amount, fund.senderAddress);
+        emit UnclaimedFundReverted(emailAddrCommitment, fund.tokenAddress, fund.amount, fund.senderAddress);
     }
 
     /// Register unclaimed state of an extension for the recipient email address commitment
-    /// @param emailAddressCommitment Email address commitment of the recipient
+    /// @param emailAddrCommitment Email address commitment of the recipient
     /// @param extensionAddress Address of the extension contract
     /// @param state State to be registered
     /// @param expiryTime Expiry time to claim the unclaimed state.
-    /// @param announceCommitmentRandomness Randomness used to generate the `emailAddressCommitment` - if needs to be public.
+    /// @param announceCommitmentRandomness Randomness used to generate the `emailAddrCommitment` - if needs to be public.
     /// @param announceEmailAddress Email address of the recipient - if needs to be public.
     function registerUnclaimedState(
-        bytes32 emailAddressCommitment,
+        bytes32 emailAddrCommitment,
         address extensionAddress,
         bytes memory state,
         uint256 expiryTime,
         uint256 announceCommitmentRandomness,
         string memory announceEmailAddress
-    ) public payable {
+    ) public payable nonReentrant {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
         }
@@ -419,15 +395,15 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         require(msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE, "invalid unclaimed state fee");
 
         require(state.length > 0, "state cannot be empty");
-        require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
+        require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
         require(expiryTime > block.timestamp, "invalid expiry time");
         require(
-            unclaimedStateOfEmailAddrCommitment[emailAddressCommitment].senderAddress == address(0),
+            unclaimedStateOfEmailAddrCommitment[emailAddrCommitment].senderAddress == address(0),
             "unclaimed state already registered"
         );
 
         UnclaimedState memory us = UnclaimedState({
-            emailAddressCommitment: emailAddressCommitment,
+            emailAddrCommitment: emailAddrCommitment,
             extensionAddress: extensionAddress,
             senderAddress: msg.sender,
             state: state
@@ -438,10 +414,10 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
 
         require(registered, "failed to register unclaimed state");
 
-        unclaimedStateOfEmailAddrCommitment[emailAddressCommitment] = us;
+        unclaimedStateOfEmailAddrCommitment[emailAddrCommitment] = us;
 
         emit UnclaimedStateRegistered(
-            emailAddressCommitment,
+            emailAddrCommitment,
             extensionAddress,
             msg.sender,
             expiryTime,
@@ -452,54 +428,48 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     }
 
     /// Registere unclaimed state from an extension
-    /// @param emailAddressCommitment Email address commitment of the recipient
+    /// @param emailAddrCommitment Email address commitment of the recipient
     /// @param extensionAddress Address of the extension contract
     /// @param state State to be registered
-    function registerUnclaimedStateInternal(
-        bytes32 emailAddressCommitment,
+    /// @dev This dont call `extension.registerUnclaimedState` as extension is expected to make necessary changes
+    function registerUnclaimedStateAsExtension(
+        bytes32 emailAddrCommitment,
         address extensionAddress,
         bytes memory state
     ) public {
         address senderAddress = currentContext.walletAddress;
 
         require(msg.sender == currentContext.extensionAddress, "invalid caller");
-        require(currentContext.unclaimedStateRegistered == false, "unclaimed state already registered in the context");
         require(state.length > 0, "state cannot be empty");
         require(extensionAddress != address(0), "invalid extension contract");
         require(senderAddress != address(0), "invalid sender address");
-        require(emailAddressCommitment != bytes32(0), "invalid emailAddressCommitment");
+        require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
         require(
-            unclaimedFundOfEmailAddrCommitment[emailAddressCommitment].amount == 0,
+            unclaimedFundOfEmailAddrCommitment[emailAddrCommitment].amount == 0,
             "unclaimed fund already registered"
         );
 
         uint256 expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
 
         UnclaimedState memory us = UnclaimedState({
-            emailAddressCommitment: emailAddressCommitment,
+            emailAddrCommitment: emailAddrCommitment,
             extensionAddress: extensionAddress,
             senderAddress: msg.sender,
             state: state
         });
 
-        EmailWalletExtension extension = EmailWalletExtension(extensionAddress);
-        bool registered = extension.registerUnclaimedState(us);
-
-        require(registered, "failed to register unclaimed state");
-
-        unclaimedStateOfEmailAddrCommitment[emailAddressCommitment] = us;
-        currentContext.unclaimedStateRegistered = true;
+        unclaimedStateOfEmailAddrCommitment[emailAddrCommitment] = us;
         currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
 
-        emit UnclaimedStateRegistered(emailAddressCommitment, extensionAddress, msg.sender, expiryTime, state, 0, "");
+        emit UnclaimedStateRegistered(emailAddrCommitment, extensionAddress, msg.sender, expiryTime, state, 0, "");
     }
 
     /// Claim unclaimed state to the recipient's (initialized) wallet.
-    /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @param emailAddrCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @param recipientEmailAddressPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
     function claimUnclaimedState(
-        bytes32 emailAddressCommitment,
+        bytes32 emailAddrCommitment,
         bytes32 recipientEmailAddressPointer,
         bytes memory proof
     ) public nonReentrant {
@@ -520,7 +490,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
             verifier.verifyClaimFundProof(
                 relayers[msg.sender].randHash,
                 recipientEmailAddressPointer,
-                emailAddressCommitment,
+                emailAddrCommitment,
                 proof
             ),
             "invalid proof"
@@ -537,17 +507,17 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         (bool sent, ) = payable(msg.sender).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
         require(sent, "failed to transfer claim fee");
 
-        emit UnclaimedStateClaimed(emailAddressCommitment, recipientAddress);
+        emit UnclaimedStateClaimed(emailAddrCommitment, recipientAddress);
     }
 
     /// @notice Return unclaimed state after expiry time
-    /// @param emailAddressCommitment The commitment of the recipient's email address to which the unclaimed state was registered.
-    function revertUnclaimedState(bytes32 emailAddressCommitment) public nonReentrant {
-        UnclaimedState storage us = unclaimedStateOfEmailAddrCommitment[emailAddressCommitment];
+    /// @param emailAddrCommitment The commitment of the recipient's email address to which the unclaimed state was registered.
+    function revertUnclaimedState(bytes32 emailAddrCommitment) public nonReentrant {
+        UnclaimedState storage us = unclaimedStateOfEmailAddrCommitment[emailAddrCommitment];
 
         require(us.senderAddress != address(0), "unclaimed state not registered");
 
-        delete unclaimedStateOfEmailAddrCommitment[emailAddressCommitment];
+        delete unclaimedStateOfEmailAddrCommitment[emailAddrCommitment];
 
         EmailWalletExtension extension = EmailWalletExtension(us.extensionAddress);
         extension.revertUnclaimedState(us);
@@ -556,7 +526,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         (bool sent, ) = payable(us.senderAddress).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
         require(sent, "failed to transfer refund fee");
 
-        emit UnclaimedStateReverted(emailAddressCommitment, us.senderAddress);
+        emit UnclaimedStateReverted(emailAddrCommitment, us.senderAddress);
     }
 
     /// @notice Return the extension address for a command and user
@@ -577,7 +547,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     ///         This also validates certain parameters like tokenName, extensionName, extension command are registered.
     /// @param emailOp EmailOp from which the masked subject is to be computed
     function _computeMaskedSubjectForEmailOp(
-        EmailOperation memory emailOp
+        EmailOp memory emailOp
     ) internal view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
@@ -595,10 +565,10 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
                 " to "
             );
 
-            if (emailOp.recipientETHAddress != address(0)) {
+            if (emailOp.recipientETHAddr != address(0)) {
                 maskedSubject = string.concat(
                     maskedSubject,
-                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddress)), 20)
+                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
                 );
             }
         }
@@ -627,7 +597,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         // The command is for an extension
         else {
             isExtension = true;
-            address extensionAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddressPointer);
+            address extensionAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
 
             require(extensionAddress != address(0), "invalid command or extension");
 
@@ -640,10 +610,10 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     }
 
     /// @notice Validate an EmailOp, including proof verification
-    /// @param emailOp EmailOperation to be validated
-    function validateEmailOp(EmailOperation memory emailOp) public view {
+    /// @param emailOp EmailOp to be validated
+    function validateEmailOp(EmailOp memory emailOp) public view {
         bytes32 relayerHash = relayers[msg.sender].randHash;
-        bytes32 vkCommitment = vkCommitmentOfPointer[emailOp.emailAddressPointer];
+        bytes32 vkCommitment = vkCommitmentOfPointer[emailOp.emailAddrPointer];
         bytes32 walletSalt = walletSaltOfVKCommitment[vkCommitment];
         bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
 
@@ -660,13 +630,18 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
 
         if (emailOp.hasEmailRecipient) {
-            require(emailOp.recipientETHAddress == address(0), "cannot have both recipient types");
+            require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
+            require(emailOp.recipientEmailAddrCommitment != bytes32(0), "recipient commitment not found");
             require(
-                emailOp.recipientEmailAddressCommitment != bytes32(0),
-                "recipient  emailCommitment cannot be empty"
+                unclaimedFundOfEmailAddrCommitment[emailOp.recipientEmailAddrCommitment].amount == 0,
+                "Unclaimed fund exist for commitment"
+            );
+            require(
+                unclaimedStateOfEmailAddrCommitment[emailOp.recipientEmailAddrCommitment].state.length == 0,
+                "Unclaimed state exists for commitment"
             );
         } else {
-            require(emailOp.recipientEmailAddressCommitment == bytes32(0), "recipient emailCommitment not allowed");
+            require(emailOp.recipientEmailAddrCommitment == bytes32(0), "recipient commitment not allowed");
         }
 
         (string memory maskedSubject, bool isExtension) = _computeMaskedSubjectForEmailOp(emailOp);
@@ -683,25 +658,35 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
                 relayerHash,
-                emailOp.emailAddressPointer,
+                emailOp.emailAddrPointer,
                 emailOp.hasEmailRecipient,
-                emailOp.recipientEmailAddressCommitment,
+                emailOp.recipientEmailAddrCommitment,
                 emailOp.emailProof
             ),
             "invalid email proof"
         );
     }
 
-    /// @notice Execute an EmailOperation
-    /// @param emailOp EmailOperation to be executed
+    /// @notice Execute an EmailOp
+    /// @param emailOp EmailOp to be executed
     /// @return success Whether the operation is successful
     /// @return returnData Return data from the operation (error)
-    function _executeEmailOp(EmailOperation memory emailOp) internal returns (bool success, bytes memory returnData) {
+    function _executeEmailOp(EmailOp memory emailOp) internal returns (bool success, bytes memory returnData) {
         // Wallet operation
         if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
             WalletParams memory walletParams = emailOp.walletParams;
             address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
-            address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddress;
+            address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
+
+            // Relayer is expected to pass necessary ETH for UF registration.
+            // Otherwise this will revert and fee reimbursement will not be done
+            if (emailOp.hasEmailRecipient) {
+                require(
+                    currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <=
+                        currentContext.receivedETH,
+                    "insufficient ETH"
+                );
+            }
 
             (success, returnData) = _processERC20TransferRequest(
                 currentContext.walletAddress,
@@ -714,67 +699,60 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
                 return (success, returnData);
             }
 
-            // Register unclaimed fund for the recipient if the recipient is an email address
-            if (emailOp.hasEmailRecipient) {
-                registerUnclaimedFundInternal(
-                    emailOp.recipientEmailAddressCommitment,
-                    tokenAddress,
-                    walletParams.amount
-                );
-            }
+            // Register unclaimed fund for the recipient
+            _registerUnclaimedFund(
+                currentContext.walletAddress,
+                emailOp.recipientEmailAddrCommitment,
+                tokenAddress,
+                walletParams.amount,
+                0,
+                0,
+                ""
+            );
+            currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
             address extensionAddress = addressOfExtension[extManagerParams.extensionName];
 
-            userExtensionOfCommand[emailOp.emailAddressPointer][extManagerParams.command] = extensionAddress;
+            userExtensionOfCommand[emailOp.emailAddrPointer][extManagerParams.command] = extensionAddress;
         }
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
-            userExtensionOfCommand[emailOp.emailAddressPointer][emailOp.command] = address(0);
+            userExtensionOfCommand[emailOp.emailAddrPointer][emailOp.command] = address(0);
         }
         // The command is for an extension
         else {
-            address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddressPointer);
-
+            address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
             currentContext.extensionAddress = extAddress;
 
-            EmailWalletExtension extension = EmailWalletExtension(extAddress);
-
-            try
-                extension.execute(
+            (success, returnData) = extAddress.call(
+                abi.encodeWithSignature(
+                    "execute(bytes,uint8,address,bytes32)",
                     emailOp.extensionParams,
                     emailOp.extensionSubjectTemplateIndex,
                     currentContext.walletAddress,
                     emailOp.emailNullifier
                 )
-            {} catch Error(string memory reason) {
-                return (false, bytes(reason));
-            } catch {
-                return (false, bytes("error while executing extension"));
-            }
+            );
         }
     }
 
-    /// @notice Handle an EmailOperation - the main function relayer should call for each Email
-    /// @param emailOp EmailOperation to be executed
+    /// @notice Handle an EmailOp - the main function relayer should call for each Email
+    /// @param emailOp EmailOp to be executed
     /// @dev Fee for unclaimed fund/state registration should be send if the recipient is an email address
     function handleEmailOp(
-        EmailOperation calldata emailOp
+        EmailOp calldata emailOp
     ) public payable nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
         currentContext = ExecutionContext({
+            walletAddress: getAddressOfSalt(walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddrPointer]]),
             extensionAddress: address(0),
-            unclaimedFundRegistered: false,
-            unclaimedStateRegistered: false,
             relayer: msg.sender,
             receivedETH: msg.value,
-            consumedETH: 0,
-            walletAddress: getAddressOfSalt(
-                walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddressPointer]]
-            )
+            consumedETH: 0
         });
 
         validateEmailOp(emailOp);

@@ -8,11 +8,11 @@ struct RelayerConfig {
 }
 
 // Struct to represent an operation from the user
-struct EmailOperation {
-    bytes32 emailAddressPointer; // emailAddressPointer of sender's account
+struct EmailOp {
+    bytes32 emailAddrPointer; // emailAddressPointer of sender's account
     bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
-    bytes32 recipientEmailAddressCommitment; // Commitment to recipient's email address if `hasEmailRecipient` is true
-    address recipientETHAddress; // ETH address of recipient - only used if `hasEmailRecipient` is false
+    bytes32 recipientEmailAddrCommitment; // Commitment to recipient's email address if `hasEmailRecipient` is true
+    address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email
@@ -39,9 +39,18 @@ struct ExtensionManagerParams {
     string extensionName; // Name of the extension to install/uninstall (like "uniswap")
 }
 
+// Struct to store context when executing an EmailOp
+struct ExecutionContext {
+    address walletAddress; // Wallet address of the user
+    address relayer; // Address of the relayer
+    address extensionAddress; // Address of extension in use
+    uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
+    uint256 consumedETH; // Amount of ETH consumed by the transaction (for Unclaimed Fund/State regitrations)
+}
+
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
-    bytes32 emailAddressCommitment;
+    bytes32 emailAddrCommitment;
     address senderAddress;
     address tokenAddress;
     uint256 amount;
@@ -49,19 +58,8 @@ struct UnclaimedFund {
 }
 
 struct UnclaimedState {
-    bytes32 emailAddressCommitment;
+    bytes32 emailAddrCommitment;
     address extensionAddress;
     address senderAddress;
     bytes state;
-}
-
-// Struct to store context when executing an EmailOp
-struct ExecutionContext {
-    address walletAddress;
-    address relayer;
-    address extensionAddress;
-    bool unclaimedFundRegistered;
-    bool unclaimedStateRegistered;
-    uint256 receivedETH;
-    uint256 consumedETH;
 }
