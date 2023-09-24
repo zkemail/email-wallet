@@ -3,6 +3,7 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../Wallet.sol";
 import "../utils/TokenRegistry.sol";
 import "../interfaces/Types.sol";
@@ -32,7 +33,7 @@ contract WalletHandler {
         return address(wallet);
     }
 
-    function _processERC20TransferRequest(
+    function _transferERC20(
         address senderAddress,
         address recipientAddress,
         address tokenAddress,
@@ -52,13 +53,13 @@ contract WalletHandler {
         );
     }
 
-    function _processERC20TransferRequest(
+    function _transferERC20(
         address senderAddress,
         address recipientAddress,
         string memory tokenName,
         uint256 amount
     ) internal {
         address tokenAddress = tokenRegistry.getTokenAddress(tokenName);
-        _processERC20TransferRequest(senderAddress, recipientAddress, tokenAddress, amount);
+        _transferERC20(senderAddress, recipientAddress, tokenAddress, amount);
     }
 }

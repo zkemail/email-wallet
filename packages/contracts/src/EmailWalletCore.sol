@@ -594,7 +594,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         uint256 feeAmount = totalFee / conversionRateOfFeeToken[emailOp.feeTokenName];
         address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
 
-        _processERC20TransferRequest(currentContext.walletAddress, msg.sender, feeToken, feeAmount);
+        _transferERC20(currentContext.walletAddress, msg.sender, feeToken, feeAmount);
     }
 
     /// @notice For extensions to request token from user's wallet
@@ -605,7 +605,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
 
         // TODO: Validate the requested token and amound is allowed.
 
-        _processERC20TransferRequest(
+        _transferERC20(
             currentContext.walletAddress,
             currentContext.extensionAddress,
             tokenAddress,
@@ -780,7 +780,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
                 );
             }
 
-            (success, returnData) = _processERC20TransferRequest(
+            (success, returnData) = _transferERC20(
                 currentContext.walletAddress,
                 recipient,
                 tokenAddress,
