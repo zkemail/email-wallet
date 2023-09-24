@@ -43,8 +43,9 @@ struct ExtensionManagerParams {
 struct ExecutionContext {
     address walletAddress; // Wallet address of the user
     address extensionAddress; // Address of extension in use
+    bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
+    bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
     uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
-    uint256 consumedETH; // Amount of ETH consumed by the transaction (for Unclaimed Fund/State regitrations)
 }
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)

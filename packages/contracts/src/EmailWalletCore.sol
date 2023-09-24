@@ -241,10 +241,6 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     ) public payable {
         // Ensure the sender has paid ETH needed for claiming the unclaimed fee
         require(msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE, "invalid unclaimed fund fee");
-        require(
-            currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <= currentContext.receivedETH,
-            "insufficient ETH"
-        );
         require(amount > 0, "token amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
         require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
@@ -400,14 +396,11 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         address senderAddress = currentContext.walletAddress;
 
         require(msg.sender == currentContext.extensionAddress, "invalid caller");
+        require(currentContext.unclaimedStateRegistered == false, "unclaimed state already registered");
         require(state.length > 0, "state cannot be empty");
         require(extensionAddress != address(0), "invalid extension contract");
         require(senderAddress != address(0), "invalid sender address");
         require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
-        require(
-            unclaimedFundOfEmailAddrCommitment[emailAddrCommitment].amount == 0,
-            "unclaimed fund already registered"
-        );
 
         uint256 expiryTime = block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION;
 
@@ -419,7 +412,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         });
 
         unclaimedStateOfEmailAddrCommitment[emailAddrCommitment] = us;
-        currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
+        currentContext.unclaimedStateRegistered = true;
 
         emit UnclaimedStateRegistered(emailAddrCommitment, extensionAddress, msg.sender, expiryTime, state, 0, "");
     }
@@ -567,11 +560,16 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     ) public payable nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
+        if (emailOp.hasEmailRecipient) {
+            require(msg.value == Constants.UNCLAIMED_FUND_REGISTRATION_FEE, "invalid unclaimed fund fee");
+        }
+
         currentContext = ExecutionContext({
             walletAddress: getAddressOfSalt(walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddrPointer]]),
             extensionAddress: address(0),
             receivedETH: msg.value,
-            consumedETH: 0
+            unclaimedStateRegistered: false,
+            unclaimedFundRegistered: false
         });
 
         validateEmailOp(emailOp);
@@ -580,9 +578,9 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
 
         (success, returnData) = _executeEmailOp(emailOp);
 
-        // Refund excess ETH to the relayer
-        if (currentContext.consumedETH < msg.value) {
-            _transferETH(msg.sender, msg.value - currentContext.consumedETH);
+        // Refund ETH to relayer if unclaimed funds were not registered
+        if (!currentContext.unclaimedFundRegistered && !currentContext.unclaimedStateRegistered) {
+            _transferETH(msg.sender, msg.value);
         }
 
         // Refund gas cost to the relayer from sender (in the fee token)
@@ -590,7 +588,11 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         uint256 consumedGas = initialGas - gasleft() + feeForRefund;
         uint256 feePerGas = emailOp.feePerGas != 0 ? emailOp.feePerGas : maxFeePerGas;
 
-        uint256 totalFee = (consumedGas * feePerGas) + currentContext.consumedETH;
+        uint256 totalFee = (consumedGas * feePerGas);
+        if (currentContext.unclaimedFundRegistered || currentContext.unclaimedStateRegistered) {
+            totalFee += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
+        }
+
         uint256 feeAmount = totalFee / conversionRateOfFeeToken[emailOp.feeTokenName];
         address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
 
@@ -605,12 +607,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
 
         // TODO: Validate the requested token and amound is allowed.
 
-        _transferERC20(
-            currentContext.walletAddress,
-            currentContext.extensionAddress,
-            tokenAddress,
-            amount
-        );
+        _transferERC20(currentContext.walletAddress, currentContext.extensionAddress, tokenAddress, amount);
     }
 
     /// @notice Transport an account to a new Relayer - to be called by the new relayer
@@ -770,16 +767,6 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
             address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
 
-            // Relayer is expected to pass necessary ETH for UF registration.
-            // Otherwise this will revert and fee reimbursement will not be done
-            if (emailOp.hasEmailRecipient) {
-                require(
-                    currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <=
-                        currentContext.receivedETH,
-                    "insufficient ETH"
-                );
-            }
-
             (success, returnData) = _transferERC20(
                 currentContext.walletAddress,
                 recipient,
@@ -801,7 +788,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
                 0,
                 ""
             );
-            currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
+            currentContext.unclaimedStateRegistered = true;
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
