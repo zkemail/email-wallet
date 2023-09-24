@@ -3,7 +3,7 @@ import "./Types.sol";
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-abstract contract EmailWalletExtension {
+abstract contract Extension {
     /// @notice Returns the command that this extension responds to. Eg: `Swap`
     /// @return command Command name
     function getCommand() external pure virtual returns (string memory);
