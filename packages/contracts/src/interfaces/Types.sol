@@ -42,7 +42,6 @@ struct ExtensionManagerParams {
 // Struct to store context when executing an EmailOp
 struct ExecutionContext {
     address walletAddress; // Wallet address of the user
-    address relayer; // Address of the relayer
     address extensionAddress; // Address of extension in use
     uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
     uint256 consumedETH; // Amount of ETH consumed by the transaction (for Unclaimed Fund/State regitrations)

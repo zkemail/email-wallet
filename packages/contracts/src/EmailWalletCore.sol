@@ -222,44 +222,6 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         emailNullifiers[emailNullifier] = true;
     }
 
-    /// @notice Register unclaimed fund for the recipient - can be called by Core contract directly
-    /// @param emailAddrCommitment Hash of the recipient's email address and a random number.
-    /// @param tokenAddress Address of ERC20 token contract.
-    /// @param amount Amount in WEI of the token.
-    function _registerUnclaimedFund(
-        address senderAddress,
-        bytes32 emailAddrCommitment,
-        address tokenAddress,
-        uint256 amount,
-        uint256 expiryTime,
-        uint256 announceCommitmentRandomness,
-        string memory announceEmailAddress
-    ) private {
-        uint256 _expiryTime = expiryTime != 0
-            ? expiryTime
-            : (block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION);
-
-        UnclaimedFund memory fund = UnclaimedFund({
-            emailAddrCommitment: emailAddrCommitment,
-            tokenAddress: tokenAddress,
-            amount: amount,
-            expiryTime: _expiryTime,
-            senderAddress: senderAddress
-        });
-
-        unclaimedFundOfEmailAddrCommitment[emailAddrCommitment] = fund;
-
-        emit UnclaimedFundRegistered(
-            emailAddrCommitment,
-            tokenAddress,
-            amount,
-            senderAddress,
-            expiryTime,
-            announceCommitmentRandomness,
-            announceEmailAddress
-        );
-    }
-
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
     /// @param emailAddrCommitment Hash of the recipient's email address and a random number.
     /// @param tokenAddress Address of ERC20 token contract.
@@ -346,8 +308,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         ERC20(fund.tokenAddress).transfer(recipientAddress, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
-        (bool sent, ) = payable(msg.sender).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
-        require(sent, "failed to transfer claim fee");
+        _transferETH(msg.sender, Constants.UNCLAIMED_FUND_REGISTRATION_FEE);
 
         emit UnclaimedFundClaimed(emailAddrCommitment, fund.tokenAddress, fund.amount, recipientAddress);
     }
@@ -366,8 +327,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         ERC20(fund.tokenAddress).transfer(fund.senderAddress, fund.amount);
 
         // Transfer claim fee to the sender - either emailWallet user or external wallet
-        (bool sent, ) = payable(fund.senderAddress).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
-        require(sent, "failed to transfer refund fee");
+        _transferETH(fund.senderAddress, Constants.UNCLAIMED_FUND_REGISTRATION_FEE);
 
         emit UnclaimedFundReverted(emailAddrCommitment, fund.tokenAddress, fund.amount, fund.senderAddress);
     }
@@ -504,8 +464,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         extension.claimUnclaimedState(us, recipientAddress);
 
         // Transfer claim fee to the sender (relayer)
-        (bool sent, ) = payable(msg.sender).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
-        require(sent, "failed to transfer claim fee");
+        _transferETH(msg.sender, Constants.UNCLAIMED_FUND_REGISTRATION_FEE);
 
         emit UnclaimedStateClaimed(emailAddrCommitment, recipientAddress);
     }
@@ -523,8 +482,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         extension.revertUnclaimedState(us);
 
         // Transfer claim fee to the sender - either emailWallet user or external wallet
-        (bool sent, ) = payable(us.senderAddress).call{value: Constants.UNCLAIMED_FUND_REGISTRATION_FEE}("");
-        require(sent, "failed to transfer refund fee");
+        _transferETH(us.senderAddress, Constants.UNCLAIMED_FUND_REGISTRATION_FEE);
 
         emit UnclaimedStateReverted(emailAddrCommitment, us.senderAddress);
     }
@@ -541,72 +499,6 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         }
 
         return extensionAddress;
-    }
-
-    /// @notice Calculate the masked subject for an EmailOp from command and other params
-    ///         This also validates certain parameters like tokenName, extensionName, extension command are registered.
-    /// @param emailOp EmailOp from which the masked subject is to be computed
-    function _computeMaskedSubjectForEmailOp(
-        EmailOp memory emailOp
-    ) internal view returns (string memory maskedSubject, bool isExtension) {
-        // Sample: Send 1 ETH to recipient@domain.com
-        if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(tokenRegistry.getTokenAddress(walletParams.tokenName));
-
-            require(token != ERC20(address(0)), "token not supported");
-
-            maskedSubject = string.concat(
-                Constants.SEND_COMMAND,
-                " ",
-                Strings.toString(walletParams.amount / (10 ** token.decimals())),
-                " ",
-                walletParams.tokenName,
-                " to "
-            );
-
-            if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject = string.concat(
-                    maskedSubject,
-                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
-                );
-            }
-        }
-        // Sample: Set extension for Swap as Uniswap
-        else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
-            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
-
-            require(addressOfExtension[extManagerParams.extensionName] != address(0), "extension not registered");
-
-            maskedSubject = string.concat(
-                Constants.SET_EXTENSION_COMMAND,
-                " for ",
-                extManagerParams.command,
-                " as ",
-                extManagerParams.extensionName
-            );
-        }
-        // Sample: Remove extension for Swap
-        else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
-            maskedSubject = string.concat(
-                Constants.REMOVE_EXTENSION_COMMAND,
-                " for ",
-                emailOp.extManagerParams.command
-            );
-        }
-        // The command is for an extension
-        else {
-            isExtension = true;
-            address extensionAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
-
-            require(extensionAddress != address(0), "invalid command or extension");
-
-            EmailWalletExtension extension = EmailWalletExtension(extensionAddress);
-            maskedSubject = extension.computeEmailSubject(
-                emailOp.extensionParams,
-                emailOp.extensionSubjectTemplateIndex
-            );
-        }
     }
 
     /// @notice Validate an EmailOp, including proof verification
@@ -667,78 +559,6 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         );
     }
 
-    /// @notice Execute an EmailOp
-    /// @param emailOp EmailOp to be executed
-    /// @return success Whether the operation is successful
-    /// @return returnData Return data from the operation (error)
-    function _executeEmailOp(EmailOp memory emailOp) internal returns (bool success, bytes memory returnData) {
-        // Wallet operation
-        if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
-            WalletParams memory walletParams = emailOp.walletParams;
-            address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
-            address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
-
-            // Relayer is expected to pass necessary ETH for UF registration.
-            // Otherwise this will revert and fee reimbursement will not be done
-            if (emailOp.hasEmailRecipient) {
-                require(
-                    currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <=
-                        currentContext.receivedETH,
-                    "insufficient ETH"
-                );
-            }
-
-            (success, returnData) = _processERC20TransferRequest(
-                currentContext.walletAddress,
-                recipient,
-                tokenAddress,
-                walletParams.amount
-            );
-
-            if (!success) {
-                return (success, returnData);
-            }
-
-            // Register unclaimed fund for the recipient
-            _registerUnclaimedFund(
-                currentContext.walletAddress,
-                emailOp.recipientEmailAddrCommitment,
-                tokenAddress,
-                walletParams.amount,
-                0,
-                0,
-                ""
-            );
-            currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
-        }
-        // Set custom extension for the user
-        else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
-            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
-            address extensionAddress = addressOfExtension[extManagerParams.extensionName];
-
-            userExtensionOfCommand[emailOp.emailAddrPointer][extManagerParams.command] = extensionAddress;
-        }
-        // Remove custom extension for the user
-        else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
-            userExtensionOfCommand[emailOp.emailAddrPointer][emailOp.command] = address(0);
-        }
-        // The command is for an extension
-        else {
-            address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
-            currentContext.extensionAddress = extAddress;
-
-            (success, returnData) = extAddress.call(
-                abi.encodeWithSignature(
-                    "execute(bytes,uint8,address,bytes32)",
-                    emailOp.extensionParams,
-                    emailOp.extensionSubjectTemplateIndex,
-                    currentContext.walletAddress,
-                    emailOp.emailNullifier
-                )
-            );
-        }
-    }
-
     /// @notice Handle an EmailOp - the main function relayer should call for each Email
     /// @param emailOp EmailOp to be executed
     /// @dev Fee for unclaimed fund/state registration should be send if the recipient is an email address
@@ -750,7 +570,6 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         currentContext = ExecutionContext({
             walletAddress: getAddressOfSalt(walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddrPointer]]),
             extensionAddress: address(0),
-            relayer: msg.sender,
             receivedETH: msg.value,
             consumedETH: 0
         });
@@ -763,8 +582,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
 
         // Refund excess ETH to the relayer
         if (currentContext.consumedETH < msg.value) {
-            (bool sent, ) = payable(currentContext.relayer).call{value: msg.value - currentContext.consumedETH}("");
-            require(sent, "failed to refund excess ETH");
+            _transferETH(msg.sender, msg.value - currentContext.consumedETH);
         }
 
         // Refund gas cost to the relayer from sender (in the fee token)
@@ -873,5 +691,189 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         require(addressOfExtension[name] == address(0), "extension name already used");
 
         addressOfExtension[name] = extensionAddress;
+    }
+
+    /// @notice Calculate the masked subject for an EmailOp from command and other params
+    ///         This also validates certain parameters like tokenName, extensionName, extension command are registered.
+    /// @param emailOp EmailOp from which the masked subject is to be computed
+    function _computeMaskedSubjectForEmailOp(
+        EmailOp memory emailOp
+    ) private view returns (string memory maskedSubject, bool isExtension) {
+        // Sample: Send 1 ETH to recipient@domain.com
+        if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
+            WalletParams memory walletParams = emailOp.walletParams;
+            ERC20 token = ERC20(tokenRegistry.getTokenAddress(walletParams.tokenName));
+
+            require(token != ERC20(address(0)), "token not supported");
+
+            maskedSubject = string.concat(
+                Constants.SEND_COMMAND,
+                " ",
+                Strings.toString(walletParams.amount / (10 ** token.decimals())),
+                " ",
+                walletParams.tokenName,
+                " to "
+            );
+
+            if (emailOp.recipientETHAddr != address(0)) {
+                maskedSubject = string.concat(
+                    maskedSubject,
+                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
+                );
+            }
+        }
+        // Sample: Set extension for Swap as Uniswap
+        else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
+            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
+
+            require(addressOfExtension[extManagerParams.extensionName] != address(0), "extension not registered");
+
+            maskedSubject = string.concat(
+                Constants.SET_EXTENSION_COMMAND,
+                " for ",
+                extManagerParams.command,
+                " as ",
+                extManagerParams.extensionName
+            );
+        }
+        // Sample: Remove extension for Swap
+        else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
+            maskedSubject = string.concat(
+                Constants.REMOVE_EXTENSION_COMMAND,
+                " for ",
+                emailOp.extManagerParams.command
+            );
+        }
+        // The command is for an extension
+        else {
+            isExtension = true;
+            address extensionAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
+
+            require(extensionAddress != address(0), "invalid command or extension");
+
+            EmailWalletExtension extension = EmailWalletExtension(extensionAddress);
+            maskedSubject = extension.computeEmailSubject(
+                emailOp.extensionParams,
+                emailOp.extensionSubjectTemplateIndex
+            );
+        }
+    }
+
+    /// @notice Execute an EmailOp
+    /// @param emailOp EmailOp to be executed
+    /// @return success Whether the operation is successful
+    /// @return returnData Return data from the operation (error)
+    function _executeEmailOp(EmailOp memory emailOp) private returns (bool success, bytes memory returnData) {
+        // Wallet operation
+        if (Strings.equal(emailOp.command, Constants.SEND_COMMAND)) {
+            WalletParams memory walletParams = emailOp.walletParams;
+            address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
+            address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
+
+            // Relayer is expected to pass necessary ETH for UF registration.
+            // Otherwise this will revert and fee reimbursement will not be done
+            if (emailOp.hasEmailRecipient) {
+                require(
+                    currentContext.consumedETH + Constants.UNCLAIMED_FUND_REGISTRATION_FEE <=
+                        currentContext.receivedETH,
+                    "insufficient ETH"
+                );
+            }
+
+            (success, returnData) = _processERC20TransferRequest(
+                currentContext.walletAddress,
+                recipient,
+                tokenAddress,
+                walletParams.amount
+            );
+
+            if (!success) {
+                return (success, returnData);
+            }
+
+            // Register unclaimed fund for the recipient
+            _registerUnclaimedFund(
+                currentContext.walletAddress,
+                emailOp.recipientEmailAddrCommitment,
+                tokenAddress,
+                walletParams.amount,
+                0,
+                0,
+                ""
+            );
+            currentContext.consumedETH += Constants.UNCLAIMED_FUND_REGISTRATION_FEE;
+        }
+        // Set custom extension for the user
+        else if (Strings.equal(emailOp.command, Constants.SET_EXTENSION_COMMAND)) {
+            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
+            address extensionAddress = addressOfExtension[extManagerParams.extensionName];
+
+            userExtensionOfCommand[emailOp.emailAddrPointer][extManagerParams.command] = extensionAddress;
+        }
+        // Remove custom extension for the user
+        else if (Strings.equal(emailOp.command, Constants.REMOVE_EXTENSION_COMMAND)) {
+            userExtensionOfCommand[emailOp.emailAddrPointer][emailOp.command] = address(0);
+        }
+        // The command is for an extension
+        else {
+            address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
+            currentContext.extensionAddress = extAddress;
+
+            (success, returnData) = extAddress.call(
+                abi.encodeWithSignature(
+                    "execute(bytes,uint8,address,bytes32)",
+                    emailOp.extensionParams,
+                    emailOp.extensionSubjectTemplateIndex,
+                    currentContext.walletAddress,
+                    emailOp.emailNullifier
+                )
+            );
+        }
+    }
+
+    /// @notice Register unclaimed fund for the recipient - can be called by Core contract directly
+    /// @param emailAddrCommitment Hash of the recipient's email address and a random number.
+    /// @param tokenAddress Address of ERC20 token contract.
+    /// @param amount Amount in WEI of the token.
+    function _registerUnclaimedFund(
+        address senderAddress,
+        bytes32 emailAddrCommitment,
+        address tokenAddress,
+        uint256 amount,
+        uint256 expiryTime,
+        uint256 announceCommitmentRandomness,
+        string memory announceEmailAddress
+    ) private {
+        uint256 _expiryTime = expiryTime != 0
+            ? expiryTime
+            : (block.timestamp + Constants.DEFAULT_UNCLAIMED_FUNDS_EXPIRY_DURATION);
+
+        UnclaimedFund memory fund = UnclaimedFund({
+            emailAddrCommitment: emailAddrCommitment,
+            tokenAddress: tokenAddress,
+            amount: amount,
+            expiryTime: _expiryTime,
+            senderAddress: senderAddress
+        });
+
+        unclaimedFundOfEmailAddrCommitment[emailAddrCommitment] = fund;
+
+        emit UnclaimedFundRegistered(
+            emailAddrCommitment,
+            tokenAddress,
+            amount,
+            senderAddress,
+            expiryTime,
+            announceCommitmentRandomness,
+            announceEmailAddress
+        );
+    }
+
+    /// @notice Trasnfer ETH from core contract to recipient
+    /// @param recipient    Address of the recipient
+    /// @param amount      Amount in WEI to be transferred
+    function _transferETH(address recipient, uint256 amount) private {
+        (bool sent, ) = payable(recipient).call{value: amount}("");
+        require(sent, "failed to transfer ETH");
     }
 }
