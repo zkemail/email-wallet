@@ -70,13 +70,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommitment;
 
     // Max fee per gas in ETH that relayer can set in a UserOp
-    uint256 maxFeePerGas;
+    uint256 public maxFeePerGas;
 
     // Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    uint256 unclaimedFundRegistrationFee;
+    uint256 public unclaimedFundRegistrationFee;
 
     // Default expiry duration for unclaimed funds
-    uint256 unclaimedFundExpirationDuration;
+    uint256 public unclaimedFundExpirationDuration;
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
@@ -279,14 +279,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     ) public payable {
         // Ensure the sender has paid ETH needed for claiming the unclaimed fee
         require(msg.value == unclaimedFundRegistrationFee, "invalid unclaimed fund fee");
-        require(amount > 0, "token amount should be greater than 0");
+        require(amount > 0, "amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
         require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
         require(expiryTime > block.timestamp, "invalid expiry time");
-        require(
-            unclaimedFundOfEmailAddrCommitment[emailAddrCommitment].amount == 0,
-            "unclaimed fund already registered"
-        );
+        require(unclaimedFundOfEmailAddrCommitment[emailAddrCommitment].amount == 0, "unclaimed fund exists");
 
         // Transfer token from sender to Core contract - sender should have set enough allowance for Core contract
         ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
@@ -392,7 +389,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(expiryTime > block.timestamp, "invalid expiry time");
         require(
             unclaimedStateOfEmailAddrCommitment[emailAddrCommitment].senderAddress == address(0),
-            "unclaimed state already registered"
+            "unclaimed state exists"
         );
 
         UnclaimedState memory us = UnclaimedState({
@@ -405,7 +402,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         Extension extension = Extension(extensionAddress);
         bool registered = extension.registerUnclaimedState(us);
 
-        require(registered, "failed to register unclaimed state");
+        require(registered, "unclaimed state reg failed");
 
         unclaimedStateOfEmailAddrCommitment[emailAddrCommitment] = us;
 
@@ -431,7 +428,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes memory state
     ) public {
         require(msg.sender == currContext.extensionAddress, "invalid caller");
-        require(currContext.unclaimedStateRegistered == false, "unclaimed state already registered");
+        require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
         require(state.length > 0, "state cannot be empty");
         require(extensionAddress != address(0), "invalid extension contract");
         require(emailAddrCommitment != bytes32(0), "invalid emailAddrCommitment");
@@ -558,11 +555,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             require(emailOp.recipientEmailAddrCommitment != bytes32(0), "recipient commitment not found");
             require(
                 unclaimedFundOfEmailAddrCommitment[emailOp.recipientEmailAddrCommitment].amount == 0,
-                "Unclaimed fund exist for commitment"
+                "Unclaimed fund exist"
             );
             require(
                 unclaimedStateOfEmailAddrCommitment[emailOp.recipientEmailAddrCommitment].state.length == 0,
-                "Unclaimed state exists for commitment"
+                "Unclaimed state exists"
             );
         } else {
             require(emailOp.recipientEmailAddrCommitment == bytes32(0), "recipient commitment not allowed");
