@@ -69,9 +69,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Mapping of emailAddrCommitment to unclaimed state
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommitment;
 
-    // Mapping of token used for fees to this value in ETH
-    mapping(string => uint256) public conversionRateOfFeeToken;
-
     // Max fee per gas in ETH that relayer can set in a UserOp
     uint256 maxFeePerGas;
 
@@ -542,7 +539,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(tokenRegistry.getTokenAddress(emailOp.feeTokenName) != address(0), "invalid fee token");
-        require(conversionRateOfFeeToken[emailOp.feeTokenName] != 0, "unsupported fee token");
+        require(_getConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
 
         if (emailOp.hasEmailRecipient) {
@@ -624,7 +621,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             totalFee += unclaimedFundRegistrationFee;
         }
 
-        uint256 feeAmount = totalFee / conversionRateOfFeeToken[emailOp.feeTokenName];
+        uint256 feeAmount = totalFee / _getConversionRate(emailOp.feeTokenName);
         address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
 
         _transferERC20(currentContext.walletAddress, msg.sender, feeToken, feeAmount);
@@ -766,11 +763,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Commands.REMOVE_EXTENSION_COMMAND)) {
-            maskedSubject = string.concat(
-                Commands.REMOVE_EXTENSION_COMMAND,
-                " for ",
-                emailOp.extManagerParams.command
-            );
+            maskedSubject = string.concat(Commands.REMOVE_EXTENSION_COMMAND, " for ", emailOp.extManagerParams.command);
         }
         // The command is for an extension
         else {
@@ -928,6 +921,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     function _transferETH(address recipient, uint256 amount) internal nonReentrant {
         (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
+    }
+
+    function _getConversionRate(string memory tokenName) internal pure returns (uint256) {
+        (tokenName);
+        return 1; // TODO: implement oracle
     }
 
     /// @notice Upgrade the implementation of the proxy contract
