@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
 import "./utils/TokenRegistry.sol";
 import "./interfaces/IVerifier.sol";
@@ -12,14 +16,19 @@ import "./interfaces/EmailWalletExtension.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Constants.sol";
 import "./Wallet.sol";
-import "./handlers/WalletHandler.sol";
 
-contract EmailWalletCore is WalletHandler, ReentrancyGuard {
+contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     // ZK proof verifier
     IVerifier public verifier;
 
     // DKIM public key hashes registry
-    DKIMRegistry public immutable dkimRegistry;
+    DKIMRegistry public dkimRegistry;
+
+    // Token registry
+    TokenRegistry public tokenRegistry;
+
+    // Address of wallet implementation contract
+    address public walletImplementation;
 
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
@@ -103,15 +112,24 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
     /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
     /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
     /// @param _dkimRegistry DKIM public key hashes registry - must implement `DKIMRegistry` interface
-    constructor(address _verifier, address _tokenRegistry, address _dkimRegistry) WalletHandler(_tokenRegistry) {
+    function initialize(address _verifier, address _tokenRegistry, address _dkimRegistry) public initializer {
+        __Ownable_init();
+
         verifier = IVerifier(_verifier);
         dkimRegistry = DKIMRegistry(_dkimRegistry);
+        tokenRegistry = TokenRegistry(_tokenRegistry);
 
         conversionRateOfFeeToken["WETH"] = 1;
         conversionRateOfFeeToken["DAI"] = 1600; // TODO: Get actual conversion rate
         conversionRateOfFeeToken["USDC"] = 1600;
 
         maxFeePerGas = 10 gwei; // TODO: Compute this properly
+    }
+
+    /// @notice Return the wallet address of the user given the salt
+    /// @param salt Salt used to deploy the wallet
+    function getWalletOfSalt(bytes32 salt) public view returns (address) {
+        return Create2Upgradeable.computeAddress(salt, keccak256(type(Wallet).creationCode), address(this));
     }
 
     /// @notice Register as a relayer
@@ -163,7 +181,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         require(walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0), "walletSalt exists");
         require(initializedVKCommitments[viewingKeyCommitment] == false, "account is initialized");
         require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
-        require(Address.isContract(getAddressOfSalt(walletSalt)) == false, "wallet already deployed");
+        require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
 
         require(
             verifier.verifyAccountCreationProof(
@@ -296,7 +314,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
             "invalid proof"
         );
 
-        address recipientAddress = getAddressOfSalt(walletSalt);
+        address recipientAddress = getWalletOfSalt(walletSalt);
 
         delete unclaimedFundOfEmailAddrCommitment[recipientEmailAddressPointer];
 
@@ -449,7 +467,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
             "invalid proof"
         );
 
-        address recipientAddress = getAddressOfSalt(walletSalt);
+        address recipientAddress = getWalletOfSalt(walletSalt);
 
         delete unclaimedStateOfEmailAddrCommitment[recipientEmailAddressPointer];
 
@@ -565,7 +583,7 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         }
 
         currentContext = ExecutionContext({
-            walletAddress: getAddressOfSalt(walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddrPointer]]),
+            walletAddress: getWalletOfSalt(walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddrPointer]]),
             extensionAddress: address(0),
             receivedETH: msg.value,
             unclaimedStateRegistered: false,
@@ -856,11 +874,52 @@ contract EmailWalletCore is WalletHandler, ReentrancyGuard {
         );
     }
 
+    /// @notice Deploy a wallet contract with the given salt
+    /// @param salt Salt to be used for wallet deployment
+    function _deployWallet(bytes32 salt) internal returns (address wallet) {
+        wallet = Create2Upgradeable.deploy(0, salt, type(Wallet).creationCode);
+    }
+
+    /// @notice Transfer ERC20 token from user's wallet to given recipient
+    /// @param senderAddress Address of the sender's wallet
+    /// @param recipientAddress Address of the recipient
+    /// @param tokenAddress Address of ERC20 token contract.
+    /// @param amount Amount in WEI of the token.
+    function _transferERC20(
+        address senderAddress,
+        address recipientAddress,
+        address tokenAddress,
+        uint256 amount
+    ) internal nonReentrant returns (bool success, bytes memory returnData) {
+        require(tokenAddress != address(0), "invalid token address");
+        require(amount > 0, "invalid amount");
+        require(senderAddress != address(0), "invalid sender address");
+        require(recipientAddress != address(0), "invalid recipient address");
+
+        Wallet wallet = Wallet(payable(senderAddress));
+
+        try
+            wallet.execute(
+                tokenAddress,
+                0,
+                abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
+            )
+        {} catch Error(string memory reason) {
+            return (false, bytes(reason));
+        } catch {
+            return (false, bytes("unknown wallet exec error"));
+        }
+    }
+
     /// @notice Trasnfer ETH from core contract to recipient
     /// @param recipient    Address of the recipient
     /// @param amount      Amount in WEI to be transferred
-    function _transferETH(address recipient, uint256 amount) private {
+    function _transferETH(address recipient, uint256 amount) private nonReentrant {
         (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
     }
+
+    /// @notice Upgrade the implementation of the proxy contract
+    /// @param newImplementation Address of the new implementation contract
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

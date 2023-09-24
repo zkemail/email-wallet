@@ -75,7 +75,7 @@ describe("Email Wallet Contracts > Wallet", function () {
   });
 
   it("should be able to send ETH to another email", async function () {
-    const senderAddress = await coreContract.getAddressOfSalt(senderWalletSalt);
+    const senderAddress = await coreContract.getWalletOfSalt(senderWalletSalt);
 
     // Transfer some ETH to the sender
     await owner.sendTransaction({
@@ -115,7 +115,7 @@ describe("Email Wallet Contracts > Wallet", function () {
   });
 
   it("should be able to send ERC20 to another email", async function () {
-    const senderAddress = await coreContract.getAddressOfSalt(senderWalletSalt);
+    const senderAddress = await coreContract.getWalletOfSalt(senderWalletSalt);
 
     await erc20Contract.transfer(senderAddress, parseEther("5"));
 
