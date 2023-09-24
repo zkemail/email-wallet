@@ -1,38 +1,36 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-contract Wallet {
-    address public owner;
-    bool private initialized;
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+/// @title EmailWallet
+/// @notice Simple Wallet contract to be used as the EmailWallet for users
+/// @notice This wallet can `execute` any function on any contract provided calle is `owner`
+/// @notice The deployed is the `owner` by default (EmailWalletCore)
+contract Wallet is OwnableUpgradeable, UUPSUpgradeable {
     fallback() external payable {}
 
     receive() external payable {}
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "only owner");
+    modifier ownerOrSelf() {
+        require(msg.sender == owner() || msg.sender == address(this), "only owner or self");
         _;
     }
 
-    modifier notInitialized() {
-        require(!initialized, "already initialized");
-        _;
+    function initialize() public initializer {
+        __Ownable_init();
     }
 
-    function initialize() external notInitialized {
-        initialized = true;
-        owner = msg.sender;
+    function execute(address target, uint256 value, bytes calldata data) external ownerOrSelf {
+        (bool success, bytes memory result) = target.call{value: value}(data);
+
+        if (!success) {
+            assembly {
+                revert(add(result, 32), mload(result))
+            }
+        }
     }
 
-    function setOwner(address newOwner) external onlyOwner {
-        owner = newOwner;
-    }
-
-    function execute(
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) external onlyOwner returns (bool success, bytes memory returnData) {
-        (success, returnData) = target.call{value: value}(data);
-    }
+    function _authorizeUpgrade(address newImplementation) internal override ownerOrSelf {}
 }
