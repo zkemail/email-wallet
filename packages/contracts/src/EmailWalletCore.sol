@@ -140,7 +140,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Return the wallet address of the user given the salt
     /// @param salt Salt used to deploy the wallet
     function getWalletOfSalt(bytes32 salt) public view returns (address) {
-        return Create2Upgradeable.computeAddress(salt, keccak256(type(Wallet).creationCode), address(this));
+        return
+            Create2Upgradeable.computeAddress(
+                salt,
+                keccak256(
+                    abi.encodePacked(
+                        type(ERC1967Proxy).creationCode,
+                        abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
+                    )
+                )
+            );
     }
 
     /// @notice Register as a relayer
@@ -185,7 +194,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 walletSalt,
         bytes memory psiPoint,
         bytes memory proof
-    ) public returns (address) {
+    ) public returns (Wallet) {
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(vkCommitmentOfPointer[emailAddressPointer] == bytes32(0), "VK commitment exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
@@ -884,8 +893,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
-    function _deployWallet(bytes32 salt) internal returns (address wallet) {
-        wallet = Create2Upgradeable.deploy(0, salt, type(Wallet).creationCode);
+    /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
+    function _deployWallet(bytes32 salt) internal returns (Wallet wallet) {
+        wallet = Wallet(
+            payable(
+                new ERC1967Proxy{salt: bytes32(salt)}(
+                    address(walletImplementation),
+                    abi.encodeCall(Wallet.initialize, ())
+                )
+            )
+        );
     }
 
     /// @notice Transfer ERC20 token from user's wallet to given recipient
