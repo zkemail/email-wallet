@@ -44,7 +44,7 @@ contract UniswapTWAPOracle is IPriceOracle {
 
         uint160 sqrtPriceX96 = TickMath.getSqrtRatioAtTick(avgTick);
 
-        // sqrtPriceX96 should be divided by 2**96 twice, and multiplied by token decimals to get the actal price
+        // sqrtPriceX96 should be divided by 2**96 twice, and multiplied by token decimals to get the actual price
         uint256 partialPrice = FullMath.mulDiv(sqrtPriceX96, sqrtPriceX96, FixedPoint96.Q96);
         price = FullMath.mulDiv(partialPrice, 10 ** decimals, FixedPoint96.Q96);
     }
