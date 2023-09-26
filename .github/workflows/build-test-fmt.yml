@@ -10,9 +10,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - run: rustup toolchain install --profile minimal
-    - run: rustup default $(cat rust-toolchain)
-    
+    - run: rustup show
+
     - uses: Swatinem/rust-cache@v2
     
     - name: Build
