@@ -14,7 +14,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* walletSalt */,
         bytes memory /* psiPoint */,
         bytes memory proof
-    ) external view returns (bool) {
+    ) external pure returns (bool) {
         if (proof[0] == 0x01) {
             return true;
         }
@@ -30,7 +30,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* dkimPublicKeyHash */,
         bytes32 /* emailNullifier */,
         bytes memory proof
-    ) external view returns (bool) {
+    ) external pure returns (bool) {
         if (proof[0] == 0x01) {
             return true;
         }
@@ -48,7 +48,7 @@ contract TestVerifier is IVerifier {
         bool /* hasEmailRecipient */,
         bytes32 /* recipientEmailAddressCommitment */,
         bytes memory proof
-    ) external view returns (bool) {
+    ) external pure returns (bool) {
         if (proof[0] == 0x01) {
             return true;
         }
@@ -61,7 +61,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* recipientEmailAddressPointer */,
         bytes32 /* recipientEmailAddressCommitment */,
         bytes memory proof
-    ) external view returns (bool) {
+    ) external pure returns (bool) {
         if (proof[0] == 0x01) {
             return true;
         }
@@ -76,7 +76,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* oldRelayerRandHash */,
         bytes32 /* oldVKCommitment */,
         bytes memory proof
-    ) external view returns (bool) {
+    ) external pure returns (bool) {
         if (proof[0] == 0x01) {
             return true;
         }

@@ -1855,6 +1855,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@uniswap/v3-core@https://github.com/Uniswap/v3-core#0.8":
+  version "1.0.1-solc-0.8"
+  resolved "https://github.com/Uniswap/v3-core#6562c52e8f75f0c10f9deaf44861847585fc8129"
+
 "@zk-email/circuits@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.1.2.tgz#a3228cb3a23cb08791a736e8bf365fa639d65981"

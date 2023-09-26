@@ -8,6 +8,7 @@ import "@zk-email/contracts/DKIMRegistry.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/EmailWalletCore.sol";
 import "../src/utils/TokenRegistry.sol";
+import "../src/utils/UniswapTWAPOracle.sol";
 import "./mock/TestVerifier.sol";
 
 contract EmailWalletCoreTest is Test {
@@ -25,10 +26,19 @@ contract EmailWalletCoreTest is Test {
         TestVerifier verifier = new TestVerifier();
         TokenRegistry tokenRegistry = new TokenRegistry();
         DKIMRegistry dkimRegistry = new DKIMRegistry();
+        IPriceOracle priceOracle = new UniswapTWAPOracle(address(0), address(0));
 
         bytes memory data = abi.encodeCall(
             EmailWalletCore.initialize,
-            (address(verifier), address(tokenRegistry), address(dkimRegistry), 10 ** 10, 0.0001 ether, 30 days)
+            (
+                address(verifier),
+                address(tokenRegistry),
+                address(dkimRegistry),
+                address(priceOracle),
+                10 ** 10,
+                0.0001 ether,
+                30 days
+            )
         );
 
         core = EmailWalletCore(address(new ERC1967Proxy(implementation, data)));
@@ -44,7 +54,7 @@ contract EmailWalletCoreTest is Test {
 
         vm.stopPrank();
 
-        (bytes32 deployedRandHash, ,) = core.relayers(relayer);
+        (bytes32 deployedRandHash, , ) = core.relayers(relayer);
         assertTrue(deployedRandHash == randHash);
     }
 }

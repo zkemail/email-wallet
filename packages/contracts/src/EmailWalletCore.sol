@@ -15,6 +15,7 @@ import "./interfaces/IVerifier.sol";
 import "./interfaces/Extension.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "./interfaces/IPriceOracle.sol";
 import "./Wallet.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
@@ -26,6 +27,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     // Token registry
     TokenRegistry public tokenRegistry;
+
+    // Price oracle for feeToken conversion
+    IPriceOracle public priceOracle;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
     address public walletImplementation;
@@ -123,6 +127,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         address _verifier,
         address _tokenRegistry,
         address _dkimRegistry,
+        address _priceOracle,
         uint256 _maxFeePerGas,
         uint256 _unclaimedFundRegistrationFee,
         uint256 _unclaimedFundExpirationDuration
@@ -132,6 +137,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         verifier = IVerifier(_verifier);
         dkimRegistry = DKIMRegistry(_dkimRegistry);
         tokenRegistry = TokenRegistry(_tokenRegistry);
+        priceOracle = IPriceOracle(_priceOracle);
         maxFeePerGas = _maxFeePerGas;
         unclaimedFundRegistrationFee = _unclaimedFundRegistrationFee;
         unclaimedFundExpirationDuration = _unclaimedFundExpirationDuration;
@@ -542,7 +548,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(tokenRegistry.getTokenAddress(emailOp.feeTokenName) != address(0), "invalid fee token");
-        require(_getConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
+        require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
 
         if (emailOp.hasEmailRecipient) {
@@ -624,7 +630,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             totalFee += unclaimedFundRegistrationFee;
         }
 
-        uint256 feeAmount = totalFee / _getConversionRate(emailOp.feeTokenName);
+        uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
         address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
 
         _transferERC20(currContext.walletAddress, msg.sender, feeToken, feeAmount);
@@ -936,9 +942,22 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(sent, "failed to transfer ETH");
     }
 
-    function _getConversionRate(string memory tokenName) internal pure returns (uint256) {
-        (tokenName);
-        return 1; // TODO: implement oracle
+    function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {
+        if (Strings.equal(tokenName, "ETH") || Strings.equal(tokenName, "WETH")) {
+            return 1;
+        }
+
+        bool validToken = Strings.equal(tokenName, "DAI") || Strings.equal(tokenName, "USDC");
+        if (validToken) {
+            return 0;
+        }
+
+        address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
+        if (tokenAddr == address(0)) {
+            return 0;
+        }
+
+        return priceOracle.getRecentPriceInETH(tokenAddr);
     }
 
     /// @notice Upgrade the implementation of the proxy contract
