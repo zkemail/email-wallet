@@ -46,15 +46,56 @@ contract EmailWalletCoreTest is Test {
         vm.stopPrank();
     }
 
-    function testRegisterRelayer() public {
-        vm.startPrank(relayer);
-
+    function testRegisterRelayerSuccessfully() public {
         bytes32 randHash = keccak256(abi.encodePacked("relayer"));
-        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
 
+        vm.startPrank(relayer);
+        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
         vm.stopPrank();
 
         (bytes32 deployedRandHash, , ) = core.relayers(relayer);
         assertTrue(deployedRandHash == randHash);
     }
+
+    // Same relayer wallet registering twice with differend randHash
+    function testRevertWhenRegisteringRelayerTwice() public {
+        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
+        bytes32 randHash2 = keccak256(abi.encodePacked("relayer2"));
+
+        vm.startPrank(relayer);
+        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        vm.expectRevert("relayer already registered");
+        core.registerRelayer(randHash2, "relayer2@domain.com", "relayer2.xyz");
+        vm.stopPrank();
+    }
+
+    // Different relayer registering with same randHash
+    function testRevertWhenRegisteringRelayerRandHashTwice() public {
+        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
+        
+        vm.startPrank(relayer);
+        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        vm.stopPrank();
+
+        vm.startPrank(vm.addr(3));
+        vm.expectRevert("randHash already registered");
+        core.registerRelayer(randHash, "relayer2@domain.com", "relayer2.xyz");
+        vm.stopPrank();
+    }
+
+    // Different relayer registering with same emailAddr
+    function testRevertWhenRegisteringRelayerEmailAddrTwice() public {
+        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
+        bytes32 randHash2 = keccak256(abi.encodePacked("relayer2"));
+
+        vm.startPrank(relayer);
+        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        vm.stopPrank();
+
+        vm.startPrank(vm.addr(3));
+        vm.expectRevert("emailAddr already registered");
+        core.registerRelayer(randHash2, "relayer@domain.com", "relayer2.xyz");
+        vm.stopPrank();
+    }
+
 }

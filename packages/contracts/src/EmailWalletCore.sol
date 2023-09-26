@@ -37,6 +37,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
 
+    // Mapping of relayer's randHash to relayer's wallet address
+    mapping(bytes32 => address) public relayerOfRandHash;
+
+    // Mapping of relayer's email address to relayer's wallet address
+    mapping(string => address) public relayerOfEmailAddr;
+
     // Mapping of emailAddrPointer to viewingKeyCommitment
     mapping(bytes32 => bytes32) public vkCommitmentOfPointer;
 
@@ -167,8 +173,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(bytes(emailAddr).length != 0, "emailAddr cannot be empty");
         require(bytes(hostname).length != 0, "hostname cannot be empty");
         require(relayers[msg.sender].randHash == bytes32(0), "relayer already registered");
+        require(relayerOfRandHash[randHash] == address(0), "randHash already registered");
+        require(relayerOfEmailAddr[emailAddr] == address(0), "emailAddr already registered");
 
         relayers[msg.sender] = RelayerConfig({randHash: randHash, emailAddr: emailAddr, hostname: hostname});
+        relayerOfRandHash[randHash] = msg.sender;
+        relayerOfEmailAddr[emailAddr] = msg.sender;
 
         emit RelayerRegistered(randHash, emailAddr, hostname);
     }
