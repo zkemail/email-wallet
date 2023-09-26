@@ -2,52 +2,19 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "../src/EmailWalletCore.sol";
 import "../src/utils/TokenRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
 import "./mock/TestVerifier.sol";
+import "./EmailWalletCoreTestHelper.sol";
 
-contract EmailWalletCoreTest is Test {
-    EmailWalletCore core;
-    address deployer;
-    address relayer;
-
-    function setUp() public {
-        deployer = vm.addr(1);
-        relayer = vm.addr(2);
-
-        vm.startPrank(deployer);
-
-        address implementation = address(new EmailWalletCore());
-        TestVerifier verifier = new TestVerifier();
-        TokenRegistry tokenRegistry = new TokenRegistry();
-        DKIMRegistry dkimRegistry = new DKIMRegistry();
-        IPriceOracle priceOracle = new UniswapTWAPOracle(address(0), address(0));
-
-        bytes memory data = abi.encodeCall(
-            EmailWalletCore.initialize,
-            (
-                address(verifier),
-                address(tokenRegistry),
-                address(dkimRegistry),
-                address(priceOracle),
-                10 ** 10,
-                0.0001 ether,
-                30 days
-            )
-        );
-
-        core = EmailWalletCore(address(new ERC1967Proxy(implementation, data)));
-
-        vm.stopPrank();
-    }
-
-    function testRegisterRelayerSuccessfully() public {
-        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
+contract RelayerTest is EmailWalletCoreTestHelper {
+    function testRegisterRelayer() public {
+        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
 
         vm.startPrank(relayer);
         core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
@@ -59,8 +26,8 @@ contract EmailWalletCoreTest is Test {
 
     // Same relayer wallet registering twice with differend randHash
     function testRevertWhenRegisteringRelayerTwice() public {
-        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
-        bytes32 randHash2 = keccak256(abi.encodePacked("relayer2"));
+        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+        bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
         vm.startPrank(relayer);
         core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
@@ -71,8 +38,8 @@ contract EmailWalletCoreTest is Test {
 
     // Different relayer registering with same randHash
     function testRevertWhenRegisteringRelayerRandHashTwice() public {
-        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
-        
+        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+
         vm.startPrank(relayer);
         core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
         vm.stopPrank();
@@ -85,8 +52,8 @@ contract EmailWalletCoreTest is Test {
 
     // Different relayer registering with same emailAddr
     function testRevertWhenRegisteringRelayerEmailAddrTwice() public {
-        bytes32 randHash = keccak256(abi.encodePacked("relayer"));
-        bytes32 randHash2 = keccak256(abi.encodePacked("relayer2"));
+        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+        bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
         vm.startPrank(relayer);
         core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
@@ -98,4 +65,16 @@ contract EmailWalletCoreTest is Test {
         vm.stopPrank();
     }
 
+    // Update relayer hostname
+    function testUpdateRelayerHostname() public {
+        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+
+        vm.startPrank(relayer);
+        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        core.updateRelayerConfig("newdomain.xyz");
+        vm.stopPrank();
+
+        (, , string memory hostname) = core.relayers(relayer);
+        assertTrue(Strings.equal(hostname, "newdomain.xyz"));
+    }
 }
