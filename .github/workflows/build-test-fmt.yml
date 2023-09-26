@@ -1,0 +1,44 @@
+name: Build-Test-Fmt
+
+on:
+  [push, pull_request]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - name: Check Formatting
+      run: cargo fmt -- --check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - name: Lint with Clippy
+      run: cargo clippy -- --deny warnings
+
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - uses: Swatinem/rust-cache@v2
+    - name: Build
+      run: cargo build
+    - name: Test
+      run: cargo test
