@@ -54,10 +54,8 @@ contract EmailWalletCoreTestHelper is Test {
         priceOracle = new UniswapTWAPOracle(address(0), address(0));
 
         // Deploy core contract as proxy
-        address implementation = address(new EmailWalletCore());
-        bytes memory data = abi.encodeCall(
-            EmailWalletCore.initialize,
-            (
+        address implementation = address(
+            new EmailWalletCore(
                 address(verifier),
                 address(tokenRegistry),
                 address(dkimRegistry),
@@ -67,6 +65,7 @@ contract EmailWalletCoreTestHelper is Test {
                 30 days
             )
         );
+        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, ());
         core = EmailWalletCore(address(new ERC1967Proxy(implementation, data)));
 
         // Set test sender's wallet addr
