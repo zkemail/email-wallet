@@ -1,12 +1,14 @@
-use halo2_regex::vrm::DecomposedRegexConfig;
 use neon::prelude::*;
+use zk_regex_apis::extract_substrs::extract_substr_idxes_node;
 pub mod cryptos;
-pub mod extract_substrs;
+// pub mod extract_substrs;
 pub mod parse_email;
 mod statics;
 use cryptos::*;
-use extract_substrs::*;
+// use extract_substrs::*;
 use parse_email::*;
+pub use zk_regex_apis::extract_substrs::*;
+pub use zk_regex_apis::padding::*;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
