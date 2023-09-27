@@ -628,7 +628,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(walletSaltOfVKCommitment[vkCommitment] != bytes32(0), "wallet salt not set");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
-        require(tokenRegistry.getTokenAddress(emailOp.feeTokenName) != address(0), "invalid fee token");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
 
@@ -704,17 +703,18 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Refund gas cost to the relayer from sender (in the fee token)
         uint256 feeForRefund = 2100; // TODO : Calculate actual cost to process the refund
         uint256 consumedGas = initialGas - gasleft() + feeForRefund;
-        uint256 feePerGas = emailOp.feePerGas != 0 ? emailOp.feePerGas : maxFeePerGas;
 
-        uint256 totalFee = (consumedGas * feePerGas);
+        uint256 totalFee = (consumedGas * emailOp.feePerGas);
         if (currContext.unclaimedFundRegistered || currContext.unclaimedStateRegistered) {
             totalFee += unclaimedFundRegistrationFee;
         }
 
         uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
-        address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
+        address feeToken = _getTokenAddressFromEmailOpTokenName(emailOp.feeTokenName);
 
-        _transferERC20(currContext.walletAddress, msg.sender, feeToken, feeAmount);
+        if (feeAmount > 0) {
+            _transferERC20(currContext.walletAddress, msg.sender, feeToken, feeAmount);
+        }
     }
 
     /// @notice For extensions to request token from user's wallet
@@ -746,7 +746,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND_COMMAND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(tokenRegistry.getTokenAddress(walletParams.tokenName));
+            ERC20 token = ERC20(_getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
 
@@ -807,7 +807,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Wallet operation
         if (Strings.equal(emailOp.command, Commands.SEND_COMMAND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            address tokenAddress = tokenRegistry.getTokenAddress(walletParams.tokenName);
+            address tokenAddress = _getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName);
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
 
             (success, returnData) = _transferERC20(
@@ -822,16 +822,18 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             }
 
             // Register unclaimed fund for the recipient
-            _registerUnclaimedFund(
-                currContext.walletAddress,
-                emailOp.recipientEmailAddrCommitment,
-                tokenAddress,
-                walletParams.amount,
-                0,
-                0,
-                ""
-            );
-            currContext.unclaimedStateRegistered = true;
+            if (emailOp.hasEmailRecipient) {
+                _registerUnclaimedFund(
+                    currContext.walletAddress,
+                    emailOp.recipientEmailAddrCommitment,
+                    tokenAddress,
+                    walletParams.amount,
+                    0,
+                    0,
+                    ""
+                );
+                currContext.unclaimedStateRegistered = true;
+            }
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.SET_EXTENSION_COMMAND)) {
@@ -923,7 +925,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         address recipientAddress,
         address tokenAddress,
         uint256 amount
-    ) internal nonReentrant returns (bool success, bytes memory returnData) {
+    ) internal returns (bool success, bytes memory returnData) {
         require(tokenAddress != address(0), "invalid token address");
         require(amount > 0, "invalid amount");
         require(senderAddress != address(0), "invalid sender address");
@@ -937,7 +939,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 0,
                 abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
             )
-        {} catch Error(string memory reason) {
+        {
+            success = true;
+        } catch Error(string memory reason) {
             return (false, bytes(reason));
         } catch {
             return (false, bytes("unknown wallet exec error"));
@@ -947,9 +951,17 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Trasnfer ETH from core contract to recipient
     /// @param recipient    Address of the recipient
     /// @param amount      Amount in WEI to be transferred
-    function _transferETH(address recipient, uint256 amount) internal nonReentrant {
+    function _transferETH(address recipient, uint256 amount) internal {
         (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
+    }
+
+    function _getTokenAddressFromEmailOpTokenName(string memory tokenName) internal view returns (address) {
+        if (Strings.equal(tokenName, "ETH")) {
+            return tokenRegistry.getTokenAddress("WETH");
+        }
+
+        return tokenRegistry.getTokenAddress(tokenName);
     }
 
     function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {

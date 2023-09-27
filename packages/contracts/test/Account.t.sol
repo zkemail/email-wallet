@@ -1,15 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "forge-std/Test.sol";
-import "forge-std/console.sol";
-import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
-import "@zk-email/contracts/DKIMRegistry.sol";
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../src/EmailWalletCore.sol";
-import "../src/utils/TokenRegistry.sol";
-import "../src/utils/UniswapTWAPOracle.sol";
-import "./mock/TestVerifier.sol";
 import "./EmailWalletCoreTestHelper.sol";
 
 contract AccountTest is EmailWalletCoreTestHelper {

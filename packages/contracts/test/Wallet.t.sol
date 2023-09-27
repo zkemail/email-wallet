@@ -2,11 +2,16 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/Wallet.sol";
-import "./mock/TestWallet.sol";
+
+// A mock wallet for testing upgrades - extents Wallet and add a test `getName` method
+contract TestWallet is Wallet {
+    function getName() public pure returns (string memory) {
+        return "Test";
+    }
+}
 
 contract WalletTest is Test {
     Wallet public walletImplementation;
@@ -46,7 +51,7 @@ contract WalletTest is Test {
         Wallet wallet = _deployWallet(salt);
 
         assertEq(_getWalletOfSalt(salt), address(wallet));
-        assertEq(wallet.owner(), address(this));  // Verify deployed (test contract) is owner
+        assertEq(wallet.owner(), address(this)); // Verify deployed (test contract) is owner
     }
 
     function testWalletExecution() public {
