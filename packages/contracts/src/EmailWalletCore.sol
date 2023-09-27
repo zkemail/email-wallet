@@ -143,12 +143,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         walletImplementation = address(new Wallet());
     }
 
-    /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
-    /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
-    /// @param _dkimRegistry DKIM public key hashes registry - must implement `DKIMRegistry` interface
-    /// @param _maxFeePerGas Max fee per gas in ETH that relayer can set in a UserOp
-    /// @param _unclaimedFundRegistrationFee Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    /// @param _unclaimedFundExpirationDuration Default expiry duration for unclaimed funds
     function initialize() public initializer {
         __Ownable_init();
     }
@@ -755,6 +749,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             maskedSubject = string.concat(
                 Commands.SEND_COMMAND,
                 " ",
+                // TODO: Ensure to string conversion doesn't truncate decimal.
                 Strings.toString(walletParams.amount / (10 ** token.decimals())),
                 " ",
                 walletParams.tokenName,
