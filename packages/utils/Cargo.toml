@@ -36,7 +36,7 @@ num-bigint = "0.4.4"
 base64 = "0.21.4"
 rsa = { version = "0.6.1", features = ["serde"] }
 num-traits = "0.2.15"
-cfdkim = { version = "0.2.6", git = "https://github.com/SoraSuegami/dkim.git" }
+cfdkim = { version = "0.3.0", git = "https://github.com/SoraSuegami/dkim.git" }
 slog = "2.7.0"
 
 

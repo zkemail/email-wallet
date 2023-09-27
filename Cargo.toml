@@ -1,8 +1,2 @@
 [workspace]
 members = ["packages/relayer", "packages/utils"]
-
-[patch."https://github.com/stalwartlabs/mail-builder"]
-mail-builder = { version = "0.2.5", git = "https://github.com/stalwartlabs//mail-builder", tag = "0.2.5" }
-
-[patch."https://github.com/stalwartlabs/mail-parser"]
-mail-parser = { version = "0.8", git = "https://github.com/stalwartlabs//mail-parser", tag = "0.8.0" }
