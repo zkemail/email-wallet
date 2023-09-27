@@ -20,19 +20,19 @@ import "./Wallet.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     // ZK proof verifier
-    IVerifier public verifier;
+    IVerifier public immutable verifier;
 
     // DKIM public key hashes registry
-    DKIMRegistry public dkimRegistry;
+    DKIMRegistry public immutable dkimRegistry;
 
     // Token registry
-    TokenRegistry public tokenRegistry;
+    TokenRegistry public immutable tokenRegistry;
 
     // Price oracle for feeToken conversion
-    IPriceOracle public priceOracle;
+    IPriceOracle public immutable priceOracle;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
-    address public walletImplementation;
+    address public immutable walletImplementation;
 
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
@@ -80,13 +80,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommitment;
 
     // Max fee per gas in ETH that relayer can set in a UserOp
-    uint256 public maxFeePerGas;
+    uint256 public immutable maxFeePerGas;
 
     // Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    uint256 public unclaimedFundRegistrationFee;
+    uint256 public immutable unclaimedFundRegistrationFee;
 
     // Default expiry duration for unclaimed funds
-    uint256 public unclaimedFundExpirationDuration;
+    uint256 public immutable unclaimedFundExpirationDuration;
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
@@ -123,13 +123,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     event UnclaimedStateReverted(bytes32 emailAddrCommitment, address sender);
 
-    /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
-    /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
-    /// @param _dkimRegistry DKIM public key hashes registry - must implement `DKIMRegistry` interface
-    /// @param _maxFeePerGas Max fee per gas in ETH that relayer can set in a UserOp
-    /// @param _unclaimedFundRegistrationFee Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    /// @param _unclaimedFundExpirationDuration Default expiry duration for unclaimed funds
-    function initialize(
+    constructor(
         address _verifier,
         address _tokenRegistry,
         address _dkimRegistry,
@@ -137,9 +131,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 _maxFeePerGas,
         uint256 _unclaimedFundRegistrationFee,
         uint256 _unclaimedFundExpirationDuration
-    ) public initializer {
-        __Ownable_init();
-
+    ) {
         verifier = IVerifier(_verifier);
         dkimRegistry = DKIMRegistry(_dkimRegistry);
         tokenRegistry = TokenRegistry(_tokenRegistry);
@@ -149,6 +141,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         unclaimedFundExpirationDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet());
+    }
+
+    /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
+    /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
+    /// @param _dkimRegistry DKIM public key hashes registry - must implement `DKIMRegistry` interface
+    /// @param _maxFeePerGas Max fee per gas in ETH that relayer can set in a UserOp
+    /// @param _unclaimedFundRegistrationFee Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
+    /// @param _unclaimedFundExpirationDuration Default expiry duration for unclaimed funds
+    function initialize() public initializer {
+        __Ownable_init();
     }
 
     /// @notice Return the wallet address of the user given the salt
