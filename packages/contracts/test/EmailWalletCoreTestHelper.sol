@@ -66,7 +66,7 @@ contract EmailWalletCoreTestHelper is Test {
             )
         );
         bytes memory data = abi.encodeCall(EmailWalletCore.initialize, ());
-        core = EmailWalletCore(address(new ERC1967Proxy(implementation, data)));
+        core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
 
         // Set test sender's wallet addr
         walletAddr = core.getWalletOfSalt(walletSalt);

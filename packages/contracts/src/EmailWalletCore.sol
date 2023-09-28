@@ -17,6 +17,7 @@ import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 import "./interfaces/IPriceOracle.sol";
 import "./Wallet.sol";
+import {LibZip} from "solady/utils/LibZip.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     // ZK proof verifier
@@ -149,6 +150,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         unclaimedFundExpirationDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet());
+    }
+
+    fallback() external payable {
+        LibZip.cdFallback();
     }
 
     function initialize() public initializer {
@@ -389,10 +394,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param emailAddrCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @param recipientEmailAddrPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
-    function claimUnclaimedFund(bytes32 emailAddrCommitment, bytes32 recipientEmailAddrPointer, bytes memory proof)
-        public
-        nonReentrant
-    {
+    function claimUnclaimedFund(
+        bytes32 emailAddrCommitment,
+        bytes32 recipientEmailAddrPointer,
+        bytes memory proof
+    ) public nonReentrant {
         UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommitment[recipientEmailAddrPointer];
         bytes32 vkCommitment = vkCommitmentOfPointer[recipientEmailAddrPointer];
 
@@ -407,7 +413,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(
             verifier.verifyClaimFundProof(
-                relayers[msg.sender].randHash, recipientEmailAddrPointer, emailAddrCommitment, proof
+                relayers[msg.sender].randHash,
+                recipientEmailAddrPointer,
+                emailAddrCommitment,
+                proof
             ),
             "invalid proof"
         );
@@ -528,7 +537,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         currContext.unclaimedStateRegistered = true;
 
         emit UnclaimedStateRegistered(
-            emailAddrCommitment, extensionAddress, currContext.walletAddress, expiryTime, state, 0, ""
+            emailAddrCommitment,
+            extensionAddress,
+            currContext.walletAddress,
+            expiryTime,
+            state,
+            0,
+            ""
         );
     }
 
@@ -536,10 +551,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param emailAddrCommitment The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @param recipientEmailAddrPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
-    function claimUnclaimedState(bytes32 emailAddrCommitment, bytes32 recipientEmailAddrPointer, bytes memory proof)
-        public
-        nonReentrant
-    {
+    function claimUnclaimedState(
+        bytes32 emailAddrCommitment,
+        bytes32 recipientEmailAddrPointer,
+        bytes memory proof
+    ) public nonReentrant {
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommitment[recipientEmailAddrPointer];
         bytes32 vkCommitment = vkCommitmentOfPointer[recipientEmailAddrPointer];
 
@@ -554,7 +570,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(
             verifier.verifyClaimFundProof(
-                relayers[msg.sender].randHash, recipientEmailAddrPointer, emailAddrCommitment, proof
+                relayers[msg.sender].randHash,
+                recipientEmailAddrPointer,
+                emailAddrCommitment,
+                proof
             ),
             "invalid proof"
         );
@@ -612,9 +631,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        require(vkCommitments[vkCommitment].relayer == msg.sender, "invalid relayer");
-        require(vkCommitments[vkCommitment].initialized, "account not initialized");
-        require(!vkCommitments[vkCommitment].nullified, "account is nullified");
+        ViewingKeyCommitment memory vkCommitInfo = vkCommitments[vkCommitment];
+        require(vkCommitInfo.relayer == msg.sender, "invalid relayer");
+        require(vkCommitInfo.initialized, "account not initialized");
+        require(!vkCommitInfo.nullified, "account is nullified");
         require(walletSaltOfVKCommitment[vkCommitment] != bytes32(0), "wallet salt not set");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
@@ -662,12 +682,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Handle an EmailOp - the main function relayer should call for each Email
     /// @param emailOp EmailOp to be executed
     /// @dev Fee for unclaimed fund/state registration should be send if the recipient is an email address
-    function handleEmailOp(EmailOp calldata emailOp)
-        public
-        payable
-        nonReentrant
-        returns (bool success, bytes memory returnData)
-    {
+    function handleEmailOp(
+        EmailOp calldata emailOp
+    ) public payable nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
         if (emailOp.hasEmailRecipient) {
@@ -733,11 +750,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Calculate the masked subject for an EmailOp from command and other params
     ///         This also validates certain parameters like tokenName, extensionName, extension command are registered.
     /// @param emailOp EmailOp from which the masked subject is to be computed
-    function _computeMaskedSubjectForEmailOp(EmailOp memory emailOp)
-        internal
-        view
-        returns (string memory maskedSubject, bool isExtension)
-    {
+    function _computeMaskedSubjectForEmailOp(
+        EmailOp memory emailOp
+    ) internal view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND_COMMAND)) {
             WalletParams memory walletParams = emailOp.walletParams;
@@ -756,8 +771,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             );
 
             if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject =
-                    string.concat(maskedSubject, Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20));
+                maskedSubject = string.concat(
+                    maskedSubject,
+                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
+                );
             }
         }
         // Sample: Set extension for Swap as Uniswap
@@ -786,8 +803,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             require(extensionAddress != address(0), "invalid command or extension");
 
             Extension extension = Extension(extensionAddress);
-            maskedSubject =
-                extension.computeEmailSubject(emailOp.extensionParams, emailOp.extensionSubjectTemplateIndex);
+            maskedSubject = extension.computeEmailSubject(
+                emailOp.extensionParams,
+                emailOp.extensionSubjectTemplateIndex
+            );
         }
     }
 
@@ -802,8 +821,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             address tokenAddress = _getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName);
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
 
-            (success, returnData) =
-                _transferERC20(currContext.walletAddress, recipient, tokenAddress, walletParams.amount);
+            (success, returnData) = _transferERC20(
+                currContext.walletAddress,
+                recipient,
+                tokenAddress,
+                walletParams.amount
+            );
 
             if (!success) {
                 return (success, returnData);
@@ -908,10 +931,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param recipientAddress Address of the recipient
     /// @param tokenAddress Address of ERC20 token contract.
     /// @param amount Amount in WEI of the token.
-    function _transferERC20(address senderAddress, address recipientAddress, address tokenAddress, uint256 amount)
-        internal
-        returns (bool success, bytes memory returnData)
-    {
+    function _transferERC20(
+        address senderAddress,
+        address recipientAddress,
+        address tokenAddress,
+        uint256 amount
+    ) internal returns (bool success, bytes memory returnData) {
         require(tokenAddress != address(0), "invalid token address");
         require(amount > 0, "invalid amount");
         require(senderAddress != address(0), "invalid sender address");
@@ -919,9 +944,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         Wallet wallet = Wallet(payable(senderAddress));
 
-        try wallet.execute(
-            tokenAddress, 0, abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
-        ) {
+        try
+            wallet.execute(
+                tokenAddress,
+                0,
+                abi.encodeWithSignature("transfer(address,uint256)", recipientAddress, amount)
+            )
+        {
             success = true;
         } catch Error(string memory reason) {
             return (false, bytes(reason));
@@ -934,7 +963,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param recipient    Address of the recipient
     /// @param amount      Amount in WEI to be transferred
     function _transferETH(address recipient, uint256 amount) internal {
-        (bool sent,) = payable(recipient).call{value: amount}("");
+        (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
     }
 

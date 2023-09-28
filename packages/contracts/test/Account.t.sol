@@ -68,8 +68,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
         address predictedAddr = core.getWalletOfSalt(walletSalt);
 
         vm.startPrank(relayer);
-        address walletAddr =
-            address(core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof));
+        address walletAddr = address(
+            core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof)
+        );
         vm.stopPrank();
 
         assertEq(walletAddr, predictedAddr);
@@ -93,7 +94,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
         vm.stopPrank();
 
-        (, bool initialized,) = core.vkCommitments(viewingKeyCommitment);
+        (, bool initialized, ) = core.vkCommitments(viewingKeyCommitment);
         assertTrue(initialized);
     }
 
@@ -135,7 +136,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertEq(core.walletSaltOfVKCommitment(viewingKeyCommitment), bytes32(0));
-        (,, bool nullified) = core.vkCommitments(viewingKeyCommitment);
+        (, , bool nullified) = core.vkCommitments(viewingKeyCommitment);
         assertTrue(nullified); // old vkCommitment is nullified
         assertEq(core.vkCommitmentOfPointer(newEmailAddrPointer), newVKCommitment);
         (address newVkRelayer, bool newVkInitialized, bool newVkNullified) = core.vkCommitments(newVKCommitment);
