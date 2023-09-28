@@ -643,11 +643,17 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        ViewingKeyCommitment memory vkCommitInfo = vkCommitments[vkCommitment];
-        require(vkCommitInfo.relayer == msg.sender, "invalid relayer");
-        require(vkCommitInfo.initialized, "account not initialized");
-        require(!vkCommitInfo.nullified, "account is nullified");
-        require(vkCommitments[vkCommitment].walletSalt != bytes32(0), "wallet salt not set");
+        {
+            ViewingKeyCommitment storage vkCommitInfo = vkCommitments[vkCommitment];
+            address relayer = vkCommitInfo.relayer;
+            bool initialized = vkCommitInfo.initialized;
+            bool nullified = vkCommitInfo.nullified;
+            bool walletSaltSet = vkCommitInfo.walletSaltSet;
+            require(relayer == msg.sender, "invalid relayer");
+            require(initialized, "account not initialized");
+            require(!nullified, "account is nullified");
+            require(walletSaltSet, "wallet salt not set");
+        }
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
