@@ -47,7 +47,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Mapping of emailAddrPointer to viewingKeyCommitment
     mapping(bytes32 => bytes32) public vkCommitmentOfPointer;
 
-
     // Mapping of PSI point to emailAddrPointer
     mapping(bytes => bytes32) public pointerOfPSIPoint;
 
@@ -155,6 +154,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     fallback() external payable {
         LibZip.cdFallback();
     }
+
     receive() external payable {
         revert();
     }
@@ -319,7 +319,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(vkCommitments[oldVKCommitment].initialized, "account not initialized");
         require(!vkCommitments[oldVKCommitment].nullified, "account is nullified");
         require(vkCommitmentOfPointer[newEmailAddrPointer] == bytes32(0), "new pointer already exist");
-        require(!vkCommitments[newVKCommitment].walletSaltSet , "salt already exists");
+        require(!vkCommitments[newVKCommitment].walletSaltSet, "salt already exists");
         require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
 
@@ -704,8 +704,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         currContext = ExecutionContext({
-            walletAddress:
-                getWalletOfSalt(vkCommitments[vkCommitmentOfPointer[emailOp.emailAddrPointer]].walletSalt),
+            walletAddress: getWalletOfSalt(vkCommitments[vkCommitmentOfPointer[emailOp.emailAddrPointer]].walletSalt),
             extensionAddress: address(0),
             receivedETH: msg.value,
             unclaimedStateRegistered: false,

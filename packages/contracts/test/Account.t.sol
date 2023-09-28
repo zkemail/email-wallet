@@ -15,7 +15,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertEq(core.vkCommitmentOfPointer(emailAddrPointer), viewingKeyCommitment);
-        (address vkRelayer, bool initialized, bool nullified,,bytes32 vkWalletSalt) = core.vkCommitments(viewingKeyCommitment);
+        (address vkRelayer, bool initialized, bool nullified, , bytes32 vkWalletSalt) = core.vkCommitments(
+            viewingKeyCommitment
+        );
         assertEq(vkWalletSalt, walletSalt);
         assertEq(vkRelayer, relayer);
         assertEq(core.pointerOfPSIPoint(psiPoint), emailAddrPointer);
@@ -94,7 +96,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
         vm.stopPrank();
 
-        (, bool initialized, ,,) = core.vkCommitments(viewingKeyCommitment);
+        (, bool initialized, , , ) = core.vkCommitments(viewingKeyCommitment);
         assertTrue(initialized);
     }
 
