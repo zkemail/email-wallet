@@ -23,12 +23,6 @@ describe("Email Sender", () => {
         const emailRaw = readFileSync(path.join(__dirname, "./emails/email_sender_test1.eml"), "utf8");
         const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
         console.log(parsedEmail.canonicalizedHeader);
-        // const paddedHeader = emailWalletUtils.padString(parsedEmail.canonicalizedHeader, 1024);
-        // console.log(paddedHeader);
-        // const pubKey = toCircomBigIntBytes(BigInt(parsedEmail.publicKey));
-        // const signature = toCircomBigIntBytes(BigInt(parsedEmail.signature));
-        // console.log(pubKey);
-        // console.log(signature);
         const emailCircuitInputs = generateCircuitInputs({
             body: Buffer.from(""),
             message: Buffer.from(parsedEmail.canonicalizedHeader),
@@ -40,28 +34,26 @@ describe("Email Sender", () => {
             ignoreBodyHashCheck: true
         });
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const senderEmailIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
-        const subjectEmailIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/subject_all.json"), "utf8"))[0];
-        const subject = parsedEmail.canonicalizedHeader.slice(subjectEmailIdx, subjectEmailIdx + 512);
+        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
+        const subjectEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/subject_all.json"), "utf8"))[0];
+        const subject = parsedEmail.canonicalizedHeader.slice(subjectEmailIdxes[0], subjectEmailIdxes[1]);
         console.log(subject);
-        const recipientEmailIdx = emailWalletUtils.extractSubstrIdxes(subject, readFileSync(path.join(__dirname, "../src/regexes/email_addr.json"), "utf8"))[0];
+        const recipientEmailIdx = emailWalletUtils.extractSubstrIdxes(subject, readFileSync(path.join(__dirname, "../src/regexes/email_addr.json"), "utf8"))[0][0];
         console.log(recipientEmailIdx);
         // const recipientEmailAddr = subject.slice(recipientEmailIdx, recipientEmailIdx + 256);
         // console.log(recipientEmailAddr);
-        const senderEmailAddrIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
+        const senderEmailAddrIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
         // const senderEmailAddr = parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdx, senderEmailAddrIdx + 256);
-        // console.log(senderEmailAddr);
-        const domainIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdx, senderEmailAddrIdx + 256), readFileSync(path.join(__dirname, "../src/regexes/email_domain.json"), "utf8"))[0];
-        console.log(domainIdx);
-        console.log(parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdx, senderEmailAddrIdx + 256).slice(domainIdx));
+        console.log(parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdxes[0], senderEmailAddrIdxes[1]));
+        const domainIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdxes[0], senderEmailAddrIdxes[1]), readFileSync(path.join(__dirname, "../src/regexes/email_domain.json"), "utf8"))[0][0];
         const circuitInputs = {
             in_padded: emailCircuitInputs.in_padded,
             pubkey: emailCircuitInputs.pubkey,
             signature: emailCircuitInputs.signature,
             in_padded_len: emailCircuitInputs.in_len_padded_bytes,
             sender_relayer_rand: relayerRand,
-            sender_email_idx: senderEmailIdx,
-            subject_idx: subjectEmailIdx,
+            sender_email_idx: senderEmailIdxes[0],
+            subject_idx: subjectEmailIdxes[0],
             recipient_email_idx: recipientEmailIdx,
             domain_idx: domainIdx
         };

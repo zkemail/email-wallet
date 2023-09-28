@@ -5120,7 +5120,7 @@ dependencies = [
 [[package]]
 name = "zk-regex-apis"
 version = "0.1.0"
-source = "git+https://github.com/zkemail/zk-regex.git?branch=feat/integrate_halo2_regex#e5e6d5cb8668959975f6dc9075ea843c304f25fe"
+source = "git+https://github.com/zkemail/zk-regex.git?branch=feat/integrate_halo2_regex#98f54832410a410ff725a1408df2fa9224b05719"
 dependencies = [
  "fancy-regex",
  "itertools 0.10.5",
@@ -5133,13 +5133,14 @@ dependencies = [
 [[package]]
 name = "zk-regex-compiler"
 version = "0.1.0"
-source = "git+https://github.com/zkemail/zk-regex.git?branch=feat/integrate_halo2_regex#e5e6d5cb8668959975f6dc9075ea843c304f25fe"
+source = "git+https://github.com/zkemail/zk-regex.git?branch=feat/integrate_halo2_regex#98f54832410a410ff725a1408df2fa9224b05719"
 dependencies = [
  "clap",
  "fancy-regex",
  "graph-cycles",
  "itertools 0.10.5",
  "js-sandbox",
+ "neon",
  "petgraph",
  "serde",
  "serde_json",

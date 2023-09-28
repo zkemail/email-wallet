@@ -40,17 +40,17 @@ describe("Account Transport", () => {
         });
         const relayerRand = emailWalletUtils.genRelayerRand();
         const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        const senderEmailIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
-        const codeIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0];
-        const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdx, senderEmailIdx + 256);
-        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../src/regexes/email_domain.json"), "utf8"))[0];
+        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
+        const codeIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0][0];
+        const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
+        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../src/regexes/email_domain.json"), "utf8"))[0][0];
         const circuitInputs = {
             in_padded: emailCircuitInputs.in_padded,
             pubkey: emailCircuitInputs.pubkey,
             signature: emailCircuitInputs.signature,
             in_padded_len: emailCircuitInputs.in_len_padded_bytes,
             sender_relayer_rand_hash: relayerRandHash,
-            sender_email_idx: senderEmailIdx,
+            sender_email_idx: senderEmailIdxes[0],
             code_idx: codeIdx,
             domain_idx: domainIdx
         };

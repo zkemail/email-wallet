@@ -11,7 +11,8 @@
     "@zk-email/helpers": "^2.0.0",
     "circom-grumpkin": "https://github.com/zkemail/circom-grumpkin.git",
     "commander": "^11.0.0",
-    "snarkjs": "^0.7.0"
+    "snarkjs": "^0.7.0",
+    "zk-regex-circom": "https://gitpkg.now.sh/zkemail/zk-regex/packages/circom?feat/integrate_halo2_regex"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",
