@@ -16,10 +16,11 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         assertEq(core.vkCommitmentOfPointer(emailAddrPointer), viewingKeyCommitment);
         assertEq(core.walletSaltOfVKCommitment(viewingKeyCommitment), walletSalt);
-        assertEq(core.relayerOfVKCommitment(viewingKeyCommitment), relayer);
+        (address vkRelayer, bool initialized, bool nullified) = core.vkCommitments(viewingKeyCommitment);
+        assertEq(vkRelayer, relayer);
         assertEq(core.pointerOfPSIPoint(psiPoint), emailAddrPointer);
-        assertTrue(!core.initializedVKCommitments(viewingKeyCommitment));
-        assertTrue(!core.nullifiedVKCommitments(viewingKeyCommitment));
+        assertFalse(initialized);
+        assertFalse(nullified);
     }
 
     function testRevertCreateAccountWhenRelayerIsNotRegistered() public {
@@ -30,7 +31,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function testRevertIfPointerIsAlreadyRegistered() public {
         bytes32 viewingKeyCommitment2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
-        bytes memory psiPoint2 = abi.encodePacked(uint(4));
+        bytes memory psiPoint2 = abi.encodePacked(uint256(4));
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof);
@@ -54,7 +55,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function testRevertIfVkCommitmentAlreadyHasAnotherWalletSalt() public {
         bytes32 emailAddrPointer2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(2));
-        bytes memory psiPoint2 = abi.encodePacked(uint(4));
+        bytes memory psiPoint2 = abi.encodePacked(uint256(4));
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof);
@@ -67,9 +68,8 @@ contract AccountTest is EmailWalletCoreTestHelper {
         address predictedAddr = core.getWalletOfSalt(walletSalt);
 
         vm.startPrank(relayer);
-        address walletAddr = address(
-            core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof)
-        );
+        address walletAddr =
+            address(core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof));
         vm.stopPrank();
 
         assertEq(walletAddr, predictedAddr);
@@ -93,7 +93,8 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
         vm.stopPrank();
 
-        assertTrue(core.initializedVKCommitments(viewingKeyCommitment));
+        (, bool initialized,) = core.vkCommitments(viewingKeyCommitment);
+        assertTrue(initialized);
     }
 
     function testRevertAccountInitializationIfAccountNotRegistered() public {
@@ -110,7 +111,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 emailNullifier2 = bytes32(uint256(102));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newVKCommitment = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint(2003));
+        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
 
@@ -134,12 +135,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertEq(core.walletSaltOfVKCommitment(viewingKeyCommitment), bytes32(0));
-        assertTrue(core.nullifiedVKCommitments(viewingKeyCommitment)); // old vkCommitment is nullified
+        (,, bool nullified) = core.vkCommitments(viewingKeyCommitment);
+        assertTrue(nullified); // old vkCommitment is nullified
         assertEq(core.vkCommitmentOfPointer(newEmailAddrPointer), newVKCommitment);
-        assertEq(core.relayerOfVKCommitment(newVKCommitment), relayer2);
+        (address newVkRelayer, bool newVkInitialized, bool newVkNullified) = core.vkCommitments(newVKCommitment);
+        assertEq(newVkRelayer, relayer2);
         assertEq(core.walletSaltOfVKCommitment(newVKCommitment), walletSalt); // should not change
-        assertTrue(!core.nullifiedVKCommitments(newVKCommitment));
-        assertTrue(core.initializedVKCommitments(newVKCommitment));
+        assertFalse(newVkNullified);
+        assertTrue(newVkInitialized);
         assertEq(core.pointerOfPSIPoint(newPSIPoint), newEmailAddrPointer);
     }
 
@@ -148,7 +151,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 emailNullifier2 = bytes32(uint256(102));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newVKCommitment = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint(2003));
+        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
         address relayer3 = vm.addr(4);
@@ -181,7 +184,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             viewingKeyCommitment, // old vkCommitment
             bytes32(uint256(20011)), // newEmailAddrPointer
             bytes32(uint256(20021)), // newVKCommitment
-            abi.encodePacked(uint(20031)), // newPSIPoint
+            abi.encodePacked(uint256(20031)), // newPSIPoint
             bytes32(uint256(1021)), // emailNullifier
             emailDomain,
             mockProof,
@@ -194,7 +197,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 emailNullifier = bytes32(uint256(101));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newVKCommitment = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint(2003));
+        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
 
@@ -224,7 +227,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newVKCommitment = bytes32(uint256(2002));
         bytes32 walletSalt2 = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint(2003));
+        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
 
@@ -255,7 +258,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 emailNullifier2 = bytes32(uint256(102));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newVKCommitment = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint(2003));
+        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
 
