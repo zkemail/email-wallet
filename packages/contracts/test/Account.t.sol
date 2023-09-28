@@ -15,8 +15,8 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertEq(core.vkCommitmentOfPointer(emailAddrPointer), viewingKeyCommitment);
-        assertEq(core.walletSaltOfVKCommitment(viewingKeyCommitment), walletSalt);
-        (address vkRelayer, bool initialized, bool nullified) = core.vkCommitments(viewingKeyCommitment);
+        (address vkRelayer, bool initialized, bool nullified,,bytes32 vkWalletSalt) = core.vkCommitments(viewingKeyCommitment);
+        assertEq(vkWalletSalt, walletSalt);
         assertEq(vkRelayer, relayer);
         assertEq(core.pointerOfPSIPoint(psiPoint), emailAddrPointer);
         assertFalse(initialized);
@@ -94,7 +94,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
         vm.stopPrank();
 
-        (, bool initialized, ) = core.vkCommitments(viewingKeyCommitment);
+        (, bool initialized, ,,) = core.vkCommitments(viewingKeyCommitment);
         assertTrue(initialized);
     }
 
@@ -135,13 +135,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        assertEq(core.walletSaltOfVKCommitment(viewingKeyCommitment), bytes32(0));
-        (, , bool nullified) = core.vkCommitments(viewingKeyCommitment);
+        (, , bool nullified, , bytes32 vkWalletSalt) = core.vkCommitments(viewingKeyCommitment);
+        assertEq(vkWalletSalt, bytes32(0));
         assertTrue(nullified); // old vkCommitment is nullified
         assertEq(core.vkCommitmentOfPointer(newEmailAddrPointer), newVKCommitment);
-        (address newVkRelayer, bool newVkInitialized, bool newVkNullified) = core.vkCommitments(newVKCommitment);
+        (address newVkRelayer, bool newVkInitialized, bool newVkNullified, , bytes32 newVkWalletSalt) = core
+            .vkCommitments(newVKCommitment);
         assertEq(newVkRelayer, relayer2);
-        assertEq(core.walletSaltOfVKCommitment(newVKCommitment), walletSalt); // should not change
+        assertEq(newVkWalletSalt, walletSalt); // should not change
         assertFalse(newVkNullified);
         assertTrue(newVkInitialized);
         assertEq(core.pointerOfPSIPoint(newPSIPoint), newEmailAddrPointer);
