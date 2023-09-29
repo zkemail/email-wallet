@@ -5,13 +5,7 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/Wallet.sol";
-
-// A mock wallet for testing upgrades - extents Wallet and add a test `getName` method
-contract TestWallet is Wallet {
-    function getName() public pure returns (string memory) {
-        return "Test";
-    }
-}
+import "./mock/TestWallet.sol";
 
 contract WalletTest is Test {
     Wallet public walletImplementation;
@@ -58,7 +52,7 @@ contract WalletTest is Test {
         bytes32 salt = bytes32(uint(1002));
         Wallet wallet = _deployWallet(salt);
 
-        wallet.execute(address(wallet), 0, ""); // Should be able to execute as new owner
+        wallet.execute(address(wallet), 0, ""); // Should be able to execute as owner
     }
 
     function testCannotExecuteAsNonOwner() public {
