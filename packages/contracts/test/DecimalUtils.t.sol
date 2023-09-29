@@ -13,6 +13,9 @@ contract DecimalUtilsTest is Test {
     }
 
     function testUintToDecimalString() public {
+        _checkDecimalString(1 ether, "1");
+        _checkDecimalString(10 ether, "10");
+        _checkDecimalString(200 ether, "200");
         _checkDecimalString(10.21 ether, "10.21");
         _checkDecimalString(3.1 ether, "3.1");
         _checkDecimalString(2.01 ether, "2.01");
@@ -20,7 +23,6 @@ contract DecimalUtilsTest is Test {
         _checkDecimalString(0.01 ether, "0.01");
         _checkDecimalString(4.2001 ether, "4.2001");
         _checkDecimalString(3.1004001 ether, "3.1004001");
-        _checkDecimalString(1 ether, "1");
         _checkDecimalString(22 ether, "22");
         _checkDecimalString(2.0071 ether, "2.0071");
         _checkDecimalString(3.0000081 ether, "3.0000081");

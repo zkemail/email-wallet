@@ -32,7 +32,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
             timestamp: block.timestamp,
             maskedSubject: subject,
             feeTokenName: "ETH",
-            feePerGas: 0,
+            feePerGas: 0, // Set fee as 0
             extensionSubjectTemplateIndex: 0,
             walletParams: WalletParams({tokenName: "DAI", amount: 100 ether}),
             extManagerParams: extManagerParams,
@@ -41,13 +41,45 @@ contract TransferTest is EmailWalletCoreTestHelper {
         });
 
         vm.startPrank(relayer);
-        (bool success, bytes memory data) = core.handleEmailOp(emailOp);
+        (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
-        // Check that recipient received 100 DAI
         assertEq(daiToken.balanceOf(recipient), 100 ether, "recipient did not receive 100 DAI");
-        // Check that sender has 50 DAI left
         assertEq(daiToken.balanceOf(walletAddr), 50 ether, "sender did not have 50 DAI left");
+    }
+
+    function testSendTokenToEOAWithDecimals() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 10.52 DAI to ", Strings.toHexString(uint160(recipient), 20));
+
+        daiToken.freeMint(walletAddr, 20 ether);
+
+        EmailOp memory emailOp = EmailOp({
+            emailAddrPointer: emailAddrPointer,
+            hasEmailRecipient: false,
+            recipientEmailAddrCommitment: bytes32(0),
+            recipientETHAddr: recipient,
+            command: Commands.SEND_COMMAND,
+            emailNullifier: bytes32(uint(123)),
+            emailDomain: emailDomain,
+            timestamp: block.timestamp,
+            maskedSubject: subject,
+            feeTokenName: "ETH",
+            feePerGas: 0, // Set fee as 0
+            extensionSubjectTemplateIndex: 0,
+            walletParams: WalletParams({tokenName: "DAI", amount: 10.52 ether}),
+            extManagerParams: extManagerParams,
+            extensionParams: extensionParams,
+            emailProof: mockProof
+        });
+
+        vm.startPrank(relayer);
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, "handleEmailOp failed");
+        assertEq(daiToken.balanceOf(recipient), 10.52 ether, "recipient did not receive 10.52 DAI");
+        assertEq(daiToken.balanceOf(walletAddr), 9.48 ether, "sender did not have 9.48 DAI left");
     }
 }

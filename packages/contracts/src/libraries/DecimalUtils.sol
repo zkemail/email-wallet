@@ -46,8 +46,8 @@ library DecimalUtils {
                 result[i] = "0";
                 actualResultLen++;
             }
-            // If non-zero decimal is already found, simply copy from amount array
-            else if (foundNonZeroDecimal) {
+            // If non-zero decimal is found, or decimal point inserted (delta == 0), copy from amount array
+            else if (foundNonZeroDecimal || delta == 0) {
                 result[i] = amountBytes[i - delta];
                 actualResultLen++;
             }
