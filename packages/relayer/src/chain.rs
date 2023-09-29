@@ -287,7 +287,7 @@ pub async fn send_to_chain(
     };
     println!("Transaction hash: {:?}", pending_tx);
     let etherscan_reply = reply_with_etherscan(pending_tx.tx_hash());
-    reply_with_message(nonce, &etherscan_reply, true);
+    reply_with_message(nonce, etherscan_reply.as_str(), false);
     Ok(())
 }
 
