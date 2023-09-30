@@ -14,6 +14,7 @@ pragma solidity ^0.8.0;
 
 library Commands {
     string public constant SEND = "Send";
+    string public constant EXECUTE = "Execute";
     string public constant INSTALL_EXTENSION = "Install extension";
     string public constant UNINSTALL_EXTENSION = "Uninstall extension";
 }

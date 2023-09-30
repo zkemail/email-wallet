@@ -776,6 +776,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
                 );
             }
+        } else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
+            maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
         }
         // Sample: Set extension for Swap as Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
@@ -844,6 +846,23 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     ""
                 );
                 currContext.unclaimedStateRegistered = true;
+            }
+        }
+        // Execute calldata on wallet
+        else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
+            (address target, uint256 value, bytes memory data) = abi.decode(
+                emailOp.executeCallData,
+                (address, uint256, bytes)
+            );
+
+            try Wallet(payable(currContext.walletAddress)).execute(target, value, data) {
+                success = true;
+            } catch Error(string memory reason) {
+                success = false;
+                returnData = bytes(reason);
+            } catch {
+                success = false;
+                returnData = bytes("err executing calldata on wallet");
             }
         }
         // Set custom extension for the user
@@ -991,6 +1010,19 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         return priceOracle.getRecentPriceInETH(tokenAddr);
+    }
+
+    function bytesToHexString(bytes memory data) public pure returns (string memory) {
+        bytes memory hexChars = "0123456789abcdef";
+        bytes memory hexString = new bytes(2 * data.length);
+
+        for (uint256 i = 0; i < data.length; i++) {
+            uint256 value = uint256(uint8(data[i]));
+            hexString[2 * i] = hexChars[value >> 4];
+            hexString[2 * i + 1] = hexChars[value & 0xf];
+        }
+
+        return string(hexString);
     }
 
     /// @notice Upgrade the implementation of the proxy contract

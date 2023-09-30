@@ -21,6 +21,7 @@ struct EmailOp {
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of ETH to be charged per gas
     uint8 extensionSubjectTemplateIndex; // Index of the extension subject template
+    bytes executeCallData; // data if the the command is "Execute"
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
     bytes extensionParams; // Serialized params for the extension based on the template

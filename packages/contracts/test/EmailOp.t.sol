@@ -14,25 +14,26 @@ contract TransferTest is EmailWalletCoreTestHelper {
     }
 
     function _getBaseEmailOp() internal view returns (EmailOp memory) {
-        return EmailOp({
-            emailAddrPointer: emailAddrPointer,
-            hasEmailRecipient: false,
-            recipientEmailAddrCommit: bytes32(0),
-            recipientETHAddr: address(0),
-            command: "",
-            emailNullifier: bytes32(uint(123)),
-            emailDomain: emailDomain,
-            timestamp: block.timestamp,
-            maskedSubject: "",
-            feeTokenName: "ETH",
-            feePerGas: 0,
-            extensionSubjectTemplateIndex: 0,
-            executeCallData: abi.encodePacked(""),
-            walletParams: WalletParams({tokenName: "", amount: 0}),
-            extManagerParams: extManagerParams,
-            extensionParams: extensionParams,
-            emailProof: mockProof
-        });
+        return
+            EmailOp({
+                emailAddrPointer: emailAddrPointer,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(0),
+                recipientETHAddr: address(0),
+                command: "",
+                emailNullifier: bytes32(uint(123)),
+                emailDomain: emailDomain,
+                timestamp: block.timestamp,
+                maskedSubject: "",
+                feeTokenName: "ETH",
+                feePerGas: 0,
+                extensionSubjectTemplateIndex: 0,
+                executeCallData: abi.encodePacked(""),
+                walletParams: WalletParams({tokenName: "", amount: 0}),
+                extManagerParams: extManagerParams,
+                extensionParams: extensionParams,
+                emailProof: mockProof
+            });
     }
 
     function testSendTokenToEOA() public {
@@ -49,7 +50,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
         emailOp.maskedSubject = subject;
-        
+
         vm.startPrank(relayer);
         (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
@@ -79,5 +80,30 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(success, true, "handleEmailOp failed");
         assertEq(daiToken.balanceOf(recipient), 10.52 ether, "recipient did not receive 10.52 DAI");
         assertEq(daiToken.balanceOf(walletAddr), 9.48 ether, "sender did not have 9.48 DAI left");
+    }
+
+    function testExecute() public {
+        // We will send 5 USDC to recipient by passing calldata
+        // This could be done using the "Send" command, but we want to test the "Execute" command
+        usdcToken.freeMint(walletAddr, 20 ether);
+        address recipient = vm.addr(5);
+
+        bytes memory erc20Calldata = abi.encodeWithSignature("transfer(address,uint256)", recipient, 5 ether);
+        bytes memory emailOpCalldata = abi.encode(address(usdcToken), 0, erc20Calldata);
+
+        string memory subject = string.concat("Execute 0x", core.bytesToHexString(emailOpCalldata));
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, "handleEmailOp failed");
+        assertEq(usdcToken.balanceOf(recipient), 5 ether, "recipient did not receive 5 USDC");
+        assertEq(usdcToken.balanceOf(walletAddr), 15 ether, "sender did not have 15 USDC left");
     }
 }
