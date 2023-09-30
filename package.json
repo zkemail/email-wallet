@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "yarn workspaces -pt run test",
+    "dev-setup": "yarn workspace @email-wallet/circom dev-setup",
     "prettier": "prettier --write \"packages/contracts/**/*.{js,jsx,ts,tsx,json,sol}\""
   },
   "workspaces": [
