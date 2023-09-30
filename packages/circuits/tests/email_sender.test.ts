@@ -60,7 +60,7 @@ describe("Email Sender", () => {
         const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
-        console.log(witness);
+        // console.log(witness);
         // console.log(JSON.stringify(witness.slice(0, 1 + 512 + 255)));
         const maskedSubject = "Send 0.1 ETH to ";
         const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
@@ -69,9 +69,7 @@ describe("Email Sender", () => {
         }
         const domainName = "gmail.com";
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
-        console.log(witness.slice(512));
         for (let idx = 0; idx < domainName.length; ++idx) {
-            console.log(idx);
             expect(BigInt(paddedDomain[idx])).toEqual(witness[513 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);

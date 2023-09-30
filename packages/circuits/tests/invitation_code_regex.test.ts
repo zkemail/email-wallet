@@ -46,7 +46,7 @@ describe("Invitation Code Regex", () => {
         // console.log(witness);
         expect(1n).toEqual(witness[1]);
         const revealedStartIdx = emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0][0];
-        console.log(emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8")));
+        // console.log(emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8")));
         for (let idx = 0; idx < revealed.length; ++idx) {
             expect(BigInt(paddedStr[revealedStartIdx + idx])).toEqual(witness[2 + prefixLen + idx]);
         }

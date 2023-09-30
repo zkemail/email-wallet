@@ -10,6 +10,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
+import "./libraries/DecimalUtils.sol";
 import "./utils/TokenRegistry.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Extension.sol";
@@ -17,22 +18,23 @@ import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 import "./interfaces/IPriceOracle.sol";
 import "./Wallet.sol";
+import {LibZip} from "solady/utils/LibZip.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     // ZK proof verifier
-    IVerifier public verifier;
+    IVerifier public immutable verifier;
 
     // DKIM public key hashes registry
-    DKIMRegistry public dkimRegistry;
+    DKIMRegistry public immutable dkimRegistry;
 
     // Token registry
-    TokenRegistry public tokenRegistry;
+    TokenRegistry public immutable tokenRegistry;
 
     // Price oracle for feeToken conversion
-    IPriceOracle public priceOracle;
+    IPriceOracle public immutable priceOracle;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
-    address public walletImplementation;
+    address public immutable walletImplementation;
 
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
@@ -46,20 +48,29 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Mapping of emailAddrPointer to viewingKeyCommitment
     mapping(bytes32 => bytes32) public vkCommitmentOfPointer;
 
-    // Mapping of emailAddrPointer to walletSalt
-    mapping(bytes32 => bytes32) public walletSaltOfVKCommitment;
-
     // Mapping of PSI point to emailAddrPointer
     mapping(bytes => bytes32) public pointerOfPSIPoint;
 
+    struct ViewingKeyCommitment {
+        address relayer;
+        bool initialized;
+        bool nullified;
+        // Flag that tracks whether wallet salt is non-zero (invariant: walletSaltSet == (walletSalt
+        // != bytes32(0)), can help save a fresh SLOAD in certain methods.
+        bool walletSaltSet;
+        bytes32 walletSalt;
+    }
+
+    mapping(bytes32 => ViewingKeyCommitment) public vkCommitments;
+
     // Mapping of viewingKeyCommitment to Relayer's address
-    mapping(bytes32 => address) public relayerOfVKCommitment;
+    // mapping(bytes32 => address) public relayerOfVKCommitment;
 
-    // Flag to indicate whether viewingKeyCommitment is initialized
-    mapping(bytes32 => bool) public initializedVKCommitments;
+    // // Flag to indicate whether viewingKeyCommitment is initialized
+    // mapping(bytes32 => bool) public initializedVKCommitments;
 
-    // Flag to indicate whether viewingKeyCommitment is nullifed
-    mapping(bytes32 => bool) public nullifiedVKCommitments;
+    // // Flag to indicate whether viewingKeyCommitment is nullifed
+    // mapping(bytes32 => bool) public nullifiedVKCommitments;
 
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
@@ -80,13 +91,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommitment;
 
     // Max fee per gas in ETH that relayer can set in a UserOp
-    uint256 public maxFeePerGas;
+    uint256 public immutable maxFeePerGas;
 
     // Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    uint256 public unclaimedFundRegistrationFee;
+    uint256 public immutable unclaimedFundRegistrationFee;
 
     // Default expiry duration for unclaimed funds
-    uint256 public unclaimedFundExpirationDuration;
+    uint256 public immutable unclaimedFundExpirationDuration;
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
@@ -123,13 +134,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     event UnclaimedStateReverted(bytes32 emailAddrCommitment, address sender);
 
-    /// @param _verifier ZK Proof verifier contract - must implement `IVerifier` interface
-    /// @param _tokenRegistry Token registry contract with tokenName -> address - must implement `TokenRegistry` interface
-    /// @param _dkimRegistry DKIM public key hashes registry - must implement `DKIMRegistry` interface
-    /// @param _maxFeePerGas Max fee per gas in ETH that relayer can set in a UserOp
-    /// @param _unclaimedFundRegistrationFee Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    /// @param _unclaimedFundExpirationDuration Default expiry duration for unclaimed funds
-    function initialize(
+    constructor(
         address _verifier,
         address _tokenRegistry,
         address _dkimRegistry,
@@ -137,9 +142,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 _maxFeePerGas,
         uint256 _unclaimedFundRegistrationFee,
         uint256 _unclaimedFundExpirationDuration
-    ) public initializer {
-        __Ownable_init();
-
+    ) {
         verifier = IVerifier(_verifier);
         dkimRegistry = DKIMRegistry(_dkimRegistry);
         tokenRegistry = TokenRegistry(_tokenRegistry);
@@ -149,6 +152,18 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         unclaimedFundExpirationDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet());
+    }
+
+    fallback() external payable {
+        LibZip.cdFallback();
+    }
+
+    receive() external payable {
+        revert();
+    }
+
+    function initialize() public initializer {
+        __Ownable_init();
     }
 
     /// @notice Return the wallet address of the user given the salt
@@ -208,12 +223,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes memory psiPoint,
         bytes memory proof
     ) public returns (Wallet) {
+        // TODO: What stops `walletSalt` from being bytes32(0)?
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(vkCommitmentOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
-        require(walletSaltOfVKCommitment[viewingKeyCommitment] == bytes32(0), "walletSalt exists");
-        require(initializedVKCommitments[viewingKeyCommitment] == false, "account is initialized");
-        require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
+        bool initialized = vkCommitments[viewingKeyCommitment].initialized;
+        bool nullified = vkCommitments[viewingKeyCommitment].nullified;
+        bool walletSaltSet = vkCommitments[viewingKeyCommitment].walletSaltSet;
+        require(!walletSaltSet, "walletSalt exists");
+        require(!initialized, "account is initialized");
+        require(!nullified, "account is nullified");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
 
         require(
@@ -229,8 +248,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         );
 
         vkCommitmentOfPointer[emailAddrPointer] = viewingKeyCommitment;
-        walletSaltOfVKCommitment[viewingKeyCommitment] = walletSalt;
-        relayerOfVKCommitment[viewingKeyCommitment] = msg.sender;
+        vkCommitments[viewingKeyCommitment].relayer = msg.sender;
+        vkCommitments[viewingKeyCommitment].walletSaltSet = true;
+        vkCommitments[viewingKeyCommitment].walletSalt = walletSalt;
+
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
         return _deployWallet(walletSalt);
@@ -251,9 +272,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(viewingKeyCommitment != bytes32(0), "account not registered");
-        require(relayerOfVKCommitment[viewingKeyCommitment] == msg.sender, "invalid relayer");
-        require(nullifiedVKCommitments[viewingKeyCommitment] == false, "account is nullified");
-        require(initializedVKCommitments[viewingKeyCommitment] == false, "account already initialized");
+        require(vkCommitments[viewingKeyCommitment].relayer == msg.sender, "invalid relayer");
+        require(vkCommitments[viewingKeyCommitment].nullified == false, "account is nullified");
+        require(vkCommitments[viewingKeyCommitment].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
 
         require(
@@ -269,7 +290,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             "invalid account creation proof"
         );
 
-        initializedVKCommitments[viewingKeyCommitment] = true;
+        vkCommitments[viewingKeyCommitment].initialized = true;
         emailNullifiers[emailNullifier] = true;
     }
 
@@ -292,16 +313,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes memory accountCreationProof,
         bytes memory accountTransportProof
     ) public {
-        bytes32 walletSalt = walletSaltOfVKCommitment[oldVKCommitment];
-        address oldRelayer = relayerOfVKCommitment[oldVKCommitment];
+        bytes32 walletSalt = vkCommitments[oldVKCommitment].walletSalt;
+        address oldRelayer = vkCommitments[oldVKCommitment].relayer;
 
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(oldRelayer != address(0), "old relayer not registered");
         require(oldRelayer != msg.sender, "new relayer cannot be same");
-        require(initializedVKCommitments[oldVKCommitment], "account not initialized");
-        require(!nullifiedVKCommitments[oldVKCommitment], "account is nullified");
+        require(vkCommitments[oldVKCommitment].initialized, "account not initialized");
+        require(!vkCommitments[oldVKCommitment].nullified, "account is nullified");
         require(vkCommitmentOfPointer[newEmailAddrPointer] == bytes32(0), "new pointer already exist");
-        require(walletSaltOfVKCommitment[newVKCommitment] == bytes32(0), "salt already exists");
+        require(!vkCommitments[newVKCommitment].walletSaltSet, "salt already exists");
         require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
 
@@ -332,14 +353,17 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         emailNullifiers[emailNullifier] = true;
 
         vkCommitmentOfPointer[newEmailAddrPointer] = newVKCommitment;
-        walletSaltOfVKCommitment[newVKCommitment] = walletSaltOfVKCommitment[oldVKCommitment];
-        relayerOfVKCommitment[newVKCommitment] = msg.sender;
+        // TODO: What prevents `vkCommitments[oldVKCommitment].walletSalt` from being `bytes32(0)`?
+        vkCommitments[newVKCommitment].walletSalt = vkCommitments[oldVKCommitment].walletSalt;
+        vkCommitments[newVKCommitment].walletSaltSet = true;
+        vkCommitments[newVKCommitment].relayer = msg.sender;
         pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
-        initializedVKCommitments[newVKCommitment] = true;
-        nullifiedVKCommitments[newVKCommitment] = false;
+        vkCommitments[newVKCommitment].initialized = true;
+        vkCommitments[newVKCommitment].nullified = false;
 
-        walletSaltOfVKCommitment[oldVKCommitment] = bytes32(0);
-        nullifiedVKCommitments[oldVKCommitment] = true;
+        vkCommitments[oldVKCommitment].walletSalt = bytes32(0);
+        vkCommitments[oldVKCommitment].walletSaltSet = false;
+        vkCommitments[oldVKCommitment].nullified = true;
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
@@ -394,13 +418,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 vkCommitment = vkCommitmentOfPointer[recipientEmailAddrPointer];
 
         require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
-        require(relayerOfVKCommitment[vkCommitment] == msg.sender, "invalid relayer for account");
+        require(vkCommitments[vkCommitment].relayer == msg.sender, "invalid relayer for account");
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
         require(vkCommitmentOfPointer[recipientEmailAddrPointer] != bytes32(0), "invalid VK commitment");
-        require(initializedVKCommitments[vkCommitment], "account not initialized");
-        require(!nullifiedVKCommitments[vkCommitment], "account is nullified");
-        require(walletSaltOfVKCommitment[vkCommitment] != bytes32(0), "invalid wallet salt");
+        require(vkCommitments[vkCommitment].initialized, "account not initialized");
+        require(!vkCommitments[vkCommitment].nullified, "account is nullified");
+        require(vkCommitments[vkCommitment].walletSalt != bytes32(0), "invalid wallet salt");
 
         require(
             verifier.verifyClaimFundProof(
@@ -412,7 +436,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             "invalid proof"
         );
 
-        address recipientAddress = getWalletOfSalt(walletSaltOfVKCommitment[vkCommitment]);
+        address recipientAddress = getWalletOfSalt(vkCommitments[vkCommitment].walletSalt);
 
         delete unclaimedFundOfEmailAddrCommitment[recipientEmailAddrPointer];
 
@@ -551,13 +575,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 vkCommitment = vkCommitmentOfPointer[recipientEmailAddrPointer];
 
         require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
-        require(relayerOfVKCommitment[vkCommitment] == msg.sender, "invalid relayer for account");
+        require(vkCommitments[vkCommitment].relayer == msg.sender, "invalid relayer for account");
         require(us.senderAddress != address(0), "unclaimed state not registered");
         require(us.extensionAddress != address(0), "invalid extension address");
         require(vkCommitmentOfPointer[recipientEmailAddrPointer] != bytes32(0), "invalid VK commitment");
-        require(initializedVKCommitments[vkCommitment], "account not initialized");
-        require(!nullifiedVKCommitments[vkCommitment], "account is nullified");
-        require(walletSaltOfVKCommitment[vkCommitment] != bytes32(0), "invalid wallet salt");
+        require(vkCommitments[vkCommitment].initialized, "account not initialized");
+        require(!vkCommitments[vkCommitment].nullified, "account is nullified");
+        require(vkCommitments[vkCommitment].walletSalt != bytes32(0), "invalid wallet salt");
 
         require(
             verifier.verifyClaimFundProof(
@@ -569,7 +593,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             "invalid proof"
         );
 
-        address recipientAddress = getWalletOfSalt(walletSaltOfVKCommitment[vkCommitment]);
+        address recipientAddress = getWalletOfSalt(vkCommitments[vkCommitment].walletSalt);
 
         delete unclaimedStateOfEmailAddrCommitment[recipientEmailAddrPointer];
 
@@ -622,10 +646,17 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        require(relayerOfVKCommitment[vkCommitment] == msg.sender, "invalid relayer");
-        require(initializedVKCommitments[vkCommitment], "account not initialized");
-        require(!nullifiedVKCommitments[vkCommitment], "account is nullified");
-        require(walletSaltOfVKCommitment[vkCommitment] != bytes32(0), "wallet salt not set");
+        {
+            ViewingKeyCommitment storage vkCommitInfo = vkCommitments[vkCommitment];
+            address relayer = vkCommitInfo.relayer;
+            bool initialized = vkCommitInfo.initialized;
+            bool nullified = vkCommitInfo.nullified;
+            bool walletSaltSet = vkCommitInfo.walletSaltSet;
+            require(relayer == msg.sender, "invalid relayer");
+            require(initialized, "account not initialized");
+            require(!nullified, "account is nullified");
+            require(walletSaltSet, "wallet salt not set");
+        }
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
@@ -647,7 +678,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         (string memory maskedSubject, bool isExtension) = _computeMaskedSubjectForEmailOp(emailOp);
-        require(Strings.equal(maskedSubject, emailOp.maskedSubject), "computed subject mismatch");
+        require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
         if (isExtension) {
             require(emailOp.extensionParams.length > 0, "extension params cannot be empty");
@@ -682,7 +713,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         currContext = ExecutionContext({
-            walletAddress: getWalletOfSalt(walletSaltOfVKCommitment[vkCommitmentOfPointer[emailOp.emailAddrPointer]]),
+            walletAddress: getWalletOfSalt(vkCommitments[vkCommitmentOfPointer[emailOp.emailAddrPointer]].walletSalt),
             extensionAddress: address(0),
             receivedETH: msg.value,
             unclaimedStateRegistered: false,
@@ -753,7 +784,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             maskedSubject = string.concat(
                 Commands.SEND_COMMAND,
                 " ",
-                Strings.toString(walletParams.amount / (10 ** token.decimals())),
+                DecimalUtils.uintToDecimalString(walletParams.amount),
                 " ",
                 walletParams.tokenName,
                 " to "

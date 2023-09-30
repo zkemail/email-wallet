@@ -15,6 +15,8 @@
     "zk-regex-circom": "https://gitpkg.now.sh/zkemail/zk-regex/packages/circom?feat/integrate_halo2_regex"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-typescript": "^7.23.0",
     "@types/jest": "^29.5.4",
     "chai": "^4.3.7",
     "circom_tester": "^0.0.19",
