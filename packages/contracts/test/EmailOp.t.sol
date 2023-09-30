@@ -13,6 +13,28 @@ contract TransferTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
     }
 
+    function _getBaseEmailOp() internal view returns (EmailOp memory) {
+        return EmailOp({
+            emailAddrPointer: emailAddrPointer,
+            hasEmailRecipient: false,
+            recipientEmailAddrCommit: bytes32(0),
+            recipientETHAddr: address(0),
+            command: "",
+            emailNullifier: bytes32(uint(123)),
+            emailDomain: emailDomain,
+            timestamp: block.timestamp,
+            maskedSubject: "",
+            feeTokenName: "ETH",
+            feePerGas: 0,
+            extensionSubjectTemplateIndex: 0,
+            executeCallData: abi.encodePacked(""),
+            walletParams: WalletParams({tokenName: "", amount: 0}),
+            extManagerParams: extManagerParams,
+            extensionParams: extensionParams,
+            emailProof: mockProof
+        });
+    }
+
     function testSendTokenToEOA() public {
         address recipient = vm.addr(5);
         string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
@@ -21,25 +43,13 @@ contract TransferTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 150 ether);
 
         // Create EmailOp
-        EmailOp memory emailOp = EmailOp({
-            emailAddrPointer: emailAddrPointer,
-            hasEmailRecipient: false,
-            recipientEmailAddrCommit: bytes32(0),
-            recipientETHAddr: recipient,
-            command: Commands.SEND,
-            emailNullifier: bytes32(uint(123)),
-            emailDomain: emailDomain,
-            timestamp: block.timestamp,
-            maskedSubject: subject,
-            feeTokenName: "ETH",
-            feePerGas: 0, // Set fee as 0
-            extensionSubjectTemplateIndex: 0,
-            walletParams: WalletParams({tokenName: "DAI", amount: 100 ether}),
-            extManagerParams: extManagerParams,
-            extensionParams: extensionParams,
-            emailProof: mockProof
-        });
-
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+        
         vm.startPrank(relayer);
         (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
@@ -55,24 +65,12 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         daiToken.freeMint(walletAddr, 20 ether);
 
-        EmailOp memory emailOp = EmailOp({
-            emailAddrPointer: emailAddrPointer,
-            hasEmailRecipient: false,
-            recipientEmailAddrCommit: bytes32(0),
-            recipientETHAddr: recipient,
-            command: Commands.SEND,
-            emailNullifier: bytes32(uint(123)),
-            emailDomain: emailDomain,
-            timestamp: block.timestamp,
-            maskedSubject: subject,
-            feeTokenName: "ETH",
-            feePerGas: 0, // Set fee as 0
-            extensionSubjectTemplateIndex: 0,
-            walletParams: WalletParams({tokenName: "DAI", amount: 10.52 ether}),
-            extManagerParams: extManagerParams,
-            extensionParams: extensionParams,
-            emailProof: mockProof
-        });
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 10.52 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, ) = core.handleEmailOp(emailOp);
