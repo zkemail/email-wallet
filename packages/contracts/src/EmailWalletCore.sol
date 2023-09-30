@@ -791,6 +791,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
             require(emailOp.executeCallData.length > 0, "executeCallData cannot be empty");
 
+            (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
+            
+            require(target != address(0), "invalid execute target");
+            require(target != address(this), "cannot execute on Core contract");
+            require(target != currContext.walletAddress, "cannot execute on wallet");
+            require(data.length > 0, "execute data cannot be empty");
+
             maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
         }
         // Sample: Set extension for Swap as Uniswap
