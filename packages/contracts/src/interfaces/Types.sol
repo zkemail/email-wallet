@@ -9,7 +9,7 @@ struct RelayerConfig {
 
 // Struct to represent an operation from the user
 struct EmailOp {
-    bytes32 emailAddrPointer; // emailAddressPointer of sender's account
+    bytes32 emailAddrPointer; // emailAddrPointer of sender's account
     bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
     bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
     address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
@@ -41,7 +41,7 @@ struct ExtensionManagerParams {
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
-    bytes32 emailAddrCommitment;
+    bytes32 emailAddrCommit;
     address senderAddress;
     address tokenAddress;
     uint256 amount;
@@ -49,7 +49,7 @@ struct UnclaimedFund {
 }
 
 struct UnclaimedState {
-    bytes32 emailAddrCommitment;
+    bytes32 emailAddrCommit;
     address extensionAddress;
     address senderAddress;
     bytes state;

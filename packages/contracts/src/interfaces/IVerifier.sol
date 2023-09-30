@@ -46,14 +46,14 @@ interface IVerifier {
     ///         sender's email address and relayer randmness derives `emailAddrPointer`,
     ///         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,
     ///         the subject is same as `maskedSubject` with email address masked (if any),
-    ///         and email address in subject is used to derive `recipientEmailAddressCommitment`
+    ///         and email address in subject is used to derive `recipientEmailAddrCommit`
     /// @param emailDomain The domain of the user's email address
     /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
     /// @param maskedSubject The subject of the email with (any) email address masked
     /// @param emailNullifier The nullifier computed for the email
     /// @param relayerHash The hash of the relayer randomness
     /// @param emailAddrPointer The hash of the relayer randomness and users's email address
-    /// @param recipientEmailAddressCommitment The hash of recipeint's email address (from subject) and a randomness
+    /// @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
     /// @dev `relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
     function verifyEmailProof(
@@ -64,20 +64,20 @@ interface IVerifier {
         bytes32 relayerHash,
         bytes32 emailAddrPointer,
         bool hasEmailRecipient,
-        bytes32 recipientEmailAddressCommitment,
+        bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool);
 
     /// @notice Verify the proof to claim and unclaimed to a recipient account
-    /// @notice This verify that same email address is used in `recipientEmailAddressPointer` and `recipientEmailAddressCommitment`
+    /// @notice This verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`
     /// @param recipientRelayerHash The hash of the relayer randomness
-    /// @param recipientEmailAddressPointer The hash of the relayer randomness and recipient email address
-    /// @param recipientEmailAddressCommitment The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer
+    /// @param recipientEmailAddrPointer The hash of the relayer randomness and recipient email address
+    /// @param recipientEmailAddrCommit The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer
     /// @param proof ZK proof of the circuit
     function verifyClaimFundProof(
         bytes32 recipientRelayerHash,
-        bytes32 recipientEmailAddressPointer,
-        bytes32 recipientEmailAddressCommitment,
+        bytes32 recipientEmailAddrPointer,
+        bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool);
 
