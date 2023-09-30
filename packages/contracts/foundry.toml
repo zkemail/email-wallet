@@ -2,5 +2,5 @@
 src = "src"
 out = "artifacts"
 libs = ["../../node_modules"]
-
+fs_permissions = [{ access = "read", path = "./artifacts/TestWallet.sol/TestWallet.json"}]
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

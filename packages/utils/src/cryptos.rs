@@ -10,6 +10,7 @@ use neon::result::Throw;
 use num_bigint::BigUint;
 use num_traits::Zero;
 use poseidon_rs::*;
+pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
 
@@ -35,8 +36,9 @@ pub struct PaddedEmailAddr {
 impl PaddedEmailAddr {
     pub fn from_email_addr(email_addr: &str) -> Self {
         let email_addr_len = email_addr.as_bytes().len();
-        let mut padded_bytes = email_addr.as_bytes().to_vec();
-        padded_bytes.append(&mut vec![0; MAX_EMAIL_ADDR_BYTES - email_addr_len]);
+        // let mut padded_bytes = email_addr.as_bytes().to_vec();
+        // padded_bytes.append(&mut vec![0; MAX_EMAIL_ADDR_BYTES - email_addr_len]);
+        let padded_bytes = pad_string(email_addr, MAX_EMAIL_ADDR_BYTES);
         Self {
             padded_bytes,
             email_addr_len,
@@ -182,20 +184,20 @@ pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
     Ok(cx.string(relayer_rand_hash_str))
 }
 
-pub fn pad_string_node(mut cx: FunctionContext) -> JsResult<JsArray> {
-    let string = cx.argument::<JsString>(0)?.value(&mut cx);
-    let padded_bytes_size = cx.argument::<JsNumber>(1)?.value(&mut cx) as usize;
-    let padded_bytes = JsArray::new(&mut cx, padded_bytes_size as u32);
-    for (idx, byte) in string.as_bytes().into_iter().enumerate() {
-        let js_byte = cx.number(*byte);
-        padded_bytes.set(&mut cx, idx as u32, js_byte)?;
-    }
-    for idx in string.len()..padded_bytes_size {
-        let js_byte = cx.number(0);
-        padded_bytes.set(&mut cx, idx as u32, js_byte)?;
-    }
-    Ok(padded_bytes)
-}
+// pub fn pad_string_node(mut cx: FunctionContext) -> JsResult<JsArray> {
+//     let string = cx.argument::<JsString>(0)?.value(&mut cx);
+//     let padded_bytes_size = cx.argument::<JsNumber>(1)?.value(&mut cx) as usize;
+//     let padded_bytes = JsArray::new(&mut cx, padded_bytes_size as u32);
+//     for (idx, byte) in string.as_bytes().into_iter().enumerate() {
+//         let js_byte = cx.number(*byte);
+//         padded_bytes.set(&mut cx, idx as u32, js_byte)?;
+//     }
+//     for idx in string.len()..padded_bytes_size {
+//         let js_byte = cx.number(0);
+//         padded_bytes.set(&mut cx, idx as u32, js_byte)?;
+//     }
+//     Ok(padded_bytes)
+// }
 
 pub fn pad_email_addr_node(mut cx: FunctionContext) -> JsResult<JsArray> {
     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);

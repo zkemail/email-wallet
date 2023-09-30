@@ -10,6 +10,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
+import "./libraries/DecimalUtils.sol";
 import "./utils/TokenRegistry.sol";
 import "./interfaces/IVerifier.sol";
 import "./interfaces/Extension.sol";
@@ -677,7 +678,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         (string memory maskedSubject, bool isExtension) = _computeMaskedSubjectForEmailOp(emailOp);
-        require(Strings.equal(maskedSubject, emailOp.maskedSubject), "computed subject mismatch");
+        require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
         if (isExtension) {
             require(emailOp.extensionParams.length > 0, "extension params cannot be empty");
@@ -783,8 +784,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             maskedSubject = string.concat(
                 Commands.SEND_COMMAND,
                 " ",
-                // TODO: Ensure to string conversion doesn't truncate decimal.
-                Strings.toString(walletParams.amount / (10 ** token.decimals())),
+                DecimalUtils.uintToDecimalString(walletParams.amount),
                 " ",
                 walletParams.tokenName,
                 " to "
