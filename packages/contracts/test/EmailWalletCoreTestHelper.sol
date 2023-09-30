@@ -100,4 +100,29 @@ contract EmailWalletCoreTestHelper is Test {
         core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
         vm.stopPrank();
     }
+
+    // Helper function for creating a base EmailOp
+    function _getBaseEmailOp() internal view returns (EmailOp memory) {
+        return
+            EmailOp({
+                emailAddrPointer: emailAddrPointer,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(0),
+                recipientETHAddr: address(0),
+                command: "",
+                emailNullifier: bytes32(uint(123)),
+                emailDomain: emailDomain,
+                timestamp: block.timestamp,
+                maskedSubject: "",
+                feeTokenName: "ETH",
+                feePerGas: 0,
+                extensionSubjectTemplateIndex: 0,
+                executeCallData: abi.encodePacked(""),
+                newWalletOwner: address(0),
+                walletParams: WalletParams({tokenName: "", amount: 0}),
+                extManagerParams: ExtensionManagerParams({command: "", extensionName: ""}),
+                extensionParams: abi.encodePacked(""),
+                emailProof: mockProof
+            });
+    }
 }
