@@ -776,7 +776,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
                 );
             }
-        } else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
+        }
+        // Sample: Execute 0x000112aa..
+        else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
             maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
         }
         // Sample: Set extension for Swap as Uniswap
@@ -796,6 +798,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
             maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " for ", emailOp.extManagerParams.command);
+        }
+        // Sample: Exit email wallet. Change owner to 0x000112aa..
+        else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
+            maskedSubject = string.concat(
+                Commands.EXIT_EMAIL_WALLET,
+                " ",
+                Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
+            );
         }
         // The command is for an extension
         else {
@@ -875,6 +885,18 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
             userExtensionOfCommand[emailOp.emailAddrPointer][emailOp.command] = address(0);
+        }
+        // Exit email wallet
+        else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
+            try Wallet(payable(currContext.walletAddress)).transferOwnership(emailOp.newWalletOwner) {
+                success = true;
+            } catch Error(string memory reason) {
+                success = false;
+                returnData = bytes(reason);
+            } catch {
+                success = false;
+                returnData = bytes("err executing transferOwnership on wallet");
+            }
         }
         // The command is for an extension
         else {

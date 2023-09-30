@@ -22,6 +22,7 @@ struct EmailOp {
     uint256 feePerGas; // Amount of ETH to be charged per gas
     uint8 extensionSubjectTemplateIndex; // Index of the extension subject template
     bytes executeCallData; // data if the the command is "Execute"
+    address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
     bytes extensionParams; // Serialized params for the extension based on the template

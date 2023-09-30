@@ -14,6 +14,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         vm.stopPrank();
 
+        Wallet wallet = Wallet(payable(core.getWalletOfSalt(walletSalt)));
+        assertEq(wallet.owner(), address(core), "wallet owner is not walletAddr");
+
         assertEq(core.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
         (address akRelayer, bool initialized, bool nullified, bool akWalletSaltSet, bytes32 akWalletSalt) = core
             .infoOfAccountKeyCommit(accountKeyCommit);

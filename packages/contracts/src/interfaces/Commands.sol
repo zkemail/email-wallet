@@ -17,4 +17,5 @@ library Commands {
     string public constant EXECUTE = "Execute";
     string public constant INSTALL_EXTENSION = "Install extension";
     string public constant UNINSTALL_EXTENSION = "Uninstall extension";
+    string public constant EXIT_EMAIL_WALLET = "Exit Email Wallet. Change wallet ownership to";
 }
