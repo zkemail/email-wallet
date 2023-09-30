@@ -755,14 +755,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         EmailOp memory emailOp
     ) internal view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
-        if (Strings.equal(emailOp.command, Commands.SEND_COMMAND)) {
+        if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
             ERC20 token = ERC20(_getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
 
             maskedSubject = string.concat(
-                Commands.SEND_COMMAND,
+                Commands.SEND,
                 " ",
                 DecimalUtils.uintToDecimalString(walletParams.amount),
                 " ",
@@ -778,13 +778,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             }
         }
         // Sample: Set extension for Swap as Uniswap
-        else if (Strings.equal(emailOp.command, Commands.SET_EXTENSION_COMMAND)) {
+        else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
 
             require(addressOfExtension[extManagerParams.extensionName] != address(0), "extension not registered");
 
             maskedSubject = string.concat(
-                Commands.SET_EXTENSION_COMMAND,
+                Commands.INSTALL_EXTENSION,
                 " for ",
                 extManagerParams.command,
                 " as ",
@@ -792,8 +792,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             );
         }
         // Sample: Remove extension for Swap
-        else if (Strings.equal(emailOp.command, Commands.REMOVE_EXTENSION_COMMAND)) {
-            maskedSubject = string.concat(Commands.REMOVE_EXTENSION_COMMAND, " for ", emailOp.extManagerParams.command);
+        else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
+            maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " for ", emailOp.extManagerParams.command);
         }
         // The command is for an extension
         else {
@@ -816,7 +816,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @return returnData Return data from the operation (error)
     function _executeEmailOp(EmailOp memory emailOp) internal returns (bool success, bytes memory returnData) {
         // Wallet operation
-        if (Strings.equal(emailOp.command, Commands.SEND_COMMAND)) {
+        if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
             address tokenAddress = _getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName);
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
@@ -847,14 +847,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             }
         }
         // Set custom extension for the user
-        else if (Strings.equal(emailOp.command, Commands.SET_EXTENSION_COMMAND)) {
+        else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
             address extensionAddress = addressOfExtension[extManagerParams.extensionName];
 
             userExtensionOfCommand[emailOp.emailAddrPointer][extManagerParams.command] = extensionAddress;
         }
         // Remove custom extension for the user
-        else if (Strings.equal(emailOp.command, Commands.REMOVE_EXTENSION_COMMAND)) {
+        else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
             userExtensionOfCommand[emailOp.emailAddrPointer][emailOp.command] = address(0);
         }
         // The command is for an extension
