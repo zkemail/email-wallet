@@ -35,10 +35,10 @@ contract EmailWalletCoreTestHelper is Test {
     // Computing hashes to resemble the actual process
     string senderEmail = "sender@test.com";
     string emailDomain = "test.com";
-    uint256 viewingKey = 2001;
+    uint256 accountKey = 2001;
     bytes32 emailAddrPointer = keccak256(abi.encodePacked(relayerRand, senderEmail));
-    bytes32 viewingKeyCommitment = keccak256(abi.encodePacked(viewingKey, senderEmail, randHash));
-    bytes32 walletSalt = keccak256(abi.encodePacked(viewingKeyCommitment, uint(0)));
+    bytes32 accountKeyCommit = keccak256(abi.encodePacked(accountKey, senderEmail, randHash));
+    bytes32 walletSalt = keccak256(abi.encodePacked(accountKeyCommit, uint(0)));
     bytes psiPoint = abi.encodePacked(uint(1004));
     address walletAddr;
 
@@ -96,7 +96,7 @@ contract EmailWalletCoreTestHelper is Test {
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
         bytes32 emailNullifier = bytes32(uint(1002130510010012931231923879));
-        core.createAccount(emailAddrPointer, viewingKeyCommitment, walletSalt, psiPoint, mockProof);
+        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
         vm.stopPrank();
     }

@@ -24,7 +24,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = EmailOp({
             emailAddrPointer: emailAddrPointer,
             hasEmailRecipient: false,
-            recipientEmailAddrCommitment: bytes32(0),
+            recipientEmailAddrCommit: bytes32(0),
             recipientETHAddr: recipient,
             command: Commands.SEND_COMMAND,
             emailNullifier: bytes32(uint(123)),
@@ -58,7 +58,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = EmailOp({
             emailAddrPointer: emailAddrPointer,
             hasEmailRecipient: false,
-            recipientEmailAddrCommitment: bytes32(0),
+            recipientEmailAddrCommit: bytes32(0),
             recipientETHAddr: recipient,
             command: Commands.SEND_COMMAND,
             emailNullifier: bytes32(uint(123)),
