@@ -728,15 +728,24 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
     }
 
-    /// @notice For extensions to request token from user's wallet
+    /// @notice For extensions to request token from user's wallet (context wallet)
     /// @param tokenAddress Address of the ERC20 token requested
     /// @param amount Amount requested
-    function requestTokenTransfer(address tokenAddress, uint256 amount) public {
+    function requestTokenFromAccount(address tokenAddress, uint256 amount) public {
         require(msg.sender == currContext.extensionAddress, "invalid caller");
 
         // TODO: Validate the requested token and amound is allowed.
-
         _transferERC20(currContext.walletAddress, currContext.extensionAddress, tokenAddress, amount);
+    }
+
+    /// @notice For extensions to deposit token to user's wallet (context wallet)
+    /// @param tokenAddress Address of the ERC20 token to be deposited
+    /// @param amount Amount to be deposited
+    /// @dev Extension should add allowance to Core contract before calling this function
+    function depositTokenToAccount(address tokenAddress, uint256 amount) public {
+        require(msg.sender == currContext.extensionAddress, "invalid caller");
+
+        IERC20(tokenAddress).transferFrom(msg.sender, currContext.walletAddress, amount);
     }
 
     /// Register a new extension
@@ -788,7 +797,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
 
-            require(extManagerParams.command.length > 0, "command for extension cannot be empty");
+            require(bytes(extManagerParams.command).length > 0, "command cannot be empty");
             require(addressOfExtension[extManagerParams.extensionName] != address(0), "extension not registered");
 
             maskedSubject = string.concat(
@@ -801,7 +810,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            require(extManagerParams.command.length > 0, "command of extension cannot be empty");
+            require(bytes(emailOp.extManagerParams.command).length > 0, "command cannot be empty");
 
             maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " for ", emailOp.extManagerParams.command);
         }
