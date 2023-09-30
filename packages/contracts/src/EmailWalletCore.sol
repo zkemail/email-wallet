@@ -749,7 +749,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     }
 
     /// @notice Calculate the masked subject for an EmailOp from command and other params
-    ///         This also validates certain parameters like tokenName, extensionName, extension command are registered.
+    ///         This also do "null" check for certain parameters used in the EmailOp
     /// @param emailOp EmailOp from which the masked subject is to be computed
     function _computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp
@@ -760,6 +760,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             ERC20 token = ERC20(_getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
+            require(emailOp.walletParams.amount > 0, "send amount should be >0");
 
             maskedSubject = string.concat(
                 Commands.SEND,
@@ -779,12 +780,15 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // Sample: Execute 0x000112aa..
         else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
+            require(emailOp.executeCallData.length > 0, "executeCallData cannot be empty");
+
             maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
         }
         // Sample: Set extension for Swap as Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
 
+            require(extManagerParams.command.length > 0, "command for extension cannot be empty");
             require(addressOfExtension[extManagerParams.extensionName] != address(0), "extension not registered");
 
             maskedSubject = string.concat(
@@ -797,10 +801,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
+            require(extManagerParams.command.length > 0, "command of extension cannot be empty");
+
             maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " for ", emailOp.extManagerParams.command);
         }
         // Sample: Exit email wallet. Change owner to 0x000112aa..
         else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
+            require(emailOp.newWalletOwner != address(0), "newWalletOwner cannot be empty");
+
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
                 " ",
