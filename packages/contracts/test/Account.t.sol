@@ -83,7 +83,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     function testRevertWhenPredeterministicWalletIsAlreadyDeployed() public {
         address predictedAddr = core.getWalletOfSalt(walletSalt);
-        deployCodeTo("TestWallet.sol", abi.encode(), predictedAddr);
+        deployCodeTo("TestWallet.sol", abi.encode(address(weth)), predictedAddr);
 
         vm.startPrank(relayer);
         vm.expectRevert("wallet already deployed");

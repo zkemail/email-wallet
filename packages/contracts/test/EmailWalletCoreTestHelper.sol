@@ -10,6 +10,7 @@ import "../src/utils/TokenRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
 import "./mock/TestVerifier.sol";
 import "./mock/TestERC20.sol";
+import "./mock/WETH9.sol";
 
 contract EmailWalletCoreTestHelper is Test {
     EmailWalletCore core;
@@ -17,6 +18,7 @@ contract EmailWalletCoreTestHelper is Test {
     TokenRegistry tokenRegistry;
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
+    WETH9 weth;
 
     TestERC20 wethToken;
     TestERC20 daiToken;
@@ -52,6 +54,7 @@ contract EmailWalletCoreTestHelper is Test {
         tokenRegistry = new TokenRegistry();
         dkimRegistry = new DKIMRegistry();
         priceOracle = new UniswapTWAPOracle(address(0), address(0));
+        weth = new WETH9();
 
         // Deploy core contract as proxy
         address implementation = address(
@@ -60,6 +63,7 @@ contract EmailWalletCoreTestHelper is Test {
                 address(tokenRegistry),
                 address(dkimRegistry),
                 address(priceOracle),
+                address(weth),
                 10 ** 10,
                 0.0001 ether,
                 30 days

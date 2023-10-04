@@ -33,6 +33,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Price oracle for feeToken conversion
     IPriceOracle public immutable priceOracle;
 
+    // Address of WETH contract
+    address weth;
+
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
     address public immutable walletImplementation;
 
@@ -121,6 +124,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         address _tokenRegistry,
         address _dkimRegistry,
         address _priceOracle,
+        address _wethContract,
         uint256 _maxFeePerGas,
         uint256 _unclaimedFundRegistrationFee,
         uint256 _unclaimedFundExpirationDuration
@@ -133,7 +137,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         unclaimedFundRegistrationFee = _unclaimedFundRegistrationFee;
         unclaimedFundExpirationDuration = _unclaimedFundExpirationDuration;
 
-        walletImplementation = address(new Wallet());
+        walletImplementation = address(new Wallet(_wethContract));
     }
 
     fallback() external payable {
