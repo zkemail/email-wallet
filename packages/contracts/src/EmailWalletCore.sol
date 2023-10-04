@@ -796,7 +796,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             require(emailOp.executeCallData.length > 0, "executeCallData cannot be empty");
 
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
-            
+
             require(target != address(0), "invalid execute target");
             require(target != address(this), "cannot execute on Core contract");
             require(target != currContext.walletAddress, "cannot execute on wallet");
@@ -858,8 +858,28 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Wallet operation
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            address tokenAddress = _getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName);
+
+            // If sending ETH to external wallet, use ETH instead of WETH
+            if (!emailOp.hasEmailRecipient && Strings.equal(emailOp.walletParams.tokenName, "ETH")) {
+                Wallet wallet = Wallet(payable(currContext.walletAddress));
+
+                try wallet.execute(weth, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
+                    wallet.execute(emailOp.recipientETHAddr, walletParams.amount, abi.encode(""));
+                    success = true;
+                } catch Error(string memory reason) {
+                    success = false;
+                    returnData = bytes(reason);
+                } catch {
+                    success = false;
+                    returnData = bytes("err converting WETH to ETH");
+                }
+
+                return (success, returnData);
+            }
+
+            // Token transfer for both external contract and email wallet
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
+            address tokenAddress = _getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName);
 
             (success, returnData) = _transferERC20(
                 currContext.walletAddress,
@@ -872,7 +892,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 return (success, returnData);
             }
 
-            // Register unclaimed fund for the recipient
+            // Register unclaimed fund if the recipient is email wallet user
             if (emailOp.hasEmailRecipient) {
                 _registerUnclaimedFund(
                     currContext.walletAddress,
