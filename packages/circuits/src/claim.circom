@@ -4,10 +4,8 @@ include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/helpers/extract.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
-include "./utils/viewing_key_commit.circom";
 include "./utils/email_addr_commit.circom";
-include "./utils/wallet_salt.circom";
-include "./utils/ext_account_salt.circom";
+include "./utils/bytes2ints.circom";
 
 template Claim() {
     var email_max_bytes = email_max_bytes_const();

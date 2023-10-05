@@ -5,15 +5,15 @@
     "build": "mkdir -p build && circom src/wallet.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",
     "dev-setup": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/dev-setup.ts",
     "generate-keys": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/generate-keys.ts",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {
-    "@zk-email/circuits": "^1.1.2",
+    "@zk-email/circuits": "https://gitpkg.now.sh/zkemail/zk-email-verify/packages/circuits?use_zk_regex",
     "@zk-email/helpers": "^2.0.0",
+    "@zk-email/zk-regex-circom": "^1.0.1",
     "circom-grumpkin": "https://github.com/zkemail/circom-grumpkin.git",
     "commander": "^11.0.0",
-    "snarkjs": "^0.7.0",
-    "zk-regex-circom": "https://gitpkg.now.sh/zkemail/zk-regex/packages/circom?feat/integrate_halo2_regex"
+    "snarkjs": "^0.7.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.20",

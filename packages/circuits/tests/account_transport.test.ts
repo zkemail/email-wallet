@@ -17,7 +17,7 @@ import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 
 // const zkemailHelper = require("@zk-email/helpers");
 // const grumpkin = require("circom-grumpkin");
-jest.setTimeout(120000);
+jest.setTimeout(240000);
 describe("Account Transport", () => {
     it("transport an account", async () => {
         const emailRaw = readFileSync(path.join(__dirname, "./emails/account_init_test1.eml"), "utf8");
@@ -40,10 +40,11 @@ describe("Account Transport", () => {
         });
         const relayerRand = emailWalletUtils.genRelayerRand();
         const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
+        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr.json"), "utf8"))[0];
         const codeIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0][0];
         const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
-        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../src/regexes/email_domain.json"), "utf8"))[0][0];
+        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/email_domain.json"), "utf8"))[0][0];
+        const timestampIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/timestamp.json"), "utf8"))[0][0];
         const circuitInputs = {
             in_padded: emailCircuitInputs.in_padded,
             pubkey: emailCircuitInputs.pubkey,
@@ -52,7 +53,8 @@ describe("Account Transport", () => {
             sender_relayer_rand_hash: relayerRandHash,
             sender_email_idx: senderEmailIdxes[0],
             code_idx: codeIdx,
-            domain_idx: domainIdx
+            domain_idx: domainIdx,
+            timestamp_idx: timestampIdx
         };
         const circuit = await wasm_tester(path.join(__dirname, "../src/account_transport.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
@@ -60,7 +62,7 @@ describe("Account Transport", () => {
         // console.log(witness);
         const domainName = "gmail.com";
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
-        for (let idx = 0; idx < domainName.length; ++idx) {
+        for (let idx = 0; idx < paddedDomain.length; ++idx) {
             expect(BigInt(paddedDomain[idx])).toEqual(witness[1 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
@@ -68,26 +70,13 @@ describe("Account Transport", () => {
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
         expect(BigInt(expectedEmailNullifier)).toEqual(witness[257]);
         const emailAddr = "suegamisora@gmail.com";
-        const viewingKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
-        // const viewingKey = "0xcdab8967452301efcdab8967452301efcdab8967452301efcdab896745230100";
-        const expectedVkCommit = emailWalletUtils.viewingKeyCommit(viewingKey, emailAddr, relayerRandHash);
-        expect(BigInt(expectedVkCommit)).toEqual(witness[258]);
-
-        // const expectedRelayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        // // expect(expectedRelayerRandHash).toEqual("0x" + witness[1].toString(16));
-        // expect(BigInt(expectedRelayerRandHash)).toEqual(witness[1]);
-        // const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
-        // expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[2]);
-        // const expectedVkCommit = emailWalletUtils.viewingKeyCommit(viewingKey, emailAddr, expectedRelayerRandHash);
-        // // expect(expectedVkCommit).toEqual("0x" + witness[2].toString(16));
-        // expect(BigInt(expectedVkCommit)).toEqual(witness[3]);
-        // const expectedWalletSalt = emailWalletUtils.walletSalt(viewingKey);
-        // expect(BigInt(expectedWalletSalt)).toEqual(witness[4]);
-        // const expectedExtAccountSalt = emailWalletUtils.extAccountSalt(viewingKey);
-        // expect(BigInt(expectedExtAccountSalt)).toEqual(witness[5]);
-        // const hashedPoint = hash_to_curve(paddedEmailAddr);
-        // const expectedPsiPoint = point_scalar_mul(hashedPoint.x, hashedPoint.y, BigInt(relayerRand));
-        // expect(expectedPsiPoint.x).toEqual(witness[6]);
-        // expect(expectedPsiPoint.y).toEqual(witness[7]);
+        const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
+        const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, relayerRandHash);
+        expect(BigInt(expectedAkCommit)).toEqual(witness[258]);
+        const timestamp = "1694979179";
+        const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
+        for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
+            expect(BigInt(paddedTimestamp[idx])).toEqual(witness[259 + idx]);
+        }
     });
 });

@@ -1,11 +1,9 @@
 use neon::prelude::*;
 use zk_regex_apis::extract_substrs::extract_substr_idxes_node;
 pub mod cryptos;
-// pub mod extract_substrs;
 pub mod parse_email;
 mod statics;
 use cryptos::*;
-// use extract_substrs::*;
 use parse_email::*;
 pub use zk_regex_apis::extract_substrs::*;
 pub use zk_regex_apis::padding::*;
@@ -25,10 +23,10 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
         "emailAddrCommitWithSignature",
         email_addr_commit_with_signature_node,
     )?;
-    cx.export_function("genViewingKey", gen_viewing_key_node)?;
-    cx.export_function("viewingKeyCommit", viewing_key_commit_node)?;
+    cx.export_function("genAccountKey", gen_account_key_node)?;
+    cx.export_function("accountKeyCommit", account_key_commit_node)?;
     cx.export_function("walletSalt", wallet_salt_node)?;
-    cx.export_function("extAccountSalt", ext_account_salt_node)?;
+    // cx.export_function("extAccountSalt", ext_account_salt_node)?;
     cx.export_function("publicKeyHash", public_key_hash_node)?;
     cx.export_function("emailNullifier", email_nullifier_node)?;
     Ok(())

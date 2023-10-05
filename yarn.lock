@@ -1766,10 +1766,11 @@
   version "1.0.1-solc-0.8"
   resolved "https://github.com/Uniswap/v3-core#6562c52e8f75f0c10f9deaf44861847585fc8129"
 
-"@zk-email/circuits@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-1.1.2.tgz#a3228cb3a23cb08791a736e8bf365fa639d65981"
-  integrity sha512-Yzkb9On1dkHll3SQdCvIPyygcWPbG+kUtoEMg5k608E86yWwtw9uJuK1CEh4qBaEPx77omq5/ezJnNuQhKvJbw==
+"@zk-email/circuits@https://gitpkg.now.sh/zkemail/zk-email-verify/packages/circuits?use_zk_regex":
+  version "3.0.0"
+  resolved "https://gitpkg.now.sh/zkemail/zk-email-verify/packages/circuits?use_zk_regex#02c6c4b1464e1187423970a47a611185c3eb44c9"
+  dependencies:
+    "@zk-email/zk-regex-circom" "^1.0.1"
 
 "@zk-email/contracts@^2.0.0":
   version "2.0.0"
@@ -1793,6 +1794,14 @@
     pako "^2.1.0"
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+
+"@zk-email/zk-regex-circom@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.0.1.tgz#191d3fe5124ea293f5ac8bcfea956d435f5836d0"
+  integrity sha512-7hMu83qBAry7p2NMcibrH34DYZEJm94kqk+Zu4T+IUrpiqqnxc6T65Zu0SuKrR57oBRwm66TSNTHZO3s9SZrsQ==
+  dependencies:
+    commander "^11.0.0"
+    snarkjs "^0.7.0"
 
 "abdk-libraries-circom@https://github.com/abdk-consulting/abdk-libraries-circom.git":
   version "0.0.0"
@@ -5543,10 +5552,3 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-"zk-regex-circom@https://gitpkg.now.sh/zkemail/zk-regex/packages/circom?feat/integrate_halo2_regex":
-  version "1.0.0"
-  resolved "https://gitpkg.now.sh/zkemail/zk-regex/packages/circom?feat/integrate_halo2_regex#5fe69399dde0154a3d0e80f180cee827813d0b34"
-  dependencies:
-    commander "^11.0.0"
-    snarkjs "^0.7.0"

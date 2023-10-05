@@ -1,11 +1,7 @@
 
 pragma circom 2.1.5;
 
-include "circomlib/circuits/bitify.circom";
-include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/poseidon.circom";
-include "./constants.circom";
-include "./bytes2ints.circom";
 
 // email_addr_pointer = hash(relayerRand, emailAddr||0..0)
 template EmailAddrPointer(num_ints) {

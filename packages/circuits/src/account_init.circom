@@ -9,19 +9,16 @@ include "@zk-email/circuits/helpers/extract.circom";
 // include "@zk-email/circuits/regexes/from_regex.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
-include "./utils/viewing_key_commit.circom";
+include "./utils/account_key_commit.circom";
 include "./utils/wallet_salt.circom";
 include "./utils/hex2int.circom";
-include "./utils/hash_pubkey_and_sign.circom";
+include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
-// include "zk-regex-circom/circuits/common/from_addr_regex.circom";
-include "./regexes/from_addr_regex.circom";
-// include "zk-regex-circom/circuits/common/email_addr_regex.circom";
-include "./regexes/email_addr_regex.circom";
-// include "zk-regex-circom/circuits/common/email_domain_regex.circom";
-include "./regexes/email_domain_regex.circom";
+include "./utils/bytes2ints.circom";
+include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
+include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "./regexes/invitation_code_regex.circom";
-// include "./regexes/timestamp_regex.circom";
+include "@zk-email/zk-regex-circom/circuits/common/timestamp_regex.circom";
 
 
 // Here, n and k are the biginteger parameters for RSA
@@ -35,30 +32,31 @@ template AccountInit(n, k, max_header_bytes) {
     signal input sender_email_idx; // index of the from email address (= sender email address) in the header
     signal input code_idx; // index of the invitation code in the header
     signal input domain_idx;
-    // signal input timestamp_idx;
+    signal input timestamp_idx;
 
     var email_max_bytes = email_max_bytes_const();
     var domain_len = domain_len_const();
     var code_len = invitation_code_len_const();
-    // var timestamp_len = timestamp_len_const();
+    var timestamp_len = timestamp_len_const();
 
     signal output domain_name[domain_len];
     signal output pubkey_hash;
     signal output sender_relayer_rand_hash;
     signal output email_nullifier;
     signal output sender_pointer;
-    signal output sender_vk_commit;
-    // signal output timestamp[timestamp_len];
+    signal output sender_ak_commit;
+    signal output timestamp[timestamp_len];
     
     
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
     email_verifier.in_padded <== in_padded;
-    email_verifier.modulus <== pubkey;
+    email_verifier.pubkey <== pubkey;
     email_verifier.signature <== signature;
     email_verifier.in_len_padded_bytes <== in_padded_len;
     signal header_hash[256] <== email_verifier.sha;
+    pubkey_hash <== email_verifier.pubkey_hash;
 
-    // FROM HEADER REGEX: 736,553 constraints
+    // FROM HEADER REGEX
     signal from_regex_out, from_regex_reveal[max_header_bytes];
     (from_regex_out, from_regex_reveal) <== FromAddrRegex(max_header_bytes)(in_padded);
     from_regex_out === 1;
@@ -70,7 +68,7 @@ template AccountInit(n, k, max_header_bytes) {
     (code_regex_out, code_regex_reveal) <== InvitationCodeRegex(max_header_bytes)(in_padded);
     code_regex_out === 1;
     signal invitation_code_hex[code_len] <== VarShiftLeft(max_header_bytes, code_len)(code_regex_reveal, code_idx);
-    signal sender_vk <== Hex2Field()(invitation_code_hex);
+    signal sender_ak <== Hex2Field()(invitation_code_hex);
 
     // DOMAIN NAME HEADER REGEX
     signal domain_regex_out, domain_regex_reveal[email_max_bytes];
@@ -78,24 +76,24 @@ template AccountInit(n, k, max_header_bytes) {
     domain_regex_out === 1;
     domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
 
-    signal cm_rand;
-    (pubkey_hash, cm_rand, _) <== HashPubkeyAndSign(n,k)(pubkey, signature);
-    signal sender_relayer_rand_hash_input[1];
-    sender_relayer_rand_hash_input[0] <== sender_relayer_rand;
-    sender_relayer_rand_hash <== Poseidon(1)(sender_relayer_rand_hash_input);
+    signal sign_hash;
+    (sign_hash, _) <== HashSign(n,k)(signature);
+    // signal sender_relayer_rand_hash_input[1];
+    // sender_relayer_rand_hash_input[0] <== sender_relayer_rand;
+    sender_relayer_rand_hash <== Poseidon(1)([sender_relayer_rand]);
 
-    email_nullifier <== EmailNullifier()(cm_rand);
+    email_nullifier <== EmailNullifier()(sign_hash);
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
     sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
-    sender_vk_commit <== ViewingKeyCommit(num_email_addr_ints)(sender_vk, sender_email_addr_ints, sender_relayer_rand_hash);
+    sender_ak_commit <== AccountKeyCommit(num_email_addr_ints)(sender_ak, sender_email_addr_ints, sender_relayer_rand_hash);
 
-    // // TIMESTAMP REGEX
-    // signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
-    // (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
-    // timestamp_regex_out === 1;
-    // timestamp <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    // TIMESTAMP REGEX
+    signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
+    (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
+    timestamp_regex_out === 1;
+    timestamp <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
 }
 
 // Args:

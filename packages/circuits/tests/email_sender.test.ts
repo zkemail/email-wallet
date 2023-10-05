@@ -17,7 +17,7 @@ import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 
 // const zkemailHelper = require("@zk-email/helpers");
 // const grumpkin = require("circom-grumpkin");
-jest.setTimeout(120000);
+jest.setTimeout(240000);
 describe("Email Sender", () => {
     it("Verify a sent email", async () => {
         const emailRaw = readFileSync(path.join(__dirname, "./emails/email_sender_test1.eml"), "utf8");
@@ -34,18 +34,18 @@ describe("Email Sender", () => {
             ignoreBodyHashCheck: true
         });
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
-        const subjectEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/subject_all.json"), "utf8"))[0];
+        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr.json"), "utf8"))[0];
+        const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
+        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/email_domain.json"), "utf8"))[0][0];
+        const subjectEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/subject_all.json"), "utf8"))[0];
         const subject = parsedEmail.canonicalizedHeader.slice(subjectEmailIdxes[0], subjectEmailIdxes[1]);
         console.log(subject);
-        const recipientEmailIdx = emailWalletUtils.extractSubstrIdxes(subject, readFileSync(path.join(__dirname, "../src/regexes/email_addr.json"), "utf8"))[0][0];
+        const recipientEmailIdx = emailWalletUtils.extractSubstrIdxes(subject, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/email_addr.json"), "utf8"))[0][0];
         console.log(recipientEmailIdx);
+        const timestampIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/timestamp.json"), "utf8"))[0][0];
         // const recipientEmailAddr = subject.slice(recipientEmailIdx, recipientEmailIdx + 256);
         // console.log(recipientEmailAddr);
-        const senderEmailAddrIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/from_addr.json"), "utf8"))[0];
         // const senderEmailAddr = parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdx, senderEmailAddrIdx + 256);
-        console.log(parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdxes[0], senderEmailAddrIdxes[1]));
-        const domainIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdxes[0], senderEmailAddrIdxes[1]), readFileSync(path.join(__dirname, "../src/regexes/email_domain.json"), "utf8"))[0][0];
         const circuitInputs = {
             in_padded: emailCircuitInputs.in_padded,
             pubkey: emailCircuitInputs.pubkey,
@@ -55,7 +55,8 @@ describe("Email Sender", () => {
             sender_email_idx: senderEmailIdxes[0],
             subject_idx: subjectEmailIdxes[0],
             recipient_email_idx: recipientEmailIdx,
-            domain_idx: domainIdx
+            domain_idx: domainIdx,
+            timestamp_idx: timestampIdx
         };
         const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
@@ -85,26 +86,10 @@ describe("Email Sender", () => {
         const recipientEmailAddr = "alice@gmail.com"
         const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
         expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[773]);
-        // const viewingKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
-        // // const viewingKey = "0xcdab8967452301efcdab8967452301efcdab8967452301efcdab896745230100";
-        // const expectedVkCommit = emailWalletUtils.viewingKeyCommit(viewingKey, emailAddr, expectedRelayerRandHash);
-        // expect(BigInt(expectedVkCommit)).toEqual(witness[260]);
-
-        // const expectedRelayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        // // expect(expectedRelayerRandHash).toEqual("0x" + witness[1].toString(16));
-        // expect(BigInt(expectedRelayerRandHash)).toEqual(witness[1]);
-        // const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
-        // expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[2]);
-        // const expectedVkCommit = emailWalletUtils.viewingKeyCommit(viewingKey, emailAddr, expectedRelayerRandHash);
-        // // expect(expectedVkCommit).toEqual("0x" + witness[2].toString(16));
-        // expect(BigInt(expectedVkCommit)).toEqual(witness[3]);
-        // const expectedWalletSalt = emailWalletUtils.walletSalt(viewingKey);
-        // expect(BigInt(expectedWalletSalt)).toEqual(witness[4]);
-        // const expectedExtAccountSalt = emailWalletUtils.extAccountSalt(viewingKey);
-        // expect(BigInt(expectedExtAccountSalt)).toEqual(witness[5]);
-        // const hashedPoint = hash_to_curve(paddedEmailAddr);
-        // const expectedPsiPoint = point_scalar_mul(hashedPoint.x, hashedPoint.y, BigInt(relayerRand));
-        // expect(expectedPsiPoint.x).toEqual(witness[6]);
-        // expect(expectedPsiPoint.y).toEqual(witness[7]);
+        const timestamp = "1694989812";
+        const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
+        for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
+            expect(BigInt(paddedTimestamp[idx])).toEqual(witness[774 + idx]);
+        }
     });
 });
