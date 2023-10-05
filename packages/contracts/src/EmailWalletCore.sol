@@ -400,6 +400,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @param recipientEmailAddrPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
+    /// @dev Relayer should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
     function claimUnclaimedFund(
         bytes32 emailAddrCommit,
         bytes32 recipientEmailAddrPointer,
@@ -560,7 +561,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 emailAddrCommit,
         bytes32 recipientEmailAddrPointer,
         bytes memory proof
-    ) public nonReentrant {
+    ) public nonReentrant returns (bool success, bytes memory returnData) {
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[recipientEmailAddrPointer];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
@@ -588,7 +589,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         delete unclaimedStateOfEmailAddrCommit[recipientEmailAddrPointer];
 
         Extension extension = Extension(us.extensionAddress);
-        extension.claimUnclaimedState(us, recipientAddress);
+
+        // Relayer should get claim fee (gas reimbursement) even if extension call fails
+        try extension.claimUnclaimedState(us, recipientAddress) {
+            success = true;
+        } catch Error(string memory reason) {
+            success = false;
+            returnData = bytes(reason);
+        } catch {
+            success = false;
+        }
 
         // Transfer claim fee to the sender (relayer)
         _transferETH(msg.sender, unclaimedFundRegistrationFee);
@@ -598,7 +608,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     /// @notice Return unclaimed state after expiry time
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed state was registered.
-    function revertUnclaimedState(bytes32 emailAddrCommit) public nonReentrant {
+    function revertUnclaimedState(
+        bytes32 emailAddrCommit
+    ) public nonReentrant returns (bool success, bytes memory returnData) {
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.senderAddress != address(0), "unclaimed state not registered");
@@ -606,7 +618,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         Extension extension = Extension(us.extensionAddress);
-        extension.revertUnclaimedState(us);
+
+        // Callee should get claim fee (gas reimbursement) even if extension call fails
+        try extension.revertUnclaimedState(us) {
+            success = true;
+        } catch Error(string memory reason) {
+            success = false;
+            returnData = bytes(reason);
+        } catch {
+            success = false;
+        }
 
         // Transfer claim fee to the callee to reimburse cost of calling this function
         _transferETH(msg.sender, unclaimedFundRegistrationFee);
@@ -693,8 +714,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Handle an EmailOp - the main function relayer should call for each Email
     /// @param emailOp EmailOp to be executed
     /// @dev Fee for unclaimed fund/state registration should be send if the recipient is an email address
-    /// @dev Relayer should make sure user has enough tokens to pay for the fee. This can be calculated as 
-    /// @dev ~ verificationGas (fixed) + executionGas (use extension.maxGas if extension) + feeForReimbursement (50k)
+    /// @dev Relayer should make sure user has enough tokens to pay for the fee. This can be calculated as
+    /// @dev ~ verificationGas(fixed) + executionGas(extension.maxGas if extension) + feeForReimbursement(50k) + msg.value
     function handleEmailOp(
         EmailOp calldata emailOp
     ) public payable nonReentrant returns (bool success, bytes memory returnData) {
@@ -963,12 +984,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             currContext.extensionAddress = extAddress;
 
             // We only pass pre-configured gas to execute()
-            (success, returnData) = extAddress.call{ gas: maxGasOfExtension[extAddress] }(
+            (success, returnData) = extAddress.call{gas: maxGasOfExtension[extAddress]}(
                 abi.encodeWithSignature(
                     "execute(bytes,uint8,address,bytes32)",
                     emailOp.extensionParams,
                     emailOp.extensionSubjectTemplateIndex,
                     currContext.walletAddress,
+                    emailOp.hasEmailRecipient,
+                    emailOp.recipientETHAddr,
                     emailOp.emailNullifier
                 )
             );

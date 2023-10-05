@@ -25,8 +25,18 @@ abstract contract Extension {
     /// @param params Extension params in the EmailOp (decoded from email subject)
     /// @param templateIndex Index of the subjectTemplate to which the subject was matched
     /// @param wallet Address of users wallet
+    /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
+    /// @param recipientETHAddr The ETH address of the recipient in email (if any, and hasEmailRecipient = false)
     /// @param emailNullifier Nullifier of the email
-    function execute(bytes memory params, uint8 templateIndex, address wallet, bytes32 emailNullifier) external virtual;
+    /// @dev Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` instead
+    function execute(
+        bytes memory params,
+        uint8 templateIndex,
+        address wallet,
+        bool hasEmailRecipient,
+        address recipientETHAddr,
+        bytes32 emailNullifier
+    ) external virtual;
 
     /// Register unclaimed state for a recipient emailCommitment
     /// @param unclaimedState Unclaimed state that is registered
