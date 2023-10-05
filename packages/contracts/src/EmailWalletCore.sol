@@ -21,6 +21,8 @@ import "./interfaces/IPriceOracle.sol";
 import "./Wallet.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
+    uint constant test = 123;
+
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -447,8 +449,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Transfer token from Core contract to sender's wallet
         ERC20(fund.tokenAddress).transfer(fund.senderAddress, fund.amount);
 
-        // Transfer claim fee to the sender - either emailWallet user or external wallet
-        _transferETH(fund.senderAddress, unclaimedFundRegistrationFee);
+        // Transfer claim fee to the callee
+        // This is assuming the cost of claim is same as cost of revert
+        // The user who registered UF locks the ETH needed for either claim or revert
+        _transferETH(msg.sender, unclaimedFundRegistrationFee);
 
         emit UnclaimedFundReverted(emailAddrCommit, fund.tokenAddress, fund.amount, fund.senderAddress);
     }
@@ -600,8 +604,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         Extension extension = Extension(us.extensionAddress);
         extension.revertUnclaimedState(us);
 
-        // Transfer claim fee to the sender - either emailWallet user or external wallet
-        _transferETH(us.senderAddress, unclaimedFundRegistrationFee);
+        // Transfer claim fee to the callee to reimburse cost of calling this function
+        _transferETH(msg.sender, unclaimedFundRegistrationFee);
 
         emit UnclaimedStateReverted(emailAddrCommit, us.senderAddress);
     }
