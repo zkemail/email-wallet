@@ -84,8 +84,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Max fee per gas in ETH that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
-    // Regitration fee for unclaimed funds - ideally gasForUnclaim * maxFeePerGas
-    uint256 public immutable unclaimedFundRegistrationFee;
+    // Gas required to claim unclaimed funds. User (or their relayer) who register unclaimed funds
+    // need to lock up this much ETH in the contract, for eventual claim() or expiry() costs.
+    // For simpliciy, we assume this same gas is needed to claim and revert both unclaimed funds and unclaime states.
+    uint256 public immutable unclaimedFundClaimGas;
 
     // Default expiry duration for unclaimed funds
     uint256 public immutable unclaimedFundExpirationDuration;
@@ -132,7 +134,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         address _priceOracle,
         address _wethContract,
         uint256 _maxFeePerGas,
-        uint256 _unclaimedFundRegistrationFee,
+        uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedFundExpirationDuration
     ) {
         verifier = IVerifier(_verifier);
@@ -140,7 +142,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
         maxFeePerGas = _maxFeePerGas;
-        unclaimedFundRegistrationFee = _unclaimedFundRegistrationFee;
+        unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedFundExpirationDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet(_wethContract));
@@ -215,7 +217,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes memory psiPoint,
         bytes memory proof
     ) public returns (Wallet) {
-        // TODO: What stops `walletSalt` from being bytes32(0)?
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
@@ -374,8 +375,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 announceCommitRandomness,
         string memory announceEmailAddr
     ) public payable {
-        // Ensure the sender has paid ETH needed for claiming the unclaimed fee
-        require(msg.value == unclaimedFundRegistrationFee, "invalid unclaimed fund fee");
+        // Ensure the sender has paid ETH needed for claiming / expiring the unclaimed fee
+        require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "invalid unclaimed fund fee");
         require(amount > 0, "amount should be greater than 0");
         require(tokenAddress != address(0), "invalid token contract");
         require(emailAddrCommit != bytes32(0), "invalid emailAddrCommit");
@@ -436,13 +437,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         ERC20(fund.tokenAddress).transfer(recipientAddress, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
-        _transferETH(msg.sender, unclaimedFundRegistrationFee);
+        _transferETH(msg.sender, unclaimedFundClaimGas * maxFeePerGas);
 
         emit UnclaimedFundClaimed(emailAddrCommit, fund.tokenAddress, fund.amount, recipientAddress);
     }
 
     /// @notice Return unclaimed fund after expiry time
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @dev Callee should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
     function revertUnclaimedFund(bytes32 emailAddrCommit) public nonReentrant {
         UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
 
@@ -457,7 +459,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Transfer claim fee to the callee
         // This is assuming the cost of claim is same as cost of revert
         // The user who registered UF locks the ETH needed for either claim or revert
-        _transferETH(msg.sender, unclaimedFundRegistrationFee);
+        _transferETH(msg.sender, unclaimedFundClaimGas * maxFeePerGas);
 
         emit UnclaimedFundReverted(emailAddrCommit, fund.tokenAddress, fund.amount, fund.senderAddress);
     }
@@ -482,7 +484,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         // Ensure the sender has paid ETH needed for claiming the unclaimed fee
-        require(msg.value == unclaimedFundRegistrationFee, "invalid unclaimed state fee");
+        require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "invalid unclaimed state fee");
 
         require(state.length > 0, "state cannot be empty");
         require(emailAddrCommit != bytes32(0), "invalid emailAddrCommit");
@@ -518,7 +520,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param emailAddrCommit Email address commitment of the recipient
     /// @param extensionAddress Address of the extension contract
     /// @param state State to be registered
-    /// @dev This dont call `extension.registerUnclaimedState` as extension is expected to make necessary changes
+    /// @dev This dont call `extension.registerUnclaimedState` as extension is expected to make necessary changes internally
     function registerUnclaimedStateAsExtension(
         bytes32 emailAddrCommit,
         address extensionAddress,
@@ -591,6 +593,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         Extension extension = Extension(us.extensionAddress);
 
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
+        // Simulation wont work, as extension logic will depend on global variables
         try extension.claimUnclaimedState(us, recipientAddress) {
             success = true;
         } catch Error(string memory reason) {
@@ -601,7 +604,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         // Transfer claim fee to the sender (relayer)
-        _transferETH(msg.sender, unclaimedFundRegistrationFee);
+        _transferETH(msg.sender, unclaimedFundClaimGas * maxFeePerGas);
 
         emit UnclaimedStateClaimed(emailAddrCommit, recipientAddress);
     }
@@ -620,6 +623,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         Extension extension = Extension(us.extensionAddress);
 
         // Callee should get claim fee (gas reimbursement) even if extension call fails
+        // Simulation wont work, as extension logic will depend on global variables
         try extension.revertUnclaimedState(us) {
             success = true;
         } catch Error(string memory reason) {
@@ -630,7 +634,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         // Transfer claim fee to the callee to reimburse cost of calling this function
-        _transferETH(msg.sender, unclaimedFundRegistrationFee);
+        _transferETH(msg.sender, unclaimedFundClaimGas * maxFeePerGas);
 
         emit UnclaimedStateReverted(emailAddrCommit, us.senderAddress);
     }
@@ -721,8 +725,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     ) public payable nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
+        // If there is email recipient, there will be unclaimed fund/state registration
         if (emailOp.hasEmailRecipient) {
-            require(msg.value == unclaimedFundRegistrationFee, "invalid unclaimed fund fee");
+            require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "invalid unclaimed fund fee");
         }
 
         currContext = ExecutionContext({
@@ -735,28 +740,29 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             unclaimedFundRegistered: false
         });
 
+        // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
         emailNullifiers[emailOp.emailNullifier] = true;
 
+        // Execute EmailOp - wont revert on failure. Relayer will be compensated for gas even in failure.
         (success, returnData) = _executeEmailOp(emailOp);
 
-        // Refund ETH to relayer if unclaimed funds were not registered
+        uint totalFee; // Total fee in ETH to be paid to relayer
+
+        // Refund ETH to relayer if unclaimed funds / states were not registered; else add the cost to fee
         if (!currContext.unclaimedFundRegistered && !currContext.unclaimedStateRegistered) {
             _transferETH(msg.sender, msg.value);
+        } else {
+            totalFee += unclaimedFundClaimGas * maxFeePerGas;
         }
 
-        // Refund gas cost to the relayer from sender (in the fee token)
-        uint256 feeForRefund = 50000; // Rough estimate of gas cost for refund (ERC20 transfer)
-        uint256 consumedGas = initialGas - gasleft() + feeForRefund;
+        uint256 gasForREfund = 50000; // Rough estimate of gas cost for refund operation below (ERC20 transfer)
+        uint256 consumedGas = initialGas - gasleft() + gasForREfund;
+        totalFee += consumedGas * emailOp.feePerGas;
 
-        uint256 totalFee = (consumedGas * emailOp.feePerGas);
-        if (currContext.unclaimedFundRegistered || currContext.unclaimedStateRegistered) {
-            totalFee += unclaimedFundRegistrationFee;
-        }
-
-        uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
         address feeToken = _getTokenAddressFromEmailOpTokenName(emailOp.feeTokenName);
+        uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
 
         if (feeAmount > 0) {
             _transferERC20(currContext.walletAddress, msg.sender, feeToken, feeAmount);
