@@ -2,16 +2,16 @@
 pragma solidity ^0.8.9;
 
 struct RelayerConfig {
-    bytes32 randHash; // Hash of the relayer's randomnes - the one used to create pointers/vk commitments
+    bytes32 randHash; // Hash of the relayer's randomnes - the one used to create pointers and account key commitments
     string emailAddr; // relayer's email address
     string hostname; // hostname of relayer's server - used by other relayers for PSI communication
 }
 
 // Struct to represent an operation from the user
 struct EmailOp {
-    bytes32 emailAddrPointer; // emailAddressPointer of sender's account
+    bytes32 emailAddrPointer; // emailAddrPointer of sender's account
     bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
-    bytes32 recipientEmailAddrCommitment; // Commitment to recipient's email address if `hasEmailRecipient` is true
+    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
     address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
@@ -21,6 +21,8 @@ struct EmailOp {
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of ETH to be charged per gas
     uint8 extensionSubjectTemplateIndex; // Index of the extension subject template
+    bytes executeCallData; // data if the the command is "Execute"
+    address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
     bytes extensionParams; // Serialized params for the extension based on the template
@@ -39,18 +41,9 @@ struct ExtensionManagerParams {
     string extensionName; // Name of the extension to install/uninstall (like "uniswap")
 }
 
-// Struct to store context when executing an EmailOp
-struct ExecutionContext {
-    address walletAddress; // Wallet address of the user
-    address extensionAddress; // Address of extension in use
-    bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
-    bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
-    uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
-}
-
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
-    bytes32 emailAddrCommitment;
+    bytes32 emailAddrCommit;
     address senderAddress;
     address tokenAddress;
     uint256 amount;
@@ -58,8 +51,27 @@ struct UnclaimedFund {
 }
 
 struct UnclaimedState {
-    bytes32 emailAddrCommitment;
+    bytes32 emailAddrCommit;
     address extensionAddress;
     address senderAddress;
     bytes state;
+}
+
+struct AccountKeyInfo {
+    address relayer;
+    bool initialized;
+    bool nullified;
+    // Flag that tracks whether wallet salt is non-zero (invariant: walletSaltSet == (walletSalt
+    // != bytes32(0)), can help save a fresh SLOAD in certain methods.
+    bool walletSaltSet;
+    bytes32 walletSalt;
+}
+
+// Struct to store context when executing an EmailOp
+struct ExecutionContext {
+    address walletAddress; // Wallet address of the user
+    address extensionAddress; // Address of extension in use
+    bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
+    bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
+    uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
 }

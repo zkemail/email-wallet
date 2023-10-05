@@ -14,7 +14,7 @@ impl Database {
         Ok(Database { db })
     }
 
-    pub(crate) fn get_or_store_salt(&mut self, email: &str, message_id: &str) -> Result<String> {
+    pub(crate) fn get_or_store_salt(&self, email: &str, message_id: &str) -> Result<String> {
         match self.db.get(email).unwrap() {
             Some(salt) => Ok(std::str::from_utf8(&salt)?.to_string()),
             None => {
@@ -25,6 +25,14 @@ impl Database {
     }
 
     pub(crate) fn get_unhandled_emails(&self) -> Result<Vec<String>> {
+        todo!()
+    }
+
+    pub(crate) fn insert(&self, email: &str, status: EmailStatus) -> Result<()> {
+        todo!()
+    }
+
+    pub(crate) fn remove(&self, email: &str) -> Result<()> {
         todo!()
     }
 }

@@ -9,8 +9,8 @@ import "../../src/interfaces/IVerifier.sol";
 contract TestVerifier is IVerifier {
     function verifyAccountCreationProof(
         bytes32 /* relayerHash */,
-        bytes32 /* emailAddressPointer */,
-        bytes32 /* viewingKeyCommitment */,
+        bytes32 /* emailAddrPointer */,
+        bytes32 /* accountKeyCommit */,
         bytes32 /* walletSalt */,
         bytes memory /* psiPoint */,
         bytes memory proof
@@ -24,8 +24,8 @@ contract TestVerifier is IVerifier {
 
     function verifyAccountInitializaionProof(
         bytes32 /* relayerHash */,
-        bytes32 /* emailAddressPointer */,
-        bytes32 /* viewingKeyCommitment */,
+        bytes32 /* emailAddrPointer */,
+        bytes32 /* accountKeyCommit */,
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
         bytes32 /* emailNullifier */,
@@ -44,9 +44,9 @@ contract TestVerifier is IVerifier {
         string memory /* maskedSubject */,
         bytes32 /* emailNullifier */,
         bytes32 /* relayerHash */,
-        bytes32 /* emailAddressPointer */,
+        bytes32 /* emailAddrPointer */,
         bool /* hasEmailRecipient */,
-        bytes32 /* recipientEmailAddressCommitment */,
+        bytes32 /* recipientEmailAddrCommit */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
@@ -58,8 +58,8 @@ contract TestVerifier is IVerifier {
 
     function verifyClaimFundProof(
         bytes32 /* recipientRelayerHash */,
-        bytes32 /* recipientEmailAddressPointer */,
-        bytes32 /* recipientEmailAddressCommitment */,
+        bytes32 /* recipientEmailAddrPointer */,
+        bytes32 /* recipientEmailAddrCommit */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
@@ -74,7 +74,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* dkimPublicKeyHash */,
         bytes32 /* emailNullifier */,
         bytes32 /* oldRelayerRandHash */,
-        bytes32 /* oldVKCommitment */,
+        bytes32 /* oldAccountKeyCommit */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
