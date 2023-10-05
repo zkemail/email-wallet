@@ -68,6 +68,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Global mapping of command name to extension address enabled for all users by default
     mapping(string => address) public extensionOfCommand;
 
+    // Mapping of extension address to maximum gas that will be consumed by `extension.execute()`
+    // Relayer can use this to ensure user has enough tokens to pay for the gas
+    mapping(address => uint256) public maxGasOfExtension;
+
     // User level mapping of command name to extension address (pointer -> (command -> extension))
     mapping(bytes32 => mapping(string => address)) public userExtensionOfCommand;
 
@@ -689,6 +693,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Handle an EmailOp - the main function relayer should call for each Email
     /// @param emailOp EmailOp to be executed
     /// @dev Fee for unclaimed fund/state registration should be send if the recipient is an email address
+    /// @dev Relayer should make sure user has enough tokens to pay for the fee. This can be calculated as 
+    /// @dev ~ verificationGas (fixed) + executionGas (use extension.maxGas if extension) + feeForReimbursement (50k)
     function handleEmailOp(
         EmailOp calldata emailOp
     ) public payable nonReentrant returns (bool success, bytes memory returnData) {
@@ -720,7 +726,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         // Refund gas cost to the relayer from sender (in the fee token)
-        uint256 feeForRefund = 2100; // TODO : Calculate actual cost to process the refund
+        uint256 feeForRefund = 50000; // Rough estimate of gas cost for refund (ERC20 transfer)
         uint256 consumedGas = initialGas - gasleft() + feeForRefund;
 
         uint256 totalFee = (consumedGas * emailOp.feePerGas);
@@ -759,10 +765,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// Register a new extension
     /// @param name Name of the extension
     /// @param extensionAddress Address of the extension contract
-    function publishExtension(string memory name, address extensionAddress) public {
+    function publishExtension(string memory name, address extensionAddress, uint256 maxGas) public {
         require(addressOfExtension[name] == address(0), "extension name already used");
 
         addressOfExtension[name] = extensionAddress;
+        maxGasOfExtension[extensionAddress] = maxGas;
     }
 
     /// @notice Calculate the masked subject for an EmailOp from command and other params
@@ -955,7 +962,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
             currContext.extensionAddress = extAddress;
 
-            (success, returnData) = extAddress.call(
+            // We only pass pre-configured gas to execute()
+            (success, returnData) = extAddress.call{ gas: maxGasOfExtension[extAddress] }(
                 abi.encodeWithSignature(
                     "execute(bytes,uint8,address,bytes32)",
                     emailOp.extensionParams,
