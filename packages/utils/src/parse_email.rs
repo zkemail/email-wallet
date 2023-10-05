@@ -14,13 +14,14 @@ use hex;
 use cfdkim::{canonicalize_signed_email, resolve_public_key, SignerBuilder};
 use neon::prelude::*;
 use rsa::{PublicKeyParts, RsaPrivateKey};
+use serde::{Deserialize, Serialize};
 use slog;
 use std::env;
 // use trust_dns_resolver::config::{ResolverConfig, ResolverOpts};
 // use trust_dns_resolver::proto::rr::{RData, RecordType};
 // use trust_dns_resolver::AsyncResolver;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParsedEmail {
     pub canonicalized_header: Vec<u8>,
     // pub signed_header: Vec<u8>,

@@ -117,7 +117,6 @@ impl ImapClient {
             }
         }?;
 
-        // session.debug = true;
         session.select("INBOX")?;
 
         Ok(Self { session, config })
@@ -130,7 +129,6 @@ impl ImapClient {
                 Ok(uids) => {
                     let mut fetches = vec![];
                     for (idx, uid) in uids.into_iter().enumerate() {
-                        println!("uid {}", uid);
                         let fetched = self
                             .session
                             .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")?;

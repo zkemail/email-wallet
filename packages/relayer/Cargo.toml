@@ -17,3 +17,4 @@ webbrowser = "0.8.11"
 tiny_http = "0.12.0"
 lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
 ethers = "2.0.10"
+email-wallet-utils = { path = "../utils" }
