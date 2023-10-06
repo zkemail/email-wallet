@@ -20,12 +20,11 @@ struct EmailOp {
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of ETH to be charged per gas
-    uint8 extensionSubjectTemplateIndex; // Index of the extension subject template
     bytes executeCallData; // data if the the command is "Execute"
     address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
+    ExtensionParams extensionParams; // Serialized params for the extension based on the template
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
-    bytes extensionParams; // Serialized params for the extension based on the template
     bytes emailProof; // ZK Proof of Email receipt
 }
 
@@ -39,6 +38,17 @@ struct WalletParams {
 struct ExtensionManagerParams {
     string command; // Command name to set the extension for (like "swap")
     string extensionName; // Name of the extension to install/uninstall (like "uniswap")
+}
+
+struct ExtensionParams {
+    uint8 subjectTemplateIndex; // Index of the extension subject template
+    TokenAmount[] tokenAmounts; // token/amount pair extracted from the subject
+    bytes subjectParams; // Match params extracted from the subject (excpet tokenAmount), in the same order
+}
+
+struct TokenAmount {
+    string tokenName; // Name of the token to request (like "DAI")
+    uint256 amount; // Amount of the token to request (in wei)
 }
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
@@ -74,4 +84,5 @@ struct ExecutionContext {
     bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
     uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
+    mapping(address => uint256) allowanceOfToken; // Mapping of tokens and amount allowed to be requested by extension
 }
