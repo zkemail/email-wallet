@@ -564,6 +564,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 recipientEmailAddrPointer,
         bytes memory proof
     ) public nonReentrant returns (bool success, bytes memory returnData) {
+        uint256 initialGas = gasleft();
+
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[recipientEmailAddrPointer];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
@@ -592,9 +594,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         Extension extension = Extension(us.extensionAddress);
 
+        // Deducated consumed gas + 21k for eth transer from `unclaimedFundClaimGas` and pass to extension
+        uint256 gasForExt = unclaimedFundClaimGas - (initialGas - gasleft()) - 21000;
+
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
-        try extension.claimUnclaimedState(us, recipientAddress) {
+        try extension.claimUnclaimedState{gas: gasForExt}(us, recipientAddress) {
             success = true;
         } catch Error(string memory reason) {
             success = false;
@@ -614,6 +619,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     function revertUnclaimedState(
         bytes32 emailAddrCommit
     ) public nonReentrant returns (bool success, bytes memory returnData) {
+        uint256 initialGas = gasleft();
+
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.senderAddress != address(0), "unclaimed state not registered");
@@ -622,9 +629,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         Extension extension = Extension(us.extensionAddress);
 
+        // Gas consumed for verification is deducated from `unclaimedFundClaimGas` and rest is passed to extension
+        uint256 gasForExt = unclaimedFundClaimGas - (initialGas - gasleft()) - 21000;
+
         // Callee should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
-        try extension.revertUnclaimedState(us) {
+        try extension.revertUnclaimedState{gas: gasForExt}(us) {
             success = true;
         } catch Error(string memory reason) {
             success = false;
@@ -695,10 +705,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         (string memory maskedSubject, bool isExtension) = _computeMaskedSubjectForEmailOp(emailOp);
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
-        if (isExtension) {
-            require(emailOp.extensionParams.length > 0, "extension params cannot be empty");
-        }
-
         require(
             verifier.verifyEmailProof(
                 emailOp.emailDomain,
@@ -761,7 +767,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 consumedGas = initialGas - gasleft() + gasForREfund;
         totalFee += consumedGas * emailOp.feePerGas;
 
-        address feeToken = _getTokenAddressFromEmailOpTokenName(emailOp.feeTokenName);
+        address feeToken = _getAddrFromSubjectTokenName(emailOp.feeTokenName);
         uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
 
         if (feeAmount > 0) {
@@ -774,6 +780,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param amount Amount requested
     function requestTokenFromAccount(address tokenAddress, uint256 amount) public {
         require(msg.sender == currContext.extensionAddress, "invalid caller");
+        require(currContext.allowanceOfToken[tokenAddress] >= amount, "insufficient allowance");
+
+        currContext.allowanceOfToken[tokenAddress] -= amount;
 
         // TODO: Validate the requested token and amound is allowed.
         _transferERC20(currContext.walletAddress, currContext.extensionAddress, tokenAddress, amount);
@@ -808,7 +817,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(_getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName));
+            ERC20 token = ERC20(_getAddrFromSubjectTokenName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
@@ -880,10 +889,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             require(extensionAddress != address(0), "invalid command or extension");
 
+            for (uint8 i = 0; i < emailOp.extensionParams.tokenAmounts.length; i++) {
+                require(emailOp.extensionParams.tokenAmounts[i] > 0, "token amount should be >0");
+                require(_getAddrFromSubjectTokenName(emailOp.extensionParams.subjectParams[i].tokenName) != address(0), "token not supported");
+            }
+
             Extension extension = Extension(extensionAddress);
             maskedSubject = extension.computeEmailSubject(
-                emailOp.extensionParams,
-                emailOp.extensionSubjectTemplateIndex
+                emailOp.extensionParams.subjectTemplateIndex,
+                emailOp.extensionParams.tokenAmounts,
+                emailOp.extensionParams.subjectParams
             );
         }
     }
@@ -917,7 +932,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             // Token transfer for both external contract and email wallet
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
-            address tokenAddress = _getTokenAddressFromEmailOpTokenName(emailOp.walletParams.tokenName);
+            address tokenAddress = _getAddrFromSubjectTokenName(emailOp.walletParams.tokenName);
 
             (success, returnData) = _transferERC20(
                 currContext.walletAddress,
@@ -989,18 +1004,34 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
             currContext.extensionAddress = extAddress;
 
+            // Set tokenAmouns in subject allowances in context
+            for (uint8 i = 0; i < emailOp.extensionParams.tokenAmounts.length; i++) {
+                address tokenAddr = _getAddrFromSubjectTokenName(
+                    emailOp.extensionParams.subjectParams[i].tokenName
+                );
+                currContext.allowanceOfToken[tokenAddr] = emailOp.extensionParams.tokenAmounts[i];
+            }
+
             // We only pass pre-configured gas to execute()
-            (success, returnData) = extAddress.call{gas: maxGasOfExtension[extAddress]}(
-                abi.encodeWithSignature(
-                    "execute(bytes,uint8,address,bytes32)",
-                    emailOp.extensionParams,
-                    emailOp.extensionSubjectTemplateIndex,
+            try
+                Extension(extAddress).execute{gas: maxGasOfExtension[extAddress]}(
+                    emailOp.extensionParams.subjectTemplateIndex,
+                    emailOp.extensionParams.tokenAmounts,
+                    emailOp.extensionParams.subjectParams,
                     currContext.walletAddress,
                     emailOp.hasEmailRecipient,
                     emailOp.recipientETHAddr,
                     emailOp.emailNullifier
                 )
-            );
+            {
+                success = true;
+            } catch Error(string memory reason) {
+                success = false;
+                returnData = bytes(reason);
+            } catch {
+                success = false;
+                returnData = bytes("err executing extension");
+            }
         }
     }
 
@@ -1097,7 +1128,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(sent, "failed to transfer ETH");
     }
 
-    function _getTokenAddressFromEmailOpTokenName(string memory tokenName) internal view returns (address) {
+    function _getAddrFromSubjectTokenName(string memory tokenName) internal view returns (address) {
         if (Strings.equal(tokenName, "ETH")) {
             return tokenRegistry.getTokenAddress("WETH");
         }

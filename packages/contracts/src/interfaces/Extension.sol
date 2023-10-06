@@ -14,24 +14,31 @@ abstract contract Extension {
     function getSubjectTemplates() external pure virtual returns (string[] memory);
 
     /// @notice Returns the expected email subject from the given params
-    /// @param params params decoded from email subject based on the template
+    /// @param templateIndex Index of the subjectTemplate to which the subject was matched
+    /// @param tokenAmounts token/amount pairs extracted from the subject
+    /// @param subjectParams params decoded from email subject based on the template
     /// @return emailSubject Expected email subject
+    /// @dev To calculate, get the actual value of matcher in subject template from `params` arg in same order,
+    ///      except for tokenAmounts, which should be taken from `tokenAmounts` arg in the same order.
     function computeEmailSubject(
-        bytes memory params,
-        uint8 templateIndex
+        uint8 templateIndex,
+        TokenAmount[] memory tokenAmounts,
+        bytes memory subjectParams
     ) external pure virtual returns (string memory);
 
     /// Execute the extension logic
-    /// @param params Extension params in the EmailOp (decoded from email subject)
     /// @param templateIndex Index of the subjectTemplate to which the subject was matched
+    /// @param tokenAmounts token/amount pairs extracted from the subject
+    /// @param subjectParams params decoded from email subject based on the template
     /// @param wallet Address of users wallet
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
     /// @param recipientETHAddr The ETH address of the recipient in email (if any, and hasEmailRecipient = false)
     /// @param emailNullifier Nullifier of the email
     /// @dev Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` instead
     function execute(
-        bytes memory params,
         uint8 templateIndex,
+        TokenAmount[] memory tokenAmounts,
+        bytes memory subjectParams,
         address wallet,
         bool hasEmailRecipient,
         address recipientETHAddr,

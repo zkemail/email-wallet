@@ -120,12 +120,15 @@ contract EmailWalletCoreTestHelper is Test {
                 maskedSubject: "",
                 feeTokenName: "ETH",
                 feePerGas: 0,
-                extensionSubjectTemplateIndex: 0,
                 executeCallData: abi.encodePacked(""),
                 newWalletOwner: address(0),
                 walletParams: WalletParams({tokenName: "", amount: 0}),
                 extManagerParams: ExtensionManagerParams({command: "", extensionName: ""}),
-                extensionParams: abi.encodePacked(""),
+                extensionParams: ExtensionParams({
+                    subjectTemplateIndex: 0,
+                    tokenAmounts: new TokenAmount[](0),
+                    subjectParams: abi.encodePacked("")
+                }),
                 emailProof: mockProof
             });
     }
