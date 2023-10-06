@@ -66,6 +66,7 @@ contract EmailWalletCoreTestHelper is Test {
                 address(weth),
                 10 ** 10,
                 0.0001 ether,
+                0.0002 ether,
                 30 days
             )
         );
