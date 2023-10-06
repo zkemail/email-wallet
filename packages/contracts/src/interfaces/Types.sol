@@ -54,16 +54,16 @@ struct TokenAmount {
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
     bytes32 emailAddrCommit;
-    address senderAddress;
-    address tokenAddress;
+    address sender;
+    address tokenAddr;
     uint256 amount;
     uint256 expiryTime;
 }
 
 struct UnclaimedState {
     bytes32 emailAddrCommit;
-    address extensionAddress;
-    address senderAddress;
+    address extensionAddr;
+    address sender;
     bytes state;
 }
 
@@ -77,12 +77,16 @@ struct AccountKeyInfo {
     bytes32 walletSalt;
 }
 
+struct TokenAllowance {
+    address tokenAddr;
+    uint256 amount;
+}
+
 // Struct to store context when executing an EmailOp
 struct ExecutionContext {
-    address walletAddress; // Wallet address of the user
-    address extensionAddress; // Address of extension in use
+    address walletAddr; // Wallet address of the user
+    address extensionAddr; // Address of extension in use
     bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
-    uint256 receivedETH; // Amount of ETH sent by the relayer in the transaction
-    mapping(address => uint256) allowanceOfToken; // Mapping of tokens and amount allowed to be requested by extension
+    TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension
 }
