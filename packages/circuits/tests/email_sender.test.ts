@@ -10,59 +10,22 @@ const emailWalletUtils = require("../../utils");
 const option = {
     include: path.join(__dirname, "../../../node_modules")
 };
-import { hash_to_curve, point_scalar_mul } from "circom-grumpkin";
+import { genEmailSenderInput } from "../helpers/email_sender";
 import { readFileSync } from "fs";
-import { toCircomBigIntBytes } from "@zk-email/helpers/dist/binaryFormat";
-import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 
-// const zkemailHelper = require("@zk-email/helpers");
-// const grumpkin = require("circom-grumpkin");
 jest.setTimeout(360000);
 describe("Email Sender", () => {
     it("Verify a sent email", async () => {
-        const emailRaw = readFileSync(path.join(__dirname, "./emails/email_sender_test1.eml"), "utf8");
+        const emailFilePath = path.join(__dirname, "./emails/email_sender_test1.eml");
+        const emailRaw = readFileSync(emailFilePath, "utf8");
         const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
         console.log(parsedEmail.canonicalizedHeader);
-        const emailCircuitInputs = generateCircuitInputs({
-            body: Buffer.from(""),
-            message: Buffer.from(parsedEmail.canonicalizedHeader),
-            bodyHash: "",
-            rsaSignature: BigInt(parsedEmail.signature),
-            rsaPublicKey: BigInt(parsedEmail.publicKey),
-            maxMessageLength: 1024,
-            maxBodyLength: 64,
-            ignoreBodyHashCheck: true
-        });
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const senderEmailIdxes = emailWalletUtils.extractFromAddrIdxes(parsedEmail.canonicalizedHeader)[0];
-        const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
-        const domainIdx = emailWalletUtils.extractEmailDomainIdxes(fromEmailAddrPart)[0][0];
-        const subjectEmailIdxes = emailWalletUtils.extractSubjectAllIdxes(parsedEmail.canonicalizedHeader)[0];
-        const subject = parsedEmail.canonicalizedHeader.slice(subjectEmailIdxes[0], subjectEmailIdxes[1]);
-        console.log(subject);
-        const recipientEmailIdx = emailWalletUtils.extractEmailAddrIdxes(subject)[0][0];
-        console.log(recipientEmailIdx);
-        const timestampIdx = emailWalletUtils.extractTimestampIdxes(parsedEmail.canonicalizedHeader)[0][0];
-        // const recipientEmailAddr = subject.slice(recipientEmailIdx, recipientEmailIdx + 256);
-        // console.log(recipientEmailAddr);
-        // const senderEmailAddr = parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdx, senderEmailAddrIdx + 256);
-        const circuitInputs = {
-            in_padded: emailCircuitInputs.in_padded,
-            pubkey: emailCircuitInputs.pubkey,
-            signature: emailCircuitInputs.signature,
-            in_padded_len: emailCircuitInputs.in_len_padded_bytes,
-            sender_relayer_rand: relayerRand,
-            sender_email_idx: senderEmailIdxes[0],
-            subject_idx: subjectEmailIdxes[0],
-            recipient_email_idx: recipientEmailIdx,
-            domain_idx: domainIdx,
-            timestamp_idx: timestampIdx
-        };
+        const circuitInputs = await genEmailSenderInput(emailFilePath, relayerRand);
         const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
         // console.log(witness);
-        // console.log(JSON.stringify(witness.slice(0, 1 + 512 + 255)));
         const maskedSubject = "Send 0.1 ETH to ";
         const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
         for (let idx = 0; idx < paddedMaskedSubject.length; ++idx) {

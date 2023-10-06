@@ -10,45 +10,19 @@ const emailWalletUtils = require("../../utils");
 const option = {
     include: path.join(__dirname, "../../../node_modules")
 };
-import { hash_to_curve, point_scalar_mul } from "circom-grumpkin";
+import { genAccountInitInput } from "../helpers/account_init";
 import { readFileSync } from "fs";
-import { toCircomBigIntBytes } from "@zk-email/helpers/dist/binaryFormat";
-import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 
 // const zkemailHelper = require("@zk-email/helpers");
 // const grumpkin = require("circom-grumpkin");
 jest.setTimeout(360000);
 describe("Account Initialization", () => {
     it("init an account", async () => {
-        const emailRaw = readFileSync(path.join(__dirname, "./emails/account_init_test1.eml"), "utf8");
+        const emailFilePath = path.join(__dirname, "./emails/account_init_test1.eml");
+        const emailRaw = readFileSync(emailFilePath, "utf8");
         const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
-        const emailCircuitInputs = generateCircuitInputs({
-            body: Buffer.from(""),
-            message: Buffer.from(parsedEmail.canonicalizedHeader),
-            bodyHash: "",
-            rsaSignature: BigInt(parsedEmail.signature),
-            rsaPublicKey: BigInt(parsedEmail.publicKey),
-            maxMessageLength: 1024,
-            maxBodyLength: 64,
-            ignoreBodyHashCheck: true
-        });
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const senderEmailIdxes = emailWalletUtils.extractFromAddrIdxes(parsedEmail.canonicalizedHeader)[0];
-        const codeIdx = emailWalletUtils.extractInvitationCodeIdxes(parsedEmail.canonicalizedHeader)[0][0];
-        const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
-        const domainIdx = emailWalletUtils.extractEmailDomainIdxes(fromEmailAddrPart)[0][0];
-        const timestampIdx = emailWalletUtils.extractTimestampIdxes(parsedEmail.canonicalizedHeader)[0][0];
-        const circuitInputs = {
-            in_padded: emailCircuitInputs.in_padded,
-            pubkey: emailCircuitInputs.pubkey,
-            signature: emailCircuitInputs.signature,
-            in_padded_len: emailCircuitInputs.in_len_padded_bytes,
-            sender_relayer_rand: relayerRand,
-            sender_email_idx: senderEmailIdxes[0],
-            code_idx: codeIdx,
-            domain_idx: domainIdx,
-            timestamp_idx: timestampIdx
-        };
+        const circuitInputs = await genAccountInitInput(emailFilePath, relayerRand)
         const circuit = await wasm_tester(path.join(__dirname, "../src/account_init.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
@@ -68,7 +42,6 @@ describe("Account Initialization", () => {
         const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
         expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[259]);
         const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
-        // const viewingKey = "0xcdab8967452301efcdab8967452301efcdab8967452301efcdab896745230100";
         const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, expectedRelayerRandHash);
         expect(BigInt(expectedAkCommit)).toEqual(witness[260]);
         const timestamp = "1694979179";

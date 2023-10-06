@@ -4,7 +4,11 @@
   "scripts": {
     "build": "mkdir -p build && circom src/wallet.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",
     "dev-setup": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/dev-setup.ts",
-    "generate-keys": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/generate-keys.ts",
+    "gen-account-creation-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/account_creation.ts",
+    "gen-account-init-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/account_init.ts",
+    "gen-account-transport-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/account_transport.ts",
+    "gen-claim-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/claim.ts",
+    "gen-email-sender-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/email_sender.ts",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {

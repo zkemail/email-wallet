@@ -7,6 +7,7 @@ import * as path from "path";
 const p = "21888242871839275222246405745257275088548364400416034343698204186575808495617";
 const field = new ff.F1Field(p);
 const emailWalletUtils = require("../../utils");
+import { genAccountCreationInput } from "../helpers/account_creation";
 const option = {
     include: path.join(__dirname, "../../../node_modules")
 };
@@ -19,11 +20,7 @@ describe("Account Creation", () => {
         const paddedEmailAddr = emailWalletUtils.padEmailAddr(emailAddr);
         const relayerRand = emailWalletUtils.genRelayerRand();
         const accountKey = emailWalletUtils.genAccountKey();
-        const circuitInputs = {
-            email_addr: paddedEmailAddr,
-            relayer_rand: relayerRand,
-            account_key: accountKey,
-        };
+        const circuitInputs = await genAccountCreationInput(emailAddr, relayerRand, accountKey);
         const circuit = await wasm_tester(path.join(__dirname, "../src/account_creation.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);

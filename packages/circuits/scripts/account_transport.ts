@@ -1,26 +1,28 @@
 /**
  * 
- * This script is for generating input for the circuit.
- * 
- * Usage: npx ts-node packages/circuits/scripts/generate-input.ts --email-file <path-to-eml-file> --nonce <nonce> --output <path-to-output> 
+ * This script is for generating input for the account creation circuit.
  * 
  */
 
 
 import { program } from "commander";
 import fs from "fs";
-import { generateWalletCircuitInputsFromEmail } from "../helpers/input";
+import { promisify } from "util";
+import { genAccountTransportInput } from "../helpers/account_transport";
 
 program
   .requiredOption(
     "--email-file <string>",
-    "Full path to the .eml file for generating inputs"
+    "Path to an email file"
+  )
+  .requiredOption(
+    "--relayer-rand-hash <string>",
+    "Relayer's randomness hash"
   )
   .requiredOption(
     "--output <string>",
-    "Path of input.json to write the generated inputs"
+    "Path of a json file to write the generated inputs"
   )
-  .requiredOption("--nonce <string>", "Nonce")
   .option("--silent", "No console logs");
 
 program.parse();
@@ -39,16 +41,10 @@ async function generate() {
 
   log("Generating Inputs for:", args);
 
-  const emailBuffer = fs.readFileSync(args.emailFile);
-
-  const circuitInputs = await generateWalletCircuitInputsFromEmail(
-    emailBuffer,
-    args.nonce
-  );
-
+  const circuitInputs = await genAccountTransportInput(args.emailFile, args.relayerRandHash);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
-  fs.writeFileSync(args.output, JSON.stringify(circuitInputs, null, 2));
+  await promisify(fs.writeFile)(args.output, JSON.stringify(circuitInputs, null, 2));
 
   log("Inputs written to", args.output);
 }
