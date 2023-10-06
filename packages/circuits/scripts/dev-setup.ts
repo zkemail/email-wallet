@@ -13,6 +13,24 @@ import { zKey } from "snarkjs";
 import https from "https";
 import fs from "fs";
 import path from "path";
+import { program } from "commander";
+
+program
+  .requiredOption(
+    "--output <string>",
+    "Path to the directory storing output files"
+  )
+  .option("--silent", "No console logs");
+
+program.parse();
+const args = program.opts();
+
+function log(...message: any) {
+  if (!args.silent) {
+    console.log(...message);
+  }
+}
+
 
 let { ZKEY_ENTROPY, ZKEY_BEACON } = process.env;
 if (ZKEY_ENTROPY == null) {
@@ -24,8 +42,8 @@ if (ZKEY_BEACON == null) {
 
 const phase1Url =
   "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau";
-const buildDir = path.join(__dirname, "../build");
-const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
+// const buildDir = path.join(__dirname, "../build");
+// const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
 // const r1cPath = path.join(buildDir, "wallet.r1cs");
 const solidityTemplate = path.join(
   require.resolve("snarkjs"),
@@ -37,9 +55,6 @@ const solidityTemplate = path.join(
 // const vKeyPath = path.join(buildDir, "vkey.json");
 // const solidityVerifierPath = path.join(buildDir, "verifier.sol");
 
-function log(...message: any) {
-  console.log(`\n`, ...message, "\n");
-}
 
 // async function askBeacon() {
 //   if (!ZKEY_BEACON) {
@@ -59,7 +74,7 @@ function log(...message: any) {
 //   }
 // }
 
-async function downloadPhase1() {
+async function downloadPhase1(phase1Path: string) {
   if (!fs.existsSync(phase1Path)) {
     log(`✘ Phase 1 not found at ${phase1Path}`);
     log(`䷢ Downloading Phase 1`);
@@ -116,7 +131,10 @@ async function generateKeys(
 }
 
 async function exec() {
-  await downloadPhase1();
+  const buildDir = args.output;
+  const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
+
+  await downloadPhase1(phase1Path);
   log("✓ Phase 1:", phase1Path);
 
   const accountCreationR1csPath = path.join(buildDir, "account_creation.r1cs");

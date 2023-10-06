@@ -1803,6 +1803,14 @@
     commander "^11.0.0"
     snarkjs "^0.7.0"
 
+"@zk-email/zk-regex-circom@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.1.0.tgz#c2979ee576ae0ab40681c1bfe7b04f3cc585ed3b"
+  integrity sha512-1n98Nr6yPSDNVpHacII0t8HUwZnkEUzhmAEFh2S1FATRETu/1Wfc6Redh9g4xCcKABmB8uKmPjUEa9jY5xuoPA==
+  dependencies:
+    commander "^11.0.0"
+    snarkjs "^0.7.0"
+
 "abdk-libraries-circom@https://github.com/abdk-consulting/abdk-libraries-circom.git":
   version "0.0.0"
   resolved "https://github.com/abdk-consulting/abdk-libraries-circom.git#a1d8dd18eb3da49cd26c1f0ae436576545f11485"

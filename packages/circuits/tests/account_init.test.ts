@@ -33,11 +33,11 @@ describe("Account Initialization", () => {
             ignoreBodyHashCheck: true
         });
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr.json"), "utf8"))[0];
-        const codeIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0][0];
+        const senderEmailIdxes = emailWalletUtils.extractFromAddrIdxes(parsedEmail.canonicalizedHeader)[0];
+        const codeIdx = emailWalletUtils.extractInvitationCodeIdxes(parsedEmail.canonicalizedHeader)[0][0];
         const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
-        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/email_domain.json"), "utf8"))[0][0];
-        const timestampIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/timestamp.json"), "utf8"))[0][0];
+        const domainIdx = emailWalletUtils.extractEmailDomainIdxes(fromEmailAddrPart)[0][0];
+        const timestampIdx = emailWalletUtils.extractTimestampIdxes(parsedEmail.canonicalizedHeader)[0][0];
         const circuitInputs = {
             in_padded: emailCircuitInputs.in_padded,
             pubkey: emailCircuitInputs.pubkey,

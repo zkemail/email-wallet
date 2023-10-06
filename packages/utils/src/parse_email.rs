@@ -2,7 +2,7 @@ use itertools::Itertools;
 // use cfdkim::*;
 // use mail_auth::common::verify::VerifySignature;
 // use mail_auth::trust_dns_resolver::proto::rr::dnssec::public_key;
-use std::error::Error;
+use std::{error::Error, fs::File};
 // use trust_dns_resolver::error::ResolveError;
 // use mail_auth::Error;
 use crate::statics::*;
@@ -13,91 +13,88 @@ use hex;
 
 use cfdkim::{canonicalize_signed_email, resolve_public_key, SignerBuilder};
 use neon::prelude::*;
-use rsa::{PublicKeyParts, RsaPrivateKey};
+use rsa::PublicKeyParts;
 use serde::{Deserialize, Serialize};
 use slog;
 use std::env;
+use zk_regex_apis::extract_substrs::*;
 // use trust_dns_resolver::config::{ResolverConfig, ResolverOpts};
 // use trust_dns_resolver::proto::rr::{RData, RecordType};
 // use trust_dns_resolver::AsyncResolver;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParsedEmail {
-    pub canonicalized_header: Vec<u8>,
-    // pub signed_header: Vec<u8>,
+    pub canonicalized_header: String,
+    pub canonicalized_body: String,
     pub signature: Vec<u8>,
     pub public_key: Vec<u8>,
-    // pub dkim_domain: String,
 }
 
-pub async fn parse_email(raw_email: &str) -> Result<ParsedEmail> {
-    let logger = slog::Logger::root(slog::Discard, slog::o!());
-    let public_key = resolve_public_key(&logger, raw_email.as_bytes())
-        .await
+impl ParsedEmail {
+    pub async fn new_from_raw_email(raw_email: &str) -> Result<Self> {
+        let logger = slog::Logger::root(slog::Discard, slog::o!());
+        let public_key = resolve_public_key(&logger, raw_email.as_bytes())
+            .await
+            .unwrap();
+        let public_key = match public_key {
+            cfdkim::DkimPublicKey::Rsa(pk) => pk,
+            _ => panic!("not supportted public key type."),
+        };
+        let (canonicalized_header, canonicalized_body, signature_bytes) =
+            canonicalize_signed_email(&raw_email.as_bytes()).unwrap();
+        let parsed_email = ParsedEmail {
+            canonicalized_header: String::from_utf8(canonicalized_header)?,
+            canonicalized_body: String::from_utf8(canonicalized_body)?,
+            signature: signature_bytes.into_iter().collect_vec(),
+            public_key: public_key.n().to_bytes_be(),
+        };
+        Ok(parsed_email)
+    }
+
+    pub fn get_from_addr(&self) -> Result<String> {
+        let idxes = extract_from_addr_idxes(&self.canonicalized_header)?[0];
+        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
+
+    pub fn get_email_domain(&self) -> Result<String> {
+        let idxes = extract_from_addr_idxes(&self.canonicalized_header)?[0];
+        let from_addr = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        let idxes = extract_email_domain_idxes(&from_addr)?[0];
+        let str = from_addr[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
+
+    pub fn get_subject_all(&self) -> Result<String> {
+        let idxes = extract_subject_all_idxes(&self.canonicalized_header)?[0];
+        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
+
+    pub fn get_timestamp(&self) -> Result<String> {
+        let idxes = extract_timestamp_idxes(&self.canonicalized_header)?[0];
+        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
+
+    pub fn get_invitation_code(&self) -> Result<String> {
+        let regex_config = serde_json::from_str(include_str!(
+            "../../circuits/src/regexes/invitation_code.json"
+        ))
         .unwrap();
-    let public_key = match public_key {
-        cfdkim::DkimPublicKey::Rsa(pk) => pk,
-        _ => panic!("not supportted public key type."),
-    };
-    let (canonicalized_header, _, signature_bytes) =
-        canonicalize_signed_email(&raw_email.as_bytes()).unwrap();
-    // let resolver = Resolver::new_cloudflare_tls()?;
-    // let authenticated_message = AuthenticatedMessage::parse(raw_email.as_bytes())
-    //     .ok_or_else(|| anyhow!("AuthenticatedMessage is not found."))?;
+        let idxes = extract_substr_idxes(&self.canonicalized_header, &regex_config)?[0];
+        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
 
-    // // Validate signature
-    // let result = resolver.verify_dkim(&authenticated_message).await;
-    // for s in result.iter() {
-    //     if s.result() != &DkimResult::Pass {
-    //         return Err(anyhow!("DKIM validation failed for {:?}.", s));
-    //     }
-    // }
-
-    // // Extract the parsed + canonicalized headers along with the signed value for them
-    // let (canonicalized_header, signed_header) = authenticated_message
-    //     .get_canonicalized_header()
-    //     .or_else(|err| Err(anyhow!("canonicalized header is not extracted: {}", err)))?;
-    // let signature = result[0]
-    //     .signature()
-    //     .ok_or_else(|| anyhow!("signature is not found"))?;
-
-    // let dkim_domain = signature.domain_key();
-    // let public_key_str = get_public_key(&dkim_domain).await?;
-    // let public_key = general_purpose::STANDARD.decode(&public_key_str)?;
-    // public_key_str.as_bytes().to_vec();
-    let parsed_email = ParsedEmail {
-        canonicalized_header,
-        signature: signature_bytes.into_iter().collect_vec(),
-        public_key: public_key.n().to_bytes_be(),
-    };
-    Ok(parsed_email)
+    pub fn get_email_addr_in_subject(&self) -> Result<String> {
+        let idxes = extract_subject_all_idxes(&self.canonicalized_header)?[0];
+        let subject = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        let idxes = extract_email_addr_idxes(&subject)?[0];
+        let str = subject[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
 }
-
-// async fn get_public_key(domain: &str) -> Result<String> {
-//     let resolver = AsyncResolver::tokio(ResolverConfig::default(), ResolverOpts::default());
-//     let response = resolver.lookup(domain, RecordType::TXT).await?;
-//     // println!("Response: {:?}", response);
-//     for record in response.iter() {
-//         if let RData::TXT(ref txt) = *record {
-//             let txt_data = txt.txt_data();
-//             // Format txt data to convert from u8 to string
-//             let data_bytes: Vec<u8> = txt_data.iter().flat_map(|b| b.as_ref()).cloned().collect();
-//             let data = String::from_utf8_lossy(&data_bytes);
-//             // println!("Data from txt record: {:?}", data);
-
-//             if data.contains("k=rsa;") {
-//                 let parts: Vec<_> = data.split("; ").collect();
-//                 for part in parts {
-//                     if part.starts_with("p=") {
-//                         assert_eq!(part.strip_prefix("p=").unwrap(), part[2..].to_string());
-//                         return Ok(part.strip_prefix("p=").unwrap().to_string());
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     return Err(anyhow!("RSA public key is not found."));
-// }
 
 pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
     let raw_email = cx.argument::<JsString>(0)?.value(&mut cx);
@@ -106,14 +103,13 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
     let rt = runtime(&mut cx)?;
 
     rt.spawn(async move {
-        let parsed_email = parse_email(&raw_email).await;
+        let parsed_email = ParsedEmail::new_from_raw_email(&raw_email).await;
         deferred.settle_with(&channel, move |mut cx| {
             match parsed_email {
                 // Resolve the promise with the release date
                 Ok(parsed_email) => {
                     let obj = cx.empty_object();
-                    let canonicalized_header =
-                        cx.string(&String::from_utf8(parsed_email.canonicalized_header).unwrap());
+                    let canonicalized_header = cx.string(parsed_email.canonicalized_header);
                     obj.set(&mut cx, "canonicalizedHeader", canonicalized_header)?;
                     // let signed_header = cx.string(
                     //     "0x".to_string() + hex::encode(parsed_email.signed_header).as_str(),
@@ -143,53 +139,67 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
     Ok(promise)
 }
 
-// pub fn extract_from(email: &str) -> Result<String, Box<dyn Error>> {
-//     let mut from_addresses: Vec<String> = Vec::new();
-//     let mut email_lines = email.lines();
-//     while let Some(line) = email_lines.next() {
-//         if line.starts_with("From:") {
-//             let from_line = line;
-//             let email_start = from_line.find('<');
-//             let email_end = from_line.find('>');
-//             if let (Some(start), Some(end)) = (email_start, email_end) {
-//                 let from = &from_line[start + 1..end];
-//                 println!("From email address: {}", from);
-//                 from_addresses.push(from.to_string());
-//             }
-//         }
-//     }
+pub fn extract_invitation_code_idxes_node(mut cx: FunctionContext) -> JsResult<JsArray> {
+    let input_str = cx.argument::<JsString>(0)?.value(&mut cx);
+    let regex_config = serde_json::from_str(include_str!(
+        "../../circuits/src/regexes/invitation_code.json"
+    ))
+    .unwrap();
+    let substr_idxes = match extract_substr_idxes(&input_str, &regex_config) {
+        Ok(substr_idxes) => substr_idxes,
+        Err(e) => return cx.throw_error(e.to_string()),
+    };
+    let js_array = JsArray::new(&mut cx, substr_idxes.len() as u32);
+    for (i, (start_idx, end_idx)) in substr_idxes.iter().enumerate() {
+        let start_end_array = JsArray::new(&mut cx, 2u32);
+        let start_idx = cx.number(*start_idx as f64);
+        start_end_array.set(&mut cx, 0, start_idx)?;
+        let end_idx = cx.number(*end_idx as f64);
+        start_end_array.set(&mut cx, 1, end_idx)?;
+        js_array.set(&mut cx, i as u32, start_end_array)?;
+    }
+    Ok(js_array)
+}
 
-//     if !from_addresses.is_empty() {
-//         return Ok(from_addresses.join(", "));
-//     }
-//     Err("Could not find from email address".into())
-// }
+#[cfg(test)]
+mod test {
+    use super::*;
 
-// pub fn extract_subject(email: &str) -> Result<String, Box<dyn Error>> {
-//     if let Some(subject_start) = email.find("Subject:") {
-//         let subject_line_start = &email[subject_start..];
-//         if let Some(subject_end) = subject_line_start.find("\r\n") {
-//             let subject_line = &subject_line_start[..subject_end];
-//             println!("Subject line: {}", subject_line);
-//             return Ok(subject_line.to_string());
-//         }
-//     }
-//     Err("Could not find subject".into())
-// }
+    #[tokio::test]
+    async fn test_extractions_from_email1() {
+        let raw_email = include_str!("../../circuits/tests/emails/email_sender_test1.eml");
+        let parsed_email = ParsedEmail::new_from_raw_email(raw_email).await.unwrap();
+        let from_addr = parsed_email.get_from_addr().unwrap();
+        assert_eq!(from_addr, "suegamisora@gmail.com");
+        let email_domain = parsed_email.get_email_domain().unwrap();
+        assert_eq!(email_domain, "gmail.com");
+        let subject_all = parsed_email.get_subject_all().unwrap();
+        assert_eq!(subject_all, "Send 0.1 ETH to alice@gmail.com");
+        let timestamp = parsed_email.get_timestamp().unwrap();
+        assert_eq!(timestamp, "1694989812");
+        let recipient = parsed_email.get_email_addr_in_subject().unwrap();
+        assert_eq!(recipient, "alice@gmail.com");
+    }
 
-// pub fn extract_message_id(email: &str) -> Result<String, Box<dyn Error>> {
-//     if let Some(message_id_start) = email.find("Message-ID:") {
-//         let message_id_line_start = &email[message_id_start..];
-//         if let Some(message_id_end) = message_id_line_start.find("\r\n") {
-//             let message_id_line = &message_id_line_start[..message_id_end];
-//             let email_start = message_id_line.find('<');
-//             let email_end = message_id_line.find('>');
-//             if let (Some(start), Some(end)) = (email_start, email_end) {
-//                 let message_id = &message_id_line[start + 1..end];
-//                 println!("message_id value: {}", message_id);
-//                 return Ok(message_id.to_string());
-//             }
-//         }
-//     }
-//     Err("Could not find message_id value".into())
-// }
+    #[tokio::test]
+    async fn test_extractions_from_email2() {
+        let raw_email = include_str!("../../circuits/tests/emails/account_init_test1.eml");
+        let parsed_email = ParsedEmail::new_from_raw_email(raw_email).await.unwrap();
+        let from_addr = parsed_email.get_from_addr().unwrap();
+        assert_eq!(from_addr, "suegamisora@gmail.com");
+        let email_domain = parsed_email.get_email_domain().unwrap();
+        assert_eq!(email_domain, "gmail.com");
+        let subject_all = parsed_email.get_subject_all().unwrap();
+        assert_eq!(
+            subject_all,
+            "This is a test. CODE:0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd"
+        );
+        let timestamp = parsed_email.get_timestamp().unwrap();
+        assert_eq!(timestamp, "1694979179");
+        let invitation_code = parsed_email.get_invitation_code().unwrap();
+        assert_eq!(
+            invitation_code,
+            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd"
+        );
+    }
+}

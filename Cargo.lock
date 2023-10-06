@@ -5120,8 +5120,8 @@ dependencies = [
 
 [[package]]
 name = "zk-regex-apis"
-version = "1.0.1"
-source = "git+https://github.com/zkemail/zk-regex.git?branch=main#f5fcfeac8f2b140602b9192d844af332189fce95"
+version = "1.1.0"
+source = "git+https://github.com/zkemail/zk-regex.git?branch=main#ac91a70a87f5b85007ba27b46f66493b66e0b9cc"
 dependencies = [
  "fancy-regex",
  "itertools 0.10.5",
@@ -5134,7 +5134,7 @@ dependencies = [
 [[package]]
 name = "zk-regex-compiler"
 version = "1.0.1"
-source = "git+https://github.com/zkemail/zk-regex.git?branch=main#f5fcfeac8f2b140602b9192d844af332189fce95"
+source = "git+https://github.com/zkemail/zk-regex.git?branch=main#ac91a70a87f5b85007ba27b46f66493b66e0b9cc"
 dependencies = [
  "clap",
  "fancy-regex",

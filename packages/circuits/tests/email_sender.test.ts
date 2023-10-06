@@ -34,15 +34,15 @@ describe("Email Sender", () => {
             ignoreBodyHashCheck: true
         });
         const relayerRand = emailWalletUtils.genRelayerRand();
-        const senderEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr.json"), "utf8"))[0];
+        const senderEmailIdxes = emailWalletUtils.extractFromAddrIdxes(parsedEmail.canonicalizedHeader)[0];
         const fromEmailAddrPart = parsedEmail.canonicalizedHeader.slice(senderEmailIdxes[0], senderEmailIdxes[1]);
-        const domainIdx = emailWalletUtils.extractSubstrIdxes(fromEmailAddrPart, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/email_domain.json"), "utf8"))[0][0];
-        const subjectEmailIdxes = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/subject_all.json"), "utf8"))[0];
+        const domainIdx = emailWalletUtils.extractEmailDomainIdxes(fromEmailAddrPart)[0][0];
+        const subjectEmailIdxes = emailWalletUtils.extractSubjectAllIdxes(parsedEmail.canonicalizedHeader)[0];
         const subject = parsedEmail.canonicalizedHeader.slice(subjectEmailIdxes[0], subjectEmailIdxes[1]);
         console.log(subject);
-        const recipientEmailIdx = emailWalletUtils.extractSubstrIdxes(subject, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/email_addr.json"), "utf8"))[0][0];
+        const recipientEmailIdx = emailWalletUtils.extractEmailAddrIdxes(subject)[0][0];
         console.log(recipientEmailIdx);
-        const timestampIdx = emailWalletUtils.extractSubstrIdxes(parsedEmail.canonicalizedHeader, readFileSync(path.join(__dirname, "../../../node_modules/@zk-email/zk-regex-circom/circuits/common/timestamp.json"), "utf8"))[0][0];
+        const timestampIdx = emailWalletUtils.extractTimestampIdxes(parsedEmail.canonicalizedHeader)[0][0];
         // const recipientEmailAddr = subject.slice(recipientEmailIdx, recipientEmailIdx + 256);
         // console.log(recipientEmailAddr);
         // const senderEmailAddr = parsedEmail.canonicalizedHeader.slice(senderEmailAddrIdx, senderEmailAddrIdx + 256);

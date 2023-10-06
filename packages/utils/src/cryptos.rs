@@ -1,6 +1,7 @@
 use std::convert::TryInto;
 use std::str::FromStr;
 
+use crate::converters::{field2hex, hex2field, hex2field_node};
 use anyhow;
 use halo2curves::ff::derive::rand_core::OsRng;
 use halo2curves::ff::{Field, PrimeField};
@@ -170,18 +171,18 @@ pub fn email_nullifier(signature: &[u8]) -> Result<Fr, PoseidonError> {
 pub fn gen_relayer_rand_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let mut rng = OsRng;
     let relayer_rand = RelayerRand::new(&mut rng);
-    let relayer_rand_str = field2str(&relayer_rand.0);
+    let relayer_rand_str = field2hex(&relayer_rand.0);
     Ok(cx.string(relayer_rand_str))
 }
 
 pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let relayer_rand = cx.argument::<JsString>(0)?.value(&mut cx);
-    let relayer_rand = str2field_node(&mut cx, &relayer_rand)?;
+    let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
     let relayer_rand_hash = match RelayerRand(relayer_rand).hash() {
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("RelayerRand hash failed: {}", e)),
     };
-    let relayer_rand_hash_str = field2str(&relayer_rand_hash);
+    let relayer_rand_hash_str = field2hex(&relayer_rand_hash);
     Ok(cx.string(relayer_rand_hash_str))
 }
 
@@ -215,33 +216,33 @@ pub fn pad_email_addr_node(mut cx: FunctionContext) -> JsResult<JsArray> {
 pub fn email_addr_pointer_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
     let relayer_rand = cx.argument::<JsString>(1)?.value(&mut cx);
-    let relayer_rand = str2field_node(&mut cx, &relayer_rand)?;
+    let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
     let email_addr_pointer = match padded_email_addr.to_pointer(&RelayerRand(relayer_rand)) {
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("EmailAddrPointer failed: {}", e)),
     };
-    let email_addr_pointer_str = field2str(&email_addr_pointer);
+    let email_addr_pointer_str = field2hex(&email_addr_pointer);
     Ok(cx.string(email_addr_pointer_str))
 }
 
 pub fn email_addr_commit_rand_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let mut rng = OsRng;
     let commit_rand = Fr::random(&mut rng);
-    let commit_rand_str = field2str(&commit_rand);
+    let commit_rand_str = field2hex(&commit_rand);
     Ok(cx.string(commit_rand_str))
 }
 
 pub fn email_addr_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
     let rand = cx.argument::<JsString>(1)?.value(&mut cx);
-    let rand = str2field_node(&mut cx, &rand)?;
+    let rand = hex2field_node(&mut cx, &rand)?;
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
     let email_addr_commit = match padded_email_addr.to_commitment(&rand) {
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("EmailAddrCommit failed: {}", e)),
     };
-    let email_addr_commit_str = field2str(&email_addr_commit);
+    let email_addr_commit_str = field2hex(&email_addr_commit);
     Ok(cx.string(email_addr_commit_str))
 }
 
@@ -258,14 +259,14 @@ pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResul
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("EmailAddrCommit failed: {}", e)),
     };
-    let email_addr_commit_str = field2str(&email_addr_commit);
+    let email_addr_commit_str = field2hex(&email_addr_commit);
     Ok(cx.string(email_addr_commit_str))
 }
 
 pub fn gen_account_key_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let mut rng = OsRng;
     let account_key = AccountKey::new(&mut rng);
-    let account_key_str = field2str(&account_key.0);
+    let account_key_str = field2hex(&account_key.0);
     Ok(cx.string(account_key_str))
 }
 
@@ -273,26 +274,26 @@ pub fn account_key_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let account_key = cx.argument::<JsString>(0)?.value(&mut cx);
     let email_addr = cx.argument::<JsString>(1)?.value(&mut cx);
     let relayer_rand_hash = cx.argument::<JsString>(2)?.value(&mut cx);
-    let account_key = str2field_node(&mut cx, &account_key)?;
+    let account_key = hex2field_node(&mut cx, &account_key)?;
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
-    let relayer_rand_hash = str2field_node(&mut cx, &relayer_rand_hash)?;
+    let relayer_rand_hash = hex2field_node(&mut cx, &relayer_rand_hash)?;
     let account_key_commit =
         match AccountKey(account_key).to_commitment(&padded_email_addr, &relayer_rand_hash) {
             Ok(fr) => fr,
             Err(e) => return cx.throw_error(&format!("AccountKeyCommit failed: {}", e)),
         };
-    let account_key_commit_str = field2str(&account_key_commit);
+    let account_key_commit_str = field2hex(&account_key_commit);
     Ok(cx.string(account_key_commit_str))
 }
 
 pub fn wallet_salt_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let account_key = cx.argument::<JsString>(0)?.value(&mut cx);
-    let account_key = str2field_node(&mut cx, &account_key)?;
+    let account_key = hex2field_node(&mut cx, &account_key)?;
     let wallet_salt = match AccountKey(account_key).to_wallet_salt() {
         Ok(wallet_salt) => wallet_salt,
         Err(e) => return cx.throw_error(&format!("WalletSalt failed: {}", e)),
     };
-    let wallet_salt_str = field2str(&wallet_salt.0);
+    let wallet_salt_str = field2hex(&wallet_salt.0);
     Ok(cx.string(wallet_salt_str))
 }
 
@@ -318,7 +319,7 @@ pub fn public_key_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
         Ok(hash_field) => hash_field,
         Err(e) => return cx.throw_error(&format!("public_key_hash failed: {}", e)),
     };
-    let hash_str = field2str(&hash_field);
+    let hash_str = field2hex(&hash_field);
     Ok(cx.string(hash_str))
 }
 
@@ -333,83 +334,6 @@ pub fn email_nullifier_node(mut cx: FunctionContext) -> JsResult<JsString> {
         Ok(nullifier) => nullifier,
         Err(e) => return cx.throw_error(&format!("email_nullifier failed: {}", e)),
     };
-    let nullifier_str = field2str(&nullifier);
+    let nullifier_str = field2hex(&nullifier);
     Ok(cx.string(nullifier_str))
-}
-
-fn str2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
-    // if &input_strs[0..2] != "0x" {
-    //     return cx.throw_error(&format!(
-    //         "the input string {} must be hex string with 0x prefix",
-    //         &input_strs
-    //     ));
-    // }
-    // let mut bytes = match hex::decode(&input_strs[2..]) {
-    //     Ok(bytes) => bytes,
-    //     Err(e) => {
-    //         return cx.throw_error(&format!(
-    //             "the input string {} is invalid hex: {}",
-    //             &input_strs, e
-    //         ))
-    //     }
-    // };
-    // bytes.reverse();
-    // if bytes.len() != 32 {
-    //     return cx.throw_error(&format!(
-    //         "the input string {} must be 32 bytes but is {} bytes",
-    //         &input_strs,
-    //         bytes.len()
-    //     ));
-    // }
-    // let bytes: [u8; 32] = match bytes.try_into() {
-    //     Ok(bytes) => bytes,
-    //     Err(e) => return cx.throw_error(&format!("the bytes {:?} is not valid 32 bytes", e)),
-    // };
-    // let field = Fr::from_bytes(&bytes).expect("fail to convert bytes to a field value");
-    // Ok(field)
-    match str2field(input_strs) {
-        Ok(field) => Ok(field),
-        Err(e) => cx.throw_error(e.to_string()),
-    }
-}
-
-pub fn str2field(input_strs: &str) -> anyhow::Result<Fr> {
-    if &input_strs[0..2] != "0x" {
-        return Err(anyhow::anyhow!(format!(
-            "the input string {} must be hex string with 0x prefix",
-            &input_strs
-        )));
-    }
-    let mut bytes = match hex::decode(&input_strs[2..]) {
-        Ok(bytes) => bytes,
-        Err(e) => {
-            return Err(anyhow::anyhow!(format!(
-                "the input string {} is invalid hex: {}",
-                &input_strs, e
-            )));
-        }
-    };
-    bytes.reverse();
-    if bytes.len() != 32 {
-        return Err(anyhow::anyhow!(format!(
-            "the input string {} must be 32 bytes but is {} bytes",
-            &input_strs,
-            bytes.len()
-        )));
-    }
-    let bytes: [u8; 32] = match bytes.try_into() {
-        Ok(bytes) => bytes,
-        Err(e) => {
-            return Err(anyhow::anyhow!(format!(
-                "the bytes {:?} is not valid 32 bytes",
-                e
-            )))
-        }
-    };
-    let field = Fr::from_bytes(&bytes).expect("fail to convert bytes to a field value");
-    Ok(field)
-}
-
-pub fn field2str(field: &Fr) -> String {
-    format!("{:?}", field)
 }

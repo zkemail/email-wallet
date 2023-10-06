@@ -11,13 +11,14 @@ const option = {
     include: path.join(__dirname, "../../../node_modules")
 };
 import { readFileSync } from "fs";
+
 // const grumpkin = require("circom-grumpkin");
 jest.setTimeout(120000);
 describe("Invitation Code Regex", () => {
     it("invitation code", async () => {
         const codeStr = "CODE:0x123abc";
-        const prefixLen = "CODE:0x".length;
-        const revealed = "123abc";
+        // const prefixLen = "CODE:0x".length;
+        // const revealed = "123abc";
         const paddedStr = emailWalletUtils.padString(codeStr, 256);
         const circuitInputs = {
             msg: paddedStr,
@@ -27,15 +28,20 @@ describe("Invitation Code Regex", () => {
         await circuit.checkConstraints(witness);
         // console.log(witness);
         expect(1n).toEqual(witness[1]);
-        for (let idx = 0; idx < revealed.length; ++idx) {
-            expect(BigInt(paddedStr[prefixLen + idx])).toEqual(witness[2 + prefixLen + idx]);
+        const prefixIdxes = emailWalletUtils.extractInvitationCodeIdxes(codeStr)[0];
+        for (let idx = 0; idx < 256; ++idx) {
+            if (idx >= prefixIdxes[0] && idx < prefixIdxes[1]) {
+                expect(BigInt(paddedStr[idx])).toEqual(witness[2 + idx]);
+            } else {
+                expect(0n).toEqual(witness[2 + idx]);
+            }
         }
     });
 
     it("invitation code in the subject", async () => {
         const codeStr = "subject: Email Wallet CODE:0x123abc";
-        const prefixLen = "subject: Email Wallet CODE:0x".length;
-        const revealed = "123abc";
+        // const prefixLen = "subject: Email Wallet CODE:0x".length;
+        // const revealed = "123abc";
         const paddedStr = emailWalletUtils.padString(codeStr, 256);
         const circuitInputs = {
             msg: paddedStr,
@@ -45,10 +51,15 @@ describe("Invitation Code Regex", () => {
         await circuit.checkConstraints(witness);
         // console.log(witness);
         expect(1n).toEqual(witness[1]);
-        const revealedStartIdx = emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0][0];
+        const prefixIdxes = emailWalletUtils.extractInvitationCodeIdxes(codeStr)[0];
+        // const revealedStartIdx = emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8"))[0][0];
         // console.log(emailWalletUtils.extractSubstrIdxes(codeStr, readFileSync(path.join(__dirname, "../src/regexes/invitation_code.json"), "utf8")));
-        for (let idx = 0; idx < revealed.length; ++idx) {
-            expect(BigInt(paddedStr[revealedStartIdx + idx])).toEqual(witness[2 + prefixLen + idx]);
+        for (let idx = 0; idx < 256; ++idx) {
+            if (idx >= prefixIdxes[0] && idx < prefixIdxes[1]) {
+                expect(BigInt(paddedStr[idx])).toEqual(witness[2 + idx]);
+            } else {
+                expect(0n).toEqual(witness[2 + idx]);
+            }
         }
     });
 
