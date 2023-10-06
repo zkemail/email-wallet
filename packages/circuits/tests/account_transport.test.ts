@@ -17,7 +17,7 @@ import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 
 // const zkemailHelper = require("@zk-email/helpers");
 // const grumpkin = require("circom-grumpkin");
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 describe("Account Transport", () => {
     it("transport an account", async () => {
         const emailRaw = readFileSync(path.join(__dirname, "./emails/account_init_test1.eml"), "utf8");

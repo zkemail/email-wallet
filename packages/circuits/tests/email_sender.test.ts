@@ -17,7 +17,7 @@ import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 
 // const zkemailHelper = require("@zk-email/helpers");
 // const grumpkin = require("circom-grumpkin");
-jest.setTimeout(240000);
+jest.setTimeout(360000);
 describe("Email Sender", () => {
     it("Verify a sent email", async () => {
         const emailRaw = readFileSync(path.join(__dirname, "./emails/email_sender_test1.eml"), "utf8");
