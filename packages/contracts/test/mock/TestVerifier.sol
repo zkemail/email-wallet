@@ -23,11 +23,12 @@ contract TestVerifier is IVerifier {
     }
 
     function verifyAccountInitializaionProof(
+        string memory /* emailDomain */,
+        bytes32 /* dkimPublicKeyHash */,
+        uint256 /* timestamp */,
         bytes32 /* relayerHash */,
         bytes32 /* emailAddrPointer */,
         bytes32 /* accountKeyCommit */,
-        string memory /* emailDomain */,
-        bytes32 /* dkimPublicKeyHash */,
         bytes32 /* emailNullifier */,
         bytes memory proof
     ) external pure returns (bool) {
@@ -41,6 +42,7 @@ contract TestVerifier is IVerifier {
     function verifyEmailProof(
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
+        uint256 /* timestamp */,
         string memory /* maskedSubject */,
         bytes32 /* emailNullifier */,
         bytes32 /* relayerHash */,
@@ -72,6 +74,7 @@ contract TestVerifier is IVerifier {
     function verifiyAccountTransportProof(
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
+        uint256 /* timestamp */,
         bytes32 /* emailNullifier */,
         bytes32 /* oldRelayerRandHash */,
         bytes32 /* oldAccountKeyCommit */,

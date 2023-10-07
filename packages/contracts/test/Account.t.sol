@@ -96,7 +96,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
         (, bool initialized, , , ) = core.infoOfAccountKeyCommit(accountKeyCommit);
@@ -108,7 +108,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("account not registered");
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
     }
 
@@ -123,7 +123,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
         vm.startPrank(relayer2);
@@ -133,9 +133,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            emailNullifier2,
-            emailDomain,
-            mockProof,
+            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
             mockProof
         );
         vm.stopPrank();
@@ -166,7 +164,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
         // Transporting will nullify the accountKeyCommit
@@ -177,9 +175,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            emailNullifier2,
-            emailDomain,
-            mockProof,
+            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
             mockProof
         );
         vm.stopPrank();
@@ -192,9 +188,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
             bytes32(uint256(20011)), // newEmailAddrPointer
             bytes32(uint256(20021)), // newAccountKeyCommit
             abi.encodePacked(uint256(20031)), // newPSIPoint
-            bytes32(uint256(1021)), // emailNullifier
-            emailDomain,
-            mockProof,
+            EmailProof({
+                nullifier: bytes32(uint256(1021)), // emailNullifier
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -220,9 +219,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            emailNullifier,
-            emailDomain,
-            mockProof,
+            EmailProof({
+                nullifier: emailNullifier,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -240,7 +242,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
         vm.startPrank(relayer2);
@@ -252,9 +254,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            emailNullifier2,
-            emailDomain,
-            mockProof,
+            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
             mockProof
         );
         vm.stopPrank();
@@ -271,7 +271,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
         vm.startPrank(relayer2);
@@ -281,9 +281,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            emailNullifier2,
-            emailDomain,
-            mockProof,
+            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
             mockProof
         );
         vm.stopPrank();
@@ -291,7 +289,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         // Transport will nullify account with relayer - Re initialization should fail
         vm.startPrank(relayer);
         vm.expectRevert("account is nullified");
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
     }
 }

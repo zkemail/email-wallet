@@ -84,6 +84,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Max fee per gas in ETH that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
+    // Time period until which a email is valid for EmailOp based on the timestamp of the email signature
+    uint256 public immutable emailValidityDuration;
+
     // Gas required to claim unclaimed funds. User (their relayer) who register unclaimed funds
     // need to lock this amount which is relesed to the relayer who claims it
     uint256 public immutable unclaimedFundClaimGas;
@@ -136,6 +139,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         address _priceOracle,
         address _wethContract,
         uint256 _maxFeePerGas,
+        uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas,
         uint256 _unclaimedFundExpirationDuration
@@ -145,6 +149,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
         maxFeePerGas = _maxFeePerGas;
+        emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
         unclaimedFundExpiryDuration = _unclaimedFundExpirationDuration;
@@ -262,11 +267,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     function initializeAccount(
         bytes32 emailAddrPointer,
         string memory emailDomain,
+        uint256 emailTimestamp,
         bytes32 emailNullifier,
         bytes memory proof
     ) public {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
 
+        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommit != bytes32(0), "account not registered");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
@@ -276,11 +283,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(
             verifier.verifyAccountInitializaionProof(
+                emailDomain,
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
+                emailTimestamp,
                 relayers[msg.sender].randHash,
                 emailAddrPointer,
                 accountKeyCommit,
-                emailDomain,
-                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
                 emailNullifier,
                 proof
             ),
@@ -296,39 +304,35 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param newEmailAddrPointer Email Address pointer of the account under new relayer
     /// @param newAccountKeyCommit Account Key commitment of the account under new relayer
     /// @param newPSIPoint PSI point of the email address under new relayer
-    /// @param emailNullifier Nullifier of the email used for proof generation (reply to invite email)
-    /// @param emailDomain Domain name of the user's email address
     /// @param accountCreationProof Proof for new account creation under new relayer
-    /// @param accountTransportProof Proof of user's transport email
+    /// @param transportEmailProof Proof of user's transport email
     function transportAccount(
         bytes32 oldAccountKeyCommit,
         bytes32 newEmailAddrPointer,
         bytes32 newAccountKeyCommit,
         bytes memory newPSIPoint,
-        bytes32 emailNullifier,
-        string memory emailDomain,
-        bytes memory accountCreationProof,
-        bytes memory accountTransportProof
+        EmailProof memory transportEmailProof,
+        bytes memory accountCreationProof
     ) public {
-        bytes32 walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
-        address oldRelayer = infoOfAccountKeyCommit[oldAccountKeyCommit].relayer;
+        AccountKeyInfo storage oldAccountKeyInfo = infoOfAccountKeyCommit[oldAccountKeyCommit];
 
+        require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        require(oldRelayer != address(0), "old relayer not registered");
-        require(oldRelayer != msg.sender, "new relayer cannot be same");
-        require(infoOfAccountKeyCommit[oldAccountKeyCommit].initialized, "account not initialized");
-        require(!infoOfAccountKeyCommit[oldAccountKeyCommit].nullified, "account is nullified");
+        require(oldAccountKeyInfo.relayer != address(0), "old relayer not registered");
+        require(oldAccountKeyInfo.relayer != msg.sender, "new relayer cannot be same");
+        require(oldAccountKeyInfo.initialized, "account not initialized");
+        require(!oldAccountKeyInfo.nullified, "account is nullified");
         require(accountKeyCommitOfPointer[newEmailAddrPointer] == bytes32(0), "new pointer already exist");
         require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "salt already exists");
         require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
-        require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
+        require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullifier already used");
 
         require(
             verifier.verifyAccountCreationProof(
                 relayers[msg.sender].randHash,
                 newEmailAddrPointer,
                 newAccountKeyCommit,
-                walletSalt,
+                oldAccountKeyInfo.walletSalt,
                 newPSIPoint,
                 accountCreationProof
             ),
@@ -337,17 +341,18 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         require(
             verifier.verifiyAccountTransportProof(
-                emailDomain,
-                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
-                emailNullifier,
-                relayers[oldRelayer].randHash,
+                transportEmailProof.domain,
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(transportEmailProof.domain)),
+                transportEmailProof.timestamp,
+                transportEmailProof.nullifier,
+                relayers[oldAccountKeyInfo.relayer].randHash,
                 oldAccountKeyCommit,
-                accountTransportProof
+                transportEmailProof.proof
             ),
             "invalid account transport proof"
         );
 
-        emailNullifiers[emailNullifier] = true;
+        emailNullifiers[transportEmailProof.nullifier] = true;
 
         accountKeyCommitOfPointer[newEmailAddrPointer] = newAccountKeyCommit;
         pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
@@ -674,6 +679,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
 
+        require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         {
@@ -714,6 +720,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             verifier.verifyEmailProof(
                 emailOp.emailDomain,
                 dkimPublicKeyHash,
+                emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
                 relayers[msg.sender].randHash,

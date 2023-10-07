@@ -22,20 +22,22 @@ interface IVerifier {
     /// @notice Verify the proof to initialize an account (reply to the invitation email)
     /// @notice This verify the relayer received an email from the user (with corresponding `emailAddrPointer`)
     ///         where `accountKey` (of corresponding `accountKeyCommit`) was used in `x-reply-to` header
+    /// @param emailDomain The domain of the user's email address
+    /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
+    /// @param timestamp The timestamp of the email
     /// @param relayerHash The hash of the relayer randomness
     /// @param emailAddrPointer The hash of the relayer randomness and email address
     /// @param accountKeyCommit The hash of the account key, email address and relayer randomness
-    /// @param emailDomain The domain of the user's email address
-    /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
     /// @param emailNullifier The nullifier computed for the reply email
     /// @param proof Proof of email with above constraints
     /// @dev `accountKeyCommit`, `dkimPublicKeyHash` should be the values previously stored in the contract
     function verifyAccountInitializaionProof(
+        string memory emailDomain,
+        bytes32 dkimPublicKeyHash,
+        uint256 timestamp,
         bytes32 relayerHash,
         bytes32 emailAddrPointer,
         bytes32 accountKeyCommit,
-        string memory emailDomain,
-        bytes32 dkimPublicKeyHash,
         bytes32 emailNullifier,
         bytes memory proof
     ) external view returns (bool);
@@ -49,6 +51,7 @@ interface IVerifier {
     ///         and email address in subject is used to derive `recipientEmailAddrCommit`
     /// @param emailDomain The domain of the user's email address
     /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
+    /// @param timestamp The timestamp of the email
     /// @param maskedSubject The subject of the email with (any) email address masked
     /// @param emailNullifier The nullifier computed for the email
     /// @param relayerHash The hash of the relayer randomness
@@ -59,6 +62,7 @@ interface IVerifier {
     function verifyEmailProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
+        uint256 timestamp,
         string memory maskedSubject,
         bytes32 emailNullifier,
         bytes32 relayerHash,
@@ -87,6 +91,7 @@ interface IVerifier {
     ///         Also proved that the accountKeyCommit of old relayer with hash `oldRelayerRandHash` is same as `oldAccountKeyCommit`
     /// @param emailDomain The domain of the user's email address
     /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
+    /// @param timestamp The timestamp of the email
     /// @param emailNullifier The nullifier computed for the email
     /// @param oldRelayerRandHash The hash of the old relayer randomness
     /// @param oldAccountKeyCommit The hash of the account key, email address and old relayer randomness
@@ -94,6 +99,7 @@ interface IVerifier {
     function verifiyAccountTransportProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
+        uint256 timestamp,
         bytes32 emailNullifier,
         bytes32 oldRelayerRandHash,
         bytes32 oldAccountKeyCommit,

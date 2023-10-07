@@ -82,6 +82,15 @@ struct TokenAllowance {
     uint256 amount;
 }
 
+// A struct to represent commong args in a proof of email
+// Useful for methods thats need fewer inputs to avoid stack too deep error
+struct EmailProof {
+    string domain;  // Domain name of the sender's email
+    uint256 timestamp; // Timestamp of the email
+    bytes32 nullifier; // Nullifier of email to prevent re-run
+    bytes proof; // ZK Proof of Email
+}
+
 // Struct to store context when executing an EmailOp
 struct ExecutionContext {
     address walletAddr; // Wallet address of the user

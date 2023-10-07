@@ -64,6 +64,7 @@ contract EmailWalletCoreTestHelper is Test {
                 address(dkimRegistry),
                 address(priceOracle),
                 address(weth),
+                1 hours,
                 10 ** 10,
                 0.0001 ether,
                 0.0002 ether,
@@ -102,7 +103,7 @@ contract EmailWalletCoreTestHelper is Test {
         vm.startPrank(relayer);
         bytes32 emailNullifier = bytes32(uint(1002130510010012931231923879));
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, emailNullifier, mockProof);
+        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
     }
 
