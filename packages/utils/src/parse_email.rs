@@ -51,6 +51,14 @@ impl ParsedEmail {
         Ok(parsed_email)
     }
 
+    pub fn signature_string(&self) -> String {
+        "0x".to_string() + hex::encode(&self.signature).as_str()
+    }
+
+    pub fn public_key_string(&self) -> String {
+        "0x".to_string() + hex::encode(&self.public_key).as_str()
+    }
+
     pub fn get_from_addr(&self) -> Result<String> {
         let idxes = extract_from_addr_idxes(&self.canonicalized_header)?[0];
         let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
@@ -108,6 +116,8 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
             match parsed_email {
                 // Resolve the promise with the release date
                 Ok(parsed_email) => {
+                    let signature_str = parsed_email.signature_string();
+                    let public_key_str = parsed_email.public_key_string();
                     let obj = cx.empty_object();
                     let canonicalized_header = cx.string(parsed_email.canonicalized_header);
                     obj.set(&mut cx, "canonicalizedHeader", canonicalized_header)?;
@@ -115,12 +125,10 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
                     //     "0x".to_string() + hex::encode(parsed_email.signed_header).as_str(),
                     // );
                     // obj.set(&mut cx, "signedHeader", signed_header)?;
-                    let signature =
-                        cx.string("0x".to_string() + hex::encode(parsed_email.signature).as_str());
+                    let signature = cx.string(&signature_str);
                     obj.set(&mut cx, "signature", signature)?;
 
-                    let public_key =
-                        cx.string("0x".to_string() + hex::encode(parsed_email.public_key).as_str());
+                    let public_key = cx.string(&public_key_str);
                     obj.set(&mut cx, "publicKey", public_key)?;
                     // let dkim_domain = cx.string(&parsed_email.dkim_domain);
                     // obj.set(&mut cx, "dkimDomain", dkim_domain)?;
