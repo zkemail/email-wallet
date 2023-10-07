@@ -43,13 +43,7 @@ struct ExtensionManagerParams {
 
 struct ExtensionParams {
     uint8 subjectTemplateIndex; // Index of the extension subject template
-    TokenAmount[] tokenAmounts; // token/amount pair extracted from the subject
-    bytes subjectParams; // Match params extracted from the subject (excpet tokenAmount), in the same order
-}
-
-struct TokenAmount {
-    string tokenName; // Name of the token to request (like "DAI")
-    uint256 amount; // Amount of the token to request (in wei)
+    bytes[] subjectParams; // Match params extracted from the subject in the same order; {tokenAmount} should be encoded as (string, uint256)
 }
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
@@ -80,11 +74,6 @@ struct AccountKeyInfo {
     bytes32 walletSalt;
 }
 
-struct TokenAllowance {
-    address tokenAddr;
-    uint256 amount;
-}
-
 // A struct to represent commong args in a proof of email
 // Useful for methods thats need fewer inputs to avoid stack too deep error
 struct EmailProof {
@@ -94,8 +83,12 @@ struct EmailProof {
     bytes proof; // ZK Proof of Email
 }
 
-// Sora's comment: I think `unclaimedFundRegistered` is not necessary in `ExecutionContext` because there is no function for extensions to infernally register unclaimed funds.
-// Sora's comment: If the extension wants to register unclaimed funds with paying the fees from the sender's wallet, it should call `registerUnclaimedStateAsExtension` and locks the funds in the extension contract until the recipient claims the unclaimed states. 
+// Struct to store token allowance for an extension in context
+struct TokenAllowance {
+    address tokenAddr;
+    uint256 amount;
+}
+
 // Struct to store context when executing an EmailOp
 struct ExecutionContext {
     address walletAddr; // Wallet address of the user

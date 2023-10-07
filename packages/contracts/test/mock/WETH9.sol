@@ -15,6 +15,7 @@
 
 pragma solidity ^0.8.13;
 
+// solc-ignore-next-line
 contract WETH9 {
     string public name = "Wrapped Ether";
     string public symbol = "WETH";

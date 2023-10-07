@@ -7,9 +7,9 @@ pragma solidity ^0.8.0;
         - Send 1 DAI to recipient@domain.com
         - Send 1 ETH to 0x1234...5678
         - Send 1 DAI to 0x1234...5678
-        - Swap 1 ETH to DAI
         - Set extension for Swap as Uniswap
         - Remove extension for Swap
+        - Extension subject template (array): ["Swap", "{tokenAmount}", "to", "{string}"]
  */
 
 library Commands {

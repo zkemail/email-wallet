@@ -1,13 +1,12 @@
 use crate::*;
 
-pub(crate) enum EmailStatus {
-    Unchecked,
-    Checked,
-    Executed,
-}
+pub(crate) fn is_valid(email: ParsedEmail) -> bool {
+    println!("{}", email.canonicalized_body);
+    println!("{}", email.canonicalized_header);
+    println!("{}", email.signature_string());
+    println!("{}", email.public_key_string());
 
-pub(crate) fn check_if_valid(email: &str) -> bool {
-    todo!()
+    true
 }
 
 pub(crate) async fn send_to_coordinator(email: &str) -> Result<()> {

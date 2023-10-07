@@ -128,8 +128,7 @@ contract EmailWalletCoreTestHelper is Test {
                 extManagerParams: ExtensionManagerParams({command: "", extensionName: ""}),
                 extensionParams: ExtensionParams({
                     subjectTemplateIndex: 0,
-                    tokenAmounts: new TokenAmount[](0),
-                    subjectParams: abi.encodePacked("")
+                    subjectParams: new bytes[](0)
                 }),
                 emailProof: mockProof
             });

@@ -1,16 +1,15 @@
 use crate::*;
 
-use std::net::TcpStream;
-
 use anyhow::anyhow;
-use imap::types::Fetches;
-use imap::Session;
-use native_tls::TlsStream;
-use oauth2::reqwest::http_client;
+use async_imap::extensions::idle::{Handle, IdleResponse::*};
+use async_imap::Session;
+use async_native_tls::TlsStream;
+use oauth2::reqwest::async_http_client;
 use oauth2::{
     basic::BasicClient, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
     PkceCodeChallenge, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
+use tokio::net::TcpStream;
 
 #[derive(Clone)]
 pub(crate) enum ImapAuth {
@@ -40,9 +39,10 @@ struct OAuth2 {
     access_token: String,
 }
 
-impl imap::Authenticator for OAuth2 {
+impl async_imap::Authenticator for OAuth2 {
     type Response = String;
-    fn process(&self, _: &[u8]) -> Self::Response {
+
+    fn process(&mut self, _: &[u8]) -> Self::Response {
         format!(
             "user={}\x01auth=Bearer {}\x01\x01",
             self.user_id, self.access_token
@@ -56,14 +56,15 @@ pub(crate) struct ImapClient {
 }
 
 impl ImapClient {
-    pub(crate) fn new(config: ImapConfig) -> Result<Self> {
-        let client = imap::ClientBuilder::new(&*config.domain_name, config.port)
-            .native_tls()
-            .expect("Could not connect to imap server");
+    pub(crate) async fn new(config: ImapConfig) -> Result<Self> {
+        let tcp_stream = TcpStream::connect((&*config.domain_name, config.port)).await?;
+        let tls = async_native_tls::TlsConnector::new();
+        let tls_stream = tls.connect(&*config.domain_name, tcp_stream).await?;
+        let client = async_imap::Client::new(tls_stream);
 
         let mut session = match config.auth.clone() {
             ImapAuth::Password { user_id, password } => {
-                client.login(user_id, password).map_err(|e| e.0)
+                client.login(user_id, password).await.map_err(|e| e.0)
             }
             ImapAuth::Oauth {
                 user_id,
@@ -105,7 +106,8 @@ impl ImapClient {
                 let token_result = oauth_client
                     .exchange_code(AuthorizationCode::new(auth_code.to_string()))
                     .set_pkce_verifier(pkce_verifier)
-                    .request(http_client)?;
+                    .request_async(async_http_client)
+                    .await?;
 
                 let access_token = serde_json::to_string(token_result.access_token())?;
                 let oauthed = OAuth2 {
@@ -113,65 +115,65 @@ impl ImapClient {
                     access_token,
                 };
 
-                client.authenticate("XOAUTH2", &oauthed).map_err(|e| e.0)
+                client
+                    .authenticate("XOAUTH2", oauthed)
+                    .await
+                    .map_err(|e| e.0)
             }
         }?;
 
-        session.select("INBOX")?;
+        session.select("INBOX").await?;
+
+        println!("ImapClient connected succesfully!");
 
         Ok(Self { session, config })
     }
 
-    pub(crate) fn retrieve_new_emails(&mut self) -> Result<Vec<Fetches>> {
-        self.wait_new_email()?;
-        loop {
-            match self.session.uid_search("UNSEEN") {
-                Ok(uids) => {
-                    let mut fetches = vec![];
-                    for (idx, uid) in uids.into_iter().enumerate() {
-                        let fetched = self
-                            .session
-                            .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")?;
-                        fetches.push(fetched);
-                    }
-                    return Ok(fetches);
-                }
-                Err(e) => {
-                    println!("Connection reset, reconnecting...");
-                    self.reconnect()?;
-                }
-            }
+    pub(crate) async fn retrieve_new_emails(self) -> Result<Vec<u8>> {
+        let ImapClient { session, config } = self;
+        let idle = session.idle();
+        let imap = Self::wait_new_email(idle).await?;
+
+        // loop {
+        //     match self.idle.uid_search("UNSEEN").await {
+        //         Ok(uids) => {
+        //             let mut fetches = vec![];
+        //             for (idx, uid) in uids.into_iter().enumerate() {
+        //                 let fetched = self
+        //                     .session
+        //                     .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")
+        //                     .await?;
+        //                 fetches.push(fetched);
+        //             }
+        //             return Ok(fetches);
+        //         }
+        //         Err(e) => {
+        //             println!("Connection reset, reconnecting...");
+        //             self.reconnect()?;
+        //         }
+        //     }
+        // }
+
+        todo!()
+    }
+
+    async fn wait_new_email(
+        mut idle: Handle<TlsStream<TcpStream>>,
+    ) -> Result<Session<TlsStream<TcpStream>>> {
+        let result = idle.wait().0.await?;
+
+        match result {
+            NewData(_) => return Ok(idle.done().await?),
+            _ => Err(anyhow!("{IMAP_IDLE_ERROR}")),
         }
     }
 
-    fn wait_new_email(&mut self) -> Result<()> {
-        loop {
-            let mut flag = false;
-            let result = self.session.idle().wait_while(|response| {
-                if matches!(response, imap::types::UnsolicitedResponse::Exists(_)) {
-                    flag = true;
-                    return false;
-                }
-                true
-            });
-
-            if result.is_err() {
-                self.reconnect()?;
-                continue;
-            }
-
-            if flag {
-                return Ok(());
-            }
-        }
-    }
-
-    fn reconnect(&mut self) -> Result<()> {
+    async fn reconnect(&mut self) -> Result<()> {
         const MAX_RETRIES: u32 = 5;
         let mut retry_count = 0;
 
         while retry_count < MAX_RETRIES {
-            match ImapClient::new(self.config.clone()) {
+            match ImapClient::new(self.config.clone()).await {
                 Ok(new_client) => {
                     self.session = new_client.session;
                     return Ok(());
