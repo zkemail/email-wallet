@@ -4,41 +4,18 @@ import "./Types.sol";
 pragma solidity ^0.8.9;
 
 abstract contract Extension {
-    /// @notice Returns the command that this extension responds to. Eg: `Swap`
-    /// @return command Command name
-    function getCommand() external pure virtual returns (string memory);
-
-    /// @notice Returns the email subject template with expected types of params
-    /// @notice Eg: `Swap (amount) (string) to (string) and send to (recipient)`
-    /// @return emailSubjectTemplate Email subject template
-    function getSubjectTemplates() external pure virtual returns (string[] memory);
-
-    /// @notice Returns the expected email subject from the given params
-    /// @param templateIndex Index of the subjectTemplate to which the subject was matched
-    /// @param tokenAmounts token/amount pairs extracted from the subject
-    /// @param subjectParams params decoded from email subject based on the template
-    /// @return emailSubject Expected email subject
-    /// @dev To calculate, get the actual value of matcher in subject template from `params` arg in same order,
-    ///      except for tokenAmounts, which should be taken from `tokenAmounts` arg in the same order.
-    function computeEmailSubject(
-        uint8 templateIndex,
-        TokenAmount[] memory tokenAmounts,
-        bytes memory subjectParams
-    ) external pure virtual returns (string memory);
-
     /// Execute the extension logic
     /// @param templateIndex Index of the subjectTemplate to which the subject was matched
-    /// @param tokenAmounts token/amount pairs extracted from the subject
-    /// @param subjectParams params decoded from email subject based on the template
+    /// @param subjectParams Array of params decoded from email subject based on the template, in the same order matchers
     /// @param wallet Address of users wallet
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
     /// @param recipientETHAddr The ETH address of the recipient in email (if any, and hasEmailRecipient = false)
     /// @param emailNullifier Nullifier of the email
     /// @dev Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` instead
+    /// @dev Decode {tokenAmount} in template as `abi.decode(string, uint256)` (`tokenName` and `tokenAmount`)
     function execute(
         uint8 templateIndex,
-        TokenAmount[] memory tokenAmounts,
-        bytes memory subjectParams,
+        bytes[] memory subjectParams,
         address wallet,
         bool hasEmailRecipient,
         address recipientETHAddr,

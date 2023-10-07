@@ -42,13 +42,7 @@ struct ExtensionManagerParams {
 
 struct ExtensionParams {
     uint8 subjectTemplateIndex; // Index of the extension subject template
-    TokenAmount[] tokenAmounts; // token/amount pair extracted from the subject
-    bytes subjectParams; // Match params extracted from the subject (excpet tokenAmount), in the same order
-}
-
-struct TokenAmount {
-    string tokenName; // Name of the token to request (like "DAI")
-    uint256 amount; // Amount of the token to request (in wei)
+    bytes[] subjectParams; // Match params extracted from the subject in the same order; {tokenAmount} should be encoded as (string, uint256)
 }
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
@@ -77,11 +71,6 @@ struct AccountKeyInfo {
     bytes32 walletSalt;
 }
 
-struct TokenAllowance {
-    address tokenAddr;
-    uint256 amount;
-}
-
 // A struct to represent commong args in a proof of email
 // Useful for methods thats need fewer inputs to avoid stack too deep error
 struct EmailProof {
@@ -89,6 +78,12 @@ struct EmailProof {
     uint256 timestamp; // Timestamp of the email
     bytes32 nullifier; // Nullifier of email to prevent re-run
     bytes proof; // ZK Proof of Email
+}
+
+// Struct to store token allowance for an extension in context
+struct TokenAllowance {
+    address tokenAddr;
+    uint256 amount;
 }
 
 // Struct to store context when executing an EmailOp

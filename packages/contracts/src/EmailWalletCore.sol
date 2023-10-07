@@ -68,6 +68,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Global mapping of command name to extension address enabled for all users by default
     mapping(string => address) public extensionOfCommand;
 
+    // Mapping of extension address to list of subjectTemplates
+    // Each subject template is array of strings, where each item is a "matcher" or constant string
+    // Eg: `["Swap", "{tokenAmount}", "to", "{string}"]`
+    mapping(address => string[][]) public subjectTemplatesOfExtension;
+
     // Mapping of extension address to maximum gas that will be consumed by `extension.execute()`
     // Relayer can use this to ensure user has enough tokens to pay for the gas
     mapping(address => uint256) public maxGasOfExtension;
@@ -815,17 +820,25 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     }
 
     /// Register a new extension
+    /// @param addr Address of the extension contract
     /// @param name Name of the extension
-    /// @param extensionAddr Address of the extension contract
-    function publishExtension(string memory name, address extensionAddr, uint256 maxGas) public {
+    /// @param subjectTemplates Subject templates for the extension
+    /// @param maxExecutionGas Max gas allowed for the extension
+    function publishExtension(
+        address addr,
+        string memory name,
+        string[][] memory subjectTemplates,
+        uint256 maxExecutionGas
+    ) public {
         require(addressOfExtension[name] == address(0), "extension name already used");
 
-        addressOfExtension[name] = extensionAddr;
-        maxGasOfExtension[extensionAddr] = maxGas;
+        addressOfExtension[name] = addr;
+        subjectTemplatesOfExtension[addr] = subjectTemplates;
+        maxGasOfExtension[addr] = maxExecutionGas;
     }
 
     /// @notice Calculate the masked subject for an EmailOp from command and other params
-    ///         This also do "null" check for certain parameters used in the EmailOp
+    ///         This also do sanity checks of certain parameters used in the subject
     /// @param emailOp EmailOp from which the masked subject is to be computed
     function _computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp
@@ -870,16 +883,17 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Sample: Set extension for Swap as Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
+            address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
 
-            require(bytes(extManagerParams.command).length > 0, "command cannot be empty");
-            require(addressOfExtension[extManagerParams.extensionName] != address(0), "extension not registered");
+            require(bytes(emailOp.extManagerParams.command).length > 0, "command cannot be empty");
+            require(extAddr != address(0), "extension not registered");
 
             maskedSubject = string.concat(
                 Commands.INSTALL_EXTENSION,
                 " for ",
-                extManagerParams.command,
+                emailOp.extManagerParams.command,
                 " as ",
-                extManagerParams.extensionName
+                emailOp.extManagerParams.extensionName
             );
         }
         // Sample: Remove extension for Swap
@@ -902,23 +916,68 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         else {
             isExtension = true;
             address extensionAddr = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
-
             require(extensionAddr != address(0), "invalid command or extension");
 
-            for (uint8 i = 0; i < emailOp.extensionParams.tokenAmounts.length; i++) {
-                require(emailOp.extensionParams.tokenAmounts[i].amount > 0, "token amount should be >0");
-                require(
-                    _getTokenAddrFromName(emailOp.extensionParams.tokenAmounts[i].tokenName) != address(0),
-                    "token not supported"
-                );
+            Extension extension = Extension(extensionAddr);
+            string[] memory subjectTemplate = subjectTemplatesOfExtension[extensionAddr][
+                emailOp.extensionParams.subjectTemplateIndex
+            ];
+
+            uint8 nextParamIndex;
+            for (uint8 i = 0; i < subjectTemplate.length; i++) {
+                string memory matcher = string(subjectTemplate[i]);
+                string memory value;
+
+                // {tokenAmount} is combination of tokenName and amount, encoded as (string, uint256). Eg: `30.23 DAI`
+                if (Strings.equal(matcher, "{tokenAmount}")) {
+                    (string memory tokenName, uint256 amount) = abi.decode(
+                        emailOp.extensionParams.subjectParams[nextParamIndex],
+                        (string, uint256)
+                    );
+                    require(_getTokenAddrFromName(tokenName) != address(0), "token not supported");
+
+                    value = string.concat(DecimalUtils.uintToDecimalString(amount), " ", tokenName);
+                    nextParamIndex++;
+                }
+                // {amount} is number in wei format (decimal format in subject)
+                else if (Strings.equal(matcher, "{amount}")) {
+                    uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
+                    value = DecimalUtils.uintToDecimalString(num);
+                    nextParamIndex++;
+                }
+                // {string} is plain string
+                else if (Strings.equal(matcher, "{string}")) {
+                    value = string(emailOp.extensionParams.subjectParams[nextParamIndex]);
+                    nextParamIndex++;
+                }
+                // {uint} is number parsed the same way as mentioned in subject (decimals not allowed) - use {amount} for decimals
+                else if (Strings.equal(matcher, "{uint}")) {
+                    uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
+                    value = Strings.toString(num);
+                    nextParamIndex++;
+                }
+                // {int} for negative values
+                else if (Strings.equal(matcher, "{int}")) {
+                    int256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (int256));
+                    value = Strings.toString(num);
+                    nextParamIndex++;
+                }
+                // {addres} for wallet address
+                else if (Strings.equal(matcher, "{address}")) {
+                    address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
+                    value = Strings.toHexString(uint256(uint160(addr)), 20);
+                    nextParamIndex++;
+                }
+                // Constant string otherwise
+                else {
+                    value = matcher;
+                }
+
+                maskedSubject = string.concat(maskedSubject, value);
             }
 
-            Extension extension = Extension(extensionAddr);
-            maskedSubject = extension.computeEmailSubject(
-                emailOp.extensionParams.subjectTemplateIndex,
-                emailOp.extensionParams.tokenAmounts,
-                emailOp.extensionParams.subjectParams
-            );
+            // We should have used all items in subjectParams by now
+            require(nextParamIndex == emailOp.extensionParams.subjectParams.length, "invalid subject params length");
         }
     }
 
@@ -1020,19 +1079,23 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
-            for (uint8 i = 0; i < emailOp.extensionParams.tokenAmounts.length; i++) {
-                address tokenAddr = _getTokenAddrFromName(emailOp.extensionParams.tokenAmounts[i].tokenName);
+            for (uint8 i = 0; i < emailOp.extensionParams.subjectParams.length; i++) {
+                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), "{tokenAmount}")) {
+                    (string memory tokenName, uint256 amount) = abi.decode(
+                        emailOp.extensionParams.subjectParams[i],
+                        (string, uint256)
+                    );
 
-                currContext.tokenAllowances.push(
-                    TokenAllowance({tokenAddr: tokenAddr, amount: emailOp.extensionParams.tokenAmounts[i].amount})
-                );
+                    currContext.tokenAllowances.push(
+                        TokenAllowance({tokenAddr: _getTokenAddrFromName(tokenName), amount: amount})
+                    );
+                }
             }
 
             // We only pass pre-configured gas to execute()
             try
                 Extension(extAddress).execute{gas: maxGasOfExtension[extAddress]}(
                     emailOp.extensionParams.subjectTemplateIndex,
-                    emailOp.extensionParams.tokenAmounts,
                     emailOp.extensionParams.subjectParams,
                     currContext.walletAddr,
                     emailOp.hasEmailRecipient,
