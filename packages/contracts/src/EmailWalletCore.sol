@@ -561,6 +561,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param extensionAddr Address of the extension contract
     /// @param state State to be registered
     /// @dev This dont call `extension.registerUnclaimedState` as extension is expected to make necessary changes internally
+    /// Sora's comment: the fee to register the unclaimed state is paid by the relayer in `handleEmailOp`, right?
     function registerUnclaimedStateAsExtension(
         bytes32 emailAddrCommit,
         address extensionAddr,
@@ -593,9 +594,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
         currContext.unclaimedStateRegistered = true;
-
-        // Sora's comment: the relayer needs to pay `unclaimedStateClaimGas * maxFeePerGas` ETH to the core contract.
-
+        
         emit UnclaimedStateRegistered(emailAddrCommit, extensionAddr, currContext.walletAddr, expiryTime, state, 0, "");
     }
 
@@ -807,11 +806,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         emailNullifiers[emailOp.emailNullifier] = true;
 
         // Execute EmailOp - wont revert on failure. Relayer will be compensated for gas even in failure.
-        (success, returnData) = _executeEmailOp(emailOp);
+        bool unclaimedFundRegistered;
+        (success, unclaimedFundRegistered, returnData) = _executeEmailOp(emailOp);
 
         uint totalFee; // Total fee in ETH to be paid to relayer
 
-        if (currContext.unclaimedFundRegistered) {
+        require(unclaimedFundRegistered && currContext.unclaimedStateRegistered == false, "both of unclaimedFundRegistered and unclaimedStateRegistered must not be true");
+
+        if (unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
             totalFee += unclaimedFundClaimGas * maxFeePerGas;
         } else if (currContext.unclaimedStateRegistered) {
@@ -974,8 +976,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Execute an EmailOp
     /// @param emailOp EmailOp to be executed
     /// @return success Whether the operation is successful
+    /// @return unclaimedFundRegistered Whether unclaimed fund is registered
     /// @return returnData Return data from the operation (error)
-    function _executeEmailOp(EmailOp memory emailOp) internal returns (bool success, bytes memory returnData) {
+    function _executeEmailOp(EmailOp memory emailOp) internal returns (bool success, bool unclaimedFundRegistered, bytes memory returnData) {
+        unclaimedFundRegistered = false;
         // Wallet operation
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
@@ -985,6 +989,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 Wallet wallet = Wallet(payable(currContext.walletAddr));
 
                 try wallet.execute(weth, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
+                    // Sora's comment: Is this `execute` doing raw ETH transfer? 
                     wallet.execute(emailOp.recipientETHAddr, walletParams.amount, abi.encode(""));
                     success = true;
                 } catch Error(string memory reason) {
@@ -995,7 +1000,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     returnData = bytes("err converting WETH to ETH");
                 }
 
-                return (success, returnData);
+                return (success, false, returnData);
             }
 
             // Token transfer for both external contract and email wallet
@@ -1005,7 +1010,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             (success, returnData) = _transferERC20(currContext.walletAddr, recipient, tokenAddr, walletParams.amount);
 
             if (!success) {
-                return (success, returnData);
+                return (success, false, returnData);
             }
 
             // Register unclaimed fund if the recipient is email wallet user
@@ -1019,7 +1024,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     0,
                     ""
                 );
-                currContext.unclaimedStateRegistered = true;
+                unclaimedFundRegistered = true;
+                // currContext.unclaimedStateRegistered = true;
             }
         }
         // Execute calldata on wallet
@@ -1069,6 +1075,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
+            // Sora's comment: "We are assuming one token appear only once" <- This assumption should be verified in some ways, (e.g., when an extension is published, its templates are verified.)?
             for (uint8 i = 0; i < emailOp.extensionParams.tokenAmounts.length; i++) {
                 address tokenAddr = _getTokenAddrFromName(emailOp.extensionParams.tokenAmounts[i].tokenName);
 
