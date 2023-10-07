@@ -18,7 +18,7 @@ pub(crate) use imap_client::*;
 pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use email_wallet_utils::parse_email::ParsedEmail;
