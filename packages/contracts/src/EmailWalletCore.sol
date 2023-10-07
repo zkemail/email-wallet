@@ -148,6 +148,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas,
+        uint256 _unclaimedStateRegisterGas,
         uint256 _unclaimedFundExpirationDuration
     ) {
         verifier = IVerifier(_verifier);
@@ -158,6 +159,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
+        unclaimedStateRegisterGas = _unclaimedStateRegisterGas;
         unclaimedFundExpiryDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet(_wethContract));
