@@ -49,10 +49,11 @@ describe("Email Sender", () => {
         const recipientEmailAddr = "alice@gmail.com"
         const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
         expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[773]);
-        const timestamp = "1694989812";
-        const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
-        for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
-            expect(BigInt(paddedTimestamp[idx])).toEqual(witness[774 + idx]);
-        }
+        const timestamp = 1694989812n;
+        expect(timestamp).toEqual(witness[774]);
+        // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
+        // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
+        //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[774 + idx]);
+        // }
     });
 });

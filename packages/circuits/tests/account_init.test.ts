@@ -44,10 +44,11 @@ describe("Account Initialization", () => {
         const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
         const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, expectedRelayerRandHash);
         expect(BigInt(expectedAkCommit)).toEqual(witness[260]);
-        const timestamp = "1694979179";
-        const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
-        for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
-            expect(BigInt(paddedTimestamp[idx])).toEqual(witness[261 + idx]);
-        }
+        const timestamp = 1694979179n;
+        expect(timestamp).toEqual(witness[261]);
+        // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
+        // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
+        //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[261 + idx]);
+        // }
     });
 });

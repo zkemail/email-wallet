@@ -14,6 +14,7 @@ include "./utils/hex2int.circom";
 include "./utils/bytes2ints.circom";
 include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
+include "./utils/digit2int.circom";
 include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "./regexes/invitation_code_regex.circom";
@@ -42,7 +43,7 @@ template AccountTransport(n, k, max_header_bytes) {
     signal output pubkey_hash;
     signal output email_nullifier;
     signal output sender_ak_commit;
-    signal output timestamp[timestamp_len];
+    signal output timestamp;
     
     
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
@@ -85,7 +86,9 @@ template AccountTransport(n, k, max_header_bytes) {
     signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
     (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
     timestamp_regex_out === 1;
-    timestamp <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    signal timestamp_str[timestamp_len];
+    timestamp_str <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    timestamp <== Digit2Int(timestamp_len)(timestamp_str);
 }
 
 // Args:

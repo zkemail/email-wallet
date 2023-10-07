@@ -54,6 +54,10 @@ pub fn field2hex(field: &Fr) -> String {
     format!("{:?}", field)
 }
 
+pub fn digits2int(input_digits: &str) -> anyhow::Result<u64> {
+    Ok(u64::from_str_radix(input_digits, 10)?)
+}
+
 pub(crate) fn hex2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
     match hex2field(input_strs) {
         Ok(field) => Ok(field),

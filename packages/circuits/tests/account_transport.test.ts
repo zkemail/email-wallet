@@ -41,10 +41,11 @@ describe("Account Transport", () => {
         const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
         const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, relayerRandHash);
         expect(BigInt(expectedAkCommit)).toEqual(witness[258]);
-        const timestamp = "1694979179";
-        const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
-        for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
-            expect(BigInt(paddedTimestamp[idx])).toEqual(witness[259 + idx]);
-        }
+        const timestamp = 1694979179n;
+        expect(timestamp).toEqual(witness[259]);
+        // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
+        // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
+        //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[259 + idx]);
+        // }
     });
 });

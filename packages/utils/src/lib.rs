@@ -25,6 +25,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("extractSubjectAllIdxes", extract_subject_all_idxes_node)?;
     cx.export_function("extractBodyHashIdxes", extract_body_hash_idxes_node)?;
     cx.export_function("extractTimestampIdxes", extract_timestamp_idxes_node)?;
+    cx.export_function("extractTimestampInt", extract_timestamp_int_node)?;
     cx.export_function("extractMessageIdIdxes", extract_message_id_idxes_node)?;
     cx.export_function(
         "extractInvitationCodeIdxes",
