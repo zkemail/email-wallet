@@ -28,7 +28,8 @@ struct EmailOp {
     bytes emailProof; // ZK Proof of Email receipt
 }
 
-// When command = "Transfer" / "Send"
+// Sora's comment: the command is "Send".
+// When command = "Send"
 struct WalletParams {
     string tokenName; // Name of the token to transfer (from subject) - could be "ETH"
     uint256 amount; // Amount to transfer/swap (in wei) - extracted from subject
@@ -65,6 +66,8 @@ struct UnclaimedState {
     address extensionAddr;
     address sender;
     bytes state;
+    // Sora's comment: `expiryTime` is necessary in `UnclaimedState`.
+    uint256 expiryTime;
 }
 
 struct AccountKeyInfo {
@@ -91,11 +94,13 @@ struct EmailProof {
     bytes proof; // ZK Proof of Email
 }
 
+// Sora's comment: I think `unclaimedFundRegistered` is not necessary in `ExecutionContext` because there is no function for extensions to infernally register unclaimed funds.
+// Sora's comment: If the extension wants to register unclaimed funds with paying the fees from the sender's wallet, it should call `registerUnclaimedStateAsExtension` and locks the funds in the extension contract until the recipient claims the unclaimed states. 
 // Struct to store context when executing an EmailOp
 struct ExecutionContext {
     address walletAddr; // Wallet address of the user
     address extensionAddr; // Address of extension in use
-    bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
+    // bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
     TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension
 }
