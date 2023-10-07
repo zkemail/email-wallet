@@ -119,6 +119,8 @@ impl ImapClient {
 
         session.select("INBOX")?;
 
+        println!("ImapClient connected succesfully!");
+
         Ok(Self { session, config })
     }
 

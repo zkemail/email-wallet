@@ -28,7 +28,7 @@ impl Database {
         todo!()
     }
 
-    pub(crate) fn insert(&self, email: &str, status: EmailStatus) -> Result<()> {
+    pub(crate) fn insert(&self, email: &str) -> Result<()> {
         todo!()
     }
 
