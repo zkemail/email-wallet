@@ -34,15 +34,17 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal input timestamp_idx;
 
     var email_max_bytes = email_max_bytes_const();
+    var subject_field_len = compute_ints_size(max_subject_bytes);
     var domain_len = domain_len_const();
+    var domain_filed_len = compute_ints_size(domain_len);
     var k2_chunked_size = k >> 1;
     if(k % 2 == 1) {
         k2_chunked_size += 1;
     }
     var timestamp_len = timestamp_len_const();
 
-    signal output masked_subject_str[max_subject_bytes];
-    signal output domain_name[domain_len];
+    signal output masked_subject_str[subject_field_len];
+    signal output domain_name[domain_filed_len];
     signal output pubkey_hash;
     signal output sender_relayer_rand_hash;
     signal output email_nullifier;
@@ -78,15 +80,19 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     has_email_recipient <== IsZero()(recipient_email_regex_out-1);
     signal recipient_email_addr[email_max_bytes];
     recipient_email_addr <== VarShiftLeft(max_subject_bytes, email_max_bytes)(recipient_email_regex_reveal, recipient_email_idx);
+    signal masked_subject_bytes[max_subject_bytes];
     for(var i = 0; i < max_subject_bytes; i++) {
-        masked_subject_str[i] <== subject_all[i] - has_email_recipient * recipient_email_regex_reveal[i];
+        masked_subject_bytes[i] <== subject_all[i] - has_email_recipient * recipient_email_regex_reveal[i];
     }
+    masked_subject_str <== Bytes2Ints(max_subject_bytes)(masked_subject_bytes);
 
     // DOMAIN NAME HEADER REGEX
     signal domain_regex_out, domain_regex_reveal[email_max_bytes];
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
-    domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    signal domain_name_bytes[domain_len];
+    domain_name_bytes <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    domain_name <== Bytes2Ints(domain_len)(domain_name_bytes);
     
     signal sign_hash;
     signal sign_ints[k2_chunked_size];

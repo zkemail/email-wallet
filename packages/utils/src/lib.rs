@@ -4,6 +4,7 @@ pub mod converters;
 pub mod cryptos;
 pub mod parse_email;
 mod statics;
+use converters::*;
 use cryptos::*;
 use parse_email::*;
 pub use zk_regex_apis::extract_substrs::*;
@@ -13,6 +14,7 @@ pub use zk_regex_apis::padding::*;
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("parseEmail", parse_email_node)?;
     cx.export_function("padString", pad_string_node)?;
+    cx.export_function("bytes2Fields", bytes2fields_node)?;
     cx.export_function("extractSubstrIdxes", extract_substr_idxes_node)?;
     cx.export_function("extractEmailAddrIdxes", extract_email_addr_idxes_node)?;
     cx.export_function("extractEmailDomainIdxes", extract_email_domain_idxes_node)?;

@@ -28,29 +28,31 @@ describe("Email Sender", () => {
         // console.log(witness);
         const maskedSubject = "Send 0.1 ETH to ";
         const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
-        for (let idx = 0; idx < paddedMaskedSubject.length; ++idx) {
-            expect(BigInt(paddedMaskedSubject[idx])).toEqual(witness[1 + idx]);
+        const maskedSubjectFields = emailWalletUtils.bytes2Fields(paddedMaskedSubject);
+        for (let idx = 0; idx < maskedSubjectFields.length; ++idx) {
+            expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + idx]);
         }
         const domainName = "gmail.com";
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
-        for (let idx = 0; idx < domainName.length; ++idx) {
-            expect(BigInt(paddedDomain[idx])).toEqual(witness[513 + idx]);
+        const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
+        for (let idx = 0; idx < domainFields.length; ++idx) {
+            expect(BigInt(domainFields[idx])).toEqual(witness[18 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
-        expect(BigInt(expectedPubKeyHash)).toEqual(witness[768]);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[27]);
         const expectedRelayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        expect(BigInt(expectedRelayerRandHash)).toEqual(witness[769]);
+        expect(BigInt(expectedRelayerRandHash)).toEqual(witness[28]);
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
-        expect(BigInt(expectedEmailNullifier)).toEqual(witness[770]);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[29]);
         const senderEmailAddr = "suegamisora@gmail.com";
         const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(senderEmailAddr, relayerRand);
-        expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[771]);
-        expect(1n).toEqual(witness[772]);
+        expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[30]);
+        expect(1n).toEqual(witness[31]);
         const recipientEmailAddr = "alice@gmail.com"
         const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
-        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[773]);
+        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[32]);
         const timestamp = 1694989812n;
-        expect(timestamp).toEqual(witness[774]);
+        expect(timestamp).toEqual(witness[33]);
         // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
         // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
         //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[774 + idx]);

@@ -37,10 +37,11 @@ template AccountInit(n, k, max_header_bytes) {
 
     var email_max_bytes = email_max_bytes_const();
     var domain_len = domain_len_const();
+    var domain_filed_len = compute_ints_size(domain_len);
     var code_len = invitation_code_len_const();
     var timestamp_len = timestamp_len_const();
 
-    signal output domain_name[domain_len];
+    signal output domain_name[domain_filed_len];
     signal output pubkey_hash;
     signal output sender_relayer_rand_hash;
     signal output email_nullifier;
@@ -75,7 +76,9 @@ template AccountInit(n, k, max_header_bytes) {
     signal domain_regex_out, domain_regex_reveal[email_max_bytes];
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
-    domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    signal domain_name_bytes[domain_len];
+    domain_name_bytes <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    domain_name <== Bytes2Ints(domain_len)(domain_name_bytes);
 
     signal sign_hash;
     (sign_hash, _) <== HashSign(n,k)(signature);
