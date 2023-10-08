@@ -1,9 +1,9 @@
 use crate::*;
 
 use anyhow::anyhow;
-use async_imap::extensions::idle::{Handle, IdleResponse::*};
-use async_imap::Session;
+use async_imap::{extensions::idle::IdleResponse::*, types::Fetch, Session};
 use async_native_tls::TlsStream;
+use futures::TryStreamExt;
 use oauth2::reqwest::async_http_client;
 use oauth2::{
     basic::BasicClient, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
@@ -129,42 +129,50 @@ impl ImapClient {
         Ok(Self { session, config })
     }
 
-    pub(crate) async fn retrieve_new_emails(self) -> Result<Vec<u8>> {
-        let ImapClient { session, config } = self;
-        let idle = session.idle();
-        let imap = Self::wait_new_email(idle).await?;
+    pub(crate) async fn retrieve_new_emails(mut self) -> Result<(Self, Vec<Vec<Fetch>>)> {
+        self = self.wait_new_email().await?;
 
-        // loop {
-        //     match self.idle.uid_search("UNSEEN").await {
-        //         Ok(uids) => {
-        //             let mut fetches = vec![];
-        //             for (idx, uid) in uids.into_iter().enumerate() {
-        //                 let fetched = self
-        //                     .session
-        //                     .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")
-        //                     .await?;
-        //                 fetches.push(fetched);
-        //             }
-        //             return Ok(fetches);
-        //         }
-        //         Err(e) => {
-        //             println!("Connection reset, reconnecting...");
-        //             self.reconnect()?;
-        //         }
-        //     }
-        // }
-
-        todo!()
+        loop {
+            match self.session.uid_search("UNSEEN").await {
+                Ok(uids) => {
+                    let mut results = vec![];
+                    for uid in uids {
+                        let res = self
+                            .session
+                            .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")
+                            .await?;
+                        let res = res.try_collect::<Vec<_>>().await?;
+                        results.push(res);
+                    }
+                    return Ok((self, results));
+                }
+                Err(e) => {
+                    println!("Connection reset, reconnecting...");
+                    self.reconnect().await?;
+                }
+            }
+        }
     }
 
-    async fn wait_new_email(
-        mut idle: Handle<TlsStream<TcpStream>>,
-    ) -> Result<Session<TlsStream<TcpStream>>> {
-        let result = idle.wait().0.await?;
+    async fn wait_new_email(mut self) -> Result<Self> {
+        loop {
+            let mut idle = self.session.idle();
+            idle.init().await?;
+            let result = idle.wait().0.await;
+            let is_new_data = matches!(result, Ok(NewData(_)));
 
-        match result {
-            NewData(_) => return Ok(idle.done().await?),
-            _ => Err(anyhow!("{IMAP_IDLE_ERROR}")),
+            let session_result = idle.done().await;
+
+            self = match session_result {
+                Ok(session) => Self { session, ..self },
+                Err(_) => Self::new(self.config).await.unwrap(),
+            };
+
+            if is_new_data {
+                return Ok(self);
+            } else {
+                self.reconnect().await?;
+            }
         }
     }
 
