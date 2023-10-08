@@ -25,7 +25,14 @@ impl Database {
     }
 
     pub(crate) fn get_unhandled_emails(&self) -> Result<Vec<String>> {
-        todo!()
+        let mut emails = vec![];
+        for result in self.db.iter() {
+            let (_, value) = result?;
+            let email = String::from_utf8(value.to_vec())?;
+            emails.push(email);
+        }
+
+        Ok(emails)
     }
 
     pub(crate) fn insert(&self, email: &str) -> Result<()> {

@@ -26,10 +26,10 @@ use email_wallet_utils::parse_email::ParsedEmail;
 pub async fn run(config: RelayerConfig) -> Result<()> {
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
 
-    // let db = Arc::new(Database::open(&config.db_path)?);
-    // for email in db.get_unhandled_emails()? {
-    //     tx.send(email)?;
-    // }
+    let db = Arc::new(Database::open(&config.db_path)?);
+    for email_and_status in db.get_unhandled_emails()? {
+        tx.send(email_and_status)?;
+    }
 
     let email_receiver_task = tokio::task::spawn(async move {
         let mut email_receiver = ImapClient::new(config.imap_config).await?;
@@ -38,10 +38,12 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             for fetch in fetches {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {
-                        let parsed_email = serde_json::to_string(
-                            &ParsedEmail::new_from_raw_email(std::str::from_utf8(body)?).await?,
-                        )?;
-                        tx.send(parsed_email)?;
+                        let email_and_status = serde_json::to_string(&(
+                            ParsedEmail::new_from_raw_email(std::str::from_utf8(body)?).await?,
+                            EmailStatus::Unchecked,
+                        ))?;
+                        db.insert(&email_and_status)?;
+                        tx.send(email_and_status)?;
                     }
                 }
             }
@@ -52,13 +54,11 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let email_handler_task = tokio::task::spawn(async move {
         loop {
-            let email = rx
+            let email_and_status = rx
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-            tokio::task::spawn(handle_email(email));
-
-            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            tokio::task::spawn(handle_email(email_and_status));
         }
         Ok::<(), anyhow::Error>(())
     });
@@ -68,8 +68,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     Ok(())
 }
 
-async fn handle_email(email: String) -> Result<()> {
-    let email = serde_json::from_str(&email)?;
-    is_valid(email);
+async fn handle_email(email_and_status: String) -> Result<()> {
+    let EmailAndStatus(parsed_email, status) = serde_json::from_str(&email_and_status)?;
+    // is_valid(email);
     Ok(())
 }
