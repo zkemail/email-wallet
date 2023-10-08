@@ -41,7 +41,7 @@ if (ZKEY_BEACON == null) {
 }
 
 const phase1Url =
-  "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau";
+  "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau";
 // const buildDir = path.join(__dirname, "../build");
 // const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
 // const r1cPath = path.join(buildDir, "wallet.r1cs");
@@ -132,7 +132,7 @@ async function generateKeys(
 
 async function exec() {
   const buildDir = args.output;
-  const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
+  const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_22.ptau");
 
   await downloadPhase1(phase1Path);
   log("✓ Phase 1:", phase1Path);
