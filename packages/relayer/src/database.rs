@@ -1,6 +1,6 @@
-use std::path::Path;
-
 use crate::*;
+
+use std::path::Path;
 
 use sled::Db;
 
@@ -14,16 +14,6 @@ impl Database {
         Ok(Database { db })
     }
 
-    pub(crate) fn get_or_store_salt(&self, email: &str, message_id: &str) -> Result<String> {
-        match self.db.get(email).unwrap() {
-            Some(salt) => Ok(std::str::from_utf8(&salt)?.to_string()),
-            None => {
-                self.db.insert(email, message_id)?;
-                Ok(message_id.to_string())
-            }
-        }
-    }
-
     pub(crate) fn get_unhandled_emails(&self) -> Result<Vec<String>> {
         let mut emails = vec![];
         for result in self.db.iter() {
@@ -35,7 +25,15 @@ impl Database {
         Ok(emails)
     }
 
-    pub(crate) fn insert(&self, email: &str) -> Result<()> {
+    pub(crate) fn insert(&self, key: &[u8], value: &str) -> Result<()> {
+        // sha256
+        // self.db.insert(value)?;
+        todo!()
+    }
+
+    pub(crate) fn insert_raw_email(&self, value: &str) -> Result<()> {
+        // sha256
+        // self.db.insert(value)?;
         todo!()
     }
 
