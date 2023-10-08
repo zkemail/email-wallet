@@ -30,6 +30,7 @@ packages/relayer/db/*
 packages/relayer/received_eml/*.eml
 packages/relayer/received_eml/*.json
 packages/relayer/proofs
+db_abc
 
 #Mac
 .DS_Store
@@ -39,3 +40,4 @@ book
 
 # Vs code settings
 .vscode
+
