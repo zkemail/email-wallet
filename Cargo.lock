@@ -3494,6 +3494,7 @@ dependencies = [
  "dotenv",
  "email-wallet-utils",
  "ethers",
+ "futures",
  "lettre",
  "oauth2",
  "serde",
