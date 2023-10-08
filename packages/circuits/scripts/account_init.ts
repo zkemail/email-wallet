@@ -36,7 +36,7 @@ function log(...message: any) {
 
 async function generate() {
   if (!args.wtns.endsWith(".json")) {
-    throw new Error("--output path arg must end with .json");
+    throw new Error("--wtns path arg must end with .json");
   }
 
   log("Generating Inputs for:", args);

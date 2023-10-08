@@ -20,6 +20,10 @@ program
     "Relayer's randomness"
   )
   .requiredOption(
+    "--account-key <string>",
+    "User's account key"
+  )
+  .requiredOption(
     "--wtns <string>",
     "Path of a json file to write the generated witness"
   )
@@ -36,7 +40,7 @@ function log(...message: any) {
 
 async function generate() {
   if (!args.wtns.endsWith(".json")) {
-    throw new Error("--output path arg must end with .json");
+    throw new Error("--wtns path arg must end with .json");
   }
 
   log("Generating Inputs for:", args);

@@ -20,7 +20,7 @@ program
     "Relayer's randomness hash"
   )
   .requiredOption(
-    "--output <string>",
+    "--wtns <string>",
     "Path of a json file to write the generated inputs"
   )
   .option("--silent", "No console logs");
@@ -35,8 +35,8 @@ function log(...message: any) {
 }
 
 async function generate() {
-  if (!args.output.endsWith(".json")) {
-    throw new Error("--output path arg must end with .json");
+  if (!args.wtns.endsWith(".json")) {
+    throw new Error("--wtns path arg must end with .json");
   }
 
   log("Generating Inputs for:", args);
@@ -44,9 +44,9 @@ async function generate() {
   const circuitInputs = await genAccountTransportInput(args.emailFile, args.relayerRandHash);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
-  await promisify(fs.writeFile)(args.output, JSON.stringify(circuitInputs, null, 2));
+  await promisify(fs.writeFile)(args.wtns, JSON.stringify(circuitInputs, null, 2));
 
-  log("Inputs written to", args.output);
+  log("Inputs written to", args.wtns);
 }
 
 generate().catch((err) => {
