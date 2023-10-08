@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account creation circuit.
+ * This script is for generating input for the email sender circuit.
  * 
  */
 
@@ -20,8 +20,8 @@ program
     "Relayer's randomness"
   )
   .requiredOption(
-    "--output <string>",
-    "Path of a json file to write the generated inputs"
+    "--wtns <string>",
+    "Path of a json file to write the generated wtns"
   )
   .option("--silent", "No console logs");
 
@@ -35,7 +35,7 @@ function log(...message: any) {
 }
 
 async function generate() {
-  if (!args.output.endsWith(".json")) {
+  if (!args.wtns.endsWith(".json")) {
     throw new Error("--output path arg must end with .json");
   }
 
@@ -44,9 +44,9 @@ async function generate() {
   const circuitInputs = await genEmailSenderInput(args.emailFile, args.relayerRand);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
-  await promisify(fs.writeFile)(args.output, JSON.stringify(circuitInputs, null, 2));
+  await promisify(fs.writeFile)(args.wtns, JSON.stringify(circuitInputs, null, 2));
 
-  log("Inputs written to", args.output);
+  log("Inputs written to", args.wtns);
 }
 
 generate().catch((err) => {

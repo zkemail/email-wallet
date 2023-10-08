@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account creation circuit.
+ * This script is for generating input for the account transport circuit.
  * 
  */
 
