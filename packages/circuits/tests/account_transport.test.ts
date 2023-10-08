@@ -44,6 +44,7 @@ describe("Account Transport", () => {
         expect(BigInt(expectedAkCommit)).toEqual(witness[12]);
         const timestamp = 1694979179n;
         expect(timestamp).toEqual(witness[13]);
+        expect(BigInt(relayerRandHash)).toEqual(witness[14]);
         // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
         // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
         //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[259 + idx]);
