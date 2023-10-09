@@ -10,6 +10,7 @@ pub(crate) enum EmailStatus {
     Unchecked,
     Checked,
     Executed,
+    Finalized,
 }
 
 pub(crate) fn is_valid(email: &ParsedEmail) -> bool {

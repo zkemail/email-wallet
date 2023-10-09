@@ -40,4 +40,8 @@ impl Database {
     pub(crate) fn remove(&self, email: &str) -> Result<()> {
         todo!()
     }
+
+    pub(crate) fn contains_finalized(&self, key: &str) -> bool {
+        self.db.contains_key(key).unwrap()
+    }
 }
