@@ -28,7 +28,6 @@ struct EmailOp {
     bytes emailProof; // ZK Proof of Email receipt
 }
 
-// Sora's comment: the command is "Send".
 // When command = "Send"
 struct WalletParams {
     string tokenName; // Name of the token to transfer (from subject) - could be "ETH"
@@ -60,7 +59,6 @@ struct UnclaimedState {
     address extensionAddr;
     address sender;
     bytes state;
-    // Sora's comment: `expiryTime` is necessary in `UnclaimedState`.
     uint256 expiryTime;
 }
 
@@ -95,5 +93,6 @@ struct ExecutionContext {
     address extensionAddr; // Address of extension in use
     // bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
+    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address when there is email recipient
     TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension
 }
