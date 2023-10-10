@@ -54,9 +54,83 @@ pub fn field2hex(field: &Fr) -> String {
     format!("{:?}", field)
 }
 
+pub fn digits2int(input_digits: &str) -> anyhow::Result<u64> {
+    Ok(u64::from_str_radix(input_digits, 10)?)
+}
+
+pub fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
+    bytes
+        .chunks(31)
+        .map(|bytes| {
+            let mut bytes32 = [0; 32];
+            bytes32[0..bytes.len()].clone_from_slice(bytes);
+            Fr::from_bytes(&bytes32).expect("fail to convert bytes to a field value")
+        })
+        .collect_vec()
+}
+
+pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: usize) -> Vec<Fr> {
+    let bits = bytes
+        .into_iter()
+        .flat_map(|byte| {
+            let mut bits = vec![];
+            for i in 0..8 {
+                bits.push((byte >> i) & 1);
+            }
+            bits
+        })
+        .collect_vec();
+    let words = bits
+        .chunks(chunk_size)
+        .map(|bits| {
+            let mut word = Fr::zero();
+            for (i, bit) in bits.iter().enumerate() {
+                if *bit == 1 {
+                    word += Fr::from_u128(1u128 << i);
+                }
+            }
+            word
+        })
+        .collect_vec();
+    let fields = words
+        .chunks(num_chunk_in_field)
+        .map(|words| {
+            let mut input = Fr::zero();
+            let mut coeff = Fr::one();
+            let offset = Fr::from_u128(1u128 << chunk_size);
+            for (i, word) in words.iter().enumerate() {
+                input += coeff * word;
+                coeff *= offset;
+            }
+            input
+        })
+        .collect_vec();
+    fields
+}
+
 pub(crate) fn hex2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
     match hex2field(input_strs) {
         Ok(field) => Ok(field),
         Err(e) => cx.throw_error(e.to_string()),
     }
+}
+
+pub fn bytes2fields_node(mut cx: FunctionContext) -> JsResult<JsArray> {
+    let input_str = cx.argument::<JsArray>(0)?;
+    let input_vec = input_str.to_vec(&mut cx)?;
+    let mut input_bytes = vec![];
+    for val in input_vec.into_iter() {
+        let val = match val.downcast::<JsNumber, _>(&mut cx) {
+            Ok(v) => v.value(&mut cx),
+            Err(e) => return cx.throw_error(e.to_string()),
+        };
+        input_bytes.push(val as u8);
+    }
+    let fields = bytes2fields(&input_bytes);
+    let js_array = JsArray::new(&mut cx, fields.len() as u32);
+    for (i, field) in fields.into_iter().enumerate() {
+        let field = cx.string(&field2hex(&field));
+        js_array.set(&mut cx, i as u32, field)?;
+    }
+    Ok(js_array)
 }

@@ -66,7 +66,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     mapping(string => address) public addressOfExtension;
 
     // Global mapping of command name to extension address enabled for all users by default
-    mapping(string => address) public extensionOfCommand;
+    mapping(string => address) public defaultExtensionOfCommand;
 
     // Mapping of extension address to list of subjectTemplates
     // Each subject template is array of strings, where each item is a "matcher" or constant string
@@ -100,7 +100,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     uint256 public immutable unclaimedStateClaimGas;
 
     // Default expiry duration for unclaimed funds and states
-    uint256 public immutable unclaimedFundExpiryDuration;
+    uint256 public immutable unclaimsExpiryDuration;
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
@@ -157,7 +157,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
-        unclaimedFundExpiryDuration = _unclaimedFundExpirationDuration;
+        unclaimsExpiryDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet(_wethContract));
     }
@@ -327,10 +327,29 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(oldAccountKeyInfo.relayer != msg.sender, "new relayer cannot be same");
         require(oldAccountKeyInfo.initialized, "account not initialized");
         require(!oldAccountKeyInfo.nullified, "account is nullified");
-        require(accountKeyCommitOfPointer[newEmailAddrPointer] == bytes32(0), "new pointer already exist");
-        require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "salt already exists");
         require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullifier already used");
+
+        // New relayer might have already created an account, but not initialized.
+        bytes32 existingAccountKeyOfNewPointer = accountKeyCommitOfPointer[newEmailAddrPointer];
+        if (existingAccountKeyOfNewPointer != bytes32(0)) {
+            require(
+                !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].initialized,
+                "new account is registered and initialized."
+            );
+            require(
+                !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].nullified,
+                "new account is registered and nullified."
+            );
+            require(
+                !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].walletSaltSet,
+                "new account is registered and its salt already exists."
+            );
+        } else {
+            require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
+            require(!infoOfAccountKeyCommit[newAccountKeyCommit].nullified, "new account is already nullified");
+            require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "salt already exists");
+        }
 
         require(
             verifier.verifyAccountCreationProof(
@@ -370,6 +389,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSaltSet = false;
         infoOfAccountKeyCommit[oldAccountKeyCommit].nullified = true;
+
+        if (existingAccountKeyOfNewPointer != bytes32(0)) {
+            delete infoOfAccountKeyCommit[existingAccountKeyOfNewPointer];
+        }
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
@@ -389,6 +412,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 announceCommitRandomness,
         string memory announceEmailAddr
     ) public payable {
+        if (expiryTime == 0) {
+            expiryTime = block.timestamp + unclaimsExpiryDuration;
+        }
+
         // Ensure the sender has paid ETH needed for claiming / expiring the unclaimed fee
         require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "invalid unclaimed fund fee");
         require(amount > 0, "amount should be greater than 0");
@@ -498,7 +525,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         string memory announceEmailAddr
     ) public payable nonReentrant {
         if (expiryTime == 0) {
-            expiryTime = block.timestamp + unclaimedFundExpiryDuration;
+            expiryTime = block.timestamp + unclaimsExpiryDuration;
         }
 
         // Ensure the sender has paid ETH needed for claiming the unclaimed fee
@@ -513,11 +540,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             emailAddrCommit: emailAddrCommit,
             extensionAddr: extensionAddr,
             sender: msg.sender,
-            state: state
+            state: state,
+            expiryTime: expiryTime
         });
 
         Extension extension = Extension(extensionAddr);
-        bool registered = extension.registerUnclaimedState(us);
+        bool registered = extension.registerUnclaimedState(us, false);
 
         require(registered, "unclaimed state reg failed");
 
@@ -535,34 +563,40 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     }
 
     /// Registere unclaimed state from an extension
-    /// @param emailAddrCommit Email address commitment of the recipient
     /// @param extensionAddr Address of the extension contract
     /// @param state State to be registered
-    /// @dev This dont call `extension.registerUnclaimedState` as extension is expected to make necessary changes internally
-    function registerUnclaimedStateAsExtension(
-        bytes32 emailAddrCommit,
-        address extensionAddr,
-        bytes memory state
-    ) public {
-        require(msg.sender == currContext.extensionAddr, "invalid caller");
+    function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
+        require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
         require(state.length > 0, "state cannot be empty");
         require(extensionAddr != address(0), "invalid extension contract");
-        require(emailAddrCommit != bytes32(0), "invalid emailAddrCommit");
 
-        uint256 expiryTime = block.timestamp + unclaimedFundExpiryDuration;
+        uint256 expiryTime = block.timestamp + unclaimsExpiryDuration;
 
         UnclaimedState memory us = UnclaimedState({
-            emailAddrCommit: emailAddrCommit,
+            emailAddrCommit: currContext.recipientEmailAddrCommit,
             extensionAddr: extensionAddr,
             sender: currContext.walletAddr,
-            state: state
+            state: state,
+            expiryTime: expiryTime
         });
 
-        unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
+        Extension extension = Extension(extensionAddr);
+        bool registered = extension.registerUnclaimedState(us, true);
+        require(registered, "unclaimed state reg failed");
+
+        unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit] = us;
         currContext.unclaimedStateRegistered = true;
 
-        emit UnclaimedStateRegistered(emailAddrCommit, extensionAddr, currContext.walletAddr, expiryTime, state, 0, "");
+        emit UnclaimedStateRegistered(
+            currContext.recipientEmailAddrCommit,
+            extensionAddr,
+            currContext.walletAddr,
+            expiryTime,
+            state,
+            0,
+            ""
+        );
     }
 
     /// Claim unclaimed state to the recipient's (initialized) wallet.
@@ -583,7 +617,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer for account");
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.extensionAddr != address(0), "invalid extension address");
-        require(accountKeyCommitOfPointer[recipientEmailAddrPointer] != bytes32(0), "invalid account key commit.");
+        require(us.expiryTime < block.timestamp, "unclaimed fund expired");
+        require(accountKeyCommit != bytes32(0), "invalid account key commit.");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized, "account not initialized");
         require(!infoOfAccountKeyCommit[accountKeyCommit].nullified, "account is nullified");
         require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt != bytes32(0), "invalid wallet salt");
@@ -634,6 +669,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.sender != address(0), "unclaimed state not registered");
+        require(us.expiryTime > block.timestamp, "unclaimed fund expired");
 
         delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
@@ -668,7 +704,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param command Command for which the extension address is to be returned
     /// @param emailAddrPointer Pointer of the user's email address
     function getExtensionForCommand(string memory command, bytes32 emailAddrPointer) public view returns (address) {
-        address extensionAddr = extensionOfCommand[command]; // Global extension installed by default for all users
+        address extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
         address userextensionAddr = userExtensionOfCommand[emailAddrPointer][command];
 
         if (userextensionAddr != address(0)) {
@@ -707,11 +743,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
             require(emailOp.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
             require(
-                unclaimedFundOfEmailAddrCommit[emailOp.recipientEmailAddrCommit].amount == 0,
+                unclaimedFundOfEmailAddrCommit[emailOp.recipientEmailAddrCommit].sender == address(0),
                 "Unclaimed fund exist"
             );
             require(
-                unclaimedStateOfEmailAddrCommit[emailOp.recipientEmailAddrCommit].state.length == 0,
+                unclaimedStateOfEmailAddrCommit[emailOp.recipientEmailAddrCommit].sender == address(0),
                 "Unclaimed state exists"
             );
         } else {
@@ -753,6 +789,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         currContext.unclaimedStateRegistered = false;
         currContext.unclaimedFundRegistered = false;
         delete currContext.tokenAllowances;
+        currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = getWalletOfSalt(
             infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
         );
@@ -766,6 +803,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         (success, returnData) = _executeEmailOp(emailOp);
 
         uint totalFee; // Total fee in ETH to be paid to relayer
+
+        require(
+            currContext.unclaimedFundRegistered && currContext.unclaimedStateRegistered == false,
+            "both unclaimedFundRegistered and unclaimedStateRegistered cannot be true"
+        );
 
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
@@ -793,7 +835,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice For extensions to request token from user's wallet (context wallet)
     /// @param tokenAddr Address of the ERC20 token requested
     /// @param amount Amount requested
-    function requestTokenAsExtension(address tokenAddr, uint256 amount) public {
+    function requestTokenFromAccount(address tokenAddr, uint256 amount) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
 
         for (uint256 i = 0; i < currContext.tokenAllowances.length; i++) {
@@ -813,14 +855,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param target Address of the contract on which the call is to be executed
     /// @param data Calldata to be executed on the target contract
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
-    function executeAsExtension(
-        address target,
-        bytes memory data
-    ) public {
+    function executeAsExtension(address target, bytes memory data) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(target != address(this), "target cannot be core");
         require(target != currContext.walletAddr, "target cannot be wallet");
-        
+
         // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)
         require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "target cannot be a token");
 
@@ -832,7 +871,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @param amount Amount to be deposited
     /// @dev Extension should add allowance to Core contract before calling this function
     function depositTokenToAccount(address tokenAddr, uint256 amount) public {
-        require(msg.sender == currContext.extensionAddr, "invalid caller");
+        require(msg.sender == currContext.extensionAddr, "caller not extension");
 
         IERC20(tokenAddr).transferFrom(msg.sender, currContext.walletAddr, amount);
     }
@@ -1043,11 +1082,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
                     walletParams.amount,
-                    0,
+                    block.timestamp + unclaimsExpiryDuration,
                     0,
                     ""
                 );
-                currContext.unclaimedStateRegistered = true;
+                currContext.unclaimedFundRegistered = true;
             }
         }
         // Execute calldata on wallet
@@ -1145,10 +1184,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 announceCommitRandomness,
         string memory announceEmailAddr
     ) internal {
-        if (expiryTime == 0) {
-            expiryTime = block.timestamp + unclaimedFundExpiryDuration;
-        }
-
         UnclaimedFund memory fund = UnclaimedFund({
             emailAddrCommit: emailAddrCommit,
             tokenAddr: tokenAddr,
@@ -1233,7 +1268,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         bool validToken = Strings.equal(tokenName, "DAI") || Strings.equal(tokenName, "USDC");
-        if (validToken) {
+        if (!validToken) {
             return 0;
         }
 

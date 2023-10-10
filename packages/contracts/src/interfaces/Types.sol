@@ -28,7 +28,7 @@ struct EmailOp {
     bytes emailProof; // ZK Proof of Email receipt
 }
 
-// When command = "Transfer" / "Send"
+// When command = "Send"
 struct WalletParams {
     string tokenName; // Name of the token to transfer (from subject) - could be "ETH"
     uint256 amount; // Amount to transfer/swap (in wei) - extracted from subject
@@ -59,6 +59,7 @@ struct UnclaimedState {
     address extensionAddr;
     address sender;
     bytes state;
+    uint256 expiryTime;
 }
 
 struct AccountKeyInfo {
@@ -92,5 +93,6 @@ struct ExecutionContext {
     address extensionAddr; // Address of extension in use
     bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
+    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address when there is email recipient
     TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension
 }

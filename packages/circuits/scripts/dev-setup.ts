@@ -41,7 +41,7 @@ if (ZKEY_BEACON == null) {
 }
 
 const phase1Url =
-  "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau";
+  "https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau";
 // const buildDir = path.join(__dirname, "../build");
 // const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
 // const r1cPath = path.join(buildDir, "wallet.r1cs");
@@ -105,14 +105,14 @@ async function generateKeys(
   vKeyPath: string,
   solidityVerifierPath: string
 ) {
-  await zKey.newZKey(r1cPath, phase1Path, zKeyPath, console);
+  await zKey.newZKey(r1cPath, phase1Path, zKeyPath + ".step1", console);
   log("✓ Partial ZKey generated");
 
-  await zKey.contribute(zKeyPath, zKeyPath, "Contributer 1", ZKEY_ENTROPY, console);
+  await zKey.contribute(zKeyPath + ".step1", zKeyPath + ".step2", "Contributer 1", ZKEY_ENTROPY, console);
   log("✓ First contribution completed");
 
   // await askBeacon();
-  await zKey.beacon(zKeyPath, zKeyPath, "Final Beacon", ZKEY_BEACON, 10, console);
+  await zKey.beacon(zKeyPath + ".step2", zKeyPath, "Final Beacon", ZKEY_BEACON, 10, console);
   log("✓ Beacon applied");
 
   await zKey.verifyFromR1cs(r1cPath, phase1Path, zKeyPath, console);
@@ -128,11 +128,13 @@ async function generateKeys(
   const code = await zKey.exportSolidityVerifier(zKeyPath, templates, console);
   fs.writeFileSync(solidityVerifierPath, code);
   log(`✓ Solidity verifier exported - ${solidityVerifierPath}`);
+  fs.rmSync(zKeyPath + ".step1");
+  fs.rmSync(zKeyPath + ".step2");
 }
 
 async function exec() {
   const buildDir = args.output;
-  const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_21.ptau");
+  const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_22.ptau");
 
   await downloadPhase1(phase1Path);
   log("✓ Phase 1:", phase1Path);

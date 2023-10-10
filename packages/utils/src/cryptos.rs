@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 use std::str::FromStr;
 
-use crate::converters::{field2hex, hex2field, hex2field_node};
+use crate::converters::*;
 use anyhow;
 use halo2curves::ff::derive::rand_core::OsRng;
 use halo2curves::ff::{Field, PrimeField};
@@ -104,56 +104,6 @@ pub struct WalletSalt(Fr);
 
 // #[derive(Debug, Clone, Copy)]
 // pub struct ExtAccountSalt(Fr);
-
-fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
-    bytes
-        .chunks(31)
-        .map(|bytes| {
-            let mut bytes32 = [0; 32];
-            bytes32[0..bytes.len()].clone_from_slice(bytes);
-            Fr::from_bytes(&bytes32).expect("fail to convert bytes to a field value")
-        })
-        .collect_vec()
-}
-
-fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: usize) -> Vec<Fr> {
-    let bits = bytes
-        .into_iter()
-        .flat_map(|byte| {
-            let mut bits = vec![];
-            for i in 0..8 {
-                bits.push((byte >> i) & 1);
-            }
-            bits
-        })
-        .collect_vec();
-    let words = bits
-        .chunks(chunk_size)
-        .map(|bits| {
-            let mut word = Fr::zero();
-            for (i, bit) in bits.iter().enumerate() {
-                if *bit == 1 {
-                    word += Fr::from_u128(1u128 << i);
-                }
-            }
-            word
-        })
-        .collect_vec();
-    let fields = words
-        .chunks(num_chunk_in_field)
-        .map(|words| {
-            let mut input = Fr::zero();
-            let mut coeff = Fr::one();
-            let offset = Fr::from_u128(1u128 << chunk_size);
-            for (i, word) in words.iter().enumerate() {
-                input += coeff * word;
-                coeff *= offset;
-            }
-            input
-        })
-        .collect_vec();
-    fields
-}
 
 /// `public_key_n` is little endian.
 pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {

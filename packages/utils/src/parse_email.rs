@@ -16,7 +16,6 @@ use neon::prelude::*;
 use rsa::PublicKeyParts;
 use serde::{Deserialize, Serialize};
 use slog;
-use std::env;
 use zk_regex_apis::extract_substrs::*;
 // use trust_dns_resolver::config::{ResolverConfig, ResolverOpts};
 // use trust_dns_resolver::proto::rr::{RData, RecordType};
@@ -79,10 +78,10 @@ impl ParsedEmail {
         Ok(str)
     }
 
-    pub fn get_timestamp(&self) -> Result<String> {
+    pub fn get_timestamp(&self) -> Result<u64> {
         let idxes = extract_timestamp_idxes(&self.canonicalized_header)?[0];
-        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
-        Ok(str)
+        let str = &self.canonicalized_header[idxes.0..idxes.1];
+        Ok(u64::from_str_radix(str, 10)?)
     }
 
     pub fn get_invitation_code(&self) -> Result<String> {
@@ -169,6 +168,21 @@ pub fn extract_invitation_code_idxes_node(mut cx: FunctionContext) -> JsResult<J
     Ok(js_array)
 }
 
+pub fn extract_timestamp_int_node(mut cx: FunctionContext) -> JsResult<JsNumber> {
+    let input_str = cx.argument::<JsString>(0)?.value(&mut cx);
+    let substr_idxes = match extract_timestamp_idxes(&input_str) {
+        Ok(substr_idxes) => substr_idxes,
+        Err(e) => return cx.throw_error(e.to_string()),
+    };
+    let timestamp_str = &input_str[substr_idxes[0].0..substr_idxes[0].1];
+    let timestamp_int = match u64::from_str_radix(timestamp_str, 10) {
+        Ok(timestamp_int) => timestamp_int,
+        Err(e) => return cx.throw_error(e.to_string()),
+    };
+    let timestamp_int = cx.number(timestamp_int as f64);
+    Ok(timestamp_int)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -184,7 +198,7 @@ mod test {
         let subject_all = parsed_email.get_subject_all().unwrap();
         assert_eq!(subject_all, "Send 0.1 ETH to alice@gmail.com");
         let timestamp = parsed_email.get_timestamp().unwrap();
-        assert_eq!(timestamp, "1694989812");
+        assert_eq!(timestamp, 1694989812);
         let recipient = parsed_email.get_email_addr_in_subject().unwrap();
         assert_eq!(recipient, "alice@gmail.com");
     }
@@ -203,7 +217,7 @@ mod test {
             "This is a test. CODE:0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd"
         );
         let timestamp = parsed_email.get_timestamp().unwrap();
-        assert_eq!(timestamp, "1694979179");
+        assert_eq!(timestamp, 1694979179);
         let invitation_code = parsed_email.get_invitation_code().unwrap();
         assert_eq!(
             invitation_code,

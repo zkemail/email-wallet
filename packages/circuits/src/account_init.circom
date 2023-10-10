@@ -15,6 +15,7 @@ include "./utils/hex2int.circom";
 include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
 include "./utils/bytes2ints.circom";
+include "./utils/digit2int.circom";
 include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "./regexes/invitation_code_regex.circom";
@@ -36,16 +37,17 @@ template AccountInit(n, k, max_header_bytes) {
 
     var email_max_bytes = email_max_bytes_const();
     var domain_len = domain_len_const();
+    var domain_filed_len = compute_ints_size(domain_len);
     var code_len = invitation_code_len_const();
     var timestamp_len = timestamp_len_const();
 
-    signal output domain_name[domain_len];
+    signal output domain_name[domain_filed_len];
     signal output pubkey_hash;
     signal output sender_relayer_rand_hash;
     signal output email_nullifier;
     signal output sender_pointer;
     signal output sender_ak_commit;
-    signal output timestamp[timestamp_len];
+    signal output timestamp;
     
     
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
@@ -74,7 +76,9 @@ template AccountInit(n, k, max_header_bytes) {
     signal domain_regex_out, domain_regex_reveal[email_max_bytes];
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
-    domain_name <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    signal domain_name_bytes[domain_len];
+    domain_name_bytes <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    domain_name <== Bytes2Ints(domain_len)(domain_name_bytes);
 
     signal sign_hash;
     (sign_hash, _) <== HashSign(n,k)(signature);
@@ -93,7 +97,9 @@ template AccountInit(n, k, max_header_bytes) {
     signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
     (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
     timestamp_regex_out === 1;
-    timestamp <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    signal timestamp_str[timestamp_len];
+    timestamp_str <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    timestamp <== Digit2Int(timestamp_len)(timestamp_str);
 }
 
 // Args:
