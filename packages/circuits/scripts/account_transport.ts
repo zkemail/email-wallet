@@ -16,8 +16,12 @@ program
     "Path to an email file"
   )
   .requiredOption(
-    "--relayer-rand-hash <string>",
-    "Relayer's randomness hash"
+    "--old-relayer-hash <string>",
+    "Previous relayer's randomness hash"
+  )
+  .requiredOption(
+    "--new-relayer-rand <string>",
+    "New relayer's randomness"
   )
   .requiredOption(
     "--input-file <string>",
@@ -41,7 +45,7 @@ async function generate() {
 
   log("Generating Inputs for:", args);
 
-  const circuitInputs = await genAccountTransportInput(args.emailFile, args.relayerRandHash);
+  const circuitInputs = await genAccountTransportInput(args.emailFile, args.oldRelayerHash, args.newRelayerRand);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
   await promisify(fs.writeFile)(args.inputFile, JSON.stringify(circuitInputs, null, 2));

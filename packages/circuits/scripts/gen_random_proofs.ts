@@ -45,6 +45,8 @@ async function exec() {
     const emailAddr = "suegamisora@gmail.com";
     const relayerRand = emailWalletUtils.genRelayerRand();
     const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
+    const newRelayerRand = emailWalletUtils.genRelayerRand();
+    const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
     const accountKey = emailWalletUtils.genAccountKey();
     const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
     const initEmailPath = path.join(__dirname, "../tests/emails/account_init_test1.eml");
@@ -60,7 +62,7 @@ async function exec() {
     await prove(accountInitInput, path.join(buildDir, "account_init_js", "account_init.wasm"), path.join(buildDir, "account_init.zkey"), path.join(buildDir, "account_init_proof.json"), path.join(buildDir, "account_init_public.json"));
     log("✓ Proof for account initialization circuit generated");
 
-    const accountTransportInput = await genAccountTransportInput(initEmailPath, relayerRandHash);
+    const accountTransportInput = await genAccountTransportInput(initEmailPath, relayerRandHash, newRelayerRand);
     await promisify(fs.writeFile)(path.join(buildDir, "account_transport_input.json"), JSON.stringify(accountTransportInput, null, 2));
     await prove(accountTransportInput, path.join(buildDir, "account_transport_js", "account_transport.wasm"), path.join(buildDir, "account_transport.zkey"), path.join(buildDir, "account_transport_proof.json"), path.join(buildDir, "account_transport_public.json"));
     log("✓ Proof for account transport circuit generated");

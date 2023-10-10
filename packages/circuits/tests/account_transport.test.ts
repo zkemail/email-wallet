@@ -21,9 +21,11 @@ describe("Account Transport", () => {
         const emailFilePath = path.join(__dirname, "./emails/account_init_test1.eml");
         const emailRaw = readFileSync(emailFilePath, "utf8");
         const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
-        const relayerRand = emailWalletUtils.genRelayerRand();
-        const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        const circuitInputs = await genAccountTransportInput(emailFilePath, relayerRandHash);
+        const oldRelayerRand = emailWalletUtils.genRelayerRand();
+        const oldRelayerRandHash = emailWalletUtils.relayerRandHash(oldRelayerRand);
+        const newRelayerRand = emailWalletUtils.genRelayerRand();
+        const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
+        const circuitInputs = await genAccountTransportInput(emailFilePath, oldRelayerRandHash, newRelayerRand);
         const circuit = await wasm_tester(path.join(__dirname, "../src/account_transport.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
@@ -40,11 +42,14 @@ describe("Account Transport", () => {
         expect(BigInt(expectedEmailNullifier)).toEqual(witness[11]);
         const emailAddr = "suegamisora@gmail.com";
         const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
-        const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, relayerRandHash);
-        expect(BigInt(expectedAkCommit)).toEqual(witness[12]);
+        const expectedOldAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, oldRelayerRandHash);
+        expect(BigInt(expectedOldAkCommit)).toEqual(witness[12]);
+        const expectedNewAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, newRelayerRandHash);
+        expect(BigInt(expectedNewAkCommit)).toEqual(witness[13]);
+        expect(BigInt(newRelayerRandHash)).toEqual(witness[14]);
         const timestamp = 1694979179n;
-        expect(timestamp).toEqual(witness[13]);
-        expect(BigInt(relayerRandHash)).toEqual(witness[14]);
+        expect(timestamp).toEqual(witness[15]);
+        expect(BigInt(oldRelayerRandHash)).toEqual(witness[16]);
         // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
         // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
         //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[259 + idx]);

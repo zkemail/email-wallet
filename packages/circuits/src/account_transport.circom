@@ -28,7 +28,8 @@ template AccountTransport(n, k, max_header_bytes) {
     signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_padded_len; // length of in email data including the padding, which will inform the sha256 block length
-    signal input sender_relayer_rand_hash;
+    signal input old_relayer_rand_hash;
+    signal input new_relayer_rand;
     signal input sender_email_idx; // index of the from email address (= sender email address) in the header
     signal input code_idx; // index of the invitation code in the header
     signal input domain_idx;
@@ -43,7 +44,9 @@ template AccountTransport(n, k, max_header_bytes) {
     signal output domain_name[domain_filed_len];
     signal output pubkey_hash;
     signal output email_nullifier;
-    signal output sender_ak_commit;
+    signal output old_ak_commit;
+    signal output new_ak_commit;
+    signal output new_relayer_rand_hash;
     signal output timestamp;
     
     
@@ -83,7 +86,10 @@ template AccountTransport(n, k, max_header_bytes) {
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
-    sender_ak_commit <== AccountKeyCommit(num_email_addr_ints)(sender_ak, sender_email_addr_ints, sender_relayer_rand_hash);
+    old_ak_commit <== AccountKeyCommit(num_email_addr_ints)(sender_ak, sender_email_addr_ints, old_relayer_rand_hash);
+    new_relayer_rand_hash <== Poseidon(1)([new_relayer_rand]);
+    new_ak_commit <== AccountKeyCommit(num_email_addr_ints)(sender_ak, sender_email_addr_ints, new_relayer_rand_hash);
+
 
     // TIMESTAMP REGEX
     signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
@@ -98,4 +104,4 @@ template AccountTransport(n, k, max_header_bytes) {
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
 // * max_header_bytes = 1024 is the max number of bytes in the header
-component main { public [sender_relayer_rand_hash] }  = AccountTransport(121, 17, 1024);
+component main { public [old_relayer_rand_hash] }  = AccountTransport(121, 17, 1024);
