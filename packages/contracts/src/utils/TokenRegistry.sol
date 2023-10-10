@@ -1,131 +1,79 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-/**
-    Registry for storing tokenName to address across chains
-    Return address(0x11...) if tokenName is 1
-
-    TODO: Store popular token address as constants would save gas
- */
+/// @title TokenRegistry
+/// @notice A registry of token name and their address on different chains
 contract TokenRegistry is Ownable {
-    // Define a structure that represents a token
-    struct Token {
-        address optimism;
-        address arbitrum;
-        address xdai;
-        address goerli;
-        address mainnet;
+    // Mapping of chainId to token name to address
+    mapping(uint256 => mapping(string => address)) public addressOfTokenName;
+
+    // Mapping of chainId to address of token
+    mapping(uint256 => mapping(address => string)) public tokenNameOfAddress;
+
+    /// @notice Set token address for a chain
+    /// @param chainId Chain id of the network
+    /// @param tokenName Token name - other than ones hardcoded in `getTokenAddress()`
+    /// @param addr Address of the token in the chain
+    function setTokenAddress(uint256 chainId, string memory tokenName, address addr) public onlyOwner {
+        addressOfTokenName[chainId][tokenName] = addr;
+        tokenNameOfAddress[chainId][addr] = tokenName;
     }
 
-    // Define a mapping from token names to their addresses on each chain
-    mapping(string => Token) private tokens;
-    mapping(uint256 => string) private chainIdToName;
-
-    // Define the owner of the contract
-    // address private owner;
-
-    // TODO: Replace with Ownable
-    // Ensure that only the owner can call certain functions
-    // modifier onlyOwner() {
-    //     require(msg.sender == owner, "Only the owner or proxy can call this function.");
-    //     _;
-    // }
-
-    // Set the owner of the contract
-    constructor() {
-        // Initialize the mapping with some hardcoded addresses
-        // TODO: Add RAI, and some other tokens
-        tokens["DAI"] = Token({
-            optimism: 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1,
-            arbitrum: 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1,
-            xdai: 0x44fA8E6f47987339850636F88629646662444217,
-            goerli: 0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844,
-            mainnet: 0x6B175474E89094C44Da98b954EedeAC495271d0F
-        });
-        tokens["USDC"] = Token({
-            optimism: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607,
-            arbitrum: 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8,
-            xdai: 0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83,
-            goerli: 0x07865c6E87B9F70255377e024ace6630C1Eaa37F,
-            mainnet: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-        });
-        tokens["WETH"] = Token({
-            optimism: 0x4200000000000000000000000000000000000006,
-            arbitrum: 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1,
-            xdai: 0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1,
-            goerli: 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6,
-            mainnet: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-        });
-
-        chainIdToName[0] = "mainnet";
-        chainIdToName[10] = "optimism";
-        chainIdToName[100] = "xdai";
-        chainIdToName[42161] = "arbitrum";
-        chainIdToName[5] = "goerli";
-        chainIdToName[31337] = "goerli"; // Local foundry test chain goerli fork
+    /// @notice Set token address for the current chain
+    /// @param tokenName Token name - other than ones hardcoded in `getTokenAddress()`
+    /// @param addr Address of the token in the chain
+    function setTokenAddress(string memory tokenName, address addr) public onlyOwner {
+        setTokenAddress(block.chainid, tokenName, addr);
     }
 
-    function setProxyOwner(address proxyAddress) public onlyOwner {
-        transferOwnership(proxyAddress);
+    /// @notice Get token address for a chain
+    /// @param chainId Chain id of the network for which address is needed
+    /// @param tokenName Name of the token for which address if needed
+    function getTokenAddress(uint256 chainId, string memory tokenName) public view returns (address) {
+        if (Strings.equal(tokenName, "WETH")) {
+            if (chainId == 0) return 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+            if (chainId == 10) return 0x4200000000000000000000000000000000000006;
+            if (chainId == 42161) return 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+        }
+
+        if (Strings.equal(tokenName, "DAI")) {
+            if (chainId == 0) return 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+            if (chainId == 10) return 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
+            if (chainId == 42161) return 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
+        }
+
+        if (Strings.equal(tokenName, "USDC")) {
+            if (chainId == 0) return 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+            if (chainId == 10) return 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
+            if (chainId == 42161) return 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
+        }
+
+        return addressOfTokenName[chainId][tokenName];
     }
 
-    // Return the address of a token on this chain
+    /// @notice Get token address for the current chain
+    /// @param tokenName Name of the token for which address if needed
     function getTokenAddress(string memory tokenName) public view returns (address) {
-        return getTokenAddress(tokenName, chainIdToName[getChainID()]);
+        return getTokenAddress(block.chainid, tokenName);
     }
 
-    // Return the address of a token on a specific chain
-    function getTokenAddress(string memory tokenName, uint256 chainId) public view returns (address) {
-        return getTokenAddress(tokenName, chainIdToName[chainId]);
+    /// @notice Get token name for the given address in a chain
+    /// @param chainId Chain id of the network for which address is needed
+    /// @param addr Address of the token for which name if needed
+    function getTokenNameOfAddress(uint256 chainId, address addr) public view returns (string memory) {
+        if (addr == getTokenAddress(chainId, "WETH")) return "WETH";
+        if (addr == getTokenAddress(chainId, "DAI")) return "DAI";
+        if (addr == getTokenAddress(chainId, "USDC")) return "USDC";
+
+        return tokenNameOfAddress[chainId][addr];
     }
 
-    // Return the address of a token on a specific chain
-    function getTokenAddress(string memory tokenName, string memory chainName) public view returns (address) {
-        if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("optimism"))) {
-            return tokens[tokenName].optimism;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("arbitrum"))) {
-            return tokens[tokenName].arbitrum;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("xdai"))) {
-            return tokens[tokenName].xdai;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("goerli"))) {
-            return tokens[tokenName].goerli;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("mainnet"))) {
-            return tokens[tokenName].mainnet;
-        } else {
-            revert("Invalid chain name.");
-        }
-    }
-
-    // Update the address of a token on a specific chain
-    function setTokenAddress(string memory tokenName, address newAddress) public onlyOwner {
-        return setTokenAddress(tokenName, chainIdToName[getChainID()], newAddress);
-    }
-
-    // Update the address of a token on a specific chain
-    function setTokenAddress(string memory tokenName, string memory chainName, address newAddress) public onlyOwner {
-        if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("optimism"))) {
-            tokens[tokenName].optimism = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("arbitrum"))) {
-            tokens[tokenName].arbitrum = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("xdai"))) {
-            tokens[tokenName].xdai = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("goerli"))) {
-            tokens[tokenName].goerli = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("mainnet"))) {
-            tokens[tokenName].mainnet = newAddress;
-        } else {
-            revert("Invalid chain name.");
-        }
-    }
-
-    function getChainID() public view returns (uint256) {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        return chainId;
+    /// @notice Get token name for the given address in the current chain
+    /// @param addr Address of the token for which name if needed
+    function getTokenNameOfAddress(address addr) public view returns (string memory) {
+        return getTokenNameOfAddress(block.chainid, addr);
     }
 }

@@ -74,6 +74,6 @@ impl SmtpClient {
             }
         }
 
-        Err(anyhow!("{IMAP_RECONNECT_ERROR}"))
+        Err(anyhow!("{SMTP_RECONNECT_ERROR}"))
     }
 }

@@ -20,7 +20,7 @@ pub(crate) use strings::*;
 
 use std::sync::Arc;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use email_wallet_utils::parse_email::ParsedEmail;
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
@@ -31,6 +31,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         tx.send(email_and_status)?;
     }
 
+    let db_clone_receiver = Arc::clone(&db);
     let email_receiver_task = tokio::task::spawn(async move {
         let mut email_receiver = ImapClient::new(config.imap_config).await?;
         loop {
@@ -38,12 +39,13 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             for fetch in fetches {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {
-                        let email_and_status = serde_json::to_string(&(
-                            ParsedEmail::new_from_raw_email(std::str::from_utf8(body)?).await?,
-                            EmailStatus::Unchecked,
-                        ))?;
-                        db.insert(&email_and_status)?;
-                        tx.send(email_and_status)?;
+                        let body = String::from_utf8(body.to_vec())?;
+                        if !db_clone_receiver.contains_finalized(&body) {
+                            let email_and_status =
+                                serde_json::to_string(&(body, EmailStatus::Unchecked))?;
+                            db_clone_receiver.insert_raw_email(&email_and_status)?;
+                            tx.send(email_and_status)?;
+                        }
                     }
                 }
             }
@@ -58,7 +60,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-            tokio::task::spawn(handle_email(email_and_status));
+            tokio::task::spawn(handle_email(email_and_status, Arc::clone(&db)));
         }
         Ok::<(), anyhow::Error>(())
     });
@@ -68,8 +70,28 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     Ok(())
 }
 
-async fn handle_email(email_and_status: String) -> Result<()> {
-    let EmailAndStatus(parsed_email, status) = serde_json::from_str(&email_and_status)?;
-    // is_valid(email);
+async fn handle_email(mut email_and_status: String, db: Arc<Database>) -> Result<()> {
+    let EmailAndStatus(raw_email, mut status) = serde_json::from_str(&email_and_status)?;
+    let parsed_email = ParsedEmail::new_from_raw_email(&raw_email).await?;
+
+    if let EmailStatus::Unchecked = status {
+        if is_valid(&parsed_email) {
+            status = EmailStatus::Checked;
+            email_and_status = serde_json::to_string(&(parsed_email, EmailStatus::Unchecked))?;
+        } else {
+            bail!("abacaba");
+        }
+    }
+
+    if let EmailStatus::Checked = status {
+        todo!()
+    }
+
+    if let EmailStatus::Executed = status {
+        todo!()
+    }
+
+    db.remove(&email_and_status)?;
+
     Ok(())
 }

@@ -3,16 +3,17 @@ use crate::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct EmailAndStatus(pub(crate) ParsedEmail, pub(crate) EmailStatus);
+pub(crate) struct EmailAndStatus(pub(crate) String, pub(crate) EmailStatus);
 
 #[derive(Serialize, Deserialize)]
 pub(crate) enum EmailStatus {
     Unchecked,
     Checked,
     Executed,
+    Finalized,
 }
 
-pub(crate) fn is_valid(email: ParsedEmail) -> bool {
+pub(crate) fn is_valid(email: &ParsedEmail) -> bool {
     println!("{}", email.canonicalized_body);
     println!("{}", email.canonicalized_header);
     println!("{}", email.signature_string());

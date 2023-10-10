@@ -846,8 +846,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice For extensions to request token from user's wallet (context wallet)
     /// @param tokenAddr Address of the ERC20 token requested
     /// @param amount Amount requested
-    function requestTokenFromAccount(address tokenAddr, uint256 amount) public {
-        require(msg.sender == currContext.extensionAddr, "invalid caller");
+    function requestTokenAsExtension(address tokenAddr, uint256 amount) public {
+        require(msg.sender == currContext.extensionAddr, "caller not extension");
 
         for (uint256 i = 0; i < currContext.tokenAllowances.length; i++) {
             if (currContext.tokenAllowances[i].tokenAddr == tokenAddr) {
@@ -860,6 +860,24 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
 
         require(false, "no allowance for requested token");
+    }
+
+    /// @notice For extensions to execute a call on user's wallet
+    /// @param target Address of the contract on which the call is to be executed
+    /// @param data Calldata to be executed on the target contract
+    /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
+    function executeAsExtension(
+        address target,
+        bytes memory data
+    ) public {
+        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(target != address(this), "target cannot be core");
+        require(target != currContext.walletAddr, "target cannot be wallet");
+        
+        // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)
+        require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "target cannot be a token");
+
+        Wallet(payable(currContext.walletAddr)).execute(target, 0, data);
     }
 
     /// @notice For extensions to deposit token to user's wallet (context wallet)

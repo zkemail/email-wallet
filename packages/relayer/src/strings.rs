@@ -19,5 +19,5 @@ pub const DATABASE_PATH_KEY: &str = "DATABASE_PATH";
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";
 pub const IMAP_RECONNECT_ERROR: &str = "Failed to reconnect";
-pub const IMAP_IDLE_ERROR: &str = "Failed idle";
+pub const SMTP_RECONNECT_ERROR: &str = "Failed to reconnect";
 pub const CANNOT_GET_EMAIL_FROM_QUEUE: &str = "Cannot get email from mpsc in handle email task";
