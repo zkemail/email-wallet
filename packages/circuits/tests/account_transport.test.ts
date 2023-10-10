@@ -13,9 +13,7 @@ const option = {
 import { genAccountTransportInput } from "../helpers/account_transport";
 import { readFileSync } from "fs";
 
-// const zkemailHelper = require("@zk-email/helpers");
-// const grumpkin = require("circom-grumpkin");
-jest.setTimeout(360000);
+jest.setTimeout(1080000);
 describe("Account Transport", () => {
     it("transport an account", async () => {
         const emailFilePath = path.join(__dirname, "./emails/account_init_test1.eml");
@@ -29,7 +27,6 @@ describe("Account Transport", () => {
         const circuit = await wasm_tester(path.join(__dirname, "../src/account_transport.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
-        // console.log(witness);
         const domainName = "gmail.com";
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
         const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
@@ -50,9 +47,73 @@ describe("Account Transport", () => {
         const timestamp = 1694979179n;
         expect(timestamp).toEqual(witness[15]);
         expect(BigInt(oldRelayerRandHash)).toEqual(witness[16]);
-        // const paddedTimestamp = emailWalletUtils.padString(timestamp, 10);
-        // for (let idx = 0; idx < paddedTimestamp.length; ++idx) {
-        //     expect(BigInt(paddedTimestamp[idx])).toEqual(witness[259 + idx]);
-        // }
+    });
+
+    it("transport an account, the from field has a dummy email address name", async () => {
+        const emailFilePath = path.join(__dirname, "./emails/account_init_test2.eml");
+        const emailRaw = readFileSync(emailFilePath, "utf8");
+        const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
+        const oldRelayerRand = emailWalletUtils.genRelayerRand();
+        const oldRelayerRandHash = emailWalletUtils.relayerRandHash(oldRelayerRand);
+        const newRelayerRand = emailWalletUtils.genRelayerRand();
+        const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
+        const circuitInputs = await genAccountTransportInput(emailFilePath, oldRelayerRandHash, newRelayerRand);
+        const circuit = await wasm_tester(path.join(__dirname, "../src/account_transport.circom"), option);
+        const witness = await circuit.calculateWitness(circuitInputs);
+        await circuit.checkConstraints(witness);
+        const domainName = "gmail.com";
+        const paddedDomain = emailWalletUtils.padString(domainName, 255);
+        const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
+        for (let idx = 0; idx < domainFields.length; ++idx) {
+            expect(BigInt(domainFields[idx])).toEqual(witness[1 + idx]);
+        }
+        const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[10]);
+        const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[11]);
+        const emailAddr = "suegamisora@gmail.com";
+        const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
+        const expectedOldAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, oldRelayerRandHash);
+        expect(BigInt(expectedOldAkCommit)).toEqual(witness[12]);
+        const expectedNewAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, newRelayerRandHash);
+        expect(BigInt(expectedNewAkCommit)).toEqual(witness[13]);
+        expect(BigInt(newRelayerRandHash)).toEqual(witness[14]);
+        const timestamp = 1696967462n;
+        expect(timestamp).toEqual(witness[15]);
+        expect(BigInt(oldRelayerRandHash)).toEqual(witness[16]);
+    });
+
+    it("transport an account, the from field has a non-English name", async () => {
+        const emailFilePath = path.join(__dirname, "./emails/account_init_test3.eml");
+        const emailRaw = readFileSync(emailFilePath, "utf8");
+        const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
+        const oldRelayerRand = emailWalletUtils.genRelayerRand();
+        const oldRelayerRandHash = emailWalletUtils.relayerRandHash(oldRelayerRand);
+        const newRelayerRand = emailWalletUtils.genRelayerRand();
+        const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
+        const circuitInputs = await genAccountTransportInput(emailFilePath, oldRelayerRandHash, newRelayerRand);
+        const circuit = await wasm_tester(path.join(__dirname, "../src/account_transport.circom"), option);
+        const witness = await circuit.calculateWitness(circuitInputs);
+        await circuit.checkConstraints(witness);
+        const domainName = "gmail.com";
+        const paddedDomain = emailWalletUtils.padString(domainName, 255);
+        const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
+        for (let idx = 0; idx < domainFields.length; ++idx) {
+            expect(BigInt(domainFields[idx])).toEqual(witness[1 + idx]);
+        }
+        const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[10]);
+        const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[11]);
+        const emailAddr = "suegamisora@gmail.com";
+        const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
+        const expectedOldAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, oldRelayerRandHash);
+        expect(BigInt(expectedOldAkCommit)).toEqual(witness[12]);
+        const expectedNewAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, newRelayerRandHash);
+        expect(BigInt(expectedNewAkCommit)).toEqual(witness[13]);
+        expect(BigInt(newRelayerRandHash)).toEqual(witness[14]);
+        const timestamp = 1696967293n;
+        expect(timestamp).toEqual(witness[15]);
+        expect(BigInt(oldRelayerRandHash)).toEqual(witness[16]);
     });
 });

@@ -115,7 +115,9 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     cm_rand_input[k2_chunked_size] <== 1;
     signal cm_rand <== Poseidon(k2_chunked_size+1)(cm_rand_input);
     signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
-    recipient_email_addr_commit <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
+    signal recipient_email_addr_commit_raw;
+    recipient_email_addr_commit_raw <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
+    recipient_email_addr_commit <== has_email_recipient * recipient_email_addr_commit_raw;
 
     // TIMESTAMP REGEX
     signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];

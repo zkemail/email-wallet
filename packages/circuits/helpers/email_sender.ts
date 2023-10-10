@@ -34,7 +34,14 @@ export async function genEmailSenderInput(emailFilePath: string, relayerRand: st
   const domainIdx = emailWalletUtils.extractEmailDomainIdxes(fromEmailAddrPart)[0][0];
   const subjectEmailIdxes = emailWalletUtils.extractSubjectAllIdxes(parsedEmail.canonicalizedHeader)[0];
   const subject = parsedEmail.canonicalizedHeader.slice(subjectEmailIdxes[0], subjectEmailIdxes[1]);
-  const recipientEmailIdx = emailWalletUtils.extractEmailAddrIdxes(subject)[0][0];
+  let recipientEmailIdx = 0;
+  try {
+    recipientEmailIdx = emailWalletUtils.extractEmailAddrIdxes(subject)[0][0];
+  } catch (e) {
+    console.log("No email address in subject");
+    recipientEmailIdx = 0;
+  }
+  // const recipientEmailIdx = emailWalletUtils.extractEmailAddrIdxes(subject)[0][0];
   const timestampIdx = emailWalletUtils.extractTimestampIdxes(parsedEmail.canonicalizedHeader)[0][0];
   return {
     in_padded: emailCircuitInputs.in_padded,
