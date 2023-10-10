@@ -91,7 +91,7 @@ struct TokenAllowance {
 struct ExecutionContext {
     address walletAddr; // Wallet address of the user
     address extensionAddr; // Address of extension in use
-    // bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
+    bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
     bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address when there is email recipient
     TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension

@@ -99,10 +99,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Gas required to claim unclaimed state
     uint256 public immutable unclaimedStateClaimGas;
 
-    // Sora's comment: this value is used in `registerUnclaimedState` to set a max gas for calling `extension.registerUnclaimedState`.
-    // Gas required to register unclaimed state
-    uint256 public immutable unclaimedStateRegisterGas;
-
     // Default expiry duration for unclaimed funds and states
     uint256 public immutable unclaimsExpiryDuration;
 
@@ -151,7 +147,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas,
-        uint256 _unclaimedStateRegisterGas,
         uint256 _unclaimedFundExpirationDuration
     ) {
         verifier = IVerifier(_verifier);
@@ -162,7 +157,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
-        unclaimedStateRegisterGas = _unclaimedStateRegisterGas;
         unclaimsExpiryDuration = _unclaimedFundExpirationDuration;
 
         walletImplementation = address(new Wallet(_wethContract));
@@ -272,34 +266,42 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     /// Initialize the account when user reply to invitation email
     /// @param emailAddrPointer hash(relayerRand, emailAddr)
-    /// @param initEmailProof Proof of user's initialization email
-    function initializeAccount(bytes32 emailAddrPointer, EmailProof memory initEmailProof) public {
+    /// @param emailDomain domain name of the sender's email
+    /// @param emailNullifier nullifier of the email used for proof generation
+    /// @param proof ZK proof as required by the verifier
+    function initializeAccount(
+        bytes32 emailAddrPointer,
+        string memory emailDomain,
+        uint256 emailTimestamp,
+        bytes32 emailNullifier,
+        bytes memory proof
+    ) public {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
 
-        require(initEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
+        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommit != bytes32(0), "account not registered");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].nullified == false, "account is nullified");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
-        require(emailNullifiers[initEmailProof.nullifier] == false, "email nullifier already used");
+        require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
 
         require(
             verifier.verifyAccountInitializaionProof(
-                initEmailProof.domain,
-                bytes32(dkimRegistry.getDKIMPublicKeyHash(initEmailProof.domain)),
-                initEmailProof.timestamp,
+                emailDomain,
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
+                emailTimestamp,
                 relayers[msg.sender].randHash,
                 emailAddrPointer,
                 accountKeyCommit,
-                initEmailProof.nullifier,
-                initEmailProof.proof
+                emailNullifier,
+                proof
             ),
             "invalid account creation proof"
         );
 
         infoOfAccountKeyCommit[accountKeyCommit].initialized = true;
-        emailNullifiers[initEmailProof.nullifier] = true;
+        emailNullifiers[emailNullifier] = true;
     }
 
     /// @notice Transport an account to a new Relayer - to be called by the new relayer
@@ -410,6 +412,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 announceCommitRandomness,
         string memory announceEmailAddr
     ) public payable {
+        if (expiryTime == 0) {
+            expiryTime = block.timestamp + unclaimsExpiryDuration;
+        }
+
         // Ensure the sender has paid ETH needed for claiming / expiring the unclaimed fee
         require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "invalid unclaimed fund fee");
         require(amount > 0, "amount should be greater than 0");
@@ -575,8 +581,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             expiryTime: expiryTime
         });
 
-        // Sora's comment: Here try-and-catch should be used to prevent a malicious extension that returns error.
-        // The max gas to call it is calculated from `unclaimedStateRegisterGas`.
         Extension extension = Extension(extensionAddr);
         bool registered = extension.registerUnclaimedState(us, true);
         require(registered, "unclaimed state reg failed");
@@ -783,7 +787,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Reset context
         currContext.extensionAddr = address(0);
         currContext.unclaimedStateRegistered = false;
-        // currContext.unclaimedFundRegistered = false;
+        currContext.unclaimedFundRegistered = false;
         delete currContext.tokenAllowances;
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = getWalletOfSalt(
@@ -796,17 +800,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         emailNullifiers[emailOp.emailNullifier] = true;
 
         // Execute EmailOp - wont revert on failure. Relayer will be compensated for gas even in failure.
-        bool unclaimedFundRegistered;
-        (success, unclaimedFundRegistered, returnData) = _executeEmailOp(emailOp);
+        (success, returnData) = _executeEmailOp(emailOp);
 
         uint totalFee; // Total fee in ETH to be paid to relayer
 
         require(
-            unclaimedFundRegistered && currContext.unclaimedStateRegistered == false,
-            "both of unclaimedFundRegistered and unclaimedStateRegistered must not be true"
+            currContext.unclaimedFundRegistered && currContext.unclaimedStateRegistered == false,
+            "both unclaimedFundRegistered and unclaimedStateRegistered cannot be true"
         );
 
-        if (unclaimedFundRegistered) {
+        if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
             totalFee += unclaimedFundClaimGas * maxFeePerGas;
         } else if (currContext.unclaimedStateRegistered) {
@@ -1038,12 +1041,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Execute an EmailOp
     /// @param emailOp EmailOp to be executed
     /// @return success Whether the operation is successful
-    /// @return unclaimedFundRegistered Whether unclaimed fund is registered
     /// @return returnData Return data from the operation (error)
-    function _executeEmailOp(
-        EmailOp memory emailOp
-    ) internal returns (bool success, bool unclaimedFundRegistered, bytes memory returnData) {
-        unclaimedFundRegistered = false;
+    function _executeEmailOp(EmailOp memory emailOp) internal returns (bool success, bytes memory returnData) {
         // Wallet operation
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
@@ -1053,7 +1052,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 Wallet wallet = Wallet(payable(currContext.walletAddr));
 
                 try wallet.execute(weth, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
-                    // Sora's comment: Is this `execute` doing raw ETH transfer?
                     wallet.execute(emailOp.recipientETHAddr, walletParams.amount, abi.encode(""));
                     success = true;
                 } catch Error(string memory reason) {
@@ -1064,7 +1062,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     returnData = bytes("err converting WETH to ETH");
                 }
 
-                return (success, false, returnData);
+                return (success, returnData);
             }
 
             // Token transfer for both external contract and email wallet
@@ -1074,7 +1072,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             (success, returnData) = _transferERC20(currContext.walletAddr, recipient, tokenAddr, walletParams.amount);
 
             if (!success) {
-                return (success, false, returnData);
+                return (success, returnData);
             }
 
             // Register unclaimed fund if the recipient is email wallet user
@@ -1084,12 +1082,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
                     walletParams.amount,
-                    0,
+                    block.timestamp + unclaimsExpiryDuration,
                     0,
                     ""
                 );
-                unclaimedFundRegistered = true;
-                // currContext.unclaimedStateRegistered = true;
+                currContext.unclaimedFundRegistered = true;
             }
         }
         // Execute calldata on wallet
@@ -1187,10 +1184,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint256 announceCommitRandomness,
         string memory announceEmailAddr
     ) internal {
-        if (expiryTime == 0) {
-            expiryTime = block.timestamp + unclaimsExpiryDuration;
-        }
-
         UnclaimedFund memory fund = UnclaimedFund({
             emailAddrCommit: emailAddrCommit,
             tokenAddr: tokenAddr,
