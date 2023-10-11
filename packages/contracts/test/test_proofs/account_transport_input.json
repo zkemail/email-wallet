@@ -1064,7 +1064,8 @@
     "331389978889831995174740501222367"
   ],
   "in_padded_len": "640",
-  "sender_relayer_rand_hash": "0x1b3f462f6bee8cd3585522dc0deaebe9e5455fc0ac14d3aedd7232c1fb524e24",
+  "old_relayer_rand_hash": "0x0029b17c2ee64b5a9762387d37e2b3614d9e59879edb15cc2fd3122c959116e3",
+  "new_relayer_rand": "0x301ebb49fe99f39f98ab3d1efc9ad94ecc339ab730b03f70a8db2053a51ac300",
   "sender_email_idx": 267,
   "code_idx": 65,
   "domain_idx": 12,

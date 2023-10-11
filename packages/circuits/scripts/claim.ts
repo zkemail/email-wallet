@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account claim circuit.
+ * This script is for generating input for the claim circuit.
  * 
  */
 

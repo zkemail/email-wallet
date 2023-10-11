@@ -10,6 +10,7 @@
     "gen-claim-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/claim.ts",
     "gen-email-sender-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/email_sender.ts",
     "gen-random-proofs": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/gen_random_proofs.ts",
+    "verify-proofs": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/verify_proofs.ts",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {

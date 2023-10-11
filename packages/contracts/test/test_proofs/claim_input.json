@@ -257,6 +257,6 @@
     0,
     0
   ],
-  "recipient_relayer_rand": "0x12e75fda7f3d670fabe9beff7ef999d603eef54d5c44fe201436a43490a4da8f",
-  "cm_rand": "0x06b3d100b6551097fd740f3c5138d7fbcf98460bc9393824fe1cf721ae6e529d"
+  "recipient_relayer_rand": "0x05f5b4f85b25760c2ee168c67c856afd371308a291de9d4c36a6e1c1c2a71693",
+  "cm_rand": "0x109bd21f0a2f03068dddb171a4b4df9eb758ac7a3a8fd634c35a50fa0443af7d"
 }

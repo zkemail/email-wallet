@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account creation circuit.
+ * This script is for generating proofs for the random inputs.
  * 
  */
 
@@ -46,7 +46,7 @@ async function exec() {
     const relayerRand = emailWalletUtils.genRelayerRand();
     const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
     const newRelayerRand = emailWalletUtils.genRelayerRand();
-    const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
+    // const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
     const accountKey = emailWalletUtils.genAccountKey();
     const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
     const initEmailPath = path.join(__dirname, "../tests/emails/account_init_test1.eml");
