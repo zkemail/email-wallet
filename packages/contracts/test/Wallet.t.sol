@@ -5,8 +5,15 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/Wallet.sol";
-import "./mock/TestWallet.sol";
 import "./mock/WETH9.sol";
+
+contract TestWallet is Wallet {
+    constructor(address wethAddress) Wallet(wethAddress) {}
+
+    function getName() public pure returns (string memory) {
+        return "Test";
+    }
+}
 
 contract WalletTest is Test {
     WETH9 weth;

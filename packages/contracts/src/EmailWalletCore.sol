@@ -490,8 +490,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         uint totalFee; // Total fee in ETH to be paid to relayer
 
         require(
-            currContext.unclaimedFundRegistered && currContext.unclaimedStateRegistered == false,
-            "both unclaimedFundRegistered and unclaimedStateRegistered cannot be true"
+            !currContext.unclaimedFundRegistered || !currContext.unclaimedStateRegistered,
+            "cannot register both unclaimed fund and state"
         );
 
         if (currContext.unclaimedFundRegistered) {
