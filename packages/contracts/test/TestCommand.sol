@@ -19,7 +19,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         bytes memory erc20Calldata = abi.encodeWithSignature("transfer(address,uint256)", recipient, 5 ether);
         bytes memory emailOpCalldata = abi.encode(address(usdcToken), 0, erc20Calldata);
 
-        string memory subject = string.concat("Execute 0x", core.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
