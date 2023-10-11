@@ -40,7 +40,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {
                         let body = String::from_utf8(body.to_vec())?;
-                        if !db_clone_receiver.contains_finalized(&body) {
+                        if !db_clone_receiver.contains_finalized(&body)? {
                             let email_and_status =
                                 serde_json::to_string(&(body, EmailStatus::Unchecked))?;
                             db_clone_receiver.insert_raw_email(&email_and_status)?;
