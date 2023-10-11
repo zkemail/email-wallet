@@ -3,11 +3,11 @@ pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../src/utils/AccountCreationVerifier.sol";
-import "../src/utils/AccountInitVerifier.sol";
-import "../src/utils/AccountTransportVerifier.sol";
-import "../src/utils/ClaimVerifier.sol";
-import "../src/utils/EmailSenderVerifier.sol";
+import "../src/utils/verifiers/AccountCreationVerifier.sol";
+import "../src/utils/verifiers/AccountInitVerifier.sol";
+import "../src/utils/verifiers/AccountTransportVerifier.sol";
+import "../src/utils/verifiers/ClaimVerifier.sol";
+import "../src/utils/verifiers/EmailSenderVerifier.sol";
 import "../src/utils/Verifier.sol";
 
 contract VerifierTest is Test {

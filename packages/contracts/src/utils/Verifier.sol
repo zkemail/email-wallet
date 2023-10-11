@@ -2,11 +2,11 @@
 pragma solidity ^0.8.9;
 
 import "../interfaces/IVerifier.sol";
-import "./AccountCreationVerifier.sol";
-import "./AccountInitVerifier.sol";
-import "./AccountTransportVerifier.sol";
-import "./ClaimVerifier.sol";
-import "./EmailSenderVerifier.sol";
+import "./verifiers/AccountCreationVerifier.sol";
+import "./verifiers/AccountInitVerifier.sol";
+import "./verifiers/AccountTransportVerifier.sol";
+import "./verifiers/ClaimVerifier.sol";
+import "./verifiers/EmailSenderVerifier.sol";
 
 contract AllVerifiers is IVerifier {
     AccountCreationVerifier public immutable accountCreationVerifier;
