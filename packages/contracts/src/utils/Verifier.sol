@@ -2,13 +2,18 @@
 pragma solidity ^0.8.9;
 
 import "../interfaces/IVerifier.sol";
+import "./AccountCreationVerifier.sol";
+import "./AccountInitVerifier.sol";
+import "./AccountTransportVerifier.sol";
+import "./ClaimVerifier.sol";
+import "./EmailSenderVerifier.sol";
 
 contract AllVerifiers is IVerifier {
-    address public immutable accountCreationVerifier;
-    address public immutable accountInitVerifier;
-    address public immutable accountTransportVerifier;
-    address public immutable claimVerifier;
-    address public immutable emailSenderVerifier;
+    AccountCreationVerifier public immutable accountCreationVerifier;
+    AccountInitVerifier public immutable accountInitVerifier;
+    AccountTransportVerifier public immutable accountTransportVerifier;
+    ClaimVerifier public immutable claimVerifier;
+    EmailSenderVerifier public immutable emailSenderVerifier;
 
     uint256 public constant DOMAIN_BYTES = 255;
     uint256 public constant DOMAIN_FIELDS = 9;
@@ -22,11 +27,11 @@ contract AllVerifiers is IVerifier {
         address _claimVerifier,
         address _emailSenderVerifier
     ) {
-        accountCreationVerifier = _accountCreationVerifier;
-        accountInitVerifier = _accountInitVerifier;
-        accountTransportVerifier = _accountTransportVerifier;
-        claimVerifier = _claimVerifier;
-        emailSenderVerifier = _emailSenderVerifier;
+        accountCreationVerifier = AccountCreationVerifier(_accountCreationVerifier);
+        accountInitVerifier = AccountInitVerifier(_accountInitVerifier);
+        accountTransportVerifier = AccountTransportVerifier(_accountTransportVerifier);
+        claimVerifier = ClaimVerifier(_claimVerifier);
+        emailSenderVerifier = EmailSenderVerifier(_emailSenderVerifier);
     }
 
     /// @notice Verify the proof to create an account
@@ -55,11 +60,7 @@ contract AllVerifiers is IVerifier {
         (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
         pubSignals[4] = x;
         pubSignals[5] = y;
-        (bool success, bytes memory result) = accountCreationVerifier.staticcall(
-            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[6])", pA, pB, pC, pubSignals)
-        );
-        require(success, "staticcall failed");
-        return abi.decode(result, (bool));
+        return accountCreationVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     /// @notice Verify the proof to initialize an account (reply to the invitation email)
@@ -97,11 +98,7 @@ contract AllVerifiers is IVerifier {
         pubSignals[DOMAIN_FIELDS + 3] = uint256(emailAddrPointer);
         pubSignals[DOMAIN_FIELDS + 4] = uint256(accountKeyCommit);
         pubSignals[DOMAIN_FIELDS + 5] = uint256(timestamp);
-        (bool success, bytes memory result) = accountInitVerifier.staticcall(
-            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[15])", pA, pB, pC, pubSignals)
-        );
-        require(success, "staticcall failed");
-        return abi.decode(result, (bool));
+        return accountInitVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     /// @notice Verify the proof of email from user - used to verify EmailOp
@@ -136,11 +133,7 @@ contract AllVerifiers is IVerifier {
         (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
             abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
         uint256[33] memory pubSignals = genPubSignalsOfEmailProof(emailDomain, dkimPublicKeyHash, timestamp, maskedSubject, emailNullifier, relayerHash, emailAddrPointer, hasEmailRecipient, recipientEmailAddrCommit);
-        (bool success, bytes memory result) = emailSenderVerifier.staticcall(
-            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[33])", pA, pB, pC, pubSignals)
-        );
-        require(success, "staticcall failed");
-        return abi.decode(result, (bool));
+        return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     function genPubSignalsOfEmailProof(
@@ -193,11 +186,7 @@ contract AllVerifiers is IVerifier {
         pubSignals[0] = uint256(recipientRelayerHash);
         pubSignals[1] = uint256(recipientEmailAddrPointer);
         pubSignals[2] = uint256(recipientEmailAddrCommit);
-        (bool success, bytes memory result) = claimVerifier.staticcall(
-            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[3])", pA, pB, pC, pubSignals)
-        );
-        require(success, "staticcall failed");
-        return abi.decode(result, (bool));
+        return claimVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     /// @notice Verify the proof to transport account from one relayer to another
@@ -211,7 +200,7 @@ contract AllVerifiers is IVerifier {
     /// @param oldRelayerRandHash The hash of the old relayer randomness
     /// @param oldAccountKeyCommit The hash of the account key, email address and old relayer randomness
     /// @param proof Proof of email with above constraints
-    function verifiyAccountTransportProof(
+    function verifyAccountTransportProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
@@ -236,11 +225,7 @@ contract AllVerifiers is IVerifier {
         pubSignals[DOMAIN_FIELDS + 4] = uint256(newRelayerRandHash);
         pubSignals[DOMAIN_FIELDS + 5] = uint256(timestamp);
         pubSignals[DOMAIN_FIELDS + 6] = uint256(oldRelayerRandHash);
-        (bool success, bytes memory result) = accountTransportVerifier.staticcall(
-            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[16])", pA, pB, pC, pubSignals)
-        );
-        require(success, "staticcall failed");
-        return abi.decode(result, (bool));
+        return accountTransportVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     function _packBytes2Fields(bytes memory _bytes, uint256 _paddedSize) public pure returns (uint256[] memory) {

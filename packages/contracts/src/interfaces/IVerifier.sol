@@ -96,7 +96,7 @@ interface IVerifier {
     /// @param oldRelayerRandHash The hash of the old relayer randomness
     /// @param oldAccountKeyCommit The hash of the account key, email address and old relayer randomness
     /// @param proof Proof of email with above constraints
-    function verifiyAccountTransportProof(
+    function verifyAccountTransportProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,

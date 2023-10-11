@@ -365,7 +365,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         );
 
         require(
-            verifier.verifiyAccountTransportProof(
+            verifier.verifyAccountTransportProof(
                 transportEmailProof.domain,
                 bytes32(DKIMRegistry(oldAccountKeyInfo.dkimRegistry).getDKIMPublicKeyHash(transportEmailProof.domain)),
                 transportEmailProof.timestamp,

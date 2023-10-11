@@ -71,7 +71,7 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
-    function verifiyAccountTransportProof(
+    function verifyAccountTransportProof(
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
         uint256 /* timestamp */,
