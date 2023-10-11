@@ -109,6 +109,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     event RelayerConfigUpdated(bytes32 randHash, string hostname);
 
+    event AccountCreated(bytes32 emailAddrPointer, bytes32 accountKeyCommit, bytes32 walletSalt, bytes psiPoint);
+
+    event AccountInitialized(bytes32 emailAddrPointer, bytes32 accountKeyCommit, bytes32 walletSalt);
+
+    event AccountTransported(bytes32 oldAccountKeyCommit, bytes32 newEmailAddrPointer, bytes32 newAccountKeyCommit);
+
     event UnclaimedFundRegistered(
         bytes32 emailAddrCommit,
         address tokenAddr,
@@ -136,6 +142,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     event UnclaimedStateClaimed(bytes32 emailAddrCommit, address recipient);
 
     event UnclaimedStateReverted(bytes32 emailAddrCommit, address sender);
+
+    event ExtensionPublished(string name, address extensionAddr, string[][] subjectTemplates, uint256 maxExecutionGas);
 
     constructor(
         address _verifier,
@@ -230,7 +238,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 walletSalt,
         bytes memory psiPoint,
         bytes memory proof
-    ) public returns (Wallet) {
+    ) public returns (Wallet wallet) {
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
@@ -261,7 +269,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
-        return _deployWallet(walletSalt);
+        wallet = _deployWallet(walletSalt);
+
+        emit AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
     }
 
     /// Initialize the account when user reply to invitation email
@@ -302,6 +312,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         infoOfAccountKeyCommit[accountKeyCommit].initialized = true;
         emailNullifiers[emailNullifier] = true;
+
+        emit AccountInitialized(
+            emailAddrPointer,
+            accountKeyCommit,
+            infoOfAccountKeyCommit[accountKeyCommit].walletSalt
+        );
     }
 
     /// @notice Transport an account to a new Relayer - to be called by the new relayer
@@ -393,6 +409,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         if (existingAccountKeyOfNewPointer != bytes32(0)) {
             delete infoOfAccountKeyCommit[existingAccountKeyOfNewPointer];
         }
+
+        emit AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
@@ -892,6 +910,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         addressOfExtension[name] = addr;
         subjectTemplatesOfExtension[addr] = subjectTemplates;
         maxGasOfExtension[addr] = maxExecutionGas;
+
+        emit ExtensionPublished(name, addr, subjectTemplates, maxExecutionGas);
     }
 
     /// @notice Calculate the masked subject for an EmailOp from command and other params
