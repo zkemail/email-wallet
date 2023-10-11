@@ -953,6 +953,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             require(target != address(0), "invalid execute target");
             require(target != address(this), "cannot execute on Core contract");
             require(target != currContext.walletAddr, "cannot execute on wallet");
+            require(tokenRegistry.getTokenNameOfAddress(target).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
 
             maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
