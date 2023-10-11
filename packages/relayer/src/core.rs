@@ -1,11 +1,14 @@
 use crate::*;
 
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct EmailAndStatus(pub(crate) String, pub(crate) EmailStatus);
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub(crate) enum EmailStatus {
     Unchecked,
     Checked,
@@ -32,4 +35,10 @@ pub(crate) async fn response_from_modal() -> Result<String> {
 
 pub(crate) async fn send_response() -> Result<()> {
     todo!()
+}
+
+pub(crate) fn calculate_hash(value: &str) -> String {
+    let mut hasher = DefaultHasher::new();
+    value.hash(&mut hasher);
+    hasher.finish().to_string()
 }
