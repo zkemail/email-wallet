@@ -927,6 +927,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
+            require(token.balanceOf(currContext.walletAddr) >= walletParams.amount, "insufficient balance");
 
             maskedSubject = string.concat(
                 Commands.SEND,
