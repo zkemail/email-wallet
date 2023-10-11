@@ -135,14 +135,35 @@ contract AllVerifiers is IVerifier {
     ) external view returns (bool) {
         (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
             abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        uint256[33] memory pubSignals = genPubSignalsOfEmailProof(emailDomain, dkimPublicKeyHash, timestamp, maskedSubject, emailNullifier, relayerHash, emailAddrPointer, hasEmailRecipient, recipientEmailAddrCommit);
+        (bool success, bytes memory result) = emailSenderVerifier.staticcall(
+            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[33])", pA, pB, pC, pubSignals)
+        );
+        require(success, "staticcall failed");
+        return abi.decode(result, (bool));
+    }
+
+    function genPubSignalsOfEmailProof(
+        string memory emailDomain,
+        bytes32 dkimPublicKeyHash,
+        uint256 timestamp,
+        string memory maskedSubject,
+        bytes32 emailNullifier,
+        bytes32 relayerHash,
+        bytes32 emailAddrPointer,
+        bool hasEmailRecipient,
+        bytes32 recipientEmailAddrCommit
+    ) internal pure returns (uint256[33] memory) {
         uint256[33] memory pubSignals;
-        uint256[] memory subjectFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
+        uint256[] memory stringFields;
+        stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
         for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
-            pubSignals[i] = subjectFields[i];
+            pubSignals[i] = stringFields[i];
         }
-        uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
+        delete stringFields;
+        stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
         for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
-            pubSignals[SUBJECT_FIELDS + i] = domainFields[i];
+            pubSignals[SUBJECT_FIELDS + i] = stringFields[i];
         }
         pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
         pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 1] = uint256(relayerHash);
@@ -151,11 +172,7 @@ contract AllVerifiers is IVerifier {
         pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] = hasEmailRecipient ? 1 : 0;
         pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5] = uint256(recipientEmailAddrCommit);
         pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6] = timestamp;
-        (bool success, bytes memory result) = emailSenderVerifier.staticcall(
-            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[33])", pA, pB, pC, pubSignals)
-        );
-        require(success, "staticcall failed");
-        return abi.decode(result, (bool));
+        return pubSignals;
     }
 
     /// @notice Verify the proof to claim and unclaimed to a recipient account

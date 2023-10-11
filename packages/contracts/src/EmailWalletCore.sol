@@ -364,11 +364,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             "invalid account creation proof"
         );
 
-        DKIMRegistry dkimRegistry = DKIMRegistry(oldAccountKeyInfo.dkimRegistry);
         require(
             verifier.verifiyAccountTransportProof(
                 transportEmailProof.domain,
-                bytes32(dkimRegistry.getDKIMPublicKeyHash(transportEmailProof.domain)),
+                bytes32(DKIMRegistry(oldAccountKeyInfo.dkimRegistry).getDKIMPublicKeyHash(transportEmailProof.domain)),
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
                 relayers[oldAccountKeyInfo.relayer].randHash,
@@ -389,7 +388,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
         infoOfAccountKeyCommit[newAccountKeyCommit].nullified = false;
-        infoOfAccountKeyCommit[newAccountKeyCommit].dkimRegistry = address(dkimRegistry);
+        infoOfAccountKeyCommit[newAccountKeyCommit].dkimRegistry = oldAccountKeyInfo.dkimRegistry;
 
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSaltSet = false;
@@ -725,10 +724,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     function validateEmailOp(EmailOp memory emailOp) public view {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
         DKIMRegistry dkimRegistry = DKIMRegistry(infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry);
-        bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
+        // bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
 
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
+        require(bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain)) != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         {
             AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
@@ -767,7 +766,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(
             verifier.verifyEmailProof(
                 emailOp.emailDomain,
-                dkimPublicKeyHash,
+                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain)),
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,

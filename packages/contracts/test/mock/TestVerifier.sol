@@ -77,7 +77,9 @@ contract TestVerifier is IVerifier {
         uint256 /* timestamp */,
         bytes32 /* emailNullifier */,
         bytes32 /* oldRelayerRandHash */,
+        bytes32 /* newRelayerRandHash */,
         bytes32 /* oldAccountKeyCommit */,
+        bytes32 /* newAccountKeyCommit */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
