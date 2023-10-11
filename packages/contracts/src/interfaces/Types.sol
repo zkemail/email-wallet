@@ -70,12 +70,13 @@ struct AccountKeyInfo {
     // != bytes32(0)), can help save a fresh SLOAD in certain methods.
     bool walletSaltSet;
     bytes32 walletSalt;
+    address dkimRegistry;
 }
 
 // A struct to represent commong args in a proof of email
 // Useful for methods thats need fewer inputs to avoid stack too deep error
 struct EmailProof {
-    string domain;  // Domain name of the sender's email
+    string domain; // Domain name of the sender's email
     uint256 timestamp; // Timestamp of the email
     bytes32 nullifier; // Nullifier of email to prevent re-run
     bytes proof; // ZK Proof of Email

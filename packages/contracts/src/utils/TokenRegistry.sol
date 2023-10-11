@@ -18,6 +18,8 @@ contract TokenRegistry is Ownable {
     /// @param tokenName Token name - other than ones hardcoded in `getTokenAddress()`
     /// @param addr Address of the token in the chain
     function setTokenAddress(uint256 chainId, string memory tokenName, address addr) public onlyOwner {
+        require(addressOfTokenName[chainId][tokenName] == address(0), "Token already registered");
+        require(bytes(tokenNameOfAddress[chainId][addr]).length == 0, "Address already registered");
         addressOfTokenName[chainId][tokenName] = addr;
         tokenNameOfAddress[chainId][addr] = tokenName;
     }

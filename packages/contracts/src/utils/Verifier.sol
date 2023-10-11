@@ -10,10 +10,10 @@ contract AllVerifiers is IVerifier {
     address public immutable claimVerifier;
     address public immutable emailSenderVerifier;
 
-    uint constant public DOMAIN_BYTES = 255;
-    uint constant public DOMAIN_FIELDS = 9;
-    uint constant public SUBJECT_BYTES = 512;
-    uint constant public SUBJECT_FIELDS = 17;
+    uint256 public constant DOMAIN_BYTES = 255;
+    uint256 public constant DOMAIN_FIELDS = 9;
+    uint256 public constant SUBJECT_BYTES = 512;
+    uint256 public constant SUBJECT_FIELDS = 17;
 
     constructor(
         address _accountCreationVerifier,
@@ -28,8 +28,6 @@ contract AllVerifiers is IVerifier {
         claimVerifier = _claimVerifier;
         emailSenderVerifier = _emailSenderVerifier;
     }
-    
-
 
     /// @notice Verify the proof to create an account
     /// @notice Verify `emailAddrPointer`, `accountKeyCommit` and `walletSalt`
@@ -47,21 +45,24 @@ contract AllVerifiers is IVerifier {
         bytes memory psiPoint,
         bytes memory proof
     ) external view returns (bool) {
-        (uint[2] memory pA, uint[2][2] memory pB, uint[2] memory pC) = abi.decode(proof, (uint[2], uint[2][2], uint[2]));
-        uint[6] memory pubSignals;
-        pubSignals[0] = uint(relayerHash);
-        pubSignals[1] = uint(emailAddrPointer);
-        pubSignals[2] = uint(accountKeyCommit);
-        pubSignals[3] = uint(walletSalt);
-        (uint x, uint y) = abi.decode(psiPoint, (uint, uint));
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
+            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        uint256[6] memory pubSignals;
+        pubSignals[0] = uint256(relayerHash);
+        pubSignals[1] = uint256(emailAddrPointer);
+        pubSignals[2] = uint256(accountKeyCommit);
+        pubSignals[3] = uint256(walletSalt);
+        (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
         pubSignals[4] = x;
         pubSignals[5] = y;
-        (bool success, bytes memory result) = accountCreationVerifier.staticcall(abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[6])", pA, pB, pC, pubSignals));
-        require(success,"staticcall failed");
+        (bool success, bytes memory result) = accountCreationVerifier.staticcall(
+            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[6])", pA, pB, pC, pubSignals)
+        );
+        require(success, "staticcall failed");
         return abi.decode(result, (bool));
     }
 
-     /// @notice Verify the proof to initialize an account (reply to the invitation email)
+    /// @notice Verify the proof to initialize an account (reply to the invitation email)
     /// @notice This verify the relayer received an email from the user (with corresponding `emailAddrPointer`)
     ///         where `accountKey` (of corresponding `accountKeyCommit`) was used in `x-reply-to` header
     /// @param emailDomain The domain of the user's email address
@@ -83,20 +84,23 @@ contract AllVerifiers is IVerifier {
         bytes32 emailNullifier,
         bytes memory proof
     ) external view returns (bool) {
-        (uint[2] memory pA, uint[2][2] memory pB, uint[2] memory pC) = abi.decode(proof, (uint[2], uint[2][2], uint[2]));
-        uint[15] memory pubSignals;
-        uint[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-        for(uint i=0; i<DOMAIN_FIELDS; i++) {
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
+            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        uint256[15] memory pubSignals;
+        uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
+        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
             pubSignals[i] = domainFields[i];
         }
-        pubSignals[DOMAIN_FIELDS] = uint(dkimPublicKeyHash);
-        pubSignals[DOMAIN_FIELDS+1] = uint(relayerHash);
-        pubSignals[DOMAIN_FIELDS+2] = uint(emailNullifier);
-        pubSignals[DOMAIN_FIELDS+3] = uint(emailAddrPointer);
-        pubSignals[DOMAIN_FIELDS+4] = uint(accountKeyCommit);
-        pubSignals[DOMAIN_FIELDS+5] = uint(timestamp);
-        (bool success, bytes memory result) = accountInitVerifier.staticcall(abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[15])", pA, pB, pC, pubSignals));
-        require(success,"staticcall failed");
+        pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
+        pubSignals[DOMAIN_FIELDS + 1] = uint256(relayerHash);
+        pubSignals[DOMAIN_FIELDS + 2] = uint256(emailNullifier);
+        pubSignals[DOMAIN_FIELDS + 3] = uint256(emailAddrPointer);
+        pubSignals[DOMAIN_FIELDS + 4] = uint256(accountKeyCommit);
+        pubSignals[DOMAIN_FIELDS + 5] = uint256(timestamp);
+        (bool success, bytes memory result) = accountInitVerifier.staticcall(
+            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[15])", pA, pB, pC, pubSignals)
+        );
+        require(success, "staticcall failed");
         return abi.decode(result, (bool));
     }
 
@@ -129,25 +133,28 @@ contract AllVerifiers is IVerifier {
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool) {
-        (uint[2] memory pA, uint[2][2] memory pB, uint[2] memory pC) = abi.decode(proof, (uint[2], uint[2][2], uint[2]));
-        uint[33] memory pubSignals;
-        uint[] memory subjectFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
-        for(uint i=0; i<SUBJECT_FIELDS; i++) {
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
+            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        uint256[33] memory pubSignals;
+        uint256[] memory subjectFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
+        for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
             pubSignals[i] = subjectFields[i];
         }
-        uint[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-        for(uint i=0; i<DOMAIN_FIELDS; i++) {
-            pubSignals[SUBJECT_FIELDS+i] = domainFields[i];
+        uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
+        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
+            pubSignals[SUBJECT_FIELDS + i] = domainFields[i];
         }
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS] = uint(dkimPublicKeyHash);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS+1] = uint(relayerHash);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS+2] = uint(emailNullifier);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS+3] = uint(emailAddrPointer);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS+4] = hasEmailRecipient ? 1 : 0;
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS+5] = uint(recipientEmailAddrCommit);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS+6] = timestamp;
-        (bool success, bytes memory result) = emailSenderVerifier.staticcall(abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[33])", pA, pB, pC, pubSignals));
-        require(success,"staticcall failed");
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 1] = uint256(relayerHash);
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2] = uint256(emailNullifier);
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3] = uint256(emailAddrPointer);
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] = hasEmailRecipient ? 1 : 0;
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5] = uint256(recipientEmailAddrCommit);
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6] = timestamp;
+        (bool success, bytes memory result) = emailSenderVerifier.staticcall(
+            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[33])", pA, pB, pC, pubSignals)
+        );
+        require(success, "staticcall failed");
         return abi.decode(result, (bool));
     }
 
@@ -163,17 +170,20 @@ contract AllVerifiers is IVerifier {
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool) {
-        (uint[2] memory pA, uint[2][2] memory pB, uint[2] memory pC) = abi.decode(proof, (uint[2], uint[2][2], uint[2]));
-        uint[3] memory pubSignals;
-        pubSignals[0] = uint(recipientRelayerHash);
-        pubSignals[1] = uint(recipientEmailAddrPointer);
-        pubSignals[2] = uint(recipientEmailAddrCommit);
-        (bool success, bytes memory result) = claimVerifier.staticcall(abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[3])", pA, pB, pC, pubSignals));
-        require(success,"staticcall failed");
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
+            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        uint256[3] memory pubSignals;
+        pubSignals[0] = uint256(recipientRelayerHash);
+        pubSignals[1] = uint256(recipientEmailAddrPointer);
+        pubSignals[2] = uint256(recipientEmailAddrCommit);
+        (bool success, bytes memory result) = claimVerifier.staticcall(
+            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[3])", pA, pB, pC, pubSignals)
+        );
+        require(success, "staticcall failed");
         return abi.decode(result, (bool));
     }
 
-     /// @notice Verify the proof to transport account from one relayer to another
+    /// @notice Verify the proof to transport account from one relayer to another
     /// @notice This will verify that relayer received an email from user with their account key somewhere in header
     ///         and the email is DKIM signed by the public key of `emailDomain` whose hash is `dkimPublicKeyHash`.
     ///         Also proved that the accountKeyCommit of old relayer with hash `oldRelayerRandHash` is same as `oldAccountKeyCommit`
@@ -190,49 +200,56 @@ contract AllVerifiers is IVerifier {
         uint256 timestamp,
         bytes32 emailNullifier,
         bytes32 oldRelayerRandHash,
+        bytes32 newRelayerRandHash,
         bytes32 oldAccountKeyCommit,
+        bytes32 newAccountKeyCommit,
         bytes memory proof
     ) external view returns (bool) {
-        (uint[2] memory pA, uint[2][2] memory pB, uint[2] memory pC) = abi.decode(proof, (uint[2], uint[2][2], uint[2]));
-        uint[15] memory pubSignals;
-        uint[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-        for(uint i=0; i<DOMAIN_FIELDS; i++) {
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
+            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        uint256[16] memory pubSignals;
+        uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
+        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
             pubSignals[i] = domainFields[i];
         }
-        pubSignals[DOMAIN_FIELDS] = uint(dkimPublicKeyHash);
-        pubSignals[DOMAIN_FIELDS+1] = uint(emailNullifier);
-        pubSignals[DOMAIN_FIELDS+2] = uint(oldAccountKeyCommit);
-        pubSignals[DOMAIN_FIELDS+3] = uint(timestamp);
-        pubSignals[DOMAIN_FIELDS+4] = uint(oldRelayerRandHash);
-        (bool success, bytes memory result) = accountTransportVerifier.staticcall(abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[14])", pA, pB, pC, pubSignals));
-        require(success,"staticcall failed");
+        pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
+        pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
+        pubSignals[DOMAIN_FIELDS + 2] = uint256(oldAccountKeyCommit);
+        pubSignals[DOMAIN_FIELDS + 3] = uint256(newAccountKeyCommit);
+        pubSignals[DOMAIN_FIELDS + 4] = uint256(newRelayerRandHash);
+        pubSignals[DOMAIN_FIELDS + 5] = uint256(timestamp);
+        pubSignals[DOMAIN_FIELDS + 6] = uint256(oldRelayerRandHash);
+        (bool success, bytes memory result) = accountTransportVerifier.staticcall(
+            abi.encodeWithSignature("verifyProof(uint[2],uint[2][2],uint[2],uint[16])", pA, pB, pC, pubSignals)
+        );
+        require(success, "staticcall failed");
         return abi.decode(result, (bool));
     }
 
-    function _packBytes2Fields(bytes memory _bytes, uint _paddedSize) public pure returns (uint[] memory) {
-        uint remain = _paddedSize % 31;
-        uint numFields = (_paddedSize - remain) / 31;
-        if(remain > 0) {
+    function _packBytes2Fields(bytes memory _bytes, uint256 _paddedSize) public pure returns (uint256[] memory) {
+        uint256 remain = _paddedSize % 31;
+        uint256 numFields = (_paddedSize - remain) / 31;
+        if (remain > 0) {
             numFields += 1;
         }
-        uint[] memory fields = new uint[](numFields);
-        uint idx = 0;
-        uint byteVal = 0;
-        for(uint i=0; i<numFields; i++) {
-            for(uint j=0; j<31; j++) {
-                idx = i*31 + j;
-                if(idx >= _paddedSize) {
+        uint256[] memory fields = new uint[](numFields);
+        uint256 idx = 0;
+        uint256 byteVal = 0;
+        for (uint256 i = 0; i < numFields; i++) {
+            for (uint256 j = 0; j < 31; j++) {
+                idx = i * 31 + j;
+                if (idx >= _paddedSize) {
                     break;
-                } 
-                if(idx >= _bytes.length) {
+                }
+                if (idx >= _bytes.length) {
                     byteVal = 0;
                 } else {
-                    byteVal = uint(uint8(_bytes[idx]));
+                    byteVal = uint256(uint8(_bytes[idx]));
                 }
                 if (j == 0) {
                     fields[i] = byteVal;
                 } else {
-                    fields[i] += (byteVal << (8*j));
+                    fields[i] += (byteVal << (8 * j));
                 }
             }
         }

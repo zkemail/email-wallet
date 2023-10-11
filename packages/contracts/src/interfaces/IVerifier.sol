@@ -102,7 +102,9 @@ interface IVerifier {
         uint256 timestamp,
         bytes32 emailNullifier,
         bytes32 oldRelayerRandHash,
+        bytes32 newRelayerRandHash,
         bytes32 oldAccountKeyCommit,
+        bytes32 newAccountKeyCommit,
         bytes memory proof
     ) external view returns (bool);
 }
