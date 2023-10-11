@@ -3,12 +3,12 @@ pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../src/utils/verifiers/AccountCreationVerifier.sol";
-import "../src/utils/verifiers/AccountInitVerifier.sol";
-import "../src/utils/verifiers/AccountTransportVerifier.sol";
-import "../src/utils/verifiers/ClaimVerifier.sol";
-import "../src/utils/verifiers/EmailSenderVerifier.sol";
-import "../src/utils/Verifier.sol";
+import "../src/verifier/AccountCreationVerifier.sol";
+import "../src/verifier/AccountInitVerifier.sol";
+import "../src/verifier/AccountTransportVerifier.sol";
+import "../src/verifier/ClaimVerifier.sol";
+import "../src/verifier/EmailSenderVerifier.sol";
+import "../src/verifier/Verifier.sol";
 
 contract VerifierTest is Test {
     AllVerifiers verifier;
@@ -127,7 +127,7 @@ contract VerifierTest is Test {
                 0x02975ab1ed4e0d54633a65cb97ef54ae982dfa4e0ae29b069bf776418ffe1317,
                 proof
             ),
-            "Account init proof verification failed"
+            "Account transport proof verification failed"
         );
     }
 
@@ -158,7 +158,7 @@ contract VerifierTest is Test {
                 0x3056878dae6c22b97f04938d2c5962b4cf4c06ae857e162f56f1e195f65cce62,
                 proof
             ),
-            "Account init proof verification failed"
+            "Claim fund proof verification failed"
         );
     }
 
@@ -183,7 +183,7 @@ contract VerifierTest is Test {
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
-            verifier.verifyEmailProof(
+            verifier.verifyEmailOpProof(
                 "gmail.com",
                 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
                 1694989812,
@@ -195,7 +195,7 @@ contract VerifierTest is Test {
                 0x1c4df0cda9c4060167d46362872a85eed361b4eec2e148ed5ef30788ce27b32e,
                 proof
             ),
-            "Account init proof verification failed"
+            "Email sender proof verification failed"
         );
     }
 
