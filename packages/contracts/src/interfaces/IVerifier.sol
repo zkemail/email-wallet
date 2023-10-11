@@ -59,7 +59,7 @@ interface IVerifier {
     /// @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
     /// @dev `relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
-    function verifyEmailProof(
+    function verifyEmailOpProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,

@@ -443,7 +443,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
         require(
-            verifier.verifyEmailProof(
+            verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
                 dkimPublicKeyHash,
                 emailOp.timestamp,

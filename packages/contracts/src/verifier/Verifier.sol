@@ -97,7 +97,7 @@ contract AllVerifiers is IVerifier {
     }
 
     /// @inheritdoc IVerifier
-    function verifyEmailProof(
+    function verifyEmailOpProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
