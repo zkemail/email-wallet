@@ -7,7 +7,7 @@ import "@zk-email/contracts/DKIMRegistry.sol";
 
 /// @title ECDSAOwner
 /// @notice A owner contract of dkim registry that authenticates the owner's message using ECDSA signature.
-contract ECDSAOwner  {
+contract ECDSAOwner {
     using Strings for *;
     using ECDSA for *;
 
@@ -26,10 +26,7 @@ contract ECDSAOwner  {
         uint256 publicKeyHash,
         bytes memory signature
     ) public {
-        string memory tag = string.concat(
-            address(this).toHexString(),
-            nonce.toHexString()
-        );
+        string memory tag = string.concat(address(this).toHexString(), nonce.toHexString());
         string memory expectedMsg = string.concat(
             "chain_id=",
             block.chainid.toString(),
@@ -50,10 +47,7 @@ contract ECDSAOwner  {
         dkimRegistry.setDKIMPublicKeyHash(domainName, publicKeyHash);
     }
 
-    function getDKIMPublicKeyHash(
-        string memory domainName
-    ) public view returns (uint256) {
+    function getDKIMPublicKeyHash(string memory domainName) public view returns (uint256) {
         return dkimRegistry.getDKIMPublicKeyHash(domainName);
     }
-
 }

@@ -18,8 +18,14 @@ contract ECDSAOwnerTest is Test {
             "20230601",
             "gmail.com",
             0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
-            vm.parseBytes("0x5c86998a0f95a537a4127a76dd2c874d7ed46717eb7401f8e90ea04ab1ccefac27b1378ca430cf06aa1cec5f9b9467f75b232e84ba9c5782f0d1f8d7ac8472f11b")
+            vm.parseBytes(
+                "0x5c86998a0f95a537a4127a76dd2c874d7ed46717eb7401f8e90ea04ab1ccefac27b1378ca430cf06aa1cec5f9b9467f75b232e84ba9c5782f0d1f8d7ac8472f11b"
+            )
         );
-        require(owner.getDKIMPublicKeyHash("gmail.com") == 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,"Invalid public key hash");
+        require(
+            owner.getDKIMPublicKeyHash("gmail.com") ==
+                0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
+            "Invalid public key hash"
+        );
     }
 }

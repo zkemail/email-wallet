@@ -54,7 +54,12 @@ contract VerifierTest is Test {
         );
         require(
             verifier.verifyAccountCreationProof(
-                0x0029b17c2ee64b5a9762387d37e2b3614d9e59879edb15cc2fd3122c959116e3, 0x1ff706660702f76a0daa706d68b15ea04fb6145fb5f4e54823ae80fa386e1b3f, 0x0136e61d55558414797fa9e8acccac39c52ef0b2c9b3fda0ef2d858a111333df, 0x16dc3fd3780b524ba792b9e19ec9f7cbeb931912462a9b028cecfdff0eb29d28, psiPoint, proof
+                0x0029b17c2ee64b5a9762387d37e2b3614d9e59879edb15cc2fd3122c959116e3,
+                0x1ff706660702f76a0daa706d68b15ea04fb6145fb5f4e54823ae80fa386e1b3f,
+                0x0136e61d55558414797fa9e8acccac39c52ef0b2c9b3fda0ef2d858a111333df,
+                0x16dc3fd3780b524ba792b9e19ec9f7cbeb931912462a9b028cecfdff0eb29d28,
+                psiPoint,
+                proof
             ),
             "Account creation proof verification failed"
         );
@@ -95,7 +100,7 @@ contract VerifierTest is Test {
         );
     }
 
-   function testAccountTransportProof() public view {
+    function testAccountTransportProof() public view {
         uint256[2] memory pA = [
             0x1fca161fdbbe869f775877b9639546f446336aa6d660472f03df34639565cf91,
             0x09e1b9a33d884b1fe45928ffc4ff8401da7ad3a48113de4f1cf751062780bd00
@@ -198,5 +203,4 @@ contract VerifierTest is Test {
             "Email sender proof verification failed"
         );
     }
-
 }

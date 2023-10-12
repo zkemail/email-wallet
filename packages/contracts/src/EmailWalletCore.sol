@@ -890,16 +890,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
         require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
 
-        bytes32 commandHash;
+        string memory command;
         for (uint i = 0; i < subjectTemplates.length; i++) {
             require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
             if (i == 0) {
                 command = subjectTemplates[i][0];
             } else {
-                require(
-                    commandHash == keccak256(bytes(subjectTemplates[i][0])),
-                    "subjectTemplates must have same command"
-                );
+                require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
             }
         }
         require(

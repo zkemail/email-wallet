@@ -43,8 +43,10 @@ contract AllVerifiers is IVerifier {
         bytes memory psiPoint,
         bytes memory proof
     ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
-            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
         uint256[6] memory pubSignals;
         pubSignals[0] = uint256(relayerHash);
         pubSignals[1] = uint256(emailAddrPointer);
@@ -67,8 +69,10 @@ contract AllVerifiers is IVerifier {
         bytes32 emailNullifier,
         bytes memory proof
     ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
-            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
         uint256[15] memory pubSignals;
         uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
         for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
@@ -83,7 +87,7 @@ contract AllVerifiers is IVerifier {
         return accountInitVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
-   /// @inheritdoc IVerifier
+    /// @inheritdoc IVerifier
     function verifyEmailOpProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
@@ -96,9 +100,21 @@ contract AllVerifiers is IVerifier {
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
-            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
-        uint256[33] memory pubSignals = genPubSignalsOfEmailProof(emailDomain, dkimPublicKeyHash, timestamp, maskedSubject, emailNullifier, relayerHash, emailAddrPointer, hasEmailRecipient, recipientEmailAddrCommit);
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
+        uint256[33] memory pubSignals = genPubSignalsOfEmailProof(
+            emailDomain,
+            dkimPublicKeyHash,
+            timestamp,
+            maskedSubject,
+            emailNullifier,
+            relayerHash,
+            emailAddrPointer,
+            hasEmailRecipient,
+            recipientEmailAddrCommit
+        );
         return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
@@ -141,8 +157,10 @@ contract AllVerifiers is IVerifier {
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
-            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
         uint256[3] memory pubSignals;
         pubSignals[0] = uint256(recipientRelayerHash);
         pubSignals[1] = uint256(recipientEmailAddrPointer);
@@ -150,7 +168,7 @@ contract AllVerifiers is IVerifier {
         return claimVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
-   /// @inheritdoc IVerifier
+    /// @inheritdoc IVerifier
     function verifyAccountTransportProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
@@ -162,8 +180,10 @@ contract AllVerifiers is IVerifier {
         bytes32 newAccountKeyCommit,
         bytes memory proof
     ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) =
-            abi.decode(proof, (uint256[2], uint256[2][2], uint256[2]));
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
         uint256[16] memory pubSignals;
         uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
         for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {

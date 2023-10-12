@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-
 /// @title BytesUtils
 /// @notice BytesUtils library for converting bytes to hex string
 library BytesUtils {
-    
     /// @notice Convert bytes to hex string without 0x prefix
     /// @param data bytes to convert
     function bytesToHexString(bytes memory data) public pure returns (string memory) {
