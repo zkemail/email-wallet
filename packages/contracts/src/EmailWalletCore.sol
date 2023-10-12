@@ -338,7 +338,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         if (existingAccountKeyOfNewPointer != bytes32(0)) {
             require(
                 !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].initialized,
-                "new account is registered and initialized"
+                "existing account key is initialized"
             );
         } else {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
