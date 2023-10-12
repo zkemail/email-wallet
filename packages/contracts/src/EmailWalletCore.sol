@@ -24,6 +24,13 @@ import "./Wallet.sol";
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     uint constant test = 123;
 
+    string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
+    string public constant AMOUNT_TEMPLATE = "{amount}";
+    string public constant STRING_TEMPLATE = "{string}";
+    string public constant UINT_TEMPLATE = "{uint}";
+    string public constant INT_TEMPLATE = "{int}";
+    string public constant ADDRESS_TEMPLATE = "{address}";
+
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -883,21 +890,30 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
         require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
 
-        bytes32 commandHash;
+        string memory command;
         for(uint i = 0; i< subjectTemplates.length; i++) {
             require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
             if (i == 0) {
-                commandHash = keccak256(bytes(subjectTemplates[i][0]));
+                command = subjectTemplates[i][0];
             } else {
-                require(commandHash == keccak256(bytes(subjectTemplates[i][0])), "subjectTemplates must have same command");
+                require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
             }
         }
         require (
-            commandHash != Commands.SEND_HASH &&
-            commandHash != Commands.EXECUTE_HASH &&
-            commandHash != Commands.INSTALL_EXTENSION_HASH &&
-            commandHash != Commands.UNINSTALL_EXTENSION_HASH &&
-            commandHash != Commands.EXIT_EMAIL_WALLET_HASH,
+            !Strings.equal(command, Commands.SEND) &&
+            !Strings.equal(command, Commands.EXECUTE) &&
+            !Strings.equal(command, Commands.INSTALL_EXTENSION) &&
+            !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
+            !Strings.equal(command, Commands.EXIT_EMAIL_WALLET),
+            "command cannot be an predefined name"
+        );
+        require (
+            !Strings.equal(command, TOKEN_AMOUNT_TEMPLATE) &&
+            !Strings.equal(command, AMOUNT_TEMPLATE) &&
+            !Strings.equal(command, STRING_TEMPLATE) &&
+            !Strings.equal(command, UINT_TEMPLATE) &&
+            !Strings.equal(command, INT_TEMPLATE) &&
+            !Strings.equal(command, ADDRESS_TEMPLATE),
             "command cannot be an predefined name"
         );
 
@@ -1060,7 +1076,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 string memory value;
 
                 // {tokenAmount} is combination of tokenName and amount, encoded as (string, uint256). Eg: `30.23 DAI`
-                if (Strings.equal(matcher, "{tokenAmount}")) {
+                if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
                     (string memory tokenName, uint256 amount) = abi.decode(
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (string, uint256)
@@ -1071,30 +1087,30 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                     nextParamIndex++;
                 }
                 // {amount} is number in wei format (decimal format in subject)
-                else if (Strings.equal(matcher, "{amount}")) {
+                else if (Strings.equal(matcher, AMOUNT_TEMPLATE)) {
                     uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
                     value = DecimalUtils.uintToDecimalString(num);
                     nextParamIndex++;
                 }
                 // {string} is plain string
-                else if (Strings.equal(matcher, "{string}")) {
+                else if (Strings.equal(matcher, STRING_TEMPLATE)) {
                     value = string(emailOp.extensionParams.subjectParams[nextParamIndex]);
                     nextParamIndex++;
                 }
                 // {uint} is number parsed the same way as mentioned in subject (decimals not allowed) - use {amount} for decimals
-                else if (Strings.equal(matcher, "{uint}")) {
+                else if (Strings.equal(matcher, UINT_TEMPLATE)) {
                     uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
                     value = Strings.toString(num);
                     nextParamIndex++;
                 }
                 // {int} for negative values
-                else if (Strings.equal(matcher, "{int}")) {
+                else if (Strings.equal(matcher, INT_TEMPLATE)) {
                     int256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (int256));
                     value = Strings.toString(num);
                     nextParamIndex++;
                 }
                 // {addres} for wallet address
-                else if (Strings.equal(matcher, "{address}")) {
+                else if (Strings.equal(matcher, ADDRESS_TEMPLATE)) {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
                     value = Strings.toHexString(uint256(uint160(addr)), 20);
                     nextParamIndex++;
