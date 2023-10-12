@@ -30,6 +30,12 @@ contract EmailWalletCoreTestHelper is Test {
 
     bytes mockProof = abi.encodePacked(bytes1(0x01));
 
+    uint256 maxFeePerGas = 10 ** 10;
+    uint256 emailValidityDuration = 1 hours;
+    uint256 unclaimedFundClaimGas = 0.0002 ether;
+    uint256 unclaimedStateClaimGas = 0.0002 ether;
+    uint256 unclaimedFundExpirationDuration = 30 days;
+
     // Relayer details
     uint256 relayerRand = 10001;
     bytes32 randHash = keccak256(abi.encodePacked(relayerRand));
@@ -69,11 +75,11 @@ contract EmailWalletCoreTestHelper is Test {
                 address(dkimRegistry),
                 address(priceOracle),
                 address(weth),
-                10 ** 10,
-                1 hours,
-                0.0001 ether,
-                0.0002 ether,
-                30 days
+                maxFeePerGas,
+                emailValidityDuration,
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas,
+                unclaimedFundExpirationDuration
             )
         );
         bytes memory data = abi.encodeCall(EmailWalletCore.initialize, ());
@@ -125,16 +131,26 @@ contract EmailWalletCoreTestHelper is Test {
                 timestamp: block.timestamp,
                 maskedSubject: "",
                 feeTokenName: "ETH",
-                feePerGas: 0,
+                feePerGas: maxFeePerGas,
                 executeCallData: abi.encodePacked(""),
                 newWalletOwner: address(0),
                 walletParams: WalletParams({tokenName: "", amount: 0}),
                 extManagerParams: ExtensionManagerParams({command: "", extensionName: ""}),
-                extensionParams: ExtensionParams({
-                    subjectTemplateIndex: 0,
-                    subjectParams: new bytes[](0)
-                }),
+                extensionParams: ExtensionParams({subjectTemplateIndex: 0, subjectParams: new bytes[](0)}),
                 emailProof: mockProof
             });
+    }
+
+    function _getTokenSendingEmailOp() internal view returns (EmailOp memory) {
+        EmailOp memory emailOp = _getBaseEmailOp();
+
+        emailOp.command = "Send";
+        emailOp.maskedSubject = "Send 1 DAI to ";
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(3333));
+        emailOp.walletParams.amount = 1 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        return emailOp;
     }
 }

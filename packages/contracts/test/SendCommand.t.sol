@@ -10,6 +10,86 @@ contract TransferTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
     }
 
+    function testValidateSendingToEthAddress() public {
+        address recipient = vm.addr(5);
+        daiToken.freeMint(walletAddr, 1 ether);
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", Strings.toHexString(uint256(uint160(recipient)), 20));
+        emailOp.recipientETHAddr = recipient;
+        emailOp.walletParams.amount = 1 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    function testValidateSendingToEmail() public {
+        daiToken.freeMint(walletAddr, 2 ether);
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = "Send 2 DAI to ";
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.walletParams.amount = 2 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    function testRevertIfTokenNameIsNotSupported() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = "Send 2 JUNK to ";
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.walletParams.amount = 2 ether;
+        emailOp.walletParams.tokenName = "JUNK";
+
+        vm.startPrank(relayer);
+        vm.expectRevert("token not supported");
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    function testRevertIfBalanceIsInsufficient() public {
+        daiToken.freeMint(walletAddr, 1 ether);
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = "Send 2 DAI to ";
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.walletParams.amount = 2 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
+        vm.expectRevert("insufficient balance");
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    function testValidateForSendingDecimalAmounts() public {
+        daiToken.freeMint(walletAddr, 2 ether);
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = "Send 1.5 DAI to ";
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.walletParams.amount = 1.5 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
     function testSendTokenToEOA() public {
         address recipient = vm.addr(5);
         string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
@@ -55,4 +135,39 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(recipient), 10.52 ether, "recipient did not receive 10.52 DAI");
         assertEq(daiToken.balanceOf(walletAddr), 9.48 ether, "sender did not have 9.48 DAI left");
     }
+
+    function testSendTokenToEmail() public {
+        string memory subject = "Send 65.4 DAI to ";
+        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
+
+        // this need to be send to handleEmailOp for registering unclaimed funds
+        vm.deal(relayer, unclaimedFundClaimGas * maxFeePerGas);
+
+        // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
+        daiToken.freeMint(walletAddr, 100 ether);
+
+        // Create EmailOp
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 65.4 ether;
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        (bool success, ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, "handleEmailOp failed");
+        assertEq(daiToken.balanceOf(walletAddr), 34.6 ether, "sender did not have correct DAI left");
+
+        // Should register unclaimed funds
+        (, , address tokenAddr, uint256 amount, ) = core.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
+        assertEq(amount, 65.4 ether, "amount mismatch");
+    }
+
+    // eth to weth
+    // execute and ahndle email op
 }

@@ -20,7 +20,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         testContractAddr = address(new ExecuteTestContract());
     }
 
-     function testExecute() public {
+    function testExecute() public {
         address recipient = vm.addr(5);
 
         bytes memory erc20Calldata = abi.encodeWithSignature("process(uint256)", 90001);

@@ -577,7 +577,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 recipientEmailAddrPointer,
         bytes memory proof
     ) public nonReentrant {
-        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommit[recipientEmailAddrPointer];
+        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
         require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
@@ -702,7 +702,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
-        UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[recipientEmailAddrPointer];
+        UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
         require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
@@ -884,36 +884,39 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
     ) public {
-        require(addressOfExtension[name] == address(0), "extension name already used");        
+        require(addressOfExtension[name] == address(0), "extension name already used");
         require(addr != address(0), "invalid extension address");
         require(bytes(name).length > 0, "invalid extension name");
         require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
         require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
 
-        string memory command;
-        for(uint i = 0; i< subjectTemplates.length; i++) {
+        bytes32 commandHash;
+        for (uint i = 0; i < subjectTemplates.length; i++) {
             require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
             if (i == 0) {
                 command = subjectTemplates[i][0];
             } else {
-                require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
+                require(
+                    commandHash == keccak256(bytes(subjectTemplates[i][0])),
+                    "subjectTemplates must have same command"
+                );
             }
         }
-        require (
+        require(
             !Strings.equal(command, Commands.SEND) &&
-            !Strings.equal(command, Commands.EXECUTE) &&
-            !Strings.equal(command, Commands.INSTALL_EXTENSION) &&
-            !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
-            !Strings.equal(command, Commands.EXIT_EMAIL_WALLET),
+                !Strings.equal(command, Commands.EXECUTE) &&
+                !Strings.equal(command, Commands.INSTALL_EXTENSION) &&
+                !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
+                !Strings.equal(command, Commands.EXIT_EMAIL_WALLET),
             "command cannot be an predefined name"
         );
-        require (
+        require(
             !Strings.equal(command, TOKEN_AMOUNT_TEMPLATE) &&
-            !Strings.equal(command, AMOUNT_TEMPLATE) &&
-            !Strings.equal(command, STRING_TEMPLATE) &&
-            !Strings.equal(command, UINT_TEMPLATE) &&
-            !Strings.equal(command, INT_TEMPLATE) &&
-            !Strings.equal(command, ADDRESS_TEMPLATE),
+                !Strings.equal(command, AMOUNT_TEMPLATE) &&
+                !Strings.equal(command, STRING_TEMPLATE) &&
+                !Strings.equal(command, UINT_TEMPLATE) &&
+                !Strings.equal(command, INT_TEMPLATE) &&
+                !Strings.equal(command, ADDRESS_TEMPLATE),
             "command cannot be an predefined name"
         );
 
@@ -976,11 +979,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
+            address walletAddr = getWalletOfSalt(
+                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
+            );
             ERC20 token = ERC20(_getTokenAddrFromName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
-            require(token.balanceOf(currContext.walletAddr) >= walletParams.amount, "insufficient balance");
+            require(token.balanceOf(walletAddr) >= walletParams.amount, "insufficient balance");
 
             maskedSubject = string.concat(
                 Commands.SEND,
@@ -1000,13 +1006,17 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // Sample: Execute 0x000112aa..
         else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
+            address walletAddr = getWalletOfSalt(
+                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
+            );
+
             require(emailOp.executeCallData.length > 0, "executeCallData cannot be empty");
 
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
             require(target != address(this), "cannot execute on Core contract");
-            require(target != currContext.walletAddr, "cannot execute on wallet");
+            require(target != walletAddr, "cannot execute on wallet");
             require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
 
@@ -1023,8 +1033,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             require(bytes(extManagerParams.command).length > 0, "command cannot be empty");
             require(extAddr != address(0), "extension not registered");
-            require(keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) == keccak256(bytes(extManagerParams.command)), "invalid command");
-
+            require(
+                keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) ==
+                    keccak256(bytes(extManagerParams.command)),
+                "invalid command"
+            );
 
             maskedSubject = string.concat(
                 Commands.INSTALL_EXTENSION,
@@ -1039,10 +1052,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
             require(bytes(emailOp.extManagerParams.command).length > 0, "command cannot be empty");
             require(extAddr != address(0), "extension not registered");
-            require(keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) == keccak256(bytes(emailOp.extManagerParams.command)), "invalid command");
+            require(
+                keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) ==
+                    keccak256(bytes(emailOp.extManagerParams.command)),
+                "invalid command"
+            );
             maskedSubject = string.concat(
-                Commands.UNINSTALL_EXTENSION, 
-                " extension for ", 
+                Commands.UNINSTALL_EXTENSION,
+                " extension for ",
                 emailOp.extManagerParams.command
             );
         }
