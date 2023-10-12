@@ -78,8 +78,8 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     // Relayer can use this to ensure user has enough tokens to pay for the gas
     mapping(address => uint256) public maxGasOfExtension;
 
-    // User level mapping of command name to extension address (pointer -> (command -> extension))
-    mapping(bytes32 => mapping(string => address)) public userExtensionOfCommand;
+    // User level mapping of command name to extension address (walletAddress -> (command -> extension))
+    mapping(address => mapping(string => address)) public userExtensionOfCommand;
 
     // Mapping of recipient's emailAddrCommit (hash(email, randomness)) to the unclaimedFund
     mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommit;
@@ -877,7 +877,29 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
     ) public {
-        require(addressOfExtension[name] == address(0), "extension name already used");
+        require(addressOfExtension[name] == address(0), "extension name already used");        
+        require(addr != address(0), "invalid extension address");
+        require(bytes(name).length > 0, "invalid extension name");
+        require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
+        require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
+
+        bytes32 commandHash;
+        for(uint i = 0; i< subjectTemplates.length; i++) {
+            require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
+            if (i == 0) {
+                commandHash = keccak256(bytes(subjectTemplates[i][0]));
+            } else {
+                require(commandHash == keccak256(bytes(subjectTemplates[i][0])), "subjectTemplates must have same command");
+            }
+        }
+        require (
+            commandHash != Commands.SEND_HASH &&
+            commandHash != Commands.EXECUTE_HASH &&
+            commandHash != Commands.INSTALL_EXTENSION_HASH &&
+            commandHash != Commands.UNINSTALL_EXTENSION_HASH &&
+            commandHash != Commands.EXIT_EMAIL_WALLET_HASH,
+            "command cannot be an predefined name"
+        );
 
         addressOfExtension[name] = addr;
         subjectTemplatesOfExtension[addr] = subjectTemplates;
@@ -903,10 +925,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     /// @notice Return the extension address for a command and user
     /// @param command Command for which the extension address is to be returned
-    /// @param emailAddrPointer Pointer of the user's email address
-    function getExtensionForCommand(string memory command, bytes32 emailAddrPointer) public view returns (address) {
+    /// @param walletAddr The user's wallet address
+    function getExtensionForCommand(string memory command, address walletAddr) public view returns (address) {
         address extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
-        address userextensionAddr = userExtensionOfCommand[emailAddrPointer][command];
+        address userextensionAddr = userExtensionOfCommand[walletAddr][command];
 
         if (userextensionAddr != address(0)) {
             extensionAddr = userextensionAddr;
@@ -983,12 +1005,14 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
 
-            require(bytes(emailOp.extManagerParams.command).length > 0, "command cannot be empty");
+            require(bytes(extManagerParams.command).length > 0, "command cannot be empty");
             require(extAddr != address(0), "extension not registered");
+            require(keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) == keccak256(bytes(extManagerParams.command)), "invalid command");
+
 
             maskedSubject = string.concat(
                 Commands.INSTALL_EXTENSION,
-                " for ",
+                " extension for ",
                 emailOp.extManagerParams.command,
                 " as ",
                 emailOp.extManagerParams.extensionName
@@ -996,9 +1020,15 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
+            address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
             require(bytes(emailOp.extManagerParams.command).length > 0, "command cannot be empty");
-
-            maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " for ", emailOp.extManagerParams.command);
+            require(extAddr != address(0), "extension not registered");
+            require(keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) == keccak256(bytes(emailOp.extManagerParams.command)), "invalid command");
+            maskedSubject = string.concat(
+                Commands.UNINSTALL_EXTENSION, 
+                " extension for ", 
+                emailOp.extManagerParams.command
+            );
         }
         // Sample: Exit email wallet. Change owner to 0x000112aa..
         else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
@@ -1006,17 +1036,20 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
-                " ",
+                " Email Wallet. Change wallet ownership to ",
                 Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
             );
         }
         // The command is for an extension
         else {
             isExtension = true;
-            address extensionAddr = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
+            address walletAddr = getWalletOfSalt(
+                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
+            );
+            address extensionAddr = getExtensionForCommand(emailOp.command, walletAddr);
             require(extensionAddr != address(0), "invalid command or extension");
 
-            Extension extension = Extension(extensionAddr);
+            // Extension extension = Extension(extensionAddr);
             string[] memory subjectTemplate = subjectTemplatesOfExtension[extensionAddr][
                 emailOp.extensionParams.subjectTemplateIndex
             ];
@@ -1151,12 +1184,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
             address extensionAddr = addressOfExtension[extManagerParams.extensionName];
-
-            userExtensionOfCommand[emailOp.emailAddrPointer][extManagerParams.command] = extensionAddr;
+            userExtensionOfCommand[currContext.walletAddr][extManagerParams.command] = extensionAddr;
         }
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            userExtensionOfCommand[emailOp.emailAddrPointer][emailOp.command] = address(0);
+            userExtensionOfCommand[currContext.walletAddr][emailOp.command] = address(0);
         }
         // Exit email wallet
         else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
@@ -1172,7 +1204,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         }
         // The command is for an extension
         else {
-            address extAddress = getExtensionForCommand(emailOp.command, emailOp.emailAddrPointer);
+            address extAddress = getExtensionForCommand(emailOp.command, currContext.walletAddr);
             currContext.extensionAddr = extAddress;
 
             // Set token+amount pair in subject as allowances in context

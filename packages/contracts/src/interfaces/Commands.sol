@@ -14,8 +14,16 @@ pragma solidity ^0.8.0;
 
 library Commands {
     string public constant SEND = "Send";
+    bytes32 public constant SEND_HASH = keccak256(bytes(SEND));
     string public constant EXECUTE = "Execute";
-    string public constant INSTALL_EXTENSION = "Install extension";
-    string public constant UNINSTALL_EXTENSION = "Uninstall extension";
-    string public constant EXIT_EMAIL_WALLET = "Exit Email Wallet. Change wallet ownership to";
+    bytes32 public constant EXECUTE_HASH = keccak256(bytes(EXECUTE));
+    // string public constant INSTALL_EXTENSION = "Install extension";
+    string public constant INSTALL_EXTENSION = "Install";
+    bytes32 public constant INSTALL_EXTENSION_HASH = keccak256(bytes(INSTALL_EXTENSION));
+    // string public constant UNINSTALL_EXTENSION = "Uninstall extension";
+    string public constant UNINSTALL_EXTENSION = "Uninstall";
+    bytes32 public constant UNINSTALL_EXTENSION_HASH = keccak256(bytes(UNINSTALL_EXTENSION));
+    // string public constant EXIT_EMAIL_WALLET = "Exit Email Wallet. Change wallet ownership to";
+    string public constant EXIT_EMAIL_WALLET = "Exit";
+    bytes32 public constant EXIT_EMAIL_WALLET_HASH = keccak256(bytes(EXIT_EMAIL_WALLET));
 }
