@@ -39,7 +39,7 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
-    function verifyEmailProof(
+    function verifyEmailOpProof(
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
         uint256 /* timestamp */,
@@ -71,13 +71,15 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
-    function verifiyAccountTransportProof(
+    function verifyAccountTransportProof(
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
         uint256 /* timestamp */,
         bytes32 /* emailNullifier */,
         bytes32 /* oldRelayerRandHash */,
+        bytes32 /* newRelayerRandHash */,
         bytes32 /* oldAccountKeyCommit */,
+        bytes32 /* newAccountKeyCommit */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {

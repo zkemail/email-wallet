@@ -8,6 +8,7 @@ import "@zk-email/contracts/DKIMRegistry.sol";
 import "../src/EmailWalletCore.sol";
 import "../src/utils/TokenRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
+import "../src/libraries/BytesUtils.sol";
 import "./mock/TestVerifier.sol";
 import "./mock/TestERC20.sol";
 import "./mock/WETH9.sol";

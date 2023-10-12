@@ -59,7 +59,7 @@ interface IVerifier {
     /// @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
     /// @dev `relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
-    function verifyEmailProof(
+    function verifyEmailOpProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
@@ -96,13 +96,15 @@ interface IVerifier {
     /// @param oldRelayerRandHash The hash of the old relayer randomness
     /// @param oldAccountKeyCommit The hash of the account key, email address and old relayer randomness
     /// @param proof Proof of email with above constraints
-    function verifiyAccountTransportProof(
+    function verifyAccountTransportProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
         bytes32 emailNullifier,
         bytes32 oldRelayerRandHash,
+        bytes32 newRelayerRandHash,
         bytes32 oldAccountKeyCommit,
+        bytes32 newAccountKeyCommit,
         bytes memory proof
     ) external view returns (bool);
 }

@@ -36,7 +36,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function testRevertIfPointerIsAlreadyRegistered() public {
         bytes32 accountKeyCommit2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
-        bytes memory psiPoint2 = abi.encodePacked(uint256(4));
+        bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
 
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
@@ -83,7 +83,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     function testRevertWhenPredeterministicWalletIsAlreadyDeployed() public {
         address predictedAddr = core.getWalletOfSalt(walletSalt);
-        deployCodeTo("TestWallet.sol", abi.encode(address(weth)), predictedAddr);
+        deployCodeTo("WETH9.sol", abi.encode(address(weth)), predictedAddr);
 
         vm.startPrank(relayer);
         vm.expectRevert("wallet already deployed");
@@ -225,36 +225,6 @@ contract AccountTest is EmailWalletCoreTestHelper {
                 timestamp: block.timestamp,
                 proof: mockProof
             }),
-            mockProof
-        );
-        vm.stopPrank();
-    }
-
-    function testRevertIfTransportedAccountAlreadyExists() public {
-        bytes32 emailNullifier = bytes32(uint256(101));
-        bytes32 emailNullifier2 = bytes32(uint256(102));
-        bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
-        bytes32 walletSalt2 = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
-        address relayer2 = vm.addr(3);
-        bytes32 relayer2RandHash = bytes32(uint256(311));
-
-        vm.startPrank(relayer);
-        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
-        vm.stopPrank();
-
-        vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
-        core.createAccount(newEmailAddrPointer, newAccountKeyCommit, walletSalt2, newPSIPoint, mockProof);
-        vm.expectRevert("new pointer already exist");
-        core.transportAccount(
-            accountKeyCommit,
-            newEmailAddrPointer,
-            newAccountKeyCommit,
-            newPSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
             mockProof
         );
         vm.stopPrank();

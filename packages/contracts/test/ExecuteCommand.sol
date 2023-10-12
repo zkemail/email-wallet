@@ -3,23 +3,30 @@ pragma solidity ^0.8.12;
 
 import "./EmailWalletCoreTestHelper.sol";
 
+contract ExecuteTestContract {
+    function process(uint256 num) public returns (uint256) {
+        return num + 1;
+    }
+}
+
 contract ExecuteCommandTest is EmailWalletCoreTestHelper {
+    address testContractAddr;
+
     function setUp() public override {
         super.setUp();
         _registerRelayer();
         _registerAndInitializeAccount();
+
+        testContractAddr = address(new ExecuteTestContract());
     }
 
-    function testExecute() public {
-        // We will send 5 USDC to recipient by passing calldata
-        // This could be done using the "Send" command, but we want to test the "Execute" command
-        usdcToken.freeMint(walletAddr, 20 ether);
+     function testExecute() public {
         address recipient = vm.addr(5);
 
-        bytes memory erc20Calldata = abi.encodeWithSignature("transfer(address,uint256)", recipient, 5 ether);
-        bytes memory emailOpCalldata = abi.encode(address(usdcToken), 0, erc20Calldata);
+        bytes memory erc20Calldata = abi.encodeWithSignature("process(uint256)", 90001);
+        bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, erc20Calldata);
 
-        string memory subject = string.concat("Execute 0x", core.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
@@ -30,8 +37,26 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
-        assertEq(success, true, "handleEmailOp failed");
-        assertEq(usdcToken.balanceOf(recipient), 5 ether, "recipient did not receive 5 USDC");
-        assertEq(usdcToken.balanceOf(walletAddr), 15 ether, "sender did not have 15 USDC left");
+        assertEq(success, true, "handleEmailOp for execute failed");
+    }
+
+    function testRevertOnTokenCalls() public {
+        usdcToken.freeMint(walletAddr, 20 ether);
+        address recipient = vm.addr(5);
+
+        bytes memory erc20Calldata = abi.encodeWithSignature("transfer(address,uint256)", recipient, 5 ether);
+        bytes memory emailOpCalldata = abi.encode(address(usdcToken), 0, erc20Calldata);
+
+        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        vm.expectRevert("cannot execute on token");
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
     }
 }

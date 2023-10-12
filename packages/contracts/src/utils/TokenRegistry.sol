@@ -13,11 +13,22 @@ contract TokenRegistry is Ownable {
     // Mapping of chainId to address of token
     mapping(uint256 => mapping(address => string)) public tokenNameOfAddress;
 
+    // Mapping of chain name to chain id
+    mapping(string => uint256) public chainIdOfName;
+
+    constructor() {
+        chainIdOfName["mainnet"] = 0;
+        chainIdOfName["optimism"] = 10;
+        chainIdOfName["arbitrum"] = 42161;
+    }
+
     /// @notice Set token address for a chain
     /// @param chainId Chain id of the network
     /// @param tokenName Token name - other than ones hardcoded in `getTokenAddress()`
     /// @param addr Address of the token in the chain
     function setTokenAddress(uint256 chainId, string memory tokenName, address addr) public onlyOwner {
+        require(addressOfTokenName[chainId][tokenName] == address(0), "Token already registered");
+        require(bytes(tokenNameOfAddress[chainId][addr]).length == 0, "Address already registered");
         addressOfTokenName[chainId][tokenName] = addr;
         tokenNameOfAddress[chainId][addr] = tokenName;
     }
@@ -32,6 +43,7 @@ contract TokenRegistry is Ownable {
     /// @notice Get token address for a chain
     /// @param chainId Chain id of the network for which address is needed
     /// @param tokenName Name of the token for which address if needed
+    /// @dev "0" is a valid input for `chainId` arg (mainnet). Be careful to not pass uninitialized uint variable.
     function getTokenAddress(uint256 chainId, string memory tokenName) public view returns (address) {
         if (Strings.equal(tokenName, "WETH")) {
             if (chainId == 0) return 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -52,6 +64,15 @@ contract TokenRegistry is Ownable {
         }
 
         return addressOfTokenName[chainId][tokenName];
+    }
+
+    /// @notice Get token address for the given chain name
+    /// @param chainName Name of the chain / network
+    /// @param tokenName Name of the token for which address if needed
+    function getTokenAddress(string memory chainName, string memory tokenName) public view returns (address) {
+        require(chainIdOfName[chainName] != 0, "unknown chain name");
+
+        return getTokenAddress(chainIdOfName[chainName], tokenName);
     }
 
     /// @notice Get token address for the current chain
@@ -75,5 +96,22 @@ contract TokenRegistry is Ownable {
     /// @param addr Address of the token for which name if needed
     function getTokenNameOfAddress(address addr) public view returns (string memory) {
         return getTokenNameOfAddress(block.chainid, addr);
+    }
+
+    /// @notice Set chain id for the given chain name
+    /// @param chainName Name of the chain
+    /// @param chainId Chain id of the network
+    function setChainId(string memory chainName, uint256 chainId) public onlyOwner {
+        require(chainId != 0, "chain id cannot be 0");
+        require(Strings.equal(chainName, "mainnet") == false, "cannot set mainnet chain id");
+        require(chainIdOfName[chainName] == 0, "chain id already set");
+
+        chainIdOfName[chainName] = chainId;
+    }
+
+    /// @notice Get chain id for the given chain name
+    /// @param chainName Name of the chain
+    function getChainIdOfName(string memory chainName) public view returns (uint256) {
+        return chainIdOfName[chainName];
     }
 }
