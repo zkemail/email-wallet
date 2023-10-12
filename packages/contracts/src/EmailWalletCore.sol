@@ -225,12 +225,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes memory psiPoint,
         bytes memory proof
     ) public returns (Wallet wallet) {
-        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
-        require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         bool initialized = infoOfAccountKeyCommit[accountKeyCommit].initialized;
         bool nullified = infoOfAccountKeyCommit[accountKeyCommit].nullified;
         bool walletSaltSet = infoOfAccountKeyCommit[accountKeyCommit].walletSaltSet;
+
+        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
+        require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(!walletSaltSet, "walletSalt exists");
         require(!initialized, "account is initialized");
         require(!nullified, "account is nullified");
@@ -324,13 +325,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     ) public {
         AccountKeyInfo storage oldAccountKeyInfo = infoOfAccountKeyCommit[oldAccountKeyCommit];
 
-        require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(oldAccountKeyInfo.relayer != address(0), "old relayer not registered");
         require(oldAccountKeyInfo.relayer != msg.sender, "new relayer cannot be same");
         require(oldAccountKeyInfo.initialized, "account not initialized");
         require(!oldAccountKeyInfo.nullified, "account is nullified");
-        require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
+        require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullifier already used");
 
         // New relayer might have already created an account, but not initialized.
@@ -338,20 +338,13 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         if (existingAccountKeyOfNewPointer != bytes32(0)) {
             require(
                 !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].initialized,
-                "new account is registered and initialized."
-            );
-            require(
-                !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].nullified,
-                "new account is registered and nullified."
-            );
-            require(
-                !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].walletSaltSet,
-                "new account is registered and its salt already exists."
+                "new account is registered and initialized"
             );
         } else {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].nullified, "new account is already nullified");
-            require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "salt already exists");
+            require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "walletSalt already exists");
+            require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         }
 
         require(
@@ -383,6 +376,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         emailNullifiers[transportEmailProof.nullifier] = true;
 
+        if (existingAccountKeyOfNewPointer != bytes32(0)) {
+            delete infoOfAccountKeyCommit[existingAccountKeyOfNewPointer];
+        }
+
         accountKeyCommitOfPointer[newEmailAddrPointer] = newAccountKeyCommit;
         pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
         infoOfAccountKeyCommit[newAccountKeyCommit].walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
@@ -396,10 +393,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSaltSet = false;
         infoOfAccountKeyCommit[oldAccountKeyCommit].nullified = true;
         infoOfAccountKeyCommit[oldAccountKeyCommit].dkimRegistry = address(0);
-
-        if (existingAccountKeyOfNewPointer != bytes32(0)) {
-            delete infoOfAccountKeyCommit[existingAccountKeyOfNewPointer];
-        }
+        infoOfAccountKeyCommit[oldAccountKeyCommit].initialized = false;
 
         emit AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
     }

@@ -45,6 +45,10 @@ contract EmailWalletCoreTestHelper is Test {
     bytes psiPoint = abi.encodePacked(uint(1004));
     address walletAddr;
 
+    bytes32 emailNullifier = bytes32(uint256(5000001));
+    bytes32 emailNullifier2 = bytes32(uint256(5000002));
+    bytes32 emailNullifier3 = bytes32(uint256(5000003));
+
     function setUp() public virtual {
         deployer = vm.addr(1);
         relayer = vm.addr(2);
@@ -102,7 +106,6 @@ contract EmailWalletCoreTestHelper is Test {
     // Register test user account - for using as sender when not testing accoung functionality
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
-        bytes32 emailNullifier = bytes32(uint(1002130510010012931231923879));
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
@@ -117,7 +120,7 @@ contract EmailWalletCoreTestHelper is Test {
                 recipientEmailAddrCommit: bytes32(0),
                 recipientETHAddr: address(0),
                 command: "",
-                emailNullifier: bytes32(uint(123)),
+                emailNullifier: bytes32(uint256(13981239)),
                 emailDomain: emailDomain,
                 timestamp: block.timestamp,
                 maskedSubject: "",
