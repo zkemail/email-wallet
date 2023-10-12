@@ -69,8 +69,8 @@ contract EmailWalletCoreTestHelper is Test {
                 address(dkimRegistry),
                 address(priceOracle),
                 address(weth),
-                1 hours,
                 10 ** 10,
+                1 hours,
                 0.0001 ether,
                 0.0002 ether,
                 30 days

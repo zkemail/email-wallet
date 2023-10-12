@@ -230,7 +230,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertAccountInitializationIfTransported() public {
+    function testRevertAccountInitializationAfterTransport() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
         bytes32 relayer2Pointer = bytes32(uint256(2001));
@@ -267,7 +267,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     // Relayer can transport account even if the pointer was registered previously but not initialized
-    function testAccountTransportForExistingPointer() public {
+    function testAccountTransportForRelayerWithExistingPointer() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311121));
         bytes32 relayer2Pointer = bytes32(uint256(2001232));
@@ -313,7 +313,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertTrue(!r2Nullified, "transported account is nullified");
     }
 
-    function testAccountTransportBackToPreviousRelayer() public {
+    function testAccountTransportBackToOriginalRelayer() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311121));
         bytes32 relayer2Pointer = bytes32(uint256(202201232));
