@@ -30,7 +30,8 @@ packages/relayer/db/*
 packages/relayer/received_eml/*.eml
 packages/relayer/received_eml/*.json
 packages/relayer/proofs
-db_abc
+sql_database.db
+.sqlx
 
 #Mac
 .DS_Store

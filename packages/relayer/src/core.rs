@@ -3,19 +3,6 @@ use crate::*;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct EmailAndStatus(pub(crate) String, pub(crate) EmailStatus);
-
-#[derive(Serialize, Deserialize, PartialEq)]
-pub(crate) enum EmailStatus {
-    Unchecked,
-    Checked,
-    Executed,
-    Finalized,
-}
-
 pub(crate) fn is_valid(email: &ParsedEmail) -> bool {
     println!("{}", email.canonicalized_body);
     println!("{}", email.canonicalized_header);
