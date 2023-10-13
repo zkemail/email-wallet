@@ -302,7 +302,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 emailNullifier,
                 proof
             ),
-            "invalid account creation proof"
+            "invalid account initialization proof"
         );
 
         infoOfAccountKeyCommit[accountKeyCommit].initialized = true;
