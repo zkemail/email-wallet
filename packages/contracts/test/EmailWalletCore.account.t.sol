@@ -9,7 +9,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         _registerRelayer();
     }
 
-    function testCreateAccount() public {
+    function test_CreateAccount() public {
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         vm.stopPrank();
@@ -28,12 +28,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertTrue(!nullified);
     }
 
-    function testRevertCreateAccountWhenRelayerIsNotRegistered() public {
+    function test_RevertWhen_CreateAccountRelayerIsNotRegistered() public {
         vm.expectRevert("relayer not registered");
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
     }
 
-    function testRevertIfPointerIsAlreadyRegistered() public {
+    function test_RevertIf_PointerIsAlreadyRegistered() public {
         bytes32 accountKeyCommit2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
         bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
@@ -45,7 +45,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfPSIPointIsAlreadyRegistered() public {
+    function test_RevertIf_PSIPointIsAlreadyRegistered() public {
         bytes32 emailAddrPointer2 = bytes32(uint256(2));
         bytes32 accountKeyCommit2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
@@ -57,7 +57,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfAccountKeyCommitAlreadyHasAnotherWalletSalt() public {
+    function test_RevertIf_AccountKeyCommitAlreadyHasAnotherWalletSalt() public {
         bytes32 emailAddrPointer2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(2));
         bytes memory psiPoint2 = abi.encodePacked(uint256(4));
@@ -69,7 +69,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testCreateWalletWithPredeterministicAddress() public {
+    function test_CreateWalletWithPredeterministicAddress() public {
         address predictedAddr = core.getWalletOfSalt(walletSalt);
 
         vm.startPrank(relayer);
@@ -81,7 +81,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(walletAddr, predictedAddr);
     }
 
-    function testRevertWhenPredeterministicWalletIsAlreadyDeployed() public {
+    function test_RevertWhen_PredeterministicWalletIsAlreadyDeployed() public {
         address predictedAddr = core.getWalletOfSalt(walletSalt);
         deployCodeTo("WETH9.sol", abi.encode(address(weth)), predictedAddr);
 
@@ -91,7 +91,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testAccountInitailization() public {
+    function test_AccountInitailization() public {
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
@@ -101,14 +101,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertTrue(initialized);
     }
 
-    function testRevertAccountInitializationIfAccountNotRegistered() public {
+    function test_RevertIf_InitializingAccountNotRegistered() public {
         vm.startPrank(relayer);
         vm.expectRevert("account not registered");
         core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
     }
 
-    function testAccountTransport() public {
+    function test_AccountTransport() public {
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
@@ -145,7 +145,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(core.pointerOfPSIPoint(newPSIPoint), newEmailAddrPointer);
     }
 
-    function testTransportMultipleTimes() public {
+    function test_AccountTransport_MultipleTimes() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
         bytes32 relayer2Pointer = bytes32(uint256(2001));
@@ -205,7 +205,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(core.accountKeyCommitOfPointer(relayer3Pointer), relayer3AccountKeyCommit);
     }
 
-    function testRevertIfTransportedAccountIsNotInitialized() public {
+    function test_RevertIf_TransportedAccountIsNotInitialized() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
         bytes32 relayer2Pointer = bytes32(uint256(2001));
@@ -230,7 +230,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertAccountInitializationAfterTransport() public {
+    function test_RevertIf_AccountInitializedAfterTransport() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311));
         bytes32 relayer2Pointer = bytes32(uint256(2001));
@@ -267,7 +267,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     // Relayer can transport account even if the pointer was registered previously but not initialized
-    function testAccountTransportForRelayerWithExistingPointer() public {
+    function test_AccountTransport_RelayerWithExistingPointer() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311121));
         bytes32 relayer2Pointer = bytes32(uint256(2001232));
@@ -313,7 +313,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertTrue(!r2Nullified, "transported account is nullified");
     }
 
-    function testAccountTransportBackToOriginalRelayer() public {
+    function test_AccountTransport_BackToOriginalRelayer() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311121));
         bytes32 relayer2Pointer = bytes32(uint256(202201232));

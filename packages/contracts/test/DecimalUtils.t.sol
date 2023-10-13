@@ -12,7 +12,7 @@ contract DecimalUtilsTest is Test {
         assertTrue(Strings.equal(actual, expected), string.concat(expected, "!=", actual));
     }
 
-    function testUintToDecimalString() public {
+    function test_UintToDecimalString() public {
         _checkDecimalString(1 ether, "1");
         _checkDecimalString(10 ether, "10");
         _checkDecimalString(200 ether, "200");

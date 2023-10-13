@@ -12,7 +12,7 @@ contract ECDSAOwnerTest is Test {
         owner = new ECDSAOwner(0x1882DDEDf1d0aCc9DA2CD67D4e5FA30f0CCFcD8b);
     }
 
-    function testSetDKIMPublicKeyHash() public {
+    function test_SetDKIMPublicKeyHash() public {
         vm.chainId(1);
         owner.setDKIMPublicKeyHash(
             "20230601",

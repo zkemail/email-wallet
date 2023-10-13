@@ -4,7 +4,7 @@ pragma solidity ^0.8.12;
 import "./helpers/EmailWalletCoreTestHelper.sol";
 
 contract RelayerTest is EmailWalletCoreTestHelper {
-    function testRegisterRelayer() public {
+    function test_RegisterRelayer() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
 
         vm.startPrank(relayer);
@@ -16,7 +16,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
     }
 
     // Same relayer wallet registering twice with differend randHash
-    function testRevertWhenRegisteringRelayerTwice() public {
+    function test_RevertWhen_RegisteringRelayerTwice() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
         bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
@@ -28,7 +28,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
     }
 
     // Different relayer registering with same randHash
-    function testRevertWhenRegisteringRelayerRandHashTwice() public {
+    function test_RevertWhen_RegisteringRelayerRandHashTwice() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
 
         vm.startPrank(relayer);
@@ -42,7 +42,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
     }
 
     // Different relayer registering with same emailAddr
-    function testRevertWhenRegisteringRelayerEmailAddrTwice() public {
+    function test_RevertWhen_RegisteringRelayerEmailAddrTwice() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
         bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
@@ -57,7 +57,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
     }
 
     // Update relayer hostname
-    function testUpdateRelayerHostname() public {
+    function test_UpdateRelayerHostname() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
 
         vm.startPrank(relayer);
