@@ -20,7 +20,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         testContractAddr = address(new ExecuteTestContract());
     }
 
-    function testExecute() public {
+    function test_Execute() public {
         address recipient = vm.addr(5);
 
         bytes memory erc20Calldata = abi.encodeWithSignature("process(uint256)", 90001);
@@ -37,16 +37,51 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
-        assertEq(success, true, "handleEmailOp for execute failed");
+        assertTrue(success, "handleEmailOp failed");
     }
 
-    function testRevertOnTokenCalls() public {
-        usdcToken.freeMint(walletAddr, 20 ether);
+    function test_RevertIf_ExecuteTargetIsWallet() public {
         address recipient = vm.addr(5);
 
-        bytes memory erc20Calldata = abi.encodeWithSignature("transfer(address,uint256)", recipient, 5 ether);
-        bytes memory emailOpCalldata = abi.encode(address(usdcToken), 0, erc20Calldata);
+        bytes memory emailOpCalldata = abi.encode(walletAddr, 0, "");
+        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        vm.expectRevert("cannot execute on wallet");
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
+    }
+
+    function test_RevertIf_ExecuteTargetIsCore() public {
+        address recipient = vm.addr(5);
+
+        bytes memory emailOpCalldata = abi.encode(address(core), 0, "");
+        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        vm.expectRevert("cannot execute on core");
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
+    }
+
+    function test_RevertIf_ExecuteTargetIsToken() public {
+        address recipient = vm.addr(5);
+
+        bytes memory emailOpCalldata = abi.encode(address(daiToken), 0, abi.encodeWithSignature("transfer(uint256)", 1 ether));
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -58,5 +93,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         vm.expectRevert("cannot execute on token");
         (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
     }
 }

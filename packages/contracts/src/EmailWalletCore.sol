@@ -1015,7 +1015,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
-            require(target != address(this), "cannot execute on Core contract");
+            require(target != address(this), "cannot execute on core");
             require(target != walletAddr, "cannot execute on wallet");
             require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
