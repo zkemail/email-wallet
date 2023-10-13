@@ -1,29 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
-import "@zk-email/contracts/DKIMRegistry.sol";
+import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
-import "./libraries/DecimalUtils.sol";
-import "./libraries/BytesUtils.sol";
-import "./utils/TokenRegistry.sol";
-import "./interfaces/IVerifier.sol";
-import "./interfaces/Extension.sol";
+import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
+import {DecimalUtils} from "./libraries/DecimalUtils.sol";
+import {BytesUtils} from "./libraries/BytesUtils.sol";
+import {TokenRegistry} from "./utils/TokenRegistry.sol";
+import {IVerifier} from "./interfaces/IVerifier.sol";
+import {Extension} from "./interfaces/Extension.sol";
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
+import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
-import "./interfaces/IPriceOracle.sol";
-import "./Wallet.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
-    uint constant test = 123;
-
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
     string public constant AMOUNT_TEMPLATE = "{amount}";
     string public constant STRING_TEMPLATE = "{string}";
