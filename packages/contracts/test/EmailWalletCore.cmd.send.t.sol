@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 contract TransferTest is EmailWalletCoreTestHelper {
     function setUp() public override {
@@ -10,7 +10,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
     }
 
-    function testValidateSendingToEthAddress() public {
+    function test_ValidateSendingToEthAddress() public {
         address recipient = vm.addr(5);
         daiToken.freeMint(walletAddr, 1 ether);
 
@@ -26,7 +26,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testValidateSendingToEmail() public {
+    function test_ValidateSendingToEmail() public {
         daiToken.freeMint(walletAddr, 2 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -42,7 +42,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfTokenNameIsNotSupported() public {
+    function test_RevertIf_TokenNameIsNotSupported() public {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
         emailOp.maskedSubject = "Send 2 JUNK to ";
@@ -57,7 +57,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfBalanceIsInsufficient() public {
+    function test_RevertIf_BalanceIsInsufficient() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -74,7 +74,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testValidateForSendingDecimalAmounts() public {
+    function test_ValidateForSendingDecimalAmounts() public {
         daiToken.freeMint(walletAddr, 2 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -90,7 +90,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testSendTokenToEOA() public {
+    function test_SendTokenToEOA() public {
         address recipient = vm.addr(5);
         string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
 
@@ -114,7 +114,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(walletAddr), 50 ether, "sender did not have 50 DAI left");
     }
 
-    function testSendTokenToEOAWithDecimals() public {
+    function test_SendTokenToEOA_WithDecimals() public {
         address recipient = vm.addr(5);
         string memory subject = string.concat("Send 10.52 DAI to ", Strings.toHexString(uint160(recipient), 20));
 
@@ -136,7 +136,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(walletAddr), 9.48 ether, "sender did not have 9.48 DAI left");
     }
 
-    function testSendTokenToEmail() public {
+    function test_SendTokenToEmail() public {
         string memory subject = "Send 65.4 DAI to ";
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -146,7 +146,6 @@ contract TransferTest is EmailWalletCoreTestHelper {
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 100 ether);
 
-        // Create EmailOp
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
@@ -168,6 +167,30 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(amount, 65.4 ether, "amount mismatch");
     }
 
-    // eth to weth
-    // execute and ahndle email op
+    function test_ConvertWethToEthOnExternalTransfer() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 50 ETH to ", Strings.toHexString(uint160(recipient), 20));
+
+        // Mint 100 WETH to sender wallet; we only send 50
+        vm.deal(walletAddr, 100 ether);
+        vm.startPrank(walletAddr);
+        weth.deposit{value: 100 ether}();
+        vm.stopPrank();
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "ETH";
+        emailOp.walletParams.amount = 50 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, string(reason));
+        assertEq(recipient.balance, 50 ether, "recipient did not receive 50 ETH");
+        assertEq(weth.balanceOf(walletAddr), 50 ether, "sender did not have 50 WETH left");
+        assertEq(weth.balanceOf(recipient), 0 ether, "recipient received weth");
+    }
 }

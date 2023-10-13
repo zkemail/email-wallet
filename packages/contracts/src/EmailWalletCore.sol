@@ -1,29 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
-import "@zk-email/contracts/DKIMRegistry.sol";
+import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
-import "./libraries/DecimalUtils.sol";
-import "./libraries/BytesUtils.sol";
-import "./utils/TokenRegistry.sol";
-import "./interfaces/IVerifier.sol";
-import "./interfaces/Extension.sol";
+import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
+import {DecimalUtils} from "./libraries/DecimalUtils.sol";
+import {BytesUtils} from "./libraries/BytesUtils.sol";
+import {TokenRegistry} from "./utils/TokenRegistry.sol";
+import {IVerifier} from "./interfaces/IVerifier.sol";
+import {Extension} from "./interfaces/Extension.sol";
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
+import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
-import "./interfaces/IPriceOracle.sol";
-import "./Wallet.sol";
 
 contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
-    uint constant test = 123;
-
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
     string public constant AMOUNT_TEMPLATE = "{amount}";
     string public constant STRING_TEMPLATE = "{string}";
@@ -44,7 +42,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     IPriceOracle public immutable priceOracle;
 
     // Address of WETH contract
-    address weth;
+    address public immutable weth;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
     address public immutable walletImplementation;
@@ -169,6 +167,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         defaultDkimRegistry = _defaultDkimRegistry;
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
+        weth = _wethContract;
         maxFeePerGas = _maxFeePerGas;
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
@@ -291,6 +290,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
         DKIMRegistry dkimRegistry = DKIMRegistry(infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry);
+
         require(
             verifier.verifyAccountInitializaionProof(
                 emailDomain,
@@ -1013,7 +1013,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
-            require(target != address(this), "cannot execute on Core contract");
+            require(target != address(this), "cannot execute on core");
             require(target != walletAddr, "cannot execute on wallet");
             require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
@@ -1167,7 +1167,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 Wallet wallet = Wallet(payable(currContext.walletAddr));
 
                 try wallet.execute(weth, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
-                    wallet.execute(emailOp.recipientETHAddr, walletParams.amount, abi.encode(""));
+                    wallet.execute(emailOp.recipientETHAddr, walletParams.amount, "");
                     success = true;
                 } catch Error(string memory reason) {
                     success = false;

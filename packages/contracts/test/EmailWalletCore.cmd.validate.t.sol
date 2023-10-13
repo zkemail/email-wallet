@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 // Generic EmailOp validations - command specific validations are in respective command test file
 contract EmailOpValidationTest is EmailWalletCoreTestHelper {
@@ -11,7 +11,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
     }
 
-    function testRevertOnExpiredEmail() public {
+    function test_RevertIf_EmailExpired() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         vm.warp(1641070800);
@@ -26,7 +26,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertForUnsupportedDomain() public {
+    function test_RevertIf_DomainUnsupported() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
@@ -39,7 +39,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfSenderIsNotAccountRelayer() public {
+    function test_RevertIf_SenderIsNotAccountRelayer() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
@@ -51,7 +51,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfAccountIsNotInitialized() public {
+    function test_RevertIf_AccountIsNotInitialized() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         bytes32 emailAddrPointer = bytes32(uint256(37465));
@@ -69,7 +69,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfNullifierIsUsed() public {
+    function test_RevertIf_NullifierIsUsed() public {
         daiToken.freeMint(walletAddr, 1 ether);
         bytes32 nullifier = bytes32(uint256(123));
 
@@ -82,7 +82,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfFeeTokenIsNotSupported() public {
+    function test_RevertIf_FeeTokenIsNotSupported() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
@@ -95,7 +95,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfFeePerGasIsHigherThanMax() public {
+    function test_RevertIf_FeePerGasIsHigherThanMax() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
@@ -108,20 +108,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfRecipientCommittmentNotFoundWhenSubjectHasEmailRecipient() public {
-        daiToken.freeMint(walletAddr, 1 ether);
-
-        EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(0);
-
-        vm.startPrank(relayer);
-        vm.expectRevert("recipientEmailAddrCommit not found");
-        core.validateEmailOp(emailOp);
-        vm.stopPrank();
-    }
-
-    function testRevertCannotHaveBothRecipientTypes() public {
+    function test_RevertIf_BothRecipientTypeExist() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
@@ -135,7 +122,20 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfEmailCommitmentIsPresentWhenSubjectDontHaveEmail() public {
+    function test_RevertIf_RecipientCommittmentNotFound() public {
+        daiToken.freeMint(walletAddr, 1 ether);
+
+        EmailOp memory emailOp = _getTokenSendingEmailOp();
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(0);
+
+        vm.startPrank(relayer);
+        vm.expectRevert("recipientEmailAddrCommit not found");
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    function test_RevertIf_RecipientCommittmentFound_ForSubjectWithoutEmailAddr() public {
         address recipient = vm.addr(5);
         daiToken.freeMint(walletAddr, 1 ether);
 
@@ -150,9 +150,8 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function testRevertIfProofIsNotValid() public {
+    function test_RevertIf_ProofIsNotValid() public {
         bytes memory proof = abi.encodePacked(bytes1(0x02));
-        address recipient = vm.addr(5);
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();

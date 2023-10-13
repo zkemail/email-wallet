@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 contract ExitCommandTest is EmailWalletCoreTestHelper {
     function setUp() public override {
@@ -10,7 +10,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
     }
 
-    function testExitAndTransferOwnership() public {
+    function test_ExitAndTransferOwnership() public {
         address newOwner = vm.addr(5);
         string memory subject = string.concat(
             "Exit Email Wallet. Change wallet ownership to ",

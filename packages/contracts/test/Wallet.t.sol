@@ -2,10 +2,10 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
+import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../src/Wallet.sol";
-import "./mock/WETH9.sol";
+import {Wallet} from "../src/Wallet.sol";
+import {WETH9} from "./helpers/WETH9.sol";
 
 contract TestWallet is Wallet {
     constructor(address wethAddress) Wallet(wethAddress) {}
@@ -18,6 +18,9 @@ contract TestWallet is Wallet {
 contract WalletTest is Test {
     WETH9 weth;
     Wallet public walletImplementation;
+
+    // For testing sending ETH to this contract
+    fallback() external payable {}
 
     // Below methods are used for deploying upgradeable deterministic wallets
     // They are the similar to the code used in EmailWalletCore
@@ -50,7 +53,7 @@ contract WalletTest is Test {
         walletImplementation = new Wallet(address(weth));
     }
 
-    function testWalletDeploy() public {
+    function test_WalletDeploy() public {
         bytes32 salt = bytes32(uint(1001));
         Wallet wallet = _deployWallet(salt);
 
@@ -58,14 +61,14 @@ contract WalletTest is Test {
         assertEq(wallet.owner(), address(this)); // Verify deployed (test contract) is owner
     }
 
-    function testWalletExecution() public {
+    function test_WalletExecution() public {
         bytes32 salt = bytes32(uint(1002));
         Wallet wallet = _deployWallet(salt);
 
         wallet.execute(address(wallet), 0, ""); // Should be able to execute as owner
     }
 
-    function testCannotExecuteAsNonOwner() public {
+    function test_RevertIf_ExecuteCalleeIsNotOwner() public {
         bytes32 salt = bytes32(uint(1003));
         Wallet wallet = _deployWallet(salt);
 
@@ -75,7 +78,7 @@ contract WalletTest is Test {
         vm.stopPrank();
     }
 
-    function testWalletOwnershipChange() public {
+    function test_WalletOwnershipChange() public {
         bytes32 salt = bytes32(uint(1002));
         address newOwner = vm.addr(2);
         Wallet wallet = _deployWallet(salt);
@@ -88,7 +91,7 @@ contract WalletTest is Test {
         vm.stopPrank();
     }
 
-    function testWalletUpgrade() public {
+    function test_WalletUpgrade() public {
         bytes32 salt = bytes32(uint(1003));
         Wallet wallet = _deployWallet(salt);
 
@@ -99,7 +102,7 @@ contract WalletTest is Test {
         assertEq(wallet2.getName(), "Test"); // Test function from new implementation
     }
 
-    function testETHDepositFromEOAShouldConvertToWETH() public {
+    function test_ConvertEthToWeth_WhenSendFromEoa() public {
         bytes32 salt = bytes32(uint(1004));
         Wallet wallet = _deployWallet(salt);
 
@@ -116,7 +119,7 @@ contract WalletTest is Test {
         assertEq(address(wallet).balance, 0, "wallet balance is not zero");
     }
 
-    function testETHDepositFromContractShouldConvertToWETH() public {
+    function test_ConvertEthToWeth_WhenSendFromContract() public {
         bytes32 salt = bytes32(uint(1004));
         Wallet wallet = _deployWallet(salt);
 
@@ -126,6 +129,30 @@ contract WalletTest is Test {
         assertEq(success, true, "send ETH failed");
         assertEq(weth.balanceOf(address(wallet)), 1 ether, "weth balance is not 1 ether");
         assertEq(address(this).balance, 0, "eoa balance is not zero");
+        assertEq(address(wallet).balance, 0, "wallet balance is not zero");
+    }
+
+    function test_SendEth_ToEoa() public {
+        address recipient = vm.addr(5);
+        Wallet wallet = _deployWallet(bytes32(uint(1004)));
+
+        vm.deal(address(wallet), 1 ether);
+
+        wallet.execute(recipient, 1 ether, ""); // Send ETH
+
+        assertEq(recipient.balance, 1 ether, "recipient did not receive 1 ETH");
+        assertEq(address(wallet).balance, 0, "wallet balance is not zero");
+    }
+
+    function test_SendEth_ToContract() public {
+        Wallet wallet = _deployWallet(bytes32(uint(1004)));
+
+        vm.deal(address(wallet), 1 ether);
+
+        uint256 balanceBefore = address(this).balance;
+        wallet.execute(address(this), 1 ether, ""); // Send ETH
+
+        assertEq(address(this).balance - balanceBefore, 1 ether, "recipient did not receive 1 ETH");
         assertEq(address(wallet).balance, 0, "wallet balance is not zero");
     }
 }

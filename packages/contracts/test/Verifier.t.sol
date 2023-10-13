@@ -28,7 +28,7 @@ contract VerifierTest is Test {
         );
     }
 
-    function testAccountCreationProof() public view {
+    function test_AccountCreationProof() public view {
         uint256[2] memory pA = [
             0x14e40fffa1254bda8689b14ff658800bf4d34d3df4cadd5762be0bc9fe7a4494,
             0x2d4f10039746aeab37204f711427d2e545a03d7a46d1071b02fa0ccd98eef26e
@@ -65,7 +65,7 @@ contract VerifierTest is Test {
         );
     }
 
-    function testAccountInitializaionProof() public view {
+    function test_AccountInitializaionProof() public view {
         uint256[2] memory pA = [
             0x1f27b6ed716c5c33bc9b9c2de60f9779dac4bc7f59ecf4ce53335bcac85ddd2d,
             0x120ba1546141ad60378a422493cd0ba774e18c98801c941478390c81e7232c7c
@@ -100,7 +100,7 @@ contract VerifierTest is Test {
         );
     }
 
-    function testAccountTransportProof() public view {
+    function test_AccountTransportProof() public view {
         uint256[2] memory pA = [
             0x1fca161fdbbe869f775877b9639546f446336aa6d660472f03df34639565cf91,
             0x09e1b9a33d884b1fe45928ffc4ff8401da7ad3a48113de4f1cf751062780bd00
@@ -136,7 +136,7 @@ contract VerifierTest is Test {
         );
     }
 
-    function testClaimFundProof() public view {
+    function test_ClaimFundProof() public view {
         uint256[2] memory pA = [
             0x03a4bf5a5a281882fb7883333aa07df6b871665f16ff2d5dd4562c0d58be3199,
             0x24e7db0cdf1b72707d6a05640ed3965adaaae3e50a124e7f2140a60e63032a7d
@@ -167,7 +167,7 @@ contract VerifierTest is Test {
         );
     }
 
-    function testEmailSenderProof() public view {
+    function test_EmailSenderProof() public view {
         uint256[2] memory pA = [
             0x2efc74fdcd39cae75580dd5760a5bc68a350548ead19042da58681de8ad11657,
             0x1a0aa04d4ac1dd939a29a8a124278fde41a13aa2d640072d9c5d805e131d8722
