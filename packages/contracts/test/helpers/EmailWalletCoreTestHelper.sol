@@ -13,7 +13,9 @@ import {IPriceOracle, UniswapTWAPOracle} from "../../src/utils/UniswapTWAPOracle
 import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
 import {TestVerifier} from "../mocks/TestVerifier.sol";
 import {TestERC20} from "../mocks/TestERC20.sol";
+import {TextExtension} from "../mocks/TestExtension.sol";
 import {WETH9} from "../helpers/WETH9.sol";
+import {Extension} from "../../src/interfaces/Extension.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
