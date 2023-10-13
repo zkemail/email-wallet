@@ -21,4 +21,5 @@ library Commands {
     string public constant UNINSTALL_EXTENSION = "Uninstall";
     // string public constant EXIT_EMAIL_WALLET = "Exit Email Wallet. Change wallet ownership to";
     string public constant EXIT_EMAIL_WALLET = "Exit";
+    string public constant DKIM = "DKIM";
 }

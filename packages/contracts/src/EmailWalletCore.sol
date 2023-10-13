@@ -904,8 +904,9 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 !Strings.equal(command, Commands.EXECUTE) &&
                 !Strings.equal(command, Commands.INSTALL_EXTENSION) &&
                 !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
-                !Strings.equal(command, Commands.EXIT_EMAIL_WALLET),
-            "command cannot be an predefined name"
+                !Strings.equal(command, Commands.EXIT_EMAIL_WALLET) &&
+                !Strings.equal(command, Commands.DKIM),
+            "command cannot be a predefined name"
         );
         require(
             !Strings.equal(command, TOKEN_AMOUNT_TEMPLATE) &&
@@ -1023,7 +1024,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 BytesUtils.bytesToHexString(emailOp.executeCallData)
             );
         }
-        // Sample: Set extension for Swap as Uniswap
+        // Sample: Install extension for Swap as Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
@@ -1068,6 +1069,16 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 Commands.EXIT_EMAIL_WALLET,
                 " Email Wallet. Change wallet ownership to ",
                 Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
+            );
+        }
+        // Sample: DKIM registry as 0x000112aa..
+        else if (Strings.equal(emailOp.command, Commands.DKIM)) {
+            require(emailOp.newDkimRegistry != address(0), "newDkimRegistry cannot be emoty");
+
+            maskedSubject = string.concat(
+                Commands.DKIM,
+                " registry is ",
+                Strings.toHexString(uint256(uint160(emailOp.newDkimRegistry)), 20)
             );
         }
         // The command is for an extension
@@ -1231,6 +1242,11 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 success = false;
                 returnData = bytes("err executing transferOwnership on wallet");
             }
+        }
+        // Set DKIM registry
+        else if (Strings.equal(emailOp.command, Commands.DKIM)) {
+            infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry =
+                emailOp.newDkimRegistry;
         }
         // The command is for an extension
         else {
