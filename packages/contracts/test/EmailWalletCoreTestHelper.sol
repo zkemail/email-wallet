@@ -66,8 +66,6 @@ contract EmailWalletCoreTestHelper is Test {
         priceOracle = new UniswapTWAPOracle(address(0), address(0));
         weth = new WETH9();
 
-        console.log("wethwethweth", address(weth));
-
         // Deploy core contract as proxy
         address implementation = address(
             new EmailWalletCore(

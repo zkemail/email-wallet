@@ -20,11 +20,11 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         testContractAddr = address(new ExecuteTestContract());
     }
 
-    function test_Execute() public {
+    function test_ExecuteCommand() public {
         address recipient = vm.addr(5);
 
-        bytes memory erc20Calldata = abi.encodeWithSignature("process(uint256)", 90001);
-        bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, erc20Calldata);
+        bytes memory targetCalldata = abi.encodeWithSignature("process(uint256)", 90001);
+        bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
 
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
@@ -38,6 +38,28 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
+    }
+
+    function test_ExecuteFailureShouldNotRevert() public {
+        address recipient = vm.addr(5);
+
+        // Calling an invalid function
+        bytes memory targetCalldata = abi.encodeWithSignature("invalid(uint256)", 90001);
+        bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
+
+        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = subject;
+
+        // Should not revert, but return false as this is not a validation error
+        vm.startPrank(relayer);
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(!success, "handleEmailOp succeded");
     }
 
     function test_RevertIf_ExecuteTargetIsWallet() public {
@@ -53,10 +75,8 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on wallet");
-        (bool success, ) = core.handleEmailOp(emailOp);
+        core.handleEmailOp(emailOp);
         vm.stopPrank();
-
-        assertTrue(success, "handleEmailOp failed");
     }
 
     function test_RevertIf_ExecuteTargetIsCore() public {
@@ -72,10 +92,8 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on core");
-        (bool success, ) = core.handleEmailOp(emailOp);
+        core.handleEmailOp(emailOp);
         vm.stopPrank();
-
-        assertTrue(success, "handleEmailOp failed");
     }
 
     function test_RevertIf_ExecuteTargetIsToken() public {
@@ -91,9 +109,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on token");
-        (bool success, ) = core.handleEmailOp(emailOp);
+        core.handleEmailOp(emailOp);
         vm.stopPrank();
-
-        assertTrue(success, "handleEmailOp failed");
     }
 }
