@@ -914,7 +914,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 !Strings.equal(command, UINT_TEMPLATE) &&
                 !Strings.equal(command, INT_TEMPLATE) &&
                 !Strings.equal(command, ADDRESS_TEMPLATE),
-            "command cannot be an predefined name"
+            "command must be a fixed string"
         );
 
         addressOfExtension[name] = addr;
