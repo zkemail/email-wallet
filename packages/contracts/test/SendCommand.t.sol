@@ -146,7 +146,6 @@ contract TransferTest is EmailWalletCoreTestHelper {
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 100 ether);
 
-        // Create EmailOp
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
@@ -168,6 +167,30 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(amount, 65.4 ether, "amount mismatch");
     }
 
-    // eth to weth
-    // execute and ahndle email op
+    function testConvertWethToEthOnExternalTransferIfSubjectHasEth() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 50 ETH to ", Strings.toHexString(uint160(recipient), 20));
+
+        // Mint 100 WETH to sender wallet; we only send 50
+        vm.deal(walletAddr, 100 ether);
+        vm.startPrank(walletAddr);
+        weth.deposit{value: 100 ether}();
+        vm.stopPrank();
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "ETH";
+        emailOp.walletParams.amount = 50 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, string(reason));
+        assertEq(recipient.balance, 50 ether, "recipient did not receive 50 ETH");
+        assertEq(weth.balanceOf(walletAddr), 50 ether, "sender did not have 50 WETH left");
+        assertEq(weth.balanceOf(recipient), 0 ether, "recipient received weth");
+    }
 }

@@ -44,7 +44,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     IPriceOracle public immutable priceOracle;
 
     // Address of WETH contract
-    address weth;
+    address public immutable weth;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
     address public immutable walletImplementation;
@@ -169,6 +169,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         defaultDkimRegistry = _defaultDkimRegistry;
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
+        weth = _wethContract;
         maxFeePerGas = _maxFeePerGas;
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
@@ -291,6 +292,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
         DKIMRegistry dkimRegistry = DKIMRegistry(infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry);
+
         require(
             verifier.verifyAccountInitializaionProof(
                 emailDomain,
@@ -1167,7 +1169,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
                 Wallet wallet = Wallet(payable(currContext.walletAddr));
 
                 try wallet.execute(weth, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
-                    wallet.execute(emailOp.recipientETHAddr, walletParams.amount, abi.encode(""));
+                    wallet.execute(emailOp.recipientETHAddr, walletParams.amount, "");
                     success = true;
                 } catch Error(string memory reason) {
                     success = false;

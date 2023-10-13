@@ -19,6 +19,9 @@ contract WalletTest is Test {
     WETH9 weth;
     Wallet public walletImplementation;
 
+    // For testing sending ETH to this contract
+    fallback() external payable {}
+
     // Below methods are used for deploying upgradeable deterministic wallets
     // They are the similar to the code used in EmailWalletCore
     function _deployWallet(bytes32 salt) internal returns (Wallet wallet) {
@@ -126,6 +129,30 @@ contract WalletTest is Test {
         assertEq(success, true, "send ETH failed");
         assertEq(weth.balanceOf(address(wallet)), 1 ether, "weth balance is not 1 ether");
         assertEq(address(this).balance, 0, "eoa balance is not zero");
+        assertEq(address(wallet).balance, 0, "wallet balance is not zero");
+    }
+
+    function testSendETHToEOA() public {
+        address recipient = vm.addr(5);
+        Wallet wallet = _deployWallet(bytes32(uint(1004)));
+
+        vm.deal(address(wallet), 1 ether);
+
+        wallet.execute(recipient, 1 ether, ""); // Send ETH
+
+        assertEq(recipient.balance, 1 ether, "recipient did not receive 1 ETH");
+        assertEq(address(wallet).balance, 0, "wallet balance is not zero");
+    }
+
+    function testSendETHToContract() public {
+        Wallet wallet = _deployWallet(bytes32(uint(1004)));
+
+        vm.deal(address(wallet), 1 ether);
+
+        uint256 balanceBefore = address(this).balance;
+        wallet.execute(address(this), 1 ether, ""); // Send ETH
+
+        assertEq(address(this).balance - balanceBefore, 1 ether, "recipient did not receive 1 ETH");
         assertEq(address(wallet).balance, 0, "wallet balance is not zero");
     }
 }

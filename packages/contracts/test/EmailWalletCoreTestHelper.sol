@@ -21,7 +21,6 @@ contract EmailWalletCoreTestHelper is Test {
     IPriceOracle priceOracle;
     WETH9 weth;
 
-    TestERC20 wethToken;
     TestERC20 daiToken;
     TestERC20 usdcToken;
 
@@ -67,6 +66,8 @@ contract EmailWalletCoreTestHelper is Test {
         priceOracle = new UniswapTWAPOracle(address(0), address(0));
         weth = new WETH9();
 
+        console.log("wethwethweth", address(weth));
+
         // Deploy core contract as proxy
         address implementation = address(
             new EmailWalletCore(
@@ -92,10 +93,9 @@ contract EmailWalletCoreTestHelper is Test {
         dkimRegistry.setDKIMPublicKeyHash(emailDomain, uint256(111122223333));
 
         // Deploy some ERC20 test tokens and add them to registry
-        wethToken = new TestERC20("WETH", "WETH");
         daiToken = new TestERC20("DAI", "DAI");
         usdcToken = new TestERC20("USDC", "USDC");
-        tokenRegistry.setTokenAddress("WETH", address(wethToken));
+        tokenRegistry.setTokenAddress("WETH", address(weth));
         tokenRegistry.setTokenAddress("DAI", address(daiToken));
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
 
@@ -131,7 +131,7 @@ contract EmailWalletCoreTestHelper is Test {
                 timestamp: block.timestamp,
                 maskedSubject: "",
                 feeTokenName: "ETH",
-                feePerGas: maxFeePerGas,
+                feePerGas: 0,
                 executeCallData: abi.encodePacked(""),
                 newWalletOwner: address(0),
                 walletParams: WalletParams({tokenName: "", amount: 0}),
