@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 // Generic EmailOp validations - command specific validations are in respective command test file
 contract EmailOpValidationTest is EmailWalletCoreTestHelper {
@@ -74,7 +74,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         bytes32 nullifier = bytes32(uint256(123));
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
+        emailOp.emailNullifier = nullifier; // This nullifier already used for account initialization
 
         vm.startPrank(relayer);
         vm.expectRevert("email nullifier already used");
@@ -152,7 +152,6 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function testRevertIfProofIsNotValid() public {
         bytes memory proof = abi.encodePacked(bytes1(0x02));
-        address recipient = vm.addr(5);
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();

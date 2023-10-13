@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 contract RelayerTest is EmailWalletCoreTestHelper {
     function testRegisterRelayer() public {

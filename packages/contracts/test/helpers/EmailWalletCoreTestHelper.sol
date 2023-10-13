@@ -3,15 +3,19 @@ pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "@zk-email/contracts/DKIMRegistry.sol";
-import "../src/EmailWalletCore.sol";
-import "../src/utils/TokenRegistry.sol";
-import "../src/utils/UniswapTWAPOracle.sol";
-import "../src/libraries/BytesUtils.sol";
-import "./mock/TestVerifier.sol";
-import "./mock/TestERC20.sol";
-import "./mock/WETH9.sol";
+import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
+import {Wallet} from "../../src/Wallet.sol";
+import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
+import {TokenRegistry} from "../../src/utils/TokenRegistry.sol";
+import {IPriceOracle, UniswapTWAPOracle} from "../../src/utils/UniswapTWAPOracle.sol";
+import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
+import {TestVerifier} from "../mocks/TestVerifier.sol";
+import {TestERC20} from "../mocks/TestERC20.sol";
+import {WETH9} from "../helpers/WETH9.sol";
+import "../../src/interfaces/Types.sol";
+import "../../src/interfaces/Commands.sol";
 
 contract EmailWalletCoreTestHelper is Test {
     EmailWalletCore core;

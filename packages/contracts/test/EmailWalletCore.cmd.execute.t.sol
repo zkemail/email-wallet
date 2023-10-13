@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 contract ExecuteTestContract {
-    function process(uint256 num) public returns (uint256) {
+    function process(uint256 num) public pure returns (uint256) {
         return num + 1;
     }
 }
@@ -21,8 +21,6 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_ExecuteCommand() public {
-        address recipient = vm.addr(5);
-
         bytes memory targetCalldata = abi.encodeWithSignature("process(uint256)", 90001);
         bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
 
@@ -41,8 +39,6 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_ExecuteFailureShouldNotRevert() public {
-        address recipient = vm.addr(5);
-
         // Calling an invalid function
         bytes memory targetCalldata = abi.encodeWithSignature("invalid(uint256)", 90001);
         bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
@@ -63,8 +59,6 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertIf_ExecuteTargetIsWallet() public {
-        address recipient = vm.addr(5);
-
         bytes memory emailOpCalldata = abi.encode(walletAddr, 0, "");
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
@@ -80,8 +74,6 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertIf_ExecuteTargetIsCore() public {
-        address recipient = vm.addr(5);
-
         bytes memory emailOpCalldata = abi.encode(address(core), 0, "");
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
@@ -97,8 +89,6 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertIf_ExecuteTargetIsToken() public {
-        address recipient = vm.addr(5);
-
         bytes memory emailOpCalldata = abi.encode(address(daiToken), 0, abi.encodeWithSignature("transfer(uint256)", 1 ether));
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 

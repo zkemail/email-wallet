@@ -2,10 +2,10 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
+import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../src/Wallet.sol";
-import "./mock/WETH9.sol";
+import {Wallet} from "../src/Wallet.sol";
+import {WETH9} from "./helpers/WETH9.sol";
 
 contract TestWallet is Wallet {
     constructor(address wethAddress) Wallet(wethAddress) {}

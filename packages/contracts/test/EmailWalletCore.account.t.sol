@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./EmailWalletCoreTestHelper.sol";
+import "./helpers/EmailWalletCoreTestHelper.sol";
 
 contract AccountTest is EmailWalletCoreTestHelper {
     function setUp() public override {
@@ -318,7 +318,6 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 relayer2RandHash = bytes32(uint256(311121));
         bytes32 relayer2Pointer = bytes32(uint256(202201232));
         bytes32 relayer2AccountKeyCommit = bytes32(uint256(12012302));
-        bytes32 relayer2WalletSalt = bytes32(uint256(2123123002));
         bytes memory relayer2PSIPoint = abi.encodePacked(uint256(20434303));
 
         // Register and initialize with relayer 1
