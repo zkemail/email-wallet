@@ -39,10 +39,10 @@ describe("Account Initialization", () => {
         const emailAddr = "suegamisora@gmail.com";
         const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
         expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[13]);
-        const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
+        const accountKey = "0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76";
         const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, expectedRelayerRandHash);
         expect(BigInt(expectedAkCommit)).toEqual(witness[14]);
-        const timestamp = 1694979179n;
+        const timestamp = 1697222111n;
         expect(timestamp).toEqual(witness[15]);
     });
 
@@ -70,10 +70,10 @@ describe("Account Initialization", () => {
         const emailAddr = "suegamisora@gmail.com";
         const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
         expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[13]);
-        const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
+        const accountKey = "0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76";
         const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, expectedRelayerRandHash);
         expect(BigInt(expectedAkCommit)).toEqual(witness[14]);
-        const timestamp = 1696967462n;
+        const timestamp = 1697224006n;
         expect(timestamp).toEqual(witness[15]);
     });
 
@@ -101,10 +101,11 @@ describe("Account Initialization", () => {
         const emailAddr = "suegamisora@gmail.com";
         const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
         expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[13]);
-        const accountKey = "0x000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd";
+        const accountKey = "0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76";
         const expectedAkCommit = emailWalletUtils.accountKeyCommit(accountKey, emailAddr, expectedRelayerRandHash);
         expect(BigInt(expectedAkCommit)).toEqual(witness[14]);
-        const timestamp = 1696967293n;
+        const timestamp = 1697224182n;
         expect(timestamp).toEqual(witness[15]);
     });
+
 });

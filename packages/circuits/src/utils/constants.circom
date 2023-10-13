@@ -9,7 +9,7 @@ function domain_len_const() {
 }
 
 function invitation_code_len_const() {
-    return 62;
+    return 64;
 }
 
 function field_pack_bits_const() {

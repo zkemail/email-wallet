@@ -8,15 +8,15 @@ include "./constants.circom";
 
 // `in` is a big-endtian hex string of `out`.
 template Hex2Field() {
-    signal input in[62];
+    signal input in[64];
     signal output out;
-    signal bytes[31] <== Hex2Ints(62)(in);
-    signal sums[32];
+    signal bytes[32] <== Hex2Ints(64)(in);
+    signal sums[33];
     sums[0] <== 0;
-    for(var i = 0; i < 31; i++) {
+    for(var i = 0; i < 32; i++) {
         sums[i+1] <== 256 * sums[i] + bytes[i];
     }
-    out <== sums[31];
+    out <== sums[32];
 }
 
 template Hex2Ints(n) {
