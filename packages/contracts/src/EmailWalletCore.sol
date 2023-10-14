@@ -22,6 +22,7 @@ import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 
+
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
     string public constant AMOUNT_TEMPLATE = "{amount}";
@@ -464,10 +465,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
-            totalFee += unclaimedFundClaimGas * maxFeePerGas;
+            totalFee += (unclaimedFundClaimGas * maxFeePerGas);
         } else if (currContext.unclaimedStateRegistered) {
             require(msg.value == unclaimedStateClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed state");
-            totalFee += unclaimedStateClaimGas * maxFeePerGas;
+            totalFee += (unclaimedStateClaimGas * maxFeePerGas);
         } else {
             // Revert whatever was sent in case unclaimed fund/state registration didnt happen
             _transferETH(msg.sender, msg.value);
@@ -475,13 +476,15 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         uint256 gasForRefund = 50000; // Rough estimate of gas cost for refund operation below (ERC20 transfer)
         uint256 consumedGas = initialGas - gasleft() + gasForRefund;
-        totalFee += consumedGas * emailOp.feePerGas;
+        totalFee += (consumedGas * emailOp.feePerGas);
 
         address feeToken = _getTokenAddrFromName(emailOp.feeTokenName);
         uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
-
         if (feeAmount > 0) {
-            _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
+            (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
+            if (!success) {
+                return (success, returnData);
+            }
         }
     }
 
@@ -801,7 +804,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 require(currContext.tokenAllowances[i].amount >= amount, "insufficient allowance");
                 currContext.tokenAllowances[i].amount -= amount;
 
-                _transferERC20(currContext.walletAddr, currContext.extensionAddr, tokenAddr, amount);
+                (bool success, bytes memory returnData) = _transferERC20(currContext.walletAddr, currContext.extensionAddr, tokenAddr, amount);
+                require(success, string.concat("request token failed: ", string(returnData)));
                 return;
             }
         }

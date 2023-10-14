@@ -53,10 +53,10 @@ contract IntegrationTest is Test {
     uint256 public constant DOMAIN_FIELDS = 9;
     uint256 public constant SUBJECT_FIELDS = 17;
 
-    uint256 maxFeePerGas = 10 ** 10;
+    uint256 maxFeePerGas = 10 ** 9;
     uint256 emailValidityDuration = 1 hours;
-    uint256 unclaimedFundClaimGas = 0.0002 ether;
-    uint256 unclaimedStateClaimGas = 0.0002 ether;
+    uint256 unclaimedFundClaimGas = 1000000;
+    uint256 unclaimedStateClaimGas = 1000000;
     uint256 unclaimedFundExpirationDuration = 30 days;
 
     address deployer;
@@ -186,7 +186,6 @@ contract IntegrationTest is Test {
         vm.stopPrank();
         vm.startPrank(relayer2);
         (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(relayer1RandHash, core.accountKeyCommitOfPointer(user1.emailAddrPointer), string.concat(projectRoot,"/test/emails/account_init_test1.eml"), "gmail.com", "suegamisora@gmail.com", relayer2Rand, user1.accountKey);
-        newRelayerHash.logBytes32();
         user1.emailAddrPointer = newEmailAddrPointer;
         require(newRelayerHash == relayer2RandHash, "Relayer hash mismatch");
         vm.stopPrank();
@@ -207,6 +206,7 @@ contract IntegrationTest is Test {
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.15 ether);
         weth.deposit{value: 0.15 ether}();
+        require(weth.balanceOf(user1Wallet) == 0.15 ether, "User1 wallet balance before the transaction mismatch");
         vm.stopPrank();
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(projectRoot,"/test/emails/token_transfer_test1.eml"), relayer1Rand, "Send", "Send 0.1 ETH to ", "gmail.com", "ETH");
@@ -215,8 +215,9 @@ contract IntegrationTest is Test {
         deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
         (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
         assertEq(success, true, string(reason));
-        require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
-        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract balance mismatch");
+        require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
+        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
+        require(address(core).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(), "Core contract eth balance mismatch");
         (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user2.emailAddrPointer = emailAddrPointer;
@@ -250,7 +251,6 @@ contract IntegrationTest is Test {
         vm.stopPrank();
         vm.startPrank(relayer1);
         address recipient = vm.addr(4);
-        recipient.logAddress();
         (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(projectRoot,"/test/emails/token_transfer_test2.eml"), relayer1Rand, "Send", string.concat("Send 0.25 ETH to ",recipient.toHexString()), "gmail.com", "ETH");
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.25 ether;
@@ -347,9 +347,6 @@ contract IntegrationTest is Test {
         bytes32 y = bytes32(vm.parseUint(pubSignals[5]));
         bytes memory psiPoint = abi.encode(x, y);
         bytes memory proof = proofToBytes(string.concat(projectRoot, "/test/build_integration/account_creation_proof.json"));
-        // emailAddrPointer.logBytes32();
-        // accountKeyCommit.logBytes32();
-        // walletSalt.logBytes32();
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
     }
 
@@ -410,7 +407,7 @@ contract IntegrationTest is Test {
         return transportEmailProof;
     } 
 
-     function genEmailOpPartial(string memory emailFile, bytes32 relayerRand, string memory command, string memory maskedSubject, string memory emailDomain, string memory feeTokenName) internal returns (EmailOp memory emailOp, bytes32 emailAddrRand) {
+    function genEmailOpPartial(string memory emailFile, bytes32 relayerRand, string memory command, string memory maskedSubject, string memory emailDomain, string memory feeTokenName) internal returns (EmailOp memory emailOp, bytes32 emailAddrRand) {
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(vm.projectRoot(),"/test/bin/email_sender.sh");
         inputGenerationInput[1] = emailFile;
@@ -421,7 +418,6 @@ contract IntegrationTest is Test {
         inputGenerationInput[1] = emailFile;
         vm.ffi(inputGenerationInput);
         emailAddrRand = vm.parseBytes32(vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/sign_rand.txt")));
-        emailAddrRand.logBytes32();
 
         string memory publicInputFile = vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/email_sender_public.json"));
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
