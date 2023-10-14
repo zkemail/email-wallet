@@ -30,6 +30,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant UINT_TEMPLATE = "{uint}";
     string public constant INT_TEMPLATE = "{int}";
     string public constant ADDRESS_TEMPLATE = "{address}";
+    string public constant RECIPIENT_TEMPLATE = "{recipient}";
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -757,7 +758,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     }
 
     /// Registere unclaimed state from an extension
-    /// @param extensionAddr Address of the extension contract
+    /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
@@ -1001,7 +1002,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 BytesUtils.bytesToHexString(emailOp.executeCallData)
             );
         }
-        // Sample: Install extension for Swap as Uniswap
+        // Sample: Install extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
 
@@ -1013,7 +1014,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 emailOp.extManagerParams.extensionName
             );
         }
-        // Sample: Remove extension for Swap
+        // Sample: Remove extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
             string memory command = subjectTemplatesOfExtension[extAddr][0][0];
@@ -1089,7 +1090,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 }
                 // {string} is plain string
                 else if (Strings.equal(matcher, STRING_TEMPLATE)) {
-                    value = string(emailOp.extensionParams.subjectParams[nextParamIndex]);
+                    value = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (string));
                     nextParamIndex++;
                 }
                 // {uint} is number parsed the same way as mentioned in subject (decimals not allowed) - use {amount} for decimals
@@ -1110,12 +1111,21 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                     value = Strings.toHexString(uint256(uint160(addr)), 20);
                     nextParamIndex++;
                 }
+                else if (Strings.equal(matcher, RECIPIENT_TEMPLATE)) {
+                    if (!emailOp.hasEmailRecipient) {
+                        value = Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20);
+                    }
+                }
                 // Constant string otherwise
                 else {
                     value = matcher;
                 }
 
-                maskedSubject = string.concat(maskedSubject, value);
+                if (bytes(maskedSubject).length == 0) {
+                    maskedSubject = value;
+                } else {
+                    maskedSubject = string.concat(maskedSubject, " ", value);
+                }
             }
 
             // We should have used all items in subjectParams by now

@@ -6,18 +6,26 @@ import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
 import "../../src/interfaces/Types.sol";
 
+contract DummyApes is ERC721 {
+    constructor() ERC721("DummyApes", "APE") {}
+
+    function freeMint(address to, uint256 tokenId) external {
+        _mint(to, tokenId);
+    }
+}
+
 contract TestNFTExtension is Extension, IERC721Receiver {
-    EmailWalletCore core;
+    EmailWalletCore public core;
 
     mapping(string => address) public addressOfNFTName;
 
-    string[][] public templates = new string[][](0);
+    string[][] public templates = new string[][](1);
 
     constructor(address coreAddr) {
-        EmailWalletCore core = EmailWalletCore(payable(coreAddr));
+        core = EmailWalletCore(payable(coreAddr));
 
         // Deploy a NFT contract
-        ERC721 dummyApes = new ERC721("DummyApes", "APE");
+        DummyApes dummyApes = new DummyApes();
         addressOfNFTName["APE"] = address(dummyApes);
 
         templates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
@@ -36,9 +44,12 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         address recipientETHAddr,
         bytes32 emailNullifier
     ) external override {
-        (uint256 tokenId, string memory nftName) = abi.decode(subjectParams[0], (uint256, string));
+        emailNullifier;
 
-        require(msg.sender == address(core), "invalid sender");
+        (uint256 tokenId) = abi.decode(subjectParams[0], (uint256));
+        (string memory nftName) = abi.decode(subjectParams[1], (string));
+
+        // require(msg.sender == address(core), "invalid sender");
         require(templateIndex == 0, "invalid templateIndex");
         require(addressOfNFTName[nftName] != address(0), "invalid NFT");
         require(tokenId != 0, "invalid tokenId");
@@ -50,7 +61,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
             require(recipientETHAddr != address(0), "invalid recipientETHAddr");
 
             bytes memory data = abi.encodeWithSignature(
-                "safeTransferFrom(address,address,uint256)",
+                "transferFrom(address,address,uint256)",
                 wallet,
                 recipientETHAddr,
                 tokenId
@@ -63,13 +74,15 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         UnclaimedState memory unclaimedState,
         bool isInternal
     ) public override returns (bool) {
+        isInternal;
+
         require(msg.sender == address(core), "invalid sender");
 
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token to this
         bytes memory data = abi.encodeWithSignature(
-            "safeTransferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
             unclaimedState.sender,
             address(this),
             tokenId
@@ -85,7 +98,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token to wallet
-        ERC721(nftAddr).safeTransferFrom(address(this), wallet, tokenId);
+        ERC721(nftAddr).transferFrom(address(this), wallet, tokenId);
     }
 
     function voidUnclaimedState(UnclaimedState memory unclaimedState) external override {
@@ -94,6 +107,6 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token back to sender
-        ERC721(nftAddr).safeTransferFrom(address(this), unclaimedState.sender, tokenId);
+        ERC721(nftAddr).transferFrom(address(this), unclaimedState.sender, tokenId);
     }
 }
