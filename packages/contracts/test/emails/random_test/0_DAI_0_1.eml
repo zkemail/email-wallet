@@ -1,0 +1,85 @@
+Delivered-To: emailwallet.relayer@gmail.com
+Received: by 2002:a05:7108:2e2:b0:342:22f4:d6db with SMTP id j2csp2339413gds;
+        Sat, 14 Oct 2023 10:01:09 -0700 (PDT)
+X-Received: by 2002:a81:a250:0:b0:5a7:a874:d83e with SMTP id z16-20020a81a250000000b005a7a874d83emr16305099ywg.42.1697302869339;
+        Sat, 14 Oct 2023 10:01:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1697302869; cv=none;
+        d=google.com; s=arc-20160816;
+        b=TA3BheCJC0Ztj3SOkbw/if7OUi0MhSwvG+mpSg75gxB5gQwH5jf3/SEJknnVR1WBKX
+         QLwjFp0w8WBqm8azR6P2RvIRZ4AoBGG/UKRhdOaYNz7YMFtZHwbCr0C+Yr2EU9rsrftW
+         4O4V4q2JS3PB0Q0QY113bwh7ewZ1SB0rgQYzAue+3+eC2Jo1otqZa3dhX5Zn4tNzKkV5
+         DiXEmxCJVKnAOdvatNEu8yePaGOEV7FxRELfbAaXOY8sGLFUR5OawdbthqNysO0dKR2u
+         oYX/EliFA4GiD06ji2NkKs8oo37olGCbXSHilkK14xLsrs9Kthersw8v5+zJGhmrNQD1
+         j7jA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=xk23QAOlLvBAZ8+3HM5v+iy0pGceRSmlOUT++vYUqZk=;
+        fh=AKWw92sdXoMEDdHXKLL06vnizTpObKPGCfYXnoQDKO8=;
+        b=jfz8+DuOF7isgHXZr/7R3qXNSapihUpo5cQuBxHuIVMlGa45aAQm7DoheCGBVH5iFL
+         gQqJk/6KS6C/L4YGpL2sOukoUBeHT+iAaChkQOp0NSES5saiDoHC61OBjWCVEU6K+uke
+         9/BL6G//hDup6u7cVcCdlQpiJBl12SQYi5nttJCTcq6ehQjBoyORHzejztQDq4XhOyr7
+         chrojPbeVboOofOuvTOg5+GIVebks+NW+r2HpL4sG5GiOZ/rHW4n8RdCAfbgHkZuQCGg
+         IZgwuY1Cw/kFmg7eK04vEPnplshFHQNrPbPqfnb83+wbcd5OuE+FkuSKaDxxtoeONTCG
+         omPg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=iV1ukAJ+;
+       spf=pass (google.com: domain of suegamisora@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=suegamisora@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <suegamisora@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id d82-20020a0ddb55000000b0057004323b82sor684771ywe.13.2023.10.14.10.01.09
+        for <emailwallet.relayer@gmail.com>
+        (Google Transport Security);
+        Sat, 14 Oct 2023 10:01:09 -0700 (PDT)
+Received-SPF: pass (google.com: domain of suegamisora@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=iV1ukAJ+;
+       spf=pass (google.com: domain of suegamisora@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=suegamisora@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697302869; x=1697907669; dara=google.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xk23QAOlLvBAZ8+3HM5v+iy0pGceRSmlOUT++vYUqZk=;
+        b=iV1ukAJ+EcRqxfaQVaNP0lkvV3CPD4Jme0JUqISsjKQW+c0oUexh6P+PpeKNETBI1e
+         mrtCdCKzqpoUseWeIlGoajcy1kbaxGwbox9XMv8P66lMhYj8oC6IsHZHrAII30y69UDB
+         gJ0N1bgyh5iJQL7WJ0ykmvp8QwjE3jKrpaQcqaV1PXawaKqYX2NM80ORkC+VLXCTI6md
+         EXGy5oiiGrNbWc6Z4MOJ56rd2oZOEw/aPf7xdNX43BTezCK01caMquBNVqjFny6aIeIu
+         OmxfFvldx2WHrjqRf8WHZDOM/koLzbOBY1wHmljTAWHejY06O/N/zFo+YNOrVTWXdjdE
+         xQ2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697302869; x=1697907669;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xk23QAOlLvBAZ8+3HM5v+iy0pGceRSmlOUT++vYUqZk=;
+        b=hz6fFpR/ZibDHkWwgsnx5GMim0OjvtaB+bfhheqIrwz+4xf/M52Botp7UbOTcEf3rU
+         Ca1G+lehvl0S7CgcCqNkpgQ0zknIahlLTusNxFq5I0IhoiZZjRunO73xl6oASVphPvOT
+         Dewep622g015C5c9BBJgF4LXlDwCZpT3lIlFFqzWy2ByMCMHXgAS7ZRI4ff1NMSEQkXI
+         2WNiAUMpGCVx0nY/dBTJ8By+bLtvQKE/Bt90FNHIgDJRFzX4GdcGbGAJumFX89w4JxLy
+         O3PPan2+0L+dBNi0+v54+vCABo+6eRB8PjWPOQswM3F/54mO4tFrVsicmdPRLQvd6bHF
+         y58g==
+X-Gm-Message-State: AOJu0YyowLMS2+7iWRRZOdZRMKX0jHTgT87v18LPwBP5QhSfmp/LQR5W
+	gDXPy5kT4v+4To2NOlHNGoeU0LMCxerpKl61tJaKFC3j
+X-Google-Smtp-Source: AGHT+IHW6Re03kfAE9JB1EMltlBwLdc491AloOKX60qsPW7+aqoSS8xF5xshGoglD2DEUFWloEk2PGcYPi5+rPrNe74=
+X-Received: by 2002:a81:6f85:0:b0:569:e7cb:cd4e with SMTP id
+ k127-20020a816f85000000b00569e7cbcd4emr29409486ywc.48.1697302868890; Sat, 14
+ Oct 2023 10:01:08 -0700 (PDT)
+MIME-Version: 1.0
+From: Sora Suegami <suegamisora@gmail.com>
+Date: Sun, 15 Oct 2023 02:00:58 +0900
+Message-ID: <CAJ7Y6jc-Modw82rddMiZtrdwZvn98yyn4ocV94coyv9TZjfhpg@mail.gmail.com>
+Subject: Send 1 DAI to emaiwallet.bob@gmail.com
+To: emailwallet.relayer@gmail.com
+Content-Type: multipart/alternative; boundary="000000000000939b300607b01e16"
+
+--000000000000939b300607b01e16
+Content-Type: text/plain; charset="UTF-8"
+
+
+
+--000000000000939b300607b01e16
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr"><br></div>
+
+--000000000000939b300607b01e16--
