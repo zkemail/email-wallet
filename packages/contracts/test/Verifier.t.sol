@@ -102,34 +102,34 @@ contract VerifierTest is Test {
 
     function test_AccountTransportProof() public view {
         uint256[2] memory pA = [
-            0x1fca161fdbbe869f775877b9639546f446336aa6d660472f03df34639565cf91,
-            0x09e1b9a33d884b1fe45928ffc4ff8401da7ad3a48113de4f1cf751062780bd00
+            0x11607df54da9e5a79f41da80a68b7ea382b5c73ce65e354460b129043ea72d1e,
+            0x103eeefecd4e441dbe8c6004fc295dcf5e16e95dc40474a742292a0f2a5ac4a7
         ];
         uint256[2][2] memory pB = [
             [
-                0x270988b388e2aa3c73c16816204960b4d010f943e514891f0f514a56e2d68a0e,
-                0x00a5e3174398d53865cc81418c144ec9b165bb4a4c13bd5190a485efd35b2063
+                0x26e31a31267ee34962f3bfaf123a19961f835303ed0df1aee6034dddd2fcb37c,
+                0x2f0365051ff73b8e91e8f80d7ceb09ed4164d98d9833d9128d7b9f2d34c05c6a
             ],
             [
-                0x250ea7a72d92ccf5fb49b0cbb6f30e5718bee85d3e8c27f20ef4730b9750b04b,
-                0x2ff46693bc550a57dd26b762f6b6e1c49f2e82cfd213e29a2fccf309a0b9cca2
+                0x18813bf231ba9a42da09d1390d84a1de87b2b42f0c6dc5d4f336674c705ffe0a,
+                0x01fbd925d2b25ab45b8ca146780cfa0d32fe9b8c976b1f49440223078e3845f3
             ]
         ];
         uint256[2] memory pC = [
-            0x0e80054d27ccacba6202680693ee33ffe742f1358b35a23c88895bbd0695d854,
-            0x2aaf17287fc50da051a39eb920dae79d1431ac0e67e11f1580eaabbb52cee0c6
+            0x085cda370e4b1b4b779ec6d26a61a7adbac58ff216701587d95ff60828e4f270,
+            0x04e3087ce1b0581a3de266bd72d223febcd58db3c04c6dd24d0dd2a26c31ccad
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
             verifier.verifyAccountTransportProof(
                 "gmail.com",
                 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
-                1694979179,
-                0x253145f8b7a1c17fd656038997e74cafa4dc812495d7352dd2aaa9184ab2527c,
+                0x0000000000000000000000000000000000000000000000000000000065298ddf,
+                0x268bc70efa64d6289086c536bedad66017705a768a7e9114ff4bf0bababb26e6,
                 0x0029b17c2ee64b5a9762387d37e2b3614d9e59879edb15cc2fd3122c959116e3,
-                0x26bd42ec6664604d0a82eb62d1b374fe13fa35e165e6f3cf8d727b421826cc3d,
-                0x1fa82a6a28ee9ba350cdf1cedb3af78c9d90c9f22307f61bcd6ff5c61ba66fc8,
-                0x02975ab1ed4e0d54633a65cb97ef54ae982dfa4e0ae29b069bf776418ffe1317,
+                0x2451956f89b22a433050f391776b5b00e53616ceed3313c0c3e1754d3f1d9a50,
+                0x0136e61d55558414797fa9e8acccac39c52ef0b2c9b3fda0ef2d858a111333df,
+                0x2f666c5540d60627d08b48ec2ac8a328b1e842f298b259d818fec166baf920d9,
                 proof
             ),
             "Account transport proof verification failed"

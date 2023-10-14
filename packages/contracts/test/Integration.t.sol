@@ -62,6 +62,8 @@ contract IntegrationTest is Test {
     address relayer2;
     bytes32 relayer1Rand = 0x05f5b4f85b25760c2ee168c67c856afd371308a291de9d4c36a6e1c1c2a71693;
     bytes32 relayer1RandHash = 0x0029b17c2ee64b5a9762387d37e2b3614d9e59879edb15cc2fd3122c959116e3;
+    bytes32 relayer2Rand = 0x11a036998ca261fcd981225b1cdcaa581d0861d476ff0491258bef3c88146b01;
+    bytes32 relayer2RandHash = 0x2451956F89B22A433050F391776B5B00E53616CEED3313C0C3E1754D3F1D9A50;
 
     UserTestConfig user1 = UserTestConfig({
         emailAddr: "suegamisora@gmail.com",
@@ -130,6 +132,9 @@ contract IntegrationTest is Test {
         vm.startPrank(relayer1);
         core.registerRelayer(relayer1RandHash, "emailwallet.relayer@gmail.com", "emailwallet.com");
         vm.stopPrank();
+        vm.startPrank(relayer2);
+        core.registerRelayer(relayer2RandHash, "emailwallet.relayer2@gmail.com", "emailwallet2.com");
+        vm.stopPrank();
     }
 
     // function accountCreation1(address relayer) internal {
@@ -150,7 +155,7 @@ contract IntegrationTest is Test {
         vm.stopPrank();
     }
 
-     function testIntegration_Account_Init() public {
+    function testIntegration_Account_Init() public {
         vm.startPrank(relayer1);
         (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
@@ -159,6 +164,24 @@ contract IntegrationTest is Test {
         (relayerHash, emailAddrPointer) = accountInit(string.concat(projectRoot,"/test/emails/account_init_test1.eml"), relayer1Rand, "gmail.com");
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+        vm.stopPrank();
+    }
+
+    function testIntegration_Account_Transport() public {
+        vm.startPrank(relayer1);
+        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        (relayerHash, emailAddrPointer) = accountInit(string.concat(projectRoot,"/test/emails/account_transport_test1.eml"), relayer1Rand, "gmail.com");
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+        vm.stopPrank();
+        vm.startPrank(relayer2);
+        (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(relayer1RandHash, core.accountKeyCommitOfPointer(user1.emailAddrPointer), string.concat(projectRoot,"/test/emails/account_init_test1.eml"), "gmail.com", "suegamisora@gmail.com", relayer2Rand, user1.accountKey);
+        newRelayerHash.logBytes32();
+        user1.emailAddrPointer = newEmailAddrPointer;
+        // require(newRelayerHash == relayer2Rand, "Relayer hash mismatch");
         vm.stopPrank();
     }
 
@@ -177,7 +200,6 @@ contract IntegrationTest is Test {
         relayerHash = bytes32(vm.parseUint(pubSignals[0]));
         emailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes32 accountKeyCommit = bytes32(vm.parseUint(pubSignals[2]));
-        accountKeyCommit.logBytes32();
         bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[3]));
         bytes32 x = bytes32(vm.parseUint(pubSignals[4]));
         bytes32 y = bytes32(vm.parseUint(pubSignals[5]));
@@ -204,46 +226,46 @@ contract IntegrationTest is Test {
         core.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, proof);
     }
 
-    function accountTransport(bytes32 oldAccountKeyCommit, string memory emailFile, string memory emailDomain, string memory emailAddr, bytes32 newRelayerRand, bytes32 accountKey) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
-        string memory projectRoot = vm.projectRoot();
+    function accountTransport(bytes32 oldRelayerRandHash, bytes32 oldAccountKeyCommit, string memory emailFile, string memory emailDomain, string memory emailAddr, bytes32 newRelayerRand, bytes32 accountKey) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
+        EmailProof memory transportEmailProof = genAccountTransportProof(oldRelayerRandHash, emailFile, emailDomain, newRelayerRand);
+
         string[] memory inputGenerationInput = new string[](4);
-        inputGenerationInput[0] = string.concat(projectRoot,"/test/bin/account_transport.sh");
-        inputGenerationInput[1] = emailFile;
-        inputGenerationInput[2] = uint256(oldAccountKeyCommit).toHexString(32);
-        inputGenerationInput[3] = uint256(newRelayerRand).toHexString(32);
-        vm.ffi(inputGenerationInput);
-
-        string memory publicInputFile = vm.readFile(string.concat(projectRoot, "/test/build_integration/account_transport_public.json"));
-        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 1]));
-        uint emailTimestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]); 
-        bytes memory proof = proofToBytes(string.concat(projectRoot, "/test/build_integration/account_init_proof.json"));
-        EmailProof memory transportEmailProof;
-        transportEmailProof.nullifier = emailNullifier;
-        transportEmailProof.timestamp = emailTimestamp;
-        transportEmailProof.domain = emailDomain;
-        transportEmailProof.proof = proof;
-
-        inputGenerationInput = new string[](4);
-        inputGenerationInput[0] = string.concat(projectRoot,"/test/bin/account_creation.sh");
+        inputGenerationInput[0] = string.concat(vm.projectRoot(),"/test/bin/account_creation.sh");
         inputGenerationInput[1] = emailAddr;
         inputGenerationInput[2] = uint256(newRelayerRand).toHexString(32);
         inputGenerationInput[3] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
 
-        publicInputFile = vm.readFile(string.concat(projectRoot, "/test/build_integration/account_creation_public.json"));
-        pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        newRelayerHash = bytes32(vm.parseUint(pubSignals[0]));
-        newEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
-        bytes32 newAccountKeyCommit = bytes32(vm.parseUint(pubSignals[2]));
-        bytes32 x = bytes32(vm.parseUint(pubSignals[4]));
-        bytes32 y = bytes32(vm.parseUint(pubSignals[5]));
-        bytes memory newPSIPoint = abi.encode(x, y);
-        bytes memory accountCreationProof = proofToBytes(string.concat(projectRoot, "/test/build_integration/account_creation_proof.json"));
+        string memory publicInputFile = vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/account_creation_public.json"));
+        inputGenerationInput = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        newRelayerHash = bytes32(vm.parseUint(inputGenerationInput[0]));
+        newEmailAddrPointer = bytes32(vm.parseUint(inputGenerationInput[1]));
+        bytes32 newAccountKeyCommit = bytes32(vm.parseUint(inputGenerationInput[2]));
+        bytes memory newPSIPoint = abi.encode(bytes32(vm.parseUint(inputGenerationInput[4])), bytes32(vm.parseUint(inputGenerationInput[5])));
+        bytes memory accountCreationProof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/account_creation_proof.json"));
         core.transportAccount(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit, newPSIPoint, transportEmailProof, accountCreationProof);
     }    
 
-    function proofToBytes(string memory proofPath) internal returns (bytes memory) {
+    function genAccountTransportProof(bytes32 oldRelayerRandHash, string memory emailFile, string memory emailDomain, bytes32 newRelayerRand) private returns (EmailProof memory) {
+        string memory projectRoot = vm.projectRoot();
+        string[] memory inputGenerationInput = new string[](4);
+        inputGenerationInput[0] = string.concat(projectRoot,"/test/bin/account_transport.sh");
+        inputGenerationInput[1] = emailFile;
+        inputGenerationInput[2] = uint256(oldRelayerRandHash).toHexString(32);
+        inputGenerationInput[3] = uint256(newRelayerRand).toHexString(32);
+        vm.ffi(inputGenerationInput);
+
+        string memory publicInputFile = vm.readFile(string.concat(projectRoot, "/test/build_integration/account_transport_public.json"));
+        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        EmailProof memory transportEmailProof;
+        transportEmailProof.nullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 1]));
+        transportEmailProof.timestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
+        transportEmailProof.domain = emailDomain;
+        transportEmailProof.proof = proofToBytes(string.concat(projectRoot, "/test/build_integration/account_transport_proof.json"));
+        return transportEmailProof;
+    } 
+
+    function proofToBytes(string memory proofPath) internal view returns (bytes memory) {
         string memory proofFile = vm.readFile(proofPath);
         string[] memory pi_a = abi.decode(vm.parseJson(proofFile,"pi_a"), (string[]));
         uint256[2] memory pA = [
