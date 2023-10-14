@@ -839,9 +839,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param name Name of the extension
     /// @param subjectTemplates Subject templates for the extension
     /// @param maxExecutionGas Max gas allowed for the extension
+    /// @dev First word of each subject template should be same and is called "command"; command should be one word
     function publishExtension(
-        address addr,
         string memory name,
+        address addr,
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
     ) public {
@@ -850,7 +851,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(bytes(name).length > 0, "invalid extension name");
         require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
         require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
+        require(maxGasOfExtension[addr] == 0, "extension already published");
 
+        // Check if all subjectTemplates have same command (first item in array)
         string memory command;
         for (uint i = 0; i < subjectTemplates.length; i++) {
             require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
@@ -860,6 +863,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
             }
         }
+
+        // Check if command is only one word (no spaces)
+        for (uint i = 0; i < bytes(command).length; i++) {
+            require(bytes(command)[i] != 0x20, "command should be one word");
+        }
+
+        // Check if command is not a reserved name
         require(
             !Strings.equal(command, Commands.SEND) &&
                 !Strings.equal(command, Commands.EXECUTE) &&
@@ -867,8 +877,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
                 !Strings.equal(command, Commands.EXIT_EMAIL_WALLET) &&
                 !Strings.equal(command, Commands.DKIM),
-            "command cannot be a predefined name"
+            "command cannot be a reserved name"
         );
+
+        // Check if command is not a template
         require(
             !Strings.equal(command, TOKEN_AMOUNT_TEMPLATE) &&
                 !Strings.equal(command, AMOUNT_TEMPLATE) &&
@@ -876,7 +888,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 !Strings.equal(command, UINT_TEMPLATE) &&
                 !Strings.equal(command, INT_TEMPLATE) &&
                 !Strings.equal(command, ADDRESS_TEMPLATE),
-            "command must be a fixed string"
+            "command cannot be a template matcher"
         );
 
         addressOfExtension[name] = addr;
