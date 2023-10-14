@@ -67,33 +67,33 @@ contract VerifierTest is Test {
 
     function test_AccountInitializaionProof() public view {
         uint256[2] memory pA = [
-            0x1f27b6ed716c5c33bc9b9c2de60f9779dac4bc7f59ecf4ce53335bcac85ddd2d,
-            0x120ba1546141ad60378a422493cd0ba774e18c98801c941478390c81e7232c7c
+            0x28ac18e1851045419f98794259d8ddc9cef2a248d0b6af5a27b7eaadcfe88264,
+            0x1d944f52201b986a0d2f7b9485ffe8c40e5e2f8a0d500078a6c0f677699a36cd
         ];
         uint256[2][2] memory pB = [
             [
-                0x28ba814548824b2eb9e60597ec8cfd0d8b6bbc482a8cab824b24d71027c52d97,
-                0x03fe9c013545b570557118282be7f4c2f6045deb9c94bf4bdab768677409d540
+                0x1d5d68f5b54933e98ab0b5cf6e8daea518228dba83686c02f2e8ef56bf9df574,
+                0x285105876c2e1a653ea9d3a86172eb685ccecdcb00adc11395f330993d48e370
             ],
             [
-                0x0392b3493b67e1e6dfe4a7cab74220c226ce36f46e3b3cd3c2b5ca4b36e4123e,
-                0x292c269db7f5f4b07f85fe97cbd8974a0e7ab8ca81537a18b46f70a2001118d4
+                0x167b6fceb01fdc9d49313df4c9ee8265b062c833a5bbbe22b1c5b42bc81641d1,
+                0x07b251da9a31e93f314e400547cbb67674acd836a2700b045b96658077b3bdbf
             ]
         ];
         uint256[2] memory pC = [
-            0x28d1ee7c82f420ca261484d31ed34cc1388a4d513630a3746ef8fe772e944d5c,
-            0x07f2e661abb87e238a66328f680a60b31ea9687c813472435f34418e66237f1b
+            0x221bf660be30f3d549464b317d1d6c95394b1dd8562e29f6afe6d50e8b4fa8d5,
+            0x091fb33116368efcad1b94d28f16f4dbd1d634fab7d31b2be8a2e29fddfb6a8c
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
             verifier.verifyAccountInitializaionProof(
                 "gmail.com",
                 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
-                1694979179,
+                0x0000000000000000000000000000000000000000000000000000000065298ddf,
                 0x0029b17c2ee64b5a9762387d37e2b3614d9e59879edb15cc2fd3122c959116e3,
                 0x1ff706660702f76a0daa706d68b15ea04fb6145fb5f4e54823ae80fa386e1b3f,
-                0x1fa82a6a28ee9ba350cdf1cedb3af78c9d90c9f22307f61bcd6ff5c61ba66fc8,
-                0x253145f8b7a1c17fd656038997e74cafa4dc812495d7352dd2aaa9184ab2527c,
+                0x0136E61D55558414797FA9E8ACCCAC39C52EF0B2C9B3FDA0EF2D858A111333DF,
+                0x268bc70efa64d6289086c536bedad66017705a768a7e9114ff4bf0bababb26e6,
                 proof
             ),
             "Account init proof verification failed"
