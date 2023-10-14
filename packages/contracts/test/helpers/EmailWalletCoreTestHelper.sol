@@ -16,10 +16,11 @@ import {TestERC20} from "../mocks/TestERC20.sol";
 import {TextExtension} from "../mocks/TestExtension.sol";
 import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
+import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
-contract EmailWalletCoreTestHelper is Test {
+contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
     EmailWalletCore core;
     TestVerifier verifier;
     TokenRegistry tokenRegistry;

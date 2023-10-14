@@ -26,7 +26,6 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
     function test_InstallCommand() public {
         _publishExtension();
 
-        bytes memory emailOpCalldata = abi.encode("0x1234567890abcdef1234567890abcdef12345678");
         string memory subject = "Install extension for Swap as TestExtension";
 
         EmailOp memory emailOp = _getBaseEmailOp();

@@ -71,7 +71,6 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RevertIf_NullifierIsUsed() public {
         daiToken.freeMint(walletAddr, 1 ether);
-        bytes32 nullifier = bytes32(uint256(123));
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
         emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
