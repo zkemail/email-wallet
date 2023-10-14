@@ -867,6 +867,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             } else {
                 require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
             }
+            uint numRecipient = 0;
+            for (uint j = 1; j < subjectTemplates[i].length; j++) {
+                if (Strings.equal(subjectTemplates[i][j], RECIPIENT_TEMPLATE)) {
+                    numRecipient++;
+                }
+            }
+            require(numRecipient <= 1, "recipient template can only be used once"); 
         }
 
         // Check if command is only one word (no spaces)
