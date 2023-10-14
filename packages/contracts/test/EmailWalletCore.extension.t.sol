@@ -6,6 +6,7 @@ import "./helpers/EmailWalletCoreTestHelper.sol";
 contract ExtensionTest is EmailWalletCoreTestHelper {
     Extension testExtension;
     address testExtensionAddr;
+    string[][] subjectTemplates;
 
     function setUp() public override {
         super.setUp();
@@ -13,7 +14,6 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         testExtensionAddr = address(testExtension);
     }
 
-    string[][] subjectTemplates;
     function _getSampleSubjectTemplates() internal returns (string[][] memory) {
         delete subjectTemplates;
         subjectTemplates = new string[][](2);

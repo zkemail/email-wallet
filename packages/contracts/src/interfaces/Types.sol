@@ -37,7 +37,6 @@ struct WalletParams {
 
 // When command = "Install Extension" / "Uninstall Extension"
 struct ExtensionManagerParams {
-    string command; // Command name to set the extension for (like "swap")
     string extensionName; // Name of the extension to install/uninstall (like "uniswap")
 }
 
