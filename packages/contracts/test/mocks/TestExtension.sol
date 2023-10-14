@@ -36,7 +36,7 @@ contract TextExtension is Extension {
         wallet;
     }
 
-    function revertUnclaimedState(UnclaimedState memory unclaimedState) external pure override {
+    function voidUnclaimedState(UnclaimedState memory unclaimedState) external pure override {
         unclaimedState;
     }
 }

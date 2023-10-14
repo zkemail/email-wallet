@@ -17,11 +17,12 @@ import {TokenRegistry} from "./utils/TokenRegistry.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
 import {Extension} from "./interfaces/Extension.sol";
 import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
+import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 
-contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
+contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
     string public constant AMOUNT_TEMPLATE = "{amount}";
     string public constant STRING_TEMPLATE = "{string}";
@@ -110,46 +111,6 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
-
-    event RelayerRegistered(bytes32 randHash, string emailAddr, string hostname);
-
-    event RelayerConfigUpdated(bytes32 randHash, string hostname);
-
-    event AccountCreated(bytes32 emailAddrPointer, bytes32 accountKeyCommit, bytes32 walletSalt, bytes psiPoint);
-
-    event AccountInitialized(bytes32 emailAddrPointer, bytes32 accountKeyCommit, bytes32 walletSalt);
-
-    event AccountTransported(bytes32 oldAccountKeyCommit, bytes32 newEmailAddrPointer, bytes32 newAccountKeyCommit);
-
-    event UnclaimedFundRegistered(
-        bytes32 emailAddrCommit,
-        address tokenAddr,
-        uint256 amount,
-        address sender,
-        uint256 expiryTime,
-        uint256 commitmentRandomness,
-        string emailAddr
-    );
-
-    event UnclaimedFundClaimed(bytes32 emailAddrCommit, address tokenAddr, uint256 amount, address recipient);
-
-    event UnclaimedFundReverted(bytes32 emailAddrCommit, address tokenAddr, uint256 amount, address sender);
-
-    event UnclaimedStateRegistered(
-        bytes32 emailAddrCommit,
-        address extensionAddr,
-        address sender,
-        uint256 expiryTime,
-        bytes state,
-        uint256 commitmentRandomness,
-        string emailAddr
-    );
-
-    event UnclaimedStateClaimed(bytes32 emailAddrCommit, address recipient);
-
-    event UnclaimedStateReverted(bytes32 emailAddrCommit, address sender);
-
-    event ExtensionPublished(string name, address extensionAddr, string[][] subjectTemplates, uint256 maxExecutionGas);
 
     constructor(
         address _verifier,
@@ -577,7 +538,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         bytes32 recipientEmailAddrPointer,
         bytes memory proof
     ) public nonReentrant {
-        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
         require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
@@ -601,7 +562,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         address recipientAddr = getWalletOfSalt(infoOfAccountKeyCommit[accountKeyCommit].walletSalt);
 
-        delete unclaimedFundOfEmailAddrCommit[recipientEmailAddrPointer];
+        delete unclaimedFundOfEmailAddrCommit[emailAddrCommit];
 
         // Transfer token from Core contract to recipient's wallet
         ERC20(fund.tokenAddr).transfer(recipientAddr, fund.amount);
@@ -615,10 +576,10 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     /// @notice Return unclaimed fund after expiry time
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @dev Callee should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
-    function revertUnclaimedFund(bytes32 emailAddrCommit) public nonReentrant {
+    function voidUnclaimedFund(bytes32 emailAddrCommit) public nonReentrant {
         uint256 initialGas = gasleft();
 
-        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
 
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime < block.timestamp, "unclaimed fund not expired");
@@ -628,7 +589,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         // Transfer token from Core contract to sender's wallet
         ERC20(fund.tokenAddr).transfer(fund.sender, fund.amount);
 
-        // Gas consumed so far + cost for 2 ETH transfers
+        // Gas consumed so far + approx. cost for 2 ETH transfers; Ignoring event emission gas
         uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
@@ -702,7 +663,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
-        UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
         require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
@@ -727,7 +688,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         address recipientAddr = getWalletOfSalt(infoOfAccountKeyCommit[accountKeyCommit].walletSalt);
 
-        delete unclaimedStateOfEmailAddrCommit[recipientEmailAddrPointer];
+        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         Extension extension = Extension(us.extensionAddr);
 
@@ -753,12 +714,12 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
     /// @notice Return unclaimed state after expiry time
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed state was registered.
-    function revertUnclaimedState(
+    function voidUnclaimedState(
         bytes32 emailAddrCommit
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
-        UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.expiryTime > block.timestamp, "unclaimed fund expired");
@@ -773,7 +734,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
 
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
-        try extension.revertUnclaimedState{gas: gasForExt}(us) {
+        try extension.voidUnclaimedState{gas: gasForExt}(us) {
             success = true;
         } catch Error(string memory reason) {
             success = false;
@@ -789,7 +750,7 @@ contract EmailWalletCore is ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable
         _transferETH(us.sender, (unclaimedStateClaimGas - consumedGas) * maxFeePerGas);
         _transferETH(msg.sender, consumedGas * maxFeePerGas);
 
-        emit UnclaimedStateReverted(emailAddrCommit, us.sender);
+        emit UnclaimedStateVoided(emailAddrCommit, us.sender);
     }
 
     /// Registere unclaimed state from an extension
