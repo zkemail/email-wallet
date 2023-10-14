@@ -38,7 +38,7 @@ interface EmailWalletEvents {
 
     event UnclaimedStateClaimed(bytes32 emailAddrCommit, address recipient);
 
-    event UnclaimedStateReverted(bytes32 emailAddrCommit, address sender);
+    event UnclaimedStateVoided(bytes32 emailAddrCommit, address sender);
 
     event ExtensionPublished(string name, address extensionAddr, string[][] subjectTemplates, uint256 maxExecutionGas);
 }

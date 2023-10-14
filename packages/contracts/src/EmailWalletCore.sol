@@ -576,10 +576,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @notice Return unclaimed fund after expiry time
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
     /// @dev Callee should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
-    function revertUnclaimedFund(bytes32 emailAddrCommit) public nonReentrant {
+    function voidUnclaimedFund(bytes32 emailAddrCommit) public nonReentrant {
         uint256 initialGas = gasleft();
 
-        UnclaimedFund storage fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
 
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime < block.timestamp, "unclaimed fund not expired");
@@ -714,12 +714,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     /// @notice Return unclaimed state after expiry time
     /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed state was registered.
-    function revertUnclaimedState(
+    function voidUnclaimedState(
         bytes32 emailAddrCommit
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
-        UnclaimedState storage us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.expiryTime > block.timestamp, "unclaimed fund expired");
@@ -734,7 +734,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
-        try extension.revertUnclaimedState{gas: gasForExt}(us) {
+        try extension.voidUnclaimedState{gas: gasForExt}(us) {
             success = true;
         } catch Error(string memory reason) {
             success = false;
@@ -750,7 +750,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         _transferETH(us.sender, (unclaimedStateClaimGas - consumedGas) * maxFeePerGas);
         _transferETH(msg.sender, consumedGas * maxFeePerGas);
 
-        emit UnclaimedStateReverted(emailAddrCommit, us.sender);
+        emit UnclaimedStateVoided(emailAddrCommit, us.sender);
     }
 
     /// Registere unclaimed state from an extension

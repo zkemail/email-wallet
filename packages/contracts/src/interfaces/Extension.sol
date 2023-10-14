@@ -42,7 +42,7 @@ abstract contract Extension {
 
     /// Revert an expired inclaimed state
     /// @param unclaimedState Unclaimed state that is expired
-    function revertUnclaimedState(UnclaimedState memory unclaimedState) external virtual {
+    function voidUnclaimedState(UnclaimedState memory unclaimedState) external virtual {
         unclaimedState;
         revert("Not implemented");
     }
