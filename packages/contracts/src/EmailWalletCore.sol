@@ -589,7 +589,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         // Transfer token from Core contract to sender's wallet
         ERC20(fund.tokenAddr).transfer(fund.sender, fund.amount);
 
-        // Gas consumed so far + cost for 2 ETH transfers
+        // Gas consumed so far + approx. cost for 2 ETH transfers; Ignoring event emission gas
         uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
