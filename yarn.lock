@@ -1803,10 +1803,10 @@
     commander "^11.0.0"
     snarkjs "^0.7.0"
 
-"@zk-email/zk-regex-circom@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.1.0.tgz#c2979ee576ae0ab40681c1bfe7b04f3cc585ed3b"
-  integrity sha512-1n98Nr6yPSDNVpHacII0t8HUwZnkEUzhmAEFh2S1FATRETu/1Wfc6Redh9g4xCcKABmB8uKmPjUEa9jY5xuoPA==
+"@zk-email/zk-regex-circom@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.1.1.tgz#01275a4070dbd331224a945aadb648e0097e75cd"
+  integrity sha512-HbEhM4VZgt4mrTPPCHWb2Kw4W/BwkZBJaZS+f0ip98GrwHg1pS6Tfm8SAWXe+HYnfrnjGUytaiffgbTS3L3rgA==
   dependencies:
     commander "^11.0.0"
     snarkjs "^0.7.0"

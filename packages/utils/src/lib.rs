@@ -43,6 +43,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
         "emailAddrCommitWithSignature",
         email_addr_commit_with_signature_node,
     )?;
+    cx.export_function("extractRandFromSignature", extract_rand_from_signature_node)?;
     cx.export_function("genAccountKey", gen_account_key_node)?;
     cx.export_function("accountKeyCommit", account_key_commit_node)?;
     cx.export_function("walletSalt", wallet_salt_node)?;

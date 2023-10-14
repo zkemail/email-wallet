@@ -22,6 +22,8 @@ import "../src/verifier/Verifier.sol";
 contract IntegrationTest is Test {
     using Strings for *;
     using console for *;
+    using stdStorage for StdStorage;
+
 
     struct Groth16ProofJson {
         uint256[2] pi_a;
@@ -44,7 +46,7 @@ contract IntegrationTest is Test {
     IPriceOracle priceOracle;
     WETH9 weth;
 
-    TestERC20 wethToken;
+    // TestERC20 wethToken;
     TestERC20 daiToken;
     TestERC20 usdcToken;
 
@@ -68,6 +70,11 @@ contract IntegrationTest is Test {
     UserTestConfig user1 = UserTestConfig({
         emailAddr: "suegamisora@gmail.com",
         accountKey: 0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76,
+        emailAddrPointer: bytes32(0)
+    });
+    UserTestConfig user2 = UserTestConfig({
+        emailAddr: "emaiwallet.bob@gmail.com",
+        accountKey: 0x1e2ead4231d73a3c85b1ff883f212d998c41cc9d2a8bac238f6d351ff2c57249,
         emailAddrPointer: bytes32(0)
     });
     // bytes32 user1EmailAddrPointer = 0x1ff706660702f76a0daa706d68b15ea04fb6145fb5f4e54823ae80fa386e1b3f;
@@ -122,10 +129,10 @@ contract IntegrationTest is Test {
         core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
 
         // Deploy some ERC20 test tokens and add them to registry
-        wethToken = new TestERC20("WETH", "WETH");
+        // wethToken = new TestERC20("WETH", "WETH");
         daiToken = new TestERC20("DAI", "DAI");
         usdcToken = new TestERC20("USDC", "USDC");
-        tokenRegistry.setTokenAddress("WETH", address(wethToken));
+        tokenRegistry.setTokenAddress("WETH", address(weth));
         tokenRegistry.setTokenAddress("DAI", address(daiToken));
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
         vm.stopPrank();
@@ -181,7 +188,45 @@ contract IntegrationTest is Test {
         (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(relayer1RandHash, core.accountKeyCommitOfPointer(user1.emailAddrPointer), string.concat(projectRoot,"/test/emails/account_init_test1.eml"), "gmail.com", "suegamisora@gmail.com", relayer2Rand, user1.accountKey);
         newRelayerHash.logBytes32();
         user1.emailAddrPointer = newEmailAddrPointer;
-        // require(newRelayerHash == relayer2Rand, "Relayer hash mismatch");
+        require(newRelayerHash == relayer2RandHash, "Relayer hash mismatch");
+        vm.stopPrank();
+    }
+
+    function testIntegration_Transfer_ETH_To_Internal() public {
+        vm.startPrank(relayer1);
+        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        (relayerHash, emailAddrPointer) = accountInit(string.concat(projectRoot,"/test/emails/account_init_test1.eml"), relayer1Rand, "gmail.com");
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+        (,,,,bytes32 walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        vm.stopPrank();
+        vm.startPrank(user1Wallet);
+        deal(user1Wallet, 0.15 ether);
+        weth.deposit{value: 0.15 ether}();
+        vm.stopPrank();
+        vm.startPrank(relayer1);
+        (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(projectRoot,"/test/emails/token_transfer_test1.eml"), relayer1Rand, "Send", "Send 0.1 ETH to ", "gmail.com", "ETH");
+        emailOp.walletParams.tokenName = "ETH";
+        emailOp.walletParams.amount = 0.1 ether;
+        deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
+        core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+        require(weth.balanceOf(user1Wallet) == 0.05 ether, "User1 wallet balance mismatch");
+        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract balance mismatch");
+        (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user2.emailAddrPointer = emailAddrPointer;
+        (relayerHash, emailAddrPointer) = accountInit(string.concat(projectRoot,"/test/emails/account_init_test2.eml"), relayer1Rand, "gmail.com");
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
+        (,,,, walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user2.emailAddrPointer));
+        address user2Wallet = core.getWalletOfSalt(walletSalt);
+        require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
+        claimFund(user2.emailAddr, relayer1Rand, emailAddrRand);
+        
         vm.stopPrank();
     }
 
@@ -205,6 +250,9 @@ contract IntegrationTest is Test {
         bytes32 y = bytes32(vm.parseUint(pubSignals[5]));
         bytes memory psiPoint = abi.encode(x, y);
         bytes memory proof = proofToBytes(string.concat(projectRoot, "/test/build_integration/account_creation_proof.json"));
+        emailAddrPointer.logBytes32();
+        accountKeyCommit.logBytes32();
+        walletSalt.logBytes32();
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
     }
 
@@ -263,6 +311,66 @@ contract IntegrationTest is Test {
         transportEmailProof.domain = emailDomain;
         transportEmailProof.proof = proofToBytes(string.concat(projectRoot, "/test/build_integration/account_transport_proof.json"));
         return transportEmailProof;
+    } 
+
+     function genEmailOpPartial(string memory emailFile, bytes32 relayerRand, string memory command, string memory maskedSubject, string memory emailDomain, string memory feeTokenName) internal returns (EmailOp memory emailOp, bytes32 emailAddrRand) {
+        string[] memory inputGenerationInput = new string[](3);
+        inputGenerationInput[0] = string.concat(vm.projectRoot(),"/test/bin/email_sender.sh");
+        inputGenerationInput[1] = emailFile;
+        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+        vm.ffi(inputGenerationInput);
+        inputGenerationInput = new string[](2);
+        inputGenerationInput[0] = string.concat(vm.projectRoot(),"/test/bin/extract_sign_rand.sh");
+        inputGenerationInput[1] = emailFile;
+        vm.ffi(inputGenerationInput);
+        emailAddrRand = vm.parseBytes32(vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/sign_rand.txt")));
+        emailAddrRand.logBytes32();
+
+        string memory publicInputFile = vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/email_sender_public.json"));
+        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        emailOp.command = command;
+        emailOp.emailDomain = emailDomain;
+        emailOp.maskedSubject = maskedSubject;
+        emailOp.feeTokenName = feeTokenName;
+        emailOp.feePerGas = core.maxFeePerGas();
+        emailOp.emailProof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/email_sender_proof.json"));
+        emailOp.emailAddrPointer = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]));
+        emailOp.hasEmailRecipient = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4]) == 1;
+        emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]));
+        emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]));
+        emailOp.timestamp = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6]);
+    }    
+
+    function claimFund(string memory emailAddr, bytes32 relayerRand, bytes32 emailAddrRand) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
+        string[] memory inputGenerationInput = new string[](4);
+        inputGenerationInput[0] = string.concat(vm.projectRoot(),"/test/bin/claim.sh");
+        inputGenerationInput[1] = emailAddr;
+        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+        inputGenerationInput[3] = uint256(emailAddrRand).toHexString(32);
+        vm.ffi(inputGenerationInput);
+
+        string memory publicInputFile = vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/claim_public.json"));
+        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
+        bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
+        bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
+        core.claimUnclaimedFund(emailAddrCommit, recipientEmailAddrPointer, proof);
+    } 
+
+    function claimState(string memory emailAddr, bytes32 relayerRand, bytes32 emailAddrRand) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
+        string[] memory inputGenerationInput = new string[](4);
+        inputGenerationInput[0] = string.concat(vm.projectRoot(),"/test/bin/claim.sh");
+        inputGenerationInput[1] = emailAddr;
+        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+        inputGenerationInput[3] = uint256(emailAddrRand).toHexString(32);
+        vm.ffi(inputGenerationInput);
+
+        string memory publicInputFile = vm.readFile(string.concat(vm.projectRoot(), "/test/build_integration/claim_public.json"));
+        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
+        bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
+        bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
+        core.claimUnclaimedState(emailAddrCommit, recipientEmailAddrPointer, proof);
     } 
 
     function proofToBytes(string memory proofPath) internal view returns (bytes memory) {

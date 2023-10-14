@@ -62,11 +62,16 @@ impl PaddedEmailAddr {
     }
 
     pub fn to_commitment_with_signature(&self, signature: &[u8]) -> Result<Fr, PoseidonError> {
-        let mut inputs = bytes_chunk_fields(signature, 121, 2);
-        inputs.push(Fr::one());
-        let cm_rand = poseidon_fields(&inputs)?;
+        let cm_rand = extract_rand_from_signature(signature)?;
         poseidon_fields(&[vec![cm_rand], self.to_email_addr_fields()].concat())
     }
+}
+
+pub fn extract_rand_from_signature(signature: &[u8]) -> Result<Fr, PoseidonError> {
+    let mut inputs = bytes_chunk_fields(signature, 121, 2);
+    inputs.push(Fr::one());
+    let cm_rand = poseidon_fields(&inputs)?;
+    Ok(cm_rand)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -211,6 +216,21 @@ pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResul
     };
     let email_addr_commit_str = field2hex(&email_addr_commit);
     Ok(cx.string(email_addr_commit_str))
+}
+
+pub fn extract_rand_from_signature_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let signature = cx.argument::<JsString>(0)?.value(&mut cx);
+    let mut signature = match hex::decode(&signature[2..]) {
+        Ok(bytes) => bytes,
+        Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
+    };
+    signature.reverse();
+    let rand = match extract_rand_from_signature(&signature) {
+        Ok(fr) => fr,
+        Err(e) => return cx.throw_error(&format!("extract_rand_from_signature failed: {}", e)),
+    };
+    let rand_str = field2hex(&rand);
+    Ok(cx.string(rand_str))
 }
 
 pub fn gen_account_key_node(mut cx: FunctionContext) -> JsResult<JsString> {
