@@ -140,7 +140,7 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
                 executeCallData: abi.encodePacked(""),
                 newWalletOwner: address(0),
                 walletParams: WalletParams({tokenName: "", amount: 0}),
-                extManagerParams: ExtensionManagerParams({command: "", extensionName: ""}),
+                extManagerParams: ExtensionManagerParams({extensionName: ""}),
                 extensionParams: ExtensionParams({subjectTemplateIndex: 0, subjectParams: new bytes[](0)}),
                 newDkimRegistry: address(0),
                 emailProof: mockProof

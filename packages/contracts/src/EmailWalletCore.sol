@@ -839,9 +839,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param name Name of the extension
     /// @param subjectTemplates Subject templates for the extension
     /// @param maxExecutionGas Max gas allowed for the extension
+    /// @dev First word of each subject template should be same and is called "command"; command should be one word
     function publishExtension(
-        address addr,
         string memory name,
+        address addr,
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
     ) public {
@@ -850,7 +851,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(bytes(name).length > 0, "invalid extension name");
         require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
         require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
+        require(maxGasOfExtension[addr] == 0, "extension already published");
 
+        // Check if all subjectTemplates have same command (first item in array)
         string memory command;
         for (uint i = 0; i < subjectTemplates.length; i++) {
             require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
@@ -860,6 +863,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
             }
         }
+
+        // Check if command is only one word (no spaces)
+        for (uint i = 0; i < bytes(command).length; i++) {
+            require(bytes(command)[i] != 0x20, "command should be one word");
+        }
+
+        // Check if command is not a reserved name
         require(
             !Strings.equal(command, Commands.SEND) &&
                 !Strings.equal(command, Commands.EXECUTE) &&
@@ -867,8 +877,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
                 !Strings.equal(command, Commands.EXIT_EMAIL_WALLET) &&
                 !Strings.equal(command, Commands.DKIM),
-            "command cannot be a predefined name"
+            "command cannot be a reserved name"
         );
+
+        // Check if command is not a template
         require(
             !Strings.equal(command, TOKEN_AMOUNT_TEMPLATE) &&
                 !Strings.equal(command, AMOUNT_TEMPLATE) &&
@@ -876,7 +888,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 !Strings.equal(command, UINT_TEMPLATE) &&
                 !Strings.equal(command, INT_TEMPLATE) &&
                 !Strings.equal(command, ADDRESS_TEMPLATE),
-            "command must be a fixed string"
+            "command cannot be a template matcher"
         );
 
         addressOfExtension[name] = addr;
@@ -937,10 +949,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     ) internal view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
-            WalletParams memory walletParams = emailOp.walletParams;
-            address walletAddr = getWalletOfSalt(
+             address walletAddr = getWalletOfSalt(
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
+            WalletParams memory walletParams = emailOp.walletParams;
             ERC20 token = ERC20(_getTokenAddrFromName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
@@ -987,39 +999,31 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Sample: Install extension for Swap as Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
-            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
 
-            require(bytes(extManagerParams.command).length > 0, "command cannot be empty");
             require(extAddr != address(0), "extension not registered");
-            require(
-                keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) ==
-                    keccak256(bytes(extManagerParams.command)),
-                "invalid command"
-            );
 
             maskedSubject = string.concat(
                 Commands.INSTALL_EXTENSION,
-                " extension for ",
-                emailOp.extManagerParams.command,
-                " as ",
+                " extension ",
                 emailOp.extManagerParams.extensionName
             );
         }
         // Sample: Remove extension for Swap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
-            require(bytes(emailOp.extManagerParams.command).length > 0, "command cannot be empty");
-            require(extAddr != address(0), "extension not registered");
-            require(
-                keccak256(bytes(subjectTemplatesOfExtension[extAddr][0][0])) ==
-                    keccak256(bytes(emailOp.extManagerParams.command)),
-                "invalid command"
+            string memory command = subjectTemplatesOfExtension[extAddr][0][0];
+             address walletAddr = getWalletOfSalt(
+                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
+
+            require(extAddr != address(0), "extension not registered");
+            require(userExtensionOfCommand[walletAddr][command] != address(0), "extension not installed");
+
             maskedSubject = string.concat(
                 Commands.UNINSTALL_EXTENSION,
-                " extension for ",
-                emailOp.extManagerParams.command
+                " extension ",
+                emailOp.extManagerParams.extensionName
             );
         }
         // Sample: Exit email wallet. Change owner to 0x000112aa..
@@ -1049,6 +1053,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
             address extensionAddr = getExtensionForCommand(emailOp.command, walletAddr);
+
             require(extensionAddr != address(0), "invalid command or extension");
 
             // Extension extension = Extension(extensionAddr);
@@ -1184,13 +1189,19 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
-            ExtensionManagerParams memory extManagerParams = emailOp.extManagerParams;
-            address extensionAddr = addressOfExtension[extManagerParams.extensionName];
-            userExtensionOfCommand[currContext.walletAddr][extManagerParams.command] = extensionAddr;
+            address extensionAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
+            string memory command = subjectTemplatesOfExtension[extensionAddr][0][0];
+
+            userExtensionOfCommand[currContext.walletAddr][command] = extensionAddr;
+            success = true;
         }
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            userExtensionOfCommand[currContext.walletAddr][emailOp.command] = address(0);
+            address extensionAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
+            string memory command = subjectTemplatesOfExtension[extensionAddr][0][0];
+
+            userExtensionOfCommand[currContext.walletAddr][command] = address(0);
+            success = true;
         }
         // Exit email wallet
         else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
@@ -1208,6 +1219,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
             infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry =
                 emailOp.newDkimRegistry;
+            success = true;
         }
         // The command is for an extension
         else {
