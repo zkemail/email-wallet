@@ -566,6 +566,7 @@ contract IntegrationTest is Test, EmailWalletEvents {
         extensionBytes[0] = abi.encode(uint(1));
         extensionBytes[1] = abi.encode("APE");
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        emailOp.recipientETHAddr = recipient;
         deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
         (success, reason) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
         require(success, string(reason));
