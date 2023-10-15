@@ -14,6 +14,7 @@ import { genAccountInitInput } from "../helpers/account_init";
 import { genAccountTransportInput } from "../helpers/account_transport";
 import { genClaimInput } from "../helpers/claim";
 import { genEmailSenderInput } from "../helpers/email_sender";
+import { genAnnouncementInput } from "../helpers/announcement";
 const snarkjs = require("snarkjs");
 const emailWalletUtils = require("../../utils");
 
@@ -75,6 +76,11 @@ async function exec() {
     const emailSenderInput = await genEmailSenderInput(emailSenderEmailPath, relayerRand);
     await promisify(fs.writeFile)(path.join(buildDir, "email_sender_input.json"), JSON.stringify(emailSenderInput, null, 2));
     await prove(emailSenderInput, path.join(buildDir, "email_sender_js", "email_sender.wasm"), path.join(buildDir, "email_sender.zkey"), path.join(buildDir, "email_sender_proof.json"), path.join(buildDir, "email_sender_public.json"));
+    log("✓ Proof for email sender circuit generated");
+
+    const announcementInput = await genAnnouncementInput(emailAddr, emailAddrRand);
+    await promisify(fs.writeFile)(path.join(buildDir, "announcement_input.json"), JSON.stringify(announcementInput, null, 2));
+    await prove(announcementInput, path.join(buildDir, "announcement_js", "announcement.wasm"), path.join(buildDir, "announcement.zkey"), path.join(buildDir, "announcement_proof.json"), path.join(buildDir, "announcement_public.json"));
     log("✓ Proof for email sender circuit generated");
 
 

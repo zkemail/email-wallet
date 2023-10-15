@@ -173,6 +173,13 @@ async function exec() {
   }
   await generateKeys(phase1Path, emailSenderR1csPath, path.join(buildDir, "email_sender.zkey"), path.join(buildDir, "email_sender.vkey"), path.join(buildDir, "EmailSenderVerifier.sol"));
   log("✓ Keys for email sender circuit generated");
+
+  const announcementR1csPath = path.join(buildDir, "announcement.r1cs");
+  if (!fs.existsSync(announcementR1csPath)) {
+    throw new Error(`${announcementR1csPath} does not exist.`);
+  }
+  await generateKeys(phase1Path, announcementR1csPath, path.join(buildDir, "announcement.zkey"), path.join(buildDir, "announcement.vkey"), path.join(buildDir, "AnnouncementVerifier.sol"));
+  log("✓ Keys for announcement circuit generated");
 }
 
 

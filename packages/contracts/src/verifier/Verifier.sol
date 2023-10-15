@@ -7,6 +7,7 @@ import "./AccountInitVerifier.sol";
 import "./AccountTransportVerifier.sol";
 import "./ClaimVerifier.sol";
 import "./EmailSenderVerifier.sol";
+import "./AnnouncementVerifier.sol";
 
 contract AllVerifiers is IVerifier {
     AccountCreationVerifier public immutable accountCreationVerifier;
@@ -14,24 +15,30 @@ contract AllVerifiers is IVerifier {
     AccountTransportVerifier public immutable accountTransportVerifier;
     ClaimVerifier public immutable claimVerifier;
     EmailSenderVerifier public immutable emailSenderVerifier;
+    AnnouncementVerifier public immutable announcementVerifier;
 
     uint256 public constant DOMAIN_BYTES = 255;
     uint256 public constant DOMAIN_FIELDS = 9;
     uint256 public constant SUBJECT_BYTES = 512;
     uint256 public constant SUBJECT_FIELDS = 17;
+    uint256 public constant EMAIL_ADDR_BYTES = 256;
+    uint256 public constant EMAIL_ADDR_FIELDS = 9;
+    
 
     constructor(
         address _accountCreationVerifier,
         address _accountInitVerifier,
         address _accountTransportVerifier,
         address _claimVerifier,
-        address _emailSenderVerifier
+        address _emailSenderVerifier,
+        address _announcementVerifier
     ) {
         accountCreationVerifier = AccountCreationVerifier(_accountCreationVerifier);
         accountInitVerifier = AccountInitVerifier(_accountInitVerifier);
         accountTransportVerifier = AccountTransportVerifier(_accountTransportVerifier);
         claimVerifier = ClaimVerifier(_claimVerifier);
         emailSenderVerifier = EmailSenderVerifier(_emailSenderVerifier);
+        announcementVerifier = AnnouncementVerifier(_announcementVerifier);
     }
 
     /// @inheritdoc IVerifier
@@ -197,6 +204,26 @@ contract AllVerifiers is IVerifier {
         pubSignals[DOMAIN_FIELDS + 5] = uint256(timestamp);
         pubSignals[DOMAIN_FIELDS + 6] = uint256(oldRelayerRandHash);
         return accountTransportVerifier.verifyProof(pA, pB, pC, pubSignals);
+    }
+
+    function verifyAnnouncementProof(
+        string memory emailAddr,
+        bytes32 rand,
+        bytes32 emailAddrCommit,
+        bytes memory proof
+    ) external view returns (bool) {
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
+        uint256[EMAIL_ADDR_FIELDS+2] memory pubSignals;
+        uint256[] memory emailAddrFields = _packBytes2Fields(bytes(emailAddr), EMAIL_ADDR_BYTES);
+        for (uint256 i = 0; i < EMAIL_ADDR_FIELDS; i++) {
+            pubSignals[i] = emailAddrFields[i];
+        }
+        pubSignals[EMAIL_ADDR_FIELDS] = uint256(emailAddrCommit);
+        pubSignals[EMAIL_ADDR_FIELDS+1] = uint256(rand);
+        return announcementVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     function _packBytes2Fields(bytes memory _bytes, uint256 _paddedSize) public pure returns (uint256[] memory) {

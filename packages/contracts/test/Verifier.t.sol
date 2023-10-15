@@ -8,6 +8,7 @@ import "../src/verifier/AccountInitVerifier.sol";
 import "../src/verifier/AccountTransportVerifier.sol";
 import "../src/verifier/ClaimVerifier.sol";
 import "../src/verifier/EmailSenderVerifier.sol";
+import "../src/verifier/AnnouncementVerifier.sol";
 import "../src/verifier/Verifier.sol";
 
 contract VerifierTest is Test {
@@ -19,12 +20,14 @@ contract VerifierTest is Test {
         address accountTransportVerifier = address(new AccountTransportVerifier());
         address claimVerifier = address(new ClaimVerifier());
         address emailSenderVerifier = address(new EmailSenderVerifier());
+        address announcementVerifier = address(new AnnouncementVerifier());
         verifier = new AllVerifiers(
             accountCreationVerifier,
             accountInitVerifier,
             accountTransportVerifier,
             claimVerifier,
-            emailSenderVerifier
+            emailSenderVerifier,
+            announcementVerifier
         );
     }
 
