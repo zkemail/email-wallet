@@ -14,7 +14,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
 
     function setUp() public override {
         super.setUp();
-        testExtension = new TextExtension();
+        testExtension = new TestExtension();
         testExtensionAddr = address(testExtension);
     }
 
@@ -57,7 +57,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         string memory extensionName = "testSwap";
         string[][] memory subjectTemplates = _getSampleSubjectTemplates();
 
-        TextExtension testExtension2 = new TextExtension();
+        TestExtension testExtension2 = new TestExtension();
 
         vm.startPrank(extensionDev);
         core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);

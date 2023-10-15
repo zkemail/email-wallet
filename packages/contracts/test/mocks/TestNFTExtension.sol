@@ -55,18 +55,16 @@ contract TestNFTExtension is Extension, IERC721Receiver {
 
         uint256 tokenId = abi.decode(subjectParams[0], (uint256));
         string memory nftName = abi.decode(subjectParams[1], (string));
+        address nftAddr = addressOfNFTName[nftName];
 
-        require(addressOfNFTName[nftName] != address(0), "invalid NFT");
+        require(nftAddr != address(0), "invalid NFT");
         require(tokenId != 0, "invalid tokenId");
 
         if (hasEmailRecipient) {
-            bytes memory data = abi.encodeWithSignature(
-                "approve(address,uint256)",
-                address(this),
-                tokenId
-            );
-            core.executeAsExtension(addressOfNFTName[nftName], data);
-            bytes memory unclaimedState = abi.encode(addressOfNFTName[nftName], tokenId);
+            bytes memory data = abi.encodeWithSignature("approve(address,uint256)", address(this), tokenId);
+            core.executeAsExtension(nftAddr, data);
+
+            bytes memory unclaimedState = abi.encode(nftAddr, tokenId);
             core.registerUnclaimedStateAsExtension(address(this), unclaimedState);
         } else {
             require(recipientETHAddr != address(0), "invalid recipientETHAddr");
@@ -77,21 +75,16 @@ contract TestNFTExtension is Extension, IERC721Receiver {
                 recipientETHAddr,
                 tokenId
             );
-            core.executeAsExtension(addressOfNFTName[nftName], data);
+            core.executeAsExtension(nftAddr, data);
         }
     }
 
-    function registerUnclaimedState(
-        UnclaimedState memory unclaimedState,
-        bool 
-    ) public override onlyCore {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         ERC721 nft = ERC721(nftAddr);
-        require(nft.getApproved(tokenId) == address(this), "NFT not approved to extension");
-
+        require(ERC721(nftAddr).getApproved(tokenId) == address(this), "NFT not approved to extension");
         nft.transferFrom(unclaimedState.sender, address(this), tokenId);
-
         require(nft.ownerOf(tokenId) == address(this), "NFT not transferred to extension");
     }
 

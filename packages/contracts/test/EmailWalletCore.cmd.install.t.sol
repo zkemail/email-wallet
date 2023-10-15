@@ -17,7 +17,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
     function _publishExtension() internal {
         address extensionDev = vm.addr(3);
 
-        Extension ext = new TextExtension();
+        Extension ext = new TestExtension();
         testExtensionAddr = address(ext);
 
         string[4] memory temp = ["Swap", "{tokenAmount}", "to", "{string}"];

@@ -403,11 +403,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             require(emailOp.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
             require(
                 unclaimedFundOfEmailAddrCommit[emailOp.recipientEmailAddrCommit].sender == address(0),
-                "Unclaimed fund exist"
+                "unclaimed fund exist"
             );
             require(
                 unclaimedStateOfEmailAddrCommit[emailOp.recipientEmailAddrCommit].sender == address(0),
-                "Unclaimed state exists"
+                "unclaimed state exists"
             );
         } else {
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
@@ -443,8 +443,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         // Reset context
         currContext.extensionAddr = address(0);
-        currContext.unclaimedStateRegistered = false;
         currContext.unclaimedFundRegistered = false;
+        currContext.unclaimedStateRegistered = false;
         delete currContext.tokenAllowances;
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = getWalletOfSalt(
@@ -461,9 +461,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         uint totalFee; // Total fee in ETH to be paid to relayer
 
         require(
-            !currContext.unclaimedFundRegistered || !currContext.unclaimedStateRegistered,
+            !(currContext.unclaimedFundRegistered && currContext.unclaimedStateRegistered),
             "cannot register both unclaimed fund and state"
         );
+
 
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
@@ -483,10 +484,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
         uint256 rate = _getFeeConversionRate(emailOp.feeTokenName);
         uint256 feeAmount = (totalFee * rate) / (10 ** 18);
-        // require(feeAmount != 0, "feeAmount must not be zero");
+
+
         if (feeAmount > 0) {
             (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
-            require(success, string.concat("user's fee payment failed: ", string(returnData)));
+            require(success, string.concat("fee reimbursement failed: ", string(returnData)));
         }
     }
 
@@ -601,7 +603,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         _transferETH(fund.sender, (unclaimedFundClaimGas - consumedGas) * maxFeePerGas);
         _transferETH(msg.sender, consumedGas * maxFeePerGas);
 
-        emit UnclaimedFundReverted(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
+        emit UnclaimedFundVoided(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
     }
 
     /// Register unclaimed state of an extension for the recipient email address commitment
@@ -643,9 +645,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         try extension.registerUnclaimedState(us, false) {
         } catch Error(string memory reason) {
-            revert(string.concat("unclaimed state registration failed: ", reason));
+            revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
-            revert("extension registration failed");
+            revert("unclaimed state reg err");
         }
 
         unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
@@ -731,7 +733,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.sender != address(0), "unclaimed state not registered");
-        require(us.expiryTime < block.timestamp, "unclaimed state is not expired");
+        require(us.expiryTime < block.timestamp, "unclaimed state not expired");
 
         delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
@@ -766,13 +768,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
-        console.log(currContext.extensionAddr);
         require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(
             unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit].sender == address(0),
             "unclaimed state exists"
         );
-        require(currContext.unclaimedStateRegistered == false, "unclaimed state alredy registered in this tx");
+        require(currContext.unclaimedStateRegistered == false, "only one unclaimed state reg allowed");
         require(state.length > 0, "state cannot be empty");
         require(extensionAddr != address(0), "invalid extension contract");
 
@@ -789,9 +790,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         Extension extension = Extension(extensionAddr);
 
         try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
-            revert(string.concat("unclaimed state registration failed: ", reason));
+            revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
-            revert("extension registration failed");
+            revert("unclaimed state reg err");
         }
 
         unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit] = us;

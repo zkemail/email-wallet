@@ -434,6 +434,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed fund to account
         vm.startPrank(relayer);
         core.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        vm.stopPrank();
 
         assertEq(relayer.balance, unclaimedFundClaimGas * maxFeePerGas, "recipient didnt receive claim fee");
     }
@@ -593,7 +594,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectEmit();
-        emit UnclaimedFundReverted(recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
+        emit UnclaimedFundVoided(recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
         core.voidUnclaimedFund(recipientEmailAddrCommit);
         vm.stopPrank();
 

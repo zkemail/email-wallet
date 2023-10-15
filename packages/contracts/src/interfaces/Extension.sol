@@ -31,7 +31,6 @@ abstract contract Extension {
     ) public virtual {
         unclaimedState;
         isInternal;
-        return false;
     }
 
     /// Claim an unclaimed state to recipient user

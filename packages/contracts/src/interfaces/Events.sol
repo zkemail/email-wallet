@@ -24,7 +24,7 @@ interface EmailWalletEvents {
 
     event UnclaimedFundClaimed(bytes32 emailAddrCommit, address tokenAddr, uint256 amount, address recipient);
 
-    event UnclaimedFundReverted(bytes32 emailAddrCommit, address tokenAddr, uint256 amount, address sender);
+    event UnclaimedFundVoided(bytes32 emailAddrCommit, address tokenAddr, uint256 amount, address sender);
 
     event UnclaimedStateRegistered(
         bytes32 emailAddrCommit,

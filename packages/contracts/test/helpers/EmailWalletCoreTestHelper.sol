@@ -9,14 +9,15 @@ import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
 import {Wallet} from "../../src/Wallet.sol";
 import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
 import {TokenRegistry} from "../../src/utils/TokenRegistry.sol";
-import {IPriceOracle, UniswapTWAPOracle} from "../../src/utils/UniswapTWAPOracle.sol";
 import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
 import {TestVerifier} from "../mocks/TestVerifier.sol";
 import {TestERC20} from "../mocks/TestERC20.sol";
-import {TextExtension} from "../mocks/TestExtension.sol";
+import {TestExtension} from "../mocks/TestExtension.sol";
+import {TestOracle} from "../mocks/TestOracle.sol";
 import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
+import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
@@ -36,7 +37,7 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
 
     bytes mockProof = abi.encodePacked(bytes1(0x01));
 
-    uint256 maxFeePerGas = 10 ** 10;
+    uint256 maxFeePerGas = 10;
     uint256 emailValidityDuration = 1 hours;
     uint256 unclaimedFundClaimGas = 0.0002 ether;
     uint256 unclaimedStateClaimGas = 0.0002 ether;
@@ -70,7 +71,7 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
         verifier = new TestVerifier();
         tokenRegistry = new TokenRegistry();
         dkimRegistry = new DKIMRegistry();
-        priceOracle = new UniswapTWAPOracle(address(0), address(0));
+        priceOracle = new TestOracle();
         weth = new WETH9();
 
         // Deploy core contract as proxy

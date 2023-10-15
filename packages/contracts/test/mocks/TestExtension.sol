@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import {Extension} from "../../src/interfaces/Extension.sol";
 import "../../src/interfaces/Types.sol";
 
-contract TextExtension is Extension {
+contract TestExtension is Extension {
     function execute(
         uint8 templateIndex,
         bytes[] memory subjectParams,
