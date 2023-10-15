@@ -17,7 +17,7 @@ impl EmailAndStatus {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub(crate) enum EmailStatus {
     Unchecked,
     Checked,
@@ -45,8 +45,7 @@ impl Database {
     pub(crate) async fn setup_database(&self) -> Result<()> {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS emails (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT NOT NULL,
+                email TEXT PRIMARY KEY,
                 status TEXT NOT NULL
             );",
         )
@@ -83,17 +82,26 @@ impl Database {
     }
 
     pub(crate) async fn insert_email(&self, value: &EmailAndStatus) -> Result<()> {
-        sqlx::query("INSERT INTO emails (email, status) VALUES (?, ?);")
-            .bind(&value.email)
-            .bind(serde_json::to_string(&value.status)?)
-            .execute(&self.db)
-            .await?;
+        sqlx::query(
+            "INSERT INTO emails (email, status) VALUES (?, ?)
+             ON CONFLICT(email) DO UPDATE SET status = excluded.status;",
+        )
+        .bind(&value.email)
+        .bind(serde_json::to_string(&value.status)?)
+        .execute(&self.db)
+        .await?;
 
         Ok(())
     }
 
-    // Result<bool> is bad - fix later
+    // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
+    // where, ReturnStatus is some Enum ...
     pub(crate) async fn contains_finalized_email(&self, key: &str) -> Result<bool> {
-        Ok(false)
+        let result = sqlx::query("SELECT 1 FROM emails WHERE email = ? AND status = 'Finalized'")
+            .bind(key)
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(result.is_some())
     }
 }
