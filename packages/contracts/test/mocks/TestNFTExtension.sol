@@ -78,7 +78,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
     function registerUnclaimedState(
         UnclaimedState memory unclaimedState,
         bool 
-    ) public override onlyCore returns (bool) {
+    ) public override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token to this
@@ -89,12 +89,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
             tokenId
         );
 
-        try core.executeAsExtension(nftAddr, data) {
-        } catch {
-            return false;
-        }
-
-        return true;
+        core.executeAsExtension(nftAddr, data);
     }
 
     function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external override onlyCore {

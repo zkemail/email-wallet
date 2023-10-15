@@ -24,11 +24,9 @@ contract TextExtension is Extension {
     function registerUnclaimedState(
         UnclaimedState memory unclaimedState,
         bool isInternal
-    ) public pure override returns (bool) {
+    ) public pure override {
         unclaimedState;
         isInternal;
-
-        return true;
     }
 
     function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external pure override {

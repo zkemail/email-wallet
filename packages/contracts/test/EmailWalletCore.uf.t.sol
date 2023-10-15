@@ -11,7 +11,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
     }
 
     // Internally means that the unclaimed fund is registered by handleEmailOp (send tokent to email)
-    function test_UnclaimedFundsInternal_RegisterOnTokenTransfer() public {
+    function test_RegisterUnclaimedFunds_OnTokenTransfer() public {
         string memory subject = "Send 100 DAI to ";
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -60,7 +60,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(address(core)), 100 ether, "core contract didnt receive the tokens");
     }
 
-    function test_RevertIf_UnclaimedFundsInternal_NotEnoughFee() public {
+    function test_RevertIf_RegisterUnclaimedFundsInternal_NotEnoughFee() public {
         string memory subject = "Send 100 DAI to ";
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -84,7 +84,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_UnclaimedFundsExternal_Register() public {
+    function test_RegisterUnclaimedFundsExternal() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -93,6 +93,17 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core), 100 ether); // Add allowance to core so it can transfer tokens
+
+        vm.expectEmit();
+        emit UnclaimedFundRegistered(
+            recipientEmailAddrCommit,
+            address(daiToken),
+            100 ether,
+            sender,
+            block.timestamp + unclaimedFundExpirationDuration, // default expiry
+            0,
+            ""
+        );
         core.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
@@ -114,7 +125,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(address(core)), 100 ether, "core contract didnt receive the tokens");
     }
 
-    function test_UnclaimedFundsExternal_RegisterWithCustomExpiry() public {
+    function test_RegisterUnclaimedFundsExternal_WithCustomExpiry() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         uint256 expiry = block.timestamp + 1 days;
@@ -139,7 +150,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         assertEq(expiryTime, expiry, "expiryTime mismatch");
     }
 
-    function test_RevertIf_UnclaimedFundsExternal_NotEnoughFee() public {
+    function test_RevertIf_RegisterUnclaimedFundsExternal_NotEnoughFee() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -153,7 +164,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_UnclaimedFundsExternal_RegisterWithAnnouncement() public {
+    function test_RegisterUnclaimedFundsExternal_WithAnnouncement() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         uint256 commitmentRand = uint256(198273198237);

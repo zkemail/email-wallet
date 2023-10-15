@@ -21,8 +21,6 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
-import "forge-std/console.sol";
-
 
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
@@ -381,7 +379,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        {   
+        {
             AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
             address relayer = accountKeyInfo.relayer;
             bool initialized = accountKeyInfo.initialized;
@@ -481,9 +479,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
         uint256 rate = _getFeeConversionRate(emailOp.feeTokenName);
-        uint256 feeAmount = totalFee * rate / (10 ** 18);
+        uint256 feeAmount = (totalFee * rate) / (10 ** 18);
         // require(feeAmount != 0, "feeAmount must not be zero");
-        if(feeAmount > 0) {
+        if (feeAmount > 0) {
             (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
             require(success, string.concat("user's fee payment failed: ", string(returnData)));
         }
@@ -639,9 +637,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         });
 
         Extension extension = Extension(extensionAddr);
-        bool registered = extension.registerUnclaimedState(us, false);
 
-        require(registered, "unclaimed state reg failed");
+        try extension.registerUnclaimedState(us, false) {
+        } catch Error(string memory reason) {
+            revert(string.concat("unclaimed state registration failed: ", reason));
+        } catch {
+            revert("extension registration failed");
+        }
 
         unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
 
@@ -761,8 +763,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
+        console.log(currContext.extensionAddr);
         require(msg.sender == currContext.extensionAddr, "caller not extension");
-        require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
+        require(
+            unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit].sender == address(0),
+            "unclaimed state exists"
+        );
+        require(currContext.unclaimedStateRegistered == false, "unclaimed state alredy registered in this tx");
         require(state.length > 0, "state cannot be empty");
         require(extensionAddr != address(0), "invalid extension contract");
 
@@ -777,8 +784,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         });
 
         Extension extension = Extension(extensionAddr);
-        bool registered = extension.registerUnclaimedState(us, true);
-        require(registered, "unclaimed state reg failed");
+
+        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
+            revert(string.concat("unclaimed state registration failed: ", reason));
+        } catch {
+            revert("extension registration failed");
+        }
 
         unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit] = us;
         currContext.unclaimedStateRegistered = true;
@@ -805,7 +816,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 require(currContext.tokenAllowances[i].amount >= amount, "insufficient allowance");
                 currContext.tokenAllowances[i].amount -= amount;
 
-                (bool success, bytes memory returnData) = _transferERC20(currContext.walletAddr, currContext.extensionAddr, tokenAddr, amount);
+                (bool success, bytes memory returnData) = _transferERC20(
+                    currContext.walletAddr,
+                    currContext.extensionAddr,
+                    tokenAddr,
+                    amount
+                );
                 require(success, string.concat("request token failed: ", string(returnData)));
                 return;
             }
@@ -873,7 +889,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                     numRecipient++;
                 }
             }
-            require(numRecipient <= 1, "recipient template can only be used once"); 
+            require(numRecipient <= 1, "recipient template can only be used once");
         }
 
         // Check if command is only one word (no spaces)
@@ -971,7 +987,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     ) internal view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
-             address walletAddr = getWalletOfSalt(
+            address walletAddr = getWalletOfSalt(
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
             WalletParams memory walletParams = emailOp.walletParams;
@@ -1035,7 +1051,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
             address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
             string memory command = subjectTemplatesOfExtension[extAddr][0][0];
-             address walletAddr = getWalletOfSalt(
+            address walletAddr = getWalletOfSalt(
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
 
@@ -1092,11 +1108,15 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[nextParamIndex],
-                        (uint256,string)
+                        (uint256, string)
                     );
                     address tokenAddr = getTokenAddrFromName(tokenName);
                     require(tokenAddr != address(0), "token not supported");
-                    value = string.concat(DecimalUtils.uintToDecimalString(amount, ERC20(tokenAddr).decimals()), " ", tokenName);
+                    value = string.concat(
+                        DecimalUtils.uintToDecimalString(amount, ERC20(tokenAddr).decimals()),
+                        " ",
+                        tokenName
+                    );
                     nextParamIndex++;
                 }
                 // {amount} is number in wei format (decimal format in subject)
@@ -1127,8 +1147,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
                     value = Strings.toHexString(uint256(uint160(addr)), 20);
                     nextParamIndex++;
-                }
-                else if (Strings.equal(matcher, RECIPIENT_TEMPLATE)) {
+                } else if (Strings.equal(matcher, RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {
                         value = Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20);
                     }
@@ -1248,8 +1267,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry =
-                emailOp.newDkimRegistry;
+            infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry = emailOp
+                .newDkimRegistry;
             success = true;
         }
         // The command is for an extension
@@ -1263,7 +1282,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[i],
-                        (uint256,string)
+                        (uint256, string)
                     );
 
                     currContext.tokenAllowances.push(
