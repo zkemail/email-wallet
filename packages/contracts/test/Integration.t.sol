@@ -297,14 +297,14 @@ contract IntegrationTest is Test {
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 20 ether);
         weth.deposit{value: 20 ether}();
-        deal(address(daiToken), user1Wallet, 20 ether);
-        deal(address(usdcToken), user1Wallet, 20 ether);
+        deal(address(daiToken), user1Wallet, 20*10000 ether);
+        deal(address(usdcToken), user1Wallet, 20*10000*(10**6));
         vm.stopPrank();
         vm.startPrank(user2Wallet);
         deal(user2Wallet, 20 ether);
         weth.deposit{value: 20 ether}();
-        deal(address(daiToken), user2Wallet, 20 ether);
-        deal(address(usdcToken), user2Wallet, 20 ether);
+        deal(address(daiToken), user2Wallet, 20*10000 ether);
+        deal(address(usdcToken), user2Wallet, 20*10000*(10**6));
         vm.stopPrank();
 
         vm.startPrank(relayer1);
@@ -320,12 +320,15 @@ contract IntegrationTest is Test {
             randomHash = keccak256(abi.encode(randomHash));
             uint amountSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
-            uint tokenSelector = 1;//uint(randomHash) % 3;
+            uint tokenSelector =  uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
             uint senderSelector = uint(randomHash) % 2;
+            randomHash = keccak256(abi.encode(randomHash));
+            uint feeSelector = uint(randomHash) % 3;
             amountSelector.logUint();
             tokenSelector.logUint();
             senderSelector.logUint();
+            feeSelector.logUint();
             if(usedEmail[senderSelector][tokenSelector][amountSelector]) {
                 continue;
             }
@@ -333,7 +336,7 @@ contract IntegrationTest is Test {
             idx ++;
 
             string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml").logString();
-            (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", tokens[tokenSelector]);
+            (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", tokens[feeSelector]);
             emailOp.walletParams.tokenName = tokens[tokenSelector];
             if(tokenSelector == 0 || tokenSelector == 1) {
                 emailOp.walletParams.amount = [uint(1 ether), uint(0.2 ether), uint(0.03 ether)][amountSelector];

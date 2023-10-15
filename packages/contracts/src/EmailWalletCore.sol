@@ -480,15 +480,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         totalFee += (consumedGas * emailOp.feePerGas);
 
         address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
-        uint rate = _getFeeConversionRate(emailOp.feeTokenName);
-        require(rate != 0, "invalid fee rate");
-        "fee".logString();
-        totalFee.logUint();
-        rate.logUint();
-        uint256 feeAmount = totalFee / rate;
-        feeAmount.logUint();
-        require(feeAmount != 0, "feeAmount must not be zero");
-        (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
+        uint rate = _getFeeConversionRate(emailOp.feeTokenName) / (10 ** ERC20(feeToken).decimals());
+        uint256 feeAmount = totalFee * rate;
+        // require(feeAmount != 0, "feeAmount must not be zero");
+        if(feeAmount > 0) {
+            (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
+            require(success, string.concat("user's fee payment failed: ", string(returnData)));
+        }
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
