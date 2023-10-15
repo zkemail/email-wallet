@@ -72,6 +72,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
         emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
         emailOpUninstall.extManagerParams.extensionName = extensionName;
+        emailOpUninstall.emailNullifier = bytes32(uint256(93845));
 
         vm.startPrank(relayer);
         core.handleEmailOp(emailOpInstall);
