@@ -21,7 +21,6 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
-import "forge-std/console.sol";
 
 
 
@@ -34,7 +33,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant ADDRESS_TEMPLATE = "{address}";
     string public constant RECIPIENT_TEMPLATE = "{recipient}";
 
-    using console for *;
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -679,7 +677,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer for account");
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.extensionAddr != address(0), "invalid extension address");
-        require(us.expiryTime < block.timestamp, "unclaimed fund expired");
+        require(us.expiryTime > block.timestamp, "unclaimed state expired");
         require(accountKeyCommit != bytes32(0), "invalid account key commit.");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized, "account not initialized");
         require(!infoOfAccountKeyCommit[accountKeyCommit].nullified, "account is nullified");
@@ -731,7 +729,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.sender != address(0), "unclaimed state not registered");
-        require(us.expiryTime > block.timestamp, "unclaimed fund expired");
+        require(us.expiryTime < block.timestamp, "unclaimed state is not expired");
 
         delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
