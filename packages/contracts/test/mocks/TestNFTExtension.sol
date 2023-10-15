@@ -21,6 +21,11 @@ contract TestNFTExtension is Extension, IERC721Receiver {
 
     string[][] public templates = new string[][](1);
 
+    modifier onlyCore() {
+        require(msg.sender == address(core), "invalid sender");
+        _;
+    }
+
     constructor(address coreAddr) {
         core = EmailWalletCore(payable(coreAddr));
 
@@ -42,15 +47,15 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         address wallet,
         bool hasEmailRecipient,
         address recipientETHAddr,
-        bytes32 emailNullifier
-    ) external override {
-        emailNullifier;
+        bytes32
+    ) external override onlyCore {
+        if (templateIndex != 0) {
+            return; // Just to support testing with unsupported subjects
+        }
 
-        (uint256 tokenId) = abi.decode(subjectParams[0], (uint256));
-        (string memory nftName) = abi.decode(subjectParams[1], (string));
+        uint256 tokenId = abi.decode(subjectParams[0], (uint256));
+        string memory nftName = abi.decode(subjectParams[1], (string));
 
-        require(msg.sender == address(core), "invalid sender");
-        require(templateIndex == 0, "invalid templateIndex");
         require(addressOfNFTName[nftName] != address(0), "invalid NFT");
         require(tokenId != 0, "invalid tokenId");
 
@@ -72,12 +77,8 @@ contract TestNFTExtension is Extension, IERC721Receiver {
 
     function registerUnclaimedState(
         UnclaimedState memory unclaimedState,
-        bool isInternal
-    ) public override returns (bool) {
-        isInternal;
-
-        require(msg.sender == address(core), "invalid sender");
-
+        bool 
+    ) public override onlyCore returns (bool) {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token to this
@@ -87,23 +88,23 @@ contract TestNFTExtension is Extension, IERC721Receiver {
             address(this),
             tokenId
         );
-        core.executeAsExtension(nftAddr, data);
+
+        try core.executeAsExtension(nftAddr, data) {
+        } catch {
+            return false;
+        }
 
         return true;
     }
 
-    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external override {
-        require(msg.sender == address(core), "invalid sender");
-
+    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token to wallet
         ERC721(nftAddr).transferFrom(address(this), wallet, tokenId);
     }
 
-    function voidUnclaimedState(UnclaimedState memory unclaimedState) external override {
-        require(msg.sender == address(core), "invalid sender");
-
+    function voidUnclaimedState(UnclaimedState memory unclaimedState) external override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer token back to sender
