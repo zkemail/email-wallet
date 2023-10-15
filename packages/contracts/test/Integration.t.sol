@@ -320,7 +320,7 @@ contract IntegrationTest is Test {
             randomHash = keccak256(abi.encode(randomHash));
             uint amountSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
-            uint tokenSelector =  uint(randomHash) % 3;
+            uint tokenSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
             uint senderSelector = uint(randomHash) % 2;
             randomHash = keccak256(abi.encode(randomHash));
@@ -349,9 +349,40 @@ contract IntegrationTest is Test {
             assertEq(success, true, string(reason));
             claimFund(users[1-senderSelector].emailAddr, relayer1Rand, emailAddrRand);
         }
-
         vm.stopPrank();
     }
+
+    function testIntegration_Swap_Tokens() public {
+         vm.startPrank(relayer1);
+        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        (relayerHash, emailAddrPointer) = accountInit(string.concat(vm.projectRoot(),"/test/emails/account_init_test1.eml"), relayer1Rand, "gmail.com");
+        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+        (,,,,bytes32 walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        // address recipient = vm.addr(4);
+        vm.stopPrank();
+        vm.startPrank(user1Wallet);
+        deal(user1Wallet, 20 ether);
+        weth.deposit{value: 20 ether}();
+        deal(address(daiToken), user1Wallet, 20*10000 ether);
+        deal(address(usdcToken), user1Wallet, 20*10000*(10**6));
+        vm.stopPrank();
+
+        vm.startPrank(relayer1);
+        (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/uniswap_test1.eml"), relayer1Rand, "Swap", "Swap 0.2 ETH to DAI", "gmail.com", "ETH");
+        bytes[] memory extensionBytes = new bytes[](2);
+        extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
+        extensionBytes[1] = abi.encode("DAI");
+        emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
+        (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+        require(success, string(reason));
+        vm.stopPrank();
+    }
+    
 
 
     function accountCreation(string memory emailAddr, bytes32 relayerRand, bytes32 accountKey) internal returns (bytes32 relayerHash, bytes32 emailAddrPointer) {

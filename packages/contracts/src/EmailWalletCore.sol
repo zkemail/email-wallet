@@ -480,8 +480,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         totalFee += (consumedGas * emailOp.feePerGas);
 
         address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
-        uint rate = _getFeeConversionRate(emailOp.feeTokenName) / (10 ** ERC20(feeToken).decimals());
-        uint256 feeAmount = totalFee * rate;
+        uint256 rate = _getFeeConversionRate(emailOp.feeTokenName);
+        uint256 feeAmount = totalFee * rate / (10 ** 18);
         // require(feeAmount != 0, "feeAmount must not be zero");
         if(feeAmount > 0) {
             (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
