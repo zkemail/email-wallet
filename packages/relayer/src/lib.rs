@@ -45,6 +45,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                                 EmailAndStatus::new(body, EmailStatus::Unchecked);
                             db_clone_receiver.insert_email(&email_and_status).await?;
                             tx.send(email_and_status)?;
+                        } else {
+                            println!("There's such email already");
                         }
                     }
                 }
@@ -85,11 +87,12 @@ async fn handle_email(email_and_status: EmailAndStatus, db: Arc<Database>) -> Re
     }
 
     if let EmailStatus::Checked = status {
-        todo!()
+        is_valid(&parsed_email);
+        println!("When status checked");
     }
 
     if let EmailStatus::Executed = status {
-        todo!()
+        println!("When status executed");
     }
 
     Ok(())

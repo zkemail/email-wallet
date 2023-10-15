@@ -42,7 +42,7 @@ interface ISwapRouter {
     ) external payable returns (uint amountOut);
 }
 
-contract TestNFTExtension is Extension {
+contract TestUniswapExtension is Extension {
     EmailWalletCore public core;
     ISwapRouter public router;
     // For this example, we will set the pool fee to 0.3%.
@@ -67,29 +67,66 @@ contract TestNFTExtension is Extension {
         address recipientETHAddr,
         bytes32 emailNullifier
     ) external override {
+        recipientETHAddr;
         emailNullifier;
-
-        (TokenAllowance memory tokenAllowance, string memory tokenOut) = abi.decode(subjectParams[0], (TokenAllowance, string));
+        (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
+        string memory tokenOut = abi.decode(subjectParams[1], (string));
+        address tokenInAddr = core.getTokenAddrFromName(tokenIn);
         address tokenOutAddr = core.getTokenAddrFromName(tokenOut);
         require(msg.sender == address(core), "invalid sender");
         require(templateIndex == 0, "invalid templateIndex");
         require(tokenOutAddr != address(0), "invalid out token name");
         require(!hasEmailRecipient, "recipient is not supported");
-        uint balanceIn = IERC20(tokenAllowance.tokenAddr).balanceOf(address(this));
-        core.requestTokenAsExtension(tokenAllowance.tokenAddr,tokenAllowance.amount);
-        require(IERC20(tokenAllowance.tokenAddr).balanceOf(address(this)) - balanceIn == tokenAllowance.amount, "token is not sent from core");
-        
-        ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: tokenAllowance.tokenAddr,
-                tokenOut: tokenOutAddr,
-                fee: poolFee,
-                recipient: wallet,
-                deadline: block.timestamp,
-                amountIn: tokenAllowance.amount,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-        router.exactInputSingle(swapParams);
+        uint balanceIn = IERC20(tokenInAddr).balanceOf(address(this));
+        core.requestTokenAsExtension(tokenInAddr,tokenInAmount);
+        require(IERC20(tokenInAddr).balanceOf(address(this)) - balanceIn == tokenInAmount, "token is not sent from core");
+        require(
+            IERC20(tokenInAddr).approve(address(router), tokenInAmount),
+            "approve from the extension to router failed"
+        );
+        address wethAddr = core.getTokenAddrFromName("ETH");
+        if(tokenInAddr != wethAddr && tokenOutAddr != wethAddr) {
+            ISwapRouter.ExactInputSingleParams memory swapParams1 = ISwapRouter
+                .ExactInputSingleParams({
+                    tokenIn: tokenInAddr,
+                    tokenOut: wethAddr,
+                    fee: poolFee,
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: tokenInAmount,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
+            uint wethAmount = router.exactInputSingle(swapParams1);
+            require(
+                IERC20(wethAddr).approve(address(router), wethAmount),
+                "approve from the extension to router failed"
+            );
+            ISwapRouter.ExactInputSingleParams memory swapParams2 = ISwapRouter
+                .ExactInputSingleParams({
+                    tokenIn: wethAddr,
+                    tokenOut: tokenOutAddr,
+                    fee: poolFee,
+                    recipient: wallet,
+                    deadline: block.timestamp,
+                    amountIn: wethAmount,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
+            router.exactInputSingle(swapParams2);
+        } else {
+            ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
+                .ExactInputSingleParams({
+                    tokenIn: tokenInAddr,
+                    tokenOut: tokenOutAddr,
+                    fee: poolFee,
+                    recipient: wallet,
+                    deadline: block.timestamp,
+                    amountIn: tokenInAmount,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
+            router.exactInputSingle(swapParams);
+        }       
     }
 }

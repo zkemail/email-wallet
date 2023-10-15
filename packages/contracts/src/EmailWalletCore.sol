@@ -31,7 +31,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant ADDRESS_TEMPLATE = "{address}";
     string public constant RECIPIENT_TEMPLATE = "{recipient}";
 
-    using console for *;
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -68,6 +67,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     // Mapping of accountKeyCommit to account key details
     mapping(bytes32 => AccountKeyInfo) public infoOfAccountKeyCommit;
+
+    // Mapping of walletSalt to dkim registry address
+    mapping(bytes32 => address) public dkimRegistryOfWalletSalt;
 
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
@@ -223,7 +225,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         infoOfAccountKeyCommit[accountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[accountKeyCommit].walletSaltSet = true;
         infoOfAccountKeyCommit[accountKeyCommit].walletSalt = walletSalt;
-        infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry = defaultDkimRegistry;
+        dkimRegistryOfWalletSalt[walletSalt] = defaultDkimRegistry;
+        // infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry = defaultDkimRegistry;
 
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
@@ -253,7 +256,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(infoOfAccountKeyCommit[accountKeyCommit].nullified == false, "account is nullified");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
-        DKIMRegistry dkimRegistry = DKIMRegistry(infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry);
+        DKIMRegistry dkimRegistry = DKIMRegistry(dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]);
 
         require(
             verifier.verifyAccountInitializaionProof(
@@ -333,7 +336,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(
             verifier.verifyAccountTransportProof(
                 transportEmailProof.domain,
-                bytes32(DKIMRegistry(oldAccountKeyInfo.dkimRegistry).getDKIMPublicKeyHash(transportEmailProof.domain)),
+                bytes32(DKIMRegistry(dkimRegistryOfWalletSalt[oldAccountKeyInfo.walletSalt]).getDKIMPublicKeyHash(transportEmailProof.domain)),
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
                 relayers[oldAccountKeyInfo.relayer].randHash,
@@ -358,12 +361,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
         infoOfAccountKeyCommit[newAccountKeyCommit].nullified = false;
-        infoOfAccountKeyCommit[newAccountKeyCommit].dkimRegistry = oldAccountKeyInfo.dkimRegistry;
+        // infoOfAccountKeyCommit[newAccountKeyCommit].dkimRegistry = oldAccountKeyInfo.dkimRegistry;
 
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSaltSet = false;
         infoOfAccountKeyCommit[oldAccountKeyCommit].nullified = true;
-        infoOfAccountKeyCommit[oldAccountKeyCommit].dkimRegistry = address(0);
+        // infoOfAccountKeyCommit[oldAccountKeyCommit].dkimRegistry = address(0);
         infoOfAccountKeyCommit[oldAccountKeyCommit].initialized = false;
 
         emit AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
@@ -373,7 +376,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
-        DKIMRegistry dkimRegistry = DKIMRegistry(infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry);
+        DKIMRegistry dkimRegistry = DKIMRegistry(dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]);
         bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
 
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
@@ -676,7 +679,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer for account");
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.extensionAddr != address(0), "invalid extension address");
-        require(us.expiryTime < block.timestamp, "unclaimed fund expired");
+        require(us.expiryTime > block.timestamp, "unclaimed state expired");
         require(accountKeyCommit != bytes32(0), "invalid account key commit.");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized, "account not initialized");
         require(!infoOfAccountKeyCommit[accountKeyCommit].nullified, "account is nullified");
@@ -728,7 +731,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         require(us.sender != address(0), "unclaimed state not registered");
-        require(us.expiryTime > block.timestamp, "unclaimed fund expired");
+        require(us.expiryTime < block.timestamp, "unclaimed state is not expired");
 
         delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
@@ -856,8 +859,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     }
 
     /// Register a new extension
-    /// @param addr Address of the extension contract
     /// @param name Name of the extension
+    /// @param addr Address of the extension contract
     /// @param subjectTemplates Subject templates for the extension
     /// @param maxExecutionGas Max gas allowed for the extension
     /// @dev First word of each subject template should be same and is called "command"; command should be one word
@@ -1267,8 +1270,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry = emailOp
-                .newDkimRegistry;
+            bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
+            dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt] = emailOp.newDkimRegistry;
+            // infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry =
+            //     emailOp.newDkimRegistry;
             success = true;
         }
         // The command is for an extension
@@ -1278,16 +1283,32 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
-            for (uint8 i = 0; i < emailOp.extensionParams.subjectParams.length; i++) {
-                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), TOKEN_AMOUNT_TEMPLATE)) {
+            uint8 nextParamIndex = 0;
+            string[] memory subjectTemplate = subjectTemplatesOfExtension[extAddress][
+                emailOp.extensionParams.subjectTemplateIndex
+            ];
+            for (uint8 i = 0; i < subjectTemplate.length; i++) {
+                string memory matcher = string(subjectTemplate[i]);
+
+                if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
-                        emailOp.extensionParams.subjectParams[i],
+                        emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256, string)
                     );
-
                     currContext.tokenAllowances.push(
                         TokenAllowance({tokenAddr: getTokenAddrFromName(tokenName), amount: amount})
                     );
+                    nextParamIndex++;
+                }
+                else if (
+                    Strings.equal(matcher, AMOUNT_TEMPLATE) ||
+                    Strings.equal(matcher, STRING_TEMPLATE) ||
+                    Strings.equal(matcher, UINT_TEMPLATE) ||
+                    Strings.equal(matcher, INT_TEMPLATE) ||
+                    Strings.equal(matcher, ADDRESS_TEMPLATE) ||
+                    Strings.equal(matcher, RECIPIENT_TEMPLATE)
+                ) {
+                    nextParamIndex++;
                 }
             }
 
@@ -1384,7 +1405,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {
         if (Strings.equal(tokenName, "ETH") || Strings.equal(tokenName, "WETH")) {
-            return 1;
+            return 1 ether;
         }
 
         bool validToken = Strings.equal(tokenName, "DAI") || Strings.equal(tokenName, "USDC");
