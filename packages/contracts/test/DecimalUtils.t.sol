@@ -8,11 +8,15 @@ import "../src/libraries/DecimalUtils.sol";
 
 contract DecimalUtilsTest is Test {
     function _checkDecimalString(uint256 value, string memory expected) internal {
-        string memory actual = DecimalUtils.uintToDecimalString(value);
+        _checkDecimalString(value, expected, 18);
+    }
+
+    function _checkDecimalString(uint256 value, string memory expected, uint decimal) internal {
+        string memory actual = DecimalUtils.uintToDecimalString(value, decimal);
         assertTrue(Strings.equal(actual, expected), string.concat(expected, "!=", actual));
     }
 
-    function test_UintToDecimalString() public {
+    function test_UintToDecimalString_Default() public {
         _checkDecimalString(1 ether, "1");
         _checkDecimalString(10 ether, "10");
         _checkDecimalString(200 ether, "200");
@@ -38,5 +42,29 @@ contract DecimalUtilsTest is Test {
         _checkDecimalString(21.0 ether, "21");
         _checkDecimalString(21.00 ether, "21");
         _checkDecimalString(3.490 ether, "3.49");
+    }
+
+     function test_UintToDecimalString_NotDefault() public {
+        _checkDecimalString(1 * (10 ** 6), "1", 6);
+        _checkDecimalString(10 * (10 ** 6), "10", 6);
+        _checkDecimalString(200 * (10 ** 6), "200", 6);
+        _checkDecimalString(10.21 * (10 ** 6), "10.21", 6);
+        _checkDecimalString(3.1 * (10 ** 6), "3.1", 6);
+        _checkDecimalString(2.01 * (10 ** 6), "2.01", 6);
+        _checkDecimalString(0.1 * (10 ** 6), "0.1", 6);
+        _checkDecimalString(0.01 * (10 ** 6), "0.01", 6);
+        _checkDecimalString(4.2001 * (10 ** 6), "4.2001", 6);
+        _checkDecimalString(22 * (10 ** 6), "22", 6);
+        _checkDecimalString(2.0071 * (10 ** 6), "2.0071", 6);
+        _checkDecimalString(3.000081 * (10 ** 6), "3.000081", 6);
+        _checkDecimalString(0.002 * (10 ** 6), "0.002", 6);
+        _checkDecimalString(0.14 * (10 ** 6), "0.14", 6);
+        _checkDecimalString(0.014 * (10 ** 6), "0.014", 6);
+        _checkDecimalString(0.013001 * (10 ** 6), "0.013001", 6);
+
+        // Non-significant trailing zeros are not supported
+        _checkDecimalString(21.0 * (10 ** 6), "21", 6);
+        _checkDecimalString(21.00 * (10 ** 6), "21", 6);
+        _checkDecimalString(3.490 * (10 ** 6), "3.49", 6);
     }
 }

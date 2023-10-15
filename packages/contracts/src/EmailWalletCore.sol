@@ -21,6 +21,7 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "forge-std/console.sol";
 
 
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
@@ -31,6 +32,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant INT_TEMPLATE = "{int}";
     string public constant ADDRESS_TEMPLATE = "{address}";
     string public constant RECIPIENT_TEMPLATE = "{recipient}";
+
+    using console for *;
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -477,13 +480,15 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         totalFee += (consumedGas * emailOp.feePerGas);
 
         address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
-        uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
-        if (feeAmount > 0) {
-            (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
-            if (!success) {
-                return (success, returnData);
-            }
-        }
+        uint rate = _getFeeConversionRate(emailOp.feeTokenName);
+        require(rate != 0, "invalid fee rate");
+        "fee".logString();
+        totalFee.logUint();
+        rate.logUint();
+        uint256 feeAmount = totalFee / rate;
+        feeAmount.logUint();
+        require(feeAmount != 0, "feeAmount must not be zero");
+        (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
@@ -981,7 +986,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             maskedSubject = string.concat(
                 Commands.SEND,
                 " ",
-                DecimalUtils.uintToDecimalString(walletParams.amount),
+                DecimalUtils.uintToDecimalString(walletParams.amount, token.decimals()),
                 " ",
                 walletParams.tokenName,
                 " to "
@@ -1091,9 +1096,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (string, uint256)
                     );
-                    require(getTokenAddrFromName(tokenName) != address(0), "token not supported");
-
-                    value = string.concat(DecimalUtils.uintToDecimalString(amount), " ", tokenName);
+                    address tokenAddr = getTokenAddrFromName(tokenName);
+                    require(tokenAddr != address(0), "token not supported");
+                    value = string.concat(DecimalUtils.uintToDecimalString(amount, ERC20(tokenAddr).decimals()), " ", tokenName);
                     nextParamIndex++;
                 }
                 // {amount} is number in wei format (decimal format in subject)

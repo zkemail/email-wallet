@@ -54,7 +54,7 @@ contract IntegrationTest is Test {
     address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
     address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
     address constant USDC_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
-    address constant ORACLE_ADDR = 0xB210CE856631EeEB767eFa666EC7C1C57738d438;
+    address constant UNISWAP_V3_FACTORY = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     address constant UNISWAP_V3_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
     uint256 constant DOMAIN_FIELDS = 9;
@@ -113,7 +113,7 @@ contract IntegrationTest is Test {
         );
         tokenRegistry = new TokenRegistry();
         dkimRegistry = new DKIMRegistry();
-        priceOracle = new UniswapTWAPOracle(ORACLE_ADDR, WETH_ADDR);
+        priceOracle = new UniswapTWAPOracle(UNISWAP_V3_FACTORY, WETH_ADDR);
         // weth = new WETH9();
         weth = WETH9(payable(WETH_ADDR));
 
@@ -309,11 +309,10 @@ contract IntegrationTest is Test {
 
         vm.startPrank(relayer1);
         bytes32 randomHash = keccak256(abi.encode(blockhash(block.number - 1)));
-        // uint[3] memory amountUints = [uint(1 ether), uint(0.2 ether), uint(0.03 ether)];
+        randomHash.logBytes32();
         string[3] memory amountStrs = ["1", "0.2", "0.03"];
         string[3] memory tokens = ["ETH", "DAI", "USDC"];
         UserTestConfig[2] memory users = [user1, user2];
-        // address[2] memory userAddrs = [user1Wallet, user2Wallet];
         bool[3][3][2] memory usedEmail;
         uint idx = 0;
         while(idx < 8) {
@@ -321,7 +320,7 @@ contract IntegrationTest is Test {
             randomHash = keccak256(abi.encode(randomHash));
             uint amountSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
-            uint tokenSelector = 2;//uint(randomHash) % 3;
+            uint tokenSelector = 1;//uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
             uint senderSelector = uint(randomHash) % 2;
             amountSelector.logUint();
@@ -334,7 +333,7 @@ contract IntegrationTest is Test {
             idx ++;
 
             string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml").logString();
-            (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", "ETH");
+            (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", tokens[tokenSelector]);
             emailOp.walletParams.tokenName = tokens[tokenSelector];
             if(tokenSelector == 0 || tokenSelector == 1) {
                 emailOp.walletParams.amount = [uint(1 ether), uint(0.2 ether), uint(0.03 ether)][amountSelector];
@@ -345,8 +344,6 @@ contract IntegrationTest is Test {
             (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
             success.logBool();
             assertEq(success, true, string(reason));
-            // require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
-            // require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract balance mismatch");
             claimFund(users[1-senderSelector].emailAddr, relayer1Rand, emailAddrRand);
         }
 
