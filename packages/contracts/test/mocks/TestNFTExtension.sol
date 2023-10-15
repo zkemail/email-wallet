@@ -49,7 +49,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         (uint256 tokenId) = abi.decode(subjectParams[0], (uint256));
         (string memory nftName) = abi.decode(subjectParams[1], (string));
 
-        // require(msg.sender == address(core), "invalid sender");
+        require(msg.sender == address(core), "invalid sender");
         require(templateIndex == 0, "invalid templateIndex");
         require(addressOfNFTName[nftName] != address(0), "invalid NFT");
         require(tokenId != 0, "invalid tokenId");

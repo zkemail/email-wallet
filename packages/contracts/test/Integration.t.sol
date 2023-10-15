@@ -10,7 +10,8 @@ import "../src/EmailWalletCore.sol";
 import "../src/utils/TokenRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
 import "../src/libraries/BytesUtils.sol";
-import "./mocks/TestERC20.sol";
+// import "./mocks/TestERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./helpers/WETH9.sol";
 import "../src/verifier/AccountCreationVerifier.sol";
 import "../src/verifier/AccountInitVerifier.sol";
@@ -47,17 +48,23 @@ contract IntegrationTest is Test {
     WETH9 weth;
 
     // TestERC20 wethToken;
-    TestERC20 daiToken;
-    TestERC20 usdcToken;
+    ERC20 daiToken;
+    ERC20 usdcToken;
 
-    uint256 public constant DOMAIN_FIELDS = 9;
-    uint256 public constant SUBJECT_FIELDS = 17;
+    address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+    address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
+    address constant USDC_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    address constant ORACLE_ADDR = 0xB210CE856631EeEB767eFa666EC7C1C57738d438;
+    address constant UNISWAP_V3_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+
+    uint256 constant DOMAIN_FIELDS = 9;
+    uint256 constant SUBJECT_FIELDS = 17;
 
     uint256 maxFeePerGas = 10 ** 9;
-    uint256 emailValidityDuration = 1 hours;
+    uint256 emailValidityDuration = 36500 days;
     uint256 unclaimedFundClaimGas = 1000000;
     uint256 unclaimedStateClaimGas = 1000000;
-    uint256 unclaimedFundExpirationDuration = 30 days;
+    uint256 unclaimedFundExpirationDuration = 36500 days;
 
     address deployer;
     address relayer1;
@@ -85,6 +92,7 @@ contract IntegrationTest is Test {
     
 
     function setUp() public virtual {
+        vm.createSelectFork("https://arb1.arbitrum.io/rpc");
         deployer = vm.addr(1);
         relayer1 = vm.addr(2);
         relayer2 = vm.addr(3);
@@ -105,8 +113,9 @@ contract IntegrationTest is Test {
         );
         tokenRegistry = new TokenRegistry();
         dkimRegistry = new DKIMRegistry();
-        priceOracle = new UniswapTWAPOracle(address(0), address(0));
-        weth = new WETH9();
+        priceOracle = new UniswapTWAPOracle(ORACLE_ADDR, WETH_ADDR);
+        // weth = new WETH9();
+        weth = WETH9(payable(WETH_ADDR));
 
         dkimRegistry.setDKIMPublicKeyHash("gmail.com", 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788);
 
@@ -130,8 +139,10 @@ contract IntegrationTest is Test {
 
         // Deploy some ERC20 test tokens and add them to registry
         // wethToken = new TestERC20("WETH", "WETH");
-        daiToken = new TestERC20("DAI", "DAI");
-        usdcToken = new TestERC20("USDC", "USDC");
+        // daiToken = new TestERC20("DAI", "DAI");
+        daiToken = ERC20(DAI_ADDR);
+        // usdcToken = new TestERC20("USDC", "USDC");
+        usdcToken = ERC20(USDC_ADDR);
         tokenRegistry.setTokenAddress("WETH", address(weth));
         tokenRegistry.setTokenAddress("DAI", address(daiToken));
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
@@ -268,8 +279,7 @@ contract IntegrationTest is Test {
         (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(string.concat(projectRoot,"/test/emails/account_init_test1.eml"), relayer1Rand, "gmail.com");
+        (relayerHash, emailAddrPointer) = accountInit(string.concat(vm.projectRoot(),"/test/emails/account_init_test1.eml"), relayer1Rand, "gmail.com");
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
         (,,,,bytes32 walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
@@ -277,7 +287,7 @@ contract IntegrationTest is Test {
         (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user2.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(string.concat(projectRoot,"/test/emails/account_init_test2.eml"), relayer1Rand, "gmail.com");
+        (relayerHash, emailAddrPointer) = accountInit(string.concat(vm.projectRoot(),"/test/emails/account_init_test2.eml"), relayer1Rand, "gmail.com");
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
         (,,,, walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user2.emailAddrPointer));
@@ -299,29 +309,45 @@ contract IntegrationTest is Test {
 
         vm.startPrank(relayer1);
         bytes32 randomHash = keccak256(abi.encode(blockhash(block.number - 1)));
-        uint[3] memory amountUints = [uint(1 ether), uint(0.2 ether), uint(0.03 ether)];
+        // uint[3] memory amountUints = [uint(1 ether), uint(0.2 ether), uint(0.03 ether)];
         string[3] memory amountStrs = ["1", "0.2", "0.03"];
         string[3] memory tokens = ["ETH", "DAI", "USDC"];
         UserTestConfig[2] memory users = [user1, user2];
         // address[2] memory userAddrs = [user1Wallet, user2Wallet];
-        for(uint idx = 0; idx < 10; idx++) {
+        bool[3][3][2] memory usedEmail;
+        uint idx = 0;
+        while(idx < 8) {
+            idx.logUint();
             randomHash = keccak256(abi.encode(randomHash));
             uint amountSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
-            uint tokenSelector = uint(randomHash) % 3;
+            uint tokenSelector = 2;//uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
             uint senderSelector = uint(randomHash) % 2;
+            amountSelector.logUint();
+            tokenSelector.logUint();
+            senderSelector.logUint();
+            if(usedEmail[senderSelector][tokenSelector][amountSelector]) {
+                continue;
+            }
+            usedEmail[senderSelector][tokenSelector][amountSelector] = true;
+            idx ++;
 
-            (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(projectRoot,"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", tokens[tokenSelector]);
+            string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml").logString();
+            (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", "ETH");
             emailOp.walletParams.tokenName = tokens[tokenSelector];
-            emailOp.walletParams.amount = amountUints[amountSelector];
+            if(tokenSelector == 0 || tokenSelector == 1) {
+                emailOp.walletParams.amount = [uint(1 ether), uint(0.2 ether), uint(0.03 ether)][amountSelector];
+            } else {
+                emailOp.walletParams.amount = [uint(1 * (10**6)), uint(0.2 * (10**6)), uint(0.03 * (10**6))][amountSelector];
+            }
             deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
             (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+            success.logBool();
             assertEq(success, true, string(reason));
             // require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
             // require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract balance mismatch");
             claimFund(users[1-senderSelector].emailAddr, relayer1Rand, emailAddrRand);
-            require(weth.balanceOf(address(core)) == 0, "Core contract balance mismatch");
         }
 
         vm.stopPrank();

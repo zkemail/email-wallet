@@ -378,7 +378,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        {
+        {   
             AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
             address relayer = accountKeyInfo.relayer;
             bool initialized = accountKeyInfo.initialized;
@@ -408,10 +408,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         } else {
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
-
         (string memory maskedSubject, ) = _computeMaskedSubjectForEmailOp(emailOp);
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
-
         require(
             verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
@@ -448,7 +446,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         currContext.walletAddr = getWalletOfSalt(
             infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
         );
-
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -479,7 +476,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         uint256 consumedGas = initialGas - gasleft() + gasForRefund;
         totalFee += (consumedGas * emailOp.feePerGas);
 
-        address feeToken = _getTokenAddrFromName(emailOp.feeTokenName);
+        address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
         uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
         if (feeAmount > 0) {
             (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
@@ -939,6 +936,16 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         return extensionAddr;
     }
 
+    /// @notice Return the token address for a token name.
+    /// @param tokenName Name of the token
+    function getTokenAddrFromName(string memory tokenName) public view returns (address) {
+        if (Strings.equal(tokenName, "ETH")) {
+            return tokenRegistry.getTokenAddress("WETH");
+        }
+
+        return tokenRegistry.getTokenAddress(tokenName);
+    }
+
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
     /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
@@ -965,7 +972,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(_getTokenAddrFromName(emailOp.walletParams.tokenName));
+            ERC20 token = ERC20(getTokenAddrFromName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
@@ -1084,7 +1091,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (string, uint256)
                     );
-                    require(_getTokenAddrFromName(tokenName) != address(0), "token not supported");
+                    require(getTokenAddrFromName(tokenName) != address(0), "token not supported");
 
                     value = string.concat(DecimalUtils.uintToDecimalString(amount), " ", tokenName);
                     nextParamIndex++;
@@ -1169,7 +1176,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             // Token transfer for both external contract and email wallet
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
-            address tokenAddr = _getTokenAddrFromName(emailOp.walletParams.tokenName);
+            address tokenAddr = getTokenAddrFromName(emailOp.walletParams.tokenName);
 
             (success, returnData) = _transferERC20(currContext.walletAddr, recipient, tokenAddr, walletParams.amount);
 
@@ -1250,14 +1257,14 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
             for (uint8 i = 0; i < emailOp.extensionParams.subjectParams.length; i++) {
-                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), "{tokenAmount}")) {
+                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), TOKEN_AMOUNT_TEMPLATE)) {
                     (string memory tokenName, uint256 amount) = abi.decode(
                         emailOp.extensionParams.subjectParams[i],
                         (string, uint256)
                     );
 
                     currContext.tokenAllowances.push(
-                        TokenAllowance({tokenAddr: _getTokenAddrFromName(tokenName), amount: amount})
+                        TokenAllowance({tokenAddr: getTokenAddrFromName(tokenName), amount: amount})
                     );
                 }
             }
@@ -1351,14 +1358,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     function _transferETH(address recipient, uint256 amount) internal {
         (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
-    }
-
-    function _getTokenAddrFromName(string memory tokenName) internal view returns (address) {
-        if (Strings.equal(tokenName, "ETH")) {
-            return tokenRegistry.getTokenAddress("WETH");
-        }
-
-        return tokenRegistry.getTokenAddress(tokenName);
     }
 
     function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {

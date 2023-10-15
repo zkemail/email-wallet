@@ -38,7 +38,11 @@ abstract contract Extension {
     /// Claim an unclaimed state to recipient user
     /// @param unclaimedState Unclaimed state that is being claimed
     /// @param wallet Address of users wallet
-    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external virtual;
+    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external virtual {
+        unclaimedState;
+        wallet;
+        revert("Not implemented");
+    }
 
     /// Revert an expired inclaimed state
     /// @param unclaimedState Unclaimed state that is expired
