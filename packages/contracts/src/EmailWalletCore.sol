@@ -21,7 +21,6 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
-import "forge-std/console.sol";
 
 
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
@@ -33,7 +32,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant ADDRESS_TEMPLATE = "{address}";
     string public constant RECIPIENT_TEMPLATE = "{recipient}";
 
-    using console for *;
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -840,8 +838,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     }
 
     /// Register a new extension
-    /// @param addr Address of the extension contract
     /// @param name Name of the extension
+    /// @param addr Address of the extension contract
     /// @param subjectTemplates Subject templates for the extension
     /// @param maxExecutionGas Max gas allowed for the extension
     /// @dev First word of each subject template should be same and is called "command"; command should be one word
@@ -1259,16 +1257,32 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
-            for (uint8 i = 0; i < emailOp.extensionParams.subjectParams.length; i++) {
-                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), TOKEN_AMOUNT_TEMPLATE)) {
+            uint8 nextParamIndex = 0;
+            string[] memory subjectTemplate = subjectTemplatesOfExtension[extAddress][
+                emailOp.extensionParams.subjectTemplateIndex
+            ];
+            for (uint8 i = 0; i < subjectTemplate.length; i++) {
+                string memory matcher = string(subjectTemplate[i]);
+
+                if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
-                        emailOp.extensionParams.subjectParams[i],
+                        emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256,string)
                     );
-
                     currContext.tokenAllowances.push(
                         TokenAllowance({tokenAddr: getTokenAddrFromName(tokenName), amount: amount})
                     );
+                    nextParamIndex++;
+                }
+                else if (
+                    Strings.equal(matcher, AMOUNT_TEMPLATE) ||
+                    Strings.equal(matcher, STRING_TEMPLATE) ||
+                    Strings.equal(matcher, UINT_TEMPLATE) ||
+                    Strings.equal(matcher, INT_TEMPLATE) ||
+                    Strings.equal(matcher, ADDRESS_TEMPLATE) ||
+                    Strings.equal(matcher, RECIPIENT_TEMPLATE)
+                ) {
+                    nextParamIndex++;
                 }
             }
 

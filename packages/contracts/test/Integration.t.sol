@@ -19,6 +19,7 @@ import "../src/verifier/AccountTransportVerifier.sol";
 import "../src/verifier/ClaimVerifier.sol";
 import "../src/verifier/EmailSenderVerifier.sol";
 import "../src/verifier/Verifier.sol";
+import "./mocks/TestUniswapExtension.sol";
 
 contract IntegrationTest is Test {
     using Strings for *;
@@ -46,10 +47,12 @@ contract IntegrationTest is Test {
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
     WETH9 weth;
+    TestUniswapExtension uniswapExtension;
 
     // TestERC20 wethToken;
     ERC20 daiToken;
     ERC20 usdcToken;
+    
 
     address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
     address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
@@ -84,6 +87,8 @@ contract IntegrationTest is Test {
         accountKey: 0x1e2ead4231d73a3c85b1ff883f212d998c41cc9d2a8bac238f6d351ff2c57249,
         emailAddrPointer: bytes32(0)
     });
+
+    string[][] subjectTemplates;
     // bytes32 user1EmailAddrPointer = 0x1ff706660702f76a0daa706d68b15ea04fb6145fb5f4e54823ae80fa386e1b3f;
     // bytes32 user1AccountKeyCommit = 0x0136e61d55558414797fa9e8acccac39c52ef0b2c9b3fda0ef2d858a111333df;
     // bytes32 user1WalletSalt = 0x16dc3fd3780b524ba792b9e19ec9f7cbeb931912462a9b028cecfdff0eb29d28;
@@ -152,6 +157,14 @@ contract IntegrationTest is Test {
         vm.stopPrank();
         vm.startPrank(relayer2);
         core.registerRelayer(relayer2RandHash, "emailwallet.relayer2@gmail.com", "emailwallet2.com");
+        vm.stopPrank();
+
+        address extensionDev = vm.addr(3);
+        vm.startPrank(extensionDev);
+        uniswapExtension = new TestUniswapExtension(address(core), UNISWAP_V3_ROUTER);
+        uint256 maxExecutionGas = 10**6;
+        string[][] memory templates = _getUniswapSubjectTemplates();
+        core.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
         vm.stopPrank();
     }
 
@@ -309,14 +322,12 @@ contract IntegrationTest is Test {
 
         vm.startPrank(relayer1);
         bytes32 randomHash = keccak256(abi.encode(blockhash(block.number - 1)));
-        randomHash.logBytes32();
         string[3] memory amountStrs = ["1", "0.2", "0.03"];
         string[3] memory tokens = ["ETH", "DAI", "USDC"];
         UserTestConfig[2] memory users = [user1, user2];
         bool[3][3][2] memory usedEmail;
         uint idx = 0;
         while(idx < 8) {
-            idx.logUint();
             randomHash = keccak256(abi.encode(randomHash));
             uint amountSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
@@ -325,17 +336,12 @@ contract IntegrationTest is Test {
             uint senderSelector = uint(randomHash) % 2;
             randomHash = keccak256(abi.encode(randomHash));
             uint feeSelector = uint(randomHash) % 3;
-            amountSelector.logUint();
-            tokenSelector.logUint();
-            senderSelector.logUint();
-            feeSelector.logUint();
             if(usedEmail[senderSelector][tokenSelector][amountSelector]) {
                 continue;
             }
             usedEmail[senderSelector][tokenSelector][amountSelector] = true;
             idx ++;
 
-            string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml").logString();
             (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/random_test/",amountSelector.toString(),"_",tokens[tokenSelector],"_",senderSelector.toString(),"_",(1-senderSelector).toString(),".eml"), relayer1Rand, "Send", string.concat("Send ",amountStrs[amountSelector]," ",tokens[tokenSelector]," to "), "gmail.com", tokens[feeSelector]);
             emailOp.walletParams.tokenName = tokens[tokenSelector];
             if(tokenSelector == 0 || tokenSelector == 1) {
@@ -353,7 +359,7 @@ contract IntegrationTest is Test {
     }
 
     function testIntegration_Swap_Tokens() public {
-         vm.startPrank(relayer1);
+        vm.startPrank(relayer1);
         (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user1.emailAddrPointer = emailAddrPointer;
@@ -372,16 +378,81 @@ contract IntegrationTest is Test {
         vm.stopPrank();
 
         vm.startPrank(relayer1);
-        (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/uniswap_test1.eml"), relayer1Rand, "Swap", "Swap 0.2 ETH to DAI", "gmail.com", "ETH");
+        (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/install_uniswap.eml"), relayer1Rand, "Install", "Install extension Uniswap", "gmail.com", "ETH");
+        emailOp.extManagerParams = ExtensionManagerParams("Uniswap");
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        require(success, string(reason));
+        (emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/uniswap_test1.eml"), relayer1Rand, "Swap", "Swap 0.2 ETH to DAI", "gmail.com", "ETH");
         bytes[] memory extensionBytes = new bytes[](2);
         extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
         extensionBytes[1] = abi.encode("DAI");
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
-        deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+        uint preEthBalance = weth.balanceOf(user1Wallet);
+        uint preDaiBalance = daiToken.balanceOf(user1Wallet);
+        (success, reason) = core.handleEmailOp(emailOp);
         require(success, string(reason));
+        require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
+        require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+        
+        (emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/uniswap_test2.eml"), relayer1Rand, "Swap", "Swap 200 DAI to USDC", "gmail.com", "DAI");
+        extensionBytes = new bytes[](2);
+        extensionBytes[0] = abi.encode(uint256(200 ether), "DAI");
+        extensionBytes[1] = abi.encode("USDC");
+        emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        preDaiBalance = daiToken.balanceOf(user1Wallet);
+        uint preUsdcBalance = usdcToken.balanceOf(user1Wallet);
+        (success, reason) = core.handleEmailOp(emailOp);
+        require(success, string(reason));
+        require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
+        require(preUsdcBalance < usdcToken.balanceOf(user1Wallet), "USDC balance does not increase");
+
+        (emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/uniswap_test3.eml"), relayer1Rand, "Swap", "Swap 200 USDC to ETH", "gmail.com", "USDC");
+        extensionBytes = new bytes[](2);
+        extensionBytes[0] = abi.encode(uint256(200 * (10**6)), "USDC");
+        extensionBytes[1] = abi.encode("ETH");
+        emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        preUsdcBalance = usdcToken.balanceOf(user1Wallet);
+        preEthBalance = weth.balanceOf(user1Wallet);
+        (success, reason) = core.handleEmailOp(emailOp);
+        require(success, string(reason));
+        require(preUsdcBalance > usdcToken.balanceOf(user1Wallet), "USDC balance does not decrease");
+        require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
         vm.stopPrank();
     }
+
+    // function testIntegration_Deposit_Transfer_Withdraw() public {
+    //     vm.startPrank(relayer1);
+    //     (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(user1.emailAddr, relayer1Rand, user1.accountKey);
+    //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     user1.emailAddrPointer = emailAddrPointer;
+    //     (relayerHash, emailAddrPointer) = accountInit(string.concat(vm.projectRoot(),"/test/emails/account_init_test1.eml"), relayer1Rand, "gmail.com");
+    //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+    //     (,,,,bytes32 walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
+    //     address user1Wallet = core.getWalletOfSalt(walletSalt);
+    //     (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
+    //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     user2.emailAddrPointer = emailAddrPointer;
+    //     (relayerHash, emailAddrPointer) = accountInit(string.concat(vm.projectRoot(),"/test/emails/account_init_test2.eml"), relayer1Rand, "gmail.com");
+    //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
+    //     (,,,, walletSalt,) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user2.emailAddrPointer));
+    //     address user2Wallet = core.getWalletOfSalt(walletSalt);
+
+    //     vm.stopPrank();
+    //     address depositer = vm.addr(6);
+    //     vm.startPrank(depositer);
+    //     deal(depositer, 20 ether);
+    //     weth.deposit{value: 20 ether}();
+    //     deal(address(daiToken), depositer, 20*10000 ether);
+    //     deal(address(usdcToken), depositer, 20*10000*(10**6));
+    //     vm.stopPrank();
+
+    //     vm.startPrank(relayer1);
+    //     bytes32 randomHash = keccak256(abi.encode(blockhash(block.number - 1)));
+
+    //     vm.stopPrank();
+    // }
     
 
 
@@ -548,6 +619,13 @@ contract IntegrationTest is Test {
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         return proof;
+    }
+
+    function _getUniswapSubjectTemplates() internal returns (string[][] memory) {
+        delete subjectTemplates;
+        subjectTemplates = new string[][](1);
+        subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        return subjectTemplates;
     }
 
 }
