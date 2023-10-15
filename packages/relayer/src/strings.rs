@@ -21,3 +21,4 @@ pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";
 pub const IMAP_RECONNECT_ERROR: &str = "Failed to reconnect";
 pub const SMTP_RECONNECT_ERROR: &str = "Failed to reconnect";
 pub const CANNOT_GET_EMAIL_FROM_QUEUE: &str = "Cannot get email from mpsc in handle email task";
+pub const INVALID_EMAIL: &str = "Invalid email";

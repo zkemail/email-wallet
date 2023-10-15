@@ -71,25 +71,26 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 }
 
 async fn handle_email(email_and_status: EmailAndStatus, db: Arc<Database>) -> Result<()> {
-    // let EmailAndStatus { email, mut status } = email_and_status;
-    // let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
+    let EmailAndStatus { email, mut status } = email_and_status;
+    let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
 
-    // if let EmailStatus::Unchecked = status {
-    //     if is_valid(&parsed_email) {
-    //         status = EmailStatus::Checked;
-    //         email_and_status = EmailAndStatus::new(email, status);
-    //     } else {
-    //         bail!("abacaba");
-    //     }
-    // }
+    if let EmailStatus::Unchecked = status {
+        if is_valid(&parsed_email) {
+            status = EmailStatus::Checked;
+            db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
+                .await?;
+        } else {
+            bail!(INVALID_EMAIL);
+        }
+    }
 
-    // if let EmailStatus::Checked = status {
-    //     todo!()
-    // }
+    if let EmailStatus::Checked = status {
+        todo!()
+    }
 
-    // if let EmailStatus::Executed = status {
-    //     todo!()
-    // }
+    if let EmailStatus::Executed = status {
+        todo!()
+    }
 
     Ok(())
 }
