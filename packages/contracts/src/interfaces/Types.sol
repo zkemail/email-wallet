@@ -42,7 +42,7 @@ struct ExtensionManagerParams {
 
 struct ExtensionParams {
     uint8 subjectTemplateIndex; // Index of the extension subject template
-    bytes[] subjectParams; // Match params extracted from the subject in the same order; {tokenAmount} should be encoded as (string, uint256)
+    bytes[] subjectParams; // Match params extracted from the subject in the same order; {tokenAmount} should be encoded as (uint256,string)
 }
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)

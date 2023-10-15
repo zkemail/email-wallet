@@ -1067,11 +1067,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 string memory matcher = string(subjectTemplate[i]);
                 string memory value;
 
-                // {tokenAmount} is combination of tokenName and amount, encoded as (string, uint256). Eg: `30.23 DAI`
+                // {tokenAmount} is combination of tokenName and amount, encoded as (uint256,string). Eg: `30.23 DAI`
                 if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
-                    (string memory tokenName, uint256 amount) = abi.decode(
+                    (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[nextParamIndex],
-                        (string, uint256)
+                        (uint256,string)
                     );
                     require(_getTokenAddrFromName(tokenName) != address(0), "token not supported");
 
@@ -1240,9 +1240,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             // We are assuming one token appear only once
             for (uint8 i = 0; i < emailOp.extensionParams.subjectParams.length; i++) {
                 if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), "{tokenAmount}")) {
-                    (string memory tokenName, uint256 amount) = abi.decode(
+                    (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[i],
-                        (string, uint256)
+                        (uint256,string)
                     );
 
                     currContext.tokenAllowances.push(

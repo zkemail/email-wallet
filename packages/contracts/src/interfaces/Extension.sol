@@ -12,7 +12,7 @@ abstract contract Extension {
     /// @param recipientETHAddr The ETH address of the recipient in email (if any, and hasEmailRecipient = false)
     /// @param emailNullifier Nullifier of the email
     /// @dev Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` instead
-    /// @dev Decode {tokenAmount} in template as `abi.decode(string, uint256)` (`tokenName` and `tokenAmount`)
+    /// @dev Decode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)
     function execute(
         uint8 templateIndex,
         bytes[] memory subjectParams,
