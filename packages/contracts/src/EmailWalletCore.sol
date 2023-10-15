@@ -21,6 +21,8 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "forge-std/console.sol";
+
 
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
@@ -30,6 +32,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant INT_TEMPLATE = "{int}";
     string public constant ADDRESS_TEMPLATE = "{address}";
     string public constant RECIPIENT_TEMPLATE = "{recipient}";
+
+    using console for *;
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -377,7 +381,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        {
+        {   
             AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
             address relayer = accountKeyInfo.relayer;
             bool initialized = accountKeyInfo.initialized;
@@ -407,10 +411,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         } else {
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
-
         (string memory maskedSubject, ) = _computeMaskedSubjectForEmailOp(emailOp);
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
-
         require(
             verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
@@ -447,7 +449,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         currContext.walletAddr = getWalletOfSalt(
             infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
         );
-
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -465,10 +466,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
-            totalFee += unclaimedFundClaimGas * maxFeePerGas;
+            totalFee += (unclaimedFundClaimGas * maxFeePerGas);
         } else if (currContext.unclaimedStateRegistered) {
             require(msg.value == unclaimedStateClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed state");
-            totalFee += unclaimedStateClaimGas * maxFeePerGas;
+            totalFee += (unclaimedStateClaimGas * maxFeePerGas);
         } else {
             // Revert whatever was sent in case unclaimed fund/state registration didnt happen
             _transferETH(msg.sender, msg.value);
@@ -476,14 +477,18 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         uint256 gasForRefund = 50000; // Rough estimate of gas cost for refund operation below (ERC20 transfer)
         uint256 consumedGas = initialGas - gasleft() + gasForRefund;
-        totalFee += consumedGas * emailOp.feePerGas;
+        totalFee += (consumedGas * emailOp.feePerGas);
 
-        address feeToken = _getTokenAddrFromName(emailOp.feeTokenName);
-        uint256 feeAmount = totalFee / _getFeeConversionRate(emailOp.feeTokenName);
-
-        if (feeAmount > 0) {
-            _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
-        }
+        address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
+        uint rate = _getFeeConversionRate(emailOp.feeTokenName);
+        require(rate != 0, "invalid fee rate");
+        "fee".logString();
+        totalFee.logUint();
+        rate.logUint();
+        uint256 feeAmount = totalFee / rate;
+        feeAmount.logUint();
+        require(feeAmount != 0, "feeAmount must not be zero");
+        (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
@@ -802,7 +807,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 require(currContext.tokenAllowances[i].amount >= amount, "insufficient allowance");
                 currContext.tokenAllowances[i].amount -= amount;
 
-                _transferERC20(currContext.walletAddr, currContext.extensionAddr, tokenAddr, amount);
+                (bool success, bytes memory returnData) = _transferERC20(currContext.walletAddr, currContext.extensionAddr, tokenAddr, amount);
+                require(success, string.concat("request token failed: ", string(returnData)));
                 return;
             }
         }
@@ -863,6 +869,13 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             } else {
                 require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
             }
+            uint numRecipient = 0;
+            for (uint j = 1; j < subjectTemplates[i].length; j++) {
+                if (Strings.equal(subjectTemplates[i][j], RECIPIENT_TEMPLATE)) {
+                    numRecipient++;
+                }
+            }
+            require(numRecipient <= 1, "recipient template can only be used once"); 
         }
 
         // Check if command is only one word (no spaces)
@@ -928,6 +941,16 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         return extensionAddr;
     }
 
+    /// @notice Return the token address for a token name.
+    /// @param tokenName Name of the token
+    function getTokenAddrFromName(string memory tokenName) public view returns (address) {
+        if (Strings.equal(tokenName, "ETH")) {
+            return tokenRegistry.getTokenAddress("WETH");
+        }
+
+        return tokenRegistry.getTokenAddress(tokenName);
+    }
+
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
     /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
@@ -954,7 +977,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
             );
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(_getTokenAddrFromName(emailOp.walletParams.tokenName));
+            ERC20 token = ERC20(getTokenAddrFromName(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
@@ -963,7 +986,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             maskedSubject = string.concat(
                 Commands.SEND,
                 " ",
-                DecimalUtils.uintToDecimalString(walletParams.amount),
+                DecimalUtils.uintToDecimalString(walletParams.amount, token.decimals()),
                 " ",
                 walletParams.tokenName,
                 " to "
@@ -1073,9 +1096,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256,string)
                     );
-                    require(_getTokenAddrFromName(tokenName) != address(0), "token not supported");
-
-                    value = string.concat(DecimalUtils.uintToDecimalString(amount), " ", tokenName);
+                    address tokenAddr = getTokenAddrFromName(tokenName);
+                    require(tokenAddr != address(0), "token not supported");
+                    value = string.concat(DecimalUtils.uintToDecimalString(amount, ERC20(tokenAddr).decimals()), " ", tokenName);
                     nextParamIndex++;
                 }
                 // {amount} is number in wei format (decimal format in subject)
@@ -1158,7 +1181,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             // Token transfer for both external contract and email wallet
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
-            address tokenAddr = _getTokenAddrFromName(emailOp.walletParams.tokenName);
+            address tokenAddr = getTokenAddrFromName(emailOp.walletParams.tokenName);
 
             (success, returnData) = _transferERC20(currContext.walletAddr, recipient, tokenAddr, walletParams.amount);
 
@@ -1239,14 +1262,14 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
             for (uint8 i = 0; i < emailOp.extensionParams.subjectParams.length; i++) {
-                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), "{tokenAmount}")) {
+                if (Strings.equal(string(emailOp.extensionParams.subjectParams[i]), TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[i],
                         (uint256,string)
                     );
 
                     currContext.tokenAllowances.push(
-                        TokenAllowance({tokenAddr: _getTokenAddrFromName(tokenName), amount: amount})
+                        TokenAllowance({tokenAddr: getTokenAddrFromName(tokenName), amount: amount})
                     );
                 }
             }
@@ -1340,14 +1363,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     function _transferETH(address recipient, uint256 amount) internal {
         (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
-    }
-
-    function _getTokenAddrFromName(string memory tokenName) internal view returns (address) {
-        if (Strings.equal(tokenName, "ETH")) {
-            return tokenRegistry.getTokenAddress("WETH");
-        }
-
-        return tokenRegistry.getTokenAddress(tokenName);
     }
 
     function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {

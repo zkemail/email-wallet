@@ -60,7 +60,7 @@ contract TokenRegistry is Ownable {
         if (Strings.equal(tokenName, "USDC")) {
             if (chainId == 0) return 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
             if (chainId == 10) return 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
-            if (chainId == 42161) return 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
+            if (chainId == 42161) return 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;//0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
         }
 
         return addressOfTokenName[chainId][tokenName];

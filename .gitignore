@@ -22,6 +22,10 @@ packages/contracts/cache
 packages/contracts/out
 packages/contracts/artifacts
 packages/contracts/cache
+packages/contracts/test/build_integration/*.json
+packages/contracts/test/build_integration/*.zkey
+packages/contracts/test/build_integration/*.wasm
+packages/contracts/test/build_integration/*.txt
 
 # Relayer
 packages/relayer/sendgrid.env
