@@ -39,6 +39,8 @@ impl Database {
 
         res.setup_database().await?;
 
+        println!("Set up database");
+
         Ok(res)
     }
 
@@ -78,6 +80,8 @@ impl Database {
             vec.push(EmailAndStatus::new(email, status))
         }
 
+        println!("Got {} unhandled emails in db", vec.len());
+
         Ok(vec)
     }
 
@@ -90,6 +94,11 @@ impl Database {
         .bind(serde_json::to_string(&value.status)?)
         .execute(&self.db)
         .await?;
+
+        println!(
+            "Inserted email with status {}",
+            serde_json::to_string(&value.status)?
+        );
 
         Ok(())
     }
