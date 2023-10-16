@@ -89,7 +89,11 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertIf_ExecuteTargetIsToken() public {
-        bytes memory emailOpCalldata = abi.encode(address(daiToken), 0, abi.encodeWithSignature("transfer(uint256)", 1 ether));
+        bytes memory emailOpCalldata = abi.encode(
+            address(daiToken),
+            0,
+            abi.encodeWithSignature("transfer(uint256)", 1 ether)
+        );
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();

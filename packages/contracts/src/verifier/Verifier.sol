@@ -23,7 +23,6 @@ contract AllVerifiers is IVerifier {
     uint256 public constant SUBJECT_FIELDS = 17;
     uint256 public constant EMAIL_ADDR_BYTES = 256;
     uint256 public constant EMAIL_ADDR_FIELDS = 9;
-    
 
     constructor(
         address _accountCreationVerifier,
@@ -216,13 +215,13 @@ contract AllVerifiers is IVerifier {
             proof,
             (uint256[2], uint256[2][2], uint256[2])
         );
-        uint256[EMAIL_ADDR_FIELDS+2] memory pubSignals;
+        uint256[EMAIL_ADDR_FIELDS + 2] memory pubSignals;
         uint256[] memory emailAddrFields = _packBytes2Fields(bytes(emailAddr), EMAIL_ADDR_BYTES);
         for (uint256 i = 0; i < EMAIL_ADDR_FIELDS; i++) {
             pubSignals[i] = emailAddrFields[i];
         }
         pubSignals[EMAIL_ADDR_FIELDS] = uint256(emailAddrCommit);
-        pubSignals[EMAIL_ADDR_FIELDS+1] = uint256(rand);
+        pubSignals[EMAIL_ADDR_FIELDS + 1] = uint256(rand);
         return announcementVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 

@@ -559,7 +559,11 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         assertEq(daiToken.balanceOf(address(core)), 0, "core contract still have tokens");
         assertEq(daiToken.balanceOf(sender), 100 ether, "sender didnt receive tokens");
-        assertEq(voidUser.balance + sender.balance, unclaimedFundClaimGas * maxFeePerGas, "claim fee not returned correctly");
+        assertEq(
+            voidUser.balance + sender.balance,
+            unclaimedFundClaimGas * maxFeePerGas,
+            "claim fee not returned correctly"
+        );
 
         (, , , uint256 amt, ) = core.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
         assertEq(amt, 0, "unclaimed fund not cleared");

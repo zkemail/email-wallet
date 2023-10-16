@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 /// @title DecimalUtils
 /// @notice DecimalUtils library for converting uint256 to string with decimal places
 library DecimalUtils {
-     /// @notice Convert uint256 to human readable string with decimal places
+    /// @notice Convert uint256 to human readable string with decimal places
     /// @param amount uint256 amount to convert
     /// @return string representation of amount with decimal places
     function uintToDecimalString(uint256 amount) public pure returns (string memory) {
@@ -24,7 +24,7 @@ library DecimalUtils {
 
         // Create result array with max length
         // If less than 18 decimals, then 2 extra for "0.", otherwise one extra for "."
-        bytes memory result = new bytes(amountLength > decimal ? amountLength + 1 : decimal+2);
+        bytes memory result = new bytes(amountLength > decimal ? amountLength + 1 : decimal + 2);
         uint8 resultLength = uint8(result.length);
 
         // We will be populating result array by copying from amount array from last to first index

@@ -44,7 +44,7 @@ contract DecimalUtilsTest is Test {
         _checkDecimalString(3.490 ether, "3.49");
     }
 
-     function test_UintToDecimalString_NotDefault() public {
+    function test_UintToDecimalString_NotDefault() public {
         _checkDecimalString(1 * (10 ** 6), "1", 6);
         _checkDecimalString(10 * (10 ** 6), "10", 6);
         _checkDecimalString(200 * (10 ** 6), "200", 6);

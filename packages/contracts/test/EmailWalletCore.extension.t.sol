@@ -19,6 +19,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
     }
 
     string[][] _subjectTemplates;
+
     function _getSampleSubjectTemplates() internal returns (string[][] memory) {
         delete _subjectTemplates;
         _subjectTemplates = new string[][](2);

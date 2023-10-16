@@ -1261,8 +1261,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
             bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
             dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt] = emailOp.newDkimRegistry;
-            // infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry =
-            //     emailOp.newDkimRegistry;
             success = true;
         }
         // The command is for an extension

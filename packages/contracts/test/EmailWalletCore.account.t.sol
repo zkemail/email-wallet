@@ -18,8 +18,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(wallet.owner(), address(core), "wallet owner is not walletAddr");
 
         assertEq(core.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
-        (address akRelayer, bool initialized, bool akWalletSaltSet, bytes32 akWalletSalt) = core
-            .infoOfAccountKeyCommit(accountKeyCommit);
+        (address akRelayer, bool initialized, bool akWalletSaltSet, bytes32 akWalletSalt) = core.infoOfAccountKeyCommit(
+            accountKeyCommit
+        );
         assertEq(akWalletSalt, walletSalt);
         assertTrue(akWalletSaltSet);
         assertEq(akRelayer, relayer);
@@ -135,8 +136,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(akWalletSaltSet, bytes32(0));
         assertTrue(initializedOld); // old accountKeyCommit should still be initialized
         assertEq(core.accountKeyCommitOfPointer(newEmailAddrPointer), newAccountKeyCommit);
-        (address newAkRelayer, bool newAkInitialized, , bytes32 newAkWalletSaltSet ) = core
-            .infoOfAccountKeyCommit(newAccountKeyCommit);
+        (address newAkRelayer, bool newAkInitialized, , bytes32 newAkWalletSaltSet) = core.infoOfAccountKeyCommit(
+            newAccountKeyCommit
+        );
         assertEq(newAkRelayer, relayer2);
         assertEq(newAkWalletSaltSet, walletSalt); // should not change
         assertTrue(newAkInitialized);
