@@ -21,6 +21,7 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "forge-std/console.sol";
 
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
@@ -850,6 +851,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
     function executeAsExtension(address target, bytes memory data) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
+
+        console.log("target", target);
+        console.log("core", address(this));
+        console.log("wallet", currContext.walletAddr);
+        
         require(target != address(this), "target cannot be core");
         require(target != currContext.walletAddr, "target cannot be wallet");
 

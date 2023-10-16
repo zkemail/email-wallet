@@ -20,6 +20,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 100 ether);
+        usdcToken.freeMint(walletAddr, 50 ether); // for fee reimbursement
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
@@ -28,6 +29,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.hasEmailRecipient = true;
         emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
         vm.expectEmit();

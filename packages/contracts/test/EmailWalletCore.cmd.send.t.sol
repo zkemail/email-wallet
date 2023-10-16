@@ -150,11 +150,12 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
-        emailOp.walletParams.tokenName = "USDC";
+        emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 65.4 ether;
         emailOp.hasEmailRecipient = true;
         emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
         (bool success, ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);

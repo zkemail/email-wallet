@@ -2,6 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "./helpers/EmailWalletCoreTestHelper.sol";
+import {TestExtension} from "./mocks/TestExtension.sol";
 
 // Tests for extension publishing
 // Tests for installing and uninstalling extension are in EmailWalletCore.cmd.install.t.sol
@@ -10,20 +11,20 @@ import "./helpers/EmailWalletCoreTestHelper.sol";
 contract ExtensionTest is EmailWalletCoreTestHelper {
     Extension testExtension;
     address testExtensionAddr;
-    string[][] subjectTemplates;
 
     function setUp() public override {
         super.setUp();
-        testExtension = new TestExtension();
+        testExtension = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
         testExtensionAddr = address(testExtension);
     }
 
+    string[][] _subjectTemplates;
     function _getSampleSubjectTemplates() internal returns (string[][] memory) {
-        delete subjectTemplates;
-        subjectTemplates = new string[][](2);
-        subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
-        subjectTemplates[1] = ["Swap", "all", "{tokenAmount}", "to", "{string}"];
-        return subjectTemplates;
+        delete _subjectTemplates;
+        _subjectTemplates = new string[][](2);
+        _subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        _subjectTemplates[1] = ["Swap", "all", "{tokenAmount}", "to", "{string}"];
+        return _subjectTemplates;
     }
 
     function test_PublishExtension() public {
@@ -57,7 +58,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         string memory extensionName = "testSwap";
         string[][] memory subjectTemplates = _getSampleSubjectTemplates();
 
-        TestExtension testExtension2 = new TestExtension();
+        TestExtension testExtension2 = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
 
         vm.startPrank(extensionDev);
         core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);

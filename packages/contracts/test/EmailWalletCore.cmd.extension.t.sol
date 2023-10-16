@@ -3,13 +3,15 @@ pragma solidity ^0.8.12;
 
 import "./helpers/EmailWalletCoreTestHelper.sol";
 import "./mocks/TestNFTExtension.sol";
+import "./mocks/TestExtension.sol";
 
 // Testing extension functionality using TestNFTExtension
 contract ExtensionCommandTest is EmailWalletCoreTestHelper {
-    address testExtensionAddr;
-    TestNFTExtension ext;
+    TestExtension mockExtension;
+    TestNFTExtension nftExtension;
     DummyApes dummyApes;
-    string[][] public templates = new string[][](2);
+    string[][] public nftExtTemplates = new string[][](1);
+    string[][] public mockExtTemplates = new string[][](9);
 
     function setUp() public override {
         super.setUp();
@@ -17,16 +19,24 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
 
         // Publish and install extension
-        ext = new TestNFTExtension(address(core));
-        testExtensionAddr = address(ext);
-        dummyApes = DummyApes(ext.addressOfNFTName("APE"));
+        nftExtension = new TestNFTExtension(address(core));
+        dummyApes = DummyApes(nftExtension.addressOfNFTName("APE"));
+        nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
+        core.publishExtension("NFT Wallet", address(nftExtension), nftExtTemplates, 0.1 ether);
 
-        templates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-
+        mockExtension = new TestExtension(address(core), address(usdcToken), address(tokenRegistry));
+        mockExtTemplates[0] = ["Test", "Register Unclaimed State"];
+        mockExtTemplates[1] = ["Test", "Register Unclaimed State Twice"];
+        mockExtTemplates[2] = ["Test", "Register Empty Unclaimed State"];
+        mockExtTemplates[3] = ["Test", "Register Unclaimed State to", "{address}"];
+        mockExtTemplates[4] = ["Test", "Request Token", "{tokenAmount}"];
+        mockExtTemplates[5] = ["Test", "Request Token Twice", "{tokenAmount}"];
+        mockExtTemplates[6] = ["Test", "Deposit Token", "{tokenAmount}"];
+        mockExtTemplates[7] = ["Test", "Execute on", "{address}"];
         // A dummy template to test the subject matchers that are not above
-        // TestNFTExtension dont do anything with this template
-        templates[1] = [
-            "NFT",
+        // TestExtension has wont do anything with this template
+        mockExtTemplates[8] = [
+            "Test",
             "Sell for",
             "{tokenAmount}",
             "if",
@@ -38,8 +48,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
             "then send to",
             "{address}"
         ];
-
-        core.publishExtension("NFT Wallet", testExtensionAddr, templates, 0.1 ether);
+        core.publishExtension("TestExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
@@ -47,8 +56,15 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = "Install extension NFT Wallet";
         emailOp.emailNullifier = bytes32(uint256(93845));
 
+        EmailOp memory emailOpTestExt = _getBaseEmailOp();
+        emailOpTestExt.command = Commands.INSTALL_EXTENSION;
+        emailOpTestExt.extManagerParams.extensionName = "TestExtension";
+        emailOpTestExt.maskedSubject = "Install extension TestExtension";
+        emailOpTestExt.emailNullifier = bytes32(uint256(4234));
+
         vm.startPrank(relayer);
         core.handleEmailOp(emailOp);
+        core.handleEmailOp(emailOpTestExt);
         vm.stopPrank();
     }
 
@@ -85,6 +101,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = true;
         emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(55);
         emailOp.extensionParams.subjectParams[1] = abi.encode("APE");
@@ -94,6 +111,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
+        daiToken.freeMint(walletAddr, 100 ether); // for fee reimbursement
 
         vm.startPrank(relayer);
         core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
@@ -107,12 +125,12 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         address randomAddress = vm.addr(3);
 
         EmailOp memory emailOp = _getBaseEmailOp();
-        emailOp.command = "NFT";
+        emailOp.command = "Test";
         emailOp.maskedSubject = string.concat(
-            "NFT Sell for 23.2 DAI if 4.5 is between -5 and 10 then send to ",
+            "Test Sell for 23.2 DAI if 4.5 is between -5 and 10 then send to ",
             Strings.toHexString(uint160(randomAddress), 20)
         );
-        emailOp.extensionParams.subjectTemplateIndex = 1;
+        emailOp.extensionParams.subjectTemplateIndex = 8;
         emailOp.extensionParams.subjectParams = new bytes[](5);
         emailOp.extensionParams.subjectParams[0] = abi.encode(23.2 ether, "DAI"); // tokenAmount as (uint256,string)
         emailOp.extensionParams.subjectParams[1] = abi.encode(4.5 ether);
@@ -147,7 +165,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
         emailOp.maskedSubject = string.concat(
-            "NFT Sell for 23 DAI if 4.5 is between -5 and 10 then send to ",
+            "Test Sell for 23 DAI if 4.5 is between -5 and 10 then send to ",
             Strings.toHexString(uint160(randomAddress), 20)
         );
         emailOp.extensionParams.subjectTemplateIndex = 1;
@@ -168,9 +186,9 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         address randomAddress = vm.addr(3);
 
         EmailOp memory emailOp = _getBaseEmailOp();
-        emailOp.command = "NFT";
+        emailOp.command = "Test";
         emailOp.maskedSubject = string.concat(
-            "NFT Sell for 23 DAI if 4.5 is between -5 and 10 then send to ",
+            "Test Sell for 23 DAI if 4.5 is between -5 and 10 then send to ",
             Strings.toHexString(uint160(randomAddress), 20)
         );
         emailOp.extensionParams.subjectTemplateIndex = 1;
@@ -186,5 +204,130 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.expectRevert("invalid subject params length");
         core.handleEmailOp(emailOp);
         vm.stopPrank();
+    }
+
+    function test_RequestTokenAsExtension() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = "Test Request Token 25 USDC"; // This will trigger requestTokenAsExtension
+        emailOp.extensionParams.subjectTemplateIndex = 4;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(25 ether, "USDC");
+
+        usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension
+
+        vm.startPrank(relayer);
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, "handleEmailOp failed");
+        assertEq(usdcToken.balanceOf(walletAddr), 0, "USDC still with user");
+        assertEq(usdcToken.balanceOf(address(mockExtension)), 25 ether, "Extension didnt receive USDC");
+    }
+
+    function test_RevertIf_RequestTokenExceedAllowance() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = "Test Request Token Twice 25 USDC"; // This will trigger requestTokenAsExtention twice
+        emailOp.extensionParams.subjectTemplateIndex = 5;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(25 ether, "USDC");
+
+        usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension; ext will request for 25 twice
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, false, "handleEmailOp should have failed");
+        assertEq(string(reason), "insufficient allowance", "wrong revert reason");
+    }
+
+    function test_DepositTokenAsExtension() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = "Test Deposit Token 25 USDC"; // This will trigger depositTokenAsExtesion
+        emailOp.extensionParams.subjectTemplateIndex = 6;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(25 ether, "USDC");
+
+        vm.startPrank(address(mockExtension));
+        usdcToken.freeMint(25 ether); // For extenstion to deposit token
+        usdcToken.approve(address(core), 25 ether); // For core to take tokens from extension to wallet
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, string.concat("handleEmailOp failed: ", string(reason)));
+        assertEq(usdcToken.balanceOf(address(mockExtension)), 0, "Extension still has USDC");
+        assertEq(usdcToken.balanceOf(walletAddr), 25 ether, "User didnt receive USDC");
+        assertEq(usdcToken.balanceOf(address(core)), 0, "Core contract have USDC");
+    }
+
+    function test_ExecuteAsExtension() public {
+        address randomAddress = vm.addr(3); // since execute is on a EOA it wont revert
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(randomAddress), 20));
+        emailOp.extensionParams.subjectTemplateIndex = 7;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
+
+        vm.startPrank(relayer);
+        (bool success, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, "handleEmailOp failed");
+    }
+
+    function test_RevertIf_ExecuteAsExtension_TargetIsCore() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(address(core)), 20));
+        emailOp.extensionParams.subjectTemplateIndex = 7;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(address(core));
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+        
+        assertTrue(!success, "handleEmailOp should have failed");
+        assertEq(string(reason), "target cannot be core", "invalid reason");
+    }
+
+    function test_RevertIf_ExecuteAsExtension_TargetIsWallet() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(walletAddr), 20));
+        emailOp.extensionParams.subjectTemplateIndex = 7;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(walletAddr);
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+        
+        assertTrue(!success, "handleEmailOp should have failed");
+        assertEq(string(reason), "target cannot be wallet", "invalid reason");
+    }
+
+    function test_RevertIf_ExecuteAsExtension_TargetIsToken() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(address(usdcToken)), 20));
+        emailOp.extensionParams.subjectTemplateIndex = 7;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(address(usdcToken));
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+        
+        assertTrue(!success, "handleEmailOp should have failed");
+        assertEq(string(reason), "target cannot be a token", "invalid reason");
     }
 }
