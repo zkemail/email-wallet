@@ -310,4 +310,51 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
         assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
     }
+
+    function test_RelayerShouldGetGasReimbursement_EvenIfExecutionFails() public {
+        usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
+
+        // Calling an invalid function
+        bytes memory targetCalldata = abi.encodeWithSignature("invalid(uint256)", 90001);
+        bytes memory emailOpCalldata = abi.encode(address(this), 0, targetCalldata); // target = testRunner
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+
+        // Should not revert, but return false as this is not a validation error
+        vm.startPrank(relayer);
+        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(!success, "handleEmailOp succeded"); // Execution fails
+
+        uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
+
+        assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
+        assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
+    }
+
+    function test_RevertIf_RelayerGasReimbursementFails() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+
+        daiToken.freeMint(walletAddr, 150 ether);
+        usdcToken.freeMint(walletAddr, 100 wei); // This is not enough for gas reimbursement
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+        emailOp.feePerGas = maxFeePerGas;
+
+        vm.startPrank(relayer);
+        vm.expectRevert("fee reimbursement failed: ERC20: transfer amount exceeds balance");
+        core.handleEmailOp(emailOp);
+        vm.stopPrank();
+    }
 }
