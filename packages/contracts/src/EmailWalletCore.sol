@@ -1103,7 +1103,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                         (uint256, string)
                     );
                     address tokenAddr = getTokenAddrFromName(tokenName);
+
                     require(tokenAddr != address(0), "token not supported");
+                    // We are not validating token balance here, as tokenAmount might not be always for debiting from wallet
+
                     value = string.concat(
                         DecimalUtils.uintToDecimalString(amount, ERC20(tokenAddr).decimals()),
                         " ",
