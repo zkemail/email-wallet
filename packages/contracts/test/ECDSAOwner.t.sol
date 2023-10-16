@@ -12,7 +12,9 @@ contract ECDSAOwnerTest is Test {
     using console for *;
 
     function setUp() public {
+        vm.startPrank(0xb4c79daB8f259C7Aee6E5b2Aa729821864227e84);
         owner = new ECDSAOwner(0xD47297cD18b82685cae80442d74E46Fe66430cFB);
+        vm.stopPrank();
     }
 
     function test_SetDKIMPublicKeyHash() public {
