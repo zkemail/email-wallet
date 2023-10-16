@@ -2,9 +2,10 @@
 pragma solidity ^0.8.12;
 
 import "./helpers/EmailWalletCoreTestHelper.sol";
+import {TestExtension} from "./mocks/TestExtension.sol";
 
 contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
-    address testExtensionAddr;
+    address extensionAddr;
     string[][] tempaltes = new string[][](1);
     string extensionName = "TestSwap";
 
@@ -17,14 +18,14 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
     function _publishExtension() internal {
         address extensionDev = vm.addr(3);
 
-        Extension ext = new TestExtension();
-        testExtensionAddr = address(ext);
+        Extension ext = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
+        extensionAddr = address(ext);
 
         string[4] memory temp = ["Swap", "{tokenAmount}", "to", "{string}"];
         tempaltes[0] = temp;
 
         vm.startPrank(extensionDev);
-        core.publishExtension( extensionName, testExtensionAddr, tempaltes, 0.1 ether);
+        core.publishExtension(extensionName, extensionAddr, tempaltes, 0.1 ether);
         vm.stopPrank();
     }
 
@@ -39,11 +40,11 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extManagerParams.extensionName = extensionName;
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
-        assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), testExtensionAddr, "didnt install extension");
+        assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), extensionAddr, "didnt install extension");
     }
 
     function test_RevertIf_ExtensionNotRegistered() public {
@@ -96,6 +97,4 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         core.handleEmailOp(emailOpUninstall);
         vm.stopPrank();
     }
-
-
 }

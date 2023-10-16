@@ -764,7 +764,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         emit UnclaimedStateVoided(emailAddrCommit, us.sender);
     }
 
-    /// Registere unclaimed state from an extension
+    /// Register unclaimed state from an extension
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
@@ -775,7 +775,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         );
         require(currContext.unclaimedStateRegistered == false, "only one unclaimed state reg allowed");
         require(state.length > 0, "state cannot be empty");
-        require(extensionAddr != address(0), "invalid extension contract");
+        require(maxGasOfExtension[extensionAddr] != 0, "invalid extension contract");
 
         uint256 expiryTime = block.timestamp + unclaimsExpiryDuration;
 

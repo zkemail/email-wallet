@@ -146,9 +146,11 @@ contract TransferTest is EmailWalletCoreTestHelper {
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 100 ether);
 
+        usdcToken.freeMint(walletAddr, 100 ether); // for gas reimbursemt of unclaimed funds
+
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
-        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.tokenName = "USDC";
         emailOp.walletParams.amount = 65.4 ether;
         emailOp.hasEmailRecipient = true;
         emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;

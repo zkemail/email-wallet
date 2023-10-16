@@ -12,7 +12,6 @@ import {TokenRegistry} from "../../src/utils/TokenRegistry.sol";
 import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
 import {TestVerifier} from "../mocks/TestVerifier.sol";
 import {TestERC20} from "../mocks/TestERC20.sol";
-import {TestExtension} from "../mocks/TestExtension.sol";
 import {TestOracle} from "../mocks/TestOracle.sol";
 import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";

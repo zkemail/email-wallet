@@ -33,6 +33,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         DummyApes dummyApes = new DummyApes();
         addressOfNFTName["APE"] = address(dummyApes);
 
+        // Only one command - just for reference
         templates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
     }
 
@@ -49,9 +50,7 @@ contract TestNFTExtension is Extension, IERC721Receiver {
         address recipientETHAddr,
         bytes32
     ) external override onlyCore {
-        if (templateIndex != 0) {
-            return; // Just to support testing with unsupported subjects
-        }
+        require(templateIndex == 0, "invalid templateIndex");
 
         uint256 tokenId = abi.decode(subjectParams[0], (uint256));
         string memory nftName = abi.decode(subjectParams[1], (string));
