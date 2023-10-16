@@ -199,7 +199,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         bytes memory proof
     ) public returns (Wallet wallet) {
         bool initialized = infoOfAccountKeyCommit[accountKeyCommit].initialized;
-        bool nullified = infoOfAccountKeyCommit[accountKeyCommit].nullified;
         bool walletSaltSet = infoOfAccountKeyCommit[accountKeyCommit].walletSaltSet;
 
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
@@ -207,7 +206,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(!walletSaltSet, "walletSalt exists");
         require(!initialized, "account is initialized");
-        require(!nullified, "account is nullified");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
 
         require(
@@ -254,7 +252,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommit != bytes32(0), "account not registered");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
-        require(infoOfAccountKeyCommit[accountKeyCommit].nullified == false, "account is nullified");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
         DKIMRegistry dkimRegistry = DKIMRegistry(dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]);
@@ -304,7 +301,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(oldAccountKeyInfo.relayer != address(0), "old relayer not registered");
         require(oldAccountKeyInfo.relayer != msg.sender, "new relayer cannot be same");
         require(oldAccountKeyInfo.initialized, "account not initialized");
-        require(!oldAccountKeyInfo.nullified, "account is nullified");
         require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullifier already used");
 
@@ -317,7 +313,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             );
         } else {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
-            require(!infoOfAccountKeyCommit[newAccountKeyCommit].nullified, "new account is already nullified");
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "walletSalt already exists");
             require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         }
@@ -361,14 +356,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet = true;
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
-        infoOfAccountKeyCommit[newAccountKeyCommit].nullified = false;
-        // infoOfAccountKeyCommit[newAccountKeyCommit].dkimRegistry = oldAccountKeyInfo.dkimRegistry;
 
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSaltSet = false;
-        infoOfAccountKeyCommit[oldAccountKeyCommit].nullified = true;
-        // infoOfAccountKeyCommit[oldAccountKeyCommit].dkimRegistry = address(0);
-        infoOfAccountKeyCommit[oldAccountKeyCommit].initialized = false;
 
         emit AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
     }
@@ -387,11 +377,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
             address relayer = accountKeyInfo.relayer;
             bool initialized = accountKeyInfo.initialized;
-            bool nullified = accountKeyInfo.nullified;
             bool walletSaltSet = accountKeyInfo.walletSaltSet;
             require(relayer == msg.sender, "invalid relayer");
             require(initialized, "account not initialized");
-            require(!nullified, "account is nullified");
             require(walletSaltSet, "wallet salt not set");
         }
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
@@ -555,7 +543,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
         require(accountKeyCommitOfPointer[recipientEmailAddrPointer] != bytes32(0), "invalid account key commit.");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized, "account not initialized");
-        require(!infoOfAccountKeyCommit[accountKeyCommit].nullified, "account is nullified");
         require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt != bytes32(0), "invalid wallet salt");
 
         require(
@@ -685,7 +672,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(us.expiryTime > block.timestamp, "unclaimed state expired");
         require(accountKeyCommit != bytes32(0), "invalid account key commit.");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized, "account not initialized");
-        require(!infoOfAccountKeyCommit[accountKeyCommit].nullified, "account is nullified");
         require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt != bytes32(0), "invalid wallet salt");
 
         require(
