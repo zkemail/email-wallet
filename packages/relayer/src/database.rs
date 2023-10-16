@@ -120,7 +120,7 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn get_viewing_key(&self, email_address: &str) -> Result<Option<User>> {
+    pub(crate) async fn get_user(&self, email_address: &str) -> Result<Option<User>> {
         let row_result = sqlx::query("SELECT viewing_key FROM users WHERE email_address = ?")
             .bind(email_address)
             .fetch_one(&self.db)
