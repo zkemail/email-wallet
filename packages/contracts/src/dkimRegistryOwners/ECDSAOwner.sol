@@ -26,7 +26,7 @@ contract ECDSAOwner {
         uint256 publicKeyHash,
         bytes memory signature
     ) public {
-        string memory tag = string.concat(address(this).toHexString(), nonce.toHexString());
+        string memory tag = string.concat(address(this).toHexString(), nonce.toHexString(32));
         string memory expectedMsg = string.concat(
             "chain_id=",
             block.chainid.toString(),
