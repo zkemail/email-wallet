@@ -26,8 +26,8 @@ pub(crate) enum EmailStatus {
 }
 
 pub(crate) struct User {
-    pub(crate) viewing_key: String,
     pub(crate) email_address: String,
+    pub(crate) viewing_key: String,
 }
 
 pub(crate) struct Database {
@@ -43,8 +43,6 @@ impl Database {
         };
 
         res.setup_database().await?;
-
-        println!("Set up database");
 
         Ok(res)
     }
@@ -85,8 +83,6 @@ impl Database {
             vec.push(EmailAndStatus::new(email, status))
         }
 
-        println!("Got {} unhandled emails in db", vec.len());
-
         Ok(vec)
     }
 
@@ -99,11 +95,6 @@ impl Database {
         .bind(serde_json::to_string(&value.status)?)
         .execute(&self.db)
         .await?;
-
-        println!(
-            "Inserted email with status {}",
-            serde_json::to_string(&value.status)?
-        );
 
         Ok(())
     }
@@ -120,6 +111,31 @@ impl Database {
     }
 
     pub(crate) async fn insert_user(&self, user: User) -> Result<()> {
+        sqlx::query("INSERT INTO users (email_address, viewing_key) VALUES (?, ?)")
+            .bind(&user.email_address)
+            .bind(&user.viewing_key)
+            .execute(&self.db)
+            .await?;
+
         Ok(())
+    }
+
+    pub(crate) async fn get_viewing_key(&self, email_address: &str) -> Result<Option<User>> {
+        let row_result = sqlx::query("SELECT viewing_key FROM users WHERE email_address = ?")
+            .bind(email_address)
+            .fetch_one(&self.db)
+            .await;
+
+        match row_result {
+            Ok(row) => {
+                let viewing_key: String = row.get("viewing_key");
+                Ok(Some(User {
+                    email_address: email_address.to_string(),
+                    viewing_key,
+                }))
+            }
+            Err(sqlx::error::Error::RowNotFound) => Ok(None),
+            Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,
+        }
     }
 }

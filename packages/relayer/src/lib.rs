@@ -45,8 +45,6 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                                 EmailAndStatus::new(body, EmailStatus::Unchecked);
                             db_clone_receiver.insert_email(&email_and_status).await?;
                             tx.send(email_and_status)?;
-                        } else {
-                            println!("There's such email already");
                         }
                     }
                 }
@@ -76,23 +74,32 @@ async fn handle_email(email_and_status: EmailAndStatus, db: Arc<Database>) -> Re
     let EmailAndStatus { email, mut status } = email_and_status;
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
 
+    let viewing_key;
     if let EmailStatus::Unchecked = status {
-        if is_valid(&parsed_email) {
-            status = EmailStatus::Checked;
-            db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
-                .await?;
-        } else {
-            bail!(INVALID_EMAIL);
-        }
+        let from_address = parsed_email.get_from_addr()?;
+        viewing_key = match db.get_viewing_key(&from_address).await? {
+            Some(viewing_key) => viewing_key,
+            None => bail!("SEND SMTP THAT RELAYER DOESN'T KNOW ABOUT THIS SENDER"),
+        };
+
+        status = EmailStatus::Checked;
+        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
+            .await?;
     }
 
     if let EmailStatus::Checked = status {
-        is_valid(&parsed_email);
-        println!("When status checked");
+        // Execute everything: input gen, talk with coordinator
+        // local emulation, sending to chain
+        status = EmailStatus::Executed;
+        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
+            .await?;
     }
 
     if let EmailStatus::Executed = status {
-        println!("When status executed");
+        // SEND mail that everything's fine
+        status = EmailStatus::Finalized;
+        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
+            .await?;
     }
 
     Ok(())
