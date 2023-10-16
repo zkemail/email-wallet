@@ -106,7 +106,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -128,7 +128,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -158,7 +158,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -188,7 +188,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, string(reason));

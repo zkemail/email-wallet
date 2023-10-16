@@ -34,7 +34,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         mockExtTemplates[6] = ["Test", "Deposit Token", "{tokenAmount}"];
         mockExtTemplates[7] = ["Test", "Execute on", "{address}"];
         // A dummy template to test the subject matchers that are not above
-        // TestExtension has wont do anything with this template
+        // mockExtension has wont do anything with this template
         mockExtTemplates[8] = [
             "Test",
             "Sell for",
@@ -48,7 +48,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
             "then send to",
             "{address}"
         ];
-        core.publishExtension("TestExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
+        core.publishExtension("mockExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
@@ -58,8 +58,8 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOpTestExt = _getBaseEmailOp();
         emailOpTestExt.command = Commands.INSTALL_EXTENSION;
-        emailOpTestExt.extManagerParams.extensionName = "TestExtension";
-        emailOpTestExt.maskedSubject = "Install extension TestExtension";
+        emailOpTestExt.extManagerParams.extensionName = "mockExtension";
+        emailOpTestExt.maskedSubject = "Install extension mockExtension";
         emailOpTestExt.emailNullifier = bytes32(uint256(4234));
 
         vm.startPrank(relayer);
@@ -217,7 +217,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -236,11 +236,32 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension; ext will request for 25 twice
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp should have failed");
         assertEq(string(reason), "insufficient allowance", "wrong revert reason");
+    }
+
+    function test_RevertIf_RequestTokenWithoutEmailOp() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = "Test Request Token 25 USDC"; // This will trigger requestTokenAsExtension
+        emailOp.extensionParams.subjectTemplateIndex = 4;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(25 ether, "USDC");
+
+        usdcToken.freeMint(walletAddr, 26 ether);
+
+        vm.startPrank(relayer);
+        core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        // Call requestTokenAsExtension directly should fail. i.e context should be cleared
+        vm.startPrank(address(mockExtension));
+        vm.expectRevert("caller not extension in context");
+        core.requestTokenAsExtension(address(usdcToken), 1 ether);
+        vm.stopPrank();
     }
 
     function test_DepositTokenAsExtension() public {
@@ -257,13 +278,37 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, string.concat("handleEmailOp failed: ", string(reason)));
         assertEq(usdcToken.balanceOf(address(mockExtension)), 0, "Extension still has USDC");
         assertEq(usdcToken.balanceOf(walletAddr), 25 ether, "User didnt receive USDC");
         assertEq(usdcToken.balanceOf(address(core)), 0, "Core contract have USDC");
+    }
+
+    function test_RevertIf_DepositTokenWithoutEmailOp() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = "Test Deposit Token 25 USDC"; // This will trigger depositTokenAsExtesion
+        emailOp.extensionParams.subjectTemplateIndex = 6;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(25 ether, "USDC");
+
+        vm.startPrank(address(mockExtension));
+        usdcToken.freeMint(27 ether); // For extenstion to deposit token
+        usdcToken.approve(address(core), 26 ether); // For core to take tokens from extension to wallet
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        (bool success, , ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        // Call depositTokenAsExtension directly should fail. i.e context should be cleared
+        vm.startPrank(address(mockExtension));
+        vm.expectRevert("caller not extension in context");
+        core.depositTokenAsExtension(address(usdcToken), 1 ether);
+        vm.stopPrank();
     }
 
     function test_ExecuteAsExtension() public {
@@ -277,7 +322,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -292,9 +337,9 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(core));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
-        
+
         assertTrue(!success, "handleEmailOp should have failed");
         assertEq(string(reason), "target cannot be core", "invalid reason");
     }
@@ -308,9 +353,9 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(walletAddr);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
-        
+
         assertTrue(!success, "handleEmailOp should have failed");
         assertEq(string(reason), "target cannot be wallet", "invalid reason");
     }
@@ -324,10 +369,32 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(usdcToken));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
-        
+
         assertTrue(!success, "handleEmailOp should have failed");
         assertEq(string(reason), "target cannot be a token", "invalid reason");
+    }
+
+    // Testing extension cannot execute when not part of an emailOp
+    function test_RevertIf_ExecuteAsExtension_WithoutEmailOp() public {
+        address randomAddress = vm.addr(3);
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(randomAddress), 20));
+        emailOp.extensionParams.subjectTemplateIndex = 7;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
+
+        vm.startPrank(relayer);
+        core.handleEmailOp(emailOp); // This will succeed
+        vm.stopPrank();
+
+        // Call executeAsExtension directly should fail. i.e context should be cleared
+        vm.startPrank(address(mockExtension));
+        vm.expectRevert("caller not extension in context");
+        core.executeAsExtension(randomAddress, "");
+        vm.stopPrank();
     }
 }

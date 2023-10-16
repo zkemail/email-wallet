@@ -36,10 +36,10 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
 
     bytes mockProof = abi.encodePacked(bytes1(0x01));
 
-    uint256 maxFeePerGas = 10;
+    uint256 maxFeePerGas = 5 gwei;
     uint256 emailValidityDuration = 1 hours;
-    uint256 unclaimedFundClaimGas = 0.0002 ether;
-    uint256 unclaimedStateClaimGas = 0.0002 ether;
+    uint256 unclaimedFundClaimGas = 100000;
+    uint256 unclaimedStateClaimGas = 200000;
     uint256 unclaimedFundExpirationDuration = 30 days;
 
     // Relayer details

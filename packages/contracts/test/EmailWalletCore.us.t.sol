@@ -84,7 +84,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0, // dont announce randomness and email
             ""
         );
-        (bool success, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         (bytes32 emailAddrCommit, address extensionAddr, address sender, bytes memory state, uint256 expiryTime) = core
@@ -100,7 +100,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
     function test_RegisterUnclaimedState_ToAnotherExtension_FromEmailOp() public {
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        
+
         // We will deploy same TestExtension as another extension
         // Dummy subject templates used, as we only care about registerUnclaimedState method (which wont revert)
         TestExtension anotherExtension = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
@@ -126,7 +126,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+            emailOp
+        );
         vm.stopPrank();
 
         (bytes32 emailAddrCommit, address extensionAddr, , bytes memory state, ) = core.unclaimedStateOfEmailAddrCommit(
@@ -157,7 +159,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, unclaimedStateClaimGas * maxFeePerGas); // For fee reibursement
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+            emailOp
+        );
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp should fail");
@@ -239,7 +243,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+            emailOp
+        );
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp didnt fail");
@@ -261,7 +267,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+            emailOp
+        );
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp didnt fail");
@@ -402,7 +410,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-     function test_RevertIf_RegisterEmptyUnclaimedState_External() public {
+    function test_RevertIf_RegisterEmptyUnclaimedState_External() public {
         address sender = vm.addr(5);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 

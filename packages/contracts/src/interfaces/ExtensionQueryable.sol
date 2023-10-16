@@ -25,5 +25,4 @@ abstract contract ExtensionQueryable is Extension {
         address recipientETHAddr,
         bytes32 emailNullifier
     ) external view virtual;
-
 }

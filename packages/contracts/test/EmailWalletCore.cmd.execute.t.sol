@@ -32,7 +32,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
@@ -52,7 +52,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp succeded");
@@ -89,7 +89,11 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertIf_ExecuteTargetIsToken() public {
-        bytes memory emailOpCalldata = abi.encode(address(daiToken), 0, abi.encodeWithSignature("transfer(uint256)", 1 ether));
+        bytes memory emailOpCalldata = abi.encode(
+            address(daiToken),
+            0,
+            abi.encodeWithSignature("transfer(uint256)", 1 ether)
+        );
         string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();

@@ -41,7 +41,7 @@ contract TestExtension is Extension {
         // templates[6] = ["Test", "Deposit Token", "{tokenAmount}"];
         // templates[7] = ["Test", "Execute on", "{address}"];
 
-        // Register 
+        // Register
         if (templateIndex == 0) {
             core.registerUnclaimedStateAsExtension(address(this), abi.encode("test"));
         }
@@ -68,7 +68,7 @@ contract TestExtension is Extension {
         if (templateIndex == 4) {
             (uint256 amount, string memory tokenName) = abi.decode(subjectParams[0], (uint256, string));
             address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
-            
+
             core.requestTokenAsExtension(tokenAddr, amount);
         }
 
@@ -76,7 +76,7 @@ contract TestExtension is Extension {
         if (templateIndex == 5) {
             (uint256 amount, string memory tokenName) = abi.decode(subjectParams[0], (uint256, string));
             address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
-            
+
             core.requestTokenAsExtension(tokenAddr, amount);
             core.requestTokenAsExtension(tokenAddr, amount);
         }
@@ -85,7 +85,7 @@ contract TestExtension is Extension {
         if (templateIndex == 6) {
             (uint256 amount, string memory tokenName) = abi.decode(subjectParams[0], (uint256, string));
             address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
-            
+
             core.depositTokenAsExtension(tokenAddr, amount);
         }
 
@@ -96,20 +96,17 @@ contract TestExtension is Extension {
         }
     }
 
-    function registerUnclaimedState(
-        UnclaimedState memory unclaimedState,
-        bool isInternal
-    ) public override pure {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool isInternal) public pure override {
         unclaimedState;
         isInternal;
     }
 
-    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external override pure {
+    function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external pure override {
         unclaimedState;
         wallet;
     }
 
-    function voidUnclaimedState(UnclaimedState memory unclaimedState) external override pure {
+    function voidUnclaimedState(UnclaimedState memory unclaimedState) external pure override {
         unclaimedState;
     }
 }

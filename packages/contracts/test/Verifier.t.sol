@@ -237,5 +237,4 @@ contract VerifierTest is Test {
             "Claim fund proof verification failed"
         );
     }
-
 }

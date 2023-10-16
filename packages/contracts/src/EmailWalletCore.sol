@@ -21,7 +21,6 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
-import "forge-std/console.sol";
 
 contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
@@ -31,7 +30,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     string public constant INT_TEMPLATE = "{int}";
     string public constant ADDRESS_TEMPLATE = "{address}";
     string public constant RECIPIENT_TEMPLATE = "{recipient}";
-
 
     // ZK proof verifier
     IVerifier public immutable verifier;
@@ -99,7 +97,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     // Mapping of emailAddrCommit to unclaimed state
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
 
-    // Max fee per gas in ETH that relayer can set in a UserOp
+    // Max fee per gas in wei that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
     // Time period until which a email is valid for EmailOp based on the timestamp of the email signature
@@ -254,7 +252,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
-        DKIMRegistry dkimRegistry = DKIMRegistry(dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]);
+        DKIMRegistry dkimRegistry = DKIMRegistry(
+            dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]
+        );
 
         require(
             verifier.verifyAccountInitializaionProof(
@@ -306,12 +306,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         // New relayer might have already created an account, but not initialized.
         bytes32 existingAccountKeyOfNewPointer = accountKeyCommitOfPointer[newEmailAddrPointer];
-        if (existingAccountKeyOfNewPointer != bytes32(0)) {
-            require(
-                !infoOfAccountKeyCommit[existingAccountKeyOfNewPointer].initialized,
-                "existing account key is initialized"
-            );
-        } else {
+        if (existingAccountKeyOfNewPointer == bytes32(0)) {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "walletSalt already exists");
             require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
@@ -332,7 +327,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(
             verifier.verifyAccountTransportProof(
                 transportEmailProof.domain,
-                bytes32(DKIMRegistry(dkimRegistryOfWalletSalt[oldAccountKeyInfo.walletSalt]).getDKIMPublicKeyHash(transportEmailProof.domain)),
+                bytes32(
+                    DKIMRegistry(dkimRegistryOfWalletSalt[oldAccountKeyInfo.walletSalt]).getDKIMPublicKeyHash(
+                        transportEmailProof.domain
+                    )
+                ),
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
                 relayers[oldAccountKeyInfo.relayer].randHash,
@@ -367,7 +366,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
-        DKIMRegistry dkimRegistry = DKIMRegistry(dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]);
+        DKIMRegistry dkimRegistry = DKIMRegistry(
+            dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]
+        );
         bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
 
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
@@ -422,62 +423,63 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     /// @notice Handle an EmailOp - the main function relayer should call for each Email
     /// @param emailOp EmailOp to be executed
+    /// @return success Whether the execution was successful
+    /// @return err Error message if execution failed (execution failures will not revert)
+    /// @return totalFeeInETH Total fee in ETH that should be reimbursed to the relayer
     /// @dev ETH for unclaimed fund/state registration should be send if the recipient is an email address
     /// @dev Relayer should make sure user has enough tokens to pay for the fee. This can be calculated as
     /// @dev ~ verificationGas(fixed) + executionGas(extension.maxGas if extension) + feeForReimbursement(50k) + msg.value
     function handleEmailOp(
         EmailOp calldata emailOp
-    ) public payable nonReentrant returns (bool success, bytes memory returnData) {
+    ) public payable nonReentrant returns (bool success, bytes memory err, uint256 totalFeeInETH) {
         uint256 initialGas = gasleft();
 
-        // Reset context
-        currContext.extensionAddr = address(0);
-        currContext.unclaimedFundRegistered = false;
-        currContext.unclaimedStateRegistered = false;
-        delete currContext.tokenAllowances;
+        // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = getWalletOfSalt(
             infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
         );
+
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
         emailNullifiers[emailOp.emailNullifier] = true;
 
         // Execute EmailOp - wont revert on failure. Relayer will be compensated for gas even in failure.
-        (success, returnData) = _executeEmailOp(emailOp);
-
-        uint totalFee; // Total fee in ETH to be paid to relayer
+        (success, err) = _executeEmailOp(emailOp);
 
         require(
             !(currContext.unclaimedFundRegistered && currContext.unclaimedStateRegistered),
             "cannot register both unclaimed fund and state"
         );
 
-
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
-            totalFee += (unclaimedFundClaimGas * maxFeePerGas);
+            totalFeeInETH += (unclaimedFundClaimGas * maxFeePerGas);
         } else if (currContext.unclaimedStateRegistered) {
             require(msg.value == unclaimedStateClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed state");
-            totalFee += (unclaimedStateClaimGas * maxFeePerGas);
+            totalFeeInETH += (unclaimedStateClaimGas * maxFeePerGas);
         } else {
             // Revert whatever was sent in case unclaimed fund/state registration didnt happen
             _transferETH(msg.sender, msg.value);
         }
 
+        // Reset context
+        currContext.extensionAddr = address(0);
+        currContext.unclaimedFundRegistered = false;
+        currContext.unclaimedStateRegistered = false;
+        delete currContext.tokenAllowances;
+
         uint256 gasForRefund = 50000; // Rough estimate of gas cost for refund operation below (ERC20 transfer)
-        uint256 consumedGas = initialGas - gasleft() + gasForRefund;
-        totalFee += (consumedGas * emailOp.feePerGas);
-
-        address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
+        uint256 totalGas = initialGas - gasleft() + gasForRefund;
+        totalFeeInETH += (totalGas * emailOp.feePerGas);
         uint256 rate = _getFeeConversionRate(emailOp.feeTokenName);
-        uint256 feeAmount = (totalFee * rate) / (10 ** 18);
+        uint256 feeAmountInToken = (totalFeeInETH * rate) / (10 ** 18);
 
-
-        if (feeAmount > 0) {
-            (success, returnData) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmount);
-            require(success, string.concat("fee reimbursement failed: ", string(returnData)));
+        if (feeAmountInToken > 0) {
+            address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
+            (success, err) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmountInToken);
+            require(success, string.concat("fee reimbursement failed: ", string(err)));
         }
     }
 
@@ -631,8 +633,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us, false) {
-        } catch Error(string memory reason) {
+        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
@@ -755,7 +756,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
         require(
             unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit].sender == address(0),
             "unclaimed state exists"
@@ -800,7 +801,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param tokenAddr Address of the ERC20 token requested
     /// @param amount Amount requested
     function requestTokenAsExtension(address tokenAddr, uint256 amount) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
 
         for (uint256 i = 0; i < currContext.tokenAllowances.length; i++) {
             if (currContext.tokenAllowances[i].tokenAddr == tokenAddr) {
@@ -826,7 +827,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param amount Amount to be deposited
     /// @dev Extension should add allowance to Core contract before calling this function
     function depositTokenAsExtension(address tokenAddr, uint256 amount) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
 
         IERC20(tokenAddr).transferFrom(msg.sender, currContext.walletAddr, amount);
     }
@@ -836,12 +837,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param data Calldata to be executed on the target contract
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
     function executeAsExtension(address target, bytes memory data) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
-
-        console.log("target", target);
-        console.log("core", address(this));
-        console.log("wallet", currContext.walletAddr);
-        
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
         require(target != address(this), "target cannot be core");
         require(target != currContext.walletAddr, "target cannot be wallet");
 
@@ -1265,8 +1261,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
             bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
             dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt] = emailOp.newDkimRegistry;
-            // infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].dkimRegistry =
-            //     emailOp.newDkimRegistry;
             success = true;
         }
         // The command is for an extension
@@ -1292,8 +1286,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                         TokenAllowance({tokenAddr: getTokenAddrFromName(tokenName), amount: amount})
                     );
                     nextParamIndex++;
-                }
-                else if (
+                } else if (
                     Strings.equal(matcher, AMOUNT_TEMPLATE) ||
                     Strings.equal(matcher, STRING_TEMPLATE) ||
                     Strings.equal(matcher, UINT_TEMPLATE) ||
@@ -1396,6 +1389,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(sent, "failed to transfer ETH");
     }
 
+    /// @notice Return the conversion rate for a token. i.e returns how many tokens 1 ETH could buy in wei format
+    /// @param tokenName Name of the token
+    /// @return Conversion rate in wei format
     function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {
         if (Strings.equal(tokenName, "ETH") || Strings.equal(tokenName, "WETH")) {
             return 1 ether;
