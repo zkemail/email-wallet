@@ -15,6 +15,7 @@ pub const LOGIN_ID_KEY: &str = "LOGIN_ID";
 pub const LOGIN_PASSWORD_KEY: &str = "LOGIN_PASSWORD";
 pub const ETHERSCAN_KEY: &str = "ETHERSCAN_KEY";
 pub const DATABASE_PATH_KEY: &str = "DATABASE_PATH";
+pub const RELAYER_RANDOMNESS_KEY: &str = "RELAYER_RANDOMNESS";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";
