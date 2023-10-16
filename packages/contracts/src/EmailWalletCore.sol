@@ -430,15 +430,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     ) public payable nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
-        // Reset context
-        currContext.extensionAddr = address(0);
-        currContext.unclaimedFundRegistered = false;
-        currContext.unclaimedStateRegistered = false;
-        delete currContext.tokenAllowances;
+        // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = getWalletOfSalt(
             infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
         );
+
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -454,7 +451,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             "cannot register both unclaimed fund and state"
         );
 
-
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
             totalFee += (unclaimedFundClaimGas * maxFeePerGas);
@@ -465,6 +461,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             // Revert whatever was sent in case unclaimed fund/state registration didnt happen
             _transferETH(msg.sender, msg.value);
         }
+
+        // Reset context
+        currContext.extensionAddr = address(0);
+        currContext.unclaimedFundRegistered = false;
+        currContext.unclaimedStateRegistered = false;
+        delete currContext.tokenAllowances;
 
         uint256 gasForRefund = 50000; // Rough estimate of gas cost for refund operation below (ERC20 transfer)
         uint256 consumedGas = initialGas - gasleft() + gasForRefund;
@@ -755,7 +757,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
         require(
             unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit].sender == address(0),
             "unclaimed state exists"
@@ -800,7 +802,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param tokenAddr Address of the ERC20 token requested
     /// @param amount Amount requested
     function requestTokenAsExtension(address tokenAddr, uint256 amount) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
 
         for (uint256 i = 0; i < currContext.tokenAllowances.length; i++) {
             if (currContext.tokenAllowances[i].tokenAddr == tokenAddr) {
@@ -826,7 +828,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param amount Amount to be deposited
     /// @dev Extension should add allowance to Core contract before calling this function
     function depositTokenAsExtension(address tokenAddr, uint256 amount) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
 
         IERC20(tokenAddr).transferFrom(msg.sender, currContext.walletAddr, amount);
     }
@@ -836,12 +838,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param data Calldata to be executed on the target contract
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
     function executeAsExtension(address target, bytes memory data) public {
-        require(msg.sender == currContext.extensionAddr, "caller not extension");
-
-        console.log("target", target);
-        console.log("core", address(this));
-        console.log("wallet", currContext.walletAddr);
-        
+        require(msg.sender == currContext.extensionAddr, "caller not extension in context");
         require(target != address(this), "target cannot be core");
         require(target != currContext.walletAddr, "target cannot be wallet");
 
