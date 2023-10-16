@@ -88,7 +88,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.1 ether;
         deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
         require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
@@ -130,7 +130,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.25 ether;
         emailOp.recipientETHAddr = recipient;
-        (bool success, bytes memory reason) = core.handleEmailOp{value: 0}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: 0}(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
         require(recipient.balance == 0.25 ether, "Recipient address balance mismatch");
@@ -201,7 +201,7 @@ contract IntegrationTest is IntegrationTestHelper {
                 emailOp.walletParams.amount = [uint(1 * (10**6)), uint(0.2 * (10**6)), uint(0.03 * (10**6))][amountSelector];
             }
             deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-            (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+            (bool success, bytes memory reason, ) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
             assertEq(success, true, string(reason));
             claimFund(users[1-senderSelector].emailAddr, relayer1Rand, emailAddrRand);
         }
@@ -230,7 +230,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/install_uniswap.eml"), relayer1Rand, "Install", "Install extension Uniswap", "gmail.com", "ETH");
         emailOp.extManagerParams = ExtensionManagerParams("Uniswap");
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         (emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/uniswap_test1.eml"), relayer1Rand, "Swap", "Swap 0.2 ETH to DAI", "gmail.com", "ETH");
         bytes[] memory extensionBytes = new bytes[](2);
@@ -239,7 +239,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
         uint preEthBalance = weth.balanceOf(user1Wallet);
         uint preDaiBalance = daiToken.balanceOf(user1Wallet);
-        (success, reason) = core.handleEmailOp(emailOp);
+        (success, reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
         require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
@@ -251,7 +251,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
         preDaiBalance = daiToken.balanceOf(user1Wallet);
         uint preUsdcBalance = usdcToken.balanceOf(user1Wallet);
-        (success, reason) = core.handleEmailOp(emailOp);
+        (success, reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
         require(preUsdcBalance < usdcToken.balanceOf(user1Wallet), "USDC balance does not increase");
@@ -263,7 +263,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
         preUsdcBalance = usdcToken.balanceOf(user1Wallet);
         preEthBalance = weth.balanceOf(user1Wallet);
-        (success, reason) = core.handleEmailOp(emailOp);
+        (success, reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         require(preUsdcBalance > usdcToken.balanceOf(user1Wallet), "USDC balance does not decrease");
         require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
@@ -306,7 +306,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.1 ether;
         deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
         assertEq(success, true, string(reason));
         weth.balanceOf(user1Wallet).logUint();
         require(weth.balanceOf(user1Wallet) < 0.4 ether, "User1 wallet balance after the first transaction is too large");
@@ -316,7 +316,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.25 ether;
         emailOp.recipientETHAddr = recipient;
-        (success, reason) = core.handleEmailOp{value: 0}(emailOp);
+        (success, reason, ) = core.handleEmailOp{value: 0}(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.15 ether, "User1 wallet balance after the second transaction is too large");
         require(recipient.balance == 0.25 ether, "Recipient eth balance mismatch");
@@ -346,7 +346,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.1 ether;
         deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        (bool success, bytes memory reason) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
         require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
@@ -389,7 +389,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/install_nft.eml"), relayer1Rand, "Install", "Install extension NFT", "gmail.com", "ETH");
         emailOp.extManagerParams = ExtensionManagerParams("NFT");
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         bytes32 emailAddrRand;
         (emailOp, emailAddrRand) = genEmailOpPartial(string.concat(projectRoot,"/test/emails/nft_transfer_test1.eml"), relayer1Rand, "NFT", "NFT Send 1 of APE to ", "gmail.com", "ETH");
@@ -398,7 +398,7 @@ contract IntegrationTest is IntegrationTestHelper {
         extensionBytes[1] = abi.encode("APE");
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
         deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
-        (success, reason) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
+        (success, reason, ) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
         require(success, string(reason));
         require(ape.ownerOf(1) == address(nftExtension), "Extension contract does not own APE");
 
@@ -438,7 +438,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/install_nft.eml"), relayer1Rand, "Install", "Install extension NFT", "gmail.com", "ETH");
         emailOp.extManagerParams = ExtensionManagerParams("NFT");
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         bytes32 emailAddrRand;
         address recipient = vm.addr(4);
@@ -449,7 +449,7 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
         emailOp.recipientETHAddr = recipient;
         deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
-        (success, reason) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
+        (success, reason, ) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
         require(success, string(reason));
         require(ape.ownerOf(1) == address(recipient), "Recipient does not own APE");
     }
@@ -513,7 +513,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp,) = genEmailOpPartial(string.concat(vm.projectRoot(),"/test/emails/install_nft.eml"), relayer1Rand, "Install", "Install extension NFT", "gmail.com", "ETH");
         emailOp.extManagerParams = ExtensionManagerParams("NFT");
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         bytes32 emailAddrRand;
         (emailOp, emailAddrRand) = genEmailOpPartial(string.concat(projectRoot,"/test/emails/nft_transfer_test1.eml"), relayer1Rand, "NFT", "NFT Send 1 of APE to ", "gmail.com", "ETH");
@@ -522,7 +522,7 @@ contract IntegrationTest is IntegrationTestHelper {
         extensionBytes[1] = abi.encode("APE");
         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
         deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
-        (success, reason) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
+        (success, reason, ) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
         require(success, string(reason));
         require(ape.ownerOf(1) == address(nftExtension), "Extension contract does not own APE");
         vm.stopPrank();

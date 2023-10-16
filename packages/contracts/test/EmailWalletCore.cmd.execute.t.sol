@@ -32,7 +32,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
@@ -52,7 +52,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp succeded");

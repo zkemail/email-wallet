@@ -84,7 +84,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0, // dont announce randomness and email
             ""
         );
-        (bool success, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         (bytes32 emailAddrCommit, address extensionAddr, address sender, bytes memory state, uint256 expiryTime) = core
@@ -126,7 +126,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         (bytes32 emailAddrCommit, address extensionAddr, , bytes memory state, ) = core.unclaimedStateOfEmailAddrCommit(
@@ -157,7 +157,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, unclaimedStateClaimGas * maxFeePerGas); // For fee reibursement
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp should fail");
@@ -239,7 +239,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp didnt fail");
@@ -261,7 +261,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp didnt fail");

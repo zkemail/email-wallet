@@ -97,7 +97,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     // Mapping of emailAddrCommit to unclaimed state
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
 
-    // Max fee per gas in ETH that relayer can set in a UserOp
+    // Max fee per gas in wei that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
     // Time period until which a email is valid for EmailOp based on the timestamp of the email signature
@@ -423,12 +423,15 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     /// @notice Handle an EmailOp - the main function relayer should call for each Email
     /// @param emailOp EmailOp to be executed
+    /// @return success Whether the execution was successful
+    /// @return err Error message if execution failed (execution failures will not revert)
+    /// @return totalFeeInETH Total fee in ETH that should be reimbursed to the relayer
     /// @dev ETH for unclaimed fund/state registration should be send if the recipient is an email address
     /// @dev Relayer should make sure user has enough tokens to pay for the fee. This can be calculated as
     /// @dev ~ verificationGas(fixed) + executionGas(extension.maxGas if extension) + feeForReimbursement(50k) + msg.value
     function handleEmailOp(
         EmailOp calldata emailOp
-    ) public payable nonReentrant returns (bool success, bytes memory err) {
+    ) public payable nonReentrant returns (bool success, bytes memory err, uint256 totalFeeInETH) {
         uint256 initialGas = gasleft();
 
         // Set context for this EmailOp
@@ -444,8 +447,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         // Execute EmailOp - wont revert on failure. Relayer will be compensated for gas even in failure.
         (success, err) = _executeEmailOp(emailOp);
-
-        uint totalFeeInETH; // Total fee in ETH to be paid to relayer
 
         require(
             !(currContext.unclaimedFundRegistered && currContext.unclaimedStateRegistered),

@@ -217,7 +217,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -236,7 +236,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension; ext will request for 25 twice
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp should have failed");
@@ -254,7 +254,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 26 ether);
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         // Call requestTokenAsExtension directly should fail. i.e context should be cleared
@@ -278,7 +278,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, string.concat("handleEmailOp failed: ", string(reason)));
@@ -301,7 +301,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         // Call depositTokenAsExtension directly should fail. i.e context should be cleared
@@ -322,7 +322,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp);
+        (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -337,7 +337,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(core));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
@@ -353,7 +353,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(walletAddr);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
@@ -369,7 +369,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(usdcToken));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
@@ -388,7 +388,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
 
         vm.startPrank(relayer);
-        (bool success, ) = core.handleEmailOp(emailOp); // This will succeed
+        core.handleEmailOp(emailOp); // This will succeed
         vm.stopPrank();
 
         // Call executeAsExtension directly should fail. i.e context should be cleared

@@ -101,7 +101,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.feePerGas = 10 ** 11; // We used 10 ** 10 as maxFeePerGas when deploying core
+        emailOp.feePerGas = 10 gwei; // maxFeePerGas is 5 gwei in EmailWalletCoreTestHelper
         emailOp.command = "Send";
 
         vm.startPrank(relayer);
@@ -182,7 +182,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         // Send 1 ETH to handleEmail
-        (bool success, ) = core.handleEmailOp{value: 1 ether}(emailOp);
+        (bool success, , ) = core.handleEmailOp{value: 1 ether}(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -191,106 +191,123 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         assertEq(address(core).balance, 0, "core balance should be 0");
     }
 
-    // function test_RelayerGasReimbursement_WhenUserPaysInETH() public {
-    //     address recipient = vm.addr(5);
-    //     string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+    function test_RelayerGasReimbursement_WhenUserPaysInETH() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
 
-    //     daiToken.freeMint(walletAddr, 150 ether);
+        daiToken.freeMint(walletAddr, 150 ether);
 
-    //     // Mint 100 weth to walletAddr - will use it to pay fee
-    //     vm.startPrank(walletAddr);
-    //     vm.deal(walletAddr, 100 ether);
-    //     weth.deposit{value: 100 ether}();
-    //     vm.stopPrank();
+        // Mint 100 weth to walletAddr - will use it to pay fee
+        vm.startPrank(walletAddr);
+        vm.deal(walletAddr, 100 ether);
+        weth.deposit{value: 100 ether}();
+        vm.stopPrank();
 
-    //     EmailOp memory emailOp = _getBaseEmailOp();
-    //     emailOp.command = Commands.SEND;
-    //     emailOp.walletParams.tokenName = "DAI";
-    //     emailOp.walletParams.amount = 100 ether;
-    //     emailOp.recipientETHAddr = recipient;
-    //     emailOp.maskedSubject = subject;
-    //     emailOp.feeTokenName = "ETH"; // User will pay in WETH
-    //     emailOp.feePerGas = maxFeePerGas;
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "ETH"; // User will pay in WETH
+        emailOp.feePerGas = maxFeePerGas;
 
-    //     vm.startPrank(relayer);
-    //     (bool success, bytes memory data) = core.handleEmailOp(emailOp);
-    //     vm.stopPrank();
+        vm.startPrank(relayer);
+        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
 
-    //     assertTrue(success, "emailOp failed");
+        uint256 expectedReimbursement = totalFee; // ETH = WETH
 
-    //     (uint256 totalGas, uint256 rate) = abi.decode(data, (uint256, uint256));
-    //     uint256 expectedReimbursement = totalGas * maxFeePerGas;
+        assertTrue(success, "emailOp failed");
+        assertEq(weth.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
+        assertEq(weth.balanceOf(walletAddr), 100 ether - expectedReimbursement, "wallet didnt send weth");
+    }
 
-    //     assertTrue(totalGas > 0, "didnt consume gas");
-    //     assertEq(rate, 1 ether, "WETH rate is not 1");
-    //     assertEq(weth.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
-    //     assertEq(weth.balanceOf(walletAddr), 100 ether - expectedReimbursement, "wallet didnt send weth");
-    // }
+    function test_RelayerGasReimbursement_WhenUserPaysInToken() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
 
-    // function test_RelayerGasReimbursement_WhenUserPaysInToken() public {
-    //     address recipient = vm.addr(5);
-    //     string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        daiToken.freeMint(walletAddr, 150 ether);
+        usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
 
-    //     daiToken.freeMint(walletAddr, 150 ether);
-    //     usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+        emailOp.feePerGas = maxFeePerGas;
 
-    //     // Relayer need ETH to pay gas cost
-    //     vm.deal(relayer, 1 ether);
+        vm.startPrank(relayer);
+        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
 
-    //     EmailOp memory emailOp = _getBaseEmailOp();
-    //     emailOp.command = Commands.SEND;
-    //     emailOp.walletParams.tokenName = "DAI";
-    //     emailOp.walletParams.amount = 100 ether;
-    //     emailOp.recipientETHAddr = recipient;
-    //     emailOp.maskedSubject = subject;
-    //     emailOp.feeTokenName = "USDC";
-    //     emailOp.feePerGas = maxFeePerGas;
+        uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
 
-    //     vm.startPrank(relayer);
-    //     (bool success, bytes memory data) = core.handleEmailOp(emailOp);
-    //     vm.stopPrank();
+        assertTrue(success, "emailOp failed");
+        assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
+        assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
+    }
 
-    //     assertTrue(success, "emailOp failed");
+    function test_RelayerGasReimbursement_WithCustomFeePerGas() public {
+        address recipient = vm.addr(5);
+        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        uint256 feePerGas = 3 gwei;
 
-    //     (uint256 totalGas, uint256 rate) = abi.decode(data, (uint256, uint256));
-    //     uint256 expectedReimbursement = totalGas * maxFeePerGas * 1500; // 1 ETH = 1500 USDS set in TestOracle.sol
+        daiToken.freeMint(walletAddr, 150 ether);
+        usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
 
-    //     assertTrue(totalGas > 0, "didnt consume gas");
-    //     assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
-    //     assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
-    // }
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+        emailOp.feePerGas = feePerGas; // Custom fee per gas < maxFeePerGas
 
-    // function test_RelayerGasReimbursement_WithCustomFeePerGas() public {
-    //     address recipient = vm.addr(5);
-    //     string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
-    //     uint256 feePerGas = 3 gwei;
+        vm.startPrank(relayer);
+        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
 
-    //     daiToken.freeMint(walletAddr, 150 ether);
-    //     usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
+        uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
 
-    //     // Relayer need ETH to pay gas cost
-    //     vm.deal(relayer, 1 ether);
+        assertTrue(success, "emailOp failed");
+        assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
+        assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
+    }
 
-    //     EmailOp memory emailOp = _getBaseEmailOp();
-    //     emailOp.command = Commands.SEND;
-    //     emailOp.walletParams.tokenName = "DAI";
-    //     emailOp.walletParams.amount = 100 ether;
-    //     emailOp.recipientETHAddr = recipient;
-    //     emailOp.maskedSubject = subject;
-    //     emailOp.feeTokenName = "USDC";
-    //     emailOp.feePerGas = feePerGas; // Custom fee per gas < maxFeePerGas
+    function test_RelayerGasReimbursement_WithUnclaimedFunds() public {
+        string memory subject = string.concat("Send 100 DAI to ");
 
-    //     vm.startPrank(relayer);
-    //     (bool success, bytes memory data) = core.handleEmailOp(emailOp);
-    //     vm.stopPrank();
+        daiToken.freeMint(walletAddr, 150 ether);
+        usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
 
-    //     assertTrue(success, "emailOp failed");
+        // Relayer need ETH to pay gas cost
+        vm.deal(relayer, 1 ether);
 
-    //     (uint256 totalGas, uint256 rate) = abi.decode(data, (uint256, uint256));
-    //     uint256 expectedReimbursement = totalGas * feePerGas * 1500; // 1 ETH = 1500 USDS set in TestOracle.sol
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(552323));
+        emailOp.hasEmailRecipient = true;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+        emailOp.feePerGas = maxFeePerGas;
 
-    //     assertTrue(totalGas > 0, "didnt consume gas");
-    //     assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
-    //     assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
-    // }
+        uint256 unclaimFee = unclaimedFundClaimGas * maxFeePerGas;
+
+        vm.startPrank(relayer);
+        (bool success, , uint256 totalFee) = core.handleEmailOp{value: unclaimFee}(emailOp);
+        vm.stopPrank();
+
+        uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
+
+        assertTrue(success, "emailOp failed");
+        assertTrue(totalFee > unclaimFee, "totalFee should be greater than unclaimFee");
+        assertEq(usdcToken.balanceOf(relayer), expectedReimbursement, "relayer didnt receive reimbursement");
+        assertEq(usdcToken.balanceOf(walletAddr), 50 ether - expectedReimbursement, "wallet didnt send weth");
+    }
 }

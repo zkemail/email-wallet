@@ -42,7 +42,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
-        (bool success, ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
