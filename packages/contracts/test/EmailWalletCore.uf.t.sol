@@ -20,6 +20,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 100 ether);
+        usdcToken.freeMint(walletAddr, 50 ether); // for fee reimbursement
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
@@ -28,6 +29,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.hasEmailRecipient = true;
         emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
         vm.expectEmit();
@@ -492,49 +494,6 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("unclaimed fund expired");
-        core.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
-        vm.stopPrank();
-    }
-
-    // Relayer from which the account was transported from should not be able to claim
-    function test_RevertIf_ClaimUnclaimedFund_ToNullifiedAccount() public {
-        address sender = vm.addr(7);
-        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
-        address newRelayer = vm.addr(8);
-
-        vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
-        daiToken.freeMint(sender, 100 ether);
-
-        vm.startPrank(sender);
-        daiToken.approve(address(core), 100 ether);
-        core.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
-            recipientEmailAddrCommit,
-            address(daiToken),
-            100 ether,
-            0,
-            0,
-            ""
-        );
-        vm.stopPrank();
-
-        vm.startPrank(newRelayer);
-        core.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        core.transportAccount(
-            accountKeyCommit,
-            newEmailAddrPointer,
-            newAccountKeyCommit,
-            newPSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
-            mockProof
-        );
-        vm.stopPrank();
-
-        // Old relayer should not be able to claim
-        vm.startPrank(relayer);
-        vm.expectRevert("account not initialized");
         core.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
         vm.stopPrank();
     }

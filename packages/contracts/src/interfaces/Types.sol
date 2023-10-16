@@ -65,7 +65,6 @@ struct UnclaimedState {
 struct AccountKeyInfo {
     address relayer;
     bool initialized;
-    bool nullified;
     // Flag that tracks whether wallet salt is non-zero (invariant: walletSaltSet == (walletSalt
     // != bytes32(0)), can help save a fresh SLOAD in certain methods.
     bool walletSaltSet;

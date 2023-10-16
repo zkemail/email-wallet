@@ -146,6 +146,8 @@ contract TransferTest is EmailWalletCoreTestHelper {
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 100 ether);
 
+        usdcToken.freeMint(walletAddr, 100 ether); // for gas reimbursemt of unclaimed funds
+
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
@@ -153,6 +155,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.hasEmailRecipient = true;
         emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
         (bool success, ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
