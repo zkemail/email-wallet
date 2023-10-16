@@ -214,14 +214,14 @@ mod test {
         let subject_all = parsed_email.get_subject_all().unwrap();
         assert_eq!(
             subject_all,
-            "This is a test. CODE:0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd"
+            "This is a test. CODE:0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76"
         );
         let timestamp = parsed_email.get_timestamp().unwrap();
-        assert_eq!(timestamp, 1694979179);
+        assert_eq!(timestamp, 1697222111);
         let invitation_code = parsed_email.get_invitation_code().unwrap();
         assert_eq!(
             invitation_code,
-            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd"
+            "01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76"
         );
     }
 }

@@ -1,9 +1,5 @@
 use crate::*;
 
-pub(crate) fn is_valid(email: &ParsedEmail) -> bool {
-    true
-}
-
 pub(crate) async fn send_to_coordinator(email: &str) -> Result<()> {
     Ok(())
 }
