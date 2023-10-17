@@ -13,6 +13,7 @@ import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
 import {TestVerifier} from "../mocks/TestVerifier.sol";
 import {TestERC20} from "../mocks/TestERC20.sol";
 import {TestOracle} from "../mocks/TestOracle.sol";
+import {TestExtension} from "../mocks/TestExtension.sol";
 import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
@@ -61,6 +62,10 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
     bytes32 emailNullifier2 = bytes32(uint256(5000002));
     bytes32 emailNullifier3 = bytes32(uint256(5000003));
 
+    string[][] _defaultExtTemplates = new string[][](1);
+
+    address defaultExtAddr;
+
     function setUp() public virtual {
         deployer = vm.addr(1);
         relayer = vm.addr(2);
@@ -73,10 +78,20 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
         priceOracle = new TestOracle();
         weth = new WETH9();
 
+        Wallet walletImp = new Wallet(address(weth));
+
+        // Deploy a test extension with command "DEF" - only for testing defaultExtensions
+        TestExtension defaultExt = new TestExtension(address(0), address(0), address(0));
+        defaultExtAddr = address(defaultExt);
+        bytes[] memory defaultExtensions = new bytes[](1);
+        _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
+        defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
+
         // Deploy core contract as proxy
         address implementation = address(
             new EmailWalletCore(
                 address(verifier),
+                address(walletImp),
                 address(tokenRegistry),
                 address(dkimRegistry),
                 address(priceOracle),
@@ -88,7 +103,7 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
                 unclaimedFundExpirationDuration
             )
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, ());
+        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
         core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
 
         // Set test sender's wallet addr

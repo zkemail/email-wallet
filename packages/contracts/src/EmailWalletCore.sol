@@ -44,7 +44,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     IPriceOracle public immutable priceOracle;
 
     // Address of WETH contract
-    address public immutable weth;
+    address public immutable wethContract;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
     address public immutable walletImplementation;
@@ -118,6 +118,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     constructor(
         address _verifier,
+        address _walletImplementationAddr,
         address _tokenRegistry,
         address _defaultDkimRegistry,
         address _priceOracle,
@@ -129,17 +130,16 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         uint256 _unclaimedFundExpirationDuration
     ) {
         verifier = IVerifier(_verifier);
+        walletImplementation = _walletImplementationAddr;
         defaultDkimRegistry = _defaultDkimRegistry;
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
-        weth = _wethContract;
+        wethContract = _wethContract;
         maxFeePerGas = _maxFeePerGas;
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
         unclaimsExpiryDuration = _unclaimedFundExpirationDuration;
-
-        walletImplementation = address(new Wallet(_wethContract));
     }
 
     fallback() external payable {
@@ -150,8 +150,21 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         revert();
     }
 
-    function initialize() public initializer {
+    function initialize(bytes[] calldata defaultExtensions) public initializer {
         __Ownable_init();
+
+        // Set default extensions
+        for (uint256 i = 0; i < defaultExtensions.length; i++) {
+            (string memory name, address addr, string[][] memory templates, uint256 maxGas) = abi.decode(
+                defaultExtensions[i],
+                (string, address, string[][], uint256)
+            );
+
+            addressOfExtension[name] = addr;
+            subjectTemplatesOfExtension[addr] = templates;
+            maxGasOfExtension[addr] = maxGas;
+            defaultExtensionOfCommand[templates[0][0]] = addr;
+        }
     }
 
     /// @notice Register as a relayer
@@ -1154,7 +1167,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             if (!emailOp.hasEmailRecipient && Strings.equal(emailOp.walletParams.tokenName, "ETH")) {
                 Wallet wallet = Wallet(payable(currContext.walletAddr));
 
-                try wallet.execute(weth, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
+                try wallet.execute(wethContract, 0, abi.encodeWithSignature("withdraw(uint256)", walletParams.amount)) {
                     wallet.execute(emailOp.recipientETHAddr, walletParams.amount, "");
                     success = true;
                 } catch Error(string memory reason) {

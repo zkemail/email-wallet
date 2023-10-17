@@ -28,6 +28,24 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         return _subjectTemplates;
     }
 
+    function test_DefaultExtensions() public {
+        // Default extension is already deployed in EmailWalletCoreTestHelper
+        // Just testing it was deployed properly here
+        address adddr = core.defaultExtensionOfCommand("DEF_EXT");
+
+        assertTrue(defaultExtAddr != address(0), "defaultExtAddr not set");
+        assertEq(adddr, defaultExtAddr, "extension not set");
+        assertEq(core.addressOfExtension("DEF_EXT_NAME"), adddr, "ext name mismatch");
+        assertEq(core.maxGasOfExtension(adddr), 1 ether, "maxGas not set"); // set during core deployment
+        assertEq(core.subjectTemplatesOfExtension(adddr, 0, 1), "NOOP", "subject mismatch");
+         
+        // getExtensionForCommand method should return same for all wallet addr
+        address randomAddr = vm.addr(3);
+        address getExtensionAddr = core.getExtensionForCommand("DEF_EXT", randomAddr);
+
+        assertEq(getExtensionAddr, adddr, "extension not set for all users");
+    }
+
     function test_PublishExtension() public {
         address extensionDev = vm.addr(3);
         string memory extensionName = "testSwap";

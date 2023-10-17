@@ -37,7 +37,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
         emailOp.maskedSubject = subject;
-        emailOp.extManagerParams.extensionName = extensionName;
+        emailOp.extensionName = extensionName;
 
         vm.startPrank(relayer);
         (bool success, , ) = core.handleEmailOp(emailOp);
@@ -47,13 +47,38 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), extensionAddr, "didnt install extension");
     }
 
+    function test_InstallShouldOverrideDefaultExtensions() public {
+        // Publish a new extension with the same command as default extension
+        Extension ext = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
+        string[][] memory dummyTemplates = new string[][](1);
+        dummyTemplates[0] = new string[](2);
+        dummyTemplates[0][0] = "DEF_EXT"; // Same command of default extension installed in EmailWalletCoreTestHelper
+        dummyTemplates[0][1] = "Not default";
+        core.publishExtension("Custom", address(ext), dummyTemplates, 0.1 ether);
+
+        // Should be default extension
+        assertEq(core.getExtensionForCommand("DEF_EXT", walletAddr), defaultExtAddr, "defaultExtAddr not set");
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.INSTALL_EXTENSION;
+        emailOp.maskedSubject = "Install extension Custom";
+        emailOp.extensionName = "Custom";
+
+        vm.startPrank(relayer);
+        (bool success, , ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
+        assertEq(core.getExtensionForCommand("DEF_EXT", walletAddr), address(ext), "extension not changed");
+    }
+
     function test_RevertIf_ExtensionNotRegistered() public {
         string memory subject = string.concat("Install extension ", extensionName);
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
         emailOp.maskedSubject = subject;
-        emailOp.extManagerParams.extensionName = extensionName;
+        emailOp.extensionName = extensionName;
 
         vm.startPrank(relayer);
         vm.expectRevert("extension not registered");
@@ -67,12 +92,12 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOpInstall = _getBaseEmailOp();
         emailOpInstall.command = Commands.INSTALL_EXTENSION;
         emailOpInstall.maskedSubject = string.concat("Install extension ", extensionName);
-        emailOpInstall.extManagerParams.extensionName = extensionName;
+        emailOpInstall.extensionName = extensionName;
 
         EmailOp memory emailOpUninstall = _getBaseEmailOp();
         emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
         emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
-        emailOpUninstall.extManagerParams.extensionName = extensionName;
+        emailOpUninstall.extensionName = extensionName;
         emailOpUninstall.emailNullifier = bytes32(uint256(93845));
 
         vm.startPrank(relayer);
@@ -90,7 +115,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOpUninstall = _getBaseEmailOp();
         emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
         emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
-        emailOpUninstall.extManagerParams.extensionName = extensionName;
+        emailOpUninstall.extensionName = extensionName;
 
         vm.startPrank(relayer);
         vm.expectRevert("extension not installed");
