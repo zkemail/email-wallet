@@ -20,7 +20,6 @@ impl EmailAndStatus {
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub(crate) enum EmailStatus {
     Unchecked,
-    Checked,
     Executed,
     Finalized,
 }
@@ -95,6 +94,15 @@ impl Database {
         .bind(serde_json::to_string(&value.status)?)
         .execute(&self.db)
         .await?;
+
+        Ok(())
+    }
+
+    pub(crate) async fn remove_email(&self, key: &str) -> Result<()> {
+        sqlx::query("DELETE FROM emails WHERE email = ?")
+            .bind(key)
+            .execute(&self.db)
+            .await?;
 
         Ok(())
     }

@@ -74,52 +74,40 @@ async fn handle_email(email_and_status: EmailAndStatus, db: Arc<Database>) -> Re
     let EmailAndStatus { email, mut status } = email_and_status;
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
 
-    /*
-    1. Проверить что отправитель релеера (знает вью ки) (если нет, то послать нахуй) +
-    2. Проверить что формат темы верный +
-    3. Проверить что баланс достаточный
-    */
-
-    if let EmailStatus::Unchecked = status {
-        let from_address = parsed_email.get_from_addr()?;
-        let user = match db.get_user(&from_address).await? {
-            Some(user) => user,
-            None => bail!(NOT_MY_SENDER),
-        };
-
-        let subject_command = validate_subject(&parsed_email.get_subject_all()?)?;
-
-        match subject_command {
-            SubjectCommand::Send {} => {
-                if !is_enough_balance(&user, &parsed_email).await? {
-                    bail!(INSUFFICIENT_BALANCE);
-                }
-            }
-            _ => todo!(),
-        }
-
-        status = EmailStatus::Checked;
-        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
-            .await?;
-    }
-
-    if let EmailStatus::Checked = status {
-        // Execute everything: input gen, talk with coordinator
-        // local emulation, sending to chain
-        let from_address = parsed_email.get_from_addr()?;
-        let user = db.get_user(&from_address).await?.unwrap();
-
-        status = EmailStatus::Executed;
-        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
-            .await?;
-    }
-
     if let EmailStatus::Executed = status {
-        // SEND mail that everything's fine
         status = EmailStatus::Finalized;
         db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
             .await?;
+
+        return Ok(());
     }
+
+    let from_address = parsed_email.get_from_addr()?;
+    let user = match db.get_user(&from_address).await? {
+        Some(user) => user,
+        None => {
+            db.remove_email(&email).await?;
+            bail!(NOT_MY_SENDER);
+        }
+    };
+
+    let subject_command = validate_subject(&parsed_email.get_subject_all()?)?;
+
+    match subject_command {
+        SubjectCommand::Send {} => {
+            if !is_enough_balance(&user, &parsed_email).await? {
+                bail!(INSUFFICIENT_BALANCE);
+            }
+        }
+        _ => todo!(),
+    }
+
+    // Execute everything: input gen, talk with coordinator
+    // local emulation, sending to chain
+
+    status = EmailStatus::Executed;
+    db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
+        .await?;
 
     Ok(())
 }
