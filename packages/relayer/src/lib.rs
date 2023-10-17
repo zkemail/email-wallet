@@ -24,11 +24,12 @@ use anyhow::{anyhow, bail, Result};
 use email_wallet_utils::parse_email::ParsedEmail;
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
-    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
+    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<String>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
     for email in db.get_unhandled_emails().await? {
-        tx.send(email)?;
+        tx_handler.send(email)?;
     }
 
     let db_clone_receiver = Arc::clone(&db);
@@ -42,7 +43,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                         let body = String::from_utf8(body.to_vec())?;
                         if !db_clone_receiver.contains_email(&body).await? {
                             db_clone_receiver.insert_email(&body).await?;
-                            tx.send(body)?;
+                            tx_handler.send(body)?;
                         }
                     }
                 }
@@ -54,44 +55,28 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let email_handler_task = tokio::task::spawn(async move {
         loop {
-            let email = rx
+            let email = rx_handler
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-            tokio::task::spawn(handle_email(email, Arc::clone(&db)));
+            tokio::task::spawn(handle_email(email, Arc::clone(&db), tx_sender.clone()));
         }
         Ok::<(), anyhow::Error>(())
     });
 
-    let _ = tokio::join!(email_receiver_task, email_handler_task);
-
-    Ok(())
-}
-
-async fn handle_email(email: String, db: Arc<Database>) -> Result<()> {
-    let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
-
-    let from_address = parsed_email.get_from_addr()?;
-    let viewing_key = match db.get_viewing_key(&from_address).await? {
-        Some(viewing_key) => viewing_key,
-        None => {
-            db.remove_email(&email).await?;
-            bail!(NOT_MY_SENDER);
+    let email_sender_task = tokio::task::spawn(async move {
+        let email_sender = SmtpClient::new(config.smtp_config)?;
+        loop {
+            let email = rx_sender
+                .recv()
+                .await
+                .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+            email_sender.send_new_email("abc", &email, "abc").await?;
         }
-    };
+        Ok::<(), anyhow::Error>(())
+    });
 
-    let subject_command = validate_subject(&parsed_email.get_subject_all()?)?;
-
-    match subject_command {
-        SubjectCommand::Send {} => {
-            if !is_enough_balance(&from_address, &viewing_key, &parsed_email).await? {
-                bail!(INSUFFICIENT_BALANCE);
-            }
-        }
-        _ => todo!(),
-    }
-
-    db.remove_email(&email).await?;
+    let _ = tokio::join!(email_receiver_task, email_handler_task, email_sender_task);
 
     Ok(())
 }
