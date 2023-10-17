@@ -196,14 +196,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         bytes memory psiPoint,
         bytes memory proof
     ) public returns (Wallet wallet) {
-        bool initialized = infoOfAccountKeyCommit[accountKeyCommit].initialized;
-        bool walletSaltSet = infoOfAccountKeyCommit[accountKeyCommit].walletSaltSet;
-
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
-        require(!walletSaltSet, "walletSalt exists");
-        require(!initialized, "account is initialized");
+        require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt == bytes32(0), "walletSalt exists");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
 
         require(
@@ -220,9 +216,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         accountKeyCommitOfPointer[emailAddrPointer] = accountKeyCommit;
         infoOfAccountKeyCommit[accountKeyCommit].relayer = msg.sender;
-        infoOfAccountKeyCommit[accountKeyCommit].walletSaltSet = true;
         infoOfAccountKeyCommit[accountKeyCommit].walletSalt = walletSalt;
-
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
         wallet = _deployWallet(walletSalt);
@@ -303,7 +297,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         bytes32 existingAccountKeyOfNewPointer = accountKeyCommitOfPointer[newEmailAddrPointer];
         if (existingAccountKeyOfNewPointer == bytes32(0)) {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
-            require(!infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet, "walletSalt already exists");
             require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         }
 
@@ -322,10 +315,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(
             verifier.verifyAccountTransportProof(
                 transportEmailProof.domain,
-                _getDKIMPublicKeyHash(
-                    oldAccountKeyInfo.walletSalt,
-                    transportEmailProof.domain
-                ),
+                _getDKIMPublicKeyHash(oldAccountKeyInfo.walletSalt, transportEmailProof.domain),
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
                 relayers[oldAccountKeyInfo.relayer].randHash,
@@ -346,12 +336,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         accountKeyCommitOfPointer[newEmailAddrPointer] = newAccountKeyCommit;
         pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
         infoOfAccountKeyCommit[newAccountKeyCommit].walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
-        infoOfAccountKeyCommit[newAccountKeyCommit].walletSaltSet = true;
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
 
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
-        infoOfAccountKeyCommit[oldAccountKeyCommit].walletSaltSet = false;
 
         emit AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
     }
@@ -360,20 +348,18 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
-        bytes32 dkimPublicKeyHash = _getDKIMPublicKeyHash(infoOfAccountKeyCommit[accountKeyCommit].walletSalt, emailOp.emailDomain);
+        AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
+        bytes32 dkimPublicKeyHash = _getDKIMPublicKeyHash(
+            infoOfAccountKeyCommit[accountKeyCommit].walletSalt,
+            emailOp.emailDomain
+        );
 
+        require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
+        require(accountKeyInfo.initialized, "account not initialized");
+        require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-        {
-            AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
-            address relayer = accountKeyInfo.relayer;
-            bool initialized = accountKeyInfo.initialized;
-            bool walletSaltSet = accountKeyInfo.walletSaltSet;
-            require(relayer == msg.sender, "invalid relayer");
-            require(initialized, "account not initialized");
-            require(walletSaltSet, "wallet salt not set");
-        }
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
