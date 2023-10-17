@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.12;
+
+import "./helpers/EmailWalletCoreTestHelper.sol";
+import {TestDKIMRegistry} from "./mocks/TestDKIMRegistry.sol";
+
+contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
+    address extensionAddr;
+    string[][] tempaltes = new string[][](1);
+    string extensionName = "TestSwap";
+
+    function setUp() public override {
+        super.setUp();
+        _registerRelayer();
+        _registerAndInitializeAccount();
+    }
+
+    function test_SetCustomDKIMRegistry() public {
+        address dkimRegistryAddr = address(new TestDKIMRegistry());
+        string memory subject = string.concat(
+            "DKIM registry is ",
+            Strings.toHexString(uint256(uint160(dkimRegistryAddr)), 20)
+        );
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.DKIM;
+        emailOp.newDkimRegistry = dkimRegistryAddr;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        (bool success, , ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(success, "emailOp failed");
+        assertEq(core.dkimRegistryOfWalletSalt(walletSalt), dkimRegistryAddr, "didnt set DKIM registry");
+    }
+}
