@@ -49,6 +49,22 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
     address public immutable walletImplementation;
 
+    // Max fee per gas in wei that relayer can set in a UserOp
+    uint256 public immutable maxFeePerGas;
+
+    // Time period until which a email is valid for EmailOp based on the timestamp of the email signature
+    uint256 public immutable emailValidityDuration;
+
+    // Gas required to claim unclaimed funds. User (their relayer) who register unclaimed funds
+    // need to lock this amount which is relesed to the relayer who claims it
+    uint256 public immutable unclaimedFundClaimGas;
+
+    // Gas required to claim unclaimed state
+    uint256 public immutable unclaimedStateClaimGas;
+
+    // Default expiry duration for unclaimed funds and states
+    uint256 public immutable unclaimsExpiryDuration;
+
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
 
@@ -96,22 +112,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     // Mapping of emailAddrCommit to unclaimed state
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
-
-    // Max fee per gas in wei that relayer can set in a UserOp
-    uint256 public immutable maxFeePerGas;
-
-    // Time period until which a email is valid for EmailOp based on the timestamp of the email signature
-    uint256 public immutable emailValidityDuration;
-
-    // Gas required to claim unclaimed funds. User (their relayer) who register unclaimed funds
-    // need to lock this amount which is relesed to the relayer who claims it
-    uint256 public immutable unclaimedFundClaimGas;
-
-    // Gas required to claim unclaimed state
-    uint256 public immutable unclaimedStateClaimGas;
-
-    // Default expiry duration for unclaimed funds and states
-    uint256 public immutable unclaimsExpiryDuration;
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
@@ -587,7 +587,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         uint256 expiryTime,
         uint256 announceCommitRandomness,
         string memory announceEmailAddr
-    ) public payable nonReentrant {
+    ) public payable {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
         }

@@ -19,11 +19,11 @@ struct EmailOp {
     uint256 timestamp; // Timestamp of the email
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
-    uint256 feePerGas; // Amount of ETH to be charged per gas
+    uint256 feePerGas; // Amount of wei to be charged per gas
     bytes executeCallData; // data if the the command is "Execute"
     address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
     address newDkimRegistry; // Address of the new dkim registry if the command is "DKIM"
-    WalletParams walletParams; // Params when command = "Transfer" / "Send"
+    WalletParams walletParams; // Params when command = "Send"
     ExtensionParams extensionParams; // Serialized params for the extension based on the template
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
     bytes emailProof; // ZK Proof of Email receipt
