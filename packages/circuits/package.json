@@ -1,5 +1,6 @@
 {
   "name": "@email-wallet/circom",
+  "license": "MIT",
   "version": "1.0.0",
   "scripts": {
     "build": "mkdir -p build && circom src/account_creation.circom --r1cs --wasm --sym -l ../../node_modules -o ./build && circom src/account_init.circom --r1cs --wasm --sym -l ../../node_modules -o ./build && circom src/account_transport.circom --r1cs --wasm --sym -l ../../node_modules -o ./build && circom src/claim.circom --r1cs --wasm --sym -l ../../node_modules -o ./build && circom src/email_sender.circom --r1cs --wasm --sym -l ../../node_modules -o ./build && circom src/announcement.circom --r1cs --wasm --sym -l ../../node_modules -o ./build",
@@ -16,7 +17,7 @@
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {
-    "@zk-email/circuits": "https://gitpkg.now.sh/zkemail/zk-email-verify/packages/circuits?use_zk_regex",
+    "@zk-email/circuits": "^3.0.0",
     "@zk-email/helpers": "^2.0.0",
     "@zk-email/zk-regex-circom": "^1.1.1",
     "circom-grumpkin": "https://github.com/zkemail/circom-grumpkin.git",

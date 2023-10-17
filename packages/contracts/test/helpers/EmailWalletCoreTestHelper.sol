@@ -95,7 +95,7 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
         walletAddr = core.getWalletOfSalt(walletSalt);
 
         // Set a mock DKIM public key hash for test sender's emailDomain
-        dkimRegistry.setDKIMPublicKeyHash(emailDomain, uint256(111122223333));
+        dkimRegistry.setDKIMPublicKeyHash(emailDomain, bytes32(uint256(111122223333)));
 
         // Deploy some ERC20 test tokens and add them to registry
         daiToken = new TestERC20("DAI", "DAI");
