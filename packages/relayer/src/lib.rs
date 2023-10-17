@@ -25,7 +25,7 @@ use email_wallet_utils::parse_email::ParsedEmail;
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
-    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<String>();
+    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<(String, String)>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
     for email in db.get_unhandled_emails().await? {
@@ -67,11 +67,13 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let email_sender_task = tokio::task::spawn(async move {
         let email_sender = SmtpClient::new(config.smtp_config)?;
         loop {
-            let email = rx_sender
+            let (email, recipient) = rx_sender
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-            email_sender.send_new_email("abc", &email, "abc").await?;
+            email_sender
+                .send_new_email("Transaction Status", &email, &recipient)
+                .await?;
         }
         Ok::<(), anyhow::Error>(())
     });
