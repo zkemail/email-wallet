@@ -11,6 +11,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     function test_CreateAccount() public {
         vm.startPrank(relayer);
+        vm.expectEmit();
+        emit AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
+
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         vm.stopPrank();
 
@@ -18,9 +21,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(wallet.owner(), address(core), "wallet owner is not walletAddr");
 
         assertEq(core.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
-        (address akRelayer, bool initialized, bytes32 akWalletSalt) = core.infoOfAccountKeyCommit(
-            accountKeyCommit
-        );
+        (address akRelayer, bool initialized, bytes32 akWalletSalt) = core.infoOfAccountKeyCommit(accountKeyCommit);
         assertEq(akRelayer, relayer);
         assertEq(core.pointerOfPSIPoint(psiPoint), emailAddrPointer);
         assertTrue(!initialized);
@@ -92,6 +93,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function test_AccountInitailization() public {
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+
+        vm.expectEmit();
+        emit AccountInitialized(emailAddrPointer, accountKeyCommit, walletSalt);
+
         core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
@@ -120,6 +125,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer2);
         core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
+
+        vm.expectEmit();
+        emit AccountTransported(accountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
+
         core.transportAccount(
             accountKeyCommit,
             newEmailAddrPointer,

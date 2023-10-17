@@ -511,6 +511,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
+        vm.expectEmit();
+        emit UnclaimedStateClaimed(recipientEmailAddrCommit, walletAddr);
+
         core.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
         vm.stopPrank();
 
@@ -553,6 +556,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         core.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         core.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         core.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
+
+        vm.expectEmit();
+        emit UnclaimedStateClaimed(recipientEmailAddrCommit, newWalletAddr);
 
         core.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();

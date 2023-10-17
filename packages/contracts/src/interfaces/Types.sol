@@ -22,10 +22,10 @@ struct EmailOp {
     uint256 feePerGas; // Amount of ETH to be charged per gas
     bytes executeCallData; // data if the the command is "Execute"
     address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
+    address newDkimRegistry; // Address of the new dkim registry if the command is "DKIM"
     WalletParams walletParams; // Params when command = "Transfer" / "Send"
     ExtensionParams extensionParams; // Serialized params for the extension based on the template
     ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
-    address newDkimRegistry; // Address of the new dkim registry if the command is "DKIM"
     bytes emailProof; // ZK Proof of Email receipt
 }
 

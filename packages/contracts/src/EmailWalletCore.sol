@@ -170,7 +170,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         relayerOfRandHash[randHash] = msg.sender;
         relayerOfEmailAddr[emailAddr] = msg.sender;
 
-        emit RelayerRegistered(randHash, emailAddr, hostname);
+        emit RelayerRegistered(msg.sender, randHash, emailAddr, hostname);
     }
 
     /// @notice Update relayer's config (hostname only for now)
@@ -181,7 +181,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         relayers[msg.sender].hostname = hostname;
 
-        emit RelayerConfigUpdated(relayers[msg.sender].randHash, hostname);
+        emit RelayerConfigUpdated(msg.sender, hostname);
     }
 
     /// Create new account and wallet for a user
