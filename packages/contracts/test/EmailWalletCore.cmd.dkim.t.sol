@@ -18,7 +18,7 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
     function test_SetCustomDKIMRegistry() public {
         address dkimRegistryAddr = address(new TestDKIMRegistry());
         string memory subject = string.concat(
-            "DKIM registry is ",
+            "DKIM registry set to ",
             Strings.toHexString(uint256(uint160(dkimRegistryAddr)), 20)
         );
 

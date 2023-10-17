@@ -1053,7 +1053,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
-                " Email Wallet. Change wallet ownership to ",
+                " Email Wallet. Change ownership to ",
                 Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
             );
         }
@@ -1063,7 +1063,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             maskedSubject = string.concat(
                 Commands.DKIM,
-                " registry is ",
+                " registry set to ",
                 Strings.toHexString(uint256(uint160(emailOp.newDkimRegistry)), 20)
             );
         }
@@ -1375,7 +1375,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
     }
 
-    /// @notice Trasnfer ETH from core contract to recipient
+    /// @notice Transfer ETH from core contract to recipient
     /// @param recipient    Address of the recipient
     /// @param amount      Amount in WEI to be transferred
     function _transferETH(address recipient, uint256 amount) internal {

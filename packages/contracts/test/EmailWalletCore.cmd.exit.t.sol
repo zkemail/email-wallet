@@ -13,7 +13,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
     function test_ExitAndTransferOwnership() public {
         address newOwner = vm.addr(5);
         string memory subject = string.concat(
-            "Exit Email Wallet. Change wallet ownership to ",
+            "Exit Email Wallet. Change ownership to ",
             Strings.toHexString(uint160(newOwner), 20)
         );
         Wallet wallet = Wallet(payable(walletAddr));
