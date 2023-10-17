@@ -345,7 +345,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "gmail.com",
             "ETH"
         );
-        emailOp.extManagerParams = ExtensionManagerParams("Uniswap");
+        emailOp.extensionName = "Uniswap";
         (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         (emailOp, ) = genEmailOpPartial(
@@ -616,7 +616,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "gmail.com",
             "ETH"
         );
-        emailOp.extManagerParams = ExtensionManagerParams("NFT");
+        emailOp.extensionName = "NFT";
         (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         bytes32 emailAddrRand;
@@ -691,7 +691,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "gmail.com",
             "ETH"
         );
-        emailOp.extManagerParams = ExtensionManagerParams("NFT");
+        emailOp.extensionName = "NFT";
         (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         bytes32 emailAddrRand;
@@ -814,7 +814,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "gmail.com",
             "ETH"
         );
-        emailOp.extManagerParams = ExtensionManagerParams("NFT");
+        emailOp.extensionName = "NFT";
         (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
         require(success, string(reason));
         bytes32 emailAddrRand;

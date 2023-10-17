@@ -1019,19 +1019,19 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Sample: Install extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
-            address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
+            address extAddr = addressOfExtension[emailOp.extensionName];
 
             require(extAddr != address(0), "extension not registered");
 
             maskedSubject = string.concat(
                 Commands.INSTALL_EXTENSION,
                 " extension ",
-                emailOp.extManagerParams.extensionName
+                emailOp.extensionName
             );
         }
         // Sample: Remove extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            address extAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
+            address extAddr = addressOfExtension[emailOp.extensionName];
             string memory command = subjectTemplatesOfExtension[extAddr][0][0];
             address walletAddr = getWalletOfSalt(
                 infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
@@ -1043,7 +1043,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             maskedSubject = string.concat(
                 Commands.UNINSTALL_EXTENSION,
                 " extension ",
-                emailOp.extManagerParams.extensionName
+                emailOp.extensionName
             );
         }
         // Sample: Exit email wallet. Change owner to 0x000112aa..
@@ -1224,7 +1224,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
-            address extensionAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
+            address extensionAddr = addressOfExtension[emailOp.extensionName];
             string memory command = subjectTemplatesOfExtension[extensionAddr][0][0];
 
             userExtensionOfCommand[currContext.walletAddr][command] = extensionAddr;
@@ -1232,7 +1232,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            address extensionAddr = addressOfExtension[emailOp.extManagerParams.extensionName];
+            address extensionAddr = addressOfExtension[emailOp.extensionName];
             string memory command = subjectTemplatesOfExtension[extensionAddr][0][0];
 
             userExtensionOfCommand[currContext.walletAddr][command] = address(0);

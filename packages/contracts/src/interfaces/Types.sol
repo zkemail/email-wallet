@@ -20,12 +20,12 @@ struct EmailOp {
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of wei to be charged per gas
-    bytes executeCallData; // data if the the command is "Execute"
+    bytes executeCallData; // Encoded (target+calldata) hex if the the command is "Execute"
+    string extensionName; // Name of the extension if the command is "Install Extension" / "Uninstall Extension"
     address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
     address newDkimRegistry; // Address of the new dkim registry if the command is "DKIM"
     WalletParams walletParams; // Params when command = "Send"
     ExtensionParams extensionParams; // Serialized params for the extension based on the template
-    ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
     bytes emailProof; // ZK Proof of Email receipt
 }
 
@@ -33,11 +33,6 @@ struct EmailOp {
 struct WalletParams {
     string tokenName; // Name of the token to transfer (from subject) - could be "ETH"
     uint256 amount; // Amount to transfer/swap (in wei) - extracted from subject
-}
-
-// When command = "Install Extension" / "Uninstall Extension"
-struct ExtensionManagerParams {
-    string extensionName; // Name of the extension to install/uninstall (like "uniswap")
 }
 
 struct ExtensionParams {

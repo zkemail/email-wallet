@@ -36,13 +36,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOpNFT = _getBaseEmailOp();
         emailOpNFT.command = Commands.INSTALL_EXTENSION;
-        emailOpNFT.extManagerParams.extensionName = "NFT Wallet";
+        emailOpNFT.extensionName = "NFT Wallet";
         emailOpNFT.maskedSubject = "Install extension NFT Wallet";
         emailOpNFT.emailNullifier = bytes32(uint256(93845));
 
         EmailOp memory emailOpTestExt = _getBaseEmailOp();
         emailOpTestExt.command = Commands.INSTALL_EXTENSION;
-        emailOpTestExt.extManagerParams.extensionName = "TestExtension";
+        emailOpTestExt.extensionName = "TestExtension";
         emailOpTestExt.maskedSubject = "Install extension TestExtension";
         emailOpTestExt.emailNullifier = bytes32(uint256(4234));
 
