@@ -11,6 +11,10 @@ pub(crate) async fn send_to_chain(proof: &str) -> Result<()> {
     todo!()
 }
 
-pub(crate) async fn is_enough_balance(user: &User, parsed_email: &ParsedEmail) -> Result<bool> {
+pub(crate) async fn is_enough_balance(
+    email_address: &str,
+    viewing_key: &str,
+    parsed_email: &ParsedEmail,
+) -> Result<bool> {
     todo!()
 }
