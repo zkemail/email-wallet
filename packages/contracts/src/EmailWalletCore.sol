@@ -10,7 +10,7 @@ import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
-import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
+import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {BytesUtils} from "./libraries/BytesUtils.sol";
 import {TokenRegistry} from "./utils/TokenRegistry.sol";
@@ -222,8 +222,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         infoOfAccountKeyCommit[accountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[accountKeyCommit].walletSaltSet = true;
         infoOfAccountKeyCommit[accountKeyCommit].walletSalt = walletSalt;
-        dkimRegistryOfWalletSalt[walletSalt] = defaultDkimRegistry;
-        // infoOfAccountKeyCommit[accountKeyCommit].dkimRegistry = defaultDkimRegistry;
 
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
@@ -252,14 +250,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullifier already used");
-        DKIMRegistry dkimRegistry = DKIMRegistry(
-            dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]
-        );
 
         require(
             verifier.verifyAccountInitializaionProof(
                 emailDomain,
-                bytes32(dkimRegistry.getDKIMPublicKeyHash(emailDomain)),
+                _getDKIMPublicKeyHash(infoOfAccountKeyCommit[accountKeyCommit].walletSalt, emailDomain),
                 emailTimestamp,
                 relayers[msg.sender].randHash,
                 emailAddrPointer,
@@ -327,10 +322,9 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         require(
             verifier.verifyAccountTransportProof(
                 transportEmailProof.domain,
-                bytes32(
-                    DKIMRegistry(dkimRegistryOfWalletSalt[oldAccountKeyInfo.walletSalt]).getDKIMPublicKeyHash(
-                        transportEmailProof.domain
-                    )
+                _getDKIMPublicKeyHash(
+                    oldAccountKeyInfo.walletSalt,
+                    transportEmailProof.domain
                 ),
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
@@ -366,10 +360,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
-        DKIMRegistry dkimRegistry = DKIMRegistry(
-            dkimRegistryOfWalletSalt[infoOfAccountKeyCommit[accountKeyCommit].walletSalt]
-        );
-        bytes32 dkimPublicKeyHash = bytes32(dkimRegistry.getDKIMPublicKeyHash(emailOp.emailDomain));
+        bytes32 dkimPublicKeyHash = _getDKIMPublicKeyHash(infoOfAccountKeyCommit[accountKeyCommit].walletSalt, emailOp.emailDomain);
 
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
@@ -1068,7 +1059,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         }
         // Sample: DKIM registry as 0x000112aa..
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            require(emailOp.newDkimRegistry != address(0), "newDkimRegistry cannot be emoty");
+            require(emailOp.newDkimRegistry != address(0), "newDkimRegistry cannot be empty");
 
             maskedSubject = string.concat(
                 Commands.DKIM,
@@ -1390,6 +1381,19 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     function _transferETH(address recipient, uint256 amount) internal {
         (bool sent, ) = payable(recipient).call{value: amount}("");
         require(sent, "failed to transfer ETH");
+    }
+
+    /// @notice Return the DKIM public key hash for a given email domain and walletSalt
+    /// @param walletSalt Salt used to deploy the wallet
+    /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
+    function _getDKIMPublicKeyHash(bytes32 walletSalt, string memory emailDomain) internal view returns (bytes32) {
+        IDKIMRegistry dkimRegistry = IDKIMRegistry(defaultDkimRegistry);
+
+        if (dkimRegistryOfWalletSalt[walletSalt] != address(0)) {
+            dkimRegistry = IDKIMRegistry(dkimRegistryOfWalletSalt[walletSalt]);
+        }
+
+        return dkimRegistry.getDKIMPublicKeyHash(emailDomain);
     }
 
     /// @notice Return the conversion rate for a token. i.e returns how many tokens 1 ETH could buy in wei format
