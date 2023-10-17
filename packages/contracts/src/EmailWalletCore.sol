@@ -171,7 +171,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param randHash hash of relayed internal randomness `relayerRand`
     /// @param emailAddr relayer's email address
     /// @param hostname hostname of relayer's server - used by other relayers for PSI communication
-    function registerRelayer(bytes32 randHash, string memory emailAddr, string memory hostname) public {
+    function registerRelayer(bytes32 randHash, string calldata emailAddr, string calldata hostname) public {
         require(randHash != bytes32(0), "randHash cannot be empty");
         require(bytes(emailAddr).length != 0, "emailAddr cannot be empty");
         require(bytes(hostname).length != 0, "hostname cannot be empty");
@@ -188,7 +188,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
     /// @notice Update relayer's config (hostname only for now)
     /// @param hostname new hostname of relayer's server
-    function updateRelayerConfig(string memory hostname) public {
+    function updateRelayerConfig(string calldata hostname) public {
         require(bytes(hostname).length != 0, "hostname cannot be empty");
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
 
@@ -206,8 +206,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         bytes32 emailAddrPointer,
         bytes32 accountKeyCommit,
         bytes32 walletSalt,
-        bytes memory psiPoint,
-        bytes memory proof
+        bytes calldata psiPoint,
+        bytes calldata proof
     ) public returns (Wallet wallet) {
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
@@ -244,10 +244,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param proof ZK proof as required by the verifier
     function initializeAccount(
         bytes32 emailAddrPointer,
-        string memory emailDomain,
+        string calldata emailDomain,
         uint256 emailTimestamp,
         bytes32 emailNullifier,
-        bytes memory proof
+        bytes calldata proof
     ) public {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
 
@@ -392,8 +392,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         } else {
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
+
         (string memory maskedSubject, ) = _computeMaskedSubjectForEmailOp(emailOp);
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
+
         require(
             verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
@@ -488,7 +490,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         uint256 amount,
         uint256 expiryTime,
         uint256 announceCommitRandomness,
-        string memory announceEmailAddr
+        string calldata announceEmailAddr
     ) public payable {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
@@ -524,7 +526,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     function claimUnclaimedFund(
         bytes32 emailAddrCommit,
         bytes32 recipientEmailAddrPointer,
-        bytes memory proof
+        bytes calldata proof
     ) public nonReentrant {
         UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
@@ -596,10 +598,10 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     function registerUnclaimedState(
         bytes32 emailAddrCommit,
         address extensionAddr,
-        bytes memory state,
+        bytes calldata state,
         uint256 expiryTime,
         uint256 announceCommitRandomness,
-        string memory announceEmailAddr
+        string calldata announceEmailAddr
     ) public payable {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
@@ -649,7 +651,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     function claimUnclaimedState(
         bytes32 emailAddrCommit,
         bytes32 recipientEmailAddrPointer,
-        bytes memory proof
+        bytes calldata proof
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
 
@@ -745,7 +747,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// Register unclaimed state from an extension
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
-    function registerUnclaimedStateAsExtension(address extensionAddr, bytes memory state) public {
+    function registerUnclaimedStateAsExtension(address extensionAddr, bytes calldata state) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension in context");
         require(
             unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit].sender == address(0),
@@ -826,7 +828,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param target Address of the contract on which the call is to be executed
     /// @param data Calldata to be executed on the target contract
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
-    function executeAsExtension(address target, bytes memory data) public {
+    function executeAsExtension(address target, bytes calldata data) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension in context");
         require(target != address(this), "target cannot be core");
         require(target != currContext.walletAddr, "target cannot be wallet");
@@ -844,7 +846,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param maxExecutionGas Max gas allowed for the extension
     /// @dev First word of each subject template should be same and is called "command"; command should be one word
     function publishExtension(
-        string memory name,
+        string calldata name,
         address addr,
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
@@ -1023,11 +1025,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
             require(extAddr != address(0), "extension not registered");
 
-            maskedSubject = string.concat(
-                Commands.INSTALL_EXTENSION,
-                " extension ",
-                emailOp.extensionName
-            );
+            maskedSubject = string.concat(Commands.INSTALL_EXTENSION, " extension ", emailOp.extensionName);
         }
         // Sample: Remove extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
@@ -1040,11 +1038,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             require(extAddr != address(0), "extension not registered");
             require(userExtensionOfCommand[walletAddr][command] != address(0), "extension not installed");
 
-            maskedSubject = string.concat(
-                Commands.UNINSTALL_EXTENSION,
-                " extension ",
-                emailOp.extensionName
-            );
+            maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " extension ", emailOp.extensionName);
         }
         // Sample: Exit email wallet. Change owner to 0x000112aa..
         else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
