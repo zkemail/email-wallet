@@ -304,6 +304,8 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
+        assertTrue(success, "handleEmailOp failed");
+
         // Call depositTokenAsExtension directly should fail. i.e context should be cleared
         vm.startPrank(address(mockExtension));
         vm.expectRevert("caller not extension in context");

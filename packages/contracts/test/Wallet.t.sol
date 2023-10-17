@@ -22,6 +22,8 @@ contract WalletTest is Test {
     // For testing sending ETH to this contract
     fallback() external payable {}
 
+    receive() external payable {}
+
     // Below methods are used for deploying upgradeable deterministic wallets
     // They are the similar to the code used in EmailWalletCore
     function _deployWallet(bytes32 salt) internal returns (Wallet wallet) {

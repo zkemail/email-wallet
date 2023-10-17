@@ -21,8 +21,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(wallet.owner(), address(core), "wallet owner is not walletAddr");
 
         assertEq(core.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
+        
         (address akRelayer, bool initialized, bytes32 akWalletSalt) = core.infoOfAccountKeyCommit(accountKeyCommit);
         assertEq(akRelayer, relayer);
+        assertEq(akWalletSalt, walletSalt);
         assertEq(core.pointerOfPSIPoint(psiPoint), emailAddrPointer);
         assertTrue(!initialized);
     }
