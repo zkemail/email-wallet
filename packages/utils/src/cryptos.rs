@@ -82,6 +82,10 @@ impl AccountKey {
         Self(Fr::random(rng))
     }
 
+    pub fn from(elem: Fr) -> Self {
+        Self(elem)
+    }
+
     pub fn to_commitment(
         &self,
         email_addr: &PaddedEmailAddr,
