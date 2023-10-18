@@ -411,14 +411,14 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
 
     function proofToBytes(string memory proofPath) internal view returns (bytes memory) {
         string memory proofFile = vm.readFile(proofPath);
-        string[] memory pi_a = abi.decode(vm.parseJson(proofFile, "pi_a"), (string[]));
+        string[] memory pi_a = abi.decode(vm.parseJson(proofFile, ".pi_a"), (string[]));
         uint256[2] memory pA = [vm.parseUint(pi_a[0]), vm.parseUint(pi_a[1])];
-        string[][] memory pi_b = abi.decode(vm.parseJson(proofFile, "pi_b"), (string[][]));
+        string[][] memory pi_b = abi.decode(vm.parseJson(proofFile, ".pi_b"), (string[][]));
         uint256[2][2] memory pB = [
             [vm.parseUint(pi_b[0][1]), vm.parseUint(pi_b[0][0])],
             [vm.parseUint(pi_b[1][1]), vm.parseUint(pi_b[1][0])]
         ];
-        string[] memory pi_c = abi.decode(vm.parseJson(proofFile, "pi_c"), (string[]));
+        string[] memory pi_c = abi.decode(vm.parseJson(proofFile, ".pi_c"), (string[]));
         uint256[2] memory pC = [vm.parseUint(pi_c[0]), vm.parseUint(pi_c[1])];
         bytes memory proof = abi.encode(pA, pB, pC);
         return proof;
