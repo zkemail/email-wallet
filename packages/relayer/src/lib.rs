@@ -78,7 +78,17 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         Ok::<(), anyhow::Error>(())
     });
 
-    let _ = tokio::join!(email_receiver_task, email_handler_task, email_sender_task);
+    let api_server_task = tokio::task::spawn(async move {
+        todo!();
+        Ok::<(), anyhow::Error>(())
+    });
+
+    let _ = tokio::join!(
+        email_receiver_task,
+        email_handler_task,
+        email_sender_task,
+        api_server_task
+    );
 
     Ok(())
 }
