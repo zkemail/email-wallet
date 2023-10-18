@@ -24,7 +24,7 @@ impl Database {
     pub(crate) async fn setup_database(&self) -> Result<()> {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS emails (
-                email TEXT PRIMARY KEY,
+                email TEXT PRIMARY KEY
             );",
         )
         .execute(&self.db)
@@ -58,13 +58,10 @@ impl Database {
     }
 
     pub(crate) async fn insert_email(&self, key: &str) -> Result<()> {
-        sqlx::query(
-            "INSERT INTO emails (email) VALUES (?, ?)
-             ON CONFLICT(email) DO NOTHING;",
-        )
-        .bind(key)
-        .execute(&self.db)
-        .await?;
+        sqlx::query("INSERT INTO emails (email) VALUES (?, ?)")
+            .bind(key)
+            .execute(&self.db)
+            .await?;
 
         Ok(())
     }

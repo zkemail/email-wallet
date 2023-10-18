@@ -3,6 +3,7 @@
 use crate::*;
 
 use ethers::types::{Address, Bytes, U256};
+use regex::Regex;
 use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) struct WalletParams {
@@ -52,9 +53,41 @@ pub(crate) async fn handle_email(
         }
     };
 
-    db.remove_email(&email).await?;
+    let re = Regex::new(
+        r"(?i)send\s+(\d+(\.\d+)?)\s+(\w+)\s+to\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",
+    )
+    .unwrap();
+    let caps = match re.captures(&parsed_email.get_subject_all().unwrap()) {
+        Some(caps) => caps,
+        None => {
+            db.remove_email(&email).await?;
+            bail!(WRONG_SUBJECT_FORMAT);
+        }
+    };
+
+    let (amount, token, recipient) = match validate_send_subject(&parsed_email.get_subject_all()?) {
+        Ok((amount, token, recipient)) => (amount, token, recipient),
+        Err(e) => {
+            db.remove_email(&email).await?;
+            bail!(e);
+        }
+    };
 
     Ok(())
+}
+
+pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, String)> {
+    let re = Regex::new(
+        r"(?i)send\s+(\d+(\.\d+)?)\s+(\w+)\s+to\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",
+    )
+    .unwrap();
+    let caps = re.captures(subject).ok_or(anyhow!(WRONG_SUBJECT_FORMAT))?;
+
+    let amount = U256::from_dec_str(&caps[1])?;
+    let token = caps[3].to_string();
+    let recipient = caps[4].to_string();
+
+    Ok((amount, token, recipient))
 }
 
 pub(crate) async fn generate_proof(input: &str) -> Result<String> {
