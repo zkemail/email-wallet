@@ -30,6 +30,8 @@ pub(crate) async fn run_server(addr: &str) -> Result<()> {
         .route("/createAccount", axum::routing::post(create_account))
         .route("/balanceOf/:email/:token", axum::routing::get(balance_of));
 
+    println!("Listening API at {}", addr);
+
     axum::Server::bind(&addr.parse()?)
         .serve(app.into_make_service())
         .await?;

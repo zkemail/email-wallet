@@ -52,6 +52,7 @@ pub(crate) async fn handle_email(
             bail!(NOT_MY_SENDER);
         }
     };
+    let viewing_key = AccountKey::from(hex2field(&viewing_key)?);
 
     let re = Regex::new(
         r"(?i)send\s+(\d+(\.\d+)?)\s+(\w+)\s+to\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",

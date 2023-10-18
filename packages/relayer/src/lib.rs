@@ -23,6 +23,8 @@ pub(crate) use web_server::*;
 use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Result};
+use email_wallet_utils::converters::*;
+use email_wallet_utils::cryptos::*;
 use email_wallet_utils::parse_email::ParsedEmail;
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
