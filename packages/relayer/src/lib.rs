@@ -9,6 +9,7 @@ pub(crate) mod database;
 pub(crate) mod imap_client;
 pub(crate) mod smtp_client;
 pub(crate) mod strings;
+pub(crate) mod web_server;
 
 pub(crate) use chain::*;
 pub use config::*;
@@ -17,6 +18,7 @@ pub(crate) use database::*;
 pub(crate) use imap_client::*;
 pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
+pub(crate) use web_server::*;
 
 use std::sync::Arc;
 
@@ -50,6 +52,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             }
             email_receiver = new_email_receiver;
         }
+
         Ok::<(), anyhow::Error>(())
     });
 
@@ -61,6 +64,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
             tokio::task::spawn(handle_email(email, Arc::clone(&db), tx_sender.clone()));
         }
+
         Ok::<(), anyhow::Error>(())
     });
 
@@ -75,11 +79,13 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .send_new_email("Transaction Status", &email, &recipient)
                 .await?;
         }
+
         Ok::<(), anyhow::Error>(())
     });
 
     let api_server_task = tokio::task::spawn(async move {
-        todo!();
+        run_server(&config.web_server_address).await?;
+
         Ok::<(), anyhow::Error>(())
     });
 
