@@ -17,7 +17,7 @@ pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
 
 #[derive(Debug, Clone, Copy)]
-pub struct RelayerRand(Fr);
+pub struct RelayerRand(pub Fr);
 
 impl RelayerRand {
     pub fn new<R: RngCore>(mut r: R) -> Self {
@@ -75,7 +75,7 @@ pub fn extract_rand_from_signature(signature: &[u8]) -> Result<Fr, PoseidonError
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct AccountKey(Fr);
+pub struct AccountKey(pub Fr);
 
 impl AccountKey {
     pub fn new<R: RngCore>(rng: R) -> Self {
@@ -105,7 +105,7 @@ impl AccountKey {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct WalletSalt(Fr);
+pub struct WalletSalt(pub Fr);
 
 // #[derive(Debug, Clone, Copy)]
 // pub struct ExtAccountSalt(Fr);
