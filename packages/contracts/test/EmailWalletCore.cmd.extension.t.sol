@@ -52,13 +52,13 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
-        emailOp.extManagerParams.extensionName = "NFT Wallet";
+        emailOp.extensionName = "NFT Wallet";
         emailOp.maskedSubject = "Install extension NFT Wallet";
         emailOp.emailNullifier = bytes32(uint256(93845));
 
         EmailOp memory emailOpTestExt = _getBaseEmailOp();
         emailOpTestExt.command = Commands.INSTALL_EXTENSION;
-        emailOpTestExt.extManagerParams.extensionName = "mockExtension";
+        emailOpTestExt.extensionName = "mockExtension";
         emailOpTestExt.maskedSubject = "Install extension mockExtension";
         emailOpTestExt.emailNullifier = bytes32(uint256(4234));
 
@@ -303,6 +303,8 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         (bool success, , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
 
         // Call depositTokenAsExtension directly should fail. i.e context should be cleared
         vm.startPrank(address(mockExtension));

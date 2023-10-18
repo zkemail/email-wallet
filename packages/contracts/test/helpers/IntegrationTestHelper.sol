@@ -124,15 +124,20 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         // weth = new WETH9();
         weth = WETH9(payable(WETH_ADDR));
 
+        Wallet walletImp = new Wallet(address(weth));
+
         dkimRegistry.setDKIMPublicKeyHash(
             "gmail.com",
             0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788
         );
 
+        bytes[] memory defaultExtensions = new bytes[](0);
+
         // Deploy core contract as proxy
         address implementation = address(
             new EmailWalletCore(
                 address(verifier),
+                address(walletImp),
                 address(tokenRegistry),
                 address(dkimRegistry),
                 address(priceOracle),
@@ -144,7 +149,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
                 unclaimedFundExpirationDuration
             )
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, ());
+        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
         core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
 
         // Deploy some ERC20 test tokens and add them to registry

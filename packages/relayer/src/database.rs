@@ -2,33 +2,7 @@ use crate::*;
 
 use std::path::Path;
 
-use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqlitePool, Pool, Row, Sqlite};
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct EmailAndStatus {
-    pub(crate) email: String,
-    pub(crate) status: EmailStatus,
-}
-
-impl EmailAndStatus {
-    pub(crate) fn new(email: String, status: EmailStatus) -> Self {
-        Self { email, status }
-    }
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
-pub(crate) enum EmailStatus {
-    Unchecked,
-    Checked,
-    Executed,
-    Finalized,
-}
-
-pub(crate) struct User {
-    pub(crate) email_address: String,
-    pub(crate) viewing_key: String,
-}
 
 pub(crate) struct Database {
     db: Pool<Sqlite>,
@@ -51,7 +25,6 @@ impl Database {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS emails (
                 email TEXT PRIMARY KEY,
-                status TEXT NOT NULL
             );",
         )
         .execute(&self.db)
@@ -69,40 +42,46 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn get_unhandled_emails(&self) -> Result<Vec<EmailAndStatus>> {
+    pub(crate) async fn get_unhandled_emails(&self) -> Result<Vec<String>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT email, status FROM emails WHERE status != 'Finalized'")
+        let rows = sqlx::query("SELECT email FROM emails")
             .fetch_all(&self.db)
             .await?;
 
         for row in rows {
             let email: String = row.get("email");
-            let status = serde_json::from_str(row.get("status"))?;
-
-            vec.push(EmailAndStatus::new(email, status))
+            vec.push(email)
         }
 
         Ok(vec)
     }
 
-    pub(crate) async fn insert_email(&self, value: &EmailAndStatus) -> Result<()> {
+    pub(crate) async fn insert_email(&self, key: &str) -> Result<()> {
         sqlx::query(
-            "INSERT INTO emails (email, status) VALUES (?, ?)
-             ON CONFLICT(email) DO UPDATE SET status = excluded.status;",
+            "INSERT INTO emails (email) VALUES (?, ?)
+             ON CONFLICT(email) DO NOTHING;",
         )
-        .bind(&value.email)
-        .bind(serde_json::to_string(&value.status)?)
+        .bind(key)
         .execute(&self.db)
         .await?;
 
         Ok(())
     }
 
+    pub(crate) async fn remove_email(&self, key: &str) -> Result<()> {
+        sqlx::query("DELETE FROM emails WHERE email = ?")
+            .bind(key)
+            .execute(&self.db)
+            .await?;
+
+        Ok(())
+    }
+
     // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
     // where, ReturnStatus is some Enum ...
-    pub(crate) async fn contains_finalized_email(&self, key: &str) -> Result<bool> {
-        let result = sqlx::query("SELECT 1 FROM emails WHERE email = ? AND status = 'Finalized'")
+    pub(crate) async fn contains_email(&self, key: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM emails WHERE email = ?")
             .bind(key)
             .fetch_optional(&self.db)
             .await?;
@@ -110,17 +89,17 @@ impl Database {
         Ok(result.is_some())
     }
 
-    pub(crate) async fn insert_user(&self, user: User) -> Result<()> {
+    pub(crate) async fn insert_user(&self, email_address: &str, viewing_key: &str) -> Result<()> {
         sqlx::query("INSERT INTO users (email_address, viewing_key) VALUES (?, ?)")
-            .bind(&user.email_address)
-            .bind(&user.viewing_key)
+            .bind(email_address)
+            .bind(viewing_key)
             .execute(&self.db)
             .await?;
 
         Ok(())
     }
 
-    pub(crate) async fn get_user(&self, email_address: &str) -> Result<Option<User>> {
+    pub(crate) async fn get_viewing_key(&self, email_address: &str) -> Result<Option<String>> {
         let row_result = sqlx::query("SELECT viewing_key FROM users WHERE email_address = ?")
             .bind(email_address)
             .fetch_one(&self.db)
@@ -129,10 +108,7 @@ impl Database {
         match row_result {
             Ok(row) => {
                 let viewing_key: String = row.get("viewing_key");
-                Ok(Some(User {
-                    email_address: email_address.to_string(),
-                    viewing_key,
-                }))
+                Ok(Some(viewing_key))
             }
             Err(sqlx::error::Error::RowNotFound) => Ok(None),
             Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,

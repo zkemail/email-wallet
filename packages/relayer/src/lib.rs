@@ -24,11 +24,12 @@ use anyhow::{anyhow, bail, Result};
 use email_wallet_utils::parse_email::ParsedEmail;
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
-    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
+    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<(String, String)>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
-    for email_and_status in db.get_unhandled_emails().await? {
-        tx.send(email_and_status)?;
+    for email in db.get_unhandled_emails().await? {
+        tx_handler.send(email)?;
     }
 
     let db_clone_receiver = Arc::clone(&db);
@@ -40,11 +41,9 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {
                         let body = String::from_utf8(body.to_vec())?;
-                        if !db_clone_receiver.contains_finalized_email(&body).await? {
-                            let email_and_status =
-                                EmailAndStatus::new(body, EmailStatus::Unchecked);
-                            db_clone_receiver.insert_email(&email_and_status).await?;
-                            tx.send(email_and_status)?;
+                        if !db_clone_receiver.contains_email(&body).await? {
+                            db_clone_receiver.insert_email(&body).await?;
+                            tx_handler.send(body)?;
                         }
                     }
                 }
@@ -56,70 +55,30 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let email_handler_task = tokio::task::spawn(async move {
         loop {
-            let email_and_status = rx
+            let email = rx_handler
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-            tokio::task::spawn(handle_email(email_and_status, Arc::clone(&db)));
+            tokio::task::spawn(handle_email(email, Arc::clone(&db), tx_sender.clone()));
         }
         Ok::<(), anyhow::Error>(())
     });
 
-    let _ = tokio::join!(email_receiver_task, email_handler_task);
-
-    Ok(())
-}
-
-async fn handle_email(email_and_status: EmailAndStatus, db: Arc<Database>) -> Result<()> {
-    let EmailAndStatus { email, mut status } = email_and_status;
-    let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
-
-    /*
-    1. Проверить что отправитель релеера (знает вью ки) (если нет, то послать нахуй) +
-    2. Проверить что формат темы верный +
-    3. Проверить что баланс достаточный
-    */
-
-    if let EmailStatus::Unchecked = status {
-        let from_address = parsed_email.get_from_addr()?;
-        let user = match db.get_user(&from_address).await? {
-            Some(user) => user,
-            None => bail!(NOT_MY_SENDER),
-        };
-
-        let subject_command = validate_subject(&parsed_email.get_subject_all()?)?;
-
-        match subject_command {
-            SubjectCommand::Send {} => {
-                if !is_enough_balance(&user, &parsed_email).await? {
-                    bail!(INSUFFICIENT_BALANCE);
-                }
-            }
-            _ => todo!(),
+    let email_sender_task = tokio::task::spawn(async move {
+        let email_sender = SmtpClient::new(config.smtp_config)?;
+        loop {
+            let (email, recipient) = rx_sender
+                .recv()
+                .await
+                .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+            email_sender
+                .send_new_email("Transaction Status", &email, &recipient)
+                .await?;
         }
+        Ok::<(), anyhow::Error>(())
+    });
 
-        status = EmailStatus::Checked;
-        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
-            .await?;
-    }
-
-    if let EmailStatus::Checked = status {
-        // Execute everything: input gen, talk with coordinator
-        // local emulation, sending to chain
-        let from_address = parsed_email.get_from_addr()?;
-        let user = db.get_user(&from_address).await?.unwrap();
-
-        status = EmailStatus::Executed;
-        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
-            .await?;
-    }
-
-    if let EmailStatus::Executed = status {
-        // SEND mail that everything's fine
-        status = EmailStatus::Finalized;
-        db.insert_email(&EmailAndStatus::new(email.clone(), status.clone()))
-            .await?;
-    }
+    let _ = tokio::join!(email_receiver_task, email_handler_task, email_sender_task);
 
     Ok(())
 }

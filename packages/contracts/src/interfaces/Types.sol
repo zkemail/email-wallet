@@ -19,13 +19,13 @@ struct EmailOp {
     uint256 timestamp; // Timestamp of the email
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
-    uint256 feePerGas; // Amount of ETH to be charged per gas
-    bytes executeCallData; // data if the the command is "Execute"
+    uint256 feePerGas; // Amount of wei to be charged per gas
+    bytes executeCallData; // Encoded (target+calldata) hex if the the command is "Execute"
+    string extensionName; // Name of the extension if the command is "Install Extension" / "Uninstall Extension"
     address newWalletOwner; // Address of the new owner if the command is "Exit Email Wallet"
-    WalletParams walletParams; // Params when command = "Transfer" / "Send"
-    ExtensionParams extensionParams; // Serialized params for the extension based on the template
-    ExtensionManagerParams extManagerParams; // Params when command = "Install Extension" / "Uninstall Extension"
     address newDkimRegistry; // Address of the new dkim registry if the command is "DKIM"
+    WalletParams walletParams; // Params when command = "Send"
+    ExtensionParams extensionParams; // Serialized params for the extension based on the template
     bytes emailProof; // ZK Proof of Email receipt
 }
 
@@ -33,11 +33,6 @@ struct EmailOp {
 struct WalletParams {
     string tokenName; // Name of the token to transfer (from subject) - could be "ETH"
     uint256 amount; // Amount to transfer/swap (in wei) - extracted from subject
-}
-
-// When command = "Install Extension" / "Uninstall Extension"
-struct ExtensionManagerParams {
-    string extensionName; // Name of the extension to install/uninstall (like "uniswap")
 }
 
 struct ExtensionParams {
@@ -65,11 +60,7 @@ struct UnclaimedState {
 struct AccountKeyInfo {
     address relayer;
     bool initialized;
-    // Flag that tracks whether wallet salt is non-zero (invariant: walletSaltSet == (walletSalt
-    // != bytes32(0)), can help save a fresh SLOAD in certain methods.
-    bool walletSaltSet;
     bytes32 walletSalt;
-    // address dkimRegistry;
 }
 
 // A struct to represent commong args in a proof of email

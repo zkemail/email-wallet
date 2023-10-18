@@ -6,9 +6,14 @@ import "./helpers/EmailWalletCoreTestHelper.sol";
 contract RelayerTest is EmailWalletCoreTestHelper {
     function test_RegisterRelayer() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+        string memory emailAddr = "relayer@domain.com";
+        string memory hostname = "relayer.xyz";
 
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        vm.expectEmit();
+        emit RelayerRegistered(relayer, randHash, emailAddr, hostname);
+
+        core.registerRelayer(randHash, emailAddr, hostname);
         vm.stopPrank();
 
         (bytes32 deployedRandHash, , ) = core.relayers(relayer);
@@ -59,13 +64,18 @@ contract RelayerTest is EmailWalletCoreTestHelper {
     // Update relayer hostname
     function test_UpdateRelayerHostname() public {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+        string memory newHostname = "newdomain.xyz";
 
         vm.startPrank(relayer);
         core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
-        core.updateRelayerConfig("newdomain.xyz");
+
+        vm.expectEmit();
+        emit RelayerConfigUpdated(relayer, newHostname);
+        core.updateRelayerConfig(newHostname);
         vm.stopPrank();
 
         (, , string memory hostname) = core.relayers(relayer);
-        assertTrue(Strings.equal(hostname, "newdomain.xyz"));
+
+        assertTrue(Strings.equal(hostname, newHostname));
     }
 }

@@ -7,10 +7,14 @@ pub(crate) async fn get_latest_block_number() -> Result<U64> {
     Ok(provider.get_block_number().await?)
 }
 
-pub(crate) async fn send_to_chain(proof: &str) -> Result<()> {
+pub(crate) async fn send_to_chain(proof: &str) -> Result<String> {
     todo!()
 }
 
-pub(crate) async fn is_enough_balance(user: &User, parsed_email: &ParsedEmail) -> Result<bool> {
+pub(crate) async fn is_enough_balance(
+    email_address: &str,
+    viewing_key: &str,
+    parsed_email: &ParsedEmail,
+) -> Result<bool> {
     todo!()
 }

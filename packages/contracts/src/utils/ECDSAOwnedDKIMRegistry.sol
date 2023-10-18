@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
 
-/// @title ECDSAOwner
-/// @notice A owner contract of dkim registry that authenticates the owner's message using ECDSA signature.
-contract ECDSAOwner {
+/// @title ECDSAOwnedDKIMRegistry
+/// @notice A DKIM Registry that could be updated by predefined ECDSA signer
+contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     using Strings for *;
     using ECDSA for *;
 
@@ -23,7 +23,7 @@ contract ECDSAOwner {
     function setDKIMPublicKeyHash(
         string memory selector,
         string memory domainName,
-        uint256 publicKeyHash,
+        bytes32 publicKeyHash,
         bytes memory signature
     ) public {
         string memory tag = string.concat(address(this).toHexString(), nonce.toHexString(32));
@@ -37,7 +37,7 @@ contract ECDSAOwner {
             ";tag=",
             tag,
             ";public_key_hash=",
-            publicKeyHash.toHexString(),
+            uint256(publicKeyHash).toHexString(),
             ";"
         );
         bytes32 hash = bytes(expectedMsg).toEthSignedMessageHash();
@@ -47,7 +47,7 @@ contract ECDSAOwner {
         dkimRegistry.setDKIMPublicKeyHash(domainName, publicKeyHash);
     }
 
-    function getDKIMPublicKeyHash(string memory domainName) public view returns (uint256) {
-        return dkimRegistry.getDKIMPublicKeyHash(domainName);
+    function getDKIMPublicKeyHash(string memory domainName) public view returns (bytes32) {
+        return bytes32(dkimRegistry.getDKIMPublicKeyHash(domainName));
     }
 }
