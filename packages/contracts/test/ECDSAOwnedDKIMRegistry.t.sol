@@ -3,59 +3,140 @@ pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../src/utils/ECDSAOwnedDKIMRegistry.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ECDSAOwnedDKIMRegistryTest is Test {
     ECDSAOwnedDKIMRegistry registry;
-    bytes32 constant EXPECTED_PUBKEY_HASH = bytes32(0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788);
     using console for *;
+    using ECDSA for *;
+    using Strings for *;
+
+    string public selector = "12345";
+    string public domainName = "example.com";
+    bytes32 public publicKeyHash = bytes32(uint256(1));
 
     function setUp() public {
-        vm.startPrank(0xb4c79daB8f259C7Aee6E5b2Aa729821864227e84);
-        registry = new ECDSAOwnedDKIMRegistry(0xD47297cD18b82685cae80442d74E46Fe66430cFB);
-        vm.stopPrank();
+        address signer = vm.addr(1);
+        registry = new ECDSAOwnedDKIMRegistry(signer);
     }
 
     function test_SetDKIMPublicKeyHash() public {
         vm.chainId(1);
+        string memory signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash);
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
         registry.setDKIMPublicKeyHash(
-            "20230601",
-            "gmail.com",
-            EXPECTED_PUBKEY_HASH,
-            vm.parseBytes(
-                "0xe8acbbb17d3c3a91984d0fc9bf90d78ce17ea402609d8d67b03e4e6d5cf09e5a2c4a9debd51b2a45a37864db2d30e45faf48a1052ae15dd2d601e12d57302a471c"
-            )
+            selector,
+            domainName,
+            publicKeyHash,
+            signature
         );
+        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.nonceOfDomain(domainName) == 1, "Invalid nonce");
+    }
 
-        require(registry.getDKIMPublicKeyHash("gmail.com") == EXPECTED_PUBKEY_HASH, "Invalid public key hash");
+    function test_SetDKIMPublicKeyHashMultiDomain() public {
+        vm.chainId(1);
+        string memory signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash);
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
         registry.setDKIMPublicKeyHash(
-            "20230601",
-            "gmail.com",
-            EXPECTED_PUBKEY_HASH,
-            vm.parseBytes(
-                "0x3d2fd57094a004d496b36ec79f1d80817db75e9a25e029236548b4c0c1577cd50a6266cf8ae57f937c0e2dd672c748e7e4155dd9f3497cf513e0952afec1ad0f1b"
-            )
+            selector,
+            domainName,
+            publicKeyHash,
+            signature
         );
+        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.nonceOfDomain(domainName) == 1, "Invalid nonce");
 
-        require(registry.getDKIMPublicKeyHash("gmail.com") == EXPECTED_PUBKEY_HASH, "Invalid public key hash");
+        selector = "67890";
+        domainName = "example2.com";
+        publicKeyHash = bytes32(uint256(2));
+        signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash);
+        digest = bytes(signedMsg).toEthSignedMessageHash();
+        (v, r, s) = vm.sign(1, digest);
+        signature = abi.encodePacked(r, s, v);
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
         registry.setDKIMPublicKeyHash(
-            "20230601",
-            "gmail.com",
-            EXPECTED_PUBKEY_HASH,
-            vm.parseBytes(
-                "0x4409648a32c4860528f8c476005205a59079fe38d12cc814c552efb0d25960ef08e6ba93efc1b54ac5860260b4463b8492c4f2bbb1d4de908c4aacd182e6eaab1b"
-            )
+            selector,
+            domainName,
+            publicKeyHash,
+            signature
         );
-        require(registry.getDKIMPublicKeyHash("gmail.com") == EXPECTED_PUBKEY_HASH, "Invalid public key hash");
+        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.nonceOfDomain(domainName) == 1, "Invalid nonce");
+    }
 
-        registry.setDKIMPublicKeyHash(
-            "20230601",
-            "gmail.com",
-            EXPECTED_PUBKEY_HASH,
-            vm.parseBytes(
-                "0xcf1b5d25cfa35ae446fd73ab687f570e3bc534e65c3325339daac5f0fe4ac79a4608169cf39a324fd62d68a24a44a3dad731340bbeb3993a141b0d36699a775f1c"
-            )
+    function test_RevertIfNonceInvalid() public {
+        vm.chainId(1);
+        string memory signedMsg = string.concat(
+            "chain_id=",
+            block.chainid.toString(),
+            ";selector=",
+            selector,
+            ";domain=",
+            domainName,
+            ";nonce=",
+            1.toHexString(32),
+            ";public_key_hash=",
+            uint256(publicKeyHash).toHexString(),
+            ";"
         );
-        require(registry.getDKIMPublicKeyHash("gmail.com") == EXPECTED_PUBKEY_HASH, "Invalid public key hash");
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
+        vm.expectRevert("Invalid signature");
+        registry.setDKIMPublicKeyHash(
+            selector,
+            domainName,
+            publicKeyHash,
+            signature
+        );
+        require(registry.getDKIMPublicKeyHash(domainName) == bytes32(0), "Invalid public key hash");
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
+
+    }
+
+    function test_RevertIfSignatureInvalid() public {
+        vm.chainId(1);
+        string memory signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash);
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
+        vm.expectRevert("Invalid signature");
+        registry.setDKIMPublicKeyHash(
+            selector,
+            domainName,
+            publicKeyHash,
+            signature
+        );
+        require(registry.getDKIMPublicKeyHash(domainName) == bytes32(0), "Invalid public key hash");
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
+    }
+
+    function test_RevertIfChainIdInvalid() public {
+        vm.chainId(10);
+        string memory signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash);
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
+        vm.expectRevert("Invalid signature");
+        registry.setDKIMPublicKeyHash(
+            selector,
+            domainName,
+            publicKeyHash,
+            signature
+        );
+        require(registry.getDKIMPublicKeyHash(domainName) == bytes32(0), "Invalid public key hash");
+        require(registry.nonceOfDomain(domainName) == 0, "Invalid nonce");
     }
 }

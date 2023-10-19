@@ -21,9 +21,11 @@ import "../src/verifier/EmailSenderVerifier.sol";
 import "../src/verifier/AnnouncementVerifier.sol";
 import "../src/verifier/Verifier.sol";
 import {EmailWalletEvents} from "../src/interfaces/Events.sol";
-import "./mocks/TestUniswapExtension.sol";
-import "./mocks/TestNFTExtension.sol";
+import "../src/extensions/UniswapExtension.sol";
+import "../src/extensions/NFTExtension.sol";
+import "./mocks/DummyNFT.sol";
 import "./helpers/IntegrationTestHelper.sol";
+
 
 contract IntegrationTest is IntegrationTestHelper {
     using Strings for *;
@@ -417,7 +419,7 @@ contract IntegrationTest is IntegrationTestHelper {
         bytes32 rand1 = 0x24b937a8b8ce44c9ae130d08ad77bd4456697b9ebf563b622a74448ab0fb8ca2;
         (bytes32 emailAddrCommit, bytes memory announcementProof) = genAnnouncement(user1.emailAddr, rand1);
         // uint emailAddrCommit = 0x0dc9e2309f2f09c15b3bc05870142bd23e570e5fd3365160ded4067f9178ccec;
-        emailAddrCommit.logBytes32();
+        // emailAddrCommit.logBytes32();
         AllVerifiers verifier = AllVerifiers(address(core.verifier()));
         require(
             verifier.verifyAnnouncementProof(user1.emailAddr, rand1, emailAddrCommit, announcementProof),
@@ -431,7 +433,7 @@ contract IntegrationTest is IntegrationTestHelper {
             address(weth),
             0.5 ether,
             depositer,
-            emailValidityDuration,
+            block.timestamp + unclaimsExpiryDuration,
             uint256(rand1),
             user1.emailAddr
         );
@@ -439,7 +441,7 @@ contract IntegrationTest is IntegrationTestHelper {
             emailAddrCommit,
             address(weth),
             0.5 ether,
-            emailValidityDuration,
+            0,
             uint256(rand1),
             user1.emailAddr
         );
@@ -483,7 +485,7 @@ contract IntegrationTest is IntegrationTestHelper {
             value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
         }(emailOp);
         assertEq(success, true, string(reason));
-        weth.balanceOf(user1Wallet).logUint();
+        // weth.balanceOf(user1Wallet).logUint();
         require(
             weth.balanceOf(user1Wallet) < 0.4 ether,
             "User1 wallet balance after the first transaction is too large"
@@ -597,7 +599,7 @@ contract IntegrationTest is IntegrationTestHelper {
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
         (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
         address user1Wallet = core.getWalletOfSalt(walletSalt);
-        DummyApes ape = DummyApes(nftExtension.addressOfNFTName("APE"));
+        DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
 
@@ -672,7 +674,7 @@ contract IntegrationTest is IntegrationTestHelper {
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
         (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
         address user1Wallet = core.getWalletOfSalt(walletSalt);
-        DummyApes ape = DummyApes(nftExtension.addressOfNFTName("APE"));
+        DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
 
@@ -728,7 +730,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "invalid announcement proof"
         );
         deal(depositer, core.unclaimedStateClaimGas() * core.maxFeePerGas());
-        DummyApes ape = DummyApes(nftExtension.addressOfNFTName("APE"));
+        DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(depositer, 1);
         ape.approve(address(nftExtension), 1);
         bytes memory unclaimedState = abi.encode(address(ape), 1);
@@ -737,7 +739,7 @@ contract IntegrationTest is IntegrationTestHelper {
             emailAddrCommit,
             address(nftExtension),
             depositer,
-            emailValidityDuration,
+            block.timestamp + unclaimsExpiryDuration,
             unclaimedState,
             uint256(rand1),
             user1.emailAddr
@@ -746,7 +748,7 @@ contract IntegrationTest is IntegrationTestHelper {
             emailAddrCommit,
             address(nftExtension),
             unclaimedState,
-            emailValidityDuration,
+            0,
             uint256(rand1),
             user1.emailAddr
         );
@@ -795,7 +797,7 @@ contract IntegrationTest is IntegrationTestHelper {
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
         (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
         address user1Wallet = core.getWalletOfSalt(walletSalt);
-        DummyApes ape = DummyApes(nftExtension.addressOfNFTName("APE"));
+        DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
 

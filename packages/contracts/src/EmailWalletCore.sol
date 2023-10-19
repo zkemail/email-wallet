@@ -127,7 +127,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas,
-        uint256 _unclaimedFundExpirationDuration
+        uint256 _unclaimsExpiryDuration
     ) {
         verifier = IVerifier(_verifier);
         walletImplementation = _walletImplementationAddr;
@@ -139,7 +139,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
-        unclaimsExpiryDuration = _unclaimedFundExpirationDuration;
+        unclaimsExpiryDuration = _unclaimsExpiryDuration;
     }
 
     fallback() external payable {

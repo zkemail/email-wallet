@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
 import "../../src/EmailWalletCore.sol";
 import "../../src/utils/TokenRegistry.sol";
@@ -21,8 +22,9 @@ import "../../src/verifier/EmailSenderVerifier.sol";
 import "../../src/verifier/AnnouncementVerifier.sol";
 import "../../src/verifier/Verifier.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
-import "./../mocks/TestUniswapExtension.sol";
-import "./../mocks/TestNFTExtension.sol";
+import "../../src/extensions/UniswapExtension.sol";
+import "../../src/extensions/NFTExtension.sol";
+import "../mocks/DummyNFT.sol";
 
 abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
     using Strings for *;
@@ -49,8 +51,8 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
     WETH9 weth;
-    TestUniswapExtension uniswapExtension;
-    TestNFTExtension nftExtension;
+    UniswapExtension uniswapExtension;
+    NFTExtension nftExtension;
 
     // TestERC20 wethToken;
     ERC20 daiToken;
@@ -70,7 +72,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
     uint256 emailValidityDuration = 10 days;
     uint256 unclaimedFundClaimGas = 1000000;
     uint256 unclaimedStateClaimGas = 1000000;
-    uint256 unclaimedFundExpirationDuration = 30 days;
+    uint256 unclaimsExpiryDuration = 30 days;
 
     address deployer;
     address relayer1;
@@ -146,7 +148,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
                 emailValidityDuration,
                 unclaimedFundClaimGas,
                 unclaimedStateClaimGas,
-                unclaimedFundExpirationDuration
+                unclaimsExpiryDuration
             )
         );
         bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
@@ -171,8 +173,11 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
 
         address extensionDev = vm.addr(3);
         vm.startPrank(extensionDev);
-        uniswapExtension = new TestUniswapExtension(address(core), UNISWAP_V3_ROUTER);
-        nftExtension = new TestNFTExtension(address(core));
+        uniswapExtension = new UniswapExtension(address(core), UNISWAP_V3_ROUTER);
+        nftExtension = new NFTExtension(address(core));
+        DummyNFT apeNFT = new DummyNFT();
+        nftExtension.setNFTAddress("APE", address(apeNFT));
+
         uint256 maxExecutionGas = 10 ** 6;
         string[][] memory templates = _getUniswapSubjectTemplates();
         core.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);

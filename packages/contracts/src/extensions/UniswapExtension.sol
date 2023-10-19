@@ -2,43 +2,12 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {Extension} from "../../src/interfaces/Extension.sol";
-import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
-import "../../src/interfaces/Types.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import {Extension} from "../interfaces/Extension.sol";
+import {EmailWalletCore} from "../EmailWalletCore.sol";
+import "../interfaces/Types.sol";
 
-// original: https://solidity-by-example.org/defi/uniswap-v3-swap/
-interface ISwapRouter {
-    struct ExactInputSingleParams {
-        address tokenIn;
-        address tokenOut;
-        uint24 fee;
-        address recipient;
-        uint deadline;
-        uint amountIn;
-        uint amountOutMinimum;
-        uint160 sqrtPriceLimitX96;
-    }
-
-    /// @notice Swaps amountIn of one token for as much as possible of another token
-    /// @param params The parameters necessary for the swap, encoded as ExactInputSingleParams in calldata
-    /// @return amountOut The amount of the received token
-    function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint amountOut);
-
-    struct ExactInputParams {
-        bytes path;
-        address recipient;
-        uint deadline;
-        uint amountIn;
-        uint amountOutMinimum;
-    }
-
-    /// @notice Swaps amountIn of one token for as much as possible of another along the specified path
-    /// @param params The parameters necessary for the multi-hop swap, encoded as ExactInputParams in calldata
-    /// @return amountOut The amount of the received token
-    function exactInput(ExactInputParams calldata params) external payable returns (uint amountOut);
-}
-
-contract TestUniswapExtension is Extension {
+contract UniswapExtension is Extension {
     EmailWalletCore public core;
     ISwapRouter public router;
     // For this example, we will set the pool fee to 0.3%.
@@ -48,10 +17,14 @@ contract TestUniswapExtension is Extension {
 
     string[][] public templates = new string[][](1);
 
+    modifier onlyCore() {
+        require(msg.sender == address(core), "invalid sender");
+        _;
+    }
+
     constructor(address coreAddr, address _router) {
         core = EmailWalletCore(payable(coreAddr));
         router = ISwapRouter(_router);
-        // Deploy a NFT contract
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
     }
 
@@ -62,14 +35,13 @@ contract TestUniswapExtension is Extension {
         bool hasEmailRecipient,
         address recipientETHAddr,
         bytes32 emailNullifier
-    ) external override {
+    ) external override onlyCore {
         recipientETHAddr;
         emailNullifier;
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
         string memory tokenOut = abi.decode(subjectParams[1], (string));
         address tokenInAddr = core.getTokenAddrFromName(tokenIn);
         address tokenOutAddr = core.getTokenAddrFromName(tokenOut);
-        require(msg.sender == address(core), "invalid sender");
         require(templateIndex == 0, "invalid templateIndex");
         require(tokenOutAddr != address(0), "invalid out token name");
         require(!hasEmailRecipient, "recipient is not supported");

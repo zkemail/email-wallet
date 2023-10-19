@@ -11,7 +11,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     function test_CreateAccount() public {
         vm.startPrank(relayer);
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
 
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
@@ -96,7 +96,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
 
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit AccountInitialized(emailAddrPointer, accountKeyCommit, walletSalt);
 
         core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
@@ -128,7 +128,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
 
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit AccountTransported(accountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
 
         core.transportAccount(

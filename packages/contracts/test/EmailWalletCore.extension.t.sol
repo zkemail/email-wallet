@@ -53,7 +53,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         string[][] memory subjectTemplates = _getSampleSubjectTemplates();
 
         vm.startPrank(extensionDev);
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit ExtensionPublished(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         vm.stopPrank();

@@ -2,14 +2,16 @@
 pragma solidity ^0.8.12;
 
 import "./helpers/EmailWalletCoreTestHelper.sol";
-import "./mocks/TestNFTExtension.sol";
+// import "./mocks/TestNFTExtension.sol";
+import "../src/extensions/NFTExtension.sol";
 import "./mocks/TestExtension.sol";
+import "./mocks/DummyNFT.sol";
 
 // Testing extension functionality using TestNFTExtension
 contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     TestExtension mockExtension;
-    TestNFTExtension nftExtension;
-    DummyApes dummyApes;
+    NFTExtension nftExtension;
+    DummyNFT dummyNFT;
     string[][] public nftExtTemplates = new string[][](1);
     string[][] public mockExtTemplates = new string[][](9);
 
@@ -19,8 +21,9 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
 
         // Publish and install extension
-        nftExtension = new TestNFTExtension(address(core));
-        dummyApes = DummyApes(nftExtension.addressOfNFTName("APE"));
+        nftExtension = new NFTExtension(address(core));
+        dummyNFT = new DummyNFT();
+        nftExtension.setNFTAddress("APE", address(dummyNFT));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
         core.publishExtension("NFT Wallet", address(nftExtension), nftExtTemplates, 0.1 ether);
 
@@ -82,14 +85,14 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[1] = abi.encode(string("APE"));
 
         vm.startPrank(walletAddr);
-        dummyApes.freeMint(walletAddr, 22); // Mint a NFT with tokenId 22 to walletAddr
+        dummyNFT.freeMint(walletAddr, 22); // Mint a NFT with tokenId 22 to walletAddr
         vm.stopPrank();
 
         vm.startPrank(relayer);
         core.handleEmailOp(emailOp);
         vm.stopPrank();
 
-        assertEq(dummyApes.ownerOf(22), recipient, "NFT not sent to recipient");
+        assertEq(dummyNFT.ownerOf(22), recipient, "NFT not sent to recipient");
     }
 
     function test_SubjectWithEmailRecipient() public {
@@ -107,7 +110,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[1] = abi.encode("APE");
 
         vm.startPrank(walletAddr);
-        dummyApes.freeMint(walletAddr, 55); // Mint a NFT with tokenId 55 to walletAddr
+        dummyNFT.freeMint(walletAddr, 55); // Mint a NFT with tokenId 55 to walletAddr
         vm.stopPrank();
 
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);

@@ -32,13 +32,13 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit UnclaimedFundRegistered(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
             walletAddr, // walletAddr should be sender
-            block.timestamp + unclaimedFundExpirationDuration, // default expiry
+            block.timestamp + unclaimsExpiryDuration, // default expiry
             0,
             ""
         );
@@ -56,7 +56,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         assertEq(amount, 100 ether, "amount mismatch");
 
         // Should use default expiry
-        assertEq(expiryTime, block.timestamp + unclaimedFundExpirationDuration, "expiryTime mismatch");
+        assertEq(expiryTime, block.timestamp + unclaimsExpiryDuration, "expiryTime mismatch");
 
         // Core contract should have the balance
         assertEq(daiToken.balanceOf(address(core)), 100 ether, "core contract didnt receive the tokens");
@@ -96,13 +96,13 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(sender);
         daiToken.approve(address(core), 100 ether); // Add allowance to core so it can transfer tokens
 
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit UnclaimedFundRegistered(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
             sender,
-            block.timestamp + unclaimedFundExpirationDuration, // default expiry
+            block.timestamp + unclaimsExpiryDuration, // default expiry
             0,
             ""
         );
@@ -123,7 +123,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         assertEq(ufSender, sender, "sender mismatch");
         assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
         assertEq(amount, 100 ether, "amount mismatch");
-        assertEq(expiryTime, block.timestamp + unclaimedFundExpirationDuration, "expiryTime mismatch");
+        assertEq(expiryTime, block.timestamp + unclaimsExpiryDuration, "expiryTime mismatch");
         assertEq(daiToken.balanceOf(address(core)), 100 ether, "core contract didnt receive the tokens");
     }
 
@@ -177,13 +177,13 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core), 100 ether);
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit UnclaimedFundRegistered(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
             sender,
-            block.timestamp + unclaimedFundExpirationDuration, // default expiry
+            block.timestamp + unclaimsExpiryDuration, // default expiry
             commitmentRand,
             emailAddr
         );
@@ -275,7 +275,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Relayer claim the unclaimed fund to account
         vm.startPrank(relayer);
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit UnclaimedFundClaimed(recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
 
         core.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
@@ -552,7 +552,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.warp(block.timestamp + 31 days); // Expiry time is 30 days (set in EmailWalletCoreTestHelper)
 
         vm.startPrank(voidUser);
-        vm.expectEmit();
+        vm.expectEmit(true,true,true,true);
         emit UnclaimedFundVoided(recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
         core.voidUnclaimedFund(recipientEmailAddrCommit);
         vm.stopPrank();
