@@ -20,14 +20,23 @@ pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
 pub(crate) use web_server::*;
 
-use std::sync::Arc;
+use std::path::PathBuf;
+use std::sync::{Arc, OnceLock};
 
 use anyhow::{anyhow, bail, Result};
 use email_wallet_utils::converters::*;
 use email_wallet_utils::cryptos::*;
 use email_wallet_utils::parse_email::ParsedEmail;
 
+static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
+static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
+static RELAYER_RAND: OnceLock<String> = OnceLock::new();
+
 pub async fn run(config: RelayerConfig) -> Result<()> {
+    CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
+    WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
+    RELAYER_RAND.set(config.relayer_randomness).unwrap();
+
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<(String, String)>();
 
@@ -64,6 +73,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+
             tokio::task::spawn(handle_email(email, Arc::clone(&db), tx_sender.clone()));
         }
 
@@ -86,7 +96,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     });
 
     let api_server_task = tokio::task::spawn(async move {
-        run_server(&config.web_server_address).await?;
+        run_server(WEB_SERVER_ADDRESS.get().unwrap()).await?;
 
         Ok::<(), anyhow::Error>(())
     });

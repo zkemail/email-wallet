@@ -17,6 +17,7 @@ pub const ETHERSCAN_KEY: &str = "ETHERSCAN_KEY";
 pub const DATABASE_PATH_KEY: &str = "DATABASE_PATH";
 pub const RELAYER_RANDOMNESS_KEY: &str = "RELAYER_RANDOMNESS";
 pub const WEB_SERVER_ADDRESS_KEY: &str = "WEB_SERVER_ADDRESS";
+pub const CIRCUITS_DIR_PATH_KEY: &str = "CIRCUITS_DIR_PATH";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";
