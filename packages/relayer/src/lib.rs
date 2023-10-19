@@ -31,11 +31,13 @@ use email_wallet_utils::parse_email::ParsedEmail;
 static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
 static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
 static RELAYER_RAND: OnceLock<String> = OnceLock::new();
+static COORDINATOR_ADDRESS: OnceLock<String> = OnceLock::new();
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
     RELAYER_RAND.set(config.relayer_randomness).unwrap();
+    COORDINATOR_ADDRESS.set(config.coordinator_address).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<(String, String)>();

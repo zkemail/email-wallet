@@ -10,11 +10,3 @@ pub(crate) async fn get_latest_block_number() -> Result<U64> {
 pub(crate) async fn send_to_chain(proof: &str) -> Result<String> {
     todo!()
 }
-
-pub(crate) async fn is_enough_balance(
-    email_address: &str,
-    viewing_key: &str,
-    parsed_email: &ParsedEmail,
-) -> Result<bool> {
-    todo!()
-}

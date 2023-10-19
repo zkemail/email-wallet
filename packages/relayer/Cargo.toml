@@ -23,3 +23,4 @@ sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio"] }
 regex = "1.10.2"
 axum = "0.6.20"
 rand = "0.8.5"
+reqwest = "0.11.22"
