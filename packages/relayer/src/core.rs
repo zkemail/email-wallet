@@ -14,16 +14,19 @@ use tokio::{
     sync::mpsc::UnboundedSender,
 };
 
+#[derive(Default)]
 pub(crate) struct WalletParams {
     pub(crate) token_name: String,
     pub(crate) amount: U256,
 }
 
+#[derive(Default)]
 pub(crate) struct ExtensionParams {
     pub(crate) subject_template_index: u8,
     pub(crate) subject_params: Bytes,
 }
 
+#[derive(Default)]
 pub(crate) struct EmailOp {
     pub(crate) email_addr_pointer: [u8; 32],
     pub(crate) has_email_recipient: bool,
@@ -62,18 +65,6 @@ pub(crate) async fn handle_email(
     };
     let viewing_key = AccountKey::from(hex2field(&viewing_key)?);
 
-    let re = Regex::new(
-        r"(?i)send\s+(\d+(\.\d+)?)\s+(\w+)\s+to\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",
-    )
-    .unwrap();
-    let caps = match re.captures(&parsed_email.get_subject_all().unwrap()) {
-        Some(caps) => caps,
-        None => {
-            db.remove_email(&email).await?;
-            bail!(WRONG_SUBJECT_FORMAT);
-        }
-    };
-
     let (amount, token, recipient) = match validate_send_subject(&parsed_email.get_subject_all()?) {
         Ok((amount, token, recipient)) => (amount, token, recipient),
         Err(e) => {
@@ -88,6 +79,10 @@ pub(crate) async fn handle_email(
         RELAYER_RAND.get().unwrap(),
     )
     .await?;
+
+    let proof = generate_coordinator_proof(&input, COORDINATOR_ADDRESS.get().unwrap()).await?;
+
+    let email_op = EmailOp::default();
 
     Ok(())
 }
@@ -142,8 +137,16 @@ pub(crate) async fn generate_input(
     Ok(result)
 }
 
-pub(crate) async fn generate_proof(input: &str) -> Result<String> {
-    todo!()
+pub(crate) async fn generate_coordinator_proof(input: &str, address: &str) -> Result<String> {
+    let client = reqwest::Client::new();
+    let res = client
+        .post(format!("{}/generate_proof", address))
+        .json(&serde_json::json!({"input": input}))
+        .send()
+        .await?
+        .error_for_status()?;
+
+    Ok(res.text().await?)
 }
 
 pub(crate) fn calculate_hash(input: &str) -> String {
