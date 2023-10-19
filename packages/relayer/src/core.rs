@@ -2,9 +2,17 @@
 
 use crate::*;
 
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+use std::path::Path;
+
 use ethers::types::{Address, Bytes, U256};
 use regex::Regex;
-use tokio::sync::mpsc::UnboundedSender;
+use tokio::{
+    fs::{read_to_string, remove_file, File},
+    io::AsyncWriteExt,
+    sync::mpsc::UnboundedSender,
+};
 
 pub(crate) struct WalletParams {
     pub(crate) token_name: String,
@@ -74,6 +82,13 @@ pub(crate) async fn handle_email(
         }
     };
 
+    let input = generate_input(
+        CIRCUITS_DIR_PATH.get().unwrap(),
+        &email,
+        RELAYER_RAND.get().unwrap(),
+    )
+    .await?;
+
     Ok(())
 }
 
@@ -91,6 +106,50 @@ pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, Stri
     Ok((amount, token, recipient))
 }
 
+pub(crate) async fn generate_input(
+    circuits_dir_path: &Path,
+    email: &str,
+    relayer_rand: &str,
+) -> Result<String> {
+    let email_hash = calculate_hash(email);
+    let email_file_name = email_hash.clone() + ".email";
+    let input_file_name = email_hash + ".input";
+
+    let mut email_file = File::create(&email_file_name).await?;
+    email_file.write_all(email.as_bytes()).await?;
+
+    File::create(&input_file_name).await?;
+    let current_dir = std::env::current_dir()?;
+
+    let command_str =
+        format!(
+        "yarn --cwd {} gen-email-sender-input --email-file {} --relayer-rand {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(), email_file_name, relayer_rand, input_file_name
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+
+    remove_file(email_file_name).await?;
+    remove_file(input_file_name).await?;
+
+    Ok(result)
+}
+
 pub(crate) async fn generate_proof(input: &str) -> Result<String> {
     todo!()
+}
+
+pub(crate) fn calculate_hash(input: &str) -> String {
+    let mut hasher = DefaultHasher::new();
+    input.hash(&mut hasher);
+    let hash_code = hasher.finish();
+
+    hash_code.to_string()
 }

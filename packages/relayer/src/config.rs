@@ -11,6 +11,7 @@ pub struct RelayerConfig {
     pub(crate) db_path: PathBuf,
     pub(crate) relayer_randomness: String,
     pub(crate) web_server_address: String,
+    pub(crate) circuits_dir_path: PathBuf,
 }
 
 impl RelayerConfig {
@@ -53,6 +54,7 @@ impl RelayerConfig {
             db_path: env::var(DATABASE_PATH_KEY).unwrap().into(),
             relayer_randomness: env::var(RELAYER_RANDOMNESS_KEY).unwrap(),
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),
+            circuits_dir_path: env::var(CIRCUITS_DIR_PATH_KEY).unwrap().into(),
         }
     }
 }
