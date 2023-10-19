@@ -82,7 +82,34 @@ pub(crate) async fn handle_email(
 
     let proof = generate_coordinator_proof(&input, COORDINATOR_ADDRESS.get().unwrap()).await?;
 
-    let email_op = EmailOp::default();
+    let email_op = EmailOp {
+        email_addr_pointer: todo!(),
+        has_email_recipient: todo!(),
+        recipient_email_addr_commit: todo!(),
+        recipient_eth_addr: todo!(),
+        command: String::from("Send"),
+        email_nullifier: todo!(),
+        email_domain: String::from("gmail.com"),
+        timestamp: parsed_email.get_timestamp()?.into(),
+        masked_subject: todo!(),
+        fee_token_name: todo!(),
+        fee_per_gas: todo!(),
+        execute_calldata: Bytes::new(),
+        extension_name: String::new(),
+        new_wallet_owner: Address::default(),
+        new_dkim_registry: Address::default(),
+        wallet_params: WalletParams {
+            token_name: token,
+            amount,
+        },
+        extension_params: ExtensionParams {
+            subject_template_index: 0,
+            subject_params: Bytes::new(),
+        },
+        email_proof: Bytes::from(proof.into_bytes()),
+    };
+
+    let result = call_handle_email_op(email_op).await?;
 
     Ok(())
 }
@@ -140,7 +167,7 @@ pub(crate) async fn generate_input(
 pub(crate) async fn generate_coordinator_proof(input: &str, address: &str) -> Result<String> {
     let client = reqwest::Client::new();
     let res = client
-        .post(format!("{}/generate_proof", address))
+        .post(format!("{}/generateSendProof", address))
         .json(&serde_json::json!({"input": input}))
         .send()
         .await?
