@@ -209,6 +209,30 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         bytes calldata psiPoint,
         bytes calldata proof
     ) public returns (Wallet wallet) {
+        return createAccount(
+            emailAddrPointer,
+            accountKeyCommit,
+            walletSalt,
+            psiPoint,
+            proof,
+            defaultDkimRegistry
+        );
+    }
+
+    /// Create new account and wallet for a user
+    /// @param emailAddrPointer hash(relayerRand, emailAddr)
+    /// @param accountKeyCommit hash(accountKey, emailAddr, relayerHash)
+    /// @param walletSalt hash(accountKey, 0)
+    /// @param proof ZK proof as required by the verifier
+    /// @param dkimRegistry Address of DKIM registry for the user's email domain
+    function createAccount(
+        bytes32 emailAddrPointer,
+        bytes32 accountKeyCommit,
+        bytes32 walletSalt,
+        bytes calldata psiPoint,
+        bytes calldata proof,
+        address dkimRegistry
+    ) public returns (Wallet wallet) {
         require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
@@ -231,6 +255,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         infoOfAccountKeyCommit[accountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[accountKeyCommit].walletSalt = walletSalt;
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
+        dkimRegistryOfWalletSalt[walletSalt] = dkimRegistry;
 
         wallet = _deployWallet(walletSalt);
 
@@ -1380,12 +1405,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @param walletSalt Salt used to deploy the wallet
     /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
     function _getDKIMPublicKeyHash(bytes32 walletSalt, string memory emailDomain) internal view returns (bytes32) {
-        IDKIMRegistry dkimRegistry = IDKIMRegistry(defaultDkimRegistry);
-
-        if (dkimRegistryOfWalletSalt[walletSalt] != address(0)) {
-            dkimRegistry = IDKIMRegistry(dkimRegistryOfWalletSalt[walletSalt]);
-        }
-
+        // IDKIMRegistry dkimRegistry = IDKIMRegistry(defaultDkimRegistry);
+        IDKIMRegistry dkimRegistry = IDKIMRegistry(dkimRegistryOfWalletSalt[walletSalt]);
+        require(address(dkimRegistry)!=address(0), "invalid dkim registry");
+        // if (dkimRegistryOfWalletSalt[walletSalt] != address(0)) {
+        //     dkimRegistry = IDKIMRegistry(dkimRegistryOfWalletSalt[walletSalt]);
+        // }
         return dkimRegistry.getDKIMPublicKeyHash(emailDomain);
     }
 
