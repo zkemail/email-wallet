@@ -11,29 +11,32 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     using Strings for *;
     using ECDSA for *;
 
-    mapping(string => uint256) public nonceOfDomain;
+    // mapping(string => uint256) public nonceOfDomain;
+    uint signValidityDuration;
     DKIMRegistry public dkimRegistry;
     address public signer;
 
-    constructor(address _signer) {
+    constructor(address _signer, uint _signValidityDuration) {
         dkimRegistry = new DKIMRegistry();
         signer = _signer;
+        signValidityDuration = _signValidityDuration;
     }
 
     function setDKIMPublicKeyHash(
         string memory selector,
         string memory domainName,
+        uint timestamp,
         bytes32 publicKeyHash,
         bytes memory signature
     ) public {
         require(bytes(selector).length != 0, "Invalid selector");
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
-        string memory signedMsg = computeSignedMsg(selector, domainName, publicKeyHash);
+        require(block.timestamp - timestamp <= signValidityDuration, "Signature expired");
+        string memory signedMsg = computeSignedMsg(selector, domainName, publicKeyHash, timestamp);
         bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
         address recoveredSigner = digest.recover(signature);
         require(recoveredSigner == signer, "Invalid signature");
-        nonceOfDomain[domainName]++;
         dkimRegistry.setDKIMPublicKeyHash(domainName, publicKeyHash);
     }
 
@@ -44,7 +47,8 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     function computeSignedMsg(
         string memory selector,
         string memory domainName,
-        bytes32 publicKeyHash
+        bytes32 publicKeyHash,
+        uint256 timestamp
     ) public view returns (string memory) {
         return string.concat(
             "chain_id=",
@@ -53,8 +57,8 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
             selector,
             ";domain=",
             domainName,
-            ";nonce=",
-            nonceOfDomain[domainName].toHexString(32),
+            ";timestamp=",
+            timestamp.toString(),
             ";public_key_hash=",
             uint256(publicKeyHash).toHexString(),
             ";"
