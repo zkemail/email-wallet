@@ -23,15 +23,7 @@ import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 
-contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeable, UUPSUpgradeable {
-    string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
-    string public constant AMOUNT_TEMPLATE = "{amount}";
-    string public constant STRING_TEMPLATE = "{string}";
-    string public constant UINT_TEMPLATE = "{uint}";
-    string public constant INT_TEMPLATE = "{int}";
-    string public constant ADDRESS_TEMPLATE = "{address}";
-    string public constant RECIPIENT_TEMPLATE = "{recipient}";
-
+contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -151,8 +143,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         revert();
     }
 
-    function initialize(bytes[] calldata defaultExtensions) public initializer {
-        __Ownable_init();
+    function initialize(bytes[] calldata defaultExtensions) public {
+        // __Ownable_init();
 
         // Set default extensions
         for (uint256 i = 0; i < defaultExtensions.length; i++) {
@@ -877,7 +869,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             }
             uint numRecipient = 0;
             for (uint j = 1; j < subjectTemplates[i].length; j++) {
-                if (Strings.equal(subjectTemplates[i][j], RECIPIENT_TEMPLATE)) {
+                if (Strings.equal(subjectTemplates[i][j], Commands.RECIPIENT_TEMPLATE)) {
                     numRecipient++;
                 }
             }
@@ -902,12 +894,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
 
         // Check if command is not a template
         require(
-            !Strings.equal(command, TOKEN_AMOUNT_TEMPLATE) &&
-                !Strings.equal(command, AMOUNT_TEMPLATE) &&
-                !Strings.equal(command, STRING_TEMPLATE) &&
-                !Strings.equal(command, UINT_TEMPLATE) &&
-                !Strings.equal(command, INT_TEMPLATE) &&
-                !Strings.equal(command, ADDRESS_TEMPLATE),
+            !Strings.equal(command, Commands.TOKEN_AMOUNT_TEMPLATE) &&
+                !Strings.equal(command, Commands.AMOUNT_TEMPLATE) &&
+                !Strings.equal(command, Commands.STRING_TEMPLATE) &&
+                !Strings.equal(command, Commands.UINT_TEMPLATE) &&
+                !Strings.equal(command, Commands.INT_TEMPLATE) &&
+                !Strings.equal(command, Commands.ADDRESS_TEMPLATE),
             "command cannot be a template matcher"
         );
 
@@ -1087,7 +1079,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             for (uint8 i = 0; i < subjectTemplate.length; i++) {
                 string memory matcher = string(subjectTemplate[i]);
 
-                if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
+                if (Strings.equal(matcher, Commands.TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256, string)
@@ -1097,12 +1089,12 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                     );
                     nextParamIndex++;
                 } else if (
-                    Strings.equal(matcher, AMOUNT_TEMPLATE) ||
-                    Strings.equal(matcher, STRING_TEMPLATE) ||
-                    Strings.equal(matcher, UINT_TEMPLATE) ||
-                    Strings.equal(matcher, INT_TEMPLATE) ||
-                    Strings.equal(matcher, ADDRESS_TEMPLATE) ||
-                    Strings.equal(matcher, RECIPIENT_TEMPLATE)
+                    Strings.equal(matcher, Commands.AMOUNT_TEMPLATE) ||
+                    Strings.equal(matcher, Commands.STRING_TEMPLATE) ||
+                    Strings.equal(matcher, Commands.UINT_TEMPLATE) ||
+                    Strings.equal(matcher, Commands.INT_TEMPLATE) ||
+                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE) ||
+                    Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)
                 ) {
                     nextParamIndex++;
                 }
@@ -1233,7 +1225,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
         return priceOracle.getRecentPriceInETH(tokenAddr);
     }
 
-    /// @notice Upgrade the implementation of the proxy contract
-    /// @param newImplementation Address of the new implementation contract
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    // /// @notice Upgrade the implementation of the proxy contract
+    // /// @param newImplementation Address of the new implementation contract
+    // function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

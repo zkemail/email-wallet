@@ -10,14 +10,6 @@ import "../interfaces/Commands.sol";
 import "../utils/TokenRegistry.sol";
 
 library SubjectUtils {
-    string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
-    string public constant AMOUNT_TEMPLATE = "{amount}";
-    string public constant STRING_TEMPLATE = "{string}";
-    string public constant UINT_TEMPLATE = "{uint}";
-    string public constant INT_TEMPLATE = "{int}";
-    string public constant ADDRESS_TEMPLATE = "{address}";
-    string public constant RECIPIENT_TEMPLATE = "{recipient}";
-
     /// @notice Return the token address for a token name.
     /// @param tokenName Name of the token
     function getTokenAddrFromName(string memory tokenName, TokenRegistry tokenRegistry) public view returns (address) {
@@ -115,9 +107,7 @@ library SubjectUtils {
         // The command is for an extension
         else {
             isExtension = true;
-            string[] memory subjectTemplate = subjectTemplatesOfExtension[
-                emailOp.extensionParams.subjectTemplateIndex
-            ];
+            string[] memory subjectTemplate = subjectTemplatesOfExtension[emailOp.extensionParams.subjectTemplateIndex];
 
             uint8 nextParamIndex;
             for (uint8 i = 0; i < subjectTemplate.length; i++) {
@@ -125,7 +115,7 @@ library SubjectUtils {
                 string memory value;
 
                 // {tokenAmount} is combination of tokenName and amount, encoded as (uint256,string). Eg: `30.23 DAI`
-                if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
+                if (Strings.equal(matcher, Commands.TOKEN_AMOUNT_TEMPLATE)) {
                     (uint256 amount, string memory tokenName) = abi.decode(
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256, string)
@@ -143,34 +133,34 @@ library SubjectUtils {
                     nextParamIndex++;
                 }
                 // {amount} is number in wei format (decimal format in subject)
-                else if (Strings.equal(matcher, AMOUNT_TEMPLATE)) {
+                else if (Strings.equal(matcher, Commands.AMOUNT_TEMPLATE)) {
                     uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
                     value = DecimalUtils.uintToDecimalString(num);
                     nextParamIndex++;
                 }
                 // {string} is plain string
-                else if (Strings.equal(matcher, STRING_TEMPLATE)) {
+                else if (Strings.equal(matcher, Commands.STRING_TEMPLATE)) {
                     value = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (string));
                     nextParamIndex++;
                 }
                 // {uint} is number parsed the same way as mentioned in subject (decimals not allowed) - use {amount} for decimals
-                else if (Strings.equal(matcher, UINT_TEMPLATE)) {
+                else if (Strings.equal(matcher, Commands.UINT_TEMPLATE)) {
                     uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
                     value = Strings.toString(num);
                     nextParamIndex++;
                 }
                 // {int} for negative values
-                else if (Strings.equal(matcher, INT_TEMPLATE)) {
+                else if (Strings.equal(matcher, Commands.INT_TEMPLATE)) {
                     int256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (int256));
                     value = Strings.toString(num);
                     nextParamIndex++;
                 }
                 // {addres} for wallet address
-                else if (Strings.equal(matcher, ADDRESS_TEMPLATE)) {
+                else if (Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)) {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
                     value = Strings.toHexString(uint256(uint160(addr)), 20);
                     nextParamIndex++;
-                } else if (Strings.equal(matcher, RECIPIENT_TEMPLATE)) {
+                } else if (Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {
                         value = Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20);
                     }
