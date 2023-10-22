@@ -24,20 +24,13 @@ contract AllVerifiers is IVerifier {
     uint256 public constant EMAIL_ADDR_BYTES = 256;
     uint256 public constant EMAIL_ADDR_FIELDS = 9;
 
-    constructor(
-        address _accountCreationVerifier,
-        address _accountInitVerifier,
-        address _accountTransportVerifier,
-        address _claimVerifier,
-        address _emailSenderVerifier,
-        address _announcementVerifier
-    ) {
-        accountCreationVerifier = AccountCreationVerifier(_accountCreationVerifier);
-        accountInitVerifier = AccountInitVerifier(_accountInitVerifier);
-        accountTransportVerifier = AccountTransportVerifier(_accountTransportVerifier);
-        claimVerifier = ClaimVerifier(_claimVerifier);
-        emailSenderVerifier = EmailSenderVerifier(_emailSenderVerifier);
-        announcementVerifier = AnnouncementVerifier(_announcementVerifier);
+    constructor() {
+        accountCreationVerifier = new AccountCreationVerifier();
+        accountInitVerifier = new AccountInitVerifier();
+        accountTransportVerifier = new AccountTransportVerifier();
+        claimVerifier = new ClaimVerifier();
+        emailSenderVerifier = new EmailSenderVerifier();
+        announcementVerifier = new AnnouncementVerifier();
     }
 
     /// @inheritdoc IVerifier

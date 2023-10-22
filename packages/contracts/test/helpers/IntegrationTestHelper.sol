@@ -106,20 +106,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
 
         vm.startPrank(deployer);
 
-        address accountCreationVerifier = address(new AccountCreationVerifier());
-        address accountInitVerifier = address(new AccountInitVerifier());
-        address accountTransportVerifier = address(new AccountTransportVerifier());
-        address claimVerifier = address(new ClaimVerifier());
-        address emailSenderVerifier = address(new EmailSenderVerifier());
-        address announcementVerifier = address(new AnnouncementVerifier());
-        verifier = new AllVerifiers(
-            accountCreationVerifier,
-            accountInitVerifier,
-            accountTransportVerifier,
-            claimVerifier,
-            emailSenderVerifier,
-            announcementVerifier
-        );
+        verifier = new AllVerifiers();
         tokenRegistry = new TokenRegistry();
         dkimRegistry = new DKIMRegistry();
         priceOracle = new UniswapTWAPOracle(UNISWAP_V3_FACTORY, WETH_ADDR);

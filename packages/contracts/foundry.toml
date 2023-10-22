@@ -1,5 +1,6 @@
 [profile.default]
 src = "src"
+scripts = "scripts"
 out = "artifacts"
 libs = ["../../node_modules"]
 fs_permissions = [

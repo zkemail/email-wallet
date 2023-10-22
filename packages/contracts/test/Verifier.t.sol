@@ -15,20 +15,7 @@ contract VerifierTest is Test {
     AllVerifiers verifier;
 
     function setUp() public {
-        address accountCreationVerifier = address(new AccountCreationVerifier());
-        address accountInitVerifier = address(new AccountInitVerifier());
-        address accountTransportVerifier = address(new AccountTransportVerifier());
-        address claimVerifier = address(new ClaimVerifier());
-        address emailSenderVerifier = address(new EmailSenderVerifier());
-        address announcementVerifier = address(new AnnouncementVerifier());
-        verifier = new AllVerifiers(
-            accountCreationVerifier,
-            accountInitVerifier,
-            accountTransportVerifier,
-            claimVerifier,
-            emailSenderVerifier,
-            announcementVerifier
-        );
+        verifier = new AllVerifiers();
     }
 
     function testVerifier_AccountCreation() public view {
