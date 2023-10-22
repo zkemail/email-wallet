@@ -77,7 +77,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
             address(nftExtension),
             walletAddr,
@@ -293,7 +293,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(sender);
         vm.expectEmit(true,true,true,true);
 
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
             address(nftExtension),
             sender,
@@ -372,7 +372,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
             address(nftExtension),
             sender,
@@ -514,7 +514,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedStateClaimed(recipientEmailAddrCommit, walletAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, walletAddr);
 
         core.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
         vm.stopPrank();
@@ -560,7 +560,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         core.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
 
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedStateClaimed(recipientEmailAddrCommit, newWalletAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, newWalletAddr);
 
         core.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();
@@ -825,7 +825,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedStateVoided(recipientEmailAddrCommit, sender);
+        emit EmailWalletEvents.UnclaimedStateVoided(recipientEmailAddrCommit, sender);
         core.voidUnclaimedState(recipientEmailAddrCommit);
         vm.stopPrank();
 

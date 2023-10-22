@@ -26,7 +26,7 @@ import "../../src/extensions/UniswapExtension.sol";
 import "../../src/extensions/NFTExtension.sol";
 import "../mocks/DummyNFT.sol";
 
-abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
+abstract contract IntegrationTestHelper is Test {
     using Strings for *;
     using console for *;
     using stdStorage for StdStorage;
@@ -121,6 +121,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         );
 
         bytes[] memory defaultExtensions = new bytes[](0);
+        RelayerHandler relayerHandler = new RelayerHandler();
 
         // Deploy core contract as proxy
         address implementation = address(
@@ -135,7 +136,8 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
                 emailValidityDuration,
                 unclaimedFundClaimGas,
                 unclaimedStateClaimGas,
-                unclaimsExpiryDuration
+                unclaimsExpiryDuration,
+                address(relayerHandler)
             )
         );
         bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));

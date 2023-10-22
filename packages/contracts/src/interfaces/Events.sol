@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-interface EmailWalletEvents {
+library EmailWalletEvents {
     event RelayerRegistered(address indexed addr, bytes32 randHash, string emailAddr, string hostname);
 
     event RelayerConfigUpdated(address indexed addr, string hostname);

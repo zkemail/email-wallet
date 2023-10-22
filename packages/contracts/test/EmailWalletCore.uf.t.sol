@@ -33,7 +33,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedFundRegistered(
+        emit EmailWalletEvents.UnclaimedFundRegistered(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -97,7 +97,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         daiToken.approve(address(core), 100 ether); // Add allowance to core so it can transfer tokens
 
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedFundRegistered(
+        emit EmailWalletEvents.UnclaimedFundRegistered(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -178,7 +178,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(sender);
         daiToken.approve(address(core), 100 ether);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedFundRegistered(
+        emit EmailWalletEvents.UnclaimedFundRegistered(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -276,7 +276,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed fund to account
         vm.startPrank(relayer);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedFundClaimed(recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
+        emit EmailWalletEvents.UnclaimedFundClaimed(recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
 
         core.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
         vm.stopPrank();
@@ -553,7 +553,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectEmit(true,true,true,true);
-        emit UnclaimedFundVoided(recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
+        emit EmailWalletEvents.UnclaimedFundVoided(recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
         core.voidUnclaimedFund(recipientEmailAddrCommit);
         vm.stopPrank();
 

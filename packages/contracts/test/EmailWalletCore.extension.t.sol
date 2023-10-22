@@ -54,7 +54,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(extensionDev);
         vm.expectEmit(true,true,true,true);
-        emit ExtensionPublished(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
+        emit EmailWalletEvents.ExtensionPublished(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         vm.stopPrank();
 

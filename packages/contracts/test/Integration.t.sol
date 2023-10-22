@@ -428,7 +428,7 @@ contract IntegrationTest is IntegrationTestHelper {
         deal(depositer, core.unclaimedFundClaimGas() * core.maxFeePerGas());
         require(weth.approve(address(core), 0.5 ether), "approve failed");
         vm.expectEmit(true, true, true, true);
-        emit UnclaimedFundRegistered(
+        emit EmailWalletEvents.UnclaimedFundRegistered(
             emailAddrCommit,
             address(weth),
             0.5 ether,
@@ -735,7 +735,7 @@ contract IntegrationTest is IntegrationTestHelper {
         ape.approve(address(nftExtension), 1);
         bytes memory unclaimedState = abi.encode(address(ape), 1);
         vm.expectEmit(true, true, true, true);
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             emailAddrCommit,
             address(nftExtension),
             depositer,

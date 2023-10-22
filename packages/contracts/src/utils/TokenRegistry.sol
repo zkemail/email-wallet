@@ -46,7 +46,12 @@ contract TokenRegistry is Ownable {
     /// @dev "0" is a valid input for `chainId` arg (mainnet). Be careful to not pass uninitialized uint variable.
     /// @dev "ETH" with return the address of "WETH"
     function getTokenAddress(uint256 chainId, string memory tokenName) public view returns (address) {
-        if (Strings.equal(tokenName, "WETH") || Strings.equal(tokenName, "ETH")) {
+        // Return WETH
+         if (Strings.equal(tokenName, "ETH")) {
+            tokenName = "WETH";
+        }
+
+        if (Strings.equal(tokenName, "WETH")) {
             if (chainId == 0) return 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
             if (chainId == 10) return 0x4200000000000000000000000000000000000006;
             if (chainId == 42161) return 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;

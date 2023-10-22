@@ -18,10 +18,11 @@ import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
+import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
-contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
+contract EmailWalletCoreTestHelper is Test {
     EmailWalletCore core;
     TestVerifier verifier;
     TokenRegistry tokenRegistry;
@@ -87,24 +88,25 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
         _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
         defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
 
+        RelayerHandler relayerHandler = new RelayerHandler();
+
         // Deploy core contract as proxy
-        address implementation = address(
-            new EmailWalletCore(
-                address(verifier),
-                address(walletImp),
-                address(tokenRegistry),
-                address(dkimRegistry),
-                address(priceOracle),
-                address(weth),
-                maxFeePerGas,
-                emailValidityDuration,
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas,
-                unclaimsExpiryDuration
-            )
+        core = new EmailWalletCore(
+            address(verifier),
+            address(walletImp),
+            address(tokenRegistry),
+            address(dkimRegistry),
+            address(priceOracle),
+            address(weth),
+            maxFeePerGas,
+            emailValidityDuration,
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration,
+            address(relayerHandler)
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
-        core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
+        core.initialize(defaultExtensions);
+        relayerHandler.transferOwnership(address(core));
 
         // Set test sender's wallet addr
         walletAddr = core.getWalletOfSalt(walletSalt);

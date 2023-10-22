@@ -9,7 +9,6 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {LibZip} from "solady/utils/LibZip.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {BytesUtils} from "./libraries/BytesUtils.sol";
@@ -19,11 +18,12 @@ import {IVerifier} from "./interfaces/IVerifier.sol";
 import {Extension} from "./interfaces/Extension.sol";
 import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 import {EmailWalletEvents} from "./interfaces/Events.sol";
+import {RelayerHandler} from "./handlers/RelayerHandler.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 
-contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
+contract EmailWalletCore is ReentrancyGuard {
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -57,15 +57,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
     // Default expiry duration for unclaimed funds and states
     uint256 public immutable unclaimsExpiryDuration;
-
-    // Mapping of relayer's wallet address to relayer config
-    mapping(address => RelayerConfig) public relayers;
-
-    // Mapping of relayer's randHash to relayer's wallet address
-    mapping(bytes32 => address) public relayerOfRandHash;
-
-    // Mapping of relayer's email address to relayer's wallet address
-    mapping(string => address) public relayerOfEmailAddr;
 
     // Mapping of emailAddrPointer to accountKeyCommit
     mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
@@ -109,6 +100,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
 
+    address public relayerHandler;
+
     constructor(
         address _verifier,
         address _walletImplementationAddr,
@@ -120,7 +113,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas,
-        uint256 _unclaimsExpiryDuration
+        uint256 _unclaimsExpiryDuration,
+        address _relayerHandler
     ) {
         verifier = IVerifier(_verifier);
         walletImplementation = _walletImplementationAddr;
@@ -133,61 +127,35 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
         unclaimsExpiryDuration = _unclaimsExpiryDuration;
-    }
 
-    fallback() external payable {
-        LibZip.cdFallback();
+        relayerHandler = _relayerHandler;
     }
 
     receive() external payable {
         revert();
     }
 
-    function initialize(bytes[] calldata defaultExtensions) public {
-        // __Ownable_init();
+    // function initialize(bytes[] calldata defaultExtensions) public {
+    //     // Set default extensions
+    //     for (uint256 i = 0; i < defaultExtensions.length; i++) {
+    //         (string memory name, address addr, string[][] memory templates, uint256 maxGas) = abi.decode(
+    //             defaultExtensions[i],
+    //             (string, address, string[][], uint256)
+    //         );
 
-        // Set default extensions
-        for (uint256 i = 0; i < defaultExtensions.length; i++) {
-            (string memory name, address addr, string[][] memory templates, uint256 maxGas) = abi.decode(
-                defaultExtensions[i],
-                (string, address, string[][], uint256)
-            );
+    //         addressOfExtension[name] = addr;
+    //         subjectTemplatesOfExtension[addr] = templates;
+    //         maxGasOfExtension[addr] = maxGas;
+    //         defaultExtensionOfCommand[templates[0][0]] = addr;
+    //     }
+    // }
 
-            addressOfExtension[name] = addr;
-            subjectTemplatesOfExtension[addr] = templates;
-            maxGasOfExtension[addr] = maxGas;
-            defaultExtensionOfCommand[templates[0][0]] = addr;
-        }
-    }
-
-    /// @notice Register as a relayer
-    /// @param randHash hash of relayed internal randomness `relayerRand`
-    /// @param emailAddr relayer's email address
-    /// @param hostname hostname of relayer's server - used by other relayers for PSI communication
     function registerRelayer(bytes32 randHash, string calldata emailAddr, string calldata hostname) public {
-        require(randHash != bytes32(0), "randHash cannot be empty");
-        require(bytes(emailAddr).length != 0, "emailAddr cannot be empty");
-        require(bytes(hostname).length != 0, "hostname cannot be empty");
-        require(relayers[msg.sender].randHash == bytes32(0), "relayer already registered");
-        require(relayerOfRandHash[randHash] == address(0), "randHash already registered");
-        require(relayerOfEmailAddr[emailAddr] == address(0), "emailAddr already registered");
-
-        relayers[msg.sender] = RelayerConfig({randHash: randHash, emailAddr: emailAddr, hostname: hostname});
-        relayerOfRandHash[randHash] = msg.sender;
-        relayerOfEmailAddr[emailAddr] = msg.sender;
-
-        emit RelayerRegistered(msg.sender, randHash, emailAddr, hostname);
+        RelayerHandler(relayerHandler).registerRelayer(msg.sender, randHash, emailAddr, hostname);
     }
 
-    /// @notice Update relayer's config (hostname only for now)
-    /// @param hostname new hostname of relayer's server
     function updateRelayerConfig(string calldata hostname) public {
-        require(bytes(hostname).length != 0, "hostname cannot be empty");
-        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
-
-        relayers[msg.sender].hostname = hostname;
-
-        emit RelayerConfigUpdated(msg.sender, hostname);
+        RelayerHandler(relayerHandler).updateRelayerConfig(msg.sender, hostname);
     }
 
     /// Create new account and wallet for a user
@@ -202,7 +170,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         bytes calldata psiPoint,
         bytes calldata proof
     ) public returns (Wallet wallet) {
-        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(RelayerHandler(relayerHandler).getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt == bytes32(0), "walletSalt exists");
@@ -210,7 +178,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         require(
             verifier.verifyAccountCreationProof(
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 emailAddrPointer,
                 accountKeyCommit,
                 walletSalt,
@@ -227,7 +195,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         wallet = _deployWallet(walletSalt);
 
-        emit AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
     }
 
     /// Initialize the account when user reply to invitation email
@@ -245,7 +213,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
 
         require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(RelayerHandler(relayerHandler).getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(accountKeyCommit != bytes32(0), "account not registered");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
@@ -256,7 +224,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
                 emailDomain,
                 _getDKIMPublicKeyHash(infoOfAccountKeyCommit[accountKeyCommit].walletSalt, emailDomain),
                 emailTimestamp,
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 emailAddrPointer,
                 accountKeyCommit,
                 emailNullifier,
@@ -268,7 +236,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         infoOfAccountKeyCommit[accountKeyCommit].initialized = true;
         emailNullifiers[emailNullifier] = true;
 
-        emit AccountInitialized(
+        emit EmailWalletEvents.AccountInitialized(
             emailAddrPointer,
             accountKeyCommit,
             infoOfAccountKeyCommit[accountKeyCommit].walletSalt
@@ -292,7 +260,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
     ) public {
         AccountKeyInfo storage oldAccountKeyInfo = infoOfAccountKeyCommit[oldAccountKeyCommit];
 
-        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(RelayerHandler(relayerHandler).getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(oldAccountKeyInfo.relayer != address(0), "old relayer not registered");
         require(oldAccountKeyInfo.relayer != msg.sender, "new relayer cannot be same");
         require(oldAccountKeyInfo.initialized, "account not initialized");
@@ -308,7 +276,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         require(
             verifier.verifyAccountCreationProof(
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 newEmailAddrPointer,
                 newAccountKeyCommit,
                 oldAccountKeyInfo.walletSalt,
@@ -324,8 +292,8 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
                 _getDKIMPublicKeyHash(oldAccountKeyInfo.walletSalt, transportEmailProof.domain),
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
-                relayers[oldAccountKeyInfo.relayer].randHash,
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(oldAccountKeyInfo.relayer),
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 oldAccountKeyCommit,
                 newAccountKeyCommit,
                 transportEmailProof.proof
@@ -347,7 +315,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
 
-        emit AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
+        emit EmailWalletEvents.AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
     }
 
     /// @notice Validate an EmailOp, including proof verification
@@ -364,7 +332,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
-        require(relayers[msg.sender].randHash != bytes32(0), "relayer not registered");
+        require(RelayerHandler(relayerHandler).getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
@@ -403,7 +371,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 emailOp.emailAddrPointer,
                 emailOp.hasEmailRecipient,
                 emailOp.recipientEmailAddrCommit,
@@ -531,7 +499,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
-        require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
+        require(RelayerHandler(relayerHandler).getRandHash(msg.sender) != bytes32(0), "caller not relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer for account");
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
@@ -541,7 +509,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         require(
             verifier.verifyClaimFundProof(
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 recipientEmailAddrPointer,
                 emailAddrCommit,
                 proof
@@ -559,7 +527,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         // Transfer claim fee to the sender (relayer)
         _transferETH(msg.sender, unclaimedFundClaimGas * maxFeePerGas);
 
-        emit UnclaimedFundClaimed(emailAddrCommit, fund.tokenAddr, fund.amount, recipientAddr);
+        emit EmailWalletEvents.UnclaimedFundClaimed(emailAddrCommit, fund.tokenAddr, fund.amount, recipientAddr);
     }
 
     /// @notice Return unclaimed fund after expiry time
@@ -585,7 +553,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         _transferETH(fund.sender, (unclaimedFundClaimGas - consumedGas) * maxFeePerGas);
         _transferETH(msg.sender, consumedGas * maxFeePerGas);
 
-        emit UnclaimedFundVoided(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
+        emit EmailWalletEvents.UnclaimedFundVoided(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
     }
 
     /// Register unclaimed state of an extension for the recipient email address commitment
@@ -633,7 +601,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
 
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             emailAddrCommit,
             extensionAddr,
             msg.sender,
@@ -658,7 +626,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[recipientEmailAddrPointer];
 
-        require(relayers[msg.sender].randHash != bytes32(0), "caller not relayer");
+        require(RelayerHandler(relayerHandler).getRandHash(msg.sender) != bytes32(0), "caller not relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer for account");
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.extensionAddr != address(0), "invalid extension address");
@@ -669,7 +637,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         require(
             verifier.verifyClaimFundProof(
-                relayers[msg.sender].randHash,
+                RelayerHandler(relayerHandler).getRandHash(msg.sender),
                 recipientEmailAddrPointer,
                 emailAddrCommit,
                 proof
@@ -700,7 +668,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         // Transfer claim fee to the sender (relayer)
         _transferETH(msg.sender, unclaimedStateClaimGas * maxFeePerGas);
 
-        emit UnclaimedStateClaimed(emailAddrCommit, recipientAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(emailAddrCommit, recipientAddr);
     }
 
     /// @notice Return unclaimed state after expiry time
@@ -741,7 +709,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         _transferETH(us.sender, (unclaimedStateClaimGas - consumedGas) * maxFeePerGas);
         _transferETH(msg.sender, consumedGas * maxFeePerGas);
 
-        emit UnclaimedStateVoided(emailAddrCommit, us.sender);
+        emit EmailWalletEvents.UnclaimedStateVoided(emailAddrCommit, us.sender);
     }
 
     /// Register unclaimed state from an extension
@@ -778,7 +746,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         unclaimedStateOfEmailAddrCommit[currContext.recipientEmailAddrCommit] = us;
         currContext.unclaimedStateRegistered = true;
 
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             currContext.recipientEmailAddrCommit,
             extensionAddr,
             currContext.walletAddr,
@@ -907,7 +875,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         subjectTemplatesOfExtension[addr] = subjectTemplates;
         maxGasOfExtension[addr] = maxExecutionGas;
 
-        emit ExtensionPublished(name, addr, subjectTemplates, maxExecutionGas);
+        emit EmailWalletEvents.ExtensionPublished(name, addr, subjectTemplates, maxExecutionGas);
     }
 
     /// @notice Return the wallet address of the user given the salt
@@ -1135,7 +1103,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
         unclaimedFundOfEmailAddrCommit[emailAddrCommit] = fund;
 
-        emit UnclaimedFundRegistered(
+        emit EmailWalletEvents.UnclaimedFundRegistered(
             emailAddrCommit,
             tokenAddr,
             amount,
