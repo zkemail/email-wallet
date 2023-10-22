@@ -37,7 +37,11 @@ packages/relayer/proofs
 sql_database.db
 .sqlx
 
-#Mac
+# Prover
+packages/prover/build/*
+packages/prover/params/*
+
+# Mac
 .DS_Store
 
 # mdbook
