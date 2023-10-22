@@ -19,19 +19,22 @@ include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/subject_all_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/timestamp_regex.circom";
 
-// Here, n and k are the biginteger parameters for RSA
-// This is because the number is chunked into k pack_size of n bits each
+// Verify email from user (sender) and extract subject, timestmap, recipient email (commitment), etc.
+// * n - the number of bits in each chunk of the RSA public key (modulust)
+// * k - the number of chunks in the RSA public key (n * k > 2048)
+// * max_header_bytes - max number of bytes in the email header
+// * max_subject_bytes - max number of bytes in the email subject
 template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
-    signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
-    signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
-    signal input signature[k]; // rsa signature. split up into k parts of n bits each.
-    signal input in_padded_len; // length of in email data including the padding, which will inform the sha256 block length
-    signal input sender_relayer_rand;
-    signal input sender_email_idx; // index of the from email address (= sender email address) in the header
-    signal input subject_idx; // index of the subject in the header
-    signal input recipient_email_idx; // index of the recipient email address in the subject
-    signal input domain_idx;
-    signal input timestamp_idx;
+    signal input in_padded[max_header_bytes]; // email data (only header part)
+    signal input pubkey[k]; // RSA pubkey (modulus), k parts of n bits each.
+    signal input signature[k]; // RSA signature, k parts of n bits each.
+    signal input in_padded_len; // length of in email data including the padding
+    signal input sender_relayer_rand; // Private randomness of the relayer
+    signal input sender_email_idx; // Index of the from email address (= sender email address) in the email header
+    signal input subject_idx; // Index of the subject in the header
+    signal input recipient_email_idx; // Index of the recipient email address in the subject
+    signal input domain_idx; // Index of the domain name in the from email address
+    signal input timestamp_idx; // Index of the timestamp in the header
 
     var email_max_bytes = email_max_bytes_const();
     var subject_field_len = compute_ints_size(max_subject_bytes);
@@ -53,7 +56,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal output recipient_email_addr_commit;
     signal output timestamp;
     
-    
+    // Verify Email Signature
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
     email_verifier.in_padded <== in_padded;
     email_verifier.pubkey <== pubkey;
@@ -94,6 +97,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     domain_name_bytes <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
     domain_name <== Bytes2Ints(domain_len)(domain_name_bytes);
     
+    // Relayer randHash
     signal sign_hash;
     signal sign_ints[k2_chunked_size];
     (sign_hash, sign_ints) <== HashSign(n,k)(signature);
@@ -101,13 +105,12 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
 
     email_nullifier <== EmailNullifier()(sign_hash);
 
+    // Email address pointer
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
     sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
-    // signal sender_vk_wtns_input[2];
-    // sender_vk_wtns_input[0] <== cm_rand;
-    // sender_vk_wtns_input[1] <== sender_vk;
-    // sender_vk_wtns <== Poseidon(2)(sender_vk_wtns_input);
+
+    // Email address commitment
     signal cm_rand_input[k2_chunked_size+1];
     for(var i=0; i<k2_chunked_size;i++){
         cm_rand_input[i] <== sign_ints[i];
@@ -119,7 +122,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     recipient_email_addr_commit_raw <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
     recipient_email_addr_commit <== has_email_recipient * recipient_email_addr_commit_raw;
 
-    // TIMESTAMP REGEX
+    // Timestamp regex + convert to decimal format
     signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
     (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
     timestamp_regex_out === 1;

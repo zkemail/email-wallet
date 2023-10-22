@@ -20,14 +20,14 @@ include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "./regexes/invitation_code_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/timestamp_regex.circom";
 
-
+// Verify the email from user containts accountKey in th header. User by new relayer during transport
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
 template AccountTransport(n, k, max_header_bytes) {
-    signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
-    signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
-    signal input signature[k]; // rsa signature. split up into k parts of n bits each.
-    signal input in_padded_len; // length of in email data including the padding, which will inform the sha256 block length
+    signal input in_padded[max_header_bytes];
+    signal input pubkey[k];
+    signal input signature[k];
+    signal input in_padded_len;
     signal input old_relayer_rand_hash;
     signal input new_relayer_rand;
     signal input sender_email_idx; // index of the from email address (= sender email address) in the header

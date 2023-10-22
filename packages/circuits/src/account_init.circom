@@ -22,13 +22,14 @@ include "./regexes/invitation_code_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/timestamp_regex.circom";
 
 
+// Prove an email from user contain the accountKey. Used to initialize account when user reply to invitation email
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
 template AccountInit(n, k, max_header_bytes) {
-    signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
-    signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
-    signal input signature[k]; // rsa signature. split up into k parts of n bits each.
-    signal input in_padded_len; // length of in email data including the padding, which will inform the sha256 block length
+    signal input in_padded[max_header_bytes];
+    signal input pubkey[k];
+    signal input signature[k];
+    signal input in_padded_len;
     signal input sender_relayer_rand;
     signal input sender_email_idx; // index of the from email address (= sender email address) in the header
     signal input code_idx; // index of the invitation code in the header

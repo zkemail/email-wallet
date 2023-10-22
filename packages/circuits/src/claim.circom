@@ -7,6 +7,8 @@ include "./utils/email_addr_pointer.circom";
 include "./utils/email_addr_commit.circom";
 include "./utils/bytes2ints.circom";
 
+// Verify emailAddr commitmetn and pointer has the same email address.
+// Used for claiming unclaimed funds
 template Claim() {
     var email_max_bytes = email_max_bytes_const();
     signal input recipient_email_addr[email_max_bytes];

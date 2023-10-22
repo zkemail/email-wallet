@@ -7,6 +7,8 @@ include "./utils/email_addr_pointer.circom";
 include "./utils/email_addr_commit.circom";
 include "./utils/bytes2ints.circom";
 
+// Prove the commitment to an email address using a randomness
+// Can be used to register unclaimed funds with announcement
 template Announcement() {
     var email_max_bytes = email_max_bytes_const();
     signal input email_addr[email_max_bytes];
