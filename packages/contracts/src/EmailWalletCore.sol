@@ -13,6 +13,7 @@ import {LibZip} from "solady/utils/LibZip.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {BytesUtils} from "./libraries/BytesUtils.sol";
+import {SubjectUtils} from "./libraries/SubjectUtils.sol";
 import {TokenRegistry} from "./utils/TokenRegistry.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
 import {Extension} from "./interfaces/Extension.sol";
@@ -360,12 +361,11 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
-        bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailOp.emailAddrPointer];
-        AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[accountKeyCommit];
-        bytes32 dkimPublicKeyHash = _getDKIMPublicKeyHash(
-            infoOfAccountKeyCommit[accountKeyCommit].walletSalt,
-            emailOp.emailDomain
-        );
+        AccountKeyInfo storage accountKeyInfo = infoOfAccountKeyCommit[
+            accountKeyCommitOfPointer[emailOp.emailAddrPointer]
+        ];
+        bytes32 dkimPublicKeyHash = _getDKIMPublicKeyHash(accountKeyInfo.walletSalt, emailOp.emailDomain);
+        address walletAddr = getWalletOfSalt(accountKeyInfo.walletSalt);
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
         require(accountKeyInfo.initialized, "account not initialized");
@@ -393,9 +393,17 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
 
-        (string memory maskedSubject, ) = _computeMaskedSubjectForEmailOp(emailOp);
+        // Validate computed subject = passed subject
+        (string memory maskedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
+            emailOp,
+            walletAddr,
+            tokenRegistry,
+            addressOfExtension[emailOp.extensionName], // Address of extension (user in install / uninstall)
+            subjectTemplatesOfExtension[getExtensionForCommand(emailOp.command, walletAddr)] // Subject templates of extension
+        );
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
+        // Verify proof
         require(
             verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
@@ -961,191 +969,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard, OwnableUpgradeab
                 )
             )
         );
-    }
-
-    /// @notice Calculate the masked subject for an EmailOp from command and other params
-    ///         This also do sanity checks of certain parameters used in the subject
-    /// @param emailOp EmailOp from which the masked subject is to be computed
-    function _computeMaskedSubjectForEmailOp(
-        EmailOp memory emailOp
-    ) internal view returns (string memory maskedSubject, bool isExtension) {
-        // Sample: Send 1 ETH to recipient@domain.com
-        if (Strings.equal(emailOp.command, Commands.SEND)) {
-            address walletAddr = getWalletOfSalt(
-                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
-            );
-            WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(getTokenAddrFromName(emailOp.walletParams.tokenName));
-
-            require(token != ERC20(address(0)), "token not supported");
-            require(emailOp.walletParams.amount > 0, "send amount should be >0");
-            require(token.balanceOf(walletAddr) >= walletParams.amount, "insufficient balance");
-
-            maskedSubject = string.concat(
-                Commands.SEND,
-                " ",
-                DecimalUtils.uintToDecimalString(walletParams.amount, token.decimals()),
-                " ",
-                walletParams.tokenName,
-                " to "
-            );
-
-            if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject = string.concat(
-                    maskedSubject,
-                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
-                );
-            }
-        }
-        // Sample: Execute 0x000112aa..
-        else if (Strings.equal(emailOp.command, Commands.EXECUTE)) {
-            address walletAddr = getWalletOfSalt(
-                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
-            );
-
-            require(emailOp.executeCallData.length > 0, "executeCallData cannot be empty");
-
-            (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
-
-            require(target != address(0), "invalid execute target");
-            require(target != address(this), "cannot execute on core");
-            require(target != walletAddr, "cannot execute on wallet");
-            require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
-            require(data.length > 0, "execute data cannot be empty");
-
-            maskedSubject = string.concat(
-                Commands.EXECUTE,
-                " 0x",
-                BytesUtils.bytesToHexString(emailOp.executeCallData)
-            );
-        }
-        // Sample: Install extension Uniswap
-        else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
-            address extAddr = addressOfExtension[emailOp.extensionName];
-
-            require(extAddr != address(0), "extension not registered");
-
-            maskedSubject = string.concat(Commands.INSTALL_EXTENSION, " extension ", emailOp.extensionName);
-        }
-        // Sample: Remove extension Uniswap
-        else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            address extAddr = addressOfExtension[emailOp.extensionName];
-            string memory command = subjectTemplatesOfExtension[extAddr][0][0];
-            address walletAddr = getWalletOfSalt(
-                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
-            );
-
-            require(extAddr != address(0), "extension not registered");
-            require(userExtensionOfCommand[walletAddr][command] != address(0), "extension not installed");
-
-            maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " extension ", emailOp.extensionName);
-        }
-        // Sample: Exit email wallet. Change owner to 0x000112aa..
-        else if (Strings.equal(emailOp.command, Commands.EXIT_EMAIL_WALLET)) {
-            require(emailOp.newWalletOwner != address(0), "newWalletOwner cannot be empty");
-
-            maskedSubject = string.concat(
-                Commands.EXIT_EMAIL_WALLET,
-                " Email Wallet. Change ownership to ",
-                Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
-            );
-        }
-        // Sample: DKIM registry as 0x000112aa..
-        else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            require(emailOp.newDkimRegistry != address(0), "newDkimRegistry cannot be empty");
-
-            maskedSubject = string.concat(
-                Commands.DKIM,
-                " registry set to ",
-                Strings.toHexString(uint256(uint160(emailOp.newDkimRegistry)), 20)
-            );
-        }
-        // The command is for an extension
-        else {
-            isExtension = true;
-            address walletAddr = getWalletOfSalt(
-                infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailOp.emailAddrPointer]].walletSalt
-            );
-            address extensionAddr = getExtensionForCommand(emailOp.command, walletAddr);
-
-            require(extensionAddr != address(0), "invalid command or extension");
-
-            // Extension extension = Extension(extensionAddr);
-            string[] memory subjectTemplate = subjectTemplatesOfExtension[extensionAddr][
-                emailOp.extensionParams.subjectTemplateIndex
-            ];
-
-            uint8 nextParamIndex;
-            for (uint8 i = 0; i < subjectTemplate.length; i++) {
-                string memory matcher = string(subjectTemplate[i]);
-                string memory value;
-
-                // {tokenAmount} is combination of tokenName and amount, encoded as (uint256,string). Eg: `30.23 DAI`
-                if (Strings.equal(matcher, TOKEN_AMOUNT_TEMPLATE)) {
-                    (uint256 amount, string memory tokenName) = abi.decode(
-                        emailOp.extensionParams.subjectParams[nextParamIndex],
-                        (uint256, string)
-                    );
-                    address tokenAddr = getTokenAddrFromName(tokenName);
-
-                    require(tokenAddr != address(0), "token not supported");
-                    // We are not validating token balance here, as tokenAmount might not be always for debiting from wallet
-
-                    value = string.concat(
-                        DecimalUtils.uintToDecimalString(amount, ERC20(tokenAddr).decimals()),
-                        " ",
-                        tokenName
-                    );
-                    nextParamIndex++;
-                }
-                // {amount} is number in wei format (decimal format in subject)
-                else if (Strings.equal(matcher, AMOUNT_TEMPLATE)) {
-                    uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
-                    value = DecimalUtils.uintToDecimalString(num);
-                    nextParamIndex++;
-                }
-                // {string} is plain string
-                else if (Strings.equal(matcher, STRING_TEMPLATE)) {
-                    value = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (string));
-                    nextParamIndex++;
-                }
-                // {uint} is number parsed the same way as mentioned in subject (decimals not allowed) - use {amount} for decimals
-                else if (Strings.equal(matcher, UINT_TEMPLATE)) {
-                    uint256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (uint256));
-                    value = Strings.toString(num);
-                    nextParamIndex++;
-                }
-                // {int} for negative values
-                else if (Strings.equal(matcher, INT_TEMPLATE)) {
-                    int256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (int256));
-                    value = Strings.toString(num);
-                    nextParamIndex++;
-                }
-                // {addres} for wallet address
-                else if (Strings.equal(matcher, ADDRESS_TEMPLATE)) {
-                    address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
-                    value = Strings.toHexString(uint256(uint160(addr)), 20);
-                    nextParamIndex++;
-                } else if (Strings.equal(matcher, RECIPIENT_TEMPLATE)) {
-                    if (!emailOp.hasEmailRecipient) {
-                        value = Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20);
-                    }
-                }
-                // Constant string otherwise
-                else {
-                    value = matcher;
-                }
-
-                if (bytes(maskedSubject).length == 0) {
-                    maskedSubject = value;
-                } else {
-                    maskedSubject = string.concat(maskedSubject, " ", value);
-                }
-            }
-
-            // We should have used all items in subjectParams by now
-            require(nextParamIndex == emailOp.extensionParams.subjectParams.length, "invalid subject params length");
-        }
     }
 
     /// @notice Execute an EmailOp

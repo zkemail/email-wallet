@@ -22,4 +22,12 @@ library Commands {
     string public constant INSTALL_EXTENSION = "Install";
     string public constant UNINSTALL_EXTENSION = "Uninstall";
     string public constant EXIT_EMAIL_WALLET = "Exit";
+
+    string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
+    string public constant AMOUNT_TEMPLATE = "{amount}";
+    string public constant STRING_TEMPLATE = "{string}";
+    string public constant UINT_TEMPLATE = "{uint}";
+    string public constant INT_TEMPLATE = "{int}";
+    string public constant ADDRESS_TEMPLATE = "{address}";
+    string public constant RECIPIENT_TEMPLATE = "{recipient}";
 }
