@@ -14,44 +14,10 @@ use tokio::{
     sync::mpsc::UnboundedSender,
 };
 
-#[derive(Default)]
-pub(crate) struct WalletParams {
-    pub(crate) token_name: String,
-    pub(crate) amount: U256,
-}
-
-#[derive(Default)]
-pub(crate) struct ExtensionParams {
-    pub(crate) subject_template_index: u8,
-    pub(crate) subject_params: Bytes,
-}
-
-#[derive(Default)]
-pub(crate) struct EmailOp {
-    pub(crate) email_addr_pointer: [u8; 32],
-    pub(crate) has_email_recipient: bool,
-    pub(crate) recipient_email_addr_commit: [u8; 32],
-    pub(crate) recipient_eth_addr: Address,
-    pub(crate) command: String,
-    pub(crate) email_nullifier: [u8; 32],
-    pub(crate) email_domain: String,
-    pub(crate) timestamp: U256,
-    pub(crate) masked_subject: String,
-    pub(crate) fee_token_name: String,
-    pub(crate) fee_per_gas: U256,
-    pub(crate) execute_calldata: Bytes,
-    pub(crate) extension_name: String,
-    pub(crate) new_wallet_owner: Address,
-    pub(crate) new_dkim_registry: Address,
-    pub(crate) wallet_params: WalletParams,
-    pub(crate) extension_params: ExtensionParams,
-    pub(crate) email_proof: Bytes,
-}
-
 pub(crate) async fn handle_email(
     email: String,
     db: Arc<Database>,
-    tx: UnboundedSender<(String, String)>,
+    tx: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
 
@@ -59,6 +25,7 @@ pub(crate) async fn handle_email(
     let viewing_key = match db.get_viewing_key(&from_address).await? {
         Some(viewing_key) => viewing_key,
         None => {
+            println!("I'm here cause I didn't find anything");
             db.remove_email(&email).await?;
             bail!(NOT_MY_SENDER);
         }
@@ -73,14 +40,14 @@ pub(crate) async fn handle_email(
         }
     };
 
-    let input = generate_input(
+    let input = generate_send_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email,
         RELAYER_RAND.get().unwrap(),
     )
     .await?;
 
-    let proof = generate_coordinator_proof(&input, COORDINATOR_ADDRESS.get().unwrap()).await?;
+    let proof = generate_proof(&input, "generateSendProof", PROVER_ADDRESS.get().unwrap()).await?;
 
     let email_op = EmailOp {
         email_addr_pointer: todo!(),
@@ -89,7 +56,7 @@ pub(crate) async fn handle_email(
         recipient_eth_addr: todo!(),
         command: String::from("Send"),
         email_nullifier: todo!(),
-        email_domain: String::from("gmail.com"),
+        email_domain: get_email_domain(&from_address)?,
         timestamp: parsed_email.get_timestamp()?.into(),
         masked_subject: todo!(),
         fee_token_name: todo!(),
@@ -128,7 +95,16 @@ pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, Stri
     Ok((amount, token, recipient))
 }
 
-pub(crate) async fn generate_input(
+pub(crate) fn get_email_domain(email_address: &str) -> Result<String> {
+    let re = Regex::new(r"@([a-zA-Z0-9.-]+)").unwrap();
+    let res = re
+        .captures(email_address)
+        .ok_or(anyhow!(WRONG_SUBJECT_FORMAT))?;
+
+    Ok(res[1].to_string())
+}
+
+pub(crate) async fn generate_send_input(
     circuits_dir_path: &Path,
     email: &str,
     relayer_rand: &str,
@@ -164,10 +140,41 @@ pub(crate) async fn generate_input(
     Ok(result)
 }
 
-pub(crate) async fn generate_coordinator_proof(input: &str, address: &str) -> Result<String> {
+pub(crate) async fn generate_creation_input(
+    circuits_dir_path: &Path,
+    email_address: &str,
+    relayer_rand: &str,
+    viewing_key: &str,
+) -> Result<String> {
+    let input_file_name = email_address.to_string() + ".input";
+
+    File::create(&input_file_name).await?;
+    let current_dir = std::env::current_dir()?;
+
+    let command_str =
+        format!(
+        "yarn --cwd {} gen-account-creation-input --email-addr {} --relayer-rand {} --account-key {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, viewing_key, input_file_name
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+
+    remove_file(input_file_name).await?;
+
+    Ok(result)
+}
+
+pub(crate) async fn generate_proof(input: &str, request: &str, address: &str) -> Result<String> {
     let client = reqwest::Client::new();
     let res = client
-        .post(format!("{}/generateSendProof", address))
+        .post(format!("{}/{}", address, request))
         .json(&serde_json::json!({"input": input}))
         .send()
         .await?

@@ -15,6 +15,13 @@ use lettre::{
     Address, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
 };
 
+pub(crate) struct EmailMessage {
+    pub(crate) subject: String,
+    pub(crate) body: String,
+    pub(crate) to: String,
+    pub(crate) message_id: Option<String>,
+}
+
 #[derive(Clone)]
 pub(crate) struct SmtpConfig {
     pub(crate) domain_name: String,
@@ -37,20 +44,16 @@ impl SmtpClient {
         Ok(Self { config, transport })
     }
 
-    pub(crate) async fn send_new_email(
-        &self,
-        email_subject: &str,
-        email_body: &str,
-        email_to: &str,
-    ) -> Result<()> {
+    pub(crate) async fn send_new_email(&self, email: EmailMessage) -> Result<()> {
         let from_mbox = Mailbox::new(None, self.config.id.parse::<Address>()?);
-        let to_mbox = Mailbox::new(None, email_to.parse::<Address>()?);
+        let to_mbox = Mailbox::new(None, email.to.parse::<Address>()?);
 
         let email = Message::builder()
             .from(from_mbox)
-            .subject(email_subject)
+            .subject(email.subject)
             .to(to_mbox)
-            .body(email_body.to_string())?;
+            .message_id(email.message_id)
+            .body(email.body.to_string())?;
 
         self.transport.send(email).await?;
 

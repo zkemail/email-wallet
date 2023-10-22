@@ -58,7 +58,7 @@ impl Database {
     }
 
     pub(crate) async fn insert_email(&self, key: &str) -> Result<()> {
-        sqlx::query("INSERT INTO emails (email) VALUES (?, ?)")
+        sqlx::query("INSERT INTO emails (email) VALUES (?)")
             .bind(key)
             .execute(&self.db)
             .await?;
@@ -94,6 +94,15 @@ impl Database {
             .await?;
 
         Ok(())
+    }
+
+    pub(crate) async fn contains_user(&self, email_address: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM users WHERE email_address = ?")
+            .bind(email_address)
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(result.is_some())
     }
 
     pub(crate) async fn get_viewing_key(&self, email_address: &str) -> Result<Option<String>> {

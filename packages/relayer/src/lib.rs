@@ -31,16 +31,16 @@ use email_wallet_utils::parse_email::ParsedEmail;
 static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
 static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
 static RELAYER_RAND: OnceLock<String> = OnceLock::new();
-static COORDINATOR_ADDRESS: OnceLock<String> = OnceLock::new();
+static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
     RELAYER_RAND.set(config.relayer_randomness).unwrap();
-    COORDINATOR_ADDRESS.set(config.coordinator_address).unwrap();
+    PROVER_ADDRESS.set(config.prover_address).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
-    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<(String, String)>();
+    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
     for email in db.get_unhandled_emails().await? {
@@ -69,6 +69,10 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         Ok::<(), anyhow::Error>(())
     });
 
+    let tx_sender_for_email_task = tx_sender.clone();
+    let tx_sender_for_server_task = tx_sender.clone();
+
+    let db_clone = Arc::clone(&db);
     let email_handler_task = tokio::task::spawn(async move {
         loop {
             let email = rx_handler
@@ -76,29 +80,32 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
 
-            tokio::task::spawn(handle_email(email, Arc::clone(&db), tx_sender.clone()));
+            tokio::task::spawn(handle_email(
+                email,
+                Arc::clone(&db_clone),
+                tx_sender_for_email_task.clone(),
+            ));
         }
 
         Ok::<(), anyhow::Error>(())
     });
+
+    let api_server_task = tokio::task::spawn(run_server(
+        WEB_SERVER_ADDRESS.get().unwrap(),
+        Arc::clone(&db),
+        tx_sender_for_server_task,
+    ));
 
     let email_sender_task = tokio::task::spawn(async move {
         let email_sender = SmtpClient::new(config.smtp_config)?;
         loop {
-            let (email, recipient) = rx_sender
+            let email = rx_sender
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-            email_sender
-                .send_new_email("Transaction Status", &email, &recipient)
-                .await?;
+
+            email_sender.send_new_email(email).await?;
         }
-
-        Ok::<(), anyhow::Error>(())
-    });
-
-    let api_server_task = tokio::task::spawn(async move {
-        run_server(WEB_SERVER_ADDRESS.get().unwrap()).await?;
 
         Ok::<(), anyhow::Error>(())
     });
@@ -106,8 +113,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let _ = tokio::join!(
         email_receiver_task,
         email_handler_task,
+        api_server_task,
         email_sender_task,
-        api_server_task
     );
 
     Ok(())

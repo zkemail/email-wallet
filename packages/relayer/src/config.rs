@@ -12,7 +12,7 @@ pub struct RelayerConfig {
     pub(crate) relayer_randomness: String,
     pub(crate) web_server_address: String,
     pub(crate) circuits_dir_path: PathBuf,
-    pub(crate) coordinator_address: String,
+    pub(crate) prover_address: String,
 }
 
 impl RelayerConfig {
@@ -56,7 +56,7 @@ impl RelayerConfig {
             relayer_randomness: env::var(RELAYER_RANDOMNESS_KEY).unwrap(),
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),
             circuits_dir_path: env::var(CIRCUITS_DIR_PATH_KEY).unwrap().into(),
-            coordinator_address: env::var(COORDINATOR_ADDRESS_KEY).unwrap(),
+            prover_address: env::var(PROVER_ADDRESS_KEY).unwrap(),
         }
     }
 }
