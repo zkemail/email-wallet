@@ -45,10 +45,17 @@ pub(crate) struct AccountCreation {
     pub(crate) proof: Bytes,
 }
 
+#[derive(Default)]
+pub(crate) struct AccountInitialization {}
+
 pub(crate) async fn call_handle_email_op(email_op: EmailOp) -> Result<String> {
     todo!()
 }
 
 pub(crate) async fn call_account_creation_op(data: AccountCreation) -> Result<String> {
+    todo!()
+}
+
+pub(crate) async fn call_account_initialization_op(data: AccountInitialization) -> Result<String> {
     todo!()
 }

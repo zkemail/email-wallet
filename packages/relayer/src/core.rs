@@ -20,65 +20,84 @@ pub(crate) async fn handle_email(
     tx: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
-
     let from_address = parsed_email.get_from_addr()?;
-    let viewing_key = match db.get_viewing_key(&from_address).await? {
-        Some(viewing_key) => viewing_key,
-        None => {
-            println!("I'm here cause I didn't find anything");
-            db.remove_email(&email).await?;
-            bail!(NOT_MY_SENDER);
+
+    if is_reply_mail(&email) {
+        if let Some(account_key) = extract_key_from_subject(&parsed_email.get_subject_all()?) {
+            if !db.contains_user(&from_address).await? {
+                todo!("TRANSPORT")
+            }
+
+            if account_key == db.get_viewing_key(&from_address).await?.unwrap() {
+                account_key;
+                todo!("REPLY")
+            }
         }
-    };
-    let viewing_key = AccountKey::from(hex2field(&viewing_key)?);
+    } else {
+        let viewing_key = match db.get_viewing_key(&from_address).await? {
+            Some(viewing_key) => viewing_key,
+            None => {
+                db.remove_email(&email).await?;
+                bail!(NOT_MY_SENDER);
+            }
+        };
+        let viewing_key = AccountKey::from(hex2field(&viewing_key)?);
 
-    let (amount, token, recipient) = match validate_send_subject(&parsed_email.get_subject_all()?) {
-        Ok((amount, token, recipient)) => (amount, token, recipient),
-        Err(e) => {
-            db.remove_email(&email).await?;
-            bail!(e);
-        }
-    };
+        let (amount, token, recipient) =
+            match validate_send_subject(&parsed_email.get_subject_all()?) {
+                Ok((amount, token, recipient)) => (amount, token, recipient),
+                Err(e) => {
+                    db.remove_email(&email).await?;
+                    bail!(e);
+                }
+            };
 
-    let input = generate_send_input(
-        CIRCUITS_DIR_PATH.get().unwrap(),
-        &email,
-        RELAYER_RAND.get().unwrap(),
-    )
-    .await?;
+        let input = generate_send_input(
+            CIRCUITS_DIR_PATH.get().unwrap(),
+            &email,
+            RELAYER_RAND.get().unwrap(),
+        )
+        .await?;
 
-    let proof = generate_proof(&input, "generateSendProof", PROVER_ADDRESS.get().unwrap()).await?;
+        let proof =
+            generate_proof(&input, "generateSendProof", PROVER_ADDRESS.get().unwrap()).await?;
 
-    let email_op = EmailOp {
-        email_addr_pointer: todo!(),
-        has_email_recipient: todo!(),
-        recipient_email_addr_commit: todo!(),
-        recipient_eth_addr: todo!(),
-        command: String::from("Send"),
-        email_nullifier: todo!(),
-        email_domain: get_email_domain(&from_address)?,
-        timestamp: parsed_email.get_timestamp()?.into(),
-        masked_subject: todo!(),
-        fee_token_name: todo!(),
-        fee_per_gas: todo!(),
-        execute_calldata: Bytes::new(),
-        extension_name: String::new(),
-        new_wallet_owner: Address::default(),
-        new_dkim_registry: Address::default(),
-        wallet_params: WalletParams {
-            token_name: token,
-            amount,
-        },
-        extension_params: ExtensionParams {
-            subject_template_index: 0,
-            subject_params: Bytes::new(),
-        },
-        email_proof: Bytes::from(proof.into_bytes()),
-    };
+        let email_op = EmailOp {
+            email_addr_pointer: todo!(),
+            has_email_recipient: todo!(),
+            recipient_email_addr_commit: todo!(),
+            recipient_eth_addr: todo!(),
+            command: String::from("Send"),
+            email_nullifier: todo!(),
+            email_domain: get_email_domain(&from_address)?,
+            timestamp: parsed_email.get_timestamp()?.into(),
+            masked_subject: todo!(),
+            fee_token_name: todo!(),
+            fee_per_gas: todo!(),
+            execute_calldata: Bytes::new(),
+            extension_name: String::new(),
+            new_wallet_owner: Address::default(),
+            new_dkim_registry: Address::default(),
+            wallet_params: WalletParams {
+                token_name: token,
+                amount,
+            },
+            extension_params: ExtensionParams {
+                subject_template_index: 0,
+                subject_params: Bytes::new(),
+            },
+            email_proof: Bytes::from(proof.into_bytes()),
+        };
 
-    let result = call_handle_email_op(email_op).await?;
+        let result = call_handle_email_op(email_op).await?;
+    }
 
     Ok(())
+}
+
+pub(crate) fn extract_key_from_subject(subject: &str) -> Option<String> {
+    let re = Regex::new(r"CODE:(0x[0-9a-fA-F]+)").unwrap();
+    re.captures(subject).map(|caps| caps[1].to_string())
 }
 
 pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, String)> {
@@ -189,4 +208,8 @@ pub(crate) fn calculate_hash(input: &str) -> String {
     let hash_code = hasher.finish();
 
     hash_code.to_string()
+}
+
+pub(crate) fn is_reply_mail(email: &str) -> bool {
+    email.contains("In-Reply-To:") || email.contains("References:")
 }

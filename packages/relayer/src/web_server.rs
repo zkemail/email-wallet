@@ -31,33 +31,33 @@ async fn create_account(
 
     println!("Generated account_key {account_key}");
 
-    // db.insert_user(&payload.email_address, &account_key)
-    //     .await
-    //     .unwrap();
+    db.insert_user(&payload.email_address, &account_key)
+        .await
+        .unwrap();
 
-    // let input = generate_creation_input(
-    //     CIRCUITS_DIR_PATH.get().unwrap(),
-    //     &payload.email_address,
-    //     RELAYER_RAND.get().unwrap(),
-    //     &account_key,
-    // )
-    // .await
-    // .unwrap();
+    let input = generate_creation_input(
+        CIRCUITS_DIR_PATH.get().unwrap(),
+        &payload.email_address,
+        RELAYER_RAND.get().unwrap(),
+        &account_key,
+    )
+    .await
+    .unwrap();
 
-    // let proof = generate_proof(
-    //     &input,
-    //     "generateCreationProof",
-    //     PROVER_ADDRESS.get().unwrap(),
-    // )
-    // .await
-    // .unwrap();
+    let proof = generate_proof(
+        &input,
+        "generateCreationProof",
+        PROVER_ADDRESS.get().unwrap(),
+    )
+    .await
+    .unwrap();
 
-    // let data = AccountCreation::default();
-    // call_account_creation_op(data).await.unwrap();
+    let data = AccountCreation::default();
+    call_account_creation_op(data).await.unwrap();
 
     tx_sender
         .send(EmailMessage {
-            subject: "New Account Was Created For You".to_string(),
+            subject: format!("New Account - CODE:{}", account_key),
             body: format!(
                 "New Account Was Created For You with Account Key set to {}",
                 account_key
