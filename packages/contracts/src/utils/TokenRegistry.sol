@@ -44,8 +44,9 @@ contract TokenRegistry is Ownable {
     /// @param chainId Chain id of the network for which address is needed
     /// @param tokenName Name of the token for which address if needed
     /// @dev "0" is a valid input for `chainId` arg (mainnet). Be careful to not pass uninitialized uint variable.
+    /// @dev "ETH" with return the address of "WETH"
     function getTokenAddress(uint256 chainId, string memory tokenName) public view returns (address) {
-        if (Strings.equal(tokenName, "WETH")) {
+        if (Strings.equal(tokenName, "WETH") || Strings.equal(tokenName, "ETH")) {
             if (chainId == 0) return 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
             if (chainId == 10) return 0x4200000000000000000000000000000000000006;
             if (chainId == 42161) return 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
@@ -69,6 +70,7 @@ contract TokenRegistry is Ownable {
     /// @notice Get token address for the given chain name
     /// @param chainName Name of the chain / network
     /// @param tokenName Name of the token for which address if needed
+    /// @dev "ETH" with return the address of "WETH"
     function getTokenAddress(string memory chainName, string memory tokenName) public view returns (address) {
         require(chainIdOfName[chainName] != 0, "unknown chain name");
 
@@ -77,6 +79,7 @@ contract TokenRegistry is Ownable {
 
     /// @notice Get token address for the current chain
     /// @param tokenName Name of the token for which address if needed
+    /// @dev "ETH" with return the address of "WETH"
     function getTokenAddress(string memory tokenName) public view returns (address) {
         return getTokenAddress(block.chainid, tokenName);
     }

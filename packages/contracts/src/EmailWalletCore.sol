@@ -469,7 +469,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         uint256 feeAmountInToken = (totalFeeInETH * rate) / (10 ** 18);
 
         if (feeAmountInToken > 0) {
-            address feeToken = getTokenAddrFromName(emailOp.feeTokenName);
+            address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
             (success, err) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmountInToken);
             require(success, string.concat("fee reimbursement failed: ", string(err)));
         }
@@ -939,16 +939,6 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
         return extensionAddr;
     }
 
-    /// @notice Return the token address for a token name.
-    /// @param tokenName Name of the token
-    function getTokenAddrFromName(string memory tokenName) public view returns (address) {
-        if (Strings.equal(tokenName, "ETH")) {
-            return tokenRegistry.getTokenAddress("WETH");
-        }
-
-        return tokenRegistry.getTokenAddress(tokenName);
-    }
-
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
     /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
@@ -992,7 +982,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
 
             // Token transfer for both external contract and email wallet
             address recipient = emailOp.hasEmailRecipient ? address(this) : emailOp.recipientETHAddr;
-            address tokenAddr = getTokenAddrFromName(emailOp.walletParams.tokenName);
+            address tokenAddr = tokenRegistry.getTokenAddress(emailOp.walletParams.tokenName);
 
             (success, returnData) = _transferERC20(currContext.walletAddr, recipient, tokenAddr, walletParams.amount);
 
@@ -1085,7 +1075,7 @@ contract EmailWalletCore is EmailWalletEvents, ReentrancyGuard {
                         (uint256, string)
                     );
                     currContext.tokenAllowances.push(
-                        TokenAllowance({tokenAddr: getTokenAddrFromName(tokenName), amount: amount})
+                        TokenAllowance({tokenAddr: tokenRegistry.getTokenAddress(tokenName), amount: amount})
                     );
                     nextParamIndex++;
                 } else if (

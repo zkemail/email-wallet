@@ -10,16 +10,6 @@ import "../interfaces/Commands.sol";
 import "../utils/TokenRegistry.sol";
 
 library SubjectUtils {
-    /// @notice Return the token address for a token name.
-    /// @param tokenName Name of the token
-    function getTokenAddrFromName(string memory tokenName, TokenRegistry tokenRegistry) public view returns (address) {
-        if (Strings.equal(tokenName, "ETH")) {
-            return tokenRegistry.getTokenAddress("WETH");
-        }
-
-        return tokenRegistry.getTokenAddress(tokenName);
-    }
-
     /// @notice Calculate the masked subject for an EmailOp from command and other params
     ///         This also do sanity checks of certain parameters used in the subject
     /// @param emailOp EmailOp from which the masked subject is to be computed
@@ -33,7 +23,7 @@ library SubjectUtils {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(getTokenAddrFromName(emailOp.walletParams.tokenName, tokenRegistry));
+            ERC20 token = ERC20(tokenRegistry.getTokenAddress(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
@@ -64,7 +54,10 @@ library SubjectUtils {
             require(target != address(0), "invalid execute target");
             require(target != address(this), "cannot execute on core");
             require(target != walletAddr, "cannot execute on wallet");
-            require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
+            require(
+                bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0,
+                "cannot execute on token"
+            );
             require(data.length > 0, "execute data cannot be empty");
 
             maskedSubject = string.concat(
@@ -120,7 +113,7 @@ library SubjectUtils {
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256, string)
                     );
-                    address tokenAddr = getTokenAddrFromName(tokenName, tokenRegistry);
+                    address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
 
                     require(tokenAddr != address(0), "token not supported");
                     // We are not validating token balance here, as tokenAmount might not be always for debiting from wallet
