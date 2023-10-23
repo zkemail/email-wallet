@@ -80,6 +80,18 @@ contract EmailWalletCore is ReentrancyGuard {
         emailNullifiers[emailNullifier] = true;
     }
 
+    /// @notice Constructor
+    /// @param _verifier Address of the ZK proof verifier
+    /// @param _walletImplementationAddr Address of the wallet implementation contract
+    /// @param _tokenRegistry Address of the token registry contract
+    /// @param _defaultDkimRegistry Address of the default DKIM registry contract
+    /// @param _priceOracle Address of the price oracle contract
+    /// @param _wethContract Address of the WETH contract
+    /// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
+    /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
+    /// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
+    /// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
+    /// @param _unclaimsExpiryDuration Time period after which unclaimed funds and states expire
     constructor(
         address _verifier,
         address _walletImplementationAddr,
@@ -129,10 +141,12 @@ contract EmailWalletCore is ReentrancyGuard {
         extensionHandler.setDefaultExtensions(defaultExtensions);
     }
 
+    // Upgradeable LibZip for calldata decompression
     fallback() external payable {
         LibZip.cdFallback();
     }
 
+    // Core contract should not receive ETH
     receive() external payable {
         revert();
     }
