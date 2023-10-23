@@ -16,8 +16,8 @@ contract Deploy is Script {
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;
 
-    string [][] nftExtTemplates = new string [][](3);
-    string [][] uniswapExtTemplates = new string [][](1);
+    string[][] nftExtTemplates = new string[][](3);
+    string[][] uniswapExtTemplates = new string[][](1);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -74,7 +74,7 @@ contract Deploy is Script {
         );
 
         bytes[] memory defaultExtensions = new bytes[](2);
-        
+
         NFTExtension nftExt = new NFTExtension(address(core));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
         nftExtTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];

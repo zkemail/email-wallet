@@ -66,28 +66,24 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
             core.registerUnclaimedStateAsExtension(address(this), unclaimedState);
         } else {
             require(recipientETHAddr != address(0), "invalid recipientETHAddr");
-            if(templateIndex == 0) {
+            if (templateIndex == 0) {
                 bytes memory data = abi.encodeWithSignature(
                     "transferFrom(address,address,uint256)",
                     wallet,
                     recipientETHAddr,
                     tokenId
                 );
-                core.executeAsExtension(nftAddr, data);   
-            } else if(templateIndex == 1) {
+                core.executeAsExtension(nftAddr, data);
+            } else if (templateIndex == 1) {
                 bytes memory data = abi.encodeWithSignature(
                     "safeTransferFrom(address,address,uint256)",
                     wallet,
                     recipientETHAddr,
                     tokenId
                 );
-                core.executeAsExtension(nftAddr, data);   
+                core.executeAsExtension(nftAddr, data);
             } else {
-                bytes memory data = abi.encodeWithSignature(
-                    "approve(address,uint256)",
-                    recipientETHAddr,
-                    tokenId
-                );
+                bytes memory data = abi.encodeWithSignature("approve(address,uint256)", recipientETHAddr, tokenId);
                 core.executeAsExtension(nftAddr, data);
             }
         }

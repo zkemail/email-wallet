@@ -57,7 +57,11 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         extensionHandler.publishExtension("Custom", address(ext), dummyTemplates, 0.1 ether);
 
         // Should be default extension
-        assertEq(extensionHandler.getExtensionForCommand(walletAddr, "DEF_EXT"), defaultExtAddr, "defaultExtAddr not set");
+        assertEq(
+            extensionHandler.getExtensionForCommand(walletAddr, "DEF_EXT"),
+            defaultExtAddr,
+            "defaultExtAddr not set"
+        );
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;

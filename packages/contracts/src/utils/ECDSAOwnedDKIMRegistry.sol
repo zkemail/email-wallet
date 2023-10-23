@@ -50,18 +50,19 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         bytes32 publicKeyHash,
         uint256 timestamp
     ) public view returns (string memory) {
-        return string.concat(
-            "chain_id=",
-            block.chainid.toString(),
-            ";selector=",
-            selector,
-            ";domain=",
-            domainName,
-            ";timestamp=",
-            timestamp.toString(),
-            ";public_key_hash=",
-            uint256(publicKeyHash).toHexString(),
-            ";"
-        );
+        return
+            string.concat(
+                "chain_id=",
+                block.chainid.toString(),
+                ";selector=",
+                selector,
+                ";domain=",
+                domainName,
+                ";timestamp=",
+                timestamp.toString(),
+                ";public_key_hash=",
+                uint256(publicKeyHash).toHexString(),
+                ";"
+            );
     }
 }

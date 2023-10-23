@@ -81,15 +81,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         unclaimedFundOfEmailAddrCommit[emailAddrCommit] = fund;
 
-        emit EmailWalletEvents.UnclaimedFundRegistered(
-            emailAddrCommit,
-            tokenAddr,
-            amount,
-            sender,
-            expiryTime,
-            0,
-            ""
-        );
+        emit EmailWalletEvents.UnclaimedFundRegistered(emailAddrCommit, tokenAddr, amount, sender, expiryTime, 0, "");
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.

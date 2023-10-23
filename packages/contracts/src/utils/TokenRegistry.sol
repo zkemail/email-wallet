@@ -47,7 +47,7 @@ contract TokenRegistry is Ownable {
     /// @dev "ETH" with return the address of "WETH"
     function getTokenAddress(uint256 chainId, string memory tokenName) public view returns (address) {
         // Return WETH
-         if (Strings.equal(tokenName, "ETH")) {
+        if (Strings.equal(tokenName, "ETH")) {
             tokenName = "WETH";
         }
 

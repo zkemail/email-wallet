@@ -349,10 +349,13 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         assertEq(string(reason), "target cannot be core or handlers", "invalid reason");
     }
 
-     function test_RevertIf_ExecuteAsExtension_TargetIsHandler() public {
+    function test_RevertIf_ExecuteAsExtension_TargetIsHandler() public {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(address(unclaimsHandler)), 20));
+        emailOp.maskedSubject = string.concat(
+            "Test Execute on ",
+            Strings.toHexString(uint160(address(unclaimsHandler)), 20)
+        );
         emailOp.extensionParams.subjectTemplateIndex = 7;
         emailOp.extensionParams.subjectParams = new bytes[](1);
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(unclaimsHandler));

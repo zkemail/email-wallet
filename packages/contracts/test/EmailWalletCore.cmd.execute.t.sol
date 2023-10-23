@@ -89,7 +89,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-     function test_RevertIf_ExecuteTargetIsAHandler() public {
+    function test_RevertIf_ExecuteTargetIsAHandler() public {
         bytes memory emailOpCalldata = abi.encode(address(accountHandler), 0, "");
         string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 

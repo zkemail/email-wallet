@@ -165,7 +165,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(walletAddr), 34.6 ether, "sender did not have correct DAI left");
 
         // Should register unclaimed funds
-        (, , address tokenAddr, uint256 amount, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , address tokenAddr, uint256 amount, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(
+            recipientEmailAddrCommit
+        );
         assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
         assertEq(amount, 65.4 ether, "amount mismatch");
     }

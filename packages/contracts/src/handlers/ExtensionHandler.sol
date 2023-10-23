@@ -30,7 +30,7 @@ contract ExtensionHandler is Ownable {
 
     /// Set default extensions for all users
     /// @param defaultExtensions Array of default extensions encoded as (string name, address addr, string[][] templates, uint256 maxGas)
-    function setDefaultExtensions(bytes[] calldata defaultExtensions) onlyOwner public {
+    function setDefaultExtensions(bytes[] calldata defaultExtensions) public onlyOwner {
         require(!_defaultExtensionsSet, "default extensions already set");
 
         for (uint256 i = 0; i < defaultExtensions.length; i++) {

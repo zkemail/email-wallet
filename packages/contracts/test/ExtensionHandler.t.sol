@@ -38,7 +38,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         assertEq(extensionHandler.addressOfExtensionName("DEF_EXT_NAME"), adddr, "ext name mismatch");
         assertEq(extensionHandler.maxGasOfExtension(adddr), 1 ether, "maxGas not set"); // set during core deployment
         assertEq(extensionHandler.subjectTemplatesOfExtension(adddr, 0, 1), "NOOP", "subject mismatch");
-         
+
         // getExtensionForCommand method should return same for all wallet addr
         address randomAddr = vm.addr(3);
         address getExtensionAddr = extensionHandler.getExtensionForCommand(randomAddr, "DEF_EXT");
@@ -53,7 +53,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         string[][] memory subjectTemplates = _getSampleSubjectTemplates();
 
         vm.startPrank(extensionDev);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.ExtensionPublished(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         vm.stopPrank();

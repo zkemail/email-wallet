@@ -11,7 +11,7 @@ import "../handlers/ExtensionHandler.sol";
 import "../EmailWalletCore.sol";
 
 library SubjectUtils {
-     /// @notice Convert bytes to hex string without 0x prefix
+    /// @notice Convert bytes to hex string without 0x prefix
     /// @param data bytes to convert
     function bytesToHexString(bytes memory data) public pure returns (string memory) {
         bytes memory hexChars = "0123456789abcdef";
@@ -84,11 +84,7 @@ library SubjectUtils {
             require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
 
-            maskedSubject = string.concat(
-                Commands.EXECUTE,
-                " 0x",
-                bytesToHexString(emailOp.executeCallData)
-            );
+            maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
         }
         // Sample: Install extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {

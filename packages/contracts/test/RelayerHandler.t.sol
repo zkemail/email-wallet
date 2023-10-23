@@ -10,7 +10,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         string memory hostname = "relayer.xyz";
 
         vm.startPrank(relayer);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.RelayerRegistered(relayer, randHash, emailAddr, hostname);
 
         relayerHandler.registerRelayer(randHash, emailAddr, hostname);
@@ -69,7 +69,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         relayerHandler.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
 
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.RelayerConfigUpdated(relayer, newHostname);
         relayerHandler.updateRelayerConfig(newHostname);
         vm.stopPrank();

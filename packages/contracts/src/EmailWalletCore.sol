@@ -314,7 +314,6 @@ contract EmailWalletCore is ReentrancyGuard {
         require(false, "no allowance for requested token");
     }
 
-
     /// @notice For extension in context to deposit token to user's wallet during handleEmailOp
     /// @param tokenAddr Address of the ERC20 token to be deposited
     /// @param amount Amount to be deposited

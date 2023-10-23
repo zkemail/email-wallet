@@ -76,7 +76,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
             address(nftExtension),
@@ -89,8 +89,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         (bool success, , ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
-        (bytes32 emailAddrCommit, address extensionAddr, address sender, bytes memory state, uint256 expiryTime) = unclaimsHandler
-            .unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (
+            bytes32 emailAddrCommit,
+            address extensionAddr,
+            address sender,
+            bytes memory state,
+            uint256 expiryTime
+        ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
 
         assertEq(success, true, "handleEmailOp should succeed");
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
@@ -109,7 +114,12 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         string[][] memory anotherExtTemplates = new string[][](1);
         anotherExtTemplates[0] = new string[](1);
         anotherExtTemplates[0][0] = "Another";
-        extensionHandler.publishExtension("AnotherExtension", address(anotherExtension), anotherExtTemplates, 0.1 ether);
+        extensionHandler.publishExtension(
+            "AnotherExtension",
+            address(anotherExtension),
+            anotherExtTemplates,
+            0.1 ether
+        );
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
@@ -133,9 +143,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (bytes32 emailAddrCommit, address extensionAddr, , bytes memory state, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(
-            recipientEmailAddrCommit
-        );
+        (bytes32 emailAddrCommit, address extensionAddr, , bytes memory state, ) = unclaimsHandler
+            .unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
 
         assertEq(success, true, string.concat("handleEmailOp failed", string(reason)));
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
@@ -291,7 +300,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
 
         emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
@@ -371,7 +380,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
             address(nftExtension),
@@ -513,7 +522,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, walletAddr);
 
         unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
@@ -559,7 +568,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
 
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, newWalletAddr);
 
         unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
@@ -824,7 +833,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.warp(block.timestamp + 31 days); // Expiry time is 30 days (set in EmailWalletCoreTestHelper)
 
         vm.startPrank(voidUser);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateVoided(recipientEmailAddrCommit, sender);
         unclaimsHandler.voidUnclaimedState(recipientEmailAddrCommit);
         vm.stopPrank();

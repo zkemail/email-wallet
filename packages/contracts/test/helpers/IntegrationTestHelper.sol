@@ -127,17 +127,17 @@ abstract contract IntegrationTestHelper is Test {
 
         // Deploy core contract as proxy
         core = new EmailWalletCore(
-                address(verifier),
-                address(walletImp),
-                address(tokenRegistry),
-                address(dkimRegistry),
-                address(priceOracle),
-                address(weth),
-                maxFeePerGas,
-                emailValidityDuration,
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas,
-                unclaimsExpiryDuration
+            address(verifier),
+            address(walletImp),
+            address(tokenRegistry),
+            address(dkimRegistry),
+            address(priceOracle),
+            address(weth),
+            maxFeePerGas,
+            emailValidityDuration,
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration
         );
         core.initialize(defaultExtensions);
 
