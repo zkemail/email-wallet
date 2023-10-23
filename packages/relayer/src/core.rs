@@ -41,8 +41,27 @@ pub(crate) async fn handle_email(
                     generate_proof(&input, "generateSendProof", PROVER_ADDRESS.get().unwrap())
                         .await?;
 
-                let data = AccountInitialization::default();
-                let res = call_account_initialization_op(data).await?;
+                let relayer_rand = hex2field(RELAYER_RAND.get().unwrap())?;
+                let email_addr_pointer = PaddedEmailAddr::from_email_addr(&from_address)
+                    .to_pointer(&RelayerRand(relayer_rand))?;
+                let email_addr_pointer = Fr::to_bytes(&email_addr_pointer);
+
+                let data = AccountInitialization {
+                    email_addr_pointer,
+                    email_domain: get_email_domain(&from_address)?,
+                    email_timestamp: U256::from(parsed_email.get_timestamp()?),
+                    email_nullifier: Fr::to_bytes(&email_nullifier(&parsed_email.signature)?),
+                    proof: Bytes::from(proof.into_bytes()),
+                };
+                let result = call_account_initialization_op(data).await?;
+
+                tx.send(EmailMessage {
+                    subject: "Your Account was initialized".to_string(),
+                    body: result,
+                    to: from_address,
+                    message_id: None,
+                })
+                .unwrap();
             }
         }
     } else {
@@ -108,6 +127,14 @@ pub(crate) async fn handle_email(
         };
 
         let result = call_handle_email_op(email_op).await?;
+
+        tx.send(EmailMessage {
+            subject: "Transaction were completed".to_string(),
+            body: result,
+            to: from_address,
+            message_id: None,
+        })
+        .unwrap();
     }
 
     Ok(())
