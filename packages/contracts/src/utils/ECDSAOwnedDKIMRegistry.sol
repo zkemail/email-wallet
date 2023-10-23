@@ -16,7 +16,7 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     DKIMRegistry public dkimRegistry;
     address public signer;
 
-    constructor(address _signer, uint _signValidityDuration) {
+    constructor(address _signer, uint256 _signValidityDuration) {
         dkimRegistry = new DKIMRegistry();
         signer = _signer;
         signValidityDuration = _signValidityDuration;

@@ -146,3 +146,20 @@ Copy the addresses from log:
   NFT Extension deployed at: 0xb7F8bD28719aA118EcD8D01293acEe0E804b2EE6
   Uniswap Extension deployed at: 0x6CE6893f06A438A85686DC1104688ad3b032de05
 ```
+
+#### Deploy ECDSAOwnedDKIMRegistry
+Set the `SIGNER` to the address of the Ethereum wallet who will be setting the DKIM public key for a domain.
+
+```
+PRIVATE_KEY="" \
+SIGNER=0x2f6e79a6e1a982a49ca248b70b02f76e921af400 \
+forge script script/DeployECDSAOwnedDKIMRegistry.s.sol:Deploy \
+-vvvv \
+--rpc-url https://ethereum-sepolia.publicnode.com	 \
+--chain-id 11155111 \
+--broadcast \
+--etherscan-api-key "S7RWR1ENYB73HZY7WTV3EER7U8CQNBBTAJ" \
+--verify
+```
+
+Copy the address from log `ECDSAOwnedDKIMRegistry deployed at: 0xB50a02E2Da524feC1209542985b2ae2917aF7265`
