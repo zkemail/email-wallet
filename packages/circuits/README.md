@@ -122,6 +122,10 @@ Its instances are as follows:
 `yarn && yarn build`
 
 ### Run tests
+At `packages/circuits`, make a `build` directory, download the zip file from the following link, and place its unziped files under `build`.
+https://drive.google.com/file/d/1b49VLOoUsf5c2bFXSQwx1eGIX7_g30TN/view?usp=sharing
+
+Then run the following command.
 `yarn test`
 
 ### Generate proving keys and verifier contracts for main circuits
