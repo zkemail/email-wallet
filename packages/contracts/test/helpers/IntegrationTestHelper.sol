@@ -54,6 +54,10 @@ abstract contract IntegrationTestHelper is Test {
     UniswapExtension uniswapExtension;
     NFTExtension nftExtension;
 
+    RelayerHandler relayerHandler;
+    AccountHandler accountHandler;
+    UnclaimsHandler unclaimsHandler;
+
     // TestERC20 wethToken;
     ERC20 daiToken;
     ERC20 usdcToken;
@@ -123,8 +127,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes[] memory defaultExtensions = new bytes[](0);
 
         // Deploy core contract as proxy
-        address implementation = address(
-            new EmailWalletCore(
+        core = new EmailWalletCore(
                 address(verifier),
                 address(walletImp),
                 address(tokenRegistry),
@@ -136,10 +139,12 @@ abstract contract IntegrationTestHelper is Test {
                 unclaimedFundClaimGas,
                 unclaimedStateClaimGas,
                 unclaimsExpiryDuration
-            )
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
-        core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
+        core.initialize(defaultExtensions);
+
+        relayerHandler = RelayerHandler(core.relayerHandler());
+        accountHandler = AccountHandler(core.accountHandler());
+        unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
 
         // Deploy some ERC20 test tokens and add them to registry
         // wethToken = new TestERC20("WETH", "WETH");
@@ -363,7 +368,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        core.claimUnclaimedFund(emailAddrCommit, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(emailAddrCommit, recipientEmailAddrPointer, proof);
     }
 
     function claimState(
@@ -385,7 +390,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        core.claimUnclaimedState(emailAddrCommit, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(emailAddrCommit, recipientEmailAddrPointer, proof);
     }
 
     function genAnnouncement(

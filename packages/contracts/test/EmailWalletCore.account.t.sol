@@ -17,15 +17,15 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         vm.stopPrank();
 
-        Wallet wallet = Wallet(payable(AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt)));
+        Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
         assertEq(wallet.owner(), address(core), "wallet owner is not walletAddr");
 
-        assertEq(AccountHandler(core.accountHandler()).accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
+        assertEq(accountHandler.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
         
-        (address akRelayer, bool initialized, bytes32 akWalletSalt) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(accountKeyCommit);
+        (address akRelayer, bool initialized, bytes32 akWalletSalt) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertEq(akRelayer, relayer);
         assertEq(akWalletSalt, walletSalt);
-        assertEq(AccountHandler(core.accountHandler()).pointerOfPSIPoint(psiPoint), emailAddrPointer);
+        assertEq(accountHandler.pointerOfPSIPoint(psiPoint), emailAddrPointer);
         assertTrue(!initialized);
     }
 
@@ -71,7 +71,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     function test_CreateWalletWithPredeterministicAddress() public {
-        address predictedAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
+        address predictedAddr = accountHandler.getWalletOfSalt(walletSalt);
 
         vm.startPrank(relayer);
         address walletAddr = address(
@@ -83,7 +83,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertWhen_PredeterministicWalletIsAlreadyDeployed() public {
-        address predictedAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
+        address predictedAddr = accountHandler.getWalletOfSalt(walletSalt);
         deployCodeTo("WETH9.sol", abi.encode(address(weth)), predictedAddr);
 
         vm.startPrank(relayer);
@@ -102,7 +102,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
 
-        (, bool initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(accountKeyCommit);
+        (, bool initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertTrue(initialized);
     }
 
@@ -141,16 +141,16 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (, bool initializedOld, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(accountKeyCommit);
+        (, bool initializedOld, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertTrue(initializedOld); // old accountKeyCommit should still be initialized
-        assertEq(AccountHandler(core.accountHandler()).accountKeyCommitOfPointer(newEmailAddrPointer), newAccountKeyCommit);
-        (address newAkRelayer, bool newAkInitialized, bytes32 newWalletSalt) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(
+        assertEq(accountHandler.accountKeyCommitOfPointer(newEmailAddrPointer), newAccountKeyCommit);
+        (address newAkRelayer, bool newAkInitialized, bytes32 newWalletSalt) = accountHandler.infoOfAccountKeyCommit(
             newAccountKeyCommit
         );
         assertEq(newAkRelayer, relayer2);
         assertEq(newWalletSalt, walletSalt); // should not change
         assertTrue(newAkInitialized);
-        assertEq(AccountHandler(core.accountHandler()).pointerOfPSIPoint(newPSIPoint), newEmailAddrPointer);
+        assertEq(accountHandler.pointerOfPSIPoint(newPSIPoint), newEmailAddrPointer);
     }
 
     function test_AccountTransport_MultipleTimes() public {
@@ -198,16 +198,16 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         // Relayer 1 and 2 should be nullified, but 3 should work
-        (, bool r1Initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(accountKeyCommit);
+        (, bool r1Initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertTrue(r1Initialized, "relayer1 account should be initialized");
 
-        (, bool r2Initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(relayer2AccountKeyCommit);
+        (, bool r2Initialized, ) = accountHandler.infoOfAccountKeyCommit(relayer2AccountKeyCommit);
         assertTrue(r2Initialized, "relayer2 account should be initialized");
 
-        (, bool r3Initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(relayer3AccountKeyCommit);
+        (, bool r3Initialized, ) = accountHandler.infoOfAccountKeyCommit(relayer3AccountKeyCommit);
         assertTrue(r3Initialized, "relayer3 account should be initialized");
 
-        assertEq(AccountHandler(core.accountHandler()).accountKeyCommitOfPointer(relayer3Pointer), relayer3AccountKeyCommit);
+        assertEq(accountHandler.accountKeyCommitOfPointer(relayer3Pointer), relayer3AccountKeyCommit);
     }
 
     function test_RevertIf_TransportedAccountIsNotInitialized() public {
@@ -271,12 +271,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (, bool r1Initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(accountKeyCommit);
+        (, bool r1Initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertTrue(r1Initialized, "old relayer should still be initialized");
 
-        assertEq(AccountHandler(core.accountHandler()).accountKeyCommitOfPointer(relayer2Pointer), relayer2NewAccountKeyCommit);
+        assertEq(accountHandler.accountKeyCommitOfPointer(relayer2Pointer), relayer2NewAccountKeyCommit);
 
-        (, bool r2Initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(relayer2NewAccountKeyCommit);
+        (, bool r2Initialized, ) = accountHandler.infoOfAccountKeyCommit(relayer2NewAccountKeyCommit);
         assertTrue(r2Initialized, "new relayer account not initialized");
     }
 
@@ -318,9 +318,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (, bool initialized, ) = AccountHandler(core.accountHandler()).infoOfAccountKeyCommit(accountKeyCommit);
+        (, bool initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertTrue(initialized, "transported account not initialized");
 
-        assertEq(AccountHandler(core.accountHandler()).accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
+        assertEq(accountHandler.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
     }
 }

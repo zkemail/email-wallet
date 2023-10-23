@@ -20,6 +20,7 @@ import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
 import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
 import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
+import {UnclaimsHandler} from "../../src/handlers/UnclaimsHandler.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
@@ -68,6 +69,10 @@ contract EmailWalletCoreTestHelper is Test {
 
     address defaultExtAddr;
 
+    RelayerHandler relayerHandler;
+    AccountHandler accountHandler;
+    UnclaimsHandler unclaimsHandler;
+
     function setUp() public virtual {
         deployer = vm.addr(1);
         relayer = vm.addr(2);
@@ -104,6 +109,10 @@ contract EmailWalletCoreTestHelper is Test {
             unclaimsExpiryDuration
         );
         core.initialize(defaultExtensions);
+
+        relayerHandler = RelayerHandler(core.relayerHandler());
+        accountHandler = AccountHandler(core.accountHandler());
+        unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
 
         // Set test sender's wallet addr
         walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);

@@ -21,7 +21,7 @@ contract UniswapExtension is Extension {
     string[][] public templates = new string[][](1);
 
     modifier onlyCore() {
-        require(msg.sender == address(core), "invalid sender");
+        require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
         _;
     }
 

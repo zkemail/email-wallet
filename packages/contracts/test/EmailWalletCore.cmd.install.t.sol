@@ -44,7 +44,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
-        assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), extensionAddr, "didnt install extension");
+        assertEq(core.extensionOfCommand(walletAddr, "Swap"), extensionAddr, "didnt install extension");
     }
 
     function test_InstallShouldOverrideDefaultExtensions() public {
@@ -106,20 +106,20 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
-        assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), address(0), "didnt uninstall extension");
+        assertEq(core.extensionOfCommand(walletAddr, "Swap"), address(0), "didnt uninstall extension");
     }
 
-    // function test_RevertIf_UnistallExtensionNotInstalled() public {
-    //     _publishExtension();
+    function test_RevertIf_UnistallExtensionNotInstalled() public {
+        _publishExtension();
 
-    //     EmailOp memory emailOpUninstall = _getBaseEmailOp();
-    //     emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
-    //     emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
-    //     emailOpUninstall.extensionName = extensionName;
+        EmailOp memory emailOpUninstall = _getBaseEmailOp();
+        emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
+        emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
+        emailOpUninstall.extensionName = extensionName;
 
-    //     vm.startPrank(relayer);
-    //     vm.expectRevert("extension not installed");
-    //     core.handleEmailOp(emailOpUninstall);
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(relayer);
+        vm.expectRevert("extension not installed");
+        core.handleEmailOp(emailOpUninstall);
+        vm.stopPrank();
+    }
 }

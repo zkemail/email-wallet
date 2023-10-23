@@ -13,6 +13,10 @@ library SubjectUtils {
     /// @notice Calculate the masked subject for an EmailOp from command and other params
     ///         This also do sanity checks of certain parameters used in the subject
     /// @param emailOp EmailOp from which the masked subject is to be computed
+    /// @param walletAddr Address of the user's wallet
+    /// @param tokenRegistry TokenRegistry contract
+    /// @param extAddr Address of the extension (for extension related commands)
+    /// @param subjectTemplatesOfExtension Subject templates of the extension (if command is for extension)
     function computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp,
         address walletAddr,

@@ -3,9 +3,9 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {Extension} from "../../src/interfaces/Extension.sol";
-import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
-import "../../src/interfaces/Types.sol";
+import {Extension} from "../interfaces/Extension.sol";
+import {EmailWalletCore} from "../EmailWalletCore.sol";
+import "../interfaces/Types.sol";
 
 contract NFTExtension is Extension, IERC721Receiver, Ownable {
     EmailWalletCore public core;
@@ -16,7 +16,7 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
     string[][] public templates = new string[][](3);
 
     modifier onlyCore() {
-        require(msg.sender == address(core), "invalid sender");
+        require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
         _;
     }
 
