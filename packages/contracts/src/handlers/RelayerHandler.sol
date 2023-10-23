@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 
-contract RelayerHandler {
+contract RelayerHandler is Ownable {
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
 

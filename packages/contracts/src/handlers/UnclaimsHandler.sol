@@ -42,16 +42,16 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
 
     constructor(
-        address _accountHandler,
         address _relayerHandler,
+        address _accountHandler,
         address _verifier,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas,
         uint256 _unclaimsExpiryDuration,
         uint256 _maxFeePerGas
     ) {
-        accountHandler = AccountHandler(_accountHandler);
         relayerHandler = RelayerHandler(_relayerHandler);
+        accountHandler = AccountHandler(_accountHandler);
         verifier = IVerifier(_verifier);
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;

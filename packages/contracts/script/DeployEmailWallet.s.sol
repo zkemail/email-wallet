@@ -59,19 +59,45 @@ contract Deploy is Script {
         Wallet walletImp = new Wallet(address(weth));
 
         // Deploy core contract as proxy
-        EmailWalletCore core = new EmailWalletCore(
+        RelayerHandler relayerHandler = new RelayerHandler();
+        ExtensionHandler extensionHandler = new ExtensionHandler();
+        AccountHandler accountHandler = new AccountHandler(
+            address(relayerHandler),
+            address(dkimRegistry),
             address(verifier),
             address(walletImp),
-            tokenRegistry,
-            dkimRegistry,
-            priceOracle,
-            weth,
+            emailValidityDuration
+        );
+        UnclaimsHandler unclaimsHandler = new UnclaimsHandler(
+            address(relayerHandler),
+            address(accountHandler),
+            address(verifier),
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration,
+            maxFeePerGas
+        );
+
+        // Deploy core contract as proxy
+        EmailWalletCore core = new EmailWalletCore(
+            address(relayerHandler),
+            address(accountHandler),
+            address(unclaimsHandler),
+            address(extensionHandler),
+            address(verifier),
+            address(tokenRegistry),
+            address(priceOracle),
+            address(weth),
             maxFeePerGas,
             emailValidityDuration,
             unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration
+            unclaimedStateClaimGas
         );
+
+        relayerHandler.transferOwnership(address(core));
+        accountHandler.transferOwnership(address(core));
+        unclaimsHandler.transferOwnership(address(core));
+        extensionHandler.transferOwnership(address(core));
 
         bytes[] memory defaultExtensions = new bytes[](2);
 
@@ -86,7 +112,7 @@ contract Deploy is Script {
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        // core.initialize(defaultExtensions);
+        core.initialize(defaultExtensions);
 
         vm.stopBroadcast();
 

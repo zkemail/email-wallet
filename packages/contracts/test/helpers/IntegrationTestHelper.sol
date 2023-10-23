@@ -125,26 +125,44 @@ abstract contract IntegrationTestHelper is Test {
 
         bytes[] memory defaultExtensions = new bytes[](0);
 
-        // Deploy core contract as proxy
-        core = new EmailWalletCore(
+        relayerHandler = new RelayerHandler();
+        extensionHandler = new ExtensionHandler();
+        accountHandler = new AccountHandler(
+            address(relayerHandler),
+            address(dkimRegistry),
             address(verifier),
             address(walletImp),
+            emailValidityDuration
+        );
+        unclaimsHandler = new UnclaimsHandler(
+            address(relayerHandler),
+            address(accountHandler),
+            address(verifier),
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration,
+            maxFeePerGas
+        );
+
+        core = new EmailWalletCore(
+            address(relayerHandler),
+            address(accountHandler),
+            address(unclaimsHandler),
+            address(extensionHandler),
+            address(verifier),
             address(tokenRegistry),
-            address(dkimRegistry),
             address(priceOracle),
             address(weth),
             maxFeePerGas,
             emailValidityDuration,
             unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration
+            unclaimedStateClaimGas
         );
-        core.initialize(defaultExtensions);
 
-        relayerHandler = RelayerHandler(core.relayerHandler());
-        accountHandler = AccountHandler(core.accountHandler());
-        unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
-        extensionHandler = ExtensionHandler(core.extensionHandler());
+        relayerHandler.transferOwnership(address(core));
+        accountHandler.transferOwnership(address(core));
+        unclaimsHandler.transferOwnership(address(core));
+        extensionHandler.transferOwnership(address(core));
 
         // Deploy some ERC20 test tokens and add them to registry
         // wethToken = new TestERC20("WETH", "WETH");

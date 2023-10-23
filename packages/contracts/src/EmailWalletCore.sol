@@ -8,7 +8,6 @@ import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Crea
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
@@ -26,7 +25,7 @@ import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 
-contract EmailWalletCore is ReentrancyGuard {
+contract EmailWalletCore {
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -51,9 +50,6 @@ contract EmailWalletCore is ReentrancyGuard {
     // Address of WETH contract
     address public immutable wethContract;
 
-    // Address of wallet implementation contract - used for deploying wallets for users via proxy
-    address public immutable walletImplementation;
-
     // Max fee per gas in wei that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
@@ -74,32 +70,37 @@ contract EmailWalletCore is ReentrancyGuard {
     ExecutionContext internal currContext;
 
     /// @notice Constructor
+    /// @param _relayerHandler Address of the relayer handler contract
+    /// @param _accountHandler Address of the account handler contract
+    /// @param _unclaimsHandler Address of the unclaims handler contract
+    /// @param _extensionHandler Address of the extension handler contract
     /// @param _verifier Address of the ZK proof verifier
-    /// @param _walletImplementationAddr Address of the wallet implementation contract
     /// @param _tokenRegistry Address of the token registry contract
-    /// @param _defaultDkimRegistry Address of the default DKIM registry contract
     /// @param _priceOracle Address of the price oracle contract
     /// @param _wethContract Address of the WETH contract
     /// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
     /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
     /// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
     /// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
-    /// @param _unclaimsExpiryDuration Time period after which unclaimed funds and states expire
     constructor(
+        address _relayerHandler,
+        address _accountHandler,
+        address _unclaimsHandler,
+        address _extensionHandler,
         address _verifier,
-        address _walletImplementationAddr,
         address _tokenRegistry,
-        address _defaultDkimRegistry,
         address _priceOracle,
         address _wethContract,
         uint256 _maxFeePerGas,
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
-        uint256 _unclaimedStateClaimGas,
-        uint256 _unclaimsExpiryDuration
+        uint256 _unclaimedStateClaimGas
     ) {
+        relayerHandler = RelayerHandler(_relayerHandler);
+        accountHandler = AccountHandler(_accountHandler);
+        unclaimsHandler = UnclaimsHandler(payable(_unclaimsHandler));
+        extensionHandler = ExtensionHandler(_extensionHandler);
         verifier = IVerifier(_verifier);
-        walletImplementation = _walletImplementationAddr;
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
         wethContract = _wethContract;
@@ -107,25 +108,6 @@ contract EmailWalletCore is ReentrancyGuard {
         emailValidityDuration = _emailValidityDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
-
-        relayerHandler = new RelayerHandler();
-        extensionHandler = new ExtensionHandler();
-        accountHandler = new AccountHandler(
-            address(relayerHandler),
-            _defaultDkimRegistry,
-            _verifier,
-            walletImplementation,
-            emailValidityDuration
-        );
-        unclaimsHandler = new UnclaimsHandler(
-            address(accountHandler),
-            address(relayerHandler),
-            _verifier,
-            _unclaimedFundClaimGas,
-            _unclaimedStateClaimGas,
-            _unclaimsExpiryDuration,
-            _maxFeePerGas
-        );
     }
 
     /// @notice Initialize contract with some defaults after deployment
@@ -215,7 +197,9 @@ contract EmailWalletCore is ReentrancyGuard {
     /// @dev ~ verificationGas(fixed) + executionGas(extension.maxGas if extension) + feeForReimbursement(50k) + msg.value
     function handleEmailOp(
         EmailOp calldata emailOp
-    ) public payable nonReentrant returns (bool success, bytes memory err, uint256 totalFeeInETH) {
+    ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH) {
+        require(currContext.walletAddr == address(0), "context already set");
+
         uint256 initialGas = gasleft();
 
         // Set context for this EmailOp
@@ -252,13 +236,7 @@ contract EmailWalletCore is ReentrancyGuard {
             payable(msg.sender).transfer(msg.value);
         }
 
-        // Reset context
-        currContext.extensionAddr = address(0);
-        currContext.unclaimedFundRegistered = false;
-        currContext.unclaimedStateRegistered = false;
-        delete currContext.tokenAllowances;
-
-        uint256 gasForRefund = 50000; // Rough estimate of gas cost for refund operation below (ERC20 transfer)
+        uint256 gasForRefund = 55000; // Rough estimate of gas cost for refund (ERC20 transfer) and other operation below
         uint256 totalGas = initialGas - gasleft() + gasForRefund;
         totalFeeInETH += (totalGas * emailOp.feePerGas);
         uint256 rate = _getFeeConversionRate(emailOp.feeTokenName);
@@ -274,6 +252,14 @@ contract EmailWalletCore is ReentrancyGuard {
             );
             require(success, string.concat("fee reimbursement failed: ", string(err)));
         }
+
+        // Reset context
+        currContext.walletAddr = address(0);
+        currContext.recipientEmailAddrCommit = bytes32(0);
+        currContext.extensionAddr = address(0);
+        currContext.unclaimedFundRegistered = false;
+        currContext.unclaimedStateRegistered = false;
+        delete currContext.tokenAllowances;
     }
 
     /// For extension in context to register Unclaimed State during handleEmailOp

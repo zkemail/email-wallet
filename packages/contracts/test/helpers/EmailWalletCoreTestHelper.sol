@@ -95,26 +95,47 @@ contract EmailWalletCoreTestHelper is Test {
         _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
         defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
 
-        // Deploy core contract as proxy
-        core = new EmailWalletCore(
+        relayerHandler = new RelayerHandler();
+        extensionHandler = new ExtensionHandler();
+        accountHandler = new AccountHandler(
+            address(relayerHandler),
+            address(dkimRegistry),
             address(verifier),
             address(walletImp),
+            emailValidityDuration
+        );
+        unclaimsHandler = new UnclaimsHandler(
+            address(relayerHandler),
+            address(accountHandler),
+            address(verifier),
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration,
+            maxFeePerGas
+        );
+
+        // Deploy core contract as proxy
+        core = new EmailWalletCore(
+            address(relayerHandler),
+            address(accountHandler),
+            address(unclaimsHandler),
+            address(extensionHandler),
+            address(verifier),
             address(tokenRegistry),
-            address(dkimRegistry),
             address(priceOracle),
             address(weth),
             maxFeePerGas,
             emailValidityDuration,
             unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration
+            unclaimedStateClaimGas
         );
-        core.initialize(defaultExtensions);
 
-        relayerHandler = RelayerHandler(core.relayerHandler());
-        accountHandler = AccountHandler(core.accountHandler());
-        unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
-        extensionHandler = ExtensionHandler(core.extensionHandler());
+        relayerHandler.transferOwnership(address(core));
+        accountHandler.transferOwnership(address(core));
+        unclaimsHandler.transferOwnership(address(core));
+        extensionHandler.transferOwnership(address(core));
+
+        core.initialize(defaultExtensions);
 
         // Set test sender's wallet addr
         walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
