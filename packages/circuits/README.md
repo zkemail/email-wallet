@@ -4,7 +4,8 @@
 
 We provide five main circuits as follows.
 
-- `account_creation.circom` - A circuit to verify the account creation.
+#### `account_creation.circom`
+A circuit to verify the account creation.
 
 It takes as input the following data:
 1. an email address `email_addr`.
@@ -17,7 +18,8 @@ Its instances are as follows:
 3. a commitment of the account key `ak_commit`.
 4. a user's wallet salt `wallet_salt`, a PSI point on elliptic curve `psi_point`.
 
-- `account_init.circom` - A circuit to verify the account initialization.
+#### `account_init.circom`
+A circuit to verify the account initialization.
 
 It takes as input the following data:
 1. a padded email header `in_padded`.
@@ -39,7 +41,8 @@ Its instances are as follows:
 6. a commitment of the sender's account key `sender_ak_commit`.
 7. a timestamp in the email header `timestamp`.
 
-- `account_transport.circom` - A circuit to verify the account transport.
+#### `account_transport.circom`
+A circuit to verify the account transport.
 
 It takes as input the following data:
 1. a padded email header `in_padded`.
@@ -63,7 +66,8 @@ Its instances are as follows:
 7. a timestamp in the email header `timestamp`.
 8. the old relayer's randomness hash `old_relayer_rand_hash`.
 
-- `claim.circom` - A circuit to verify the claim of unclaimed funds/states. 
+#### `claim.circom`
+A circuit to verify the claim of unclaimed funds/states. 
 
 It takes as input the following data.
 1. an email address `recipient_email_addr`,
@@ -75,7 +79,8 @@ Its instances are as follows:
 2. an email address pointer `recipient_pointer`.
 3. an email address commitment `recipient_email_addr_commit`.
 
-- `email_sender.circom` - A circuit to verify the user's email for calling a command. 
+#### `email_sender.circom`
+A circuit to verify the user's email for calling a command. 
 
 It takes as input the following data.
 1. a padded email header `in_padded`.
@@ -100,7 +105,8 @@ Its instances are as follows:
 8. the recipient's email address commitment `recipient_email_addr_commit`.
 9. a timestamp in the email header `timestamp`.
 
-- `announcement.circom` - A circuit to verify that the given email address commitment is derived from the given email address and randomness. While it is not used in our core contracts, it is provided for third-party contracts to register unclaimed funds/states for the public email address and the randomness. 
+#### `announcement.circom`
+A circuit to verify that the given email address commitment is derived from the given email address and randomness. While it is not used in our core contracts, it is provided for third-party contracts to register unclaimed funds/states for the public email address and the randomness. 
 
 It takes as input the following data:
 1. an email address `email_addr`.
