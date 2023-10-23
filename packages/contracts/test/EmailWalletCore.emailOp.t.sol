@@ -3,6 +3,7 @@ pragma solidity ^0.8.12;
 
 import "forge-std/StdStorage.sol";
 import "./helpers/EmailWalletCoreTestHelper.sol";
+import "../src/libraries/SubjectUtils.sol";
 
 // Generic EmailOp validations - command specific validations are in respective command test file
 contract EmailOpValidationTest is EmailWalletCoreTestHelper {
@@ -48,7 +49,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getTokenSendingEmailOp();
 
         vm.startPrank(vm.addr(5)); // Random addr
-        core.registerRelayer(bytes32(uint256(123)), "r2@rel.com", "rel.com");
+        relayerHandler.registerRelayer(bytes32(uint256(123)), "r2@rel.com", "rel.com");
         vm.expectRevert("invalid relayer");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
@@ -66,7 +67,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailAddrPointer = emailAddrPointer;
 
         vm.startPrank(relayer);
-        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         vm.expectRevert("account not initialized");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
@@ -79,7 +80,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
 
         vm.startPrank(relayer);
-        vm.expectRevert("email nullifier already used");
+        vm.expectRevert("email nullified");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -321,7 +322,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+        emailOp.maskedSubject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);

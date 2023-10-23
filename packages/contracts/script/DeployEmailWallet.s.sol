@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "forge-std/Script.sol";
 import "../src/Wallet.sol";
 import "../src/EmailWalletCore.sol";
@@ -14,6 +15,9 @@ contract Deploy is Script {
     uint256 constant unclaimedFundClaimGas = 450000;
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;
+
+    string [][] nftExtTemplates = new string [][](3);
+    string [][] uniswapExtTemplates = new string [][](1);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -54,31 +58,42 @@ contract Deploy is Script {
         // Deploy wallet implementation
         Wallet walletImp = new Wallet(address(weth));
 
-        bytes[] memory defaultExtensions = new bytes[](0);
-
         // Deploy core contract as proxy
-        address implementation = address(
-            new EmailWalletCore(
-                address(verifier),
-                address(walletImp),
-                tokenRegistry,
-                dkimRegistry,
-                priceOracle,
-                weth,
-                maxFeePerGas,
-                emailValidityDuration,
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas,
-                unclaimsExpiryDuration
-            )
+        EmailWalletCore core = new EmailWalletCore(
+            address(verifier),
+            address(walletImp),
+            tokenRegistry,
+            dkimRegistry,
+            priceOracle,
+            weth,
+            maxFeePerGas,
+            emailValidityDuration,
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
-        EmailWalletCore core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
+
+        bytes[] memory defaultExtensions = new bytes[](2);
+        
+        NFTExtension nftExt = new NFTExtension(address(core));
+        nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
+        nftExtTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
+        nftExtTemplates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
+
+        address uniswapV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+        UniswapExtension uniExt = new UniswapExtension(address(core), address(tokenRegistry), uniswapV2Router);
+        uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
+
+        core.initialize(defaultExtensions);
 
         vm.stopBroadcast();
 
         console.log("Verifier deployed at: %s", address(verifier));
         console.log("Wallet implementation deployed at: %s", address(walletImp));
         console.log("EmailWalletCore deployed at: %s", address(core));
+        console.log("NFT Extension deployed at: %s", address(nftExt));
+        console.log("Uniswap Extension deployed at: %s", address(uniExt));
     }
 }

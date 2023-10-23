@@ -1,10 +1,12 @@
 [profile.default]
 src = "src"
-scripts = "scripts"
 out = "artifacts"
 libs = ["../../node_modules"]
+optimizer = true
+optimizer-runs = 1
 fs_permissions = [
     { access = "read", path = "./artifacts/WETH9.sol/WETH9.json" },
     { access = "read", path = "./test/build_integration" },
 ]
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

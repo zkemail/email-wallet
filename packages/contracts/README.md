@@ -66,4 +66,8 @@ forge script script/DeployEmailWallet.s.sol:Deploy \
 --verify
 ```
 
-Copy the address from log ``
+Copy the address from log `
+  Verifier deployed at: 0xd4Edf5478387b0E0e54F12E2e3CA5B10C60fC531
+  Wallet implementation deployed at: 0xcA84fd5B1831Ae0414F25af36fe9fF2b95498652
+  EmailWalletCore deployed at: 0xd8E5ab228C0F88dd6b195d0557006AE817c09DF7
+  `

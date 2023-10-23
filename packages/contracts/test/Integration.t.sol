@@ -9,8 +9,6 @@ import "@zk-email/contracts/DKIMRegistry.sol";
 import "../src/EmailWalletCore.sol";
 import "../src/utils/TokenRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
-import "../src/libraries/BytesUtils.sol";
-// import "./mocks/TestERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./helpers/WETH9.sol";
 import "../src/verifier/AccountCreationVerifier.sol";
@@ -84,7 +82,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer2);
         (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(
             relayer1RandHash,
-            core.accountKeyCommitOfPointer(user1.emailAddrPointer),
+            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer),
             string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
             "gmail.com",
             "suegamisora@gmail.com",
@@ -113,8 +111,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.15 ether);
@@ -138,9 +136,9 @@ contract IntegrationTest is IntegrationTestHelper {
         }(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
-        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
         require(
-            address(core).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
+            address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
             "Core contract eth balance mismatch"
         );
         (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
@@ -153,12 +151,12 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user2.emailAddrPointer));
-        address user2Wallet = core.getWalletOfSalt(walletSalt);
+        (, , walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user2.emailAddrPointer));
+        address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
         claimFund(user2.emailAddr, relayer1Rand, emailAddrRand);
         require(weth.balanceOf(user2Wallet) == 0.1 ether, "User2 wallet balance mismatch");
-        require(weth.balanceOf(address(core)) == 0, "Core contract balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
     }
 
@@ -179,8 +177,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.3 ether);
@@ -203,7 +201,7 @@ contract IntegrationTest is IntegrationTestHelper {
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
         require(recipient.balance == 0.25 ether, "Recipient address balance mismatch");
-        require(weth.balanceOf(address(core)) == 0, "Core contract balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
     }
 
@@ -223,8 +221,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user2.emailAddrPointer = emailAddrPointer;
@@ -235,8 +233,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user2.emailAddrPointer));
-        address user2Wallet = core.getWalletOfSalt(walletSalt);
+        (, , walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user2.emailAddrPointer));
+        address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         // address recipient = vm.addr(4);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
@@ -327,8 +325,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         // address recipient = vm.addr(4);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
@@ -426,9 +424,9 @@ contract IntegrationTest is IntegrationTestHelper {
             "invalid announcement proof"
         );
         deal(depositer, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        require(weth.approve(address(core), 0.5 ether), "approve failed");
+        require(weth.approve(address(unclaimsHandler), 0.5 ether), "approve failed");
         vm.expectEmit(true, true, true, true);
-        emit UnclaimedFundRegistered(
+        emit EmailWalletEvents.UnclaimedFundRegistered(
             emailAddrCommit,
             address(weth),
             0.5 ether,
@@ -437,7 +435,7 @@ contract IntegrationTest is IntegrationTestHelper {
             uint256(rand1),
             user1.emailAddr
         );
-        core.registerUnclaimedFund{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(
+        unclaimsHandler.registerUnclaimedFund{value: core.unclaimedFundClaimGas() * core.maxFeePerGas()}(
             emailAddrCommit,
             address(weth),
             0.5 ether,
@@ -462,8 +460,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimFund(user1.emailAddr, relayer1Rand, rand1);
         require(
             weth.balanceOf(user1Wallet) == 0.5 ether,
@@ -531,8 +529,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.15 ether);
@@ -556,9 +554,9 @@ contract IntegrationTest is IntegrationTestHelper {
         }(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
-        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
         require(
-            address(core).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
+            address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
             "Core contract eth balance mismatch"
         );
         vm.stopPrank();
@@ -566,9 +564,9 @@ contract IntegrationTest is IntegrationTestHelper {
         address voider = vm.addr(7);
         vm.startPrank(voider);
         uint preWethBalance = weth.balanceOf(user1Wallet);
-        (, , , , uint256 expiryTime) = core.unclaimedFundOfEmailAddrCommit(emailOp.recipientEmailAddrCommit);
+        (, , , , uint256 expiryTime) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(emailOp.recipientEmailAddrCommit);
         vm.warp(expiryTime + 1);
-        core.voidUnclaimedFund(emailOp.recipientEmailAddrCommit);
+        unclaimsHandler.voidUnclaimedFund(emailOp.recipientEmailAddrCommit);
         require(
             weth.balanceOf(user1Wallet) - preWethBalance > 0.1 ether,
             "User 1 wallet balance after voiding the uf is too small"
@@ -597,8 +595,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
@@ -649,8 +647,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user2.emailAddrPointer));
-        address user2Wallet = core.getWalletOfSalt(walletSalt);
+        (, , walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user2.emailAddrPointer));
+        address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimState(user2.emailAddr, relayer1Rand, emailAddrRand);
         require(ape.ownerOf(1) == user2Wallet, "User2 wallet does not own APE");
     }
@@ -672,8 +670,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
@@ -735,7 +733,7 @@ contract IntegrationTest is IntegrationTestHelper {
         ape.approve(address(nftExtension), 1);
         bytes memory unclaimedState = abi.encode(address(ape), 1);
         vm.expectEmit(true, true, true, true);
-        emit UnclaimedStateRegistered(
+        emit EmailWalletEvents.UnclaimedStateRegistered(
             emailAddrCommit,
             address(nftExtension),
             depositer,
@@ -744,7 +742,7 @@ contract IntegrationTest is IntegrationTestHelper {
             uint256(rand1),
             user1.emailAddr
         );
-        core.registerUnclaimedState{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(
+        unclaimsHandler.registerUnclaimedState{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(
             emailAddrCommit,
             address(nftExtension),
             unclaimedState,
@@ -771,8 +769,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimState(user1.emailAddr, relayer1Rand, rand1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
         vm.stopPrank();
@@ -795,8 +793,8 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = core.infoOfAccountKeyCommit(core.accountKeyCommitOfPointer(user1.emailAddrPointer));
-        address user1Wallet = core.getWalletOfSalt(walletSalt);
+        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer));
+        address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
@@ -840,9 +838,9 @@ contract IntegrationTest is IntegrationTestHelper {
 
         address voider = vm.addr(7);
         vm.startPrank(voider);
-        (, , , , uint256 expiryTime) = core.unclaimedStateOfEmailAddrCommit(emailOp.recipientEmailAddrCommit);
+        (, , , , uint256 expiryTime) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(emailOp.recipientEmailAddrCommit);
         vm.warp(expiryTime + 1);
-        core.voidUnclaimedState(emailOp.recipientEmailAddrCommit);
+        unclaimsHandler.voidUnclaimedState(emailOp.recipientEmailAddrCommit);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
         require(
             voider.balance > 0 && voider.balance < core.unclaimedFundClaimGas() * core.maxFeePerGas(),

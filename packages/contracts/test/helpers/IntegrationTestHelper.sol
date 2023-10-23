@@ -10,8 +10,6 @@ import "@zk-email/contracts/DKIMRegistry.sol";
 import "../../src/EmailWalletCore.sol";
 import "../../src/utils/TokenRegistry.sol";
 import "../../src/utils/UniswapTWAPOracle.sol";
-import "../../src/libraries/BytesUtils.sol";
-// import "./mocks/TestERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./WETH9.sol";
 import "../../src/verifier/AccountCreationVerifier.sol";
@@ -26,7 +24,7 @@ import "../../src/extensions/UniswapExtension.sol";
 import "../../src/extensions/NFTExtension.sol";
 import "../mocks/DummyNFT.sol";
 
-abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
+abstract contract IntegrationTestHelper is Test {
     using Strings for *;
     using console for *;
     using stdStorage for StdStorage;
@@ -53,6 +51,11 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
     WETH9 weth;
     UniswapExtension uniswapExtension;
     NFTExtension nftExtension;
+
+    RelayerHandler relayerHandler;
+    AccountHandler accountHandler;
+    UnclaimsHandler unclaimsHandler;
+    ExtensionHandler extensionHandler;
 
     // TestERC20 wethToken;
     ERC20 daiToken;
@@ -123,8 +126,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         bytes[] memory defaultExtensions = new bytes[](0);
 
         // Deploy core contract as proxy
-        address implementation = address(
-            new EmailWalletCore(
+        core = new EmailWalletCore(
                 address(verifier),
                 address(walletImp),
                 address(tokenRegistry),
@@ -136,10 +138,13 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
                 unclaimedFundClaimGas,
                 unclaimedStateClaimGas,
                 unclaimsExpiryDuration
-            )
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
-        core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
+        core.initialize(defaultExtensions);
+
+        relayerHandler = RelayerHandler(core.relayerHandler());
+        accountHandler = AccountHandler(core.accountHandler());
+        unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
+        extensionHandler = ExtensionHandler(core.extensionHandler());
 
         // Deploy some ERC20 test tokens and add them to registry
         // wethToken = new TestERC20("WETH", "WETH");
@@ -152,24 +157,24 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
         vm.stopPrank();
         vm.startPrank(relayer1);
-        core.registerRelayer(relayer1RandHash, "emailwallet.relayer@gmail.com", "emailwallet.com");
+        relayerHandler.registerRelayer(relayer1RandHash, "emailwallet.relayer@gmail.com", "emailwallet.com");
         vm.stopPrank();
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "emailwallet.relayer2@gmail.com", "emailwallet2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "emailwallet.relayer2@gmail.com", "emailwallet2.com");
         vm.stopPrank();
 
         address extensionDev = vm.addr(3);
         vm.startPrank(extensionDev);
-        uniswapExtension = new UniswapExtension(address(core), UNISWAP_V3_ROUTER);
+        uniswapExtension = new UniswapExtension(address(core), address(tokenRegistry), UNISWAP_V3_ROUTER);
         nftExtension = new NFTExtension(address(core));
         DummyNFT apeNFT = new DummyNFT();
         nftExtension.setNFTAddress("APE", address(apeNFT));
 
         uint256 maxExecutionGas = 10 ** 6;
         string[][] memory templates = _getUniswapSubjectTemplates();
-        core.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
+        extensionHandler.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
         templates = _getNFTSubjectTemplates();
-        core.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
+        extensionHandler.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
         vm.stopPrank();
     }
 
@@ -200,7 +205,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
         );
-        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
     }
 
     function accountInit(
@@ -226,7 +231,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_init_proof.json")
         );
-        core.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, proof);
+        accountHandler.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, proof);
     }
 
     function accountTransport(
@@ -266,7 +271,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         bytes memory accountCreationProof = proofToBytes(
             string.concat(vm.projectRoot(), "/test/build_integration/account_creation_proof.json")
         );
-        core.transportAccount(
+        accountHandler.transportAccount(
             oldAccountKeyCommit,
             newEmailAddrPointer,
             newAccountKeyCommit,
@@ -363,7 +368,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        core.claimUnclaimedFund(emailAddrCommit, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(emailAddrCommit, recipientEmailAddrPointer, proof);
     }
 
     function claimState(
@@ -385,7 +390,7 @@ abstract contract IntegrationTestHelper is Test, EmailWalletEvents {
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        core.claimUnclaimedState(emailAddrCommit, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(emailAddrCommit, recipientEmailAddrPointer, proof);
     }
 
     function genAnnouncement(

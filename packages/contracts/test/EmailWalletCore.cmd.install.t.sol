@@ -25,7 +25,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         tempaltes[0] = temp;
 
         vm.startPrank(extensionDev);
-        core.publishExtension(extensionName, extensionAddr, tempaltes, 0.1 ether);
+        extensionHandler.publishExtension(extensionName, extensionAddr, tempaltes, 0.1 ether);
         vm.stopPrank();
     }
 
@@ -44,7 +44,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
-        assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), extensionAddr, "didnt install extension");
+        assertEq(extensionHandler.userExtensionOfCommand(walletAddr, "Swap"), extensionAddr, "didnt install extension");
     }
 
     function test_InstallShouldOverrideDefaultExtensions() public {
@@ -54,10 +54,10 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         dummyTemplates[0] = new string[](2);
         dummyTemplates[0][0] = "DEF_EXT"; // Same command of default extension installed in EmailWalletCoreTestHelper
         dummyTemplates[0][1] = "Not default";
-        core.publishExtension("Custom", address(ext), dummyTemplates, 0.1 ether);
+        extensionHandler.publishExtension("Custom", address(ext), dummyTemplates, 0.1 ether);
 
         // Should be default extension
-        assertEq(core.getExtensionForCommand("DEF_EXT", walletAddr), defaultExtAddr, "defaultExtAddr not set");
+        assertEq(extensionHandler.getExtensionForCommand(walletAddr, "DEF_EXT"), defaultExtAddr, "defaultExtAddr not set");
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
@@ -69,7 +69,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
-        assertEq(core.getExtensionForCommand("DEF_EXT", walletAddr), address(ext), "extension not changed");
+        assertEq(extensionHandler.getExtensionForCommand(walletAddr, "DEF_EXT"), address(ext), "extension not changed");
     }
 
     function test_RevertIf_ExtensionNotRegistered() public {
@@ -106,7 +106,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
-        assertEq(core.userExtensionOfCommand(walletAddr, "Swap"), address(0), "didnt uninstall extension");
+        assertEq(extensionHandler.getExtensionForCommand(walletAddr, "Swap"), address(0), "didnt uninstall extension");
     }
 
     function test_RevertIf_UnistallExtensionNotInstalled() public {

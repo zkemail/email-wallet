@@ -5,11 +5,14 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {Extension} from "../interfaces/Extension.sol";
 import {EmailWalletCore} from "../EmailWalletCore.sol";
+import {TokenRegistry} from "../utils/TokenRegistry.sol";
 import "../interfaces/Types.sol";
 
 contract UniswapExtension is Extension {
     EmailWalletCore public core;
     ISwapRouter public router;
+    TokenRegistry public tokenRegistry;
+
     // For this example, we will set the pool fee to 0.3%.
     uint24 public constant poolFee = 3000;
 
@@ -18,12 +21,13 @@ contract UniswapExtension is Extension {
     string[][] public templates = new string[][](1);
 
     modifier onlyCore() {
-        require(msg.sender == address(core), "invalid sender");
+        require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
         _;
     }
 
-    constructor(address coreAddr, address _router) {
+    constructor(address coreAddr, address _tokenReg, address _router) {
         core = EmailWalletCore(payable(coreAddr));
+        tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
     }
@@ -40,8 +44,8 @@ contract UniswapExtension is Extension {
         emailNullifier;
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
         string memory tokenOut = abi.decode(subjectParams[1], (string));
-        address tokenInAddr = core.getTokenAddrFromName(tokenIn);
-        address tokenOutAddr = core.getTokenAddrFromName(tokenOut);
+        address tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
+        address tokenOutAddr = tokenRegistry.getTokenAddress(tokenOut);
         require(templateIndex == 0, "invalid templateIndex");
         require(tokenOutAddr != address(0), "invalid out token name");
         require(!hasEmailRecipient, "recipient is not supported");
@@ -55,7 +59,7 @@ contract UniswapExtension is Extension {
             IERC20(tokenInAddr).approve(address(router), tokenInAmount),
             "approve from the extension to router failed"
         );
-        address wethAddr = core.getTokenAddrFromName("ETH");
+        address wethAddr = tokenRegistry.getTokenAddress("ETH");
         if (tokenInAddr != wethAddr && tokenOutAddr != wethAddr) {
             ISwapRouter.ExactInputSingleParams memory swapParams1 = ISwapRouter.ExactInputSingleParams({
                 tokenIn: tokenInAddr,

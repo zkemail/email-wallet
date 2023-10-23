@@ -11,12 +11,12 @@ contract RelayerTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectEmit(true,true,true,true);
-        emit RelayerRegistered(relayer, randHash, emailAddr, hostname);
+        emit EmailWalletEvents.RelayerRegistered(relayer, randHash, emailAddr, hostname);
 
-        core.registerRelayer(randHash, emailAddr, hostname);
+        relayerHandler.registerRelayer(randHash, emailAddr, hostname);
         vm.stopPrank();
 
-        (bytes32 deployedRandHash, , ) = core.relayers(relayer);
+        (bytes32 deployedRandHash, , ) = relayerHandler.relayers(relayer);
         assertTrue(deployedRandHash == randHash);
     }
 
@@ -26,9 +26,9 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
         vm.expectRevert("relayer already registered");
-        core.registerRelayer(randHash2, "relayer2@domain.com", "relayer2.xyz");
+        relayerHandler.registerRelayer(randHash2, "relayer2@domain.com", "relayer2.xyz");
         vm.stopPrank();
     }
 
@@ -37,12 +37,12 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
 
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
         vm.stopPrank();
 
         vm.startPrank(vm.addr(3));
         vm.expectRevert("randHash already registered");
-        core.registerRelayer(randHash, "relayer2@domain.com", "relayer2.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer2@domain.com", "relayer2.xyz");
         vm.stopPrank();
     }
 
@@ -52,12 +52,12 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
         vm.stopPrank();
 
         vm.startPrank(vm.addr(3));
         vm.expectRevert("emailAddr already registered");
-        core.registerRelayer(randHash2, "relayer@domain.com", "relayer2.xyz");
+        relayerHandler.registerRelayer(randHash2, "relayer@domain.com", "relayer2.xyz");
         vm.stopPrank();
     }
 
@@ -67,14 +67,14 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         string memory newHostname = "newdomain.xyz";
 
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer@domain.com", "relayer.xyz");
 
         vm.expectEmit(true,true,true,true);
-        emit RelayerConfigUpdated(relayer, newHostname);
-        core.updateRelayerConfig(newHostname);
+        emit EmailWalletEvents.RelayerConfigUpdated(relayer, newHostname);
+        relayerHandler.updateRelayerConfig(newHostname);
         vm.stopPrank();
 
-        (, , string memory hostname) = core.relayers(relayer);
+        (, , string memory hostname) = relayerHandler.relayers(relayer);
 
         assertTrue(Strings.equal(hostname, newHostname));
     }

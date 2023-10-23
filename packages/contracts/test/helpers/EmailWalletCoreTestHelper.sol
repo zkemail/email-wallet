@@ -9,7 +9,6 @@ import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
 import {Wallet} from "../../src/Wallet.sol";
 import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
 import {TokenRegistry} from "../../src/utils/TokenRegistry.sol";
-import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
 import {TestVerifier} from "../mocks/TestVerifier.sol";
 import {TestERC20} from "../mocks/TestERC20.sol";
 import {TestOracle} from "../mocks/TestOracle.sol";
@@ -18,10 +17,14 @@ import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
+import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
+import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
+import {UnclaimsHandler} from "../../src/handlers/UnclaimsHandler.sol";
+import {ExtensionHandler} from "../../src/handlers/ExtensionHandler.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
-contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
+contract EmailWalletCoreTestHelper is Test {
     EmailWalletCore core;
     TestVerifier verifier;
     TokenRegistry tokenRegistry;
@@ -66,6 +69,11 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
 
     address defaultExtAddr;
 
+    RelayerHandler relayerHandler;
+    AccountHandler accountHandler;
+    UnclaimsHandler unclaimsHandler;
+    ExtensionHandler extensionHandler;
+
     function setUp() public virtual {
         deployer = vm.addr(1);
         relayer = vm.addr(2);
@@ -88,26 +96,28 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
         defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
 
         // Deploy core contract as proxy
-        address implementation = address(
-            new EmailWalletCore(
-                address(verifier),
-                address(walletImp),
-                address(tokenRegistry),
-                address(dkimRegistry),
-                address(priceOracle),
-                address(weth),
-                maxFeePerGas,
-                emailValidityDuration,
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas,
-                unclaimsExpiryDuration
-            )
+        core = new EmailWalletCore(
+            address(verifier),
+            address(walletImp),
+            address(tokenRegistry),
+            address(dkimRegistry),
+            address(priceOracle),
+            address(weth),
+            maxFeePerGas,
+            emailValidityDuration,
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
-        core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
+        core.initialize(defaultExtensions);
+
+        relayerHandler = RelayerHandler(core.relayerHandler());
+        accountHandler = AccountHandler(core.accountHandler());
+        unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
+        extensionHandler = ExtensionHandler(core.extensionHandler());
 
         // Set test sender's wallet addr
-        walletAddr = core.getWalletOfSalt(walletSalt);
+        walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
 
         // Set a mock DKIM public key hash for test sender's emailDomain
         dkimRegistry.setDKIMPublicKeyHash(emailDomain, bytes32(uint256(111122223333)));
@@ -125,15 +135,15 @@ contract EmailWalletCoreTestHelper is Test, EmailWalletEvents {
     // Register the test relayer - when not testing relayer functionality
     function _registerRelayer() internal {
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@relayer.xyz", "relayer.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer@relayer.xyz", "relayer.xyz");
         vm.stopPrank();
     }
 
     // Register test user account - for using as sender when not testing accoung functionality
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
-        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        core.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
         vm.stopPrank();
     }
 

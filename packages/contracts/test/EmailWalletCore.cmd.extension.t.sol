@@ -25,7 +25,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         dummyNFT = new DummyNFT();
         nftExtension.setNFTAddress("APE", address(dummyNFT));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        core.publishExtension("NFT Wallet", address(nftExtension), nftExtTemplates, 0.1 ether);
+        extensionHandler.publishExtension("NFT Wallet", address(nftExtension), nftExtTemplates, 0.1 ether);
 
         mockExtension = new TestExtension(address(core), address(usdcToken), address(tokenRegistry));
         mockExtTemplates[0] = ["Test", "Register Unclaimed State"];
@@ -51,7 +51,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
             "then send to",
             "{address}"
         ];
-        core.publishExtension("mockExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
+        extensionHandler.publishExtension("mockExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
@@ -120,7 +120,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
-        (, , , bytes memory state, ) = core.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , bytes memory state, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
         assertTrue(state.length > 0, "unclaimed state should not be empty");
     }
 
@@ -346,7 +346,23 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
-        assertEq(string(reason), "target cannot be core", "invalid reason");
+        assertEq(string(reason), "target cannot be core or handlers", "invalid reason");
+    }
+
+     function test_RevertIf_ExecuteAsExtension_TargetIsHandler() public {
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+        emailOp.maskedSubject = string.concat("Test Execute on ", Strings.toHexString(uint160(address(unclaimsHandler)), 20));
+        emailOp.extensionParams.subjectTemplateIndex = 7;
+        emailOp.extensionParams.subjectParams = new bytes[](1);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(address(unclaimsHandler));
+
+        vm.startPrank(relayer);
+        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(!success, "handleEmailOp should have failed");
+        assertEq(string(reason), "target cannot be core or handlers", "invalid reason");
     }
 
     function test_RevertIf_ExecuteAsExtension_TargetIsWallet() public {
