@@ -7,6 +7,7 @@ use std::hash::{Hash, Hasher};
 use std::path::Path;
 
 use ethers::types::{Address, Bytes, U256};
+use num_bigint::RandBigInt;
 use regex::Regex;
 use tokio::{
     fs::{read_to_string, remove_file, File},
@@ -62,25 +63,38 @@ pub(crate) async fn handle_email(
         let proof =
             generate_proof(&input, "generateSendProof", PROVER_ADDRESS.get().unwrap()).await?;
 
+        let random = rand::thread_rng().gen_biguint(253);
+        let random_hex = hex2field(&format!("0x{}", random.to_str_radix(16)))?;
+        let commitment = calculate_addr_commitment(&recipient, random_hex);
+        db.insert_claim(&recipient, &field2hex(&random_hex), &field2hex(&commitment))
+            .await?;
+
+        let masked_subject = format!(
+            "SEND {} {} to {}",
+            amount,
+            token,
+            " ".repeat(recipient.len())
+        );
+
         let email_op = EmailOp {
-            email_addr_pointer: todo!(),
-            has_email_recipient: todo!(),
-            recipient_email_addr_commit: todo!(),
-            recipient_eth_addr: todo!(),
+            email_addr_pointer: Fr::to_bytes(&calculate_addr_pointer(&from_address)),
+            has_email_recipient: true,
+            recipient_email_addr_commit: Fr::to_bytes(&commitment),
+            recipient_eth_addr: Address::default(),
             command: String::from("Send"),
-            email_nullifier: todo!(),
+            email_nullifier: Fr::to_bytes(&email_nullifier(&parsed_email.signature)?),
             email_domain: get_email_domain(&from_address)?,
             timestamp: parsed_email.get_timestamp()?.into(),
-            masked_subject: todo!(),
-            fee_token_name: todo!(),
-            fee_per_gas: todo!(),
+            masked_subject,
+            fee_token_name: "ETH".to_string(),
+            fee_per_gas: U256::from(3 * (10 ^ 9)),
             execute_calldata: Bytes::new(),
             extension_name: String::new(),
             new_wallet_owner: Address::default(),
             new_dkim_registry: Address::default(),
             wallet_params: WalletParams {
                 token_name: token,
-                amount,
+                amount: amount * (10 ^ 18),
             },
             extension_params: ExtensionParams {
                 subject_template_index: 0,
@@ -298,42 +312,15 @@ pub(crate) async fn generate_claim_input(
     Ok(result)
 }
 
-pub(crate) async fn generate_announcement_input(
-    circuits_dir_path: &Path,
-    email_address: &str,
-    email_address_rand: &str,
-) -> Result<String> {
-    let input_file_name = email_address.to_string() + ".input";
-
-    File::create(&input_file_name).await?;
-    let current_dir = std::env::current_dir()?;
-
-    let command_str = format!(
-        "--cwd {} gen-claim-input --email-addr {} --email-addr-rand {} --input-file {}",
-        circuits_dir_path.to_str().unwrap(),
-        email_address,
-        email_address_rand,
-        input_file_name
-    );
-
-    let mut proc = tokio::process::Command::new("yarn")
-        .args(command_str.split_whitespace())
-        .spawn()?;
-
-    let status = proc.wait().await?;
-    assert!(status.success());
-
-    let result = read_to_string(&input_file_name).await?;
-
-    remove_file(input_file_name).await?;
-
-    Ok(result)
-}
-
-pub(crate) fn calculate_addr_pointer(email_address: &str) -> String {
+pub(crate) fn calculate_addr_pointer(email_address: &str) -> Fr {
     let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap()).unwrap());
-    field2hex(&padded_email_address.to_pointer(&relayer_rand).unwrap())
+    padded_email_address.to_pointer(&relayer_rand).unwrap()
+}
+
+pub(crate) fn calculate_addr_commitment(email_address: &str, rand: Fr) -> Fr {
+    let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
+    padded_email_address.to_commitment(&rand).unwrap()
 }
 
 pub(crate) async fn generate_proof(input: &str, request: &str, address: &str) -> Result<String> {

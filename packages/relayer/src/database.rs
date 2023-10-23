@@ -39,6 +39,16 @@ impl Database {
         .execute(&self.db)
         .await?;
 
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS claims (
+                email_address TEXT PRIMARY KEY,
+                random TEXT NOT NULL, 
+                commit TEXT UNIQUE
+            );",
+        )
+        .execute(&self.db)
+        .await?;
+
         Ok(())
     }
 
@@ -90,6 +100,22 @@ impl Database {
         sqlx::query("INSERT INTO users (email_address, viewing_key) VALUES (?, ?)")
             .bind(email_address)
             .bind(viewing_key)
+            .execute(&self.db)
+            .await?;
+
+        Ok(())
+    }
+
+    pub(crate) async fn insert_claim(
+        &self,
+        email_address: &str,
+        random: &str,
+        commit: &str,
+    ) -> Result<()> {
+        sqlx::query("INSERT INTO claims (email_address, random, commit) VALUES (?, ?, ?)")
+            .bind(email_address)
+            .bind(random)
+            .bind(commit)
             .execute(&self.db)
             .await?;
 
