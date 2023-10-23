@@ -30,8 +30,19 @@ pub(crate) async fn handle_email(
             }
 
             if account_key == db.get_viewing_key(&from_address).await?.unwrap() {
-                account_key;
-                todo!("REPLY")
+                let input = generate_initialization_input(
+                    CIRCUITS_DIR_PATH.get().unwrap(),
+                    &email,
+                    RELAYER_RAND.get().unwrap(),
+                )
+                .await?;
+
+                let proof =
+                    generate_proof(&input, "generateSendProof", PROVER_ADDRESS.get().unwrap())
+                        .await?;
+
+                let data = AccountInitialization::default();
+                let res = call_account_initialization_op(data).await?;
             }
         }
     } else {
@@ -69,13 +80,6 @@ pub(crate) async fn handle_email(
         db.insert_claim(&recipient, &field2hex(&random_hex), &field2hex(&commitment))
             .await?;
 
-        let masked_subject = format!(
-            "SEND {} {} to {}",
-            amount,
-            token,
-            " ".repeat(recipient.len())
-        );
-
         let email_op = EmailOp {
             email_addr_pointer: Fr::to_bytes(&calculate_addr_pointer(&from_address)),
             has_email_recipient: true,
@@ -85,7 +89,7 @@ pub(crate) async fn handle_email(
             email_nullifier: Fr::to_bytes(&email_nullifier(&parsed_email.signature)?),
             email_domain: get_email_domain(&from_address)?,
             timestamp: parsed_email.get_timestamp()?.into(),
-            masked_subject,
+            masked_subject: format!("SEND {} {} to", amount, token),
             fee_token_name: "ETH".to_string(),
             fee_per_gas: U256::from(3 * (10 ^ 9)),
             execute_calldata: Bytes::new(),

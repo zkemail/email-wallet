@@ -53,7 +53,7 @@ async fn create_account(
     .unwrap();
 
     let data = AccountCreation::default();
-    call_account_creation_op(data).await.unwrap();
+    let res = call_account_creation_op(data).await.unwrap();
 
     tx_sender
         .send(EmailMessage {
