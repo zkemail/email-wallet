@@ -70,14 +70,14 @@ contract Deploy is Script {
             unclaimsExpiryDuration
         );
 
-        bytes[] memory defaultExtensions = new bytes[](0);
+        bytes[] memory defaultExtensions = new bytes[](2);
         
-        // NFTExtension nftExt = new NFTExtension(address(core));
-        // defaultExtAddr = address(defaultExt);
-        // bytes[] memory defaultExtensions = new bytes[](1);
-        // _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
-        // defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
+        NFTExtension nftExt = new NFTExtension(address(core));
+        defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExt.templates, 0.001 ether); // TODO: Check max exec gas
 
+        address uniswapV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+        UniswapExtension uniExt = new UniswapExtension(address(core), address(tokenRegistry), uniswapV2Router);
+        defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniExt.templates, 0.001 ether); // TODO: Check max exec gas
 
         core.initialize(defaultExtensions);
 
