@@ -24,7 +24,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, OnceLock};
 
 use anyhow::{anyhow, bail, Result};
-use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, poseidon_fields};
+use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 
 static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
 static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();

@@ -3709,6 +3709,7 @@ dependencies = [
  "ethers",
  "futures",
  "lettre",
+ "num-bigint 0.4.4",
  "oauth2",
  "rand",
  "regex",
