@@ -123,8 +123,6 @@ abstract contract IntegrationTestHelper is Test {
             0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788
         );
 
-        bytes[] memory defaultExtensions = new bytes[](0);
-
         relayerHandler = new RelayerHandler();
         extensionHandler = new ExtensionHandler();
         accountHandler = new AccountHandler(
@@ -372,6 +370,9 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 relayerRand,
         bytes32 emailAddrRand
     ) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
+        newRelayerHash;
+        newEmailAddrPointer;
+
         string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
@@ -394,6 +395,9 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 relayerRand,
         bytes32 emailAddrRand
     ) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
+        newRelayerHash;
+        newEmailAddrPointer;
+
         string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;

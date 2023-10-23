@@ -481,7 +481,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "User1 wallet balance after claiming unclaimed fund mismatch"
         );
 
-        (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(
+        (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test1.eml"),
             relayer1Rand,
             "Send",
