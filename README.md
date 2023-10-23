@@ -122,11 +122,24 @@ input.
 - Refer to the [relayer docs](./packages/relayer/README.md) for more details on building and running relayer.
 
 
+#### To build the docs
+
+In directory `docs/`, run:
+```
+cargo install mdbook
+```
+
+And to serve the website:
+```sh
+mdbook serve
+```
+
 
 ## References
 1. S. Suegami and K. Shibano, "Contract Wallet Using Emails," 2023 IEEE International Conference on Blockchain and Cryptocurrency (ICBC), Dubai, United Arab Emirates, 2023, pp. 1-2, doi: 10.1109/ICBC56567.2023.10174932.
 
+<br />
 <hr />
 <br />
 
-☆ Build on top of [zk-email](https://github.com/zkemail/zk-email-verify) ☆
+☆ Built using [zk-email](https://github.com/zkemail/zk-email-verify) ☆
