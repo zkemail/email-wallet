@@ -217,7 +217,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
-        payable(fund.sender).transfer((unclaimedFundClaimGas - consumedGas) * maxFeePerGas);
+        (bool success, ) = payable(fund.sender).call{value: (unclaimedFundClaimGas - consumedGas) * maxFeePerGas}("");
+        require(success, "ETH transfer to fund.sender failed");
         payable(msg.sender).transfer(consumedGas * maxFeePerGas);
 
         emit EmailWalletEvents.UnclaimedFundVoided(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
@@ -429,7 +430,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
-        payable(us.sender).transfer((unclaimedStateClaimGas - consumedGas) * maxFeePerGas);
+        (success, ) = payable(us.sender).call{value: (unclaimedStateClaimGas - consumedGas) * maxFeePerGas}("");
+        require(success, "ETH transfer to us.sender failed");
         payable(msg.sender).transfer(consumedGas * maxFeePerGas);
 
         emit EmailWalletEvents.UnclaimedStateVoided(emailAddrCommit, us.sender);
