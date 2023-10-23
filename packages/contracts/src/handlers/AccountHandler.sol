@@ -25,7 +25,7 @@ contract AccountHandler is Ownable {
     // ZK proof verifier contract
     IVerifier public immutable verifier;
 
-     // Mapping of emailAddrPointer to accountKeyCommit
+    // Mapping of emailAddrPointer to accountKeyCommit
     mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
 
     // Mapping of PSI point to emailAddrPointer
@@ -36,6 +36,9 @@ contract AccountHandler is Ownable {
 
     // Mapping of walletSalt to dkim registry address
     mapping(bytes32 => address) public dkimRegistryOfWalletSalt;
+
+    // Mapping to store nullifiers of initialization and transport emails
+    mapping(bytes32 => bool) public emailNullifiers;
 
     // Duration for which an email is valid
     uint public immutable emailValidityDuration;
@@ -60,14 +63,13 @@ contract AccountHandler is Ownable {
     /// @param walletSalt hash(accountKey, 0)
     /// @param proof ZK proof as required by the verifier
     function createAccount(
-        address relayer,
         bytes32 emailAddrPointer,
         bytes32 accountKeyCommit,
         bytes32 walletSalt,
         bytes calldata psiPoint,
         bytes calldata proof
-    ) public {
-        require(relayerHandler.getRandHash(relayer) != bytes32(0), "relayer not registered");
+    ) public returns (Wallet wallet) {
+        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt == bytes32(0), "walletSalt exists");
@@ -75,7 +77,7 @@ contract AccountHandler is Ownable {
 
         require(
             verifier.verifyAccountCreationProof(
-                relayerHandler.getRandHash(relayer),
+                relayerHandler.getRandHash(msg.sender),
                 emailAddrPointer,
                 accountKeyCommit,
                 walletSalt,
@@ -86,9 +88,11 @@ contract AccountHandler is Ownable {
         );
 
         accountKeyCommitOfPointer[emailAddrPointer] = accountKeyCommit;
-        infoOfAccountKeyCommit[accountKeyCommit].relayer = relayer;
+        infoOfAccountKeyCommit[accountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[accountKeyCommit].walletSalt = walletSalt;
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
+
+        wallet = _deployWallet(walletSalt);
 
         emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
     }
@@ -99,7 +103,6 @@ contract AccountHandler is Ownable {
     /// @param emailNullifier nullifier of the email used for proof generation
     /// @param proof ZK proof as required by the verifier
     function initializeAccount(
-        address relayer,
         bytes32 emailAddrPointer,
         string calldata emailDomain,
         uint256 emailTimestamp,
@@ -107,13 +110,14 @@ contract AccountHandler is Ownable {
         bytes calldata proof
     ) public {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
-        bytes32 relayerRandHash = relayerHandler.getRandHash(relayer);
+        bytes32 relayerRandHash = relayerHandler.getRandHash(msg.sender);
 
-        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
         require(relayerRandHash != bytes32(0), "relayer not registered");
         require(accountKeyCommit != bytes32(0), "account not registered");
-        require(infoOfAccountKeyCommit[accountKeyCommit].relayer == relayer, "invalid relayer");
+        require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
+        require(emailNullifiers[emailNullifier] == false, "email nullified");
+        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
 
         require(
             verifier.verifyAccountInitializaionProof(
@@ -130,6 +134,7 @@ contract AccountHandler is Ownable {
         );
 
         infoOfAccountKeyCommit[accountKeyCommit].initialized = true;
+        emailNullifiers[emailNullifier] = true;
 
         emit EmailWalletEvents.AccountInitialized(
             emailAddrPointer,
@@ -146,7 +151,6 @@ contract AccountHandler is Ownable {
     /// @param accountCreationProof Proof for new account creation under new relayer
     /// @param transportEmailProof Proof of user's transport email
     function transportAccount(
-        address relayer,
         bytes32 oldAccountKeyCommit,
         bytes32 newEmailAddrPointer,
         bytes32 newAccountKeyCommit,
@@ -154,11 +158,12 @@ contract AccountHandler is Ownable {
         EmailProof memory transportEmailProof,
         bytes memory accountCreationProof
     ) public {
-        require(relayerHandler.getRandHash(relayer) != bytes32(0), "relayer not registered");
+        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != address(0), "old relayer not registered");
-        require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != relayer, "new relayer cannot be same");
+        require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != msg.sender, "new relayer cannot be same");
         require(infoOfAccountKeyCommit[oldAccountKeyCommit].initialized, "account not initialized");
         require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
+        require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullified");
 
         // New relayer might have already created an account, but not initialized.
         if (accountKeyCommitOfPointer[newEmailAddrPointer] == bytes32(0)) {
@@ -168,7 +173,7 @@ contract AccountHandler is Ownable {
 
         require(
             verifier.verifyAccountCreationProof(
-                relayerHandler.getRandHash(relayer),
+                relayerHandler.getRandHash(msg.sender),
                 newEmailAddrPointer,
                 newAccountKeyCommit,
                 infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt,
@@ -188,13 +193,15 @@ contract AccountHandler is Ownable {
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
                 relayerHandler.getRandHash(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer),
-                relayerHandler.getRandHash(relayer),
+                relayerHandler.getRandHash(msg.sender),
                 oldAccountKeyCommit,
                 newAccountKeyCommit,
                 transportEmailProof.proof
             ),
             "invalid account transport proof"
         );
+
+        emailNullifiers[transportEmailProof.nullifier] = true;
 
         if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
             delete infoOfAccountKeyCommit[accountKeyCommitOfPointer[newEmailAddrPointer]];
@@ -203,7 +210,7 @@ contract AccountHandler is Ownable {
         accountKeyCommitOfPointer[newEmailAddrPointer] = newAccountKeyCommit;
         pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
         infoOfAccountKeyCommit[newAccountKeyCommit].walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
-        infoOfAccountKeyCommit[newAccountKeyCommit].relayer = relayer;
+        infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
 
         infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
@@ -248,8 +255,7 @@ contract AccountHandler is Ownable {
                         type(ERC1967Proxy).creationCode,
                         abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
                     )
-                ),
-                owner() // Core deploys the wallets
+                )
             );
     }
 
@@ -257,5 +263,21 @@ contract AccountHandler is Ownable {
     /// @param emailAddrPointer Email address pointer of the user
     function getWalletOfEmailAddrPointer(bytes32 emailAddrPointer) public view returns (address) {
         return getWalletOfSalt(infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailAddrPointer]].walletSalt);
+    }
+
+    /// @notice Deploy a wallet contract with the given salt
+    /// @param salt Salt to be used for wallet deployment
+    /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
+    function _deployWallet(bytes32 salt) internal returns (Wallet wallet) {
+        wallet = Wallet(
+            payable(
+                new ERC1967Proxy{salt: bytes32(salt)}(
+                    address(walletImplementation),
+                    abi.encodeCall(Wallet.initialize, ())
+                )
+            )
+        );
+
+        wallet.transferOwnership(owner()); // Transfer ownership to core
     }
 }

@@ -66,7 +66,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailAddrPointer = emailAddrPointer;
 
         vm.startPrank(relayer);
-        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
         vm.expectRevert("account not initialized");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
@@ -79,7 +79,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
 
         vm.startPrank(relayer);
-        vm.expectRevert("email nullifier already used");
+        vm.expectRevert("email nullified");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }

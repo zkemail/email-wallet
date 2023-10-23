@@ -312,8 +312,8 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        core.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
-        core.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
+        accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
+        accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
 
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();
@@ -363,8 +363,8 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim both
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        core.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
-        core.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
+        accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
+        accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
 
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit2, newEmailAddrPointer, mockProof);
@@ -400,7 +400,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to claim for existing unclaied funds
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        core.transportAccount(
+        accountHandler.transportAccount(
             accountKeyCommit,
             newEmailAddrPointer,
             newAccountKeyCommit,
@@ -522,7 +522,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Relayer claim the unclaimed fund to a newly created account, but not initialized
         vm.startPrank(relayer);
-        core.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSI, mockProof);
+        accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSI, mockProof);
         vm.expectRevert("account not initialized");
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();

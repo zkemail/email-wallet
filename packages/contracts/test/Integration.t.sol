@@ -138,9 +138,9 @@ contract IntegrationTest is IntegrationTestHelper {
         }(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
-        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
         require(
-            address(core).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
+            address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
             "Core contract eth balance mismatch"
         );
         (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
@@ -158,7 +158,7 @@ contract IntegrationTest is IntegrationTestHelper {
         require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
         claimFund(user2.emailAddr, relayer1Rand, emailAddrRand);
         require(weth.balanceOf(user2Wallet) == 0.1 ether, "User2 wallet balance mismatch");
-        require(weth.balanceOf(address(core)) == 0, "Core contract balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
     }
 
@@ -203,7 +203,7 @@ contract IntegrationTest is IntegrationTestHelper {
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
         require(recipient.balance == 0.25 ether, "Recipient address balance mismatch");
-        require(weth.balanceOf(address(core)) == 0, "Core contract balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
     }
 
@@ -426,7 +426,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "invalid announcement proof"
         );
         deal(depositer, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        require(weth.approve(address(core), 0.5 ether), "approve failed");
+        require(weth.approve(address(unclaimsHandler), 0.5 ether), "approve failed");
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedFundRegistered(
             emailAddrCommit,
@@ -556,9 +556,9 @@ contract IntegrationTest is IntegrationTestHelper {
         }(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
-        require(weth.balanceOf(address(core)) == 0.1 ether, "Core contract weth balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
         require(
-            address(core).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
+            address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
             "Core contract eth balance mismatch"
         );
         vm.stopPrank();

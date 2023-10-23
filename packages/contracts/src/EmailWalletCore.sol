@@ -74,12 +74,6 @@ contract EmailWalletCore is ReentrancyGuard {
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
 
-    modifier nullifyEmail(bytes32 emailNullifier) {
-        require(emailNullifiers[emailNullifier] == false, "email nullified");
-        _;
-        emailNullifiers[emailNullifier] = true;
-    }
-
     /// @notice Constructor
     /// @param _verifier Address of the ZK proof verifier
     /// @param _walletImplementationAddr Address of the wallet implementation contract
@@ -151,70 +145,6 @@ contract EmailWalletCore is ReentrancyGuard {
         revert();
     }
 
-    /// Create new account and wallet for a user
-    /// @param emailAddrPointer hash(relayerRand, emailAddr)
-    /// @param accountKeyCommit hash(accountKey, emailAddr, relayerHash)
-    /// @param walletSalt hash(accountKey, 0)
-    /// @param proof ZK proof as required by the verifier
-    function createAccount(
-        bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
-        bytes32 walletSalt,
-        bytes calldata psiPoint,
-        bytes calldata proof
-    ) public returns (Wallet wallet) {
-        accountHandler.createAccount(msg.sender, emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
-
-        return _deployWallet(walletSalt);
-    }
-
-    /// Initialize the account when user reply to invitation email
-    /// @param emailAddrPointer hash(relayerRand, emailAddr)
-    /// @param emailDomain domain name of the sender's email
-    /// @param emailNullifier nullifier of the email used for proof generation
-    /// @param proof ZK proof as required by the verifier
-    function initializeAccount(
-        bytes32 emailAddrPointer,
-        string calldata emailDomain,
-        uint256 emailTimestamp,
-        bytes32 emailNullifier,
-        bytes calldata proof
-    ) public nullifyEmail(emailNullifier) {
-        accountHandler.initializeAccount(
-            msg.sender,
-            emailAddrPointer,
-            emailDomain,
-            emailTimestamp,
-            emailNullifier,
-            proof
-        );
-    }
-
-    /// @notice Transport an account to a new Relayer - to be called by the new relayer
-    /// @param oldAccountKeyCommit Account Key commitment of the account under old (current) relayer
-    /// @param newEmailAddrPointer Email Address pointer of the account under new relayer
-    /// @param newAccountKeyCommit Account Key commitment of the account under new relayer
-    /// @param newPSIPoint PSI point of the email address under new relayer
-    /// @param accountCreationProof Proof for new account creation under new relayer
-    /// @param transportEmailProof Proof of user's transport email
-    function transportAccount(
-        bytes32 oldAccountKeyCommit,
-        bytes32 newEmailAddrPointer,
-        bytes32 newAccountKeyCommit,
-        bytes memory newPSIPoint,
-        EmailProof memory transportEmailProof,
-        bytes memory accountCreationProof
-    ) public nullifyEmail(transportEmailProof.nullifier) {
-        accountHandler.transportAccount(
-            msg.sender,
-            oldAccountKeyCommit,
-            newEmailAddrPointer,
-            newAccountKeyCommit,
-            newPSIPoint,
-            transportEmailProof,
-            accountCreationProof
-        );
-    }
 
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
@@ -230,10 +160,11 @@ contract EmailWalletCore is ReentrancyGuard {
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
-        require(emailNullifiers[emailOp.emailNullifier] == false, "email nullifier already used");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
+        require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
+        require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
 
         if (emailOp.hasEmailRecipient) {
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
@@ -409,20 +340,6 @@ contract EmailWalletCore is ReentrancyGuard {
         require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "target cannot be a token");
 
         Wallet(payable(currContext.walletAddr)).execute(target, 0, data);
-    }
-
-    /// @notice Deploy a wallet contract with the given salt
-    /// @param salt Salt to be used for wallet deployment
-    /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
-    function _deployWallet(bytes32 salt) internal returns (Wallet wallet) {
-        wallet = Wallet(
-            payable(
-                new ERC1967Proxy{salt: bytes32(salt)}(
-                    address(walletImplementation),
-                    abi.encodeCall(Wallet.initialize, ())
-                )
-            )
-        );
     }
 
     /// @notice Execute an EmailOp

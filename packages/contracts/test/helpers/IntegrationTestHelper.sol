@@ -207,7 +207,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
         );
-        core.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, proof);
     }
 
     function accountInit(
@@ -233,7 +233,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_init_proof.json")
         );
-        core.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, proof);
+        accountHandler.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, proof);
     }
 
     function accountTransport(
@@ -273,7 +273,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes memory accountCreationProof = proofToBytes(
             string.concat(vm.projectRoot(), "/test/build_integration/account_creation_proof.json")
         );
-        core.transportAccount(
+        accountHandler.transportAccount(
             oldAccountKeyCommit,
             newEmailAddrPointer,
             newAccountKeyCommit,
