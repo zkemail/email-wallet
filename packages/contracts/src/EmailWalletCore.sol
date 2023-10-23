@@ -134,14 +134,6 @@ contract EmailWalletCore is ReentrancyGuard {
         extensionHandler.setDefaultExtensions(defaultExtensions);
     }
 
-    function registerRelayer(bytes32 randHash, string calldata emailAddr, string calldata hostname) public {
-        relayerHandler.registerRelayer(msg.sender, randHash, emailAddr, hostname);
-    }
-
-    function updateRelayerConfig(string calldata hostname) public {
-        relayerHandler.updateRelayerConfig(msg.sender, hostname);
-    }
-
     /// Create new account and wallet for a user
     /// @param emailAddrPointer hash(relayerRand, emailAddr)
     /// @param accountKeyCommit hash(accountKey, emailAddr, relayerHash)
@@ -214,7 +206,6 @@ contract EmailWalletCore is ReentrancyGuard {
             accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
         );
         bytes32 dkimPublicKeyHash = accountHandler.getDKIMPublicKeyHash(accountKeyInfo.walletSalt, emailOp.emailDomain);
-        address walletAddr = accountHandler.getWalletOfSalt(accountKeyInfo.walletSalt);
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
         require(accountKeyInfo.initialized, "account not initialized");
@@ -244,10 +235,10 @@ contract EmailWalletCore is ReentrancyGuard {
 
         // Validate computed subject = passed subject
         (string memory maskedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
-            extensionHandler,
-            tokenRegistry,
             emailOp,
-            accountHandler.getWalletOfSalt(accountKeyInfo.walletSalt)
+            accountHandler.getWalletOfSalt(accountKeyInfo.walletSalt),
+            extensionHandler,
+            tokenRegistry
         );
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 

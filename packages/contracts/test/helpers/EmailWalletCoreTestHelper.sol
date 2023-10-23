@@ -136,7 +136,7 @@ contract EmailWalletCoreTestHelper is Test {
     // Register the test relayer - when not testing relayer functionality
     function _registerRelayer() internal {
         vm.startPrank(relayer);
-        core.registerRelayer(randHash, "relayer@relayer.xyz", "relayer.xyz");
+        relayerHandler.registerRelayer(randHash, "relayer@relayer.xyz", "relayer.xyz");
         vm.stopPrank();
     }
 

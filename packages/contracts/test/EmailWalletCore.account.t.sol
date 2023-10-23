@@ -126,7 +126,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
 
         vm.expectEmit(true,true,true,true);
         emit EmailWalletEvents.AccountTransported(accountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
@@ -173,7 +173,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         // Transporting will nullify the accountKeyCommit of relayer1
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
         core.transportAccount(
             accountKeyCommit,
             relayer2Pointer,
@@ -186,7 +186,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         // Transporting to relayer3 with relayer2AccountKeyCommit - most recent relayer should used as "old"
         vm.startPrank(relayer3);
-        core.registerRelayer(relayer3RandHash, "mail@relayer3", "relayer3.com");
+        relayerHandler.registerRelayer(relayer3RandHash, "mail@relayer3", "relayer3.com");
         core.transportAccount(
             relayer2AccountKeyCommit,
             relayer3Pointer,
@@ -222,7 +222,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
         vm.expectRevert("account not initialized");
         core.transportAccount(
             accountKeyCommit,
@@ -253,7 +253,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         // Register wtih relayer 2 (dont initialized), then transport from relayer 1 to relayer 2
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
         core.createAccount(
             relayer2Pointer,
             relayer2InitialAccountKeyCommit,
@@ -295,7 +295,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         // Transport from relayer 1 to relayer 2
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
         core.transportAccount(
             accountKeyCommit,
             relayer2Pointer,

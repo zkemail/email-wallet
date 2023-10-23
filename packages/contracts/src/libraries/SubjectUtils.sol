@@ -14,14 +14,15 @@ import "../handlers/AccountHandler.sol";
 library SubjectUtils {
     /// @notice Calculate the masked subject for an EmailOp from command and other params
     ///         This also do sanity checks of certain parameters used in the subject
+    /// @param emailOp EmailOp to compute masked subject for
+    /// @param walletAddr Address of the user's wallet
     /// @param extensionHandler ExtensionHandler contract
     /// @param tokenRegistry TokenRegistry contract
-    /// @param emailOp EmailOp to compute masked subject for
     function computeMaskedSubjectForEmailOp(
-        ExtensionHandler extensionHandler,
-        TokenRegistry tokenRegistry,
         EmailOp memory emailOp,
-        address walletAddr
+        address walletAddr,
+        ExtensionHandler extensionHandler,
+        TokenRegistry tokenRegistry
     ) public view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {

@@ -311,7 +311,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
-        core.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
+        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         core.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         core.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
 
@@ -362,7 +362,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // New relayer should be able to create account and claim both
         vm.startPrank(newRelayer);
-        core.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
+        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         core.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         core.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
 
@@ -399,7 +399,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // New relayer should be able to claim for existing unclaied funds
         vm.startPrank(newRelayer);
-        core.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
+        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         core.transportAccount(
             accountKeyCommit,
             newEmailAddrPointer,
@@ -462,7 +462,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Register a new relayer and call unclaim; but not the relayer of account (which is the `relayer` in EmailWalletHelper)
         vm.startPrank(newRelayer);
-        core.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
+        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         vm.expectRevert("invalid relayer for account");
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
         vm.stopPrank();

@@ -159,10 +159,10 @@ abstract contract IntegrationTestHelper is Test {
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
         vm.stopPrank();
         vm.startPrank(relayer1);
-        core.registerRelayer(relayer1RandHash, "emailwallet.relayer@gmail.com", "emailwallet.com");
+        relayerHandler.registerRelayer(relayer1RandHash, "emailwallet.relayer@gmail.com", "emailwallet.com");
         vm.stopPrank();
         vm.startPrank(relayer2);
-        core.registerRelayer(relayer2RandHash, "emailwallet.relayer2@gmail.com", "emailwallet2.com");
+        relayerHandler.registerRelayer(relayer2RandHash, "emailwallet.relayer2@gmail.com", "emailwallet2.com");
         vm.stopPrank();
 
         address extensionDev = vm.addr(3);
