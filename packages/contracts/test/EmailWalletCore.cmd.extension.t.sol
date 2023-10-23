@@ -13,7 +13,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     NFTExtension nftExtension;
     DummyNFT dummyNFT;
     string[][] public nftExtTemplates = new string[][](1);
-    string[][] public mockExtTemplates = new string[][](9);
+    string[][] public mockExtTemplates = new string[][](10);
 
     function setUp() public override {
         super.setUp();
@@ -36,7 +36,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         mockExtTemplates[5] = ["Test", "Request Token Twice", "{tokenAmount}"];
         mockExtTemplates[6] = ["Test", "Deposit Token", "{tokenAmount}"];
         mockExtTemplates[7] = ["Test", "Execute on", "{address}"];
-        // A dummy template to test the subject matchers that are not above
+        // Dummy templates to test the subject matchers that are not above
         // mockExtension has wont do anything with this template
         mockExtTemplates[8] = [
             "Test",
@@ -50,6 +50,12 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
             "{uint}",
             "then send to",
             "{address}"
+        ];
+        mockExtTemplates[9] = [
+            "Test",
+            "to",
+            "{recipient}",
+            "now"
         ];
         extensionHandler.publishExtension("mockExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
 
@@ -140,6 +146,42 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[2] = abi.encode(-5);
         emailOp.extensionParams.subjectParams[3] = abi.encode(10);
         emailOp.extensionParams.subjectParams[4] = abi.encode(randomAddress);
+
+        vm.startPrank(relayer);
+        core.handleEmailOp(emailOp); // We only need to verify subjects match (i.e dont revert)
+        vm.stopPrank();
+    }
+
+     function test_SubjectWithEmailInBetween() public {
+        bytes memory subject = new bytes(22);
+        subject[0] = "T";
+        subject[1] = "e";
+        subject[2] = "s";
+        subject[3] = "t";
+        subject[4] = " ";
+        subject[5] = "t";
+        subject[6] = "o";
+        subject[7] = " ";
+
+        // Assume emailAddr is 10 chars
+        for(uint i = 8; i < 18; i++) {
+            subject[i] = 0x0;
+        }
+
+        subject[18] = " ";
+        subject[19] = "n";
+        subject[20] = "o";
+        subject[21] = "w";
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Test";
+         // If the subject email is in between, then the padding will be equal to email addr length
+        emailOp.maskedSubject = string(subject);
+        emailOp.extensionParams.subjectTemplateIndex = 9;
+        emailOp.extensionParams.subjectParams = new bytes[](0);
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = bytes32(uint256(32333));
+        emailOp.numRecipientEmailAddrBytes = 10;
 
         vm.startPrank(relayer);
         core.handleEmailOp(emailOp); // We only need to verify subjects match (i.e dont revert)
