@@ -238,9 +238,11 @@ contract EmailWalletCore is ReentrancyGuard {
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
             totalFeeInETH += (unclaimedFundClaimGas * maxFeePerGas);
+            payable(address(unclaimsHandler)).transfer(unclaimedFundClaimGas * maxFeePerGas);
         } else if (currContext.unclaimedStateRegistered) {
             require(msg.value == unclaimedStateClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed state");
             totalFeeInETH += (unclaimedStateClaimGas * maxFeePerGas);
+            payable(address(unclaimsHandler)).transfer(unclaimedStateClaimGas * maxFeePerGas);
         } else {
             // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
             (bool sent, ) = payable(msg.sender).call{value: msg.value}("");

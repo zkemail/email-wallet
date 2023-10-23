@@ -59,6 +59,11 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         maxFeePerGas = _maxFeePerGas;
     }
 
+    // UnclaimHandler can receive ETH only from the core contract = owner
+    receive() external payable {
+        require(msg.sender == owner(), "only owner can send ETH");
+    }
+
     /// @notice Register unclaimed fund for the recipient - can be called by Core contract directly
     /// @param emailAddrCommit Hash of the recipient's email address and a random number.
     /// @param tokenAddr Address of ERC20 token contract.
