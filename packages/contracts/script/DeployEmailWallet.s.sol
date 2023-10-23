@@ -16,6 +16,9 @@ contract Deploy is Script {
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;
 
+    string [][] nftExtTemplates = new string [][](3);
+    string [][] uniswapExtTemplates = new string [][](1);
+
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         if (deployerPrivateKey == 0) {
@@ -73,11 +76,15 @@ contract Deploy is Script {
         bytes[] memory defaultExtensions = new bytes[](2);
         
         NFTExtension nftExt = new NFTExtension(address(core));
-        defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExt.templates, 0.001 ether); // TODO: Check max exec gas
+        nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
+        nftExtTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
+        nftExtTemplates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
         address uniswapV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
         UniswapExtension uniExt = new UniswapExtension(address(core), address(tokenRegistry), uniswapV2Router);
-        defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniExt.templates, 0.001 ether); // TODO: Check max exec gas
+        uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
         core.initialize(defaultExtensions);
 
@@ -86,5 +93,7 @@ contract Deploy is Script {
         console.log("Verifier deployed at: %s", address(verifier));
         console.log("Wallet implementation deployed at: %s", address(walletImp));
         console.log("EmailWalletCore deployed at: %s", address(core));
+        console.log("NFT Extension deployed at: %s", address(nftExt));
+        console.log("Uniswap Extension deployed at: %s", address(uniExt));
     }
 }
