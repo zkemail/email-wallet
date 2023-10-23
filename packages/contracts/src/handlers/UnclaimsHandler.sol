@@ -192,7 +192,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         ERC20(fund.tokenAddr).transfer(recipientAddr, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
-        _transferETH(msg.sender, unclaimedFundClaimGas * maxFeePerGas);
+        payable(msg.sender).transfer(unclaimedFundClaimGas * maxFeePerGas);
 
         emit EmailWalletEvents.UnclaimedFundClaimed(emailAddrCommit, fund.tokenAddr, fund.amount, recipientAddr);
     }
@@ -217,8 +217,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
-        _transferETH(fund.sender, (unclaimedFundClaimGas - consumedGas) * maxFeePerGas);
-        _transferETH(msg.sender, consumedGas * maxFeePerGas);
+        payable(fund.sender).transfer((unclaimedFundClaimGas - consumedGas) * maxFeePerGas);
+        payable(msg.sender).transfer(consumedGas * maxFeePerGas);
 
         emit EmailWalletEvents.UnclaimedFundVoided(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
     }
@@ -429,8 +429,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
-        _transferETH(us.sender, (unclaimedStateClaimGas - consumedGas) * maxFeePerGas);
-        _transferETH(msg.sender, consumedGas * maxFeePerGas);
+        payable(us.sender).transfer((unclaimedStateClaimGas - consumedGas) * maxFeePerGas);
+        payable(msg.sender).transfer(consumedGas * maxFeePerGas);
 
         emit EmailWalletEvents.UnclaimedStateVoided(emailAddrCommit, us.sender);
     }
@@ -441,13 +441,5 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
     function getSenderOfUnclaimedState(bytes32 emailAddrCommit) public view returns (address) {
         return unclaimedStateOfEmailAddrCommit[emailAddrCommit].sender;
-    }
-
-    /// @notice Transfer ETH from core contract to recipient
-    /// @param recipient    Address of the recipient
-    /// @param amount      Amount in WEI to be transferred
-    function _transferETH(address recipient, uint256 amount) internal {
-        (bool sent, ) = payable(recipient).call{value: amount}("");
-        require(sent, "failed to transfer ETH");
     }
 }

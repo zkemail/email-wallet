@@ -235,18 +235,21 @@ contract EmailWalletCore is ReentrancyGuard {
             "cannot register both unclaimed fund and state"
         );
 
+        // Validate and transfer ETH to unclaims handler  if unclaimed fund registration happened
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
             totalFeeInETH += (unclaimedFundClaimGas * maxFeePerGas);
             payable(address(unclaimsHandler)).transfer(unclaimedFundClaimGas * maxFeePerGas);
-        } else if (currContext.unclaimedStateRegistered) {
+        } 
+        // Validate and transfer ETH to unclaims handler if unclaimed state registration happened
+        else if (currContext.unclaimedStateRegistered) {
             require(msg.value == unclaimedStateClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed state");
             totalFeeInETH += (unclaimedStateClaimGas * maxFeePerGas);
             payable(address(unclaimsHandler)).transfer(unclaimedStateClaimGas * maxFeePerGas);
-        } else {
-            // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
-            (bool sent, ) = payable(msg.sender).call{value: msg.value}("");
-            require(sent, "failed to transfer ETH");
+        } 
+        // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
+        else {
+            payable(msg.sender).transfer(msg.value);
         }
 
         // Reset context
