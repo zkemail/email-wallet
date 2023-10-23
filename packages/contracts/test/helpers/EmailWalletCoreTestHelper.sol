@@ -154,6 +154,7 @@ contract EmailWalletCoreTestHelper is Test {
                 emailAddrPointer: emailAddrPointer,
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(0),
+                numRecipientEmailAddrBytes: 0,
                 recipientETHAddr: address(0),
                 command: "",
                 emailNullifier: bytes32(uint256(13981239)),

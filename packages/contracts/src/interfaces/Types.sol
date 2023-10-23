@@ -12,6 +12,7 @@ struct EmailOp {
     bytes32 emailAddrPointer; // emailAddrPointer of sender's account
     bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
     bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
+    uint256 numRecipientEmailAddrBytes; // Number of bytes of recipient's email address if `hasEmailRecipient` is true
     address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
