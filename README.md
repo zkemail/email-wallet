@@ -75,7 +75,7 @@ Here is how a typical interaction with the wallet looks like:
 - The smart contract executes the transaction and sends 1 ETH to recipient's Email Wallet address.
 - The Relayer wait for the transaction confirmation, and send you and the recipient an email with the transaction details.
 
-This is a simplified flow, but underneath we use many parameters to ensure security and make the Relayer permissionless. You can read the detailed spec [here]()
+This is a simplified flow, but underneath we use many parameters to ensure security and make the Relayer permissionless. You can read the detailed spec [here](https://coda.io/d/_dI27-qqf8Un/Email-Wallet-V1-Spec-Latest_suO8a)
 
 
 <br />
