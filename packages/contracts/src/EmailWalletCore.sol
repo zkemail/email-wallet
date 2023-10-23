@@ -320,12 +320,12 @@ contract EmailWalletCore is ReentrancyGuard {
 
         if (feeAmountInToken > 0) {
             address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
-            (success, err) = _transferERC20(currContext.walletAddr, msg.sender, feeToken, feeAmountInToken);
+            (success, err) = _transferERC20FromUserWallet(currContext.walletAddr, msg.sender, feeToken, feeAmountInToken);
             require(success, string.concat("fee reimbursement failed: ", string(err)));
         }
     }
 
-    /// Register unclaimed state from an extension
+    /// For extension in context to register Unclaimed State during handleEmailOp
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes calldata state) public {
@@ -343,7 +343,7 @@ contract EmailWalletCore is ReentrancyGuard {
         currContext.unclaimedStateRegistered = true;
     }
 
-    /// @notice For extensions to request token from user's wallet (context wallet)
+    /// @notice For extension in context to request token from user's wallet during handleEmailOp
     /// @param tokenAddr Address of the ERC20 token requested
     /// @param amount Amount requested
     function requestTokenAsExtension(address tokenAddr, uint256 amount) public {
@@ -354,7 +354,7 @@ contract EmailWalletCore is ReentrancyGuard {
                 require(currContext.tokenAllowances[i].amount >= amount, "insufficient allowance");
                 currContext.tokenAllowances[i].amount -= amount;
 
-                (bool success, bytes memory returnData) = _transferERC20(
+                (bool success, bytes memory returnData) = _transferERC20FromUserWallet(
                     currContext.walletAddr,
                     currContext.extensionAddr,
                     tokenAddr,
@@ -368,7 +368,7 @@ contract EmailWalletCore is ReentrancyGuard {
         require(false, "no allowance for requested token");
     }
 
-    /// @notice For extensions to deposit token to user's wallet (context wallet)
+    /// @notice For extension in context to deposit token to user's wallet during handleEmailOp
     /// @param tokenAddr Address of the ERC20 token to be deposited
     /// @param amount Amount to be deposited
     /// @dev Extension should add allowance to Core contract before calling this function
@@ -378,7 +378,7 @@ contract EmailWalletCore is ReentrancyGuard {
         IERC20(tokenAddr).transferFrom(msg.sender, currContext.walletAddr, amount);
     }
 
-    /// @notice For extensions to execute a call on user's wallet
+    /// @notice For extension in context to execute on user's wallet during handleEmailOp
     /// @param target Address of the contract on which the call is to be executed
     /// @param data Calldata to be executed on the target contract
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
@@ -419,7 +419,7 @@ contract EmailWalletCore is ReentrancyGuard {
 
             // Register unclaimed fund if the recipient is email wallet user + move tokens to unclaims handler
             if (emailOp.hasEmailRecipient) {
-                (success, returnData) = _transferERC20(
+                (success, returnData) = _transferERC20FromUserWallet(
                     currContext.walletAddr,
                     address(unclaimsHandler),
                     tokenAddr,
@@ -466,7 +466,7 @@ contract EmailWalletCore is ReentrancyGuard {
                     }
                 } else {
                     // Transfer tokens to recipient
-                    (success, returnData) = _transferERC20(
+                    (success, returnData) = _transferERC20FromUserWallet(
                         currContext.walletAddr,
                         emailOp.recipientETHAddr,
                         tokenAddr,
@@ -591,7 +591,7 @@ contract EmailWalletCore is ReentrancyGuard {
     /// @param recipientAddr Address of the recipient
     /// @param tokenAddr Address of ERC20 token contract.
     /// @param amount Amount in WEI of the token.
-    function _transferERC20(
+    function _transferERC20FromUserWallet(
         address sender,
         address recipientAddr,
         address tokenAddr,
