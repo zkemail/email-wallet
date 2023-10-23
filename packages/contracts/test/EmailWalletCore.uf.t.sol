@@ -65,6 +65,13 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Core contract should have the balance
         assertEq(daiToken.balanceOf(address(unclaimsHandler)), 100 ether, "core contract didnt receive the tokens");
+
+        // Handler should have received the fee
+        assertEq(
+            address(unclaimsHandler).balance,
+            unclaimedFundClaimGas * maxFeePerGas,
+            "unclaimsHandler didnt receive ETH"
+        );
     }
 
     function test_RevertIf_RegisterUnclaimedFundsInternal_NotEnoughFee() public {
@@ -271,7 +278,53 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_ClaimUnclaimedFund_ToExistingAccount() public {
+    function test_ClaimUnclaimedFund_CreatedFromEmailOp() public {
+        string memory subject = "Send 100 DAI to ";
+        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
+
+        // this need to be send to handleEmailOp for registering unclaimed funds
+        vm.deal(relayer, unclaimedFundClaimGas * maxFeePerGas);
+
+        // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
+        daiToken.freeMint(walletAddr, 100 ether);
+        usdcToken.freeMint(walletAddr, 50 ether); // for fee reimbursement
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 100 ether;
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+
+        vm.startPrank(relayer);
+        core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        vm.stopPrank();
+
+        assertEq(
+            address(unclaimsHandler).balance,
+            unclaimedFundClaimGas * maxFeePerGas,
+            "unclaimsHandler didnt receive ETH"
+        );
+
+        // Relayer claim the unclaimed fund to account
+        vm.startPrank(relayer);
+        vm.expectEmit(true, true, true, true);
+        emit EmailWalletEvents.UnclaimedFundClaimed(recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
+
+        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        vm.stopPrank();
+
+        assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
+        (, , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        assertEq(amt, 0, "unclaimed fund not cleared");
+
+        assertEq(address(relayer).balance, unclaimedFundClaimGas * maxFeePerGas, "relayer didnt receive claim fee");
+        assertEq(address(unclaimsHandler).balance, 0, "unclaimsHandler still have ETH");
+    }
+
+    function test_ClaimUnclaimedFund_CreatedExternally() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -290,6 +343,12 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
+        assertEq(
+            address(unclaimsHandler).balance,
+            unclaimedFundClaimGas * maxFeePerGas,
+            "unclaimsHandler didnt receive ETH"
+        );
+
         // Relayer claim the unclaimed fund to account
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
@@ -301,6 +360,9 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
         (, , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
         assertEq(amt, 0, "unclaimed fund not cleared");
+
+        assertEq(address(relayer).balance, unclaimedFundClaimGas * maxFeePerGas, "relayer didnt receive claim fee");
+        assertEq(address(unclaimsHandler).balance, 0, "unclaimsHandler still have ETH");
     }
 
     function test_ClaimUnclaimedFund_ToNewlyCreatedAccount() public {
@@ -441,33 +503,6 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();
-    }
-
-    function test_ClaimUnclaimedFund_ShouldSendClaimFeeToRelayer() public {
-        address sender = vm.addr(7);
-        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-
-        vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
-        daiToken.freeMint(sender, 100 ether);
-
-        vm.startPrank(sender);
-        daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
-            recipientEmailAddrCommit,
-            address(daiToken),
-            100 ether,
-            0,
-            0,
-            ""
-        );
-        vm.stopPrank();
-
-        // Relayer claim the unclaimed fund to account
-        vm.startPrank(relayer);
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
-        vm.stopPrank();
-
-        assertEq(relayer.balance, unclaimedFundClaimGas * maxFeePerGas, "recipient didnt receive claim fee");
     }
 
     function test_RevertIf_ClaimUnclaimedFund_CalledByNonRelayer() public {

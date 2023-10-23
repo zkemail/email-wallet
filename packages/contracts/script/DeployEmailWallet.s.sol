@@ -86,7 +86,7 @@ contract Deploy is Script {
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        core.initialize(defaultExtensions);
+        // core.initialize(defaultExtensions);
 
         vm.stopBroadcast();
 
