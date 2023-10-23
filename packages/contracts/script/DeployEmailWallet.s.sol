@@ -58,23 +58,20 @@ contract Deploy is Script {
         bytes[] memory defaultExtensions = new bytes[](0);
 
         // Deploy core contract as proxy
-        address implementation = address(
-            new EmailWalletCore(
-                address(verifier),
-                address(walletImp),
-                tokenRegistry,
-                dkimRegistry,
-                priceOracle,
-                weth,
-                maxFeePerGas,
-                emailValidityDuration,
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas,
-                unclaimsExpiryDuration
-            )
+        EmailWalletCore core = new EmailWalletCore(
+            address(verifier),
+            address(walletImp),
+            tokenRegistry,
+            dkimRegistry,
+            priceOracle,
+            weth,
+            maxFeePerGas,
+            emailValidityDuration,
+            unclaimedFundClaimGas,
+            unclaimedStateClaimGas,
+            unclaimsExpiryDuration
         );
-        bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
-        EmailWalletCore core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
+        core.initialize(defaultExtensions);
 
         vm.stopBroadcast();
 

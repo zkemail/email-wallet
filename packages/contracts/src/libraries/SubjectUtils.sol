@@ -8,21 +8,20 @@ import "./BytesUtils.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Commands.sol";
 import "../utils/TokenRegistry.sol";
+import "../handlers/ExtensionHandler.sol";
+import "../handlers/AccountHandler.sol";
 
 library SubjectUtils {
     /// @notice Calculate the masked subject for an EmailOp from command and other params
     ///         This also do sanity checks of certain parameters used in the subject
-    /// @param emailOp EmailOp from which the masked subject is to be computed
-    /// @param walletAddr Address of the user's wallet
+    /// @param extensionHandler ExtensionHandler contract
     /// @param tokenRegistry TokenRegistry contract
-    /// @param extAddr Address of the extension (for extension related commands)
-    /// @param subjectTemplatesOfExtension Subject templates of the extension (if command is for extension)
+    /// @param emailOp EmailOp to compute masked subject for
     function computeMaskedSubjectForEmailOp(
-        EmailOp memory emailOp,
-        address walletAddr,
+        ExtensionHandler extensionHandler,
         TokenRegistry tokenRegistry,
-        address extAddr,
-        string[][] memory subjectTemplatesOfExtension
+        EmailOp memory emailOp,
+        address walletAddr
     ) public view returns (string memory maskedSubject, bool isExtension) {
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
@@ -58,10 +57,7 @@ library SubjectUtils {
             require(target != address(0), "invalid execute target");
             require(target != address(this), "cannot execute on core");
             require(target != walletAddr, "cannot execute on wallet");
-            require(
-                bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0,
-                "cannot execute on token"
-            );
+            require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
 
             maskedSubject = string.concat(
@@ -72,13 +68,19 @@ library SubjectUtils {
         }
         // Sample: Install extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
+            address extAddr = extensionHandler.addressOfExtensionName(emailOp.extensionName);
             require(extAddr != address(0), "extension not registered");
 
             maskedSubject = string.concat(Commands.INSTALL_EXTENSION, " extension ", emailOp.extensionName);
         }
         // Sample: Remove extension Uniswap
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
+            address extAddr = extensionHandler.addressOfExtensionName(emailOp.extensionName);
+            string memory command = extensionHandler.subjectTemplatesOfExtension(extAddr, 0, 0);
+
             require(extAddr != address(0), "extension not registered");
+            require(extensionHandler.userExtensionOfCommand(walletAddr, command) != address(0), "extension not installed");
+
             maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " extension ", emailOp.extensionName);
         }
         // Sample: Exit email wallet. Change owner to 0x000112aa..
@@ -104,11 +106,17 @@ library SubjectUtils {
         // The command is for an extension
         else {
             isExtension = true;
-            string[] memory subjectTemplate = subjectTemplatesOfExtension[emailOp.extensionParams.subjectTemplateIndex];
+
+            address extensionAddr = extensionHandler.getExtensionForCommand(walletAddr, emailOp.command);
+            require(extensionAddr != address(0), "invalid command or extension");
+
+            string[] memory subjectTemplate = extensionHandler.getSubjectTemplatesOfExtension(extensionAddr)[
+                emailOp.extensionParams.subjectTemplateIndex
+            ];
 
             uint8 nextParamIndex;
             for (uint8 i = 0; i < subjectTemplate.length; i++) {
-                string memory matcher = string(subjectTemplate[i]);
+                string memory matcher = subjectTemplate[i];
                 string memory value;
 
                 // {tokenAmount} is combination of tokenName and amount, encoded as (uint256,string). Eg: `30.23 DAI`

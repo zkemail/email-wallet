@@ -21,6 +21,7 @@ import {EmailWalletEvents} from "./interfaces/Events.sol";
 import {RelayerHandler} from "./handlers/RelayerHandler.sol";
 import {AccountHandler} from "./handlers/AccountHandler.sol";
 import {UnclaimsHandler} from "./handlers/UnclaimsHandler.sol";
+import {ExtensionHandler} from "./handlers/ExtensionHandler.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
@@ -28,6 +29,14 @@ import "./interfaces/Commands.sol";
 contract EmailWalletCore is ReentrancyGuard {
     // ZK proof verifier
     IVerifier public immutable verifier;
+
+    RelayerHandler public relayerHandler;
+
+    AccountHandler public accountHandler;
+
+    UnclaimsHandler public unclaimsHandler;
+
+    ExtensionHandler public extensionHandler;
 
     // Default DKIM public key hashes registry
     address public immutable defaultDkimRegistry;
@@ -63,32 +72,8 @@ contract EmailWalletCore is ReentrancyGuard {
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
-    // Mapping from extensio name to extension address, as published by the developer
-    mapping(string => address) public addressOfExtensionName;
-
-    // Global mapping of command name to extension address enabled for all users by default
-    mapping(string => address) public defaultExtensionOfCommand;
-
-    // Mapping of extension address to list of subjectTemplates
-    // Each subject template is array of strings, where each item is a "matcher" or constant string
-    // Eg: `["Swap", "{tokenAmount}", "to", "{string}"]`
-    mapping(address => string[][]) public subjectTemplatesOfExtension;
-
-    // Mapping of extension address to maximum gas that will be consumed by `extension.execute()`
-    // Relayer can use this to ensure user has enough tokens to pay for the gas
-    mapping(address => uint256) public maxGasOfExtension;
-
-    // User level mapping of command name to extension address (walletAddress -> (command -> extension))
-    mapping(address => mapping(string => address)) public userExtensionOfCommand;
-
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext public currContext;
-
-    RelayerHandler public relayerHandler;
-
-    AccountHandler public accountHandler;
-
-    UnclaimsHandler public unclaimsHandler;
 
     modifier nullifyEmail(bytes32 emailNullifier) {
         require(emailNullifiers[emailNullifier] == false, "email nullified");
@@ -122,6 +107,7 @@ contract EmailWalletCore is ReentrancyGuard {
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
 
         relayerHandler = new RelayerHandler();
+        extensionHandler = new ExtensionHandler();
         accountHandler = new AccountHandler(
             emailValidityDuration,
             defaultDkimRegistry,
@@ -145,18 +131,7 @@ contract EmailWalletCore is ReentrancyGuard {
     }
 
     function initialize(bytes[] calldata defaultExtensions) public {
-        // Set default extensions
-        for (uint256 i = 0; i < defaultExtensions.length; i++) {
-            (string memory name, address addr, string[][] memory templates, uint256 maxGas) = abi.decode(
-                defaultExtensions[i],
-                (string, address, string[][], uint256)
-            );
-
-            addressOfExtensionName[name] = addr;
-            subjectTemplatesOfExtension[addr] = templates;
-            maxGasOfExtension[addr] = maxGas;
-            defaultExtensionOfCommand[templates[0][0]] = addr;
-        }
+        extensionHandler.setDefaultExtensions(defaultExtensions);
     }
 
     function registerRelayer(bytes32 randHash, string calldata emailAddr, string calldata hostname) public {
@@ -269,11 +244,10 @@ contract EmailWalletCore is ReentrancyGuard {
 
         // Validate computed subject = passed subject
         (string memory maskedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
-            emailOp,
-            walletAddr,
+            extensionHandler,
             tokenRegistry,
-            addressOfExtensionName[emailOp.extensionName], // Address of extension (user in install / uninstall)
-            subjectTemplatesOfExtension[getExtensionForCommand(emailOp.command, walletAddr)] // Subject templates of extension
+            emailOp,
+            accountHandler.getWalletOfSalt(accountKeyInfo.walletSalt)
         );
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
@@ -364,7 +338,7 @@ contract EmailWalletCore is ReentrancyGuard {
     /// @param extensionAddr Address of the extension contract to which the state is registered
     /// @param state State to be registered
     function registerUnclaimedStateAsExtension(address extensionAddr, bytes calldata state) public {
-        require(maxGasOfExtension[extensionAddr] != 0, "invalid extension");
+        require(extensionHandler.maxGasOfExtension(extensionAddr) != 0, "invalid extension");
         require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
 
@@ -426,91 +400,6 @@ contract EmailWalletCore is ReentrancyGuard {
         require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "target cannot be a token");
 
         Wallet(payable(currContext.walletAddr)).execute(target, 0, data);
-    }
-
-    /// Register a new extension
-    /// @param name Name of the extension
-    /// @param addr Address of the extension contract
-    /// @param subjectTemplates Subject templates for the extension
-    /// @param maxExecutionGas Max gas allowed for the extension
-    /// @dev First word of each subject template should be same and is called "command"; command should be one word
-    function publishExtension(
-        string calldata name,
-        address addr,
-        string[][] memory subjectTemplates,
-        uint256 maxExecutionGas
-    ) public {
-        require(addressOfExtensionName[name] == address(0), "extension name already used");
-        require(addr != address(0), "invalid extension address");
-        require(bytes(name).length > 0, "invalid extension name");
-        require(maxExecutionGas > 0, "maxExecutionGas must be larger than zero");
-        require(subjectTemplates.length > 0, "subjectTemplates array cannot be empty");
-        require(maxGasOfExtension[addr] == 0, "extension already published");
-
-        // Check if all subjectTemplates have same command (first item in array)
-        string memory command;
-        for (uint i = 0; i < subjectTemplates.length; i++) {
-            require(subjectTemplates[i].length > 0, "subjectTemplate cannot be empty");
-            if (i == 0) {
-                command = subjectTemplates[i][0];
-            } else {
-                require(Strings.equal(command, subjectTemplates[i][0]), "subjectTemplates must have same command");
-            }
-            uint numRecipient = 0;
-            for (uint j = 1; j < subjectTemplates[i].length; j++) {
-                if (Strings.equal(subjectTemplates[i][j], Commands.RECIPIENT_TEMPLATE)) {
-                    numRecipient++;
-                }
-            }
-            require(numRecipient <= 1, "recipient template can only be used once");
-        }
-
-        // Check if command is only one word (no spaces)
-        for (uint i = 0; i < bytes(command).length; i++) {
-            require(bytes(command)[i] != 0x20, "command should be one word");
-        }
-
-        // Check if command is not a reserved name
-        require(
-            !Strings.equal(command, Commands.SEND) &&
-                !Strings.equal(command, Commands.EXECUTE) &&
-                !Strings.equal(command, Commands.INSTALL_EXTENSION) &&
-                !Strings.equal(command, Commands.UNINSTALL_EXTENSION) &&
-                !Strings.equal(command, Commands.EXIT_EMAIL_WALLET) &&
-                !Strings.equal(command, Commands.DKIM),
-            "command cannot be a reserved name"
-        );
-
-        // Check if command is not a template
-        require(
-            !Strings.equal(command, Commands.TOKEN_AMOUNT_TEMPLATE) &&
-                !Strings.equal(command, Commands.AMOUNT_TEMPLATE) &&
-                !Strings.equal(command, Commands.STRING_TEMPLATE) &&
-                !Strings.equal(command, Commands.UINT_TEMPLATE) &&
-                !Strings.equal(command, Commands.INT_TEMPLATE) &&
-                !Strings.equal(command, Commands.ADDRESS_TEMPLATE),
-            "command cannot be a template matcher"
-        );
-
-        addressOfExtensionName[name] = addr;
-        subjectTemplatesOfExtension[addr] = subjectTemplates;
-        maxGasOfExtension[addr] = maxExecutionGas;
-
-        emit EmailWalletEvents.ExtensionPublished(name, addr, subjectTemplates, maxExecutionGas);
-    }
-
-    /// @notice Return the extension address for a command and user
-    /// @param command Command for which the extension address is to be returned
-    /// @param walletAddr The user's wallet address
-    function getExtensionForCommand(string memory command, address walletAddr) public view returns (address) {
-        address extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
-        address userextensionAddr = userExtensionOfCommand[walletAddr][command];
-
-        if (userextensionAddr != address(0)) {
-            extensionAddr = userextensionAddr;
-        }
-
-        return extensionAddr;
     }
 
     /// @notice Deploy a wallet contract with the given salt
@@ -614,18 +503,18 @@ contract EmailWalletCore is ReentrancyGuard {
         }
         // Set custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.INSTALL_EXTENSION)) {
-            address extensionAddr = addressOfExtensionName[emailOp.extensionName];
-            string memory command = subjectTemplatesOfExtension[extensionAddr][0][0];
+            address extensionAddr = extensionHandler.addressOfExtensionName(emailOp.extensionName);
+            string memory command = extensionHandler.subjectTemplatesOfExtension(extensionAddr, 0, 0); // First word is command
 
-            userExtensionOfCommand[currContext.walletAddr][command] = extensionAddr;
+            extensionHandler.setExtensionForCommand(currContext.walletAddr, command, extensionAddr);
             success = true;
         }
         // Remove custom extension for the user
         else if (Strings.equal(emailOp.command, Commands.UNINSTALL_EXTENSION)) {
-            address extensionAddr = addressOfExtensionName[emailOp.extensionName];
-            string memory command = subjectTemplatesOfExtension[extensionAddr][0][0];
+            address extensionAddr = extensionHandler.addressOfExtensionName(emailOp.extensionName);
+            string memory command = extensionHandler.subjectTemplatesOfExtension(extensionAddr, 0, 0);
 
-            userExtensionOfCommand[currContext.walletAddr][command] = address(0);
+            extensionHandler.setExtensionForCommand(currContext.walletAddr, command, address(0));
             success = true;
         }
         // Exit email wallet
@@ -651,13 +540,13 @@ contract EmailWalletCore is ReentrancyGuard {
         }
         // The command is for an extension
         else {
-            address extAddress = getExtensionForCommand(emailOp.command, currContext.walletAddr);
+            address extAddress = extensionHandler.getExtensionForCommand(currContext.walletAddr, emailOp.command);
             currContext.extensionAddr = extAddress;
 
             // Set token+amount pair in subject as allowances in context
             // We are assuming one token appear only once
             uint8 nextParamIndex = 0;
-            string[] memory subjectTemplate = subjectTemplatesOfExtension[extAddress][
+            string[] memory subjectTemplate = extensionHandler.getSubjectTemplatesOfExtension(extAddress)[
                 emailOp.extensionParams.subjectTemplateIndex
             ];
             for (uint8 i = 0; i < subjectTemplate.length; i++) {
@@ -686,7 +575,7 @@ contract EmailWalletCore is ReentrancyGuard {
 
             // We only pass pre-configured gas to execute()
             try
-                Extension(extAddress).execute{gas: maxGasOfExtension[extAddress]}(
+                Extension(extAddress).execute{gas: extensionHandler.maxGasOfExtension(extAddress)}(
                     emailOp.extensionParams.subjectTemplateIndex,
                     emailOp.extensionParams.subjectParams,
                     currContext.walletAddr,
@@ -753,8 +642,4 @@ contract EmailWalletCore is ReentrancyGuard {
 
         return priceOracle.getRecentPriceInETH(tokenAddr);
     }
-
-    // /// @notice Upgrade the implementation of the proxy contract
-    // /// @param newImplementation Address of the new implementation contract
-    // function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

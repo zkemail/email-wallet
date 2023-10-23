@@ -57,6 +57,7 @@ abstract contract IntegrationTestHelper is Test {
     RelayerHandler relayerHandler;
     AccountHandler accountHandler;
     UnclaimsHandler unclaimsHandler;
+    ExtensionHandler extensionHandler;
 
     // TestERC20 wethToken;
     ERC20 daiToken;
@@ -145,6 +146,7 @@ abstract contract IntegrationTestHelper is Test {
         relayerHandler = RelayerHandler(core.relayerHandler());
         accountHandler = AccountHandler(core.accountHandler());
         unclaimsHandler = UnclaimsHandler(core.unclaimsHandler());
+        extensionHandler = ExtensionHandler(core.extensionHandler());
 
         // Deploy some ERC20 test tokens and add them to registry
         // wethToken = new TestERC20("WETH", "WETH");
@@ -172,9 +174,9 @@ abstract contract IntegrationTestHelper is Test {
 
         uint256 maxExecutionGas = 10 ** 6;
         string[][] memory templates = _getUniswapSubjectTemplates();
-        core.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
+        extensionHandler.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
         templates = _getNFTSubjectTemplates();
-        core.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
+        extensionHandler.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
         vm.stopPrank();
     }
 

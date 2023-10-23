@@ -24,7 +24,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         nftExtension.setNFTAddress("APE", address(dummyNFT));
 
         nftTempates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        core.publishExtension("NFT Wallet", address(nftExtension), nftTempates, 0.1 ether);
+        extensionHandler.publishExtension("NFT Wallet", address(nftExtension), nftTempates, 0.1 ether);
 
         mockExtension = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
         mockExtTemplates[0] = ["Test", "Register Unclaimed State"];
@@ -34,7 +34,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         mockExtTemplates[4] = ["Test", "Request Token", "{tokenAmount}"];
         mockExtTemplates[5] = ["Test", "Deposit Token", "{tokenAmount}"];
         mockExtTemplates[6] = ["Test", "Execute on", "{address}"];
-        core.publishExtension("TestExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
+        extensionHandler.publishExtension("TestExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
 
         EmailOp memory emailOpNFT = _getBaseEmailOp();
         emailOpNFT.command = Commands.INSTALL_EXTENSION;
@@ -109,7 +109,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         string[][] memory anotherExtTemplates = new string[][](1);
         anotherExtTemplates[0] = new string[](1);
         anotherExtTemplates[0][0] = "Another";
-        core.publishExtension("AnotherExtension", address(anotherExtension), anotherExtTemplates, 0.1 ether);
+        extensionHandler.publishExtension("AnotherExtension", address(anotherExtension), anotherExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";

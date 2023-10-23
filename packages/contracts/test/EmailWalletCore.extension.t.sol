@@ -31,17 +31,17 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
     function test_DefaultExtensions() public {
         // Default extension is already deployed in EmailWalletCoreTestHelper
         // Just testing it was deployed properly here
-        address adddr = core.defaultExtensionOfCommand("DEF_EXT");
+        address adddr = extensionHandler.defaultExtensionOfCommand("DEF_EXT");
 
         assertTrue(defaultExtAddr != address(0), "defaultExtAddr not set");
         assertEq(adddr, defaultExtAddr, "extension not set");
-        assertEq(core.addressOfExtension("DEF_EXT_NAME"), adddr, "ext name mismatch");
-        assertEq(core.maxGasOfExtension(adddr), 1 ether, "maxGas not set"); // set during core deployment
-        assertEq(core.subjectTemplatesOfExtension(adddr, 0, 1), "NOOP", "subject mismatch");
+        assertEq(extensionHandler.addressOfExtensionName("DEF_EXT_NAME"), adddr, "ext name mismatch");
+        assertEq(extensionHandler.maxGasOfExtension(adddr), 1 ether, "maxGas not set"); // set during core deployment
+        assertEq(extensionHandler.subjectTemplatesOfExtension(adddr, 0, 1), "NOOP", "subject mismatch");
          
         // getExtensionForCommand method should return same for all wallet addr
         address randomAddr = vm.addr(3);
-        address getExtensionAddr = core.getExtensionForCommand("DEF_EXT", randomAddr);
+        address getExtensionAddr = extensionHandler.getExtensionForCommand(randomAddr, "DEF_EXT");
 
         assertEq(getExtensionAddr, adddr, "extension not set for all users");
     }
@@ -55,16 +55,16 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         vm.startPrank(extensionDev);
         vm.expectEmit(true,true,true,true);
         emit EmailWalletEvents.ExtensionPublished(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
         vm.stopPrank();
 
-        assertEq(core.addressOfExtension(extensionName), testExtensionAddr);
-        assertEq(core.maxGasOfExtension(testExtensionAddr), maxExecutionGas);
+        assertEq(extensionHandler.addressOfExtensionName(extensionName), testExtensionAddr);
+        assertEq(extensionHandler.maxGasOfExtension(testExtensionAddr), maxExecutionGas);
 
         for (uint8 i = 0; i < 2; i++) {
             for (uint8 j = 0; j < subjectTemplates[i].length; j++) {
                 assertEq(
-                    core.subjectTemplatesOfExtension(testExtensionAddr, i, j),
+                    extensionHandler.subjectTemplatesOfExtension(testExtensionAddr, i, j),
                     subjectTemplates[i][j],
                     "subject mismatch"
                 );
@@ -80,9 +80,9 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         TestExtension testExtension2 = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
 
         vm.startPrank(extensionDev);
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.expectRevert("extension name already used");
-        core.publishExtension(extensionName, address(testExtension2), subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, address(testExtension2), subjectTemplates, 1 ether);
         vm.stopPrank();
     }
 
@@ -92,9 +92,9 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         string[][] memory subjectTemplates = _getSampleSubjectTemplates();
 
         vm.startPrank(extensionDev);
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.expectRevert("extension already published");
-        core.publishExtension("testSwap2", testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension("testSwap2", testExtensionAddr, subjectTemplates, 1 ether);
         vm.stopPrank();
     }
 
@@ -107,7 +107,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(extensionDev);
         vm.expectRevert("subjectTemplates must have same command");
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.stopPrank();
     }
 
@@ -123,7 +123,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(extensionDev);
         vm.expectRevert("command should be one word");
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.stopPrank();
     }
 
@@ -138,7 +138,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(extensionDev);
         vm.expectRevert("command cannot be a reserved name");
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.stopPrank();
     }
 
@@ -152,7 +152,7 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(extensionDev);
         vm.expectRevert("command cannot be a template matcher");
-        core.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.stopPrank();
     }
 }
