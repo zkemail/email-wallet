@@ -13,6 +13,10 @@ pub struct RelayerConfig {
     pub(crate) web_server_address: String,
     pub(crate) circuits_dir_path: PathBuf,
     pub(crate) prover_address: String,
+    pub(crate) chain_rpc_provider: String,
+    pub(crate) chain_id: u32,
+    pub(crate) private_key: String,
+    pub(crate) core_contract_address: String,
 }
 
 impl RelayerConfig {
@@ -57,6 +61,10 @@ impl RelayerConfig {
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),
             circuits_dir_path: env::var(CIRCUITS_DIR_PATH_KEY).unwrap().into(),
             prover_address: env::var(PROVER_ADDRESS_KEY).unwrap(),
+            chain_rpc_provider: env::var(CHAIN_RPC_PROVIDER_KEY).unwrap(),
+            chain_id: env::var(CHAIN_ID_KEY).unwrap().parse().unwrap(),
+            private_key: env::var(PRIVATE_KEY_KEY).unwrap(),
+            core_contract_address: env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap(),
         }
     }
 }

@@ -1,7 +1,5 @@
 use crate::*;
 
-use ethers::prelude::*;
-
 #[derive(Default)]
 pub(crate) struct WalletParams {
     pub(crate) token_name: String,
@@ -46,13 +44,40 @@ pub(crate) struct AccountCreation {
 }
 
 #[derive(Default)]
-pub(crate) struct AccountInitialization {}
+pub(crate) struct AccountInitialization {
+    pub(crate) email_addr_pointer: [u8; 32],
+    pub(crate) email_domain: String,
+    pub(crate) email_timestamp: U256,
+    pub(crate) email_nullifier: [u8; 32],
+    pub(crate) proof: Bytes,
+}
 
 pub(crate) async fn call_handle_email_op(email_op: EmailOp) -> Result<String> {
+    let provider = Provider::<Http>::try_from(CHAIN_RPC_PROVIDER.get().unwrap())?;
+
+    let wallet: LocalWallet = PRIVATE_KEY.get().unwrap().parse()?;
+    let client = Arc::new(SignerMiddleware::new(
+        provider,
+        wallet.with_chain_id(*CHAIN_ID.get().unwrap()),
+    ));
+
+    let contract_address: Address = CORE_CONTRACT_ADDRESS.get().unwrap().parse()?;
+
+    let abi_source = "./packages/contracts/artifacts/EmailWalletCore.sol/EmailWalletCore.json";
+
+    // client.send_transaction(tx, block)
+
     todo!()
 }
 
 pub(crate) async fn call_account_creation_op(data: AccountCreation) -> Result<String> {
+    let provider = Provider::<Http>::try_from(CHAIN_RPC_PROVIDER.get().unwrap())?;
+
+    let wallet: LocalWallet = PRIVATE_KEY.get().unwrap().parse()?;
+    let client = SignerMiddleware::new(provider, wallet.with_chain_id(*CHAIN_ID.get().unwrap()));
+
+    // client.se
+
     todo!()
 }
 

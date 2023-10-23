@@ -19,6 +19,10 @@ pub const RELAYER_RANDOMNESS_KEY: &str = "RELAYER_RANDOMNESS";
 pub const WEB_SERVER_ADDRESS_KEY: &str = "WEB_SERVER_ADDRESS";
 pub const CIRCUITS_DIR_PATH_KEY: &str = "CIRCUITS_DIR_PATH";
 pub const PROVER_ADDRESS_KEY: &str = "PROVER_ADDRESS";
+pub const CHAIN_RPC_PROVIDER_KEY: &str = "CHAIN_RPC_PROVIDER";
+pub const PRIVATE_KEY_KEY: &str = "PRIVATE_KEY";
+pub const CHAIN_ID_KEY: &str = "CHAIN_ID";
+pub const CORE_CONTRACT_ADDRESS_KEY: &str = "CORE_CONTRACT_ADDRESS";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";

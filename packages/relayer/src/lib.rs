@@ -25,17 +25,28 @@ use std::sync::{Arc, OnceLock};
 
 use anyhow::{anyhow, bail, Result};
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
+use ethers::prelude::*;
 
 static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
 static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
 static RELAYER_RAND: OnceLock<String> = OnceLock::new();
 static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
+static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
+static CHAIN_ID: OnceLock<u32> = OnceLock::new();
+static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
+static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
     RELAYER_RAND.set(config.relayer_randomness).unwrap();
     PROVER_ADDRESS.set(config.prover_address).unwrap();
+    PRIVATE_KEY.set(config.private_key).unwrap();
+    CHAIN_ID.set(config.chain_id).unwrap();
+    CHAIN_RPC_PROVIDER.set(config.chain_rpc_provider).unwrap();
+    CORE_CONTRACT_ADDRESS
+        .set(config.core_contract_address)
+        .unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
