@@ -138,10 +138,12 @@ pub(crate) async fn generate_send_input(
     File::create(&input_file_name).await?;
     let current_dir = std::env::current_dir()?;
 
-    let command_str =
-        format!(
-        "yarn --cwd {} gen-email-sender-input --email-file {} --relayer-rand {} --input-file {}",
-        circuits_dir_path.to_str().unwrap(), email_file_name, relayer_rand, input_file_name
+    let command_str = format!(
+        "--cwd {} gen-email-sender-input --email-file {} --relayer-rand {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(),
+        email_file_name,
+        relayer_rand,
+        input_file_name
     );
 
     let mut proc = tokio::process::Command::new("yarn")
@@ -172,7 +174,7 @@ pub(crate) async fn generate_creation_input(
 
     let command_str =
         format!(
-        "yarn --cwd {} gen-account-creation-input --email-addr {} --relayer-rand {} --account-key {} --input-file {}",
+        "--cwd {} gen-account-creation-input --email-addr {} --relayer-rand {} --account-key {} --input-file {}",
         circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, viewing_key, input_file_name
     );
 
@@ -188,6 +190,150 @@ pub(crate) async fn generate_creation_input(
     remove_file(input_file_name).await?;
 
     Ok(result)
+}
+
+pub(crate) async fn generate_initialization_input(
+    circuits_dir_path: &Path,
+    email: &str,
+    relayer_rand: &str,
+) -> Result<String> {
+    let email_hash = calculate_hash(email);
+    let email_file_name = email_hash.clone() + ".email";
+    let input_file_name = email_hash + ".input";
+
+    let mut email_file = File::create(&email_file_name).await?;
+    email_file.write_all(email.as_bytes()).await?;
+
+    File::create(&input_file_name).await?;
+    let current_dir = std::env::current_dir()?;
+
+    let command_str = format!(
+        "--cwd {} gen-account-init-input --email-file {} --relayer-rand {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(),
+        email_file_name,
+        relayer_rand,
+        input_file_name
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+
+    remove_file(email_file_name).await?;
+    remove_file(input_file_name).await?;
+
+    Ok(result)
+}
+
+pub(crate) async fn generate_transport_input(
+    circuits_dir_path: &Path,
+    email: &str,
+    old_relayer_hash: &str,
+    new_relayer_rand: &str,
+) -> Result<String> {
+    let email_hash = calculate_hash(email);
+    let email_file_name = email_hash.clone() + ".email";
+    let input_file_name = email_hash + ".input";
+
+    let mut email_file = File::create(&email_file_name).await?;
+    email_file.write_all(email.as_bytes()).await?;
+
+    File::create(&input_file_name).await?;
+    let current_dir = std::env::current_dir()?;
+
+    let command_str =
+        format!(
+        "--cwd {} gen-account-transport-input --email-file {} --old-relayer-hash {} --new-relayer-rand {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(), email_file_name, old_relayer_hash, new_relayer_rand, input_file_name
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+
+    remove_file(email_file_name).await?;
+    remove_file(input_file_name).await?;
+
+    Ok(result)
+}
+
+pub(crate) async fn generate_claim_input(
+    circuits_dir_path: &Path,
+    email_address: &str,
+    relayer_rand: &str,
+    email_address_rand: &str,
+) -> Result<String> {
+    let input_file_name = email_address.to_string() + ".input";
+
+    File::create(&input_file_name).await?;
+    let current_dir = std::env::current_dir()?;
+
+    let command_str =
+        format!(
+        "--cwd {} gen-claim-input --email-addr {} --relayer-rand {} --email-addr-rand {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, email_address_rand, input_file_name
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+
+    remove_file(input_file_name).await?;
+
+    Ok(result)
+}
+
+pub(crate) async fn generate_announcement_input(
+    circuits_dir_path: &Path,
+    email_address: &str,
+    email_address_rand: &str,
+) -> Result<String> {
+    let input_file_name = email_address.to_string() + ".input";
+
+    File::create(&input_file_name).await?;
+    let current_dir = std::env::current_dir()?;
+
+    let command_str = format!(
+        "--cwd {} gen-claim-input --email-addr {} --email-addr-rand {} --input-file {}",
+        circuits_dir_path.to_str().unwrap(),
+        email_address,
+        email_address_rand,
+        input_file_name
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+
+    remove_file(input_file_name).await?;
+
+    Ok(result)
+}
+
+pub(crate) fn calculate_addr_pointer(email_address: &str) -> String {
+    let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
+    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap()).unwrap());
+    field2hex(&padded_email_address.to_pointer(&relayer_rand).unwrap())
 }
 
 pub(crate) async fn generate_proof(input: &str, request: &str, address: &str) -> Result<String> {

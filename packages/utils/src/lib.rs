@@ -7,6 +7,7 @@ mod statics;
 use converters::*;
 use cryptos::*;
 use parse_email::*;
+pub use poseidon_rs::*;
 pub use zk_regex_apis::extract_substrs::*;
 pub use zk_regex_apis::padding::*;
 
