@@ -319,7 +319,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         core.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();
 
-        assertEq(daiToken.balanceOf(core.getWalletOfSalt(newWalletSalt)), 100 ether, "recipient didnt receive tokens");
+        assertEq(daiToken.balanceOf(AccountHandler(core.accountHandler()).getWalletOfSalt(newWalletSalt)), 100 ether, "recipient didnt receive tokens");
     }
 
     function test_ClaimUnclaimedFund_MultipleToNewlyCreatedAccount() public {
@@ -371,8 +371,8 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         core.claimUnclaimedFund(recipientEmailAddrCommit2, newEmailAddrPointer, mockProof);
         vm.stopPrank();
 
-        assertEq(daiToken.balanceOf(core.getWalletOfSalt(newWalletSalt)), 100 ether, "recipient didnt receive tokens");
-        assertEq(usdcToken.balanceOf(core.getWalletOfSalt(newWalletSalt)), 50 ether, "recipient didnt receive tokens");
+        assertEq(daiToken.balanceOf(AccountHandler(core.accountHandler()).getWalletOfSalt(newWalletSalt)), 100 ether, "recipient didnt receive tokens");
+        assertEq(usdcToken.balanceOf(AccountHandler(core.accountHandler()).getWalletOfSalt(newWalletSalt)), 50 ether, "recipient didnt receive tokens");
     }
 
     function test_ClaimUnclaimedFund_ToTransportedAccount() public {

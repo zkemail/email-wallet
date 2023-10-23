@@ -530,7 +530,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
-        address newWalletAddr = core.getWalletOfSalt(newWalletSalt);
+        address newWalletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(newWalletSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes memory state = abi.encode(address(dummyNFT), 23);
@@ -577,7 +577,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
         bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
-        address newWalletAddr = core.getWalletOfSalt(newWalletSalt);
+        address newWalletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(newWalletSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
 

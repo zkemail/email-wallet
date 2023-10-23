@@ -19,6 +19,7 @@ import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
 import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
+import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
@@ -88,8 +89,6 @@ contract EmailWalletCoreTestHelper is Test {
         _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
         defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
 
-        RelayerHandler relayerHandler = new RelayerHandler();
-
         // Deploy core contract as proxy
         core = new EmailWalletCore(
             address(verifier),
@@ -102,14 +101,12 @@ contract EmailWalletCoreTestHelper is Test {
             emailValidityDuration,
             unclaimedFundClaimGas,
             unclaimedStateClaimGas,
-            unclaimsExpiryDuration,
-            address(relayerHandler)
+            unclaimsExpiryDuration
         );
         core.initialize(defaultExtensions);
-        relayerHandler.transferOwnership(address(core));
 
         // Set test sender's wallet addr
-        walletAddr = core.getWalletOfSalt(walletSalt);
+        walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
 
         // Set a mock DKIM public key hash for test sender's emailDomain
         dkimRegistry.setDKIMPublicKeyHash(emailDomain, bytes32(uint256(111122223333)));

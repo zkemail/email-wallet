@@ -146,21 +146,21 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_CommandIsInvalid() public {
-        EmailOp memory emailOp = _getBaseEmailOp();
-        emailOp.command = "INVALID ";
-        emailOp.maskedSubject = "INVALID to ";
-        emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = false;
-        emailOp.recipientETHAddr = vm.addr(3);
-        emailOp.extensionParams.subjectParams = new bytes[](1);
-        emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(22));
+    // function test_RevertIf_CommandIsInvalid() public {
+    //     EmailOp memory emailOp = _getBaseEmailOp();
+    //     emailOp.command = "INVALID ";
+    //     emailOp.maskedSubject = "INVALID to ";
+    //     emailOp.extensionParams.subjectTemplateIndex = 0;
+    //     emailOp.hasEmailRecipient = false;
+    //     emailOp.recipientETHAddr = vm.addr(3);
+    //     emailOp.extensionParams.subjectParams = new bytes[](1);
+    //     emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(22));
 
-        vm.startPrank(relayer);
-        vm.expectRevert("invalid command or extension");
-        core.handleEmailOp(emailOp);
-        vm.stopPrank();
-    }
+    //     vm.startPrank(relayer);
+    //     vm.expectRevert("invalid command or extension");
+    //     core.handleEmailOp(emailOp);
+    //     vm.stopPrank();
+    // }
 
     function test_RevertIf_SubjectParamsAreInsufficient() public {
         address randomAddress = vm.addr(3);

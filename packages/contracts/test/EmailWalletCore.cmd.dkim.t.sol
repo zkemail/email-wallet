@@ -32,6 +32,6 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
-        assertEq(core.dkimRegistryOfWalletSalt(walletSalt), dkimRegistryAddr, "didnt set DKIM registry");
+        assertEq(AccountHandler(core.accountHandler()).dkimRegistryOfWalletSalt(walletSalt), dkimRegistryAddr, "didnt set DKIM registry");
     }
 }

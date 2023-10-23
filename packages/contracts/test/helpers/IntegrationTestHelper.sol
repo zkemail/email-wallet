@@ -121,7 +121,6 @@ abstract contract IntegrationTestHelper is Test {
         );
 
         bytes[] memory defaultExtensions = new bytes[](0);
-        RelayerHandler relayerHandler = new RelayerHandler();
 
         // Deploy core contract as proxy
         address implementation = address(
@@ -136,8 +135,7 @@ abstract contract IntegrationTestHelper is Test {
                 emailValidityDuration,
                 unclaimedFundClaimGas,
                 unclaimedStateClaimGas,
-                unclaimsExpiryDuration,
-                address(relayerHandler)
+                unclaimsExpiryDuration
             )
         );
         bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));

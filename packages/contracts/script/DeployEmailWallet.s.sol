@@ -57,8 +57,6 @@ contract Deploy is Script {
 
         bytes[] memory defaultExtensions = new bytes[](0);
 
-        RelayerHandler relayerHandler = new RelayerHandler();
-
         // Deploy core contract as proxy
         address implementation = address(
             new EmailWalletCore(
@@ -72,13 +70,11 @@ contract Deploy is Script {
                 emailValidityDuration,
                 unclaimedFundClaimGas,
                 unclaimedStateClaimGas,
-                unclaimsExpiryDuration,
-                address(relayerHandler)
+                unclaimsExpiryDuration
             )
         );
         bytes memory data = abi.encodeCall(EmailWalletCore.initialize, (defaultExtensions));
         EmailWalletCore core = EmailWalletCore(payable(new ERC1967Proxy(implementation, data)));
-        relayerHandler.transferOwnership(address(core));
 
         vm.stopBroadcast();
 
