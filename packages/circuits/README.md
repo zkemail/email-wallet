@@ -8,6 +8,7 @@ We provide five main circuits as follows.
     1. an email address `email_addr`.
     2. a relayer's randomness `relayer_rand`.
     3. an account key `account_key`. 
+
 Its instances are as follows:
     1. the poseidon hash of the relayer's randomness (randomness hash) `relayer_rand_hash`.
     2. an email address pointer `pointer`.
@@ -24,6 +25,7 @@ Its instances are as follows:
     7. a starting position of the invitation code in the email header `code_idx`.
     8. a starting position of the email domain in the sender's email address `domain_idx`.
     9. a starting position of the timestamp in the email header `timestamp_idx`.
+
 Its instances are as follows:
     1. an email domain `domain_name`.
     2. a poseidon hash of the RSA public key `pubkey_hash`.
@@ -44,6 +46,7 @@ Its instances are as follows:
     8. a starting position of the invitation code in the email header `code_idx`.
     9. a starting position of the email domain in the sender's email address `domain_idx`.
     10. a starting position of the timestamp in the email header `timestamp_idx`.
+
 Its instances are as follows:
     1. an email domain `domain_name`.
     2. a poseidon hash of the RSA public key `pubkey_hash`.
@@ -58,6 +61,7 @@ Its instances are as follows:
     1. an email address `recipient_email_addr`,
     2. a relayer's randomness `recipient_relayer_rand`.
     3. a randomness used for the email address commitment `cm_rand`.
+
 Its instances are as follows:
     1. the relayer's randomness hash `recipient_relayer_rand_hash`.
     2. an email address pointer `recipient_pointer`.
@@ -74,6 +78,7 @@ Its instances are as follows:
     8. a starting position of the recipient's email address in the subject `recipient_email_idx`.
     9. a starting position of the email domain in the sender's email address `domain_idx`.
     10. a starting position of the timestamp in the email header `timestamp_idx`.
+
 Its instances are as follows:
     1. a masked subject where a character in the email address is replaced with zero  `masked_subject_str`.
     2. an email domain `domain_name`.
@@ -88,6 +93,7 @@ Its instances are as follows:
 - `announcement.circom` - A circuit to verify that the given email address commitment is derived from the given email address and randomness. While it is not used in our core contracts, it is provided for third-party contracts to register unclaimed funds/states for the public email address and the randomness. It takes as input the following data:
     1. an email address `email_addr`.
     2. a randomness used for the email address commitment `cm_rand`.
+    
 Its instances are as follows:
     1. a packed integer of the email address `email_addr_ints`.
     2. an email address commitment `email_addr_commit`.
