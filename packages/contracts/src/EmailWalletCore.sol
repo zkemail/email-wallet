@@ -12,7 +12,6 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
-import {BytesUtils} from "./libraries/BytesUtils.sol";
 import {SubjectUtils} from "./libraries/SubjectUtils.sol";
 import {TokenRegistry} from "./utils/TokenRegistry.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
@@ -145,7 +144,6 @@ contract EmailWalletCore is ReentrancyGuard {
         revert();
     }
 
-
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
@@ -185,8 +183,7 @@ contract EmailWalletCore is ReentrancyGuard {
         (string memory maskedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
             emailOp,
             accountHandler.getWalletOfSalt(accountKeyInfo.walletSalt),
-            extensionHandler,
-            tokenRegistry
+            this // Core contract to read some states
         );
         require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
 
@@ -317,6 +314,7 @@ contract EmailWalletCore is ReentrancyGuard {
         require(false, "no allowance for requested token");
     }
 
+
     /// @notice For extension in context to deposit token to user's wallet during handleEmailOp
     /// @param tokenAddr Address of the ERC20 token to be deposited
     /// @param amount Amount to be deposited
@@ -333,7 +331,15 @@ contract EmailWalletCore is ReentrancyGuard {
     /// @dev Do not use this method to transfer tokens. Use `requestTokenAsExtension()` instead
     function executeAsExtension(address target, bytes calldata data) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension in context");
-        require(target != address(this), "target cannot be core");
+        require(
+            target != address(this) &&
+                target != address(unclaimsHandler) &&
+                target != address(accountHandler) &&
+                target != address(relayerHandler) &&
+                target != address(extensionHandler),
+            "target cannot be core or handlers"
+        );
+
         require(target != currContext.walletAddr, "target cannot be wallet");
 
         // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)

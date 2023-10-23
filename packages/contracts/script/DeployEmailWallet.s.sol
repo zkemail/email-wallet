@@ -55,8 +55,6 @@ contract Deploy is Script {
         // Deploy wallet implementation
         Wallet walletImp = new Wallet(address(weth));
 
-        bytes[] memory defaultExtensions = new bytes[](0);
-
         // Deploy core contract as proxy
         EmailWalletCore core = new EmailWalletCore(
             address(verifier),
@@ -71,6 +69,16 @@ contract Deploy is Script {
             unclaimedStateClaimGas,
             unclaimsExpiryDuration
         );
+
+        bytes[] memory defaultExtensions = new bytes[](0);
+        
+        // NFTExtension nftExt = new NFTExtension(address(core));
+        // defaultExtAddr = address(defaultExt);
+        // bytes[] memory defaultExtensions = new bytes[](1);
+        // _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
+        // defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
+
+
         core.initialize(defaultExtensions);
 
         vm.stopBroadcast();

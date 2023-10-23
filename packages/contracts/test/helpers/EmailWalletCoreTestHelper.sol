@@ -9,7 +9,6 @@ import {DKIMRegistry} from "@zk-email/contracts/DKIMRegistry.sol";
 import {Wallet} from "../../src/Wallet.sol";
 import {EmailWalletCore} from "../../src/EmailWalletCore.sol";
 import {TokenRegistry} from "../../src/utils/TokenRegistry.sol";
-import {BytesUtils} from "../../src/libraries/BytesUtils.sol";
 import {TestVerifier} from "../mocks/TestVerifier.sol";
 import {TestERC20} from "../mocks/TestERC20.sol";
 import {TestOracle} from "../mocks/TestOracle.sol";

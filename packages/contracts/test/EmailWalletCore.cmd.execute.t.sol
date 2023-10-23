@@ -2,6 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "./helpers/EmailWalletCoreTestHelper.sol";
+import "../src/libraries/SubjectUtils.sol";
 
 contract ExecuteTestContract {
     function process(uint256 num) public pure returns (uint256) {
@@ -24,7 +25,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         bytes memory targetCalldata = abi.encodeWithSignature("process(uint256)", 90001);
         bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
 
-        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
@@ -43,7 +44,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         bytes memory targetCalldata = abi.encodeWithSignature("invalid(uint256)", 90001);
         bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
 
-        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
@@ -60,7 +61,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
     function test_RevertIf_ExecuteTargetIsWallet() public {
         bytes memory emailOpCalldata = abi.encode(walletAddr, 0, "");
-        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
@@ -75,7 +76,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
 
     function test_RevertIf_ExecuteTargetIsCore() public {
         bytes memory emailOpCalldata = abi.encode(address(core), 0, "");
-        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
@@ -83,7 +84,22 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        vm.expectRevert("cannot execute on core");
+        vm.expectRevert("cannot execute on core or handlers");
+        core.handleEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+     function test_RevertIf_ExecuteTargetIsAHandler() public {
+        bytes memory emailOpCalldata = abi.encode(address(accountHandler), 0, "");
+        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXECUTE;
+        emailOp.executeCallData = emailOpCalldata;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        vm.expectRevert("cannot execute on core or handlers");
         core.handleEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -94,7 +110,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
             0,
             abi.encodeWithSignature("transfer(uint256)", 1 ether)
         );
-        string memory subject = string.concat("Execute 0x", BytesUtils.bytesToHexString(emailOpCalldata));
+        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;

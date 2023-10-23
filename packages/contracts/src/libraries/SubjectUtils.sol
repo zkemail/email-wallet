@@ -4,26 +4,41 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./DecimalUtils.sol";
-import "./BytesUtils.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Commands.sol";
 import "../utils/TokenRegistry.sol";
 import "../handlers/ExtensionHandler.sol";
-import "../handlers/AccountHandler.sol";
+import "../EmailWalletCore.sol";
 
 library SubjectUtils {
+     /// @notice Convert bytes to hex string without 0x prefix
+    /// @param data bytes to convert
+    function bytesToHexString(bytes memory data) public pure returns (string memory) {
+        bytes memory hexChars = "0123456789abcdef";
+        bytes memory hexString = new bytes(2 * data.length);
+
+        for (uint256 i = 0; i < data.length; i++) {
+            uint256 value = uint256(uint8(data[i]));
+            hexString[2 * i] = hexChars[value >> 4];
+            hexString[2 * i + 1] = hexChars[value & 0xf];
+        }
+
+        return string(hexString);
+    }
+
     /// @notice Calculate the masked subject for an EmailOp from command and other params
     ///         This also do sanity checks of certain parameters used in the subject
     /// @param emailOp EmailOp to compute masked subject for
     /// @param walletAddr Address of the user's wallet
-    /// @param extensionHandler ExtensionHandler contract
-    /// @param tokenRegistry TokenRegistry contract
+    /// @param core EmailWalletCore contract to read some states for validation
     function computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp,
         address walletAddr,
-        ExtensionHandler extensionHandler,
-        TokenRegistry tokenRegistry
+        EmailWalletCore core
     ) public view returns (string memory maskedSubject, bool isExtension) {
+        TokenRegistry tokenRegistry = TokenRegistry(core.tokenRegistry());
+        ExtensionHandler extensionHandler = ExtensionHandler(core.extensionHandler());
+
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
@@ -56,7 +71,15 @@ library SubjectUtils {
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
-            require(target != address(this), "cannot execute on core");
+            require(
+                target != address(core) &&
+                    target != address(core.unclaimsHandler()) &&
+                    target != address(core.accountHandler()) &&
+                    target != address(core.relayerHandler()) &&
+                    target != address(core.extensionHandler()),
+                "cannot execute on core or handlers"
+            );
+
             require(target != walletAddr, "cannot execute on wallet");
             require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
             require(data.length > 0, "execute data cannot be empty");
@@ -64,7 +87,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.EXECUTE,
                 " 0x",
-                BytesUtils.bytesToHexString(emailOp.executeCallData)
+                bytesToHexString(emailOp.executeCallData)
             );
         }
         // Sample: Install extension Uniswap
@@ -80,7 +103,10 @@ library SubjectUtils {
             string memory command = extensionHandler.subjectTemplatesOfExtension(extAddr, 0, 0);
 
             require(extAddr != address(0), "extension not registered");
-            require(extensionHandler.userExtensionOfCommand(walletAddr, command) != address(0), "extension not installed");
+            require(
+                extensionHandler.userExtensionOfCommand(walletAddr, command) != address(0),
+                "extension not installed"
+            );
 
             maskedSubject = string.concat(Commands.UNINSTALL_EXTENSION, " extension ", emailOp.extensionName);
         }
