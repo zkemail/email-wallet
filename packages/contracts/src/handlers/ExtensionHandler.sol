@@ -123,7 +123,11 @@ contract ExtensionHandler is Ownable {
     /// @param walletAddr The user's wallet address
     /// @param command Command for which the extension address is to be set
     /// @param extensionAddr Address of the extension
-    function setExtensionForCommand(address walletAddr, string memory command, address extensionAddr) public onlyOwner {
+    function setExtensionForCommand(
+        address walletAddr,
+        string memory command,
+        address extensionAddr
+    ) external onlyOwner {
         userExtensionOfCommand[walletAddr][command] = extensionAddr;
     }
 

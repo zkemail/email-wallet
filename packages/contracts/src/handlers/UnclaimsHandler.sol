@@ -389,7 +389,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         }
 
         // Transfer claim fee to the sender (relayer)
-        _transferETH(msg.sender, unclaimedStateClaimGas * maxFeePerGas);
+        payable(msg.sender).transfer(unclaimedStateClaimGas * maxFeePerGas);
 
         emit EmailWalletEvents.UnclaimedStateClaimed(emailAddrCommit, recipientAddr);
     }

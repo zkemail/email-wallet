@@ -188,7 +188,7 @@ library SubjectUtils {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
                     value = Strings.toHexString(uint256(uint160(addr)), 20);
                     nextParamIndex++;
-                } 
+                }
                 // {recipient} is either the recipient's ETH address or zero bytes with the same length of the email address
                 else if (Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {

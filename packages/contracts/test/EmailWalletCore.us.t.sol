@@ -105,7 +105,11 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         assertEq(expiryTime, block.timestamp + unclaimsExpiryDuration, "expiryTime mismatch");
 
         // Handler should have received the fee
-        assertEq(address(unclaimsHandler).balance, unclaimedStateClaimGas * maxFeePerGas, "unclaimsHandler didnt receive ETH");
+        assertEq(
+            address(unclaimsHandler).balance,
+            unclaimedStateClaimGas * maxFeePerGas,
+            "unclaimsHandler didnt receive ETH"
+        );
     }
 
     function test_RegisterUnclaimedState_ToAnotherExtension_FromEmailOp() public {
@@ -535,7 +539,11 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         (bool success, , ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
-        assertEq(address(unclaimsHandler).balance, unclaimedStateClaimGas * maxFeePerGas, "unclaimsHandler didnt receive ETH");
+        assertEq(
+            address(unclaimsHandler).balance,
+            unclaimedStateClaimGas * maxFeePerGas,
+            "unclaimsHandler didnt receive ETH"
+        );
 
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
@@ -576,7 +584,11 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        assertEq(address(unclaimsHandler).balance, unclaimedStateClaimGas * maxFeePerGas, "unclaimsHandler didnt receive ETH");
+        assertEq(
+            address(unclaimsHandler).balance,
+            unclaimedStateClaimGas * maxFeePerGas,
+            "unclaimsHandler didnt receive ETH"
+        );
 
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
