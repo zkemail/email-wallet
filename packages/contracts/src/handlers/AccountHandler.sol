@@ -6,14 +6,26 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {Wallet} from "../Wallet.sol";
+import {RelayerHandler} from "./RelayerHandler.sol";
+import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
-import "../Wallet.sol";
-import "./RelayerHandler.sol";
-import "../interfaces/IVerifier.sol";
 
 contract AccountHandler is Ownable {
-    // Mapping of emailAddrPointer to accountKeyCommit
+    // Default DKIM public key hashes registry
+    IDKIMRegistry public immutable defaultDkimRegistry;
+
+    // Address of wallet implementation contract - used for deploying wallets for users via proxy
+    address public immutable walletImplementation;
+
+    // Relayer handler contract
+    RelayerHandler public immutable relayerHandler;
+
+    // ZK proof verifier contract
+    IVerifier public immutable verifier;
+
+     // Mapping of emailAddrPointer to accountKeyCommit
     mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
 
     // Mapping of PSI point to emailAddrPointer
@@ -25,27 +37,18 @@ contract AccountHandler is Ownable {
     // Mapping of walletSalt to dkim registry address
     mapping(bytes32 => address) public dkimRegistryOfWalletSalt;
 
+    // Duration for which an email is valid
     uint public immutable emailValidityDuration;
 
-    // Default DKIM public key hashes registry
-    address public immutable defaultDkimRegistry;
-
-    // Address of wallet implementation contract - used for deploying wallets for users via proxy
-    address public immutable walletImplementation;
-
-    RelayerHandler public relayerHandler;
-
-    IVerifier public verifier;
-
     constructor(
-        uint _emailValidityDuration,
-        address _defaultDkimRegistry,
-        address _walletImplementation,
         address _relayerHandler,
-        address _verifier
+        address _defaultDkimRegistry,
+        address _verifier,
+        address _walletImplementation,
+        uint _emailValidityDuration
     ) {
         emailValidityDuration = _emailValidityDuration;
-        defaultDkimRegistry = _defaultDkimRegistry;
+        defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
         walletImplementation = _walletImplementation;
         relayerHandler = RelayerHandler(_relayerHandler);
         verifier = IVerifier(_verifier);
@@ -212,7 +215,7 @@ contract AccountHandler is Ownable {
     /// @param walletSalt Salt used to deploy the wallet
     /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
     function getDKIMPublicKeyHash(bytes32 walletSalt, string memory emailDomain) public view returns (bytes32) {
-        IDKIMRegistry dkimRegistry = IDKIMRegistry(defaultDkimRegistry);
+        IDKIMRegistry dkimRegistry = defaultDkimRegistry;
 
         if (dkimRegistryOfWalletSalt[walletSalt] != address(0)) {
             dkimRegistry = IDKIMRegistry(dkimRegistryOfWalletSalt[walletSalt]);
@@ -248,5 +251,11 @@ contract AccountHandler is Ownable {
                 ),
                 owner() // Core deploys the wallets
             );
+    }
+
+    /// @notice Return the wallet address of the user given the email address pointer
+    /// @param emailAddrPointer Email address pointer of the user
+    function getWalletOfEmailAddrPointer(bytes32 emailAddrPointer) public view returns (address) {
+        return getWalletOfSalt(infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailAddrPointer]].walletSalt);
     }
 }

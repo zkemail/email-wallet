@@ -10,6 +10,7 @@ import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
+import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {BytesUtils} from "./libraries/BytesUtils.sol";
 import {SubjectUtils} from "./libraries/SubjectUtils.sol";
@@ -30,16 +31,17 @@ contract EmailWalletCore is ReentrancyGuard {
     // ZK proof verifier
     IVerifier public immutable verifier;
 
+    // Relayer handler - Methods to create and update relayer config
     RelayerHandler public relayerHandler;
 
+    // Account handler - Methods to create, intialize, transport user account and settings
     AccountHandler public accountHandler;
 
+    // Unclaims handler - Methods to register, claim, void unclaimed funds and states
     UnclaimsHandler public unclaimsHandler;
 
+    // Extension handler - Methods to publish and install extensions
     ExtensionHandler public extensionHandler;
-
-    // Default DKIM public key hashes registry
-    address public immutable defaultDkimRegistry;
 
     // Token registry
     TokenRegistry public immutable tokenRegistry;
@@ -66,14 +68,11 @@ contract EmailWalletCore is ReentrancyGuard {
     // Gas required to claim unclaimed state
     uint256 public immutable unclaimedStateClaimGas;
 
-    // Default expiry duration for unclaimed funds and states
-    uint256 public immutable unclaimsExpiryDuration;
-
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
     // Context of currently executing EmailOp - reset on every EmailOp
-    ExecutionContext public currContext;
+    ExecutionContext internal currContext;
 
     modifier nullifyEmail(bytes32 emailNullifier) {
         require(emailNullifiers[emailNullifier] == false, "email nullified");
@@ -96,24 +95,22 @@ contract EmailWalletCore is ReentrancyGuard {
     ) {
         verifier = IVerifier(_verifier);
         walletImplementation = _walletImplementationAddr;
-        defaultDkimRegistry = _defaultDkimRegistry;
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
         wethContract = _wethContract;
         maxFeePerGas = _maxFeePerGas;
         emailValidityDuration = _emailValidityDuration;
-        unclaimsExpiryDuration = _unclaimsExpiryDuration;
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
 
         relayerHandler = new RelayerHandler();
         extensionHandler = new ExtensionHandler();
         accountHandler = new AccountHandler(
-            emailValidityDuration,
-            defaultDkimRegistry,
-            walletImplementation,
             address(relayerHandler),
-            _verifier
+            _defaultDkimRegistry,
+            _verifier,
+            walletImplementation,
+            emailValidityDuration
         );
         unclaimsHandler = new UnclaimsHandler(
             address(accountHandler),
@@ -126,12 +123,18 @@ contract EmailWalletCore is ReentrancyGuard {
         );
     }
 
-    receive() external payable {
-        revert();
-    }
-
+    /// @notice Initialize contract with some defaults after deployment
+    /// @param defaultExtensions List of default extensions to be set
     function initialize(bytes[] calldata defaultExtensions) public {
         extensionHandler.setDefaultExtensions(defaultExtensions);
+    }
+
+    fallback() external payable {
+        LibZip.cdFallback();
+    }
+
+    receive() external payable {
+        revert();
     }
 
     /// Create new account and wallet for a user
@@ -275,11 +278,7 @@ contract EmailWalletCore is ReentrancyGuard {
 
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
-        currContext.walletAddr = accountHandler.getWalletOfSalt(
-            accountHandler
-                .getInfoOfAccountKeyCommit(accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer))
-                .walletSalt
-        );
+        currContext.walletAddr = accountHandler.getWalletOfEmailAddrPointer(emailOp.emailAddrPointer);
 
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
@@ -320,7 +319,12 @@ contract EmailWalletCore is ReentrancyGuard {
 
         if (feeAmountInToken > 0) {
             address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
-            (success, err) = _transferERC20FromUserWallet(currContext.walletAddr, msg.sender, feeToken, feeAmountInToken);
+            (success, err) = _transferERC20FromUserWallet(
+                currContext.walletAddr,
+                msg.sender,
+                feeToken,
+                feeAmountInToken
+            );
             require(success, string.concat("fee reimbursement failed: ", string(err)));
         }
     }
@@ -434,10 +438,7 @@ contract EmailWalletCore is ReentrancyGuard {
                     currContext.walletAddr,
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
-                    walletParams.amount,
-                    block.timestamp + unclaimsExpiryDuration,
-                    0,
-                    ""
+                    walletParams.amount
                 );
 
                 currContext.unclaimedFundRegistered = true;

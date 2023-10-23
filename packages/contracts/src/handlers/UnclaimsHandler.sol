@@ -13,11 +13,14 @@ import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
 contract UnclaimsHandler is ReentrancyGuard, Ownable {
-    // Mapping of recipient's emailAddrCommit (hash(email, randomness)) to the unclaimedFund
-    mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommit;
+    // Verifier contract
+    IVerifier public immutable verifier;
 
-    // Mapping of emailAddrCommit to unclaimed state
-    mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
+    // AccountHandler contract
+    AccountHandler public immutable accountHandler;
+
+    // RelayerHandler contract
+    RelayerHandler public immutable relayerHandler;
 
     // Gas required to claim unclaimed funds. User (their relayer) who register unclaimed funds
     // need to lock this amount which is relesed to the relayer who claims it
@@ -32,14 +35,11 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     // Max fee per gas in wei that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
-    // Verifier contract
-    IVerifier public immutable verifier;
+    // Mapping of recipient's emailAddrCommit (hash(email, randomness)) to the unclaimedFund
+    mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommit;
 
-    // AccountHandler contract
-    AccountHandler public immutable accountHandler;
-
-    // RelayerHandler contract
-    RelayerHandler public immutable relayerHandler;
+    // Mapping of emailAddrCommit to unclaimed state
+    mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
 
     constructor(
         address _accountHandler,
@@ -67,11 +67,10 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         address sender,
         bytes32 emailAddrCommit,
         address tokenAddr,
-        uint256 amount,
-        uint256 expiryTime,
-        uint256 announceCommitRandomness,
-        string memory announceEmailAddr
-    ) onlyOwner public {
+        uint256 amount
+    ) public onlyOwner {
+        uint256 expiryTime = block.timestamp + unclaimsExpiryDuration;
+
         UnclaimedFund memory fund = UnclaimedFund({
             emailAddrCommit: emailAddrCommit,
             tokenAddr: tokenAddr,
@@ -88,8 +87,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             amount,
             sender,
             expiryTime,
-            announceCommitRandomness,
-            announceEmailAddr
+            0,
+            ""
         );
     }
 
@@ -288,7 +287,12 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     /// @param sender Address of the sender of the unclaimed state
     /// @param recipientEmailAddrCommit Email address commitment of the recipient
     /// @param state State to be registered
-    function registerUnclaimedStateInternal(address extensionAddr, address sender, bytes32 recipientEmailAddrCommit, bytes calldata state) onlyOwner public {
+    function registerUnclaimedStateInternal(
+        address extensionAddr,
+        address sender,
+        bytes32 recipientEmailAddrCommit,
+        bytes calldata state
+    ) public onlyOwner {
         require(
             unclaimedStateOfEmailAddrCommit[recipientEmailAddrCommit].sender == address(0),
             "unclaimed state exists"
