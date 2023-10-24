@@ -10,18 +10,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
+      - name: "Setup Rust"
+        uses: ATiltedTree/setup-rust@v1
         with:
-            toolchain: nightly
-            override: true
-            components: rustfmt, clippyactions-rs/toolchain@v1
+          rust-version: nightly
+          components: clippy
 
-      - name: Install Circom
-        run: git clone https://github.com/iden3/circom.git && cargo build --release && cargo install --path circom
+      - name: Download circom (Linux)
+        run: wget https://github.com/iden3/circom/releases/latest/download/circom-linux-amd64 -O /usr/local/bin/circom && chmod +x /usr/local/bin/circom
 
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'yarn'
