@@ -13,24 +13,26 @@ jobs:
       - name: "Setup Rust"
         uses: ATiltedTree/setup-rust@v1
         with:
-          rust-version: stable
+          rust-version: nightly
           components: clippy
 
       - name: Install Circom
-        run: |
-          git clone https://github.com/iden3/circom.git
-          cd circom
-          cargo build --release
-          cargo install --path circom
-          cd ..
+        run: wget https://github.com/iden3/circom/releases/latest/download/circom-linux-amd64 -O /usr/local/bin/circom && chmod +x /usr/local/bin/circom
 
       - name: Print Circom version
         run: circom --help
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
 
       - name: Run tests
+        working-directory: packages/circuits
         run: yarn test
 
   contracts:
