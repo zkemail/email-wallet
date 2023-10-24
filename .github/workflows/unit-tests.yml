@@ -6,7 +6,7 @@ on:
 jobs:
   circuits:
     name: circuits
-    runs-on: ubuntu-latest
+    runs-on: macos-latest]
     steps:
       - uses: actions/checkout@v3
 
@@ -17,7 +17,7 @@ jobs:
           components: clippy
 
       - name: Install Circom
-        run: wget https://github.com/iden3/circom/releases/latest/download/circom-linux-amd64 -O /usr/local/bin/circom && chmod +x /usr/local/bin/circom
+        run: curl https://github.com/iden3/circom/releases/latest/download/circom-macos-amd64 -o /usr/local/bin/circom && chmod +x /usr/local/bin/circom
 
       - name: Print Circom version
         run: circom --help
@@ -25,12 +25,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-
       - name: Run tests
         working-directory: packages/circuits
         run: yarn test
