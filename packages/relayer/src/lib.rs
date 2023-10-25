@@ -3,8 +3,10 @@
 #![allow(unreachable_code)]
 
 pub(crate) mod abis;
+pub(crate) mod account_creator;
 pub(crate) mod chain;
-pub mod config;
+pub(crate) mod claimer;
+pub(crate) mod config;
 pub(crate) mod core;
 pub(crate) mod database;
 pub(crate) mod imap_client;
@@ -15,7 +17,9 @@ pub(crate) mod web_server;
 
 pub(crate) use crate::core::*;
 pub(crate) use abis::*;
+pub(crate) use account_creator::*;
 pub(crate) use chain::*;
+pub(crate) use claimer::*;
 pub use config::*;
 pub(crate) use database::*;
 pub(crate) use imap_client::*;
@@ -56,6 +60,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
+    let (tx_creator, mut rx_creator) = tokio::sync::mpsc::unbounded_channel::<String>();
+    let (tx_claimer, mut rx_claimer) = tokio::sync::mpsc::unbounded_channel::<Claim>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
     let client = Arc::new(ChainClient::setup().await?);
@@ -86,7 +92,12 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     });
 
     let tx_sender_for_email_task = tx_sender.clone();
+    let tx_claimer_for_email_task = tx_claimer.clone();
     let tx_sender_for_server_task = tx_sender.clone();
+    let tx_sender_for_creator_task = tx_sender.clone();
+    let tx_creator_for_server_task = tx_creator.clone();
+    let tx_sender_for_claimer_task = tx_sender.clone();
+    let tx_creator_for_claimer_task = tx_creator.clone();
 
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
@@ -102,6 +113,48 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
                 tx_sender_for_email_task.clone(),
+                tx_claimer_for_email_task.clone(),
+            ));
+        }
+
+        Ok::<(), anyhow::Error>(())
+    });
+
+    let db_clone = Arc::clone(&db);
+    let client_clone = Arc::clone(&client);
+    let account_creation_task = tokio::task::spawn(async move {
+        loop {
+            let email_address = rx_creator
+                .recv()
+                .await
+                .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+
+            tokio::task::spawn(create_account(
+                email_address,
+                Arc::clone(&db_clone),
+                Arc::clone(&client_clone),
+                tx_sender_for_creator_task.clone(),
+            ));
+        }
+
+        Ok::<(), anyhow::Error>(())
+    });
+
+    let db_clone = Arc::clone(&db);
+    let client_clone = Arc::clone(&client);
+    let claimer_task = tokio::task::spawn(async move {
+        loop {
+            let claim = rx_claimer
+                .recv()
+                .await
+                .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+
+            tokio::task::spawn(claim_unclaims(
+                claim,
+                Arc::clone(&db_clone),
+                Arc::clone(&client_clone),
+                tx_creator_for_claimer_task.clone(),
+                tx_sender_for_claimer_task.clone(),
             ));
         }
 
@@ -113,6 +166,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         Arc::clone(&db),
         Arc::clone(&client),
         tx_sender_for_server_task,
+        tx_creator_for_server_task,
     ));
 
     let email_sender_task = tokio::task::spawn(async move {
@@ -132,6 +186,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let _ = tokio::join!(
         email_receiver_task,
         email_handler_task,
+        account_creation_task,
+        claimer_task,
         api_server_task,
         email_sender_task,
     );

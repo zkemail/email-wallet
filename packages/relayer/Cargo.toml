@@ -31,6 +31,7 @@ reqwest = "0.11.22"
 num-bigint = { version = "0.4", features = ["rand"] }
 num-traits = "0.2.16"
 hex = "0.4.3"
+chrono = "0.4.31"
 
 [build-dependencies]
 ethers = "2.0.10"

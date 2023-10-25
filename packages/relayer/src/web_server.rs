@@ -18,61 +18,16 @@ struct BalanceOfRequest {
 async fn create_account(
     Json(payload): Json<CreateAccountRequest>,
     db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
-    tx_sender: UnboundedSender<EmailMessage>,
+    tx_creator: UnboundedSender<String>,
 ) -> String {
     if db.contains_user(&payload.email_address).await.unwrap() {
         return "User already exists".to_string();
     }
 
     println!("Creating account for email: {}", payload.email_address);
-
-    let account_key = AccountKey::new(rand::thread_rng());
-    let account_key = field2hex(&account_key.0);
-
-    println!("Generated account_key {account_key}");
-
-    db.insert_user(&payload.email_address, &account_key)
-        .await
-        .unwrap();
-
-    let input = generate_account_creation_input(
-        CIRCUITS_DIR_PATH.get().unwrap(),
-        &payload.email_address,
-        RELAYER_RAND.get().unwrap(),
-        &account_key,
-    )
-    .await
-    .unwrap();
-
-    let (proof, pub_signals) = generate_proof(
-        &input,
-        "generateCreationProof",
-        PROVER_ADDRESS.get().unwrap(),
-    )
-    .await
-    .unwrap();
-
-    let data = AccountCreationInput {
-        email_addr_pointer: u256_to_bytes32(pub_signals[1]),
-        account_key_commit: u256_to_bytes32(pub_signals[2]),
-        wallet_salt: u256_to_bytes32(pub_signals[3]),
-        psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
-        proof,
-    };
-    let res = chain_client.create_account(data).await.unwrap();
-
-    tx_sender
-        .send(EmailMessage {
-            subject: format!("New Account - CODE:{}", account_key),
-            body: format!(
-                "New Account Was Created For You with Account Key set to {}",
-                account_key
-            ),
-            to: payload.email_address.clone(),
-            message_id: Some(account_key),
-        })
-        .unwrap();
+    tx_creator
+        .send(payload.email_address.clone())
+        .map_err(|err| return err.to_string());
 
     format!("Created account for emailaddress {}", payload.email_address)
 }
@@ -89,13 +44,14 @@ pub(crate) async fn run_server(
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     tx_sender: UnboundedSender<EmailMessage>,
+    tx_creator: UnboundedSender<String>,
 ) -> Result<()> {
     let app = Router::new()
         .route(
             "/createAccount",
             axum::routing::post(move |payload: Json<CreateAccountRequest>| {
                 let tx = tx_sender.clone();
-                async move { create_account(payload, Arc::clone(&db), chain_client, tx).await }
+                async move { create_account(payload, Arc::clone(&db), tx_creator).await }
             }),
         )
         .route("/balanceOf/:email/:token", axum::routing::get(balance_of));

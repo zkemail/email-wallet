@@ -64,7 +64,8 @@ pub(crate) async fn handle_email(
     email: String,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    tx: UnboundedSender<EmailMessage>,
+    tx_sender: UnboundedSender<EmailMessage>,
+    tx_claimer: UnboundedSender<Claim>,
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     let from_address = parsed_email.get_from_addr()?;
@@ -73,10 +74,29 @@ pub(crate) async fn handle_email(
         let account_key = extract_account_key_from_subject(&parsed_email.get_subject_all()?)?;
         let account_key = AccountKey(hex2field(&account_key)?);
         if !db.contains_user(&from_address).await? {
-            handle_account_transport(email, &parsed_email, account_key, db, chain_client, tx)
-                .await?;
+            handle_account_transport(
+                email,
+                &parsed_email,
+                account_key,
+                db.clone(),
+                chain_client,
+                tx_sender,
+            )
+            .await?;
         } else {
-            handle_account_init(email, &parsed_email, account_key, db, chain_client, tx).await?;
+            handle_account_init(
+                email,
+                &parsed_email,
+                account_key,
+                db.clone(),
+                chain_client,
+                tx_sender,
+            )
+            .await?;
+        }
+        let claims = db.get_claims_by_email_addr(&from_address).await?;
+        for claim in claims {
+            tx_claimer.send(claim)?;
         }
     } else {
         let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
@@ -104,7 +124,7 @@ pub(crate) async fn handle_email(
                     .query_user_extension_for_command(&wallet_salt, command.as_str())
                     .await?;
                 let subject_templates = chain_client
-                    .query_extension_templates_of_extension(extension_addr)
+                    .query_subject_templates_of_extension(extension_addr)
                     .await?;
                 let (idx, vals) = extract_template_vals_and_idx(&subject, subject_templates)?;
                 if idx == None {
@@ -151,6 +171,7 @@ pub(crate) async fn handle_email(
             Address::default()
         };
 
+        let mut recipient_email_addr = None;
         let mut num_recipient_email_addr_bytes = U256::default();
         let mut recipient_eth_addr = Address::default();
 
@@ -162,6 +183,7 @@ pub(crate) async fn handle_email(
                     eth_addr,
                 } = &template_vals[1]
                 {
+                    recipient_email_addr = email_addr.clone();
                     if *is_email {
                         let padded_email_addr =
                             PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
@@ -207,6 +229,7 @@ pub(crate) async fn handle_email(
                         eth_addr,
                     } = val
                     {
+                        recipient_email_addr = email_addr.clone();
                         if *is_email {
                             let padded_email_addr =
                                 PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
@@ -252,10 +275,10 @@ pub(crate) async fn handle_email(
         let email_op = EmailOp {
             email_addr_pointer,
             has_email_recipient,
-            recipient_email_addr_commit,
+            recipient_email_addr_commit: recipient_email_addr_commit.clone(),
             num_recipient_email_addr_bytes,
             recipient_eth_addr: recipient_eth_addr,
-            command: command,
+            command: command.clone(),
             email_nullifier: email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
             timestamp,
@@ -273,15 +296,39 @@ pub(crate) async fn handle_email(
 
         let result = chain_client.handle_email_op(email_op).await?;
 
-        tx.send(EmailMessage {
-            subject: "Your Account was transported".to_string(),
-            body: result,
-            to: from_address,
-            message_id: None,
-        })
-        .unwrap();
-    }
+        if let Some(email_addr) = recipient_email_addr {
+            let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
+            let commit = Fr::from_bytes(&recipient_email_addr_commit)
+                .expect("recipient_email_addr_commit is not 32 bytes");
+            let is_fund = if command == SEND_COMMAND { true } else { false };
+            let expire_time = if is_fund {
+                let unclaimed_fund = chain_client.query_unclaimed_fund(&&commit).await?;
+                unclaimed_fund.expire_time.as_u64() as i64
+            } else {
+                let unclaimed_state = chain_client.query_unclaimed_state(&&commit).await?;
+                unclaimed_state.expire_time.as_u64() as i64
+            };
 
+            let claim = Claim {
+                email_address: email_addr.clone(),
+                commit: field2hex(&commit),
+                random: field2hex(&commit_rand),
+                expire_time,
+                is_fund,
+                is_announced: false,
+            };
+            tx_claimer.send(claim)?;
+        }
+
+        tx_sender
+            .send(EmailMessage {
+                subject: "Your Account was transported".to_string(),
+                body: result,
+                to: from_address,
+                message_id: None,
+            })
+            .unwrap();
+    }
     Ok(())
 }
 
@@ -291,7 +338,7 @@ pub(crate) async fn handle_account_init(
     account_key: AccountKey,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    tx: UnboundedSender<EmailMessage>,
+    tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let from_address = parsed_email.get_from_addr()?;
     if field2hex(&account_key.0) != db.get_account_key(&from_address).await?.unwrap() {
@@ -319,13 +366,14 @@ pub(crate) async fn handle_account_init(
         proof,
     };
     let result = chain_client.init_account(data).await?;
-    tx.send(EmailMessage {
-        subject: "Your Account was initialized".to_string(),
-        body: result,
-        to: from_address,
-        message_id: None,
-    })
-    .unwrap();
+    tx_sender
+        .send(EmailMessage {
+            subject: "Your Account was initialized".to_string(),
+            body: result,
+            to: from_address,
+            message_id: None,
+        })
+        .unwrap();
     Ok(())
 }
 
@@ -335,7 +383,7 @@ pub(crate) async fn handle_account_transport(
     account_key: AccountKey,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    tx: UnboundedSender<EmailMessage>,
+    tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let from_address = parsed_email.get_from_addr()?;
     let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
@@ -389,13 +437,14 @@ pub(crate) async fn handle_account_transport(
 
     let result = chain_client.transport_account(data).await?;
 
-    tx.send(EmailMessage {
-        subject: "Account was ".to_string(),
-        body: result,
-        to: from_address,
-        message_id: None,
-    })
-    .unwrap();
+    tx_sender
+        .send(EmailMessage {
+            subject: "Account was ".to_string(),
+            body: result,
+            to: from_address,
+            message_id: None,
+        })
+        .unwrap();
     Ok(())
 }
 
