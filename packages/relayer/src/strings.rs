@@ -23,6 +23,7 @@ pub const CHAIN_RPC_PROVIDER_KEY: &str = "CHAIN_RPC_PROVIDER";
 pub const PRIVATE_KEY_KEY: &str = "PRIVATE_KEY";
 pub const CHAIN_ID_KEY: &str = "CHAIN_ID";
 pub const CORE_CONTRACT_ADDRESS_KEY: &str = "CORE_CONTRACT_ADDRESS";
+pub const FEE_PER_GAS_KEY: &str = "FEE_PER_GAS";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";

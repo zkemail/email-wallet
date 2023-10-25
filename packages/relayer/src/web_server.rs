@@ -18,6 +18,7 @@ struct BalanceOfRequest {
 async fn create_account(
     Json(payload): Json<CreateAccountRequest>,
     db: Arc<Database>,
+    chain_client: Arc<ChainClient>,
     tx_sender: UnboundedSender<EmailMessage>,
 ) -> String {
     if db.contains_user(&payload.email_address).await.unwrap() {
@@ -35,7 +36,7 @@ async fn create_account(
         .await
         .unwrap();
 
-    let input = generate_creation_input(
+    let input = generate_account_creation_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &payload.email_address,
         RELAYER_RAND.get().unwrap(),
@@ -52,8 +53,8 @@ async fn create_account(
     .await
     .unwrap();
 
-    let data = AccountCreation::default();
-    let res = call_account_creation_op(data).await.unwrap();
+    let data = AccountCreationInput::default();
+    let res = chain_client.create_account(data).await.unwrap();
 
     tx_sender
         .send(EmailMessage {
@@ -80,6 +81,7 @@ async fn balance_of(Path(params): Path<BalanceOfRequest>) {
 pub(crate) async fn run_server(
     addr: &str,
     db: Arc<Database>,
+    chain_client: Arc<ChainClient>,
     tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let app = Router::new()
@@ -87,7 +89,7 @@ pub(crate) async fn run_server(
             "/createAccount",
             axum::routing::post(move |payload: Json<CreateAccountRequest>| {
                 let tx = tx_sender.clone();
-                async move { create_account(payload, Arc::clone(&db), tx).await }
+                async move { create_account(payload, Arc::clone(&db), chain_client, tx).await }
             }),
         )
         .route("/balanceOf/:email/:token", axum::routing::get(balance_of));

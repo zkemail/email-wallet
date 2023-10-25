@@ -33,7 +33,7 @@ impl Database {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS users (
                 email_address TEXT PRIMARY KEY,
-                viewing_key TEXT NOT NULL
+                account_key TEXT NOT NULL
             );",
         )
         .execute(&self.db)
@@ -96,10 +96,10 @@ impl Database {
         Ok(result.is_some())
     }
 
-    pub(crate) async fn insert_user(&self, email_address: &str, viewing_key: &str) -> Result<()> {
-        sqlx::query("INSERT INTO users (email_address, viewing_key) VALUES (?, ?)")
+    pub(crate) async fn insert_user(&self, email_address: &str, account_key: &str) -> Result<()> {
+        sqlx::query("INSERT INTO users (email_address, account_key) VALUES (?, ?)")
             .bind(email_address)
-            .bind(viewing_key)
+            .bind(account_key)
             .execute(&self.db)
             .await?;
 
@@ -131,16 +131,16 @@ impl Database {
         Ok(result.is_some())
     }
 
-    pub(crate) async fn get_viewing_key(&self, email_address: &str) -> Result<Option<String>> {
-        let row_result = sqlx::query("SELECT viewing_key FROM users WHERE email_address = ?")
+    pub(crate) async fn get_account_key(&self, email_address: &str) -> Result<Option<String>> {
+        let row_result = sqlx::query("SELECT account_key FROM users WHERE email_address = ?")
             .bind(email_address)
             .fetch_one(&self.db)
             .await;
 
         match row_result {
             Ok(row) => {
-                let viewing_key: String = row.get("viewing_key");
-                Ok(Some(viewing_key))
+                let account_key: String = row.get("account_key");
+                Ok(Some(account_key))
             }
             Err(sqlx::error::Error::RowNotFound) => Ok(None),
             Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,

@@ -17,6 +17,7 @@ pub struct RelayerConfig {
     pub(crate) chain_id: u32,
     pub(crate) private_key: String,
     pub(crate) core_contract_address: String,
+    pub(crate) fee_per_gas: U256,
 }
 
 impl RelayerConfig {
@@ -52,6 +53,9 @@ impl RelayerConfig {
             password: env::var(LOGIN_PASSWORD_KEY).unwrap(),
         };
 
+        let fee_per_gas = env::var(FEE_PER_GAS_KEY).unwrap();
+        let fee_per_gas = U256::from_dec_str(&fee_per_gas).unwrap();
+
         Self {
             imap_config,
             smtp_config,
@@ -65,6 +69,7 @@ impl RelayerConfig {
             chain_id: env::var(CHAIN_ID_KEY).unwrap().parse().unwrap(),
             private_key: env::var(PRIVATE_KEY_KEY).unwrap(),
             core_contract_address: env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap(),
+            fee_per_gas,
         }
     }
 }

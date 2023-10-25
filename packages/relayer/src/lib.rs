@@ -2,6 +2,7 @@
 #![allow(unused_variables)]
 #![allow(unreachable_code)]
 
+pub(crate) mod abis;
 pub(crate) mod chain;
 pub mod config;
 pub(crate) mod core;
@@ -9,15 +10,18 @@ pub(crate) mod database;
 pub(crate) mod imap_client;
 pub(crate) mod smtp_client;
 pub(crate) mod strings;
+pub(crate) mod subject_templates;
 pub(crate) mod web_server;
 
+pub(crate) use crate::core::*;
+pub(crate) use abis::*;
 pub(crate) use chain::*;
 pub use config::*;
-pub(crate) use core::*;
 pub(crate) use database::*;
 pub(crate) use imap_client::*;
 pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
+pub(crate) use subject_templates::*;
 pub(crate) use web_server::*;
 
 use std::path::PathBuf;
@@ -35,6 +39,7 @@ static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
 static CHAIN_ID: OnceLock<u32> = OnceLock::new();
 static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
 static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
+static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
@@ -47,11 +52,13 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     CORE_CONTRACT_ADDRESS
         .set(config.core_contract_address)
         .unwrap();
+    FEE_PER_GAS.set(config.fee_per_gas).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
+    let client = Arc::new(ChainClient::setup().await?);
     for email in db.get_unhandled_emails().await? {
         tx_handler.send(email)?;
     }
@@ -82,6 +89,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let tx_sender_for_server_task = tx_sender.clone();
 
     let db_clone = Arc::clone(&db);
+    let client_clone = Arc::clone(&client);
     let email_handler_task = tokio::task::spawn(async move {
         loop {
             let email = rx_handler
@@ -92,6 +100,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             tokio::task::spawn(handle_email(
                 email,
                 Arc::clone(&db_clone),
+                Arc::clone(&client_clone),
                 tx_sender_for_email_task.clone(),
             ));
         }
@@ -102,6 +111,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let api_server_task = tokio::task::spawn(run_server(
         WEB_SERVER_ADDRESS.get().unwrap(),
         Arc::clone(&db),
+        Arc::clone(&client),
         tx_sender_for_server_task,
     ));
 
