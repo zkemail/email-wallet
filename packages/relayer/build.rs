@@ -31,4 +31,16 @@ fn main() {
         .unwrap()
         .write_to_file("./src/abis/extension_handler.rs")
         .unwrap();
+    Abigen::new("RelayerHandler", "./src/abis/RelayerHandler.json")
+        .unwrap()
+        .generate()
+        .unwrap()
+        .write_to_file("./src/abis/relayer_handler.rs")
+        .unwrap();
+    Abigen::new("EmailWalletEvents", "./src/abis/EmailWalletEvents.json")
+        .unwrap()
+        .generate()
+        .unwrap()
+        .write_to_file("./src/abis/events.rs")
+        .unwrap();
 }

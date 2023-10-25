@@ -45,7 +45,7 @@ async fn create_account(
     .await
     .unwrap();
 
-    let proof = generate_proof(
+    let (proof, pub_signals) = generate_proof(
         &input,
         "generateCreationProof",
         PROVER_ADDRESS.get().unwrap(),
@@ -53,7 +53,13 @@ async fn create_account(
     .await
     .unwrap();
 
-    let data = AccountCreationInput::default();
+    let data = AccountCreationInput {
+        email_addr_pointer: u256_to_bytes32(pub_signals[1]),
+        account_key_commit: u256_to_bytes32(pub_signals[2]),
+        wallet_salt: u256_to_bytes32(pub_signals[3]),
+        psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
+        proof,
+    };
     let res = chain_client.create_account(data).await.unwrap();
 
     tx_sender

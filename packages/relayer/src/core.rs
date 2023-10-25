@@ -7,15 +7,58 @@ use std::hash::{Hash, Hasher};
 use std::path::Path;
 
 use email_wallet_utils::*;
+use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
 use num_bigint::RandBigInt;
 use regex::Regex;
+use serde::Deserialize;
 use tokio::{
     fs::{read_to_string, remove_file, File},
     io::AsyncWriteExt,
     sync::mpsc::UnboundedSender,
 };
+
+const DOMAIN_FIELDS: usize = 9;
+const SUBJECT_FIELDS: usize = 17;
+const EMAIL_ADDR_FIELDS: usize = 9;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProverRes {
+    proof: ProofJson,
+    pub_signals: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProofJson {
+    pi_a: Vec<String>,
+    pi_b: Vec<Vec<String>>,
+    pi_c: Vec<String>,
+}
+
+impl ProofJson {
+    pub fn to_eth_bytes(&self) -> Result<Bytes> {
+        let pi_a = Token::FixedArray(vec![
+            Token::Uint(U256::from_dec_str(self.pi_a[0].as_str())?),
+            Token::Uint(U256::from_dec_str(self.pi_a[1].as_str())?),
+        ]);
+        let pi_b = Token::FixedArray(vec![
+            Token::FixedArray(vec![
+                Token::Uint(U256::from_dec_str(self.pi_b[0][1].as_str())?),
+                Token::Uint(U256::from_dec_str(self.pi_b[0][0].as_str())?),
+            ]),
+            Token::FixedArray(vec![
+                Token::Uint(U256::from_dec_str(self.pi_b[1][1].as_str())?),
+                Token::Uint(U256::from_dec_str(self.pi_b[1][0].as_str())?),
+            ]),
+        ]);
+        let pi_c = Token::FixedArray(vec![
+            Token::Uint(U256::from_dec_str(self.pi_c[0].as_str())?),
+            Token::Uint(U256::from_dec_str(self.pi_c[1].as_str())?),
+        ]);
+        Ok(Bytes::from(abi::encode(&[pi_a, pi_b, pi_c])))
+    }
+}
 
 pub(crate) async fn handle_email(
     email: String,
@@ -28,47 +71,16 @@ pub(crate) async fn handle_email(
 
     if is_reply_mail(&email) {
         let account_key = extract_account_key_from_subject(&parsed_email.get_subject_all()?)?;
+        let account_key = AccountKey(hex2field(&account_key)?);
         if !db.contains_user(&from_address).await? {
-            todo!("TRANSPORT")
+            handle_account_transport(email, &parsed_email, account_key, db, chain_client, tx)
+                .await?;
+        } else {
+            handle_account_init(email, &parsed_email, account_key, db, chain_client, tx).await?;
         }
-        if account_key != db.get_account_key(&from_address).await?.unwrap() {
-            return Err(anyhow!(
-                "from_address {} is known but the account key {} is wrong",
-                from_address,
-                account_key
-            ));
-        }
-        let input = generate_account_init_input(
-            CIRCUITS_DIR_PATH.get().unwrap(),
-            &email,
-            RELAYER_RAND.get().unwrap(),
-        )
-        .await?;
-        let proof = generate_proof(&input, "account_init", PROVER_ADDRESS.get().unwrap()).await?;
-        let relayer_rand = hex2field(RELAYER_RAND.get().unwrap())?;
-        let email_addr_pointer = PaddedEmailAddr::from_email_addr(&from_address)
-            .to_pointer(&RelayerRand(relayer_rand))?
-            .to_bytes();
-        let data = AccountInitInput {
-            email_addr_pointer,
-            email_domain: parsed_email.get_email_domain()?,
-            email_timestamp: U256::from(parsed_email.get_timestamp()?),
-            email_nullifier: email_nullifier(&parsed_email.signature)?.to_bytes(),
-            proof: Bytes::from(proof.into_bytes()),
-        };
-        let result = chain_client.init_account(data).await?;
-        tx.send(EmailMessage {
-            subject: "Your Account was initialized".to_string(),
-            body: result,
-            to: from_address,
-            message_id: None,
-        })
-        .unwrap();
     } else {
         let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
         let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
-        let email_addr_pointer = padded_from_address.to_pointer(&relayer_rand)?.to_bytes();
-        let email_nullifier = email_nullifier(&parsed_email.signature)?.to_bytes();
         let subject = parsed_email.get_subject_all()?;
         let command = subject_templates::extract_command_from_subject(&subject)?;
         let account_key = db
@@ -139,8 +151,6 @@ pub(crate) async fn handle_email(
             Address::default()
         };
 
-        let mut has_email_recipient = false;
-        let mut recipient_email_addr_commit = [0u8; 32];
         let mut num_recipient_email_addr_bytes = U256::default();
         let mut recipient_eth_addr = Address::default();
 
@@ -152,13 +162,11 @@ pub(crate) async fn handle_email(
                     eth_addr,
                 } = &template_vals[1]
                 {
-                    has_email_recipient = *is_email;
                     if *is_email {
                         let padded_email_addr =
                             PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                         let email_addr_commit = padded_email_addr
                             .to_commitment_with_signature(&parsed_email.signature)?;
-                        recipient_email_addr_commit = email_addr_commit.to_bytes();
                         num_recipient_email_addr_bytes =
                             U256::from(email_addr.as_ref().unwrap().len());
                     } else {
@@ -199,13 +207,11 @@ pub(crate) async fn handle_email(
                         eth_addr,
                     } = val
                     {
-                        has_email_recipient = *is_email;
                         if *is_email {
                             let padded_email_addr =
                                 PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                             let email_addr_commit = padded_email_addr
                                 .to_commitment_with_signature(&parsed_email.signature)?;
-                            recipient_email_addr_commit = email_addr_commit.to_bytes();
                             num_recipient_email_addr_bytes =
                                 U256::from(email_addr.as_ref().unwrap().len());
                         } else {
@@ -230,18 +236,29 @@ pub(crate) async fn handle_email(
             RELAYER_RAND.get().unwrap(),
         )
         .await?;
-        let proof = generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
+        let (email_proof, pub_signals) =
+            generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
 
+        let email_addr_pointer = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
+        let has_email_recipient = if pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into() {
+            true
+        } else {
+            false
+        };
+        let recipient_email_addr_commit =
+            u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
+        let email_nullifier = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]);
+        let timestamp = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6];
         let email_op = EmailOp {
-            email_addr_pointer: email_addr_pointer,
+            email_addr_pointer,
             has_email_recipient,
-            recipient_email_addr_commit: recipient_email_addr_commit,
+            recipient_email_addr_commit,
             num_recipient_email_addr_bytes,
             recipient_eth_addr: recipient_eth_addr,
             command: command,
             email_nullifier: email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
-            timestamp: parsed_email.get_timestamp()?.into(),
+            timestamp,
             masked_subject: get_masked_subject(&subject)?,
             fee_token_name,
             fee_per_gas: FEE_PER_GAS.get().unwrap().clone(),
@@ -251,13 +268,13 @@ pub(crate) async fn handle_email(
             new_dkim_registry,
             wallet_params,
             extension_params,
-            email_proof: Bytes::from(proof.into_bytes()),
+            email_proof,
         };
 
         let result = chain_client.handle_email_op(email_op).await?;
 
         tx.send(EmailMessage {
-            subject: "Transaction were completed".to_string(),
+            subject: "Your Account was transported".to_string(),
             body: result,
             to: from_address,
             message_id: None,
@@ -265,6 +282,120 @@ pub(crate) async fn handle_email(
         .unwrap();
     }
 
+    Ok(())
+}
+
+pub(crate) async fn handle_account_init(
+    email: String,
+    parsed_email: &ParsedEmail,
+    account_key: AccountKey,
+    db: Arc<Database>,
+    chain_client: Arc<ChainClient>,
+    tx: UnboundedSender<EmailMessage>,
+) -> Result<()> {
+    let from_address = parsed_email.get_from_addr()?;
+    if field2hex(&account_key.0) != db.get_account_key(&from_address).await?.unwrap() {
+        return Err(anyhow!(
+            "from_address {} is known but the account key {} is wrong",
+            from_address,
+            field2hex(&account_key.0)
+        ));
+    }
+    let input = generate_account_init_input(
+        CIRCUITS_DIR_PATH.get().unwrap(),
+        &email,
+        RELAYER_RAND.get().unwrap(),
+    )
+    .await?;
+    let (proof, pub_signals) =
+        generate_proof(&input, "account_init", PROVER_ADDRESS.get().unwrap()).await?;
+    // let relayer_rand = hex2field(RELAYER_RAND.get().unwrap())?;
+    // let email_addr_pointer = u256_to_bytes32(pub_signals[])
+    let data = AccountInitInput {
+        email_addr_pointer: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 3]),
+        email_domain: parsed_email.get_email_domain()?,
+        email_timestamp: pub_signals[DOMAIN_FIELDS + 5],
+        email_nullifier: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 2]),
+        proof,
+    };
+    let result = chain_client.init_account(data).await?;
+    tx.send(EmailMessage {
+        subject: "Your Account was initialized".to_string(),
+        body: result,
+        to: from_address,
+        message_id: None,
+    })
+    .unwrap();
+    Ok(())
+}
+
+pub(crate) async fn handle_account_transport(
+    email: String,
+    parsed_email: &ParsedEmail,
+    account_key: AccountKey,
+    db: Arc<Database>,
+    chain_client: Arc<ChainClient>,
+    tx: UnboundedSender<EmailMessage>,
+) -> Result<()> {
+    let from_address = parsed_email.get_from_addr()?;
+    let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
+    let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
+    let email_addr_pointer = padded_from_address.to_pointer(&relayer_rand)?.to_bytes();
+    let new_account_key_commit =
+        account_key.to_commitment(&padded_from_address, &relayer_rand.0)?;
+    let wallet_salt = account_key.to_wallet_salt()?;
+    let (old_account_keys, relayers) = chain_client
+        .query_ak_commit_and_relayer_of_wallet_salt(&wallet_salt)
+        .await?;
+    let old_account_key = old_account_keys[0];
+    let old_relayer = relayers[0];
+    let old_relayer_rand_hash = chain_client.query_rand_hash_of_relayer(old_relayer).await?;
+
+    let input = generate_account_transport_input(
+        CIRCUITS_DIR_PATH.get().unwrap(),
+        &email,
+        &field2hex(&old_account_key),
+        RELAYER_RAND.get().unwrap(),
+    )
+    .await?;
+    let (transport_proof, _) =
+        generate_proof(&input, "account_transport", PROVER_ADDRESS.get().unwrap()).await?;
+
+    let email_proof = EmailProof {
+        domain: parsed_email.get_email_domain()?,
+        timestamp: parsed_email.get_timestamp()?.into(),
+        nullifier: email_nullifier(&parsed_email.signature)?.to_bytes(),
+        proof: transport_proof,
+    };
+
+    let input = generate_account_creation_input(
+        CIRCUITS_DIR_PATH.get().unwrap(),
+        &from_address,
+        RELAYER_RAND.get().unwrap(),
+        &field2hex(&account_key.0),
+    )
+    .await?;
+    let (creation_proof, pub_signals) =
+        generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
+    let new_psi_point = get_psi_point_bytes(pub_signals[4], pub_signals[5]);
+    let data = AccountTransportInput {
+        old_account_key_commit: old_account_key.to_bytes(),
+        new_email_addr_pointer: email_addr_pointer,
+        new_account_key_commit: new_account_key_commit.to_bytes(),
+        new_psi_point,
+        transport_email_proof: email_proof,
+        account_creation_proof: creation_proof,
+    };
+
+    let result = chain_client.transport_account(data).await?;
+
+    tx.send(EmailMessage {
+        subject: "Account was ".to_string(),
+        body: result,
+        to: from_address,
+        message_id: None,
+    })
+    .unwrap();
     Ok(())
 }
 
@@ -413,7 +544,7 @@ pub(crate) async fn generate_account_init_input(
     Ok(result)
 }
 
-pub(crate) async fn generate_transport_input(
+pub(crate) async fn generate_account_transport_input(
     circuits_dir_path: &Path,
     email: &str,
     old_relayer_hash: &str,
@@ -492,7 +623,11 @@ pub(crate) fn calculate_addr_commitment(email_address: &str, rand: Fr) -> Fr {
     padded_email_address.to_commitment(&rand).unwrap()
 }
 
-pub(crate) async fn generate_proof(input: &str, request: &str, address: &str) -> Result<String> {
+pub(crate) async fn generate_proof(
+    input: &str,
+    request: &str,
+    address: &str,
+) -> Result<(Bytes, Vec<U256>)> {
     let client = reqwest::Client::new();
     let res = client
         .post(format!("{}/{}", address, request))
@@ -500,8 +635,14 @@ pub(crate) async fn generate_proof(input: &str, request: &str, address: &str) ->
         .send()
         .await?
         .error_for_status()?;
-
-    Ok(res.text().await?)
+    let res_json = res.json::<ProverRes>().await?;
+    let proof = res_json.proof.to_eth_bytes()?;
+    let pub_signals = res_json
+        .pub_signals
+        .into_iter()
+        .map(|str| U256::from_dec_str(&str).expect("pub signal should be u256"))
+        .collect();
+    Ok((proof, pub_signals))
 }
 
 pub(crate) fn calculate_hash(input: &str) -> String {
@@ -514,15 +655,6 @@ pub(crate) fn calculate_hash(input: &str) -> String {
 
 pub(crate) fn is_reply_mail(email: &str) -> bool {
     email.contains("In-Reply-To:") || email.contains("References:")
-}
-
-pub(crate) fn extract_old_relayer_email(email_body: &str) -> Result<String> {
-    let re = Regex::new(r"Old Relayer: ([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})").unwrap();
-    let caps = re
-        .captures(email_body)
-        .ok_or(anyhow!(WRONG_SUBJECT_FORMAT))?;
-
-    Ok(caps[1].to_string())
 }
 
 pub(crate) async fn select_fee_token(
@@ -547,4 +679,14 @@ pub(crate) async fn select_fee_token(
     } else {
         Ok("USDC".to_string())
     }
+}
+
+pub(crate) fn get_psi_point_bytes(x: U256, y: U256) -> Bytes {
+    Bytes::from(abi::encode(&[Token::Uint(x), Token::Uint(y)]))
+}
+
+pub(crate) fn u256_to_bytes32(x: U256) -> [u8; 32] {
+    let mut bytes = [0u8; 32];
+    x.to_little_endian(&mut bytes);
+    bytes
 }

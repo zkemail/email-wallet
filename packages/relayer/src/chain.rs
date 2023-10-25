@@ -21,6 +21,16 @@ pub struct AccountInitInput {
     pub(crate) proof: Bytes,
 }
 
+#[derive(Default)]
+pub struct AccountTransportInput {
+    pub(crate) old_account_key_commit: [u8; 32],
+    pub(crate) new_email_addr_pointer: [u8; 32],
+    pub(crate) new_account_key_commit: [u8; 32],
+    pub(crate) new_psi_point: Bytes,
+    pub(crate) transport_email_proof: EmailProof,
+    pub(crate) account_creation_proof: Bytes,
+}
+
 type SignerM = SignerMiddleware<Provider<Http>, LocalWallet>;
 
 #[derive(Debug, Clone)]
@@ -30,6 +40,7 @@ pub struct ChainClient {
     pub(crate) token_registry: TokenRegistry<SignerM>,
     pub(crate) account_handler: AccountHandler<SignerM>,
     pub(crate) extension_handler: ExtensionHandler<SignerM>,
+    pub(crate) relayer_handler: RelayerHandler<SignerM>,
 }
 
 impl ChainClient {
@@ -52,12 +63,15 @@ impl ChainClient {
             core.extension_handler().call().await.unwrap(),
             client.clone(),
         );
+        let relayer_handler =
+            RelayerHandler::new(core.relayer_handler().call().await.unwrap(), client.clone());
         Ok(Self {
             client,
             core,
             token_registry,
             account_handler,
             extension_handler,
+            relayer_handler,
         })
     }
 
@@ -82,6 +96,21 @@ impl ChainClient {
             data.email_timestamp,
             data.email_nullifier,
             data.proof,
+        );
+        let tx = call.send().await?;
+        let tx_hash = tx.tx_hash();
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
+    pub async fn transport_account(&self, data: AccountTransportInput) -> Result<String> {
+        let call = self.account_handler.transport_account(
+            data.old_account_key_commit,
+            data.new_email_addr_pointer,
+            data.new_account_key_commit,
+            data.new_psi_point,
+            data.transport_email_proof,
+            data.account_creation_proof,
         );
         let tx = call.send().await?;
         let tx_hash = tx.tx_hash();
@@ -157,6 +186,38 @@ impl ChainClient {
             .call()
             .await?;
         Ok(wallet_addr)
+    }
+
+    pub async fn query_rand_hash_of_relayer(&self, relayer: Address) -> Result<Fr> {
+        let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
+        Ok(Fr::from_bytes(&rand_hash).expect("rand_hash is not 32 bytes"))
+    }
+
+    pub async fn query_ak_commit_and_relayer_of_wallet_salt(
+        &self,
+        wallet_salt: &WalletSalt,
+    ) -> Result<(Vec<Fr>, Vec<Address>)> {
+        let events: Vec<(AccountCreatedFilter, LogMeta)> = self
+            .account_handler
+            .event_for_name::<AccountCreatedFilter>("AccountCreated")?
+            .from_block(0)
+            .topic2(H256::from(wallet_salt.0.to_bytes()))
+            .query_with_meta()
+            .await?;
+        let mut account_key_commits = vec![];
+        let mut relayers = vec![];
+        for (created, log_meta) in events {
+            let account_key_commit = Fr::from_bytes(&created.account_key_commit)
+                .expect("account_key_commit in the event is not 32 bytes");
+            account_key_commits.push(account_key_commit);
+            let tx_hash = log_meta.transaction_hash;
+            let tx = self.client.get_transaction(tx_hash).await?;
+            if let Some(tx) = tx {
+                let relayer = tx.from;
+                relayers.push(relayer);
+            }
+        }
+        Ok((account_key_commits, relayers))
     }
 }
 
