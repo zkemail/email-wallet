@@ -16,7 +16,7 @@ itertools = "0.10.3"
 serde_json = "1.0.95"
 serde = { version = "1.0.159", features = ["derive"] }
 # halo2-regex = { git = "https://github.com/zkemail/halo2-regex.git", version = "0.1.0" }
-zk-regex-apis = { version = "1.1.1", git = "https://github.com/zkemail/zk-regex.git", branch = "main", default-features = false }
+zk-regex-apis = { version = "1.1.4", git = "https://github.com/zkemail/zk-regex.git", branch = "main", default-features = false }
 fancy-regex = "0.11.0"
 hex = "0.4.3"
 tokio = { version = "1.16", features = [
@@ -33,6 +33,7 @@ anyhow = "1.0.75"
 once_cell = "1.18.0"
 poseidon-rs = { git = "https://github.com/SoraSuegami/poseidon-rs.git", version = "0.0.10", branch = "master" }
 halo2curves = { version = "0.4.0", git = "https://github.com/privacy-scaling-explorations/halo2curves.git" }
+rand_core = { version = "0.6", default-features = false }
 num-bigint = "0.4.4"
 base64 = "0.21.4"
 rsa = { version = "0.6.1", features = ["serde"] }

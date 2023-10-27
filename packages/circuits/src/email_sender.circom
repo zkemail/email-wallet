@@ -70,19 +70,31 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     (from_regex_out, from_regex_reveal) <== FromAddrRegex(max_header_bytes)(in_padded);
     from_regex_out === 1;
     signal sender_email_addr[email_max_bytes];
-    sender_email_addr <== VarShiftLeft(max_header_bytes, email_max_bytes)(from_regex_reveal, sender_email_idx);
+    sender_email_addr <== VarShiftMaskedStr(max_header_bytes, email_max_bytes)(from_regex_reveal, sender_email_idx);
 
     // SUBJECT HEADER REGEX
     signal subject_regex_out, subject_regex_reveal[max_header_bytes];
     (subject_regex_out, subject_regex_reveal) <== SubjectAllRegex(max_header_bytes)(in_padded);
     subject_regex_out === 1;
     signal subject_all[max_subject_bytes];
-    subject_all <== VarShiftLeft(max_header_bytes, max_subject_bytes)(subject_regex_reveal, subject_idx);
+    subject_all <== VarShiftMaskedStr(max_header_bytes, max_subject_bytes)(subject_regex_reveal, subject_idx);
     signal recipient_email_regex_out, recipient_email_regex_reveal[max_subject_bytes];
     (recipient_email_regex_out, recipient_email_regex_reveal) <== EmailAddrRegex(max_subject_bytes)(subject_all);
     has_email_recipient <== IsZero()(recipient_email_regex_out-1);
+    signal replaced_email_regex_reveal[max_subject_bytes];
+    for(var i=0; i<max_subject_bytes; i++) {
+        if(i==0) {
+            replaced_email_regex_reveal[i] <== (recipient_email_regex_reveal[i] - 1) * has_email_recipient + 1;
+        } else {
+            replaced_email_regex_reveal[i] <== recipient_email_regex_reveal[i] * has_email_recipient;
+        }
+    }
+    signal shifted_email_addr[email_max_bytes];
+    shifted_email_addr <== VarShiftMaskedStr(max_subject_bytes, email_max_bytes)(replaced_email_regex_reveal, recipient_email_idx);
     signal recipient_email_addr[email_max_bytes];
-    recipient_email_addr <== VarShiftLeft(max_subject_bytes, email_max_bytes)(recipient_email_regex_reveal, recipient_email_idx);
+    for(var i=0; i<email_max_bytes; i++) {
+        recipient_email_addr[i] <== shifted_email_addr[i] * has_email_recipient;
+    }
     signal masked_subject_bytes[max_subject_bytes];
     for(var i = 0; i < max_subject_bytes; i++) {
         masked_subject_bytes[i] <== subject_all[i] - has_email_recipient * recipient_email_regex_reveal[i];
@@ -94,7 +106,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
     signal domain_name_bytes[domain_len];
-    domain_name_bytes <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    domain_name_bytes <== VarShiftMaskedStr(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
     domain_name <== Bytes2Ints(domain_len)(domain_name_bytes);
     
     // Relayer randHash
@@ -127,7 +139,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
     timestamp_regex_out === 1;
     signal timestamp_str[timestamp_len];
-    timestamp_str <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    timestamp_str <== VarShiftMaskedStr(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
     timestamp <== Digit2Int(timestamp_len)(timestamp_str);
 }
 

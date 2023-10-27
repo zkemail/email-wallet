@@ -1798,17 +1798,17 @@
     "@uniswap/v3-core" "^1.0.0"
     base64-sol "1.0.1"
 
-"@zk-email/circuits@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-3.0.0.tgz#554af21817a440e468eb078a2c876db32b7e6c06"
-  integrity sha512-q+mgsRhm5Bu75HdM6lpQ4OeGvERGoIzXzd0HUTNXTuVhzVs9HJ0KgQHzg3q/JM3izM/DN5AeaxqyMhPPCuYmuw==
+"@zk-email/circuits@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-3.2.0.tgz#3419e5a5d0e0d5559948d1108a0de5c08b04351e"
+  integrity sha512-cUHQDwpRIlPAvdgZx/zaRQ1zQNYsf2FmvALSw932kWAeoayYT4ZYXn5/SNWw3dHMRjuz43fTj8Dl4pEbf/0E9A==
   dependencies:
-    "@zk-email/zk-regex-circom" "^1.1.0"
+    "@zk-email/zk-regex-circom" "^1.1.1"
 
-"@zk-email/contracts@^3.1.3":
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-3.1.3.tgz#a3d68416fa2775bed3d677d577dfebb86cf86a42"
-  integrity sha512-uZ70dqDSo92PkElhP8u8Vatlln1kd5CpJ6mzlLUcWn7sWF5QgbwQ/Bn27ztMWBRaWTR7iGSqVO8Txle+LUVaXg==
+"@zk-email/contracts@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-3.2.0.tgz#85a9bbb77ae3fc65e09f8f54c3ddf2f70a85bc46"
+  integrity sha512-ii9BOu39PPbwW3wPt/epaaXp3Ys9Tlhg50i+11Y9lbuiJq9h81iyLLt9Y5mpKyBQj0NiBvGrHAIVjB1sTitV2Q==
   dependencies:
     "@openzeppelin/contracts" "^4.9.3"
 
@@ -1828,7 +1828,7 @@
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
 
-"@zk-email/zk-regex-circom@^1.1.0", "@zk-email/zk-regex-circom@^1.1.1":
+"@zk-email/zk-regex-circom@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.1.1.tgz#01275a4070dbd331224a945aadb648e0097e75cd"
   integrity sha512-HbEhM4VZgt4mrTPPCHWb2Kw4W/BwkZBJaZS+f0ip98GrwHg1pS6Tfm8SAWXe+HYnfrnjGUytaiffgbTS3L3rgA==

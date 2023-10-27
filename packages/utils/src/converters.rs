@@ -2,15 +2,14 @@ use std::convert::TryInto;
 use std::str::FromStr;
 
 use anyhow;
-use halo2curves::ff::derive::rand_core::OsRng;
 use halo2curves::ff::{Field, PrimeField};
-use halo2curves::{ff::derive::rand_core::RngCore, serde::SerdeObject};
 use itertools::Itertools;
 use neon::prelude::*;
 use neon::result::Throw;
 use num_bigint::BigUint;
 use num_traits::Zero;
 use poseidon_rs::*;
+use rand_core::{OsRng, RngCore};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub fn hex2field(input_hex: &str) -> anyhow::Result<Fr> {
