@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use async_imap::{extensions::idle::IdleResponse::*, types::Fetch, Session};
 use async_native_tls::TlsStream;
 use futures::TryStreamExt;
+use log::{debug, error, info, trace, warn};
 use oauth2::reqwest::async_http_client;
 use oauth2::{
     basic::BasicClient, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
@@ -101,7 +102,7 @@ impl ImapClient {
                     tiny_http::Response::from_string("You can close this window now.".to_string());
                 request.respond(response).unwrap();
 
-                println!("Auth Code that I captured {}", auth_code);
+                trace!("Auth Code that I captured {}", auth_code);
 
                 let token_result = oauth_client
                     .exchange_code(AuthorizationCode::new(auth_code.to_string()))
@@ -124,7 +125,7 @@ impl ImapClient {
 
         session.select("INBOX").await?;
 
-        println!("ImapClient connected succesfully!");
+        trace!("ImapClient connected succesfully!");
 
         Ok(Self { session, config })
     }
@@ -147,7 +148,7 @@ impl ImapClient {
                     return Ok((self, results));
                 }
                 Err(e) => {
-                    println!("Connection reset, reconnecting...");
+                    error!("Connection reset, reconnecting...");
                     self.reconnect().await?;
                 }
             }

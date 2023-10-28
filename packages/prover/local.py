@@ -4,7 +4,7 @@
 import json
 from flask import Flask
 import jsonify
-import request
+import requests
 import random
 import sys
 from core import (

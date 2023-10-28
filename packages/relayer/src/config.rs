@@ -7,7 +7,6 @@ use dotenv::dotenv;
 pub struct RelayerConfig {
     pub(crate) imap_config: ImapConfig,
     pub(crate) smtp_config: SmtpConfig,
-    pub(crate) etherscan_key: String,
     pub(crate) db_path: PathBuf,
     pub(crate) relayer_randomness: String,
     pub(crate) web_server_address: String,
@@ -59,7 +58,6 @@ impl RelayerConfig {
         Self {
             imap_config,
             smtp_config,
-            etherscan_key: env::var(ETHERSCAN_KEY).unwrap(),
             db_path: env::var(DATABASE_PATH_KEY).unwrap().into(),
             relayer_randomness: env::var(RELAYER_RANDOMNESS_KEY).unwrap(),
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),

@@ -1,6 +1,7 @@
 use crate::*;
 
 use axum::{extract::Path, Json, Router};
+use log::{debug, error, info, trace, warn};
 use serde::Deserialize;
 use tokio::sync::mpsc::UnboundedSender;
 
@@ -24,7 +25,7 @@ async fn create_account(
         return "User already exists".to_string();
     }
 
-    println!("Creating account for email: {}", payload.email_address);
+    trace!("Creating account for email: {}", payload.email_address);
     tx_creator
         .send(payload.email_address.clone())
         .map_err(|err| return err.to_string());
@@ -33,9 +34,10 @@ async fn create_account(
 }
 
 async fn balance_of(Path(params): Path<BalanceOfRequest>) {
-    println!(
+    trace!(
         "Getting balance of token: {} for email: {}",
-        params.token, params.email_address
+        params.token,
+        params.email_address
     );
 }
 
@@ -56,7 +58,7 @@ pub(crate) async fn run_server(
         )
         .route("/balanceOf/:email/:token", axum::routing::get(balance_of));
 
-    println!("Listening API at {}", addr);
+    trace!("Listening API at {}", addr);
 
     axum::Server::bind(&addr.parse()?)
         .serve(app.into_make_service())

@@ -42,8 +42,8 @@ impl Database {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS claims (
                 email_address TEXT PRIMARY KEY,
-                random TEXT NOT NULL, 
-                commit TEXT NOT NULL,
+                random TEXT NOT NULL,
+                email_addr_commit TEXT NOT NULL,
                 expire_time INTEGER NOT NULL,
                 is_fund INTEGER NOT NULL,
                 is_announced INTEGER NOT NULL
@@ -112,13 +112,13 @@ impl Database {
     pub(crate) async fn get_claims_by_commit(&self, commit: &str) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE commit = ?")
+        let rows = sqlx::query("SELECT * FROM claims WHERE email_addr_commit = ?")
             .bind(commit)
             .fetch_all(&self.db)
             .await?;
 
         for row in rows {
-            let commit: String = row.get("commit");
+            let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
             let expire_time: i64 = row.get("expire_time");
@@ -145,7 +145,7 @@ impl Database {
             .await?;
 
         for row in rows {
-            let commit: String = row.get("commit");
+            let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
             let expire_time: i64 = row.get("expire_time");
@@ -172,7 +172,7 @@ impl Database {
             .await?;
 
         for row in rows {
-            let commit: String = row.get("commit");
+            let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
             let expire_time: i64 = row.get("expire_time");
@@ -200,7 +200,7 @@ impl Database {
         is_announced: bool,
     ) -> Result<()> {
         sqlx::query(
-            "INSERT INTO claims (email_address, random, commit, expire_time, is_fund, is_announced) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES (?, ?, ?, ?, ?, ?)",
         )
         .bind(email_address)
         .bind(random)
@@ -214,7 +214,7 @@ impl Database {
     }
 
     pub(crate) async fn delete_claim(&self, commit: &str, is_fund: bool) -> Result<()> {
-        sqlx::query("DELETE FROM claims WHERE commit = ? AND is_fund = ?")
+        sqlx::query("DELETE FROM claims WHERE email_addr_commit = ? AND is_fund = ?")
             .bind(commit)
             .bind(is_fund)
             .execute(&self.db)

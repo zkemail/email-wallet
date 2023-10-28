@@ -13,7 +13,6 @@ pub const SMTP_DOMAIN_NAME_KEY: &str = "SMTP_DOMAIN_NAME";
 pub const SMTP_PORT_KEY: &str = "SMTP_PORT";
 pub const LOGIN_ID_KEY: &str = "LOGIN_ID";
 pub const LOGIN_PASSWORD_KEY: &str = "LOGIN_PASSWORD";
-pub const ETHERSCAN_KEY: &str = "ETHERSCAN_KEY";
 pub const DATABASE_PATH_KEY: &str = "DATABASE_PATH";
 pub const RELAYER_RANDOMNESS_KEY: &str = "RELAYER_RANDOMNESS";
 pub const WEB_SERVER_ADDRESS_KEY: &str = "WEB_SERVER_ADDRESS";
@@ -24,6 +23,8 @@ pub const PRIVATE_KEY_KEY: &str = "PRIVATE_KEY";
 pub const CHAIN_ID_KEY: &str = "CHAIN_ID";
 pub const CORE_CONTRACT_ADDRESS_KEY: &str = "CORE_CONTRACT_ADDRESS";
 pub const FEE_PER_GAS_KEY: &str = "FEE_PER_GAS";
+pub const RELAYER_EMAIL_ADDR_KEY: &str = "RELAYER_EMAIL_ADDR";
+pub const RELAYER_HOSTNAME_KEY: &str = "RELAYER_HOSTNAME";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";

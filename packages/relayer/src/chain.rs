@@ -108,6 +108,21 @@ impl ChainClient {
         })
     }
 
+    pub async fn register_relayer(
+        &self,
+        rand_hash: Fr,
+        email_addr: String,
+        hostname: String,
+    ) -> Result<String> {
+        let call =
+            self.relayer_handler
+                .register_relayer(rand_hash.to_bytes(), email_addr, hostname);
+        let tx = call.send().await?;
+        let tx_hash = tx.tx_hash();
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
     pub async fn create_account(&self, data: AccountCreationInput) -> Result<String> {
         let call = self.account_handler.create_account(
             data.email_addr_pointer,

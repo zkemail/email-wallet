@@ -11,6 +11,7 @@ use email_wallet_utils::*;
 use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
+use log::{debug, error, info, trace, warn};
 use num_bigint::RandBigInt;
 use regex::Regex;
 use serde::Deserialize;
@@ -70,11 +71,13 @@ pub(crate) async fn handle_email(
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     let from_address = parsed_email.get_from_addr()?;
-
+    trace!("From address: {}", from_address);
     if is_reply_mail(&email) {
+        trace!("Reply email");
         let account_key = extract_account_key_from_subject(&parsed_email.get_subject_all()?)?;
         let account_key = AccountKey(hex2field(&account_key)?);
         if !db.contains_user(&from_address).await? {
+            trace!("Account transport");
             handle_account_transport(
                 email,
                 &parsed_email,
@@ -85,6 +88,7 @@ pub(crate) async fn handle_email(
             )
             .await?;
         } else {
+            trace!("Account init");
             handle_account_init(
                 email,
                 &parsed_email,
@@ -100,16 +104,20 @@ pub(crate) async fn handle_email(
             tx_claimer.send(claim)?;
         }
     } else {
+        trace!("Normal email");
         let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
         let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
         let subject = parsed_email.get_subject_all()?;
+        trace!("Subject: {}", subject);
         let command = subject_templates::extract_command_from_subject(&subject)?;
+        trace!("Command: {}", command);
         let account_key = db
             .get_account_key(&from_address)
             .await?
             .ok_or(anyhow!("Account key not found"))?;
         let account_key = AccountKey::from(hex2field(&account_key)?);
         let wallet_salt = account_key.to_wallet_salt()?;
+        trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
         let fee_token_name = select_fee_token(&wallet_salt, &chain_client).await?;
 
         let (template_idx, template_vals) = match command.as_str() {
@@ -120,7 +128,6 @@ pub(crate) async fn handle_email(
             EXIT_COMMAND => (0, extract_template_vals_exit(&subject)?),
             DKIM_COMMAND => (0, extract_template_vals_dkim(&subject)?),
             _ => {
-                // [TODO] Get `templates_array` from on-chain data.
                 let extension_addr = chain_client
                     .query_user_extension_for_command(&wallet_salt, command.as_str())
                     .await?;
@@ -253,16 +260,17 @@ pub(crate) async fn handle_email(
                 }
             }
         };
-
+        trace!("parameter constructed");
         let input = generate_email_sender_input(
             CIRCUITS_DIR_PATH.get().unwrap(),
             &email,
             RELAYER_RAND.get().unwrap(),
         )
         .await?;
+        trace!("input generated");
         let (email_proof, pub_signals) =
             generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
-
+        trace!("proof generated");
         let email_addr_pointer = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
         let has_email_recipient = if pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into() {
             true
@@ -294,10 +302,11 @@ pub(crate) async fn handle_email(
             extension_params,
             email_proof,
         };
-
+        trace!("email_op constructed");
         let result = chain_client.handle_email_op(email_op).await?;
-
+        info!("email_op broadcased to chain: {}", result);
         if let Some(email_addr) = recipient_email_addr {
+            info!("recipient email address: {}", email_addr);
             let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
             let commit = Fr::from_bytes(&recipient_email_addr_commit)
                 .expect("recipient_email_addr_commit is not 32 bytes");
@@ -319,6 +328,7 @@ pub(crate) async fn handle_email(
                 is_announced: false,
             };
             tx_claimer.send(claim)?;
+            trace!("claim sent to tx_claimer");
         }
 
         tx_sender
@@ -329,6 +339,7 @@ pub(crate) async fn handle_email(
                 message_id: None,
             })
             .unwrap();
+        trace!("email_op sent to tx_sender");
     }
     Ok(())
 }

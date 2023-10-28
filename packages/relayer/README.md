@@ -15,7 +15,7 @@ cargo build   # output binary is in target/debug/relayer
 anvil --chain-id 5
 ```
 
-2. Set private key of an account in the testnet (with sufficient balance) in `packages/contracts/scripts/DeployWallet.s.sol` file.
+2. Set private key of an account in the testnet (with sufficient balance) in `packages/contracts/scripts/DeployEmailWallet.s.sol` file.
    The value already in there is the default private key of the first account in `anvil` and `hardhat` network.
 
 3. Deploy the wallet contract to the testnet.
@@ -52,6 +52,8 @@ LOGIN_ID=                     # IMAP login id - usually your email address.
 LOGIN_PASSWORD=               # IMAP password - usually your email password.
 
 PROVER_LOCATION=local         # Keep this local for running the prover locally.
+FEE_PER_GAS=1000000000        # Fee per gas in wei.
+DATABASE_PATH=                # Full path to the relayer/db directory.
 ```
 
 6. Ensure the contract ABIs are up to date in `packages/relayer/abi/` directory.

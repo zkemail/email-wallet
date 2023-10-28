@@ -10,6 +10,7 @@ use email_wallet_utils::*;
 use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
+use log::{debug, error, info, trace, warn};
 use num_bigint::RandBigInt;
 use regex::Regex;
 use serde::Deserialize;
@@ -31,7 +32,7 @@ pub(crate) async fn create_account(
     let account_key = AccountKey::new(rand::thread_rng());
     let account_key = field2hex(&account_key.0);
 
-    println!("Generated account_key {account_key}");
+    trace!("Generated account_key {account_key}");
 
     db.insert_user(&email_address, &account_key).await.unwrap();
 

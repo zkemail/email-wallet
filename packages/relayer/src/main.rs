@@ -2,10 +2,15 @@ use relayer::*;
 
 use anyhow::Result;
 use ethers::prelude::*;
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    run(RelayerConfig::new()).await?;
-
+    let args = env::args().collect::<Vec<_>>();
+    if args.len() == 2 && args[1] == "setup" {
+        return setup().await;
+    } else {
+        run(RelayerConfig::new()).await?;
+    }
     Ok(())
 }
