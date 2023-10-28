@@ -6,6 +6,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::path::Path;
 
+use chrono::{DateTime, Local};
 use email_wallet_utils::*;
 use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
@@ -738,4 +739,9 @@ pub(crate) fn u256_to_bytes32(x: U256) -> [u8; 32] {
     let mut bytes = [0u8; 32];
     x.to_little_endian(&mut bytes);
     bytes
+}
+
+pub(crate) fn now() -> i64 {
+    let dt: DateTime<Local> = Local::now();
+    dt.timestamp()
 }

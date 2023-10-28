@@ -6,7 +6,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::path::Path;
 
-use chrono::{DateTime, Local};
 use email_wallet_utils::*;
 use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
@@ -69,10 +68,7 @@ pub(crate) async fn claim_unclaims(
         return Err(anyhow!("Account not initialized"));
     }
     let mut reply_msg = String::new();
-    let now = {
-        let dt: DateTime<Local> = Local::now();
-        dt.timestamp()
-    };
+    let now = now();
     let wallet_salt = WalletSalt(Fr::from_bytes(&info.wallet_salt).unwrap());
     if claim.is_fund {
         let unclaimed_fund = chain_client
@@ -127,7 +123,7 @@ pub(crate) async fn claim_unclaims(
             subject: format!("{}", reply_msg),
             body: format!("{} Transaction: {}", reply_msg, result),
             to: claim.email_address.to_string(),
-            message_id: Some(account_key_str),
+            message_id: None,
         })
         .unwrap();
     Ok(())

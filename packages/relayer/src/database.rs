@@ -163,6 +163,33 @@ impl Database {
         Ok(vec)
     }
 
+    pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
+        let mut vec = Vec::new();
+
+        let rows = sqlx::query("SELECT * FROM claims WHERE expire_time > ?")
+            .bind(now)
+            .fetch_all(&self.db)
+            .await?;
+
+        for row in rows {
+            let commit: String = row.get("commit");
+            let email_address: String = row.get("email_address");
+            let random: String = row.get("random");
+            let expire_time: i64 = row.get("expire_time");
+            let is_fund: u8 = row.get("is_fund");
+            let is_announced: u8 = row.get("is_announced");
+            vec.push(Claim {
+                email_address,
+                random,
+                commit,
+                expire_time,
+                is_fund: is_fund != 0,
+                is_announced: is_announced != 0,
+            })
+        }
+        Ok(vec)
+    }
+
     pub(crate) async fn insert_claim(
         &self,
         email_address: &str,

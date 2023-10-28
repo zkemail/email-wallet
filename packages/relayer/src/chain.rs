@@ -2,6 +2,7 @@ use crate::*;
 use ethers::prelude::*;
 use ethers::signers::Signer;
 use std::str::FromStr;
+use stream::EventStream;
 
 #[derive(Default)]
 pub struct AccountCreationInput {
@@ -174,6 +175,24 @@ impl ChainClient {
         }
     }
 
+    pub async fn void(&self, email_addr_commit: [u8; 32], is_fund: bool) -> Result<String> {
+        if is_fund {
+            let call = self.unclaims_handler.void_unclaimed_fund(email_addr_commit);
+            let tx = call.send().await?;
+            let tx_hash = tx.tx_hash();
+            let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+            Ok(tx_hash)
+        } else {
+            let call = self
+                .unclaims_handler
+                .void_unclaimed_state(email_addr_commit);
+            let tx = call.send().await?;
+            let tx_hash = tx.tx_hash();
+            let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+            Ok(tx_hash)
+        }
+    }
+
     pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<String> {
         let call = self.core.handle_email_op(email_op);
         let tx = call.send().await?;
@@ -322,6 +341,46 @@ impl ChainClient {
             expire_time,
         };
         Ok(unclaimed_state)
+    }
+
+    pub async fn stream_unclaim_fund_registration<
+        F: FnMut(UnclaimedFundRegisteredFilter, LogMeta) -> Result<()>,
+    >(
+        &self,
+        from_block: U64,
+        mut f: F,
+    ) -> Result<U64> {
+        let ev = self
+            .unclaims_handler
+            .event_for_name::<UnclaimedFundRegisteredFilter>("UnclaimedFundRegistered")?
+            .from_block(from_block);
+        let mut stream = ev.stream_with_meta().await?;
+        let mut last_block = from_block;
+        while let Some(Ok((event, meta))) = stream.next().await {
+            last_block = meta.block_number;
+            f(event, meta)?;
+        }
+        Ok(last_block)
+    }
+
+    pub async fn stream_unclaim_state_registration<
+        F: FnMut(UnclaimedStateRegisteredFilter, LogMeta) -> Result<()>,
+    >(
+        &self,
+        from_block: U64,
+        mut f: F,
+    ) -> Result<U64> {
+        let ev = self
+            .unclaims_handler
+            .event_for_name::<UnclaimedStateRegisteredFilter>("UnclaimedStateRegistered")?
+            .from_block(from_block);
+        let mut stream = ev.stream_with_meta().await?;
+        let mut last_block = from_block;
+        while let Some(Ok((event, meta))) = stream.next().await {
+            last_block = meta.block_number;
+            f(event, meta)?;
+        }
+        Ok(last_block)
     }
 }
 
