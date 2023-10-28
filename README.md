@@ -1,10 +1,10 @@
 # Email Wallet
 
-A smart contract wallet controlled using emails.
+A smart contract wallet controlled using emails. Try the demo on emailwallet.org.
 
-Email Wallet is an Ethereum wallet that can be controlled by sending an email. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. The assets in Email Wallet remains secure as long as your email domain server of your email account such as Gmail does not forge your emails.
+Email Wallet is an Ethereum wallet that can be controlled by sending an email. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. Assets in your email wallet remain secure as long as your email domain server of your email account (such as Gmail) does not forge your emails.
 
-This is first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
+This was first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
 
 In the current version, you can:
 - ✓ Send ETH to email address.
@@ -27,7 +27,7 @@ Here is how a typical interaction with the wallet looks like:
 
 - You send an email to your Relayer's email address with a subject like "Send 1 ETH to recipient@gmail.com".
 - The Relayer verifies the DKIM signature and creates a zk proof of email.
-- The ZK circuit also validate the subject regex, recipients email address and the amount to be sent. 
+- The ZK circuit also validate the subject regex, recipients email address and the amount to be sent.
 - Private data like the sender email, recipient's email in the subject line, is  not exposed on-chain.
 - The Relayer create an Ethereum transaction that reflect the intended action in the subject.
 - The smart contract verify the ZK Proof and ensure the subject line matches the transaction.
@@ -40,6 +40,8 @@ Here is how a typical interaction with the wallet looks like:
 1. Safety guarantee: if your email domain server does not forge your emails, no one can send assets in your wallet.
 2. Liveness guarantee: if your email domain server does not block your emails and you stores an invitation email that you have received before, you can execute a new transaction on-chain.
 3. Privacy protection against DoS scanning attacks: no adversary can learn an address or existence of the wallet for your email address for free.
+
+If you self-host a relayer, you can ensure complete privacy.
 
 <br />
 

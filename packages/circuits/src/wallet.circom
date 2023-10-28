@@ -141,8 +141,8 @@ template EmailWallet(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
 // * max_body_bytes = 1536 is the max number of bytes in the body after precomputed slice
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
-// * pack_size = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
+// * pack_size = 31 is the number of 8-bit bytes that can fit into a 255ish bit signal
 // * calculate_from = 1 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
 // * expose_emails_anon = 1 means it will prevent revealing plaintext emails, and instead expose the hash(from/recipient email address, custom message id)
-component main { public [ modulus, nullifier, relayer ] } = EmailWallet(1024, 1536, 121, 17, 30, 1, 0, 1);
+component main { public [ modulus, nullifier, relayer ] } = EmailWallet(1024, 1536, 121, 17, 31, 1, 0, 1);
