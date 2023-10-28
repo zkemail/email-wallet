@@ -9,7 +9,7 @@ This is first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc202
 In the current version, you can:
 - ✓ Send ETH to email address.
 - ✓ Send ERC20 to email address.
-- ✓ Hide a link from an email address to a wallet address.
+- ✓ Hide a link from an email address to a wallet address on-chain.
 
 In the future, you will be able to:
 - ✓ Swap tokens using Uniswap, and use other DeFi using extensions.
@@ -97,7 +97,7 @@ cd packages/circuits
 yarn build
 ```
 
-You can generate zkeys and vkeys for the circuit using:
+Make sure to set the zkey entropy in a .env based on the .env.example. Then, you can generate zkeys and vkeys for the circuit using:
 ```bash
 yarn generate-keys    # in packages/circuits
 ```
