@@ -51,8 +51,8 @@ template EmailWallet(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
 
     // Identity commitment variables
     // Note that you CANNOT use --O1 with this circuit, as it will break the malleability protection: circom 2.1.5: "Improving --O1 simplification: removing signals that do not appear in any constraint and avoiding unnecessary constraint normalizations."
-    signal input nullifier;
-    signal input relayer;
+    signal input nullifier; // Currently, this is just a random value input by the user to avoid proof malleability. In the future, this should be the hash of the signature (but this will make zk-emails traceable by the email sender and mailservers). Note that setting it to user-randomness allows emails to be double-spent.
+    signal input relayer; // This (optional) signal is usually the address of the relayer, and is used for gas reimbursement so that frontrunners are not incentivized to frontrun
     signal input body_hash_idx;
 
     // Verify email signature
