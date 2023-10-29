@@ -119,6 +119,25 @@ Note that the contracts already have hardcoded verifications keys. You should re
 
 
 #### To build the relayer:
+
+Sync submodules.
+```bash
+git submodule init
+git submodule update
+```
+
+If that fails, try hard-resetting submodules:
+```bash
+# Remove the submodule
+git submodule deinit -f packages/relayer
+git rm -f packages/relayer
+
+# Add the submodule again
+git submodule add -b v0 https://github.com/zkemail/relayer.git packages/relayer
+```
+
+Then build.
+
 ```bash
 cd packages/relayer
 cargo build   # output binary is in target/debug/relayer
