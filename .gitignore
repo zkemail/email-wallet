@@ -31,6 +31,7 @@ packages/contracts/test/build_integration/*.txt
 packages/relayer/sendgrid.env
 target
 packages/relayer/db/*
+packages/relayer/*.db
 packages/relayer/received_eml/*.eml
 packages/relayer/received_eml/*.json
 packages/relayer/proofs
@@ -40,6 +41,7 @@ sql_database.db
 # Prover
 packages/prover/build/*
 packages/prover/params/*
+packages/prover/__pycache__/*
 
 # Mac
 .DS_Store

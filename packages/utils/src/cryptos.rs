@@ -24,6 +24,11 @@ impl RelayerRand {
         Self(Fr::random(&mut r))
     }
 
+    pub fn new_from_seed(seed: &[u8]) -> Result<Self, PoseidonError> {
+        let value = poseidon_bytes(seed)?;
+        Ok(Self(value))
+    }
+
     pub fn hash(&self) -> Result<Fr, PoseidonError> {
         poseidon_fields(&[self.0.clone()])
     }

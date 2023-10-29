@@ -67,8 +67,9 @@ pub async fn setup() -> Result<()> {
         .unwrap();
 
     let rng = OsRng;
-    let relayer_rand = RelayerRand::new(rng);
+    let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     println!("Your relayer rand: {}", field2hex(&relayer_rand.0));
+
     let client = ChainClient::setup().await?;
     let tx_hash = client
         .register_relayer(
@@ -85,7 +86,6 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     simple_logger::init().unwrap();
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
-    RELAYER_RAND.set(config.relayer_randomness).unwrap();
     PROVER_ADDRESS.set(config.prover_address).unwrap();
     PRIVATE_KEY.set(config.private_key).unwrap();
     CHAIN_ID.set(config.chain_id).unwrap();
@@ -94,6 +94,10 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         .set(config.core_contract_address)
         .unwrap();
     FEE_PER_GAS.set(config.fee_per_gas).unwrap();
+
+    let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
+    info!("Your relayer rand: {}", field2hex(&relayer_rand.0));
+    RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();

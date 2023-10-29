@@ -756,3 +756,9 @@ pub(crate) fn now() -> i64 {
     let dt: DateTime<Local> = Local::now();
     dt.timestamp()
 }
+
+pub(crate) fn derive_relayer_rand(private_key: &str) -> Result<RelayerRand> {
+    let mut seed = hex::decode(&private_key[2..])?;
+    seed.append(&mut b"EMAIL WALLET RELAYER RAND".to_vec());
+    Ok(RelayerRand::new_from_seed(&seed)?)
+}
