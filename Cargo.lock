@@ -3728,6 +3728,7 @@ dependencies = [
  "dotenv",
  "email-wallet-utils",
  "ethers",
+ "ff",
  "futures",
  "hex",
  "lettre",

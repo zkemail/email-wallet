@@ -36,10 +36,12 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
+use ff::Field;
 use log::{debug, error, info, trace, warn};
 use simple_logger::SimpleLogger;
 use std::env;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 use tokio::time::{sleep, Duration};
 
@@ -68,7 +70,6 @@ pub async fn setup() -> Result<()> {
 
     let rng = OsRng;
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
-    println!("Your relayer rand: {}", field2hex(&relayer_rand.0));
 
     let client = ChainClient::setup().await?;
     let tx_hash = client
@@ -96,7 +97,6 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     FEE_PER_GAS.set(config.fee_per_gas).unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
-    info!("Your relayer rand: {}", field2hex(&relayer_rand.0));
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
@@ -209,14 +209,12 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         Ok::<(), anyhow::Error>(())
     });
 
-    let tx_sender_for_server_task = tx_sender.clone();
-    let tx_creator_for_server_task = tx_creator.clone();
+    let tx_claimer_for_server_task = tx_claimer.clone();
     let api_server_task = tokio::task::spawn(run_server(
         WEB_SERVER_ADDRESS.get().unwrap(),
         Arc::clone(&db),
         Arc::clone(&client),
-        tx_sender_for_server_task,
-        tx_creator_for_server_task,
+        tx_claimer_for_server_task,
     ));
 
     let email_sender = SmtpClient::new(config.smtp_config)?;

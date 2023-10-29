@@ -33,6 +33,16 @@ pub struct AccountTransportInput {
 }
 
 #[derive(Default)]
+pub struct RegisterUnclaimedFundInput {
+    pub(crate) email_addr_commit: [u8; 32],
+    pub(crate) token_addr: Address,
+    pub(crate) amount: U256,
+    pub(crate) expiry_time: U256,
+    pub(crate) announce_commit_randomness: U256,
+    pub(crate) announce_email_addr: String,
+}
+
+#[derive(Default)]
 pub struct ClaimInput {
     pub(crate) email_addr_commit: [u8; 32],
     pub(crate) email_addr_pointer: [u8; 32],
@@ -166,6 +176,24 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
+    pub async fn register_unclaimed_fund(
+        &self,
+        data: RegisterUnclaimedFundInput,
+    ) -> Result<String> {
+        let call = self.unclaims_handler.register_unclaimed_fund(
+            data.email_addr_commit,
+            data.token_addr,
+            data.amount,
+            data.expiry_time,
+            data.announce_commit_randomness,
+            data.announce_email_addr,
+        );
+        let tx = call.send().await?;
+        let tx_hash = tx.tx_hash();
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
     pub async fn claim(&self, data: ClaimInput) -> Result<String> {
         if data.is_fund {
             let call = self.unclaims_handler.claim_unclaimed_fund(
@@ -248,12 +276,25 @@ impl ChainClient {
         Ok(balance)
     }
 
+    pub async fn query_erc20_address(&self, token_name: &str) -> Result<Address> {
+        let token_addr = self
+            .token_registry
+            .get_token_address(token_name.to_string())
+            .call()
+            .await?;
+        Ok(token_addr)
+    }
+
     pub async fn query_decimals_of_erc20(&self, token_name: &str) -> Result<u8> {
         let token_addr = self
             .token_registry
             .get_token_address(token_name.to_string())
             .call()
             .await?;
+        self.query_decimals_of_erc20_address(token_addr).await
+    }
+
+    pub async fn query_decimals_of_erc20_address(&self, token_addr: Address) -> Result<u8> {
         let erc20 = ERC20::new(token_addr, self.client.clone());
         let decimals = erc20.decimals().call().await?;
         Ok(decimals)

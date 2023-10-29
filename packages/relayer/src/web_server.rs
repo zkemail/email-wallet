@@ -6,8 +6,12 @@ use serde::Deserialize;
 use tokio::sync::mpsc::UnboundedSender;
 
 #[derive(Deserialize)]
-struct CreateAccountRequest {
+struct UnclaimRequest {
     email_address: String,
+    random: String,
+    expire_time: i64,
+    is_fund: bool,
+    tx_hash: String,
 }
 
 #[derive(Deserialize)]
@@ -16,47 +20,57 @@ struct BalanceOfRequest {
     token: String,
 }
 
-async fn create_account(
-    Json(payload): Json<CreateAccountRequest>,
+async fn unclaim(
+    Json(payload): Json<UnclaimRequest>,
     db: Arc<Database>,
-    tx_creator: UnboundedSender<String>,
-) -> String {
-    if db.contains_user(&payload.email_address).await.unwrap() {
-        return "User already exists".to_string();
-    }
-
-    trace!("Creating account for email: {}", payload.email_address);
-    tx_creator
-        .send(payload.email_address.clone())
-        .map_err(|err| return err.to_string());
-
-    format!("Created account for emailaddress {}", payload.email_address)
+    chain_client: Arc<ChainClient>,
+    tx_claimer: UnboundedSender<Claim>,
+) -> Result<String> {
+    let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
+    let commit = padded_email_addr.to_commitment(&hex2field(&payload.random)?)?;
+    let claim = Claim {
+        email_address: payload.email_address.clone(),
+        random: payload.random.clone(),
+        commit: field2hex(&commit),
+        expire_time: payload.expire_time,
+        is_fund: payload.is_fund,
+        is_announced: false,
+    };
+    tx_claimer.send(claim)?;
+    Ok(format!(
+        "Unclaimed {} for {} is accepted",
+        if payload.is_fund { "fund" } else { "state" },
+        payload.email_address
+    ))
 }
 
-async fn balance_of(Path(params): Path<BalanceOfRequest>) {
-    trace!(
-        "Getting balance of token: {} for email: {}",
-        params.token,
-        params.email_address
-    );
-}
+// async fn balance_of(Path(params): Path<BalanceOfRequest>) {
+//     trace!(
+//         "Getting balance of token: {} for email: {}",
+//         params.token,
+//         params.email_address
+//     );
+// }
 
 pub(crate) async fn run_server(
     addr: &str,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    tx_sender: UnboundedSender<EmailMessage>,
-    tx_creator: UnboundedSender<String>,
+    tx_claimer: UnboundedSender<Claim>,
 ) -> Result<()> {
-    let app = Router::new()
-        .route(
-            "/createAccount",
-            axum::routing::post(move |payload: Json<CreateAccountRequest>| {
-                let tx = tx_sender.clone();
-                async move { create_account(payload, Arc::clone(&db), tx_creator).await }
-            }),
-        )
-        .route("/balanceOf/:email/:token", axum::routing::get(balance_of));
+    let app = Router::new().route(
+        "/unclaim",
+        axum::routing::post(move |payload: Json<UnclaimRequest>| async move {
+            unclaim(
+                payload,
+                Arc::clone(&db),
+                Arc::clone(&chain_client),
+                tx_claimer,
+            )
+            .await
+            .map_err(|err| err.to_string())
+        }),
+    );
 
     trace!("Listening API at {}", addr);
 

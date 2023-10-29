@@ -4,6 +4,7 @@ use std::{env, path::PathBuf};
 
 use dotenv::dotenv;
 
+#[derive(Clone)]
 pub struct RelayerConfig {
     pub(crate) imap_config: ImapConfig,
     pub(crate) smtp_config: SmtpConfig,

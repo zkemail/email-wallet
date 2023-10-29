@@ -34,6 +34,7 @@ hex = "0.4.3"
 chrono = "0.4.31"
 simple_logger = "4.2.0"
 log = "0.4"
+ff = { version = "0.13.0", default-features = false, features = ["std"] }
 
 
 [build-dependencies]
