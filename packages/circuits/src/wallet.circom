@@ -6,6 +6,10 @@ include "@zk-email/circuits/helpers/sha.circom";
 include "@zk-email/circuits/helpers/rsa.circom";
 include "@zk-email/circuits/helpers/base64.circom";
 include "@zk-email/circuits/helpers/extract.circom";
+
+// TODO: Migrate these regexes
+// include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
+// include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "@zk-email/circuits/regexes/from_regex.circom";
 include "@zk-email/circuits/regexes/tofrom_domain_regex.circom";
 include "@zk-email/circuits/regexes/body_hash_regex.circom";
@@ -45,9 +49,9 @@ template EmailWallet(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     signal input amount_idx;
     signal input currency_idx;
     signal input recipient_idx;
-    signal output reveal_command_packed[max_subject_command_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal output reveal_command_packed[max_subject_command_packed_bytes]; // packed into packsize-bytes. TODO: leftshift out the 0s
+    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into packsize-bytes. TODO: leftshift out the 0s
+    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into packsize-bytes. TODO: leftshift out the 0s
 
     // Identity commitment variables
     // Note that you CANNOT use --O1 with this circuit, as it will break the malleability protection: circom 2.1.5: "Improving --O1 simplification: removing signals that do not appear in any constraint and avoiding unnecessary constraint normalizations."
