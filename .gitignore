@@ -20,6 +20,8 @@ packages/contracts/artifacts
 packages/contracts/cache
 
 # Relayer
+# The relayer is a gitsubmodule so should not be synced
+packages/relayer
 packages/relayer/sendgrid.env
 target
 packages/relayer/db/*
