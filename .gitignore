@@ -4,7 +4,7 @@ coverage
 coverage.json
 typechain
 typechain-types
-
+tsconfig.tsbuildinfo
 *.log
 
 # Circuits
@@ -16,8 +16,12 @@ packages/circuits/*.ptau
 packages/contracts/broadcast
 packages/contracts/cache
 packages/contracts/out
+packages/contracts/artifacts
+packages/contracts/cache
 
 # Relayer
+# The relayer is a gitsubmodule so should not be synced
+packages/relayer
 packages/relayer/sendgrid.env
 target
 packages/relayer/db/*

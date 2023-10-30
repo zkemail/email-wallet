@@ -1,3 +1,0 @@
-[net]
-retry = 2 # network retries
-git-fetch-with-cli = true

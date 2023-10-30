@@ -8,4 +8,5 @@
 - [Specification](./specification.md)
 - [Circuits](./circuits.md)
 - [Smart-contract](./smart_contract.md)
+- [Relayer](./relayer.md)
 - [UTXO & Privacy version](./utxo_and_privacy.md)

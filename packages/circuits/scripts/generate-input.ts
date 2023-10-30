@@ -6,7 +6,6 @@
  * 
  */
 
-
 import { program } from "commander";
 import fs from "fs";
 import { generateWalletCircuitInputsFromEmail } from "../helpers/input";

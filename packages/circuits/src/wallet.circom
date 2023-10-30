@@ -6,6 +6,10 @@ include "@zk-email/circuits/helpers/sha.circom";
 include "@zk-email/circuits/helpers/rsa.circom";
 include "@zk-email/circuits/helpers/base64.circom";
 include "@zk-email/circuits/helpers/extract.circom";
+
+// TODO: Migrate these regexes
+// include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
+// include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
 include "@zk-email/circuits/regexes/from_regex.circom";
 include "@zk-email/circuits/regexes/tofrom_domain_regex.circom";
 include "@zk-email/circuits/regexes/body_hash_regex.circom";
@@ -45,14 +49,14 @@ template EmailWallet(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     signal input amount_idx;
     signal input currency_idx;
     signal input recipient_idx;
-    signal output reveal_command_packed[max_subject_command_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal output reveal_command_packed[max_subject_command_packed_bytes]; // packed into packsize-bytes. TODO: leftshift out the 0s
+    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into packsize-bytes. TODO: leftshift out the 0s
+    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into packsize-bytes. TODO: leftshift out the 0s
 
     // Identity commitment variables
     // Note that you CANNOT use --O1 with this circuit, as it will break the malleability protection: circom 2.1.5: "Improving --O1 simplification: removing signals that do not appear in any constraint and avoiding unnecessary constraint normalizations."
-    signal input nullifier;
-    signal input relayer;
+    signal input nullifier; // Currently, this is just a random value input by the user to avoid proof malleability. In the future, this should be the hash of the signature (but this will make zk-emails traceable by the email sender and mailservers). Note that setting it to user-randomness allows emails to be double-spent.
+    signal input relayer; // This (optional) signal is usually the address of the relayer, and is used for gas reimbursement so that frontrunners are not incentivized to frontrun
     signal input body_hash_idx;
 
     // Verify email signature
@@ -141,8 +145,8 @@ template EmailWallet(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
 // * max_body_bytes = 1536 is the max number of bytes in the body after precomputed slice
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
-// * pack_size = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
+// * pack_size = 31 is the number of 8-bit bytes that can fit into a 255ish bit signal
 // * calculate_from = 1 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
 // * expose_emails_anon = 1 means it will prevent revealing plaintext emails, and instead expose the hash(from/recipient email address, custom message id)
-component main { public [ modulus, nullifier, relayer ] } = EmailWallet(1024, 1536, 121, 17, 30, 1, 0, 1);
+component main { public [ modulus, nullifier, relayer ] } = EmailWallet(1024, 1536, 121, 17, 31, 1, 0, 1);

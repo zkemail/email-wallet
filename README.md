@@ -1,15 +1,15 @@
 # Email Wallet
 
-A smart contract wallet controlled using emails.
+A smart contract wallet controlled using emails. Try the demo on emailwallet.org.
 
-Email Wallet is an Ethereum wallet that can be controlled by sending an email. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. The assets in Email Wallet remains secure as long as your email domain server of your email account such as Gmail does not forge your emails.
+Email Wallet is an Ethereum wallet that can be controlled by sending an email. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. Assets in your email wallet remain secure as long as your email domain server of your email account (such as Gmail) does not forge your emails.
 
-This is first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
+This was first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
 
 In the current version, you can:
 - ✓ Send ETH to email address.
 - ✓ Send ERC20 to email address.
-- ✓ Hide a link from an email address to a wallet address.
+- ✓ Hide a link from an email address to a wallet address on-chain.
 
 In the future, you will be able to:
 - ✓ Swap tokens using Uniswap, and use other DeFi using extensions.
@@ -27,7 +27,7 @@ Here is how a typical interaction with the wallet looks like:
 
 - You send an email to your Relayer's email address with a subject like "Send 1 ETH to recipient@gmail.com".
 - The Relayer verifies the DKIM signature and creates a zk proof of email.
-- The ZK circuit also validate the subject regex, recipients email address and the amount to be sent. 
+- The ZK circuit also validate the subject regex, recipients email address and the amount to be sent.
 - Private data like the sender email, recipient's email in the subject line, is  not exposed on-chain.
 - The Relayer create an Ethereum transaction that reflect the intended action in the subject.
 - The smart contract verify the ZK Proof and ensure the subject line matches the transaction.
@@ -40,6 +40,8 @@ Here is how a typical interaction with the wallet looks like:
 1. Safety guarantee: if your email domain server does not forge your emails, no one can send assets in your wallet.
 2. Liveness guarantee: if your email domain server does not block your emails and you stores an invitation email that you have received before, you can execute a new transaction on-chain.
 3. Privacy protection against DoS scanning attacks: no adversary can learn an address or existence of the wallet for your email address for free.
+
+If you self-host a relayer, you can ensure complete privacy.
 
 <br />
 
@@ -97,7 +99,7 @@ cd packages/circuits
 yarn build
 ```
 
-You can generate zkeys and vkeys for the circuit using:
+Make sure to set the zkey entropy in a .env based on the .env.example. Then, you can generate zkeys and vkeys for the circuit using:
 ```bash
 yarn generate-keys    # in packages/circuits
 ```
@@ -117,6 +119,25 @@ Note that the contracts already have hardcoded verifications keys. You should re
 
 
 #### To build the relayer:
+
+Sync submodules.
+```bash
+git submodule init
+git submodule update
+```
+
+If that fails, try hard-resetting submodules:
+```bash
+# Remove the submodule
+git submodule deinit -f packages/relayer
+git rm -f packages/relayer
+
+# Add the submodule again
+git submodule add -b v0 https://github.com/zkemail/relayer.git packages/relayer
+```
+
+Then build.
+
 ```bash
 cd packages/relayer
 cargo build   # output binary is in target/debug/relayer
@@ -131,12 +152,12 @@ To run you should:
 cargo install mdbook
 ```
 
-And to serve the website:
+And to serve the website, go to docs/ then serve:
+
 ```
+cd docs
 mdbook serve
 ```
-
-in the docs/.
 
 ## ☞ Running Locally
 

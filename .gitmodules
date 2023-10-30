@@ -1,0 +1,4 @@
+[submodule "packages/relayer"]
+	path = packages/relayer
+	url = https://github.com/zkemail/relayer.git
+	branch = v0
