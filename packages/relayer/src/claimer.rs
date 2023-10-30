@@ -2,22 +2,9 @@
 
 use crate::*;
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-
 use email_wallet_utils::*;
-use ethers::abi::Token;
-use ethers::types::{Address, Bytes, U256};
-use ethers::utils::hex::FromHex;
-use num_bigint::RandBigInt;
-use regex::Regex;
-use serde::Deserialize;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
+use ethers::types::Address;
+use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) struct Claim {
     pub email_address: String,
@@ -57,7 +44,7 @@ pub(crate) async fn claim_unclaims(
         ))?;
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
-    let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
+    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     let account_key_commit =
         account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
     let info = chain_client
@@ -67,17 +54,16 @@ pub(crate) async fn claim_unclaims(
     if !info.initialized {
         return Err(anyhow!("Account not initialized"));
     }
-    let mut reply_msg = String::new();
     let now = now();
     let wallet_salt = WalletSalt(Fr::from_bytes(&info.wallet_salt).unwrap());
-    if claim.is_fund {
+    let reply_msg = if claim.is_fund {
         let unclaimed_fund = chain_client
             .query_unclaimed_fund(&hex2field(&claim.commit)?)
             .await?;
         if (unclaimed_fund.expire_time.as_u64() as i64) < now {
             return Err(anyhow!("Claim expired"));
         }
-        reply_msg = format!(
+        format!(
             "You received {} from {}",
             unclaimed_fund.token_addr, unclaimed_fund.sender
         )
@@ -96,11 +82,11 @@ pub(crate) async fn claim_unclaims(
                 "Unclaimed state anounces the email address but its extension is not installed."
             ));
         }
-        reply_msg = format!(
+        format!(
             "You got new data of {} from {}",
             unclaimed_state.extension_addr, unclaimed_state.sender
         )
-    }
+    };
     let input = generate_claim_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &claim.email_address,
@@ -120,7 +106,7 @@ pub(crate) async fn claim_unclaims(
     db.delete_claim(&claim.commit, claim.is_fund).await?;
     tx_sender
         .send(EmailMessage {
-            subject: format!("{}", reply_msg),
+            subject: reply_msg.to_string(),
             body: format!("{} Transaction: {}", reply_msg, result),
             to: claim.email_address.to_string(),
             message_id: None,

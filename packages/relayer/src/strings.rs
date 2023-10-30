@@ -34,3 +34,19 @@ pub const CANNOT_GET_EMAIL_FROM_QUEUE: &str = "Cannot get email from mpsc in han
 pub const NOT_MY_SENDER: &str = "NOT_MY_SENDER";
 pub const WRONG_SUBJECT_FORMAT: &str = "Wrong subject format";
 pub const INSUFFICIENT_BALANCE: &str = "Insufficient balance";
+
+// Core REGEX'es and Commands
+pub(crate) const AMOUNT_REGEX: &str = "[0-9]+(\\.[0-9]+)?";
+pub(crate) const TOKEN_NAME_REGEX: &str = "[A-Z]+";
+pub(crate) const STRING_RGEX: &str = ".+";
+pub(crate) const UINT_REGEX: &str = "[0-9]+";
+pub(crate) const INT_REGEX: &str = "-?[0-9]+";
+pub(crate) const ETH_ADDR_REGEX: &str = "0x[0-9a-fA-F]{40}";
+pub(crate) const EMAIL_ADDR_REGEX: &str =
+    "[a-zA-Z0-9!#$%&'\\*\\+-/=\\?^_`{\\|}~\\.]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9\\.-]+";
+pub(crate) const SEND_COMMAND: &str = "Send";
+pub(crate) const EXECUTE_COMMAND: &str = "Execute";
+pub(crate) const INSTALL_COMMAND: &str = "Install";
+pub(crate) const UNINSTALL_COMMAND: &str = "Uninstall";
+pub(crate) const EXIT_COMMAND: &str = "Exit";
+pub(crate) const DKIM_COMMAND: &str = "DKIM";

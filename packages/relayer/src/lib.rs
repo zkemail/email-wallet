@@ -36,12 +36,9 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
-use ff::Field;
-use log::{debug, error, info, trace, warn};
-use simple_logger::SimpleLogger;
+use log::{error, info};
 use std::env;
 use std::path::PathBuf;
-use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 use tokio::time::{sleep, Duration};
 
@@ -238,7 +235,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         let mut from_block_fund = U64::from(0);
         let mut from_block_state = U64::from(0);
         let fund_f = |event: UnclaimedFundRegisteredFilter, meta: LogMeta| {
-            if event.email_addr.len() == 0 {
+            if event.email_addr.is_empty() {
                 return Ok(());
             }
             let random =
@@ -256,7 +253,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             Ok(())
         };
         let state_f = |event: UnclaimedStateRegisteredFilter, meta: LogMeta| {
-            if event.email_addr.len() == 0 {
+            if event.email_addr.is_empty() {
                 return Ok(());
             }
             let random =

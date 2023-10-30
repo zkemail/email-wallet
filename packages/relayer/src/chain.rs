@@ -1,8 +1,6 @@
 use crate::*;
 use ethers::prelude::*;
 use ethers::signers::Signer;
-use std::str::FromStr;
-use stream::EventStream;
 
 #[derive(Default)]
 pub struct AccountCreationInput {

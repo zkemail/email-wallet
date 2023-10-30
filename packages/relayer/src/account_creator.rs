@@ -2,23 +2,8 @@
 
 use crate::*;
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-
-use email_wallet_utils::*;
-use ethers::abi::Token;
-use ethers::types::{Address, Bytes, U256};
-use ethers::utils::hex::FromHex;
-use log::{debug, error, info, trace, warn};
-use num_bigint::RandBigInt;
-use regex::Regex;
-use serde::Deserialize;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
+use log::trace;
+use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) async fn create_account(
     email_address: String,

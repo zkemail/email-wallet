@@ -2,23 +2,8 @@
 
 use crate::*;
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-
-use chrono::{DateTime, Local};
-use email_wallet_utils::*;
-use ethers::abi::Token;
-use ethers::types::{Address, Bytes, U256};
-use ethers::utils::hex::FromHex;
-use num_bigint::RandBigInt;
-use regex::Regex;
-use serde::Deserialize;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
+use ethers::types::Address;
+use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) async fn void_unclaims(
     claim: Claim,
@@ -52,7 +37,7 @@ pub(crate) async fn void_unclaims(
     db.delete_claim(&claim.commit, claim.is_fund).await?;
     tx_sender
         .send(EmailMessage {
-            subject: format!("{}", reply_msg),
+            subject: reply_msg.to_string(),
             body: format!("{} Transaction: {}", reply_msg, tx_hash),
             to: claim.email_address.to_string(),
             message_id: None,
