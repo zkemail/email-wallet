@@ -8,7 +8,7 @@ use std::path::Path;
 
 use chrono::{DateTime, Local};
 use email_wallet_utils::*;
-use ethers::abi::{FixedBytes, Token};
+use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
 use log::{info, trace};
@@ -286,9 +286,9 @@ pub(crate) async fn handle_email(
         let email_op = EmailOp {
             email_addr_pointer,
             has_email_recipient,
-            recipient_email_addr_commit: recipient_email_addr_commit.clone(),
+            recipient_email_addr_commit,
             num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
-            recipient_eth_addr: recipient_eth_addr,
+            recipient_eth_addr,
             command: command.clone(),
             email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
@@ -313,7 +313,7 @@ pub(crate) async fn handle_email(
             info!("recipient email address: {}", email_addr);
             let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
             let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
-            let is_fund = if command == SEND_COMMAND { true } else { false };
+            let is_fund = command == SEND_COMMAND;
             let expire_time = if is_fund {
                 let unclaimed_fund = chain_client.query_unclaimed_fund(&commit).await?;
                 unclaimed_fund.expire_time.as_u64() as i64
@@ -405,7 +405,7 @@ pub(crate) async fn handle_account_transport(
 ) -> Result<()> {
     let from_address = parsed_email.get_from_addr()?;
     let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
-    let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
+    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     let email_addr_pointer = fr_to_bytes32(&padded_from_address.to_pointer(&relayer_rand)?)?;
     let new_account_key_commit =
         account_key.to_commitment(&padded_from_address, &relayer_rand.0)?;
@@ -477,7 +477,7 @@ pub(crate) fn extract_account_key_from_subject(subject: &str) -> Result<String> 
 
 pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
     let extracts = extract_email_addr_idxes(subject)?;
-    if let Some((start, end)) = extracts.get(0) {
+    if let Some((start, end)) = extracts.first() {
         if *end == subject.len() {
             Ok((subject[0..*start].to_string(), 0))
         } else {
