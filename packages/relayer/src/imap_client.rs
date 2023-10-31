@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use async_imap::{extensions::idle::IdleResponse::*, types::Fetch, Session};
 use async_native_tls::TlsStream;
 use futures::TryStreamExt;
-use log::{debug, error, info, trace, warn};
+use log::{error, trace};
 use oauth2::reqwest::async_http_client;
 use oauth2::{
     basic::BasicClient, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,

@@ -11,9 +11,7 @@ use email_wallet_utils::*;
 use ethers::abi::{FixedBytes, Token};
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
-use log::{debug, error, info, trace, warn};
-use num_bigint::RandBigInt;
-use regex::Regex;
+use log::{info, trace};
 use serde::Deserialize;
 use tokio::{
     fs::{read_to_string, remove_file, File},
@@ -106,7 +104,7 @@ pub(crate) async fn handle_email(
     } else {
         trace!("Normal email");
         let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
-        let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
+        let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
         let subject = parsed_email.get_subject_all()?;
         trace!("Subject: {}", subject);
         let command = subject_templates::extract_command_from_subject(&subject)?;
@@ -135,7 +133,7 @@ pub(crate) async fn handle_email(
                     .query_subject_templates_of_extension(extension_addr)
                     .await?;
                 let (idx, vals) = extract_template_vals_and_idx(&subject, subject_templates)?;
-                if idx == None {
+                if idx.is_none() {
                     bail!(WRONG_SUBJECT_FORMAT);
                 }
                 (idx.unwrap(), vals)
@@ -212,7 +210,7 @@ pub(crate) async fn handle_email(
                     trace!("decimal size: {}", decimal_size);
                     WalletParams {
                         token_name: token_name.clone(),
-                        amount: TemplateValue::amount_to_uint(&amount, decimal_size),
+                        amount: TemplateValue::amount_to_uint(amount, decimal_size),
                     }
                 } else {
                     bail!(WRONG_SUBJECT_FORMAT)
@@ -274,11 +272,7 @@ pub(crate) async fn handle_email(
             generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
         trace!("proof generated");
         let email_addr_pointer = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
-        let has_email_recipient = if pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into() {
-            true
-        } else {
-            false
-        };
+        let has_email_recipient = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into();
         let recipient_email_addr_commit =
             u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
         let email_nullifier = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]);
@@ -296,12 +290,12 @@ pub(crate) async fn handle_email(
             num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
             recipient_eth_addr: recipient_eth_addr,
             command: command.clone(),
-            email_nullifier: email_nullifier,
+            email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
             timestamp,
             masked_subject,
             fee_token_name,
-            fee_per_gas: FEE_PER_GAS.get().unwrap().clone(),
+            fee_per_gas: *FEE_PER_GAS.get().unwrap(),
             execute_call_data,
             extension_name,
             new_wallet_owner,
@@ -321,10 +315,10 @@ pub(crate) async fn handle_email(
             let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
             let is_fund = if command == SEND_COMMAND { true } else { false };
             let expire_time = if is_fund {
-                let unclaimed_fund = chain_client.query_unclaimed_fund(&&commit).await?;
+                let unclaimed_fund = chain_client.query_unclaimed_fund(&commit).await?;
                 unclaimed_fund.expire_time.as_u64() as i64
             } else {
-                let unclaimed_state = chain_client.query_unclaimed_state(&&commit).await?;
+                let unclaimed_state = chain_client.query_unclaimed_state(&commit).await?;
                 unclaimed_state.expire_time.as_u64() as i64
             };
 

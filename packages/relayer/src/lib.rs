@@ -36,12 +36,9 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
-use ff::Field;
-use log::{debug, error, info, trace, warn};
-use simple_logger::SimpleLogger;
+use log::{error, info};
 use std::env;
 use std::path::PathBuf;
-use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 use tokio::time::{sleep, Duration};
 
@@ -154,6 +151,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
             info!("Handled email {}", email);
+            db_clone.delete_email(&email).await?;
             tokio::task::spawn(
                 handle_email(
                     email,
@@ -251,7 +249,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         let mut from_block_fund = U64::from(0);
         let mut from_block_state = U64::from(0);
         let fund_f = |event: UnclaimedFundRegisteredFilter, meta: LogMeta| {
-            if event.email_addr.len() == 0 {
+            if event.email_addr.is_empty() {
                 return Ok(());
             }
             let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
@@ -270,7 +268,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             Ok(())
         };
         let state_f = |event: UnclaimedStateRegisteredFilter, meta: LogMeta| {
-            if event.email_addr.len() == 0 {
+            if event.email_addr.is_empty() {
                 return Ok(());
             }
             let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
@@ -311,12 +309,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             let claims = db_clone.get_claims_expired(now).await?;
             for claim in claims {
                 info!("Voiding claim for : {}", claim.email_address);
-                tokio::task::spawn(void_unclaims(
-                    claim,
-                    Arc::clone(&db_clone),
-                    Arc::clone(&client_clone),
-                    tx_sender_for_voider_task.clone(),
-                ));
+                tokio::task::spawn(
+                    void_unclaims(
+                        claim,
+                        Arc::clone(&db_clone),
+                        Arc::clone(&client_clone),
+                        tx_sender_for_voider_task.clone(),
+                    )
+                    .map_err(|err| error!("Error voider task: {}", err)),
+                );
             }
             sleep(Duration::from_secs(1000)).await;
         }

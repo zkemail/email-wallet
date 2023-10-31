@@ -1,8 +1,6 @@
 use crate::*;
 use ethers::prelude::*;
 use ethers::signers::Signer;
-use std::str::FromStr;
-use stream::EventStream;
 
 const CONFIRMATIONS: usize = 1;
 
@@ -336,7 +334,6 @@ impl ChainClient {
             .get_token_address(token_name.to_string())
             .call()
             .await?;
-        trace!("token_addr: {}", token_addr);
         self.query_decimals_of_erc20_address(token_addr).await
     }
 

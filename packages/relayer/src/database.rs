@@ -1,17 +1,15 @@
 use crate::*;
 
-use std::path::Path;
-
-use sqlx::{sqlite::SqlitePool, Pool, Row, Sqlite};
+use sqlx::{postgres::PgPool, Row};
 
 pub(crate) struct Database {
-    db: Pool<Sqlite>,
+    db: PgPool,
 }
 
 impl Database {
-    pub(crate) async fn open(path: &Path) -> Result<Self> {
+    pub(crate) async fn open(path: &str) -> Result<Self> {
         let res = Self {
-            db: SqlitePool::connect(path.to_str().unwrap())
+            db: PgPool::connect(path)
                 .await
                 .map_err(|e| anyhow::anyhow!(e))?,
         };
@@ -45,8 +43,8 @@ impl Database {
                 random TEXT NOT NULL,
                 email_addr_commit TEXT NOT NULL,
                 expire_time INTEGER NOT NULL,
-                is_fund INTEGER NOT NULL,
-                is_announced INTEGER NOT NULL
+                is_fund BOOLEAN NOT NULL,
+                is_announced BOOLEAN NOT NULL
             );",
         )
         .execute(&self.db)
@@ -71,7 +69,7 @@ impl Database {
     }
 
     pub(crate) async fn insert_email(&self, key: &str) -> Result<()> {
-        sqlx::query("INSERT INTO emails (email) VALUES (?)")
+        sqlx::query("INSERT INTO emails (email) VALUES ($1)")
             .bind(key)
             .execute(&self.db)
             .await?;
@@ -79,8 +77,8 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn remove_email(&self, key: &str) -> Result<()> {
-        sqlx::query("DELETE FROM emails WHERE email = ?")
+    pub(crate) async fn delete_email(&self, key: &str) -> Result<()> {
+        sqlx::query("DELETE FROM emails WHERE email = $1")
             .bind(key)
             .execute(&self.db)
             .await?;
@@ -91,7 +89,7 @@ impl Database {
     // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
     // where, ReturnStatus is some Enum ...
     pub(crate) async fn contains_email(&self, key: &str) -> Result<bool> {
-        let result = sqlx::query("SELECT 1 FROM emails WHERE email = ?")
+        let result = sqlx::query("SELECT 1 FROM emails WHERE email = $1")
             .bind(key)
             .fetch_optional(&self.db)
             .await?;
@@ -100,7 +98,7 @@ impl Database {
     }
 
     pub(crate) async fn insert_user(&self, email_address: &str, account_key: &str) -> Result<()> {
-        sqlx::query("INSERT INTO users (email_address, account_key) VALUES (?, ?)")
+        sqlx::query("INSERT INTO users (email_address, account_key) VALUES ($1, $2)")
             .bind(email_address)
             .bind(account_key)
             .execute(&self.db)
@@ -112,7 +110,7 @@ impl Database {
     pub(crate) async fn get_claims_by_commit(&self, commit: &str) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE email_addr_commit = ?")
+        let rows = sqlx::query("SELECT * FROM claims WHERE email_addr_commit = $1")
             .bind(commit)
             .fetch_all(&self.db)
             .await?;
@@ -122,15 +120,15 @@ impl Database {
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
             let expire_time: i64 = row.get("expire_time");
-            let is_fund: u8 = row.get("is_fund");
-            let is_announced: u8 = row.get("is_announced");
+            let is_fund: bool = row.get("is_fund");
+            let is_announced: bool = row.get("is_announced");
             vec.push(Claim {
                 email_address,
                 random,
                 commit,
                 expire_time,
-                is_fund: is_fund != 0,
-                is_announced: is_announced != 0,
+                is_fund,
+                is_announced,
             })
         }
         Ok(vec)
@@ -139,7 +137,7 @@ impl Database {
     pub(crate) async fn get_claims_by_email_addr(&self, email_addr: &str) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE email_address = ?")
+        let rows = sqlx::query("SELECT * FROM claims WHERE email_address = $1")
             .bind(email_addr)
             .fetch_all(&self.db)
             .await?;
@@ -149,15 +147,15 @@ impl Database {
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
             let expire_time: i64 = row.get("expire_time");
-            let is_fund: u8 = row.get("is_fund");
-            let is_announced: u8 = row.get("is_announced");
+            let is_fund: bool = row.get("is_fund");
+            let is_announced: bool = row.get("is_announced");
             vec.push(Claim {
                 email_address,
                 random,
                 commit,
                 expire_time,
-                is_fund: is_fund != 0,
-                is_announced: is_announced != 0,
+                is_fund,
+                is_announced,
             })
         }
         Ok(vec)
@@ -166,7 +164,7 @@ impl Database {
     pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE expire_time > ?")
+        let rows = sqlx::query("SELECT * FROM claims WHERE expire_time > $1")
             .bind(now)
             .fetch_all(&self.db)
             .await?;
@@ -176,15 +174,15 @@ impl Database {
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
             let expire_time: i64 = row.get("expire_time");
-            let is_fund: u8 = row.get("is_fund");
-            let is_announced: u8 = row.get("is_announced");
+            let is_fund: bool = row.get("is_fund");
+            let is_announced: bool = row.get("is_announced");
             vec.push(Claim {
                 email_address,
                 random,
                 commit,
                 expire_time,
-                is_fund: is_fund != 0,
-                is_announced: is_announced != 0,
+                is_fund,
+                is_announced,
             })
         }
         Ok(vec)
@@ -200,21 +198,21 @@ impl Database {
         is_announced: bool,
     ) -> Result<()> {
         sqlx::query(
-            "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6)",
         )
         .bind(email_address)
         .bind(random)
         .bind(commit)
         .bind(expire_time)
-        .bind(if is_fund {1} else {0})
-        .bind(if is_announced {1} else {0})
+        .bind(is_fund)
+        .bind(is_announced)
         .execute(&self.db)
         .await?;
         Ok(())
     }
 
     pub(crate) async fn delete_claim(&self, commit: &str, is_fund: bool) -> Result<()> {
-        sqlx::query("DELETE FROM claims WHERE email_addr_commit = ? AND is_fund = ?")
+        sqlx::query("DELETE FROM claims WHERE email_addr_commit = $1 AND is_fund = $2")
             .bind(commit)
             .bind(is_fund)
             .execute(&self.db)
@@ -223,7 +221,7 @@ impl Database {
     }
 
     pub(crate) async fn contains_user(&self, email_address: &str) -> Result<bool> {
-        let result = sqlx::query("SELECT 1 FROM users WHERE email_address = ?")
+        let result = sqlx::query("SELECT 1 FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_optional(&self.db)
             .await?;
@@ -232,7 +230,7 @@ impl Database {
     }
 
     pub(crate) async fn get_account_key(&self, email_address: &str) -> Result<Option<String>> {
-        let row_result = sqlx::query("SELECT account_key FROM users WHERE email_address = ?")
+        let row_result = sqlx::query("SELECT account_key FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_one(&self.db)
             .await;
