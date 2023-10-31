@@ -69,19 +69,21 @@ impl Database {
     }
 
     pub(crate) async fn insert_email(&self, key: &str) -> Result<()> {
-        sqlx::query("INSERT INTO emails (email) VALUES ($1)")
+        let row = sqlx::query("INSERT INTO emails (email) VALUES ($1) REtURNING (email)")
             .bind(key)
-            .execute(&self.db)
+            .fetch_one(&self.db)
             .await?;
-
+        info!("inserted row: {}", row.get::<String, _>("email"));
         Ok(())
     }
 
     pub(crate) async fn delete_email(&self, key: &str) -> Result<()> {
-        sqlx::query("DELETE FROM emails WHERE email = $1")
+        let row_affected = sqlx::query("DELETE FROM emails WHERE email = $1")
             .bind(key)
             .execute(&self.db)
-            .await?;
+            .await?
+            .rows_affected();
+        info!("deleted {} rows", row_affected);
 
         Ok(())
     }
@@ -98,12 +100,14 @@ impl Database {
     }
 
     pub(crate) async fn insert_user(&self, email_address: &str, account_key: &str) -> Result<()> {
-        sqlx::query("INSERT INTO users (email_address, account_key) VALUES ($1, $2)")
-            .bind(email_address)
-            .bind(account_key)
-            .execute(&self.db)
-            .await?;
-
+        let row = sqlx::query(
+            "INSERT INTO users (email_address, account_key) VALUES ($1, $2) RETURNING *",
+        )
+        .bind(email_address)
+        .bind(account_key)
+        .fetch_one(&self.db)
+        .await?;
+        info!("inserted row: {}", row.get::<String, _>("email_address"));
         Ok(())
     }
 
@@ -197,8 +201,8 @@ impl Database {
         is_fund: bool,
         is_announced: bool,
     ) -> Result<()> {
-        sqlx::query(
-            "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6)",
+        let row = sqlx::query(
+            "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
         )
         .bind(email_address)
         .bind(random)
@@ -206,8 +210,12 @@ impl Database {
         .bind(expire_time)
         .bind(is_fund)
         .bind(is_announced)
-        .execute(&self.db)
+        .fetch_one(&self.db)
         .await?;
+        info!(
+            "inserted row: {}",
+            row.get::<String, _>("email_addr_commit")
+        );
         Ok(())
     }
 
