@@ -2,16 +2,14 @@ use itertools::Itertools;
 // use cfdkim::*;
 // use mail_auth::common::verify::VerifySignature;
 // use mail_auth::trust_dns_resolver::proto::rr::dnssec::public_key;
-use std::{error::Error, fs::File};
 // use trust_dns_resolver::error::ResolveError;
 // use mail_auth::Error;
 use crate::statics::*;
-use anyhow::{anyhow, Result};
-use base64::{engine::general_purpose, Engine};
+use anyhow::Result;
 use hex;
 // use mail_auth::{AuthenticatedMessage, DkimOutput, DkimResult, Resolver};
 
-use cfdkim::{canonicalize_signed_email, resolve_public_key, SignerBuilder};
+use cfdkim::{canonicalize_signed_email, resolve_public_key};
 use neon::prelude::*;
 use rsa::PublicKeyParts;
 use serde::{Deserialize, Serialize};
@@ -40,7 +38,7 @@ impl ParsedEmail {
             _ => panic!("not supportted public key type."),
         };
         let (canonicalized_header, canonicalized_body, signature_bytes) =
-            canonicalize_signed_email(&raw_email.as_bytes()).unwrap();
+            canonicalize_signed_email(raw_email.as_bytes()).unwrap();
         let parsed_email = ParsedEmail {
             canonicalized_header: String::from_utf8(canonicalized_header)?,
             canonicalized_body: String::from_utf8(canonicalized_body)?,
@@ -81,7 +79,7 @@ impl ParsedEmail {
     pub fn get_timestamp(&self) -> Result<u64> {
         let idxes = extract_timestamp_idxes(&self.canonicalized_header)?[0];
         let str = &self.canonicalized_header[idxes.0..idxes.1];
-        Ok(u64::from_str_radix(str, 10)?)
+        Ok(str.parse()?)
     }
 
     pub fn get_invitation_code(&self) -> Result<String> {
@@ -135,10 +133,7 @@ pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
                 }
 
                 // Reject the `Promise` if the version could not be found
-                Err(err) => cx.throw_error(format!(
-                    "Could not parse the raw email: {}",
-                    err.to_string()
-                )),
+                Err(err) => cx.throw_error(format!("Could not parse the raw email: {}", err)),
             }
         });
     });
@@ -175,7 +170,7 @@ pub fn extract_timestamp_int_node(mut cx: FunctionContext) -> JsResult<JsNumber>
         Err(e) => return cx.throw_error(e.to_string()),
     };
     let timestamp_str = &input_str[substr_idxes[0].0..substr_idxes[0].1];
-    let timestamp_int = match u64::from_str_radix(timestamp_str, 10) {
+    let timestamp_int = match timestamp_str.parse::<u64>() {
         Ok(timestamp_int) => timestamp_int,
         Err(e) => return cx.throw_error(e.to_string()),
     };
