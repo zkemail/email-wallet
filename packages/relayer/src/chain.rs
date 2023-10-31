@@ -343,6 +343,15 @@ impl ChainClient {
         Ok(decimals)
     }
 
+    pub async fn query_token_name(&self, token_addr: Address) -> Result<String> {
+        let name = self
+            .token_registry
+            .get_token_name_of_address(token_addr)
+            .call()
+            .await?;
+        Ok(name)
+    }
+
     pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
         let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
         Ok(bytes32_to_fr(&rand_hash)?)

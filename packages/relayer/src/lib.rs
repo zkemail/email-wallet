@@ -127,6 +127,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {
                         let body = String::from_utf8(body.to_vec())?;
+                        info!("Received email {}", body);
                         if !db_clone_receiver.contains_email(&body).await? {
                             db_clone_receiver.insert_email(&body).await?;
                             tx_handler.send(body)?;
@@ -151,7 +152,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
             info!("Handled email {}", email);
-            db_clone.delete_email(&email).await?;
+            // db_clone.delete_email(&email).await?;
             tokio::task::spawn(
                 handle_email(
                     email,
@@ -295,7 +296,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .stream_unclaim_state_registration(from_block_state, state_f)
                 .await?;
             from_block_state = last_block + 1;
-            sleep(Duration::from_secs(1000)).await;
+            sleep(Duration::from_secs(120)).await;
         }
         Ok::<(), anyhow::Error>(())
     });
@@ -319,7 +320,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     .map_err(|err| error!("Error voider task: {}", err)),
                 );
             }
-            sleep(Duration::from_secs(1000)).await;
+            sleep(Duration::from_secs(120)).await;
         }
         Ok::<(), anyhow::Error>(())
     });

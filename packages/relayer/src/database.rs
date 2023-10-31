@@ -42,7 +42,7 @@ impl Database {
                 email_address TEXT NOT NULL,
                 random TEXT NOT NULL,
                 email_addr_commit TEXT NOT NULL,
-                expire_time INTEGER NOT NULL,
+                expire_time INT8 NOT NULL,
                 is_fund BOOLEAN NOT NULL,
                 is_announced BOOLEAN NOT NULL
             );",

@@ -1,18 +1,16 @@
 #![allow(clippy::upper_case_acronyms)]
 
 use crate::*;
-
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-
 use chrono::{DateTime, Local};
 use email_wallet_utils::*;
-use ethers::abi::{FixedBytes, Token};
+use ethers::abi::Token;
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
 use log::{info, trace};
 use serde::Deserialize;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+use std::path::Path;
 use tokio::{
     fs::{read_to_string, remove_file, File},
     io::AsyncWriteExt,
@@ -309,7 +307,7 @@ pub(crate) async fn handle_email(
         // [TODO] simulation
         let result = chain_client.handle_email_op(email_op).await?;
         info!("email_op broadcased to chain: {}", result);
-        if let Some(email_addr) = recipient_email_addr {
+        if let Some(email_addr) = recipient_email_addr.as_ref() {
             info!("recipient email address: {}", email_addr);
             let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
             let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
@@ -336,12 +334,25 @@ pub(crate) async fn handle_email(
 
         tx_sender
             .send(EmailMessage {
-                subject: "Your Account was transported".to_string(),
-                body: result,
+                subject: format!(
+                    "Your transaction request was completed in {}",
+                    result.as_str()
+                ),
+                body: result.to_string(),
                 to: from_address,
                 message_id: None,
             })
             .unwrap();
+        if let Some(email_addr) = recipient_email_addr {
+            tx_sender
+                .send(EmailMessage {
+                    subject: format!("Email wallet transaction for you in {}", result.as_str()),
+                    body: result,
+                    to: email_addr,
+                    message_id: None,
+                })
+                .unwrap();
+        }
         trace!("email_op sent to tx_sender");
     }
     Ok(())

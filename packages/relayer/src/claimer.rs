@@ -4,6 +4,8 @@ use crate::*;
 
 use email_wallet_utils::*;
 use ethers::types::Address;
+use ethers::utils::format_units;
+use ethers::utils::Units;
 use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) struct Claim {
@@ -63,10 +65,14 @@ pub(crate) async fn claim_unclaims(
         if (unclaimed_fund.expire_time.as_u64() as i64) < now {
             return Err(anyhow!("Claim expired"));
         }
-        format!(
-            "You received {} from {}",
-            unclaimed_fund.token_addr, unclaimed_fund.sender
-        )
+        let token_name = chain_client
+            .query_token_name(unclaimed_fund.token_addr)
+            .await?;
+        let decimals = chain_client
+            .query_decimals_of_erc20_address(unclaimed_fund.token_addr)
+            .await?;
+        let token_amount_str = format_units(unclaimed_fund.amount, decimals as u32);
+        format!("You received {} from {}", token_name, unclaimed_fund.sender)
     } else {
         let unclaimed_state = chain_client
             .query_unclaimed_state(&hex2field(&claim.commit)?)
