@@ -40,7 +40,7 @@ struct OAuth2 {
     access_token: String,
 }
 
-impl async_imap::Authenticator for OAuth2 {
+impl async_imap::Authenticator for &OAuth2 {
     type Response = String;
 
     fn process(&mut self, _: &[u8]) -> Self::Response {
@@ -117,7 +117,7 @@ impl ImapClient {
                 };
 
                 client
-                    .authenticate("XOAUTH2", oauthed)
+                    .authenticate("XOAUTH2", &oauthed)
                     .await
                     .map_err(|e| e.0)
             }
