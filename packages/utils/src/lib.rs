@@ -1,5 +1,4 @@
 use neon::prelude::*;
-use zk_regex_apis::extract_substrs::extract_substr_idxes_node;
 pub mod converters;
 pub mod cryptos;
 pub mod parse_email;

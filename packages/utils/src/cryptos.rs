@@ -1,16 +1,9 @@
-use std::convert::TryInto;
-use std::str::FromStr;
-
 use crate::converters::*;
-use anyhow;
+
 use halo2curves::ff::derive::rand_core::OsRng;
-use halo2curves::ff::{Field, PrimeField};
-use halo2curves::{ff::derive::rand_core::RngCore, serde::SerdeObject};
-use itertools::Itertools;
+use halo2curves::ff::derive::rand_core::RngCore;
+use halo2curves::ff::Field;
 use neon::prelude::*;
-use neon::result::Throw;
-use num_bigint::BigUint;
-use num_traits::Zero;
 use poseidon_rs::*;
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
@@ -30,7 +23,7 @@ impl RelayerRand {
     }
 
     pub fn hash(&self) -> Result<Fr, PoseidonError> {
-        poseidon_fields(&[self.0.clone()])
+        poseidon_fields(&[self.0])
     }
 }
 
@@ -61,7 +54,7 @@ impl PaddedEmailAddr {
     }
 
     pub fn to_commitment(&self, rand: &Fr) -> Result<Fr, PoseidonError> {
-        let mut inputs = vec![rand.clone()];
+        let mut inputs = vec![*rand];
         inputs.append(&mut self.to_email_addr_fields());
         poseidon_fields(&inputs)
     }
@@ -96,14 +89,14 @@ impl AccountKey {
         email_addr: &PaddedEmailAddr,
         relayer_rand_hash: &Fr,
     ) -> Result<Fr, PoseidonError> {
-        let mut inputs = vec![self.0.clone()];
+        let mut inputs = vec![self.0];
         inputs.append(&mut email_addr.to_email_addr_fields());
-        inputs.push(relayer_rand_hash.clone());
+        inputs.push(*relayer_rand_hash);
         poseidon_fields(&inputs)
     }
 
     pub fn to_wallet_salt(&self) -> Result<WalletSalt, PoseidonError> {
-        let field = poseidon_fields(&[self.0.clone(), Fr::zero()])?;
+        let field = poseidon_fields(&[self.0, Fr::zero()])?;
         Ok(WalletSalt(field))
     }
 

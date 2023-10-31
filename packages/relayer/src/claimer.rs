@@ -2,7 +2,6 @@
 
 use crate::*;
 
-use email_wallet_utils::*;
 use ethers::types::Address;
 use ethers::utils::format_units;
 use ethers::utils::Units;

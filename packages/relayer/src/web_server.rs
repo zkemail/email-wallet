@@ -1,8 +1,6 @@
-use std::net::SocketAddr;
-
 use crate::*;
 
-use axum::{Json, Router};
+use axum::Router;
 use log::trace;
 use serde::Deserialize;
 use tokio::sync::mpsc::UnboundedSender;
@@ -82,14 +80,14 @@ pub(crate) async fn run_server(
             axum::routing::post(move |payload: String| async move {
                 info!("/emailAddrCommit Received payload: {}", payload);
                 let json = serde_json::from_str::<EmailAddrCommitRequest>(&payload)
-                    .map_err(|_| return "Invalid payload json".to_string())
+                    .map_err(|_| "Invalid payload json".to_string())
                     .unwrap();
                 let padded_email_addr = PaddedEmailAddr::from_email_addr(&json.email_address);
                 let commit = padded_email_addr
                     .to_commitment(&hex2field(&json.random).unwrap())
                     .unwrap();
                 info!("commit {:?}", commit);
-                return field2hex(&commit);
+                field2hex(&commit)
             }),
         )
         .route(

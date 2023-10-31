@@ -292,7 +292,7 @@ impl ChainClient {
             .account_handler
             .account_key_commit_of_pointer(fr_to_bytes32(pointer)?)
             .await?;
-        Ok(bytes32_to_fr(&account_key_commit)?)
+        bytes32_to_fr(&account_key_commit)
     }
 
     pub async fn query_account_info(&self, account_key_commit: &Fr) -> Result<AccountKeyInfo> {
@@ -354,7 +354,7 @@ impl ChainClient {
 
     pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
         let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        Ok(bytes32_to_fr(&rand_hash)?)
+        bytes32_to_fr(&rand_hash)
     }
 
     pub async fn query_user_extension_for_command(
@@ -394,7 +394,7 @@ impl ChainClient {
 
     pub async fn query_rand_hash_of_relayer(&self, relayer: Address) -> Result<Fr> {
         let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        Ok(bytes32_to_fr(&rand_hash)?)
+        bytes32_to_fr(&rand_hash)
     }
 
     pub async fn query_ak_commit_and_relayer_of_wallet_salt(
@@ -441,7 +441,7 @@ impl ChainClient {
     pub async fn query_unclaimed_state(&self, email_addr_commit: &Fr) -> Result<UnclaimedState> {
         let (email_addr_commit, extension_addr, sender, state, expire_time) = self
             .unclaims_handler
-            .unclaimed_state_of_email_addr_commit(fr_to_bytes32(&email_addr_commit)?)
+            .unclaimed_state_of_email_addr_commit(fr_to_bytes32(email_addr_commit)?)
             .await?;
         let unclaimed_state = UnclaimedState {
             email_addr_commit: bytes32_to_fr(&email_addr_commit)?,

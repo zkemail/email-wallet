@@ -49,4 +49,6 @@ fn main() {
         .unwrap()
         .write_to_file("./src/abis/events.rs")
         .unwrap();
+
+    let _ = std::process::Command::new("cargo").arg("fmt").status();
 }
