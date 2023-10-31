@@ -69,7 +69,7 @@ pub(crate) async fn claim_unclaims(
     }
     let mut reply_msg = String::new();
     let now = now();
-    let wallet_salt = WalletSalt(Fr::from_bytes(&info.wallet_salt).unwrap());
+    let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
     if claim.is_fund {
         let unclaimed_fund = chain_client
             .query_unclaimed_fund(&hex2field(&claim.commit)?)

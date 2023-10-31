@@ -33,7 +33,7 @@ pub(crate) async fn void_unclaims(
         if (unclaimed_fund.expire_time.as_u64() as i64) > now {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(commit.to_bytes(), true).await?;
+        let result = chain_client.void(fr_to_bytes32(&commit)?, true).await?;
         (
             format!("Voided fund: {}", unclaimed_fund.token_addr),
             result,
@@ -43,7 +43,7 @@ pub(crate) async fn void_unclaims(
         if (unclaimed_state.expire_time.as_u64() as i64) > now {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(commit.to_bytes(), false).await?;
+        let result = chain_client.void(fr_to_bytes32(&commit)?, false).await?;
         (
             format!("Voided state: {}", unclaimed_state.extension_addr),
             result,

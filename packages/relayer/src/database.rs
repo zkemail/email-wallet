@@ -41,7 +41,7 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS claims (
-                email_address TEXT PRIMARY KEY,
+                email_address TEXT NOT NULL,
                 random TEXT NOT NULL,
                 email_addr_commit TEXT NOT NULL,
                 expire_time INTEGER NOT NULL,

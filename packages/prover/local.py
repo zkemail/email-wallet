@@ -2,9 +2,7 @@
 # encoding: utf-8
 
 import json
-from flask import Flask
-import jsonify
-import requests
+from flask import Flask, request, jsonify
 import random
 import sys
 from core import (
@@ -22,11 +20,13 @@ app = Flask(__name__)
 def prove_account_creation():
     req = request.get_json()
     input = req["input"]
+    print(input)
+    print(type(input))
     nonce = random.randint(
         0,
         sys.maxsize,
     )
-    proof = gen_account_creation_proof(nonce, input)
+    proof = gen_account_creation_proof(str(nonce), True, input)
     return jsonify(proof)
 
 
@@ -38,7 +38,7 @@ def prove_account_init():
         0,
         sys.maxsize,
     )
-    proof = gen_account_init_proof(nonce, input)
+    proof = gen_account_init_proof(str(nonce), True, input)
     return jsonify(proof)
 
 
@@ -50,7 +50,7 @@ def prove_account_transport():
         0,
         sys.maxsize,
     )
-    proof = gen_account_transport_proof(nonce, input)
+    proof = gen_account_transport_proof(str(nonce), True, input)
     return jsonify(proof)
 
 
@@ -62,7 +62,7 @@ def prove_claim():
         0,
         sys.maxsize,
     )
-    proof = gen_claim_proof(nonce, input)
+    proof = gen_claim_proof(str(nonce), True, input)
     return jsonify(proof)
 
 
@@ -74,7 +74,7 @@ def prove_email_sender():
         0,
         sys.maxsize,
     )
-    proof = gen_email_sender_proof(nonce, input)
+    proof = gen_email_sender_proof(str(nonce), True, input)
     return jsonify(proof)
 
 

@@ -3746,6 +3746,7 @@ dependencies = [
  "sqlx",
  "tiny_http",
  "tokio",
+ "tower-http",
  "webbrowser",
 ]
 
@@ -5072,6 +5073,22 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
+]
+
+[[package]]
+name = "tower-http"
+version = "0.4.2"
+source = "git+https://github.com/tower-rs/tower-http.git#f33c3e038dc85b8d064541e915d501f9c9e6a6b4"
+dependencies = [
+ "bitflags 2.4.0",
+ "bytes",
+ "futures-core",
+ "futures-util",
+ "http",
+ "http-body",
+ "pin-project-lite",
+ "tower-layer",
+ "tower-service",
 ]
 
 [[package]]

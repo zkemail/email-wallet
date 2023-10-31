@@ -55,7 +55,7 @@ def store_input(circuit_name: str, nonce: str, json_data: dict):
         build_dir, "input_" + circuit_name + "_" + nonce + ".json"
     )
     with open(json_file_path, "w") as json_file:
-        json_file.write(json.dumps(json_data, indent=4))
+        json_file.write(json_data)
 
 
 def load_proof(circuit_name: str, nonce: str) -> dict:
@@ -91,8 +91,7 @@ def gen_proof(circuit_name: str, nonce: str, is_local: bool):
             params_dir,
             build_dir,
             str(is_local_int),
-        ],
-        shell=True,
+        ]
     )
 
 

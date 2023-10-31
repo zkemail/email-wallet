@@ -4,7 +4,9 @@ use ethers::signers::Signer;
 use std::str::FromStr;
 use stream::EventStream;
 
-#[derive(Default)]
+const CONFIRMATIONS: usize = 1;
+
+#[derive(Default, Debug)]
 pub struct AccountCreationInput {
     pub(crate) email_addr_pointer: [u8; 32],
     pub(crate) account_key_commit: [u8; 32],
@@ -13,7 +15,7 @@ pub struct AccountCreationInput {
     pub(crate) proof: Bytes,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct AccountInitInput {
     pub(crate) email_addr_pointer: [u8; 32],
     pub(crate) email_domain: String,
@@ -22,7 +24,7 @@ pub struct AccountInitInput {
     pub(crate) proof: Bytes,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct AccountTransportInput {
     pub(crate) old_account_key_commit: [u8; 32],
     pub(crate) new_email_addr_pointer: [u8; 32],
@@ -32,7 +34,7 @@ pub struct AccountTransportInput {
     pub(crate) account_creation_proof: Bytes,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct RegisterUnclaimedFundInput {
     pub(crate) email_addr_commit: [u8; 32],
     pub(crate) token_addr: Address,
@@ -42,7 +44,7 @@ pub struct RegisterUnclaimedFundInput {
     pub(crate) announce_email_addr: String,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ClaimInput {
     pub(crate) email_addr_commit: [u8; 32],
     pub(crate) email_addr_pointer: [u8; 32],
@@ -50,7 +52,7 @@ pub struct ClaimInput {
     pub(crate) proof: Bytes,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct UnclaimedFund {
     pub(crate) email_addr_commit: Fr,
     pub(crate) sender: Address,
@@ -59,7 +61,7 @@ pub struct UnclaimedFund {
     pub(crate) expire_time: U256,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct UnclaimedState {
     pub(crate) email_addr_commit: Fr,
     pub(crate) extension_addr: Address,
@@ -118,6 +120,10 @@ impl ChainClient {
         })
     }
 
+    pub fn self_eth_addr(&self) -> Address {
+        self.client.address()
+    }
+
     pub async fn register_relayer(
         &self,
         rand_hash: Fr,
@@ -126,9 +132,14 @@ impl ChainClient {
     ) -> Result<String> {
         let call =
             self.relayer_handler
-                .register_relayer(rand_hash.to_bytes(), email_addr, hostname);
+                .register_relayer(fr_to_bytes32(&rand_hash)?, email_addr, hostname);
         let tx = call.send().await?;
-        let tx_hash = tx.tx_hash();
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
@@ -142,7 +153,12 @@ impl ChainClient {
             data.proof,
         );
         let tx = call.send().await?;
-        let tx_hash = tx.tx_hash();
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
@@ -156,7 +172,12 @@ impl ChainClient {
             data.proof,
         );
         let tx = call.send().await?;
-        let tx_hash = tx.tx_hash();
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
@@ -171,25 +192,12 @@ impl ChainClient {
             data.account_creation_proof,
         );
         let tx = call.send().await?;
-        let tx_hash = tx.tx_hash();
-        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        Ok(tx_hash)
-    }
-
-    pub async fn register_unclaimed_fund(
-        &self,
-        data: RegisterUnclaimedFundInput,
-    ) -> Result<String> {
-        let call = self.unclaims_handler.register_unclaimed_fund(
-            data.email_addr_commit,
-            data.token_addr,
-            data.amount,
-            data.expiry_time,
-            data.announce_commit_randomness,
-            data.announce_email_addr,
-        );
-        let tx = call.send().await?;
-        let tx_hash = tx.tx_hash();
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
@@ -202,7 +210,12 @@ impl ChainClient {
                 data.proof,
             );
             let tx = call.send().await?;
-            let tx_hash = tx.tx_hash();
+            let receipt = tx
+                .log()
+                .confirmations(CONFIRMATIONS)
+                .await?
+                .ok_or(anyhow!("No receipt"))?;
+            let tx_hash = receipt.transaction_hash;
             let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
             Ok(tx_hash)
         } else {
@@ -212,7 +225,12 @@ impl ChainClient {
                 data.proof,
             );
             let tx = call.send().await?;
-            let tx_hash = tx.tx_hash();
+            let receipt = tx
+                .log()
+                .confirmations(CONFIRMATIONS)
+                .await?
+                .ok_or(anyhow!("No receipt"))?;
+            let tx_hash = receipt.transaction_hash;
             let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
             Ok(tx_hash)
         }
@@ -222,7 +240,12 @@ impl ChainClient {
         if is_fund {
             let call = self.unclaims_handler.void_unclaimed_fund(email_addr_commit);
             let tx = call.send().await?;
-            let tx_hash = tx.tx_hash();
+            let receipt = tx
+                .log()
+                .confirmations(CONFIRMATIONS)
+                .await?
+                .ok_or(anyhow!("No receipt"))?;
+            let tx_hash = receipt.transaction_hash;
             let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
             Ok(tx_hash)
         } else {
@@ -230,16 +253,38 @@ impl ChainClient {
                 .unclaims_handler
                 .void_unclaimed_state(email_addr_commit);
             let tx = call.send().await?;
-            let tx_hash = tx.tx_hash();
+            let receipt = tx
+                .log()
+                .confirmations(CONFIRMATIONS)
+                .await?
+                .ok_or(anyhow!("No receipt"))?;
+            let tx_hash = receipt.transaction_hash;
             let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
             Ok(tx_hash)
         }
     }
 
     pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<String> {
+        let value = if !email_op.has_email_recipient {
+            U256::zero()
+        } else if email_op.command == SEND_COMMAND {
+            let gas = self.unclaims_handler.unclaimed_fund_claim_gas().await?;
+            let fee = self.unclaims_handler.max_fee_per_gas().await?;
+            gas * fee
+        } else {
+            let gas = self.unclaims_handler.unclaimed_state_claim_gas().await?;
+            let fee = self.unclaims_handler.max_fee_per_gas().await?;
+            gas * fee
+        };
         let call = self.core.handle_email_op(email_op);
+        let call = call.value(value);
         let tx = call.send().await?;
-        let tx_hash = tx.tx_hash();
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
@@ -247,15 +292,15 @@ impl ChainClient {
     pub async fn query_account_key_commit(&self, pointer: &Fr) -> Result<Fr> {
         let account_key_commit = self
             .account_handler
-            .account_key_commit_of_pointer(pointer.to_bytes())
+            .account_key_commit_of_pointer(fr_to_bytes32(pointer)?)
             .await?;
-        Ok(Fr::from_bytes(&account_key_commit).expect("account_key_commit is not 32 bytes"))
+        Ok(bytes32_to_fr(&account_key_commit)?)
     }
 
     pub async fn query_account_info(&self, account_key_commit: &Fr) -> Result<AccountKeyInfo> {
         let info = self
             .account_handler
-            .get_info_of_account_key_commit(account_key_commit.to_bytes())
+            .get_info_of_account_key_commit(fr_to_bytes32(account_key_commit)?)
             .await?;
         Ok(info)
     }
@@ -271,7 +316,7 @@ impl ChainClient {
             .call()
             .await?;
         let erc20 = ERC20::new(token_addr, self.client.clone());
-        let wallet_addr = self.get_wallet_addr_from_salt(wallet_salt.0).await?;
+        let wallet_addr = self.get_wallet_addr_from_salt(&wallet_salt.0).await?;
         let balance = erc20.balance_of(wallet_addr).call().await?;
         Ok(balance)
     }
@@ -291,6 +336,7 @@ impl ChainClient {
             .get_token_address(token_name.to_string())
             .call()
             .await?;
+        trace!("token_addr: {}", token_addr);
         self.query_decimals_of_erc20_address(token_addr).await
     }
 
@@ -300,12 +346,17 @@ impl ChainClient {
         Ok(decimals)
     }
 
+    pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
+        let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
+        Ok(bytes32_to_fr(&rand_hash)?)
+    }
+
     pub async fn query_user_extension_for_command(
         &self,
         wallet_salt: &WalletSalt,
         command: &str,
     ) -> Result<Address> {
-        let wallet_addr = self.get_wallet_addr_from_salt(wallet_salt.0).await?;
+        let wallet_addr = self.get_wallet_addr_from_salt(&wallet_salt.0).await?;
         let extension_addr = self
             .extension_handler
             .get_extension_for_command(wallet_addr, command.to_string())
@@ -326,10 +377,10 @@ impl ChainClient {
         Ok(templates)
     }
 
-    pub async fn get_wallet_addr_from_salt(&self, wallet_salt: Fr) -> Result<Address> {
+    pub async fn get_wallet_addr_from_salt(&self, wallet_salt: &Fr) -> Result<Address> {
         let wallet_addr = self
             .account_handler
-            .get_wallet_of_salt(wallet_salt.to_bytes())
+            .get_wallet_of_salt(fr_to_bytes32(wallet_salt)?)
             .call()
             .await?;
         Ok(wallet_addr)
@@ -337,7 +388,7 @@ impl ChainClient {
 
     pub async fn query_rand_hash_of_relayer(&self, relayer: Address) -> Result<Fr> {
         let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        Ok(Fr::from_bytes(&rand_hash).expect("rand_hash is not 32 bytes"))
+        Ok(bytes32_to_fr(&rand_hash)?)
     }
 
     pub async fn query_ak_commit_and_relayer_of_wallet_salt(
@@ -348,14 +399,13 @@ impl ChainClient {
             .account_handler
             .event_for_name::<AccountCreatedFilter>("AccountCreated")?
             .from_block(0)
-            .topic2(H256::from(wallet_salt.0.to_bytes()))
+            .topic2(H256::from(fr_to_bytes32(&wallet_salt.0)?))
             .query_with_meta()
             .await?;
         let mut account_key_commits = vec![];
         let mut relayers = vec![];
         for (created, log_meta) in events {
-            let account_key_commit = Fr::from_bytes(&created.account_key_commit)
-                .expect("account_key_commit in the event is not 32 bytes");
+            let account_key_commit = bytes32_to_fr(&created.account_key_commit)?;
             account_key_commits.push(account_key_commit);
             let tx_hash = log_meta.transaction_hash;
             let tx = self.client.get_transaction(tx_hash).await?;
@@ -370,11 +420,10 @@ impl ChainClient {
     pub async fn query_unclaimed_fund(&self, email_addr_commit: &Fr) -> Result<UnclaimedFund> {
         let (email_addr_commit, sender, token_addr, amount, expire_time) = self
             .unclaims_handler
-            .unclaimed_fund_of_email_addr_commit(email_addr_commit.to_bytes())
+            .unclaimed_fund_of_email_addr_commit(fr_to_bytes32(email_addr_commit)?)
             .await?;
         let unclaimed_fund = UnclaimedFund {
-            email_addr_commit: Fr::from_bytes(&email_addr_commit)
-                .expect("email_addr_commit is not 32 bytes"),
+            email_addr_commit: bytes32_to_fr(&email_addr_commit)?,
             sender,
             token_addr,
             amount,
@@ -386,11 +435,10 @@ impl ChainClient {
     pub async fn query_unclaimed_state(&self, email_addr_commit: &Fr) -> Result<UnclaimedState> {
         let (email_addr_commit, extension_addr, sender, state, expire_time) = self
             .unclaims_handler
-            .unclaimed_state_of_email_addr_commit(email_addr_commit.to_bytes())
+            .unclaimed_state_of_email_addr_commit(fr_to_bytes32(&email_addr_commit)?)
             .await?;
         let unclaimed_state = UnclaimedState {
-            email_addr_commit: Fr::from_bytes(&email_addr_commit)
-                .expect("email_addr_commit is not 32 bytes"),
+            email_addr_commit: bytes32_to_fr(&email_addr_commit)?,
             extension_addr,
             sender,
             state,

@@ -25,6 +25,7 @@ pub const CORE_CONTRACT_ADDRESS_KEY: &str = "CORE_CONTRACT_ADDRESS";
 pub const FEE_PER_GAS_KEY: &str = "FEE_PER_GAS";
 pub const RELAYER_EMAIL_ADDR_KEY: &str = "RELAYER_EMAIL_ADDR";
 pub const RELAYER_HOSTNAME_KEY: &str = "RELAYER_HOSTNAME";
+pub const INPUT_FILES_DIR_KEY: &str = "INPUT_FILES_DIR_PATH";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";

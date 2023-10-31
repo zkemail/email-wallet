@@ -8,7 +8,7 @@ use std::path::Path;
 
 use chrono::{DateTime, Local};
 use email_wallet_utils::*;
-use ethers::abi::Token;
+use ethers::abi::{FixedBytes, Token};
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
 use log::{debug, error, info, trace, warn};
@@ -119,7 +119,7 @@ pub(crate) async fn handle_email(
         let wallet_salt = account_key.to_wallet_salt()?;
         trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
         let fee_token_name = select_fee_token(&wallet_salt, &chain_client).await?;
-
+        trace!("Fee token name: {}", fee_token_name);
         let (template_idx, template_vals) = match command.as_str() {
             SEND_COMMAND => (0, extract_template_vals_send(&subject)?),
             EXECUTE_COMMAND => (0, extract_template_vals_execute(&subject)?),
@@ -180,7 +180,7 @@ pub(crate) async fn handle_email(
         };
 
         let mut recipient_email_addr = None;
-        let mut num_recipient_email_addr_bytes = U256::default();
+        // let mut num_recipient_email_addr_bytes = U256::default();
         let mut recipient_eth_addr = Address::default();
 
         let wallet_params = match command.as_str() {
@@ -197,8 +197,8 @@ pub(crate) async fn handle_email(
                             PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                         let email_addr_commit = padded_email_addr
                             .to_commitment_with_signature(&parsed_email.signature)?;
-                        num_recipient_email_addr_bytes =
-                            U256::from(email_addr.as_ref().unwrap().len());
+                        // num_recipient_email_addr_bytes =
+                        //     U256::from(email_addr.as_ref().unwrap().len());
                     } else {
                         recipient_eth_addr = eth_addr.unwrap();
                     }
@@ -207,7 +207,9 @@ pub(crate) async fn handle_email(
                 }
 
                 if let TemplateValue::TokenAmount { token_name, amount } = &template_vals[0] {
+                    trace!("token name: {}", token_name);
                     let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
+                    trace!("decimal size: {}", decimal_size);
                     WalletParams {
                         token_name: token_name.clone(),
                         amount: TemplateValue::amount_to_uint(&amount, decimal_size),
@@ -243,8 +245,8 @@ pub(crate) async fn handle_email(
                                 PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                             let email_addr_commit = padded_email_addr
                                 .to_commitment_with_signature(&parsed_email.signature)?;
-                            num_recipient_email_addr_bytes =
-                                U256::from(email_addr.as_ref().unwrap().len());
+                            // num_recipient_email_addr_bytes =
+                            //     U256::from(email_addr.as_ref().unwrap().len());
                         } else {
                             recipient_eth_addr = eth_addr.unwrap();
                         }
@@ -281,17 +283,23 @@ pub(crate) async fn handle_email(
             u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
         let email_nullifier = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]);
         let timestamp = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6];
+        let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&subject)?;
+        info!("masked_subject {}", masked_subject);
+        info!(
+            "num_recipient_email_addr_bytes {}",
+            num_recipient_email_addr_bytes
+        );
         let email_op = EmailOp {
             email_addr_pointer,
             has_email_recipient,
             recipient_email_addr_commit: recipient_email_addr_commit.clone(),
-            num_recipient_email_addr_bytes,
+            num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
             recipient_eth_addr: recipient_eth_addr,
             command: command.clone(),
             email_nullifier: email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
             timestamp,
-            masked_subject: get_masked_subject(&subject)?,
+            masked_subject,
             fee_token_name,
             fee_per_gas: FEE_PER_GAS.get().unwrap().clone(),
             execute_call_data,
@@ -302,14 +310,15 @@ pub(crate) async fn handle_email(
             extension_params,
             email_proof,
         };
-        trace!("email_op constructed");
+        trace!("email_op constructed: {:?}", email_op);
+        trace!("email_op.masked_subject {}", email_op.masked_subject);
+        // [TODO] simulation
         let result = chain_client.handle_email_op(email_op).await?;
         info!("email_op broadcased to chain: {}", result);
         if let Some(email_addr) = recipient_email_addr {
             info!("recipient email address: {}", email_addr);
             let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
-            let commit = Fr::from_bytes(&recipient_email_addr_commit)
-                .expect("recipient_email_addr_commit is not 32 bytes");
+            let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
             let is_fund = if command == SEND_COMMAND { true } else { false };
             let expire_time = if is_fund {
                 let unclaimed_fund = chain_client.query_unclaimed_fund(&&commit).await?;
@@ -366,6 +375,7 @@ pub(crate) async fn handle_account_init(
         RELAYER_RAND.get().unwrap(),
     )
     .await?;
+    info!("account init input {}", input);
     let (proof, pub_signals) =
         generate_proof(&input, "account_init", PROVER_ADDRESS.get().unwrap()).await?;
     // let relayer_rand = hex2field(RELAYER_RAND.get().unwrap())?;
@@ -377,7 +387,9 @@ pub(crate) async fn handle_account_init(
         email_nullifier: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 2]),
         proof,
     };
+    info!("account init data {:?}", data);
     let result = chain_client.init_account(data).await?;
+    info!("account init tx hash: {}", result);
     tx_sender
         .send(EmailMessage {
             subject: "Your Account was initialized".to_string(),
@@ -400,7 +412,7 @@ pub(crate) async fn handle_account_transport(
     let from_address = parsed_email.get_from_addr()?;
     let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
     let relayer_rand = RelayerRand(hex2field(&RELAYER_RAND.get().unwrap())?);
-    let email_addr_pointer = padded_from_address.to_pointer(&relayer_rand)?.to_bytes();
+    let email_addr_pointer = fr_to_bytes32(&padded_from_address.to_pointer(&relayer_rand)?)?;
     let new_account_key_commit =
         account_key.to_commitment(&padded_from_address, &relayer_rand.0)?;
     let wallet_salt = account_key.to_wallet_salt()?;
@@ -424,7 +436,7 @@ pub(crate) async fn handle_account_transport(
     let email_proof = EmailProof {
         domain: parsed_email.get_email_domain()?,
         timestamp: parsed_email.get_timestamp()?.into(),
-        nullifier: email_nullifier(&parsed_email.signature)?.to_bytes(),
+        nullifier: fr_to_bytes32(&email_nullifier(&parsed_email.signature)?)?,
         proof: transport_proof,
     };
 
@@ -439,9 +451,9 @@ pub(crate) async fn handle_account_transport(
         generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
     let new_psi_point = get_psi_point_bytes(pub_signals[4], pub_signals[5]);
     let data = AccountTransportInput {
-        old_account_key_commit: old_account_key.to_bytes(),
+        old_account_key_commit: fr_to_bytes32(&old_account_key)?,
         new_email_addr_pointer: email_addr_pointer,
-        new_account_key_commit: new_account_key_commit.to_bytes(),
+        new_account_key_commit: fr_to_bytes32(&new_account_key_commit)?,
         new_psi_point,
         transport_email_proof: email_proof,
         account_creation_proof: creation_proof,
@@ -466,14 +478,22 @@ pub(crate) fn extract_account_key_from_subject(subject: &str) -> Result<String> 
     ))
     .unwrap();
     let substr_idxes = extract_substr_idxes(subject, &regex_config)?;
-    Ok(subject[substr_idxes[0].0..substr_idxes[0].1].to_string())
+    Ok("0x".to_string() + &subject[substr_idxes[0].0..substr_idxes[0].1])
 }
 
-pub(crate) fn get_masked_subject(subject: &str) -> Result<String> {
-    let (start, end) = extract_email_addr_idxes(subject)?[0];
-    let mut masked_subject_bytes = subject.as_bytes().to_vec();
-    masked_subject_bytes[start..end].copy_from_slice(vec![0u8; end - start].as_ref());
-    Ok(String::from_utf8(masked_subject_bytes)?)
+pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
+    let extracts = extract_email_addr_idxes(subject)?;
+    if let Some((start, end)) = extracts.get(0) {
+        if *end == subject.len() {
+            Ok((subject[0..*start].to_string(), 0))
+        } else {
+            let mut masked_subject_bytes = subject.as_bytes().to_vec();
+            masked_subject_bytes[*start..*end].copy_from_slice(vec![0u8; end - start].as_ref());
+            Ok((String::from_utf8(masked_subject_bytes)?, end - start))
+        }
+    } else {
+        Ok((subject.to_string(), 0))
+    }
 }
 // pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, String)> {
 //     let re = Regex::new(
@@ -504,21 +524,25 @@ pub(crate) async fn generate_email_sender_input(
     relayer_rand: &str,
 ) -> Result<String> {
     let email_hash = calculate_hash(email);
-    let email_file_name = email_hash.clone() + ".email";
-    let input_file_name = email_hash + ".input";
+    let email_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_hash.to_string() + ".email");
+    let input_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_hash.to_string() + ".json");
 
     let mut email_file = File::create(&email_file_name).await?;
     email_file.write_all(email.as_bytes()).await?;
 
-    File::create(&input_file_name).await?;
-    let current_dir = std::env::current_dir()?;
+    // File::create(&input_file_name).await?;s
+    // let current_dir = std::env::current_dir()?;
 
     let command_str = format!(
         "--cwd {} gen-email-sender-input --email-file {} --relayer-rand {} --input-file {}",
         circuits_dir_path.to_str().unwrap(),
-        email_file_name,
+        email_file_name.to_str().unwrap(),
         relayer_rand,
-        input_file_name
+        input_file_name.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
@@ -542,15 +566,16 @@ pub(crate) async fn generate_account_creation_input(
     relayer_rand: &str,
     account_key: &str,
 ) -> Result<String> {
-    let input_file_name = email_address.to_string() + ".input";
+    let input_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_address.to_string() + ".json");
 
-    File::create(&input_file_name).await?;
     let current_dir = std::env::current_dir()?;
 
     let command_str =
         format!(
         "--cwd {} gen-account-creation-input --email-addr {} --relayer-rand {} --account-key {} --input-file {}",
-        circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, account_key, input_file_name
+        circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, account_key, input_file_name.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
@@ -561,7 +586,6 @@ pub(crate) async fn generate_account_creation_input(
     assert!(status.success());
 
     let result = read_to_string(&input_file_name).await?;
-
     remove_file(input_file_name).await?;
 
     Ok(result)
@@ -573,21 +597,24 @@ pub(crate) async fn generate_account_init_input(
     relayer_rand: &str,
 ) -> Result<String> {
     let email_hash = calculate_hash(email);
-    let email_file_name = email_hash.clone() + ".email";
-    let input_file_name = email_hash + ".input";
+    let email_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_hash.to_string() + ".email");
+    let input_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_hash.to_string() + ".json");
 
     let mut email_file = File::create(&email_file_name).await?;
     email_file.write_all(email.as_bytes()).await?;
 
-    File::create(&input_file_name).await?;
-    let current_dir = std::env::current_dir()?;
+    // let current_dir = std::env::current_dir()?;
 
     let command_str = format!(
         "--cwd {} gen-account-init-input --email-file {} --relayer-rand {} --input-file {}",
         circuits_dir_path.to_str().unwrap(),
-        email_file_name,
+        email_file_name.to_str().unwrap(),
         relayer_rand,
-        input_file_name
+        input_file_name.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
@@ -612,19 +639,23 @@ pub(crate) async fn generate_account_transport_input(
     new_relayer_rand: &str,
 ) -> Result<String> {
     let email_hash = calculate_hash(email);
-    let email_file_name = email_hash.clone() + ".email";
-    let input_file_name = email_hash + ".input";
+    let email_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_hash.to_string() + ".email");
+    let input_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_hash.to_string() + ".json");
 
     let mut email_file = File::create(&email_file_name).await?;
     email_file.write_all(email.as_bytes()).await?;
 
-    File::create(&input_file_name).await?;
-    let current_dir = std::env::current_dir()?;
+    // File::create(&input_file_name).await?;
+    // let current_dir = std::env::current_dir()?;
 
     let command_str =
         format!(
         "--cwd {} gen-account-transport-input --email-file {} --old-relayer-hash {} --new-relayer-rand {} --input-file {}",
-        circuits_dir_path.to_str().unwrap(), email_file_name, old_relayer_hash, new_relayer_rand, input_file_name
+        circuits_dir_path.to_str().unwrap(), email_file_name.to_str().unwrap(), old_relayer_hash, new_relayer_rand, input_file_name.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
@@ -648,15 +679,17 @@ pub(crate) async fn generate_claim_input(
     relayer_rand: &str,
     email_address_rand: &str,
 ) -> Result<String> {
-    let input_file_name = email_address.to_string() + ".input";
+    let input_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_address.to_string() + ".json");
 
-    File::create(&input_file_name).await?;
-    let current_dir = std::env::current_dir()?;
+    // File::create(&input_file_name).await?;
+    // let current_dir = std::env::current_dir()?;
 
     let command_str =
         format!(
         "--cwd {} gen-claim-input --email-addr {} --relayer-rand {} --email-addr-rand {} --input-file {}",
-        circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, email_address_rand, input_file_name
+        circuits_dir_path.to_str().unwrap(), email_address, relayer_rand, email_address_rand, input_file_name.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
@@ -690,8 +723,9 @@ pub(crate) async fn generate_proof(
     address: &str,
 ) -> Result<(Bytes, Vec<U256>)> {
     let client = reqwest::Client::new();
+    info!("prover input {}", input);
     let res = client
-        .post(format!("{}/{}", address, request))
+        .post(format!("{}/prove/{}", address, request))
         .json(&serde_json::json!({ "input": input }))
         .send()
         .await?
@@ -722,15 +756,27 @@ pub(crate) async fn select_fee_token(
     wallet_salt: &WalletSalt,
     chain_client: &Arc<ChainClient>,
 ) -> Result<String> {
-    let eth_balance = chain_client
+    let eth_balance = match chain_client
         .query_user_erc20_balance(wallet_salt, "ETH")
-        .await?;
-    let dai_balance = chain_client
+        .await
+    {
+        Ok(balance) => balance,
+        Err(_) => U256::from(0),
+    };
+    let dai_balance = match chain_client
         .query_user_erc20_balance(wallet_salt, "DAI")
-        .await?;
-    let usdc_balance = chain_client
+        .await
+    {
+        Ok(balance) => balance,
+        Err(_) => U256::from(0),
+    };
+    let usdc_balance = match chain_client
         .query_user_erc20_balance(wallet_salt, "USDC")
-        .await?;
+        .await
+    {
+        Ok(balance) => balance,
+        Err(_) => U256::from(0),
+    };
     let usdc_balance = usdc_balance * (10u64.pow(18 - 6));
     let max = eth_balance.max(dai_balance).max(usdc_balance);
     if max == eth_balance {
@@ -748,8 +794,22 @@ pub(crate) fn get_psi_point_bytes(x: U256, y: U256) -> Bytes {
 
 pub(crate) fn u256_to_bytes32(x: U256) -> [u8; 32] {
     let mut bytes = [0u8; 32];
-    x.to_little_endian(&mut bytes);
+    x.to_big_endian(&mut bytes);
     bytes
+}
+
+pub(crate) fn fr_to_bytes32(fr: &Fr) -> Result<[u8; 32]> {
+    let hex = field2hex(fr);
+    let bytes = hex::decode(&hex[2..])?;
+    let mut result = [0u8; 32];
+    result.copy_from_slice(&bytes);
+    Ok(result)
+}
+
+pub(crate) fn bytes32_to_fr(bytes32: &[u8; 32]) -> Result<Fr> {
+    let hex: String = "0x".to_string() + &hex::encode(bytes32);
+    let field = hex2field(&hex)?;
+    Ok(field)
 }
 
 pub(crate) fn now() -> i64 {

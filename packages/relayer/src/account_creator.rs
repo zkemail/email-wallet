@@ -34,24 +34,16 @@ pub(crate) async fn create_account(
 
     trace!("Generated account_key {account_key}");
 
-    db.insert_user(&email_address, &account_key).await.unwrap();
-
     let input = generate_account_creation_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email_address,
         RELAYER_RAND.get().unwrap(),
         &account_key,
     )
-    .await
-    .unwrap();
+    .await?;
 
-    let (proof, pub_signals) = generate_proof(
-        &input,
-        "generateCreationProof",
-        PROVER_ADDRESS.get().unwrap(),
-    )
-    .await
-    .unwrap();
+    let (proof, pub_signals) =
+        generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
 
     let data = AccountCreationInput {
         email_addr_pointer: u256_to_bytes32(pub_signals[1]),
@@ -60,7 +52,10 @@ pub(crate) async fn create_account(
         psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
         proof,
     };
-    let res = chain_client.create_account(data).await.unwrap();
+    info!("Account creation data {:?}", data);
+    let res = chain_client.create_account(data).await?;
+    info!("account creation tx hash: {}", res);
+    db.insert_user(&email_address, &account_key).await?;
     tx.send(EmailMessage {
         subject: format!("New Account - CODE:{}", account_key),
         body: format!(

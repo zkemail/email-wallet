@@ -54,6 +54,7 @@ static CHAIN_ID: OnceLock<u32> = OnceLock::new();
 static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
 static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
 static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
+static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -95,6 +96,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         .set(config.core_contract_address)
         .unwrap();
     FEE_PER_GAS.set(config.fee_per_gas).unwrap();
+    INPUT_FILES_DIR.set(config.input_files_dir).unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
@@ -106,6 +108,14 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let db = Arc::new(Database::open(&config.db_path).await?);
     let client = Arc::new(ChainClient::setup().await?);
+
+    let registered_rand_hash = client
+        .query_relayer_rand_hash(client.self_eth_addr())
+        .await?;
+    if registered_rand_hash != relayer_rand.hash()? {
+        panic!("Relayer randomness is not registered");
+    }
+
     for email in db.get_unhandled_emails().await? {
         tx_handler.send(email)?;
     }
@@ -210,12 +220,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     });
 
     let tx_claimer_for_server_task = tx_claimer.clone();
-    let api_server_task = tokio::task::spawn(run_server(
-        WEB_SERVER_ADDRESS.get().unwrap(),
-        Arc::clone(&db),
-        Arc::clone(&client),
-        tx_claimer_for_server_task,
-    ));
+    let api_server_task = tokio::task::spawn(
+        run_server(
+            WEB_SERVER_ADDRESS.get().unwrap(),
+            Arc::clone(&db),
+            Arc::clone(&client),
+            tx_claimer_for_server_task,
+        )
+        .map_err(|err| error!("Error api server: {}", err)),
+    );
 
     let email_sender = SmtpClient::new(config.smtp_config)?;
     let email_sender_task = tokio::task::spawn(async move {
@@ -241,9 +254,10 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             if event.email_addr.len() == 0 {
                 return Ok(());
             }
-            let random =
-                field2hex(&Fr::from_bytes(&u256_to_bytes32(event.commitment_randomness)).unwrap());
-            let commit = field2hex(&Fr::from_bytes(&event.email_addr_commit).unwrap());
+            let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
+                event.commitment_randomness,
+            ))?);
+            let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
                 email_address: event.email_addr,
                 random,
@@ -259,9 +273,10 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             if event.email_addr.len() == 0 {
                 return Ok(());
             }
-            let random =
-                field2hex(&Fr::from_bytes(&u256_to_bytes32(event.commitment_randomness)).unwrap());
-            let commit = field2hex(&Fr::from_bytes(&event.email_addr_commit).unwrap());
+            let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
+                event.commitment_randomness,
+            ))?);
+            let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
                 email_address: event.email_addr,
                 random,
@@ -282,7 +297,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .stream_unclaim_state_registration(from_block_state, state_f)
                 .await?;
             from_block_state = last_block + 1;
-            sleep(Duration::from_secs(10)).await;
+            sleep(Duration::from_secs(1000)).await;
         }
         Ok::<(), anyhow::Error>(())
     });
@@ -303,7 +318,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     tx_sender_for_voider_task.clone(),
                 ));
             }
-            sleep(Duration::from_secs(10)).await;
+            sleep(Duration::from_secs(1000)).await;
         }
         Ok::<(), anyhow::Error>(())
     });
