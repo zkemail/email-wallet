@@ -423,10 +423,10 @@ impl ChainClient {
         Ok((account_key_commits, relayers))
     }
 
-    pub async fn query_unclaimed_fund(&self, email_addr_commit: &Fr) -> Result<UnclaimedFund> {
+    pub async fn query_unclaimed_fund(&self, email_addr_commit: [u8; 32]) -> Result<UnclaimedFund> {
         let (email_addr_commit, sender, token_addr, amount, expire_time) = self
             .unclaims_handler
-            .unclaimed_fund_of_email_addr_commit(fr_to_bytes32(email_addr_commit)?)
+            .unclaimed_fund_of_email_addr_commit(email_addr_commit)
             .await?;
         let unclaimed_fund = UnclaimedFund {
             email_addr_commit: bytes32_to_fr(&email_addr_commit)?,
@@ -438,10 +438,13 @@ impl ChainClient {
         Ok(unclaimed_fund)
     }
 
-    pub async fn query_unclaimed_state(&self, email_addr_commit: &Fr) -> Result<UnclaimedState> {
+    pub async fn query_unclaimed_state(
+        &self,
+        email_addr_commit: [u8; 32],
+    ) -> Result<UnclaimedState> {
         let (email_addr_commit, extension_addr, sender, state, expire_time) = self
             .unclaims_handler
-            .unclaimed_state_of_email_addr_commit(fr_to_bytes32(email_addr_commit)?)
+            .unclaimed_state_of_email_addr_commit(email_addr_commit)
             .await?;
         let unclaimed_state = UnclaimedState {
             email_addr_commit: bytes32_to_fr(&email_addr_commit)?,
