@@ -1,10 +1,10 @@
 use crate::converters::*;
-
-use halo2curves::ff::derive::rand_core::OsRng;
-use halo2curves::ff::derive::rand_core::RngCore;
-use halo2curves::ff::Field;
+use anyhow;
+use halo2curves::ff::{Field, PrimeField};
+use itertools::Itertools;
 use neon::prelude::*;
 use poseidon_rs::*;
+use rand_core::{OsRng, RngCore};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;

@@ -282,7 +282,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertTrue(r2Initialized, "new relayer account not initialized");
     }
 
-    function test_AccountTransport_BackToOriginalRelayer() public {
+    function test_RevertIf_AccountTransport_BackToOriginalRelayer() public {
         address relayer2 = vm.addr(3);
         bytes32 relayer2RandHash = bytes32(uint256(311121));
         bytes32 relayer2Pointer = bytes32(uint256(202201232));
@@ -310,6 +310,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         // Transport from relayer 2 to relayer 1
         vm.startPrank(relayer);
+        vm.expectRevert("new account is already initialized");
         accountHandler.transportAccount(
             relayer2AccountKeyCommit,
             emailAddrPointer,

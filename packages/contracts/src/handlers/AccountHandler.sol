@@ -166,8 +166,9 @@ contract AccountHandler is Ownable {
         require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullified");
 
         // New relayer might have already created an account, but not initialized.
-        if (accountKeyCommitOfPointer[newEmailAddrPointer] == bytes32(0)) {
+        if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
+        } else {
             require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         }
 
@@ -212,8 +213,6 @@ contract AccountHandler is Ownable {
         infoOfAccountKeyCommit[newAccountKeyCommit].walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
-
-        infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
 
         emit EmailWalletEvents.AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
     }

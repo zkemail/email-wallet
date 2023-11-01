@@ -64,13 +64,13 @@ template AccountInit(n, k, max_header_bytes) {
     (from_regex_out, from_regex_reveal) <== FromAddrRegex(max_header_bytes)(in_padded);
     from_regex_out === 1;
     signal sender_email_addr[email_max_bytes];
-    sender_email_addr <== VarShiftLeft(max_header_bytes, email_max_bytes)(from_regex_reveal, sender_email_idx);
+    sender_email_addr <== VarShiftMaskedStr(max_header_bytes, email_max_bytes)(from_regex_reveal, sender_email_idx);
 
     // INVITATION CODE REGEX
     signal code_regex_out, code_regex_reveal[max_header_bytes];
     (code_regex_out, code_regex_reveal) <== InvitationCodeRegex(max_header_bytes)(in_padded);
     code_regex_out === 1;
-    signal invitation_code_hex[code_len] <== VarShiftLeft(max_header_bytes, code_len)(code_regex_reveal, code_idx);
+    signal invitation_code_hex[code_len] <== VarShiftMaskedStr(max_header_bytes, code_len)(code_regex_reveal, code_idx);
     signal sender_ak <== Hex2Field()(invitation_code_hex);
 
     // DOMAIN NAME HEADER REGEX
@@ -78,7 +78,7 @@ template AccountInit(n, k, max_header_bytes) {
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
     signal domain_name_bytes[domain_len];
-    domain_name_bytes <== VarShiftLeft(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
+    domain_name_bytes <== VarShiftMaskedStr(email_max_bytes, domain_len)(domain_regex_reveal, domain_idx);
     domain_name <== Bytes2Ints(domain_len)(domain_name_bytes);
 
     signal sign_hash;
@@ -99,7 +99,7 @@ template AccountInit(n, k, max_header_bytes) {
     (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
     timestamp_regex_out === 1;
     signal timestamp_str[timestamp_len];
-    timestamp_str <== VarShiftLeft(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
+    timestamp_str <== VarShiftMaskedStr(max_header_bytes, timestamp_len)(timestamp_regex_reveal, timestamp_idx);
     timestamp <== Digit2Int(timestamp_len)(timestamp_str);
 }
 

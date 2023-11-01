@@ -1,10 +1,11 @@
 use std::convert::TryInto;
 
 use anyhow;
-use halo2curves::ff::PrimeField;
+use halo2curves::ff::{Field, PrimeField};
 use itertools::Itertools;
 use neon::prelude::*;
 use poseidon_rs::*;
+use rand_core::{OsRng, RngCore};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub fn hex2field(input_hex: &str) -> anyhow::Result<Fr> {
