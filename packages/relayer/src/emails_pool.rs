@@ -3,7 +3,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use log::info;
 use std::fs;
-use std::path::{self, PathBuf};
+use std::path::PathBuf;
 
 #[async_trait]
 pub(crate) trait EmailsPool {

@@ -4,7 +4,6 @@ use crate::*;
 
 use ethers::types::Address;
 use ethers::utils::format_units;
-use ethers::utils::Units;
 use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) struct Claim {

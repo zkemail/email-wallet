@@ -60,14 +60,6 @@ async fn unclaim(
     ))
 }
 
-// async fn balance_of(Path(params): Path<BalanceOfRequest>) {
-//     trace!(
-//         "Getting balance of token: {} for email: {}",
-//         params.token,
-//         params.email_address
-//     );
-// }
-
 pub(crate) async fn run_server(
     addr: &str,
     db: Arc<Database>,
