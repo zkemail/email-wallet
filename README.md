@@ -6,7 +6,7 @@ Email Wallet is an Ethereum wallet that can be controlled by sending an email. I
 
 This was first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
 
-This main branch reflects feat/v0. We are auditing and deploying feat/v1 for Devconnect 2023.
+This main branch as well as the deployed version currently on https://emailwallet.org reflects feat/v0. We are auditing and deploying feat/v1 for Devconnect 2023.
 
 Feature | V0 | V1
 ---|---|---
