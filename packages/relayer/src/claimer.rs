@@ -53,7 +53,19 @@ pub(crate) async fn claim_unclaims(
         .await
         .unwrap();
     if !info.initialized {
-        return Err(anyhow!("Account not initialized"));
+        info!("Account of {} is not intialized", claim.email_address);
+        tx_sender
+            .send(EmailMessage {
+                subject: format!("New Account - CODE:{}", account_key_str),
+                body: format!(
+                    "New Account Was Created For You with Account Key set to {}",
+                    account_key_str
+                ),
+                to: claim.email_address.to_string(),
+                message_id: Some(account_key_str),
+            })
+            .unwrap();
+        return Ok(());
     }
     let now = now();
     let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
@@ -61,7 +73,7 @@ pub(crate) async fn claim_unclaims(
         let unclaimed_fund = chain_client
             .query_unclaimed_fund(&hex2field(&claim.commit)?)
             .await?;
-        if (unclaimed_fund.expire_time.as_u64() as i64) < now {
+        if unclaimed_fund.expire_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
         let token_name = chain_client
@@ -76,7 +88,7 @@ pub(crate) async fn claim_unclaims(
         let unclaimed_state = chain_client
             .query_unclaimed_state(&hex2field(&claim.commit)?)
             .await?;
-        if (unclaimed_state.expire_time.as_u64() as i64) < now {
+        if unclaimed_state.expire_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
         if claim.is_announced

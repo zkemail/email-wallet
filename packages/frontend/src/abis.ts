@@ -365,7 +365,7 @@ export const erc20ABI = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export const emailWalletCoreABI = [
   {
@@ -633,14 +633,14 @@ export const emailWalletCoreABI = [
 ] as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export const emailWalletCoreAddress = {
-  11155111: '0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21',
+  11155111: '0x8B452C4a15BF90B0491793A0B278ABD589b23c57',
 } as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export const emailWalletCoreConfig = { address: emailWalletCoreAddress, abi: emailWalletCoreABI } as const
 
@@ -2491,7 +2491,7 @@ export function useErc20TransferEvent(
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreRead<
   TFunctionName extends string,
@@ -2511,7 +2511,7 @@ export function useEmailWalletCoreRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"accountHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreAccountHandler<
   TFunctionName extends 'accountHandler',
@@ -2533,7 +2533,7 @@ export function useEmailWalletCoreAccountHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"emailNullifiers"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreEmailNullifiers<
   TFunctionName extends 'emailNullifiers',
@@ -2555,7 +2555,7 @@ export function useEmailWalletCoreEmailNullifiers<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"emailValidityDuration"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreEmailValidityDuration<
   TFunctionName extends 'emailValidityDuration',
@@ -2577,7 +2577,7 @@ export function useEmailWalletCoreEmailValidityDuration<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"extensionHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreExtensionHandler<
   TFunctionName extends 'extensionHandler',
@@ -2599,7 +2599,7 @@ export function useEmailWalletCoreExtensionHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"maxFeePerGas"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreMaxFeePerGas<
   TFunctionName extends 'maxFeePerGas',
@@ -2621,7 +2621,7 @@ export function useEmailWalletCoreMaxFeePerGas<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"priceOracle"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCorePriceOracle<
   TFunctionName extends 'priceOracle',
@@ -2643,7 +2643,7 @@ export function useEmailWalletCorePriceOracle<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"relayerHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreRelayerHandler<
   TFunctionName extends 'relayerHandler',
@@ -2665,7 +2665,7 @@ export function useEmailWalletCoreRelayerHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"tokenRegistry"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreTokenRegistry<
   TFunctionName extends 'tokenRegistry',
@@ -2687,7 +2687,7 @@ export function useEmailWalletCoreTokenRegistry<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimedFundClaimGas"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreUnclaimedFundClaimGas<
   TFunctionName extends 'unclaimedFundClaimGas',
@@ -2709,7 +2709,7 @@ export function useEmailWalletCoreUnclaimedFundClaimGas<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimedStateClaimGas"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreUnclaimedStateClaimGas<
   TFunctionName extends 'unclaimedStateClaimGas',
@@ -2731,7 +2731,7 @@ export function useEmailWalletCoreUnclaimedStateClaimGas<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimsHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreUnclaimsHandler<
   TFunctionName extends 'unclaimsHandler',
@@ -2753,7 +2753,7 @@ export function useEmailWalletCoreUnclaimsHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"validateEmailOp"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreValidateEmailOp<
   TFunctionName extends 'validateEmailOp',
@@ -2775,7 +2775,7 @@ export function useEmailWalletCoreValidateEmailOp<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"verifier"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreVerifier<
   TFunctionName extends 'verifier',
@@ -2797,7 +2797,7 @@ export function useEmailWalletCoreVerifier<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"wethContract"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreWethContract<
   TFunctionName extends 'wethContract',
@@ -2819,7 +2819,7 @@ export function useEmailWalletCoreWethContract<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreWrite<
   TFunctionName extends string,
@@ -2848,7 +2848,7 @@ export function useEmailWalletCoreWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"depositTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreDepositTokenAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -2878,7 +2878,7 @@ export function useEmailWalletCoreDepositTokenAsExtension<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"executeAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreExecuteAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -2908,7 +2908,7 @@ export function useEmailWalletCoreExecuteAsExtension<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"handleEmailOp"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreHandleEmailOp<
   TMode extends WriteContractMode = undefined,
@@ -2938,7 +2938,7 @@ export function useEmailWalletCoreHandleEmailOp<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreInitialize<
   TMode extends WriteContractMode = undefined,
@@ -2968,7 +2968,7 @@ export function useEmailWalletCoreInitialize<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"registerUnclaimedStateAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -2998,7 +2998,7 @@ export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"requestTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function useEmailWalletCoreRequestTokenAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -3028,7 +3028,7 @@ export function useEmailWalletCoreRequestTokenAsExtension<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreWrite<TFunctionName extends string>(
   config: Omit<UsePrepareContractWriteConfig<typeof emailWalletCoreABI, TFunctionName>, 'abi' | 'address'> & {
@@ -3045,7 +3045,7 @@ export function usePrepareEmailWalletCoreWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"depositTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreDepositTokenAsExtension(
   config: Omit<
@@ -3064,7 +3064,7 @@ export function usePrepareEmailWalletCoreDepositTokenAsExtension(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"executeAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreExecuteAsExtension(
   config: Omit<
@@ -3083,7 +3083,7 @@ export function usePrepareEmailWalletCoreExecuteAsExtension(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"handleEmailOp"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreHandleEmailOp(
   config: Omit<
@@ -3102,7 +3102,7 @@ export function usePrepareEmailWalletCoreHandleEmailOp(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreInitialize(
   config: Omit<
@@ -3121,7 +3121,7 @@ export function usePrepareEmailWalletCoreInitialize(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"registerUnclaimedStateAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreRegisterUnclaimedStateAsExtension(
   config: Omit<
@@ -3140,7 +3140,7 @@ export function usePrepareEmailWalletCoreRegisterUnclaimedStateAsExtension(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"requestTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x66dD1fBE299C6f1d1b623adDB15CC89376DCBe21)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8B452C4a15BF90B0491793A0B278ABD589b23c57)
  */
 export function usePrepareEmailWalletCoreRequestTokenAsExtension(
   config: Omit<

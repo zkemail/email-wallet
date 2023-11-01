@@ -20,13 +20,14 @@ impl Database {
     }
 
     pub(crate) async fn setup_database(&self) -> Result<()> {
-        sqlx::query(
-            "CREATE TABLE IF NOT EXISTS emails (
-                email TEXT PRIMARY KEY
-            );",
-        )
-        .execute(&self.db)
-        .await?;
+        // sqlx::query(
+        //     "CREATE TABLE IF NOT EXISTS emails (
+        //         email_hash TEXT PRIMARY KEY,
+        //         email TEXT NOT NULL
+        //     );",
+        // )
+        // .execute(&self.db)
+        // .await?;
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS users (
@@ -42,7 +43,7 @@ impl Database {
                 email_address TEXT NOT NULL,
                 random TEXT NOT NULL,
                 email_addr_commit TEXT NOT NULL,
-                expire_time INT8 NOT NULL,
+                expire_time BIGINT NOT NULL,
                 is_fund BOOLEAN NOT NULL,
                 is_announced BOOLEAN NOT NULL
             );",
@@ -53,51 +54,55 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn get_unhandled_emails(&self) -> Result<Vec<String>> {
-        let mut vec = Vec::new();
+    // pub(crate) async fn get_unhandled_emails(&self) -> Result<Vec<String>> {
+    //     let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT email FROM emails")
-            .fetch_all(&self.db)
-            .await?;
+    //     let rows = sqlx::query("SELECT email FROM emails")
+    //         .fetch_all(&self.db)
+    //         .await?;
 
-        for row in rows {
-            let email: String = row.get("email");
-            vec.push(email)
-        }
+    //     for row in rows {
+    //         let email: String = row.get("email");
+    //         vec.push(email)
+    //     }
 
-        Ok(vec)
-    }
+    //     Ok(vec)
+    // }
 
-    pub(crate) async fn insert_email(&self, key: &str) -> Result<()> {
-        let row = sqlx::query("INSERT INTO emails (email) VALUES ($1) REtURNING (email)")
-            .bind(key)
-            .fetch_one(&self.db)
-            .await?;
-        info!("inserted row: {}", row.get::<String, _>("email"));
-        Ok(())
-    }
+    // pub(crate) async fn insert_email(&self, email_hash: &str, email: &str) -> Result<()> {
+    //     info!("email_hash {}", email_hash);
+    //     let row = sqlx::query(
+    //         "INSERT INTO emails (email_hash, email) VALUES ($1 $2) REtURNING (email_hash)",
+    //     )
+    //     .bind(email_hash)
+    //     .bind(email)
+    //     .fetch_one(&self.db)
+    //     .await?;
+    //     info!("inserted row: {}", row.get::<String, _>("email_hash"));
+    //     Ok(())
+    // }
 
-    pub(crate) async fn delete_email(&self, key: &str) -> Result<()> {
-        let row_affected = sqlx::query("DELETE FROM emails WHERE email = $1")
-            .bind(key)
-            .execute(&self.db)
-            .await?
-            .rows_affected();
-        info!("deleted {} rows", row_affected);
+    // pub(crate) async fn delete_email(&self, email_hash: &str) -> Result<()> {
+    //     let row_affected = sqlx::query("DELETE FROM emails WHERE email_hash = $1")
+    //         .bind(email_hash)
+    //         .execute(&self.db)
+    //         .await?
+    //         .rows_affected();
+    //     info!("deleted {} rows", row_affected);
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
-    // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
-    // where, ReturnStatus is some Enum ...
-    pub(crate) async fn contains_email(&self, key: &str) -> Result<bool> {
-        let result = sqlx::query("SELECT 1 FROM emails WHERE email = $1")
-            .bind(key)
-            .fetch_optional(&self.db)
-            .await?;
+    // // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
+    // // where, ReturnStatus is some Enum ...
+    // pub(crate) async fn contains_email(&self, email_hash: &str) -> Result<bool> {
+    //     let result = sqlx::query("SELECT 1 FROM emails WHERE email_hash = $1")
+    //         .bind(email_hash)
+    //         .fetch_optional(&self.db)
+    //         .await?;
 
-        Ok(result.is_some())
-    }
+    //     Ok(result.is_some())
+    // }
 
     pub(crate) async fn insert_user(&self, email_address: &str, account_key: &str) -> Result<()> {
         let row = sqlx::query(
@@ -167,8 +172,8 @@ impl Database {
 
     pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-
-        let rows = sqlx::query("SELECT * FROM claims WHERE expire_time > $1")
+        info!("now {}", now);
+        let rows = sqlx::query("SELECT * FROM claims WHERE expire_time < $1")
             .bind(now)
             .fetch_all(&self.db)
             .await?;
@@ -201,6 +206,7 @@ impl Database {
         is_fund: bool,
         is_announced: bool,
     ) -> Result<()> {
+        info!("expire_time {}", expire_time);
         let row = sqlx::query(
             "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
         )

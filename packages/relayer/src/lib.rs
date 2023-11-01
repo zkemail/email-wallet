@@ -9,6 +9,7 @@ pub(crate) mod claimer;
 pub(crate) mod config;
 pub(crate) mod core;
 pub(crate) mod database;
+pub(crate) mod emails_pool;
 pub(crate) mod imap_client;
 pub(crate) mod smtp_client;
 pub(crate) mod strings;
@@ -23,6 +24,7 @@ pub(crate) use chain::*;
 pub(crate) use claimer::*;
 pub use config::*;
 pub(crate) use database::*;
+pub(crate) use emails_pool::*;
 use futures::TryFutureExt;
 pub(crate) use imap_client::*;
 use rand::rngs::OsRng;
@@ -98,7 +100,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
 
-    let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
+    let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel::<String>();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
     let (tx_creator, mut rx_creator) = tokio::sync::mpsc::unbounded_channel::<String>();
     let (tx_claimer, mut rx_claimer) = tokio::sync::mpsc::unbounded_channel::<Claim>();
@@ -113,8 +115,11 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         panic!("Relayer randomness is not registered");
     }
 
-    for email in db.get_unhandled_emails().await? {
-        tx_handler.send(email)?;
+    let emails_pool = FileEmailsPool::new();
+
+    for (email_hash, _) in emails_pool.get_unhandled_emails().await? {
+        info!("unhandled email {}", email_hash);
+        tx_handler.send(email_hash)?;
     }
 
     let db_clone_receiver = Arc::clone(&db);
@@ -128,9 +133,11 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     if let Some(body) = email.body() {
                         let body = String::from_utf8(body.to_vec())?;
                         info!("Received email {}", body);
-                        if !db_clone_receiver.contains_email(&body).await? {
-                            db_clone_receiver.insert_email(&body).await?;
-                            tx_handler.send(body)?;
+                        let email_hash = calculate_email_hash(&body);
+                        let emails_pool = FileEmailsPool::new();
+                        if !emails_pool.contains_email(&email_hash).await? {
+                            emails_pool.insert_email(&email_hash, &body).await?;
+                            tx_handler.send(email_hash)?;
                         }
                     }
                 }
@@ -147,12 +154,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let client_clone = Arc::clone(&client);
     let email_handler_task = tokio::task::spawn(async move {
         loop {
-            let email = rx_handler
+            let email_hash = rx_handler
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+            info!("Handling email hash {}", email_hash);
+            let email = emails_pool.get_email_by_hash(&email_hash).await?;
             info!("Handled email {}", email);
-            // db_clone.delete_email(&email).await?;
+            let emails_pool = FileEmailsPool::new();
+            emails_pool.delete_email(&email_hash).await?;
             tokio::task::spawn(
                 handle_email(
                     email,
@@ -261,7 +271,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 email_address: event.email_addr,
                 random,
                 commit,
-                expire_time: event.expiry_time.as_u64() as i64,
+                expire_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: true,
                 is_announced: true,
             };
@@ -280,7 +290,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 email_address: event.email_addr,
                 random,
                 commit,
-                expire_time: event.expiry_time.as_u64() as i64,
+                expire_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: false,
                 is_announced: true,
             };

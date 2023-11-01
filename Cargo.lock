@@ -3723,6 +3723,7 @@ dependencies = [
  "anyhow",
  "async-imap",
  "async-native-tls",
+ "async-trait",
  "axum",
  "chrono",
  "dotenv",
