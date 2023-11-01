@@ -18,6 +18,7 @@ import "./utils/MailServer.sol";
 import "./TokenRegistry.sol";
 
 // Defines upgradable logic
+// TODO: Change console.logs to emits
 contract EmailWallet is
     EmailWalletStorage,
     Initializable,
@@ -318,13 +319,10 @@ contract EmailWallet is
 
             // Initialize the wallet with some test token and this as the approver
             console.log("Wallet address created:", wallet);
-            testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
-            console.log("mint done");
+            testToken.mint(wallet, 100 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
             AutoApproveWallet(wallet).initialize();
-            console.log("wallet auto init");
             AutoApproveWallet(wallet).approveAllToken(address(testToken));
-            console.log("wallet approve all done");
-
+            console.log("Wallet initialized with 100 test tokens");
             return wallet;
         }
         // console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
@@ -393,7 +391,6 @@ contract EmailWallet is
         uint256[2] memory c,
         uint256[msg_len] memory signals
     ) public {
-        // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
 
@@ -420,21 +417,9 @@ contract EmailWallet is
         // Check from/to email domains are correct [in this case, only from domain is checked]
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
-        string memory command = StringUtils.convertPackedByteToString(
-            bodySignals[0],
-            packSize,
-            packSize
-        );
-        string memory amount = StringUtils.convertPackedByteToString(
-            bodySignals[1],
-            packSize,
-            packSize
-        );
-        string memory currency = StringUtils.convertPackedByteToString(
-            bodySignals[3],
-            packSize,
-            packSize
-        );
+        string memory command = StringUtils.convertPackedByteToString(bodySignals[0], packSize);
+        string memory amount = StringUtils.convertPackedByteToString(bodySignals[1], packSize);
+        string memory currency = StringUtils.convertPackedByteToString(bodySignals[3], packSize);
         bool canCreateFromWallet = bodySignals[4] == 1;
         uint256 fromSalt = bodySignals[5];
         bool canCreateToWallet = bodySignals[6] == 1;
@@ -450,13 +435,13 @@ contract EmailWallet is
         string memory domain = "gmail.com"; // Change this later to actually parse the domain as the first half
 
         // Verify that the public key for RSA matches the hardcoded one
+        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
         for (uint256 i = body_len; i < msg_len - commitment_len; i++) {
             require(
                 mailServer.isVerified(domain, i - body_len, signals[i]),
                 "Invalid: RSA modulus not matched"
             );
         }
-        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
         // Calculate and emit transfer data
         address tokenAddress = tokenRegistry.getTokenAddress(
