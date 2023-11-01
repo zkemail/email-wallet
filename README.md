@@ -1,19 +1,24 @@
 # Email Wallet
 
-A smart contract wallet controlled using emails. Try the demo on emailwallet.org.
+A smart contract wallet controlled using emails. Try the demo on https://emailwallet.org.
 
 Email Wallet is an Ethereum wallet that can be controlled by sending an email. It is a smart contract wallet that uses zk-SNARKs to verify the validity of the email messages. Assets in your email wallet remain secure as long as your email domain server of your email account (such as Gmail) does not forge your emails.
 
 This was first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc2023-contract-wallet-using-emails)[1].
 
-In the current version, you can:
-- ✓ Send ETH to email address.
-- ✓ Send ERC20 to email address.
-- ✓ Hide a link from an email address to a wallet address on-chain.
+This main branch reflects feat/v0. We are auditing and deploying feat/v1 for Devconnect 2023.
 
-In the future, you will be able to:
-- ✓ Swap tokens using Uniswap, and use other DeFi using extensions.
-- ✓ Sender don't learn about all your transactions history (UTXO like model).
+Feature | V0 | V1
+---|---|---
+Send ETH to email address | No | Yes
+Send ERC20 to email address | Yes | Yes
+Inter-relayer communication | No | Yes
+Support extensions | No | Yes
+Support Uniswap natively | No | Yes
+Support simple ERC20 transfers | Yes | Yes
+Hide link from email address to wallet address on-chain | Yes | Yes
+Anonymity size | 40-64 bits | 256 bit
+UTXO like model (fully private, including dusting protection) | No | No
 
 <br />
 
