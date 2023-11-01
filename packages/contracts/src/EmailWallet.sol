@@ -9,12 +9,12 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
 import {Groth16Verifier} from "./Groth16VerifierWalletAnon.sol";
-import "../utils/StringUtils.sol";
+import "./utils/StringUtils.sol";
 import "./AutoApproveWallet.sol";
 import "./EmailWalletStorage.sol";
 import "./TestERC20.sol";
-import "../utils/NFTSVG.sol";
-import "../utils/MailServer.sol";
+import "./utils/NFTSVG.sol";
+import "./utils/MailServer.sol";
 import "./TokenRegistry.sol";
 
 // Defines upgradable logic

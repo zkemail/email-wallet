@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "forge-std/Script.sol";
-import "../src/wallet/EmailWallet.sol";
+import "../src/EmailWallet.sol";
 import "../src/utils/StringUtils.sol";
-import "../src/wallet/Groth16VerifierWalletAnon.sol";
-import "../src/wallet/TestERC20.sol";
+import "../src/Groth16VerifierWalletAnon.sol";
+import "../src/TestERC20.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract Deploy is Script, Test {

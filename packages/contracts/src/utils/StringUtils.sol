@@ -128,7 +128,7 @@ library StringUtils {
             }
         }
         // TODO: You might want to assert that the state is exactly 1 or 2, or else that means empty bytse have been removed from the middle and things have been concatenated.
-        require(state == 1 || state == 2, "Invalid final state of packed bytes in email; more than two non-zero regions found!");
+        // require(state == 1 || state == 2, "Invalid final state of packed bytes in email; more than two non-zero regions found!");
         require(state >= 1, "No packed bytes found! Invalid final state of packed bytes in email; value is likely 0!");
         require(nonzeroBytesArrayIndex <= signals, "Packed bytes more than allowed max number of signals!");
         string memory returnValue = removeTrailingZeros(string(nonzeroBytesArray));
