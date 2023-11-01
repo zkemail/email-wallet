@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>My Parcel App</title>
+  </head>
+  <body>
+    <script type="module" src="http://localhost:9000/email-wallet-connect.js"></script>
+
+    <section class="hero">
+      <div class="hero-body">
+        <div class="title">Connect Email Wallet</div>
+        <hr />
+        <div class="subtitle">
+          <div>Status: <span id="status">Not connected</span></div>
+          <button id="btn-connect" class="button is-secondary mt-5">Connect</button>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      const connectButton = document.getElementById("connect");
+
+      function updateStatus() {
+        const status = window.ethereum.isConnected() ? "Connected" : "Not connected";
+        document.getElementById("status").innerText = status;
+      }
+
+      connectButton.addEventListener("click", () => {
+        window.ethereum.connect();
+      });
+    </script>
+  </body>
+</html>
