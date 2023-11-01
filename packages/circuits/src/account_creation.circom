@@ -1,7 +1,6 @@
 pragma circom 2.1.5;
 
 include "circomlib/circuits/poseidon.circom";
-include "@zk-email/circuits/helpers/extract.circom";
 include "./utils/constants.circom";
 include "./utils/email_addr_pointer.circom";
 include "./utils/account_key_commit.circom";

@@ -70,22 +70,28 @@ pub(crate) async fn claim_unclaims(
     let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
     let reply_msg = if claim.is_fund {
         let unclaimed_fund = chain_client
-            .query_unclaimed_fund(&hex2field(&claim.commit)?)
+            .query_unclaimed_fund(fr_to_bytes32(&hex2field(&claim.commit)?)?)
             .await?;
         if unclaimed_fund.expire_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
-        let token_name = chain_client
+        let mut token_name = chain_client
             .query_token_name(unclaimed_fund.token_addr)
             .await?;
+        if token_name == "WETH" {
+            token_name = "ETH".to_string();
+        }
         let decimals = chain_client
             .query_decimals_of_erc20_address(unclaimed_fund.token_addr)
             .await?;
-        let token_amount_str = format_units(unclaimed_fund.amount, decimals as u32);
-        format!("You received {} from {}", token_name, unclaimed_fund.sender)
+        let token_amount_str = format_units(unclaimed_fund.amount, decimals as u32)?;
+        format!(
+            "You received {} {} from {}",
+            token_amount_str, token_name, unclaimed_fund.sender
+        )
     } else {
         let unclaimed_state = chain_client
-            .query_unclaimed_state(&hex2field(&claim.commit)?)
+            .query_unclaimed_state(fr_to_bytes32(&hex2field(&claim.commit)?)?)
             .await?;
         if unclaimed_state.expire_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
@@ -112,6 +118,9 @@ pub(crate) async fn claim_unclaims(
     .await?;
     let (proof, pub_signals) =
         generate_proof(&input, "claim", PROVER_ADDRESS.get().unwrap()).await?;
+    info!("original commit {}", claim.commit);
+    info!("original randomness {}", claim.random);
+    info!("commit in pub signals: {}", pub_signals[2]);
     let data = ClaimInput {
         email_addr_pointer: u256_to_bytes32(pub_signals[1]),
         email_addr_commit: u256_to_bytes32(pub_signals[2]),

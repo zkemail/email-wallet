@@ -195,6 +195,7 @@ pub(crate) async fn handle_email(
                             .to_commitment_with_signature(&parsed_email.signature)?;
                         // num_recipient_email_addr_bytes =
                         //     U256::from(email_addr.as_ref().unwrap().len());
+                        info!("derived commit {:?}", email_addr_commit);
                     } else {
                         recipient_eth_addr = eth_addr.unwrap();
                     }
@@ -281,6 +282,10 @@ pub(crate) async fn handle_email(
             "num_recipient_email_addr_bytes {}",
             num_recipient_email_addr_bytes
         );
+        info!(
+            "commit in pub_signals {:?}",
+            bytes32_to_fr(&recipient_email_addr_commit)?
+        );
         let email_op = EmailOp {
             email_addr_pointer,
             has_email_recipient,
@@ -303,26 +308,29 @@ pub(crate) async fn handle_email(
             email_proof,
         };
         trace!("email_op constructed: {:?}", email_op);
-        trace!("email_op.masked_subject {}", email_op.masked_subject);
         // [TODO] simulation
         let result = chain_client.handle_email_op(email_op).await?;
         info!("email_op broadcased to chain: {}", result);
         if let Some(email_addr) = recipient_email_addr.as_ref() {
             info!("recipient email address: {}", email_addr);
             let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
-            let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
+            // let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
             let is_fund = command == SEND_COMMAND;
             let expire_time = if is_fund {
-                let unclaimed_fund = chain_client.query_unclaimed_fund(&commit).await?;
+                let unclaimed_fund = chain_client
+                    .query_unclaimed_fund(recipient_email_addr_commit.clone())
+                    .await?;
                 i64::try_from(unclaimed_fund.expire_time.as_u64()).unwrap()
             } else {
-                let unclaimed_state = chain_client.query_unclaimed_state(&commit).await?;
+                let unclaimed_state = chain_client
+                    .query_unclaimed_state(recipient_email_addr_commit.clone())
+                    .await?;
                 i64::try_from(unclaimed_state.expire_time.as_u64()).unwrap()
             };
 
             let claim = Claim {
                 email_address: email_addr.clone(),
-                commit: field2hex(&commit),
+                commit: "0x".to_string() + &hex::encode(recipient_email_addr_commit),
                 random: field2hex(&commit_rand),
                 expire_time,
                 is_fund,
@@ -487,17 +495,23 @@ pub(crate) fn extract_account_key_from_subject(subject: &str) -> Result<String> 
 }
 
 pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
-    let extracts = extract_email_addr_idxes(subject)?;
-    if let Some((start, end)) = extracts.first() {
-        if *end == subject.len() {
-            Ok((subject[0..*start].to_string(), 0))
-        } else {
-            let mut masked_subject_bytes = subject.as_bytes().to_vec();
-            masked_subject_bytes[*start..*end].copy_from_slice(vec![0u8; end - start].as_ref());
-            Ok((String::from_utf8(masked_subject_bytes)?, end - start))
+    match extract_email_addr_idxes(subject) {
+        Ok(extracts) => {
+            if extracts.len() != 1 {
+                return Err(anyhow!(
+                    "Recipient address in the subject must appear only once."
+                ));
+            }
+            let (start, end) = extracts[0];
+            if end == subject.len() {
+                Ok((subject[0..start].to_string(), 0))
+            } else {
+                let mut masked_subject_bytes = subject.as_bytes().to_vec();
+                masked_subject_bytes[start..end].copy_from_slice(vec![0u8; end - start].as_ref());
+                Ok((String::from_utf8(masked_subject_bytes)?, end - start))
+            }
         }
-    } else {
-        Ok((subject.to_string(), 0))
+        Err(_) => Ok((subject.to_string(), 0)),
     }
 }
 // pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, String)> {

@@ -16,7 +16,7 @@ export default defineConfig({
             ],
             deployments: {
                 EmailWalletCore: {
-                    [chains.sepolia.id]: "0x8B452C4a15BF90B0491793A0B278ABD589b23c57"
+                    [chains.sepolia.id]: "0x3259282dD19Cf44639e8b974B301805fB3342Fac"
                 }
             }
         }),

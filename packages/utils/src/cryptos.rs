@@ -1,10 +1,10 @@
 use crate::converters::*;
-
-use halo2curves::ff::derive::rand_core::OsRng;
-use halo2curves::ff::derive::rand_core::RngCore;
-use halo2curves::ff::Field;
+use anyhow;
+use halo2curves::ff::{Field, PrimeField};
+use itertools::Itertools;
 use neon::prelude::*;
 use poseidon_rs::*;
+use rand_core::{OsRng, RngCore};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
@@ -66,7 +66,9 @@ impl PaddedEmailAddr {
 }
 
 pub fn extract_rand_from_signature(signature: &[u8]) -> Result<Fr, PoseidonError> {
-    let mut inputs = bytes_chunk_fields(signature, 121, 2);
+    let mut signature = signature.to_vec();
+    signature.reverse();
+    let mut inputs = bytes_chunk_fields(&signature, 121, 2);
     inputs.push(Fr::one());
     let cm_rand = poseidon_fields(&inputs)?;
     Ok(cm_rand)
@@ -206,11 +208,11 @@ pub fn email_addr_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
     let signature = cx.argument::<JsString>(1)?.value(&mut cx);
-    let mut signature = match hex::decode(&signature[2..]) {
+    let signature = match hex::decode(&signature[2..]) {
         Ok(bytes) => bytes,
         Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
     };
-    signature.reverse();
+    // signature.reverse();
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
     let email_addr_commit = match padded_email_addr.to_commitment_with_signature(&signature) {
         Ok(fr) => fr,
@@ -222,11 +224,11 @@ pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResul
 
 pub fn extract_rand_from_signature_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let signature = cx.argument::<JsString>(0)?.value(&mut cx);
-    let mut signature = match hex::decode(&signature[2..]) {
+    let signature = match hex::decode(&signature[2..]) {
         Ok(bytes) => bytes,
         Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
     };
-    signature.reverse();
+    // signature.reverse();
     let rand = match extract_rand_from_signature(&signature) {
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("extract_rand_from_signature failed: {}", e)),
