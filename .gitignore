@@ -18,6 +18,7 @@ packages/contracts/cache
 packages/contracts/out
 packages/contracts/artifacts
 packages/contracts/cache
+packages/contracts/lib
 
 # Relayer
 # The relayer is a gitsubmodule so should not be synced
