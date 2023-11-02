@@ -415,6 +415,25 @@ contract IntegrationTest is IntegrationTestHelper {
         require(success, string(reason));
         require(preUsdcBalance > usdcToken.balanceOf(user1Wallet), "USDC balance does not decrease");
         require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
+
+        (emailOp, ) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/uniswap_test4.eml"),
+            relayer1Rand,
+            "Swap",
+            "Swap 200 DAI to ETH",
+            "gmail.com",
+            "DAI"
+        );
+        extensionBytes = new bytes[](2);
+        extensionBytes[0] = abi.encode(uint256(200 ether), "DAI");
+        extensionBytes[1] = abi.encode("ETH");
+        emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        preDaiBalance = daiToken.balanceOf(user1Wallet);
+        preEthBalance = weth.balanceOf(user1Wallet);
+        (success, reason, ) = core.handleEmailOp(emailOp);
+        require(success, string(reason));
+        require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
+        require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
         vm.stopPrank();
     }
 
