@@ -11,6 +11,48 @@ import "../handlers/ExtensionHandler.sol";
 import "../EmailWalletCore.sol";
 
 library SubjectUtils {
+    bytes16 private constant LOWER_HEX_DIGITS = "0123456789abcdef";
+    bytes16 private constant UPPER_HEX_DIGITS = "0123456789ABCDEF";
+
+    function addressTChecksumHexString(address addr) internal pure returns (string memory) {
+        string memory lowerCaseAddrWithOx = Strings.toHexString(addr);
+
+        bytes memory lowerCaseAddr = new bytes(40); // Remove 0x added by the OZ lib
+        for (uint8 i = 2; i < 42; i++) {
+            lowerCaseAddr[i - 2] = bytes(lowerCaseAddrWithOx)[i];
+        }
+
+        // Hash of lowercase addr
+        uint256 lowerCaseHash = uint256(keccak256(abi.encodePacked(lowerCaseAddr)));
+
+        // Result hex = 42 chars with 0x prefix
+        bytes memory result = new bytes(42);
+        result[0] = "0";
+        result[1] = "x";
+
+        // Shift 24 bytes (96 bits) to the right; as we only need first 20 bytes of the hash to compare
+        lowerCaseHash >>= 24 * 4;
+
+        uint256 intAddr = uint256(uint160(addr));
+
+        for (uint8 i = 41; i > 1; --i) {
+            uint8 hashChar = uint8(lowerCaseHash & 0xf); // Get last char of the hex
+            uint8 addrChar = uint8(intAddr & 0xf); // Get last char of the address
+
+            if (hashChar >= 8) {
+                result[i] = UPPER_HEX_DIGITS[addrChar];
+            } else {
+                result[i] = LOWER_HEX_DIGITS[addrChar];
+            }
+
+            // Remove last char from both hash and addr
+            intAddr >>= 4;
+            lowerCaseHash >>= 4;
+        }
+
+        return string(result);
+    }
+
     /// @notice Convert bytes to hex string without 0x prefix
     /// @param data bytes to convert
     function bytesToHexString(bytes memory data) public pure returns (string memory) {
@@ -60,7 +102,7 @@ library SubjectUtils {
             if (emailOp.recipientETHAddr != address(0)) {
                 maskedSubject = string.concat(
                     maskedSubject,
-                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
+                    addressTChecksumHexString(emailOp.recipientETHAddr)
                 );
             }
         }
@@ -115,7 +157,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
                 " Email Wallet. Change ownership to ",
-                Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
+                addressTChecksumHexString(emailOp.newWalletOwner)
             );
         }
         // Sample: DKIM registry as 0x000112aa..
@@ -125,7 +167,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.DKIM,
                 " registry set to ",
-                Strings.toHexString(uint256(uint160(emailOp.newDkimRegistry)), 20)
+                addressTChecksumHexString(emailOp.newDkimRegistry)
             );
         }
         // The command is for an extension
@@ -188,13 +230,13 @@ library SubjectUtils {
                 // {addres} for wallet address
                 else if (Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)) {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
-                    value = Strings.toHexString(uint256(uint160(addr)), 20);
+                    value = addressTChecksumHexString(addr);
                     nextParamIndex++;
                 }
                 // {recipient} is either the recipient's ETH address or zero bytes with the same length of the email address
                 else if (Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {
-                        value = Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20);
+                        value = addressTChecksumHexString(emailOp.recipientETHAddr);
                     } else {
                         bytes memory zeros = new bytes(emailOp.numRecipientEmailAddrBytes);
                         value = string(zeros);
