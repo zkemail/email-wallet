@@ -270,14 +270,14 @@ contract EmailWalletCore {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
 
+        currContext.unclaimedStateRegistered = true;
+
         unclaimsHandler.registerUnclaimedStateInternal(
             extensionAddr,
             currContext.walletAddr,
             currContext.recipientEmailAddrCommit,
             state
         );
-
-        currContext.unclaimedStateRegistered = true;
     }
 
     /// @notice For extension in context to request token from user's wallet during handleEmailOp
@@ -363,14 +363,14 @@ contract EmailWalletCore {
                     return (success, returnData);
                 }
 
+                currContext.unclaimedFundRegistered = true;
+
                 unclaimsHandler.registerUnclaimedFundInternal(
                     currContext.walletAddr,
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
                     walletParams.amount
                 );
-
-                currContext.unclaimedFundRegistered = true;
             }
 
             if (!emailOp.hasEmailRecipient) {
