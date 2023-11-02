@@ -51,12 +51,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
             "then send to",
             "{address}"
         ];
-        mockExtTemplates[9] = [
-            "Test",
-            "to",
-            "{recipient}",
-            "now"
-        ];
+        mockExtTemplates[9] = ["Test", "to", "{recipient}", "now"];
         extensionHandler.publishExtension("mockExtension", address(mockExtension), mockExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -82,7 +77,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
-        emailOp.maskedSubject = string.concat("NFT Send 22 of APE to ", SubjectUtils.addressTChecksumHexString(recipient));
+        emailOp.maskedSubject = string.concat(
+            "NFT Send 22 of APE to ",
+            SubjectUtils.addressTChecksumHexString(recipient)
+        );
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = false;
         emailOp.recipientETHAddr = recipient;
@@ -152,7 +150,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-     function test_SubjectWithEmailInBetween() public {
+    function test_SubjectWithEmailInBetween() public {
         bytes memory subject = new bytes(22);
         subject[0] = "T";
         subject[1] = "e";
@@ -164,7 +162,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         subject[7] = " ";
 
         // Assume emailAddr is 10 chars
-        for(uint i = 8; i < 18; i++) {
+        for (uint i = 8; i < 18; i++) {
             subject[i] = 0x0;
         }
 
@@ -175,7 +173,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-         // If the subject email is in between, then the padding will be equal to email addr length
+        // If the subject email is in between, then the padding will be equal to email addr length
         emailOp.maskedSubject = string(subject);
         emailOp.extensionParams.subjectTemplateIndex = 9;
         emailOp.extensionParams.subjectParams = new bytes[](0);
@@ -363,7 +361,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = string.concat("Test Execute on ", SubjectUtils.addressTChecksumHexString(randomAddress));
+        emailOp.maskedSubject = string.concat(
+            "Test Execute on ",
+            SubjectUtils.addressTChecksumHexString(randomAddress)
+        );
         emailOp.extensionParams.subjectTemplateIndex = 7;
         emailOp.extensionParams.subjectParams = new bytes[](1);
         emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
@@ -378,7 +379,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     function test_RevertIf_ExecuteAsExtension_TargetIsCore() public {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = string.concat("Test Execute on ", SubjectUtils.addressTChecksumHexString(address(core)));
+        emailOp.maskedSubject = string.concat(
+            "Test Execute on ",
+            SubjectUtils.addressTChecksumHexString(address(core))
+        );
         emailOp.extensionParams.subjectTemplateIndex = 7;
         emailOp.extensionParams.subjectParams = new bytes[](1);
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(core));
@@ -429,7 +433,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     function test_RevertIf_ExecuteAsExtension_TargetIsToken() public {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = string.concat("Test Execute on ", SubjectUtils.addressTChecksumHexString(address(usdcToken)));
+        emailOp.maskedSubject = string.concat(
+            "Test Execute on ",
+            SubjectUtils.addressTChecksumHexString(address(usdcToken))
+        );
         emailOp.extensionParams.subjectTemplateIndex = 7;
         emailOp.extensionParams.subjectParams = new bytes[](1);
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(usdcToken));
@@ -448,7 +455,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = string.concat("Test Execute on ", SubjectUtils.addressTChecksumHexString(randomAddress));
+        emailOp.maskedSubject = string.concat(
+            "Test Execute on ",
+            SubjectUtils.addressTChecksumHexString(randomAddress)
+        );
         emailOp.extensionParams.subjectTemplateIndex = 7;
         emailOp.extensionParams.subjectParams = new bytes[](1);
         emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);

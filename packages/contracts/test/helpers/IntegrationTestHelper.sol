@@ -181,7 +181,12 @@ abstract contract IntegrationTestHelper is Test {
 
         address extensionDev = vm.addr(3);
         vm.startPrank(extensionDev);
-        uniswapExtension = new UniswapExtension(address(core), address(tokenRegistry), UNISWAP_V3_ROUTER, UNISWAP_V3_FACTORY);
+        uniswapExtension = new UniswapExtension(
+            address(core),
+            address(tokenRegistry),
+            UNISWAP_V3_ROUTER,
+            UNISWAP_V3_FACTORY
+        );
         nftExtension = new NFTExtension(address(core));
         DummyNFT apeNFT = new DummyNFT();
         nftExtension.setNFTAddress("APE", address(apeNFT));

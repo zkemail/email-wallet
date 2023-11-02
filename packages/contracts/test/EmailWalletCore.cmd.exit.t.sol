@@ -35,7 +35,10 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         address recipient = vm.addr(7);
 
         EmailOp memory sendEmailOp = _getBaseEmailOp();
-        string memory sendSubject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory sendSubject = string.concat(
+            "Send 100 DAI to ",
+            SubjectUtils.addressTChecksumHexString(recipient)
+        );
         sendEmailOp.command = Commands.SEND;
         sendEmailOp.walletParams.tokenName = "DAI";
         sendEmailOp.walletParams.amount = 100 ether;

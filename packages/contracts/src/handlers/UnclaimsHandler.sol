@@ -12,7 +12,6 @@ import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
-
 contract UnclaimsHandler is ReentrancyGuard, Ownable {
     // Verifier contract
     IVerifier public immutable verifier;

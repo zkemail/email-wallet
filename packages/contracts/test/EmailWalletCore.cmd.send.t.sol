@@ -45,7 +45,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
     function test_Revert_SendingToEthAddress_WithNonChecksumAddress() public {
         address recipient = vm.addr(5);
         daiToken.freeMint(walletAddr, 1 ether);
-        
+
         // vm.addr(5) in lowecase = 0xe1ab8145f7e55dc933d51a18c793f901a3a0b276
         string memory subject = string.concat("Send 1 DAI to 0xe1ab8145f7e55dc933d51a18c793f901a3a0b276");
 

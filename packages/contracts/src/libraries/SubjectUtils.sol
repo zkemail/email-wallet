@@ -100,10 +100,7 @@ library SubjectUtils {
             );
 
             if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject = string.concat(
-                    maskedSubject,
-                    addressTChecksumHexString(emailOp.recipientETHAddr)
-                );
+                maskedSubject = string.concat(maskedSubject, addressTChecksumHexString(emailOp.recipientETHAddr));
             }
         }
         // Sample: Execute 0x000112aa..

@@ -10,7 +10,6 @@ import "../interfaces/Types.sol";
 
 import "./PoolFinder.sol";
 
-
 contract UniswapExtension is Extension {
     EmailWalletCore public core;
     ISwapRouter public router;
@@ -58,7 +57,7 @@ contract UniswapExtension is Extension {
         uint160 sqrtPriceLimitX96;
         string memory tokenOut = abi.decode(subjectParams[1], (string));
         if (templateIndex == 0) {
-            sqrtPriceLimitX96 = 0;            
+            sqrtPriceLimitX96 = 0;
         } else {
             uint256 sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
             require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
@@ -131,21 +130,21 @@ contract UniswapExtension is Extension {
     /// @dev minPriceX96 The minimum price for the swap it used for token0(tokenIn) -> token1(tokenOut)
     /// @dev maxPriceX96 The maximum price for the swap it used for token1(tokenIn) -> token0(tokenOut)
     function getSqrtPriceLimitX96(
-        address tokenIn, 
+        address tokenIn,
         address tokenOut,
         uint160 sqrtPriceLimitX96
     ) internal view returns (uint160) {
         bool zeroForOne = tokenIn < tokenOut;
 
         IUniswapV3Pool pool = poolFinder.getPool(tokenIn, tokenOut, poolFee);
-        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
+        (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
 
         if (sqrtPriceLimitX96 == 0) {
             sqrtPriceLimitX96 = sqrtPriceX96;
         }
 
-        uint160 minPriceX96 = sqrtPriceLimitX96 - (sqrtPriceLimitX96 * slippageBasisPoints / 10000);
-        uint160 maxPriceX96 = sqrtPriceLimitX96 + (sqrtPriceLimitX96 * slippageBasisPoints / 10000);
+        uint160 minPriceX96 = sqrtPriceLimitX96 - ((sqrtPriceLimitX96 * slippageBasisPoints) / 10000);
+        uint160 maxPriceX96 = sqrtPriceLimitX96 + ((sqrtPriceLimitX96 * slippageBasisPoints) / 10000);
 
         if (zeroForOne) {
             return minPriceX96;
