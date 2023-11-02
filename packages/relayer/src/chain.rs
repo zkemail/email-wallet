@@ -495,6 +495,26 @@ impl ChainClient {
         }
         Ok(last_block)
     }
+
+    pub(crate) async fn check_if_point_registered(&self, point: Point) -> Result<bool> {
+        let Point { x, y } = point;
+        let x = hex2field(&x)?;
+        let y = hex2field(&y)?;
+        let x = U256::from_little_endian(&x.to_bytes());
+        let y = U256::from_little_endian(&y.to_bytes());
+        let res = self
+            .account_handler
+            .pointer_of_psi_point(get_psi_point_bytes(x, y))
+            .call()
+            .await?;
+        let res = U256::from_little_endian(&res);
+        Ok(res == U256::zero())
+    }
+
+    pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {
+        // self.relayer_handler.relayers(p0)
+        todo!()
+    }
 }
 
 // pub(crate) async fn call_handle_email_op(email_op: EmailOp) -> Result<String> {
