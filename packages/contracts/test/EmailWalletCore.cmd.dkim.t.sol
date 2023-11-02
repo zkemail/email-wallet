@@ -19,7 +19,7 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         address dkimRegistryAddr = address(new TestDKIMRegistry());
         string memory subject = string.concat(
             "DKIM registry set to ",
-            Strings.toHexString(uint256(uint160(dkimRegistryAddr)), 20)
+            SubjectUtils.addressTChecksumHexString(dkimRegistryAddr)
         );
 
         EmailOp memory emailOp = _getBaseEmailOp();
