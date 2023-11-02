@@ -132,7 +132,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         emailOp.command = "Test";
         emailOp.maskedSubject = string.concat(
             "Test Register Unclaimed State to ",
-            Strings.toHexString(uint256(uint160(address(anotherExtension))), 20)
+            SubjectUtils.addressTChecksumHexString(address(anotherExtension))
         );
         emailOp.extensionParams.subjectTemplateIndex = 3;
         emailOp.hasEmailRecipient = true;

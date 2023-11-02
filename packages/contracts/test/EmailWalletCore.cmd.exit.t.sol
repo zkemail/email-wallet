@@ -14,7 +14,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         address newOwner = vm.addr(5);
         string memory subject = string.concat(
             "Exit Email Wallet. Change ownership to ",
-            Strings.toHexString(uint160(newOwner), 20)
+            SubjectUtils.addressTChecksumHexString(newOwner)
         );
         Wallet wallet = Wallet(payable(walletAddr));
 
@@ -35,7 +35,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         address recipient = vm.addr(7);
 
         EmailOp memory sendEmailOp = _getBaseEmailOp();
-        string memory sendSubject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory sendSubject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
         sendEmailOp.command = Commands.SEND;
         sendEmailOp.walletParams.tokenName = "DAI";
         sendEmailOp.walletParams.amount = 100 ether;
