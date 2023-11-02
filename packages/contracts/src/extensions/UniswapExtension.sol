@@ -36,7 +36,7 @@ contract UniswapExtension is Extension {
         tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
-        templates[1] = ["Swap", "{tokenAmount}", "{sqrtPriceLimitX96}", "to", "{string}"];
+        templates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
         poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
 
@@ -56,13 +56,13 @@ contract UniswapExtension is Extension {
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
 
         uint160 sqrtPriceLimitX96;
-        string memory tokenOut;
+        string memory tokenOut = abi.decode(subjectParams[1], (string));
         if (templateIndex == 0) {
-            sqrtPriceLimitX96 = 0;
-            tokenOut = abi.decode(subjectParams[1], (string));
+            sqrtPriceLimitX96 = 0;            
         } else {
-            sqrtPriceLimitX96 = abi.decode(subjectParams[1], (uint160));
-            tokenOut = abi.decode(subjectParams[2], (string));
+            uint256 sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
+            require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
+            sqrtPriceLimitX96 = uint160(sqrtPriceLimitX96Uint256);
         }
         address tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
         address tokenOutAddr = tokenRegistry.getTokenAddress(tokenOut);

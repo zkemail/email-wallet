@@ -452,7 +452,7 @@ abstract contract IntegrationTestHelper is Test {
         delete subjectTemplates;
         subjectTemplates = new string[][](2);
         subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
-        subjectTemplates[1] = ["Swap", "{tokenAmount}", "{sqrtPriceLimitX96}", "to", "{string}"];
+        subjectTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
         return subjectTemplates;
     }
 
