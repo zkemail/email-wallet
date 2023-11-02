@@ -21,6 +21,7 @@ import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
 import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
 import {UnclaimsHandler} from "../../src/handlers/UnclaimsHandler.sol";
 import {ExtensionHandler} from "../../src/handlers/ExtensionHandler.sol";
+import "../../src/libraries/SubjectUtils.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 

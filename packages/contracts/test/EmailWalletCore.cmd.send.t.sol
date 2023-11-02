@@ -16,12 +16,48 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", Strings.toHexString(uint256(uint160(recipient)), 20));
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
         emailOp.recipientETHAddr = recipient;
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
 
         vm.startPrank(relayer);
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    function testFuzz_ValidateSendingToEthAddress(address recipient) public {
+        daiToken.freeMint(walletAddr, 1 ether);
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        emailOp.recipientETHAddr = recipient;
+        emailOp.walletParams.amount = 1 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    // We only support addres in checksum format in the subject (not all lowercase)
+    function test_Revert_SendingToEthAddress_WithNonChecksumAddress() public {
+        address recipient = vm.addr(5);
+        daiToken.freeMint(walletAddr, 1 ether);
+        
+        // vm.addr(5) in lowecase = 0xe1ab8145f7e55dc933d51a18c793f901a3a0b276
+        string memory subject = string.concat("Send 1 DAI to 0xe1ab8145f7e55dc933d51a18c793f901a3a0b276");
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = subject;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.walletParams.amount = 1 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
+        vm.expectRevert("subject != Send 1 DAI to 0xe1AB8145F7E55DC933d51a18c793F901A3A0b276");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -92,7 +128,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
     function test_SendTokenToEOA() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
 
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 150 ether);
@@ -116,7 +152,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
     function test_SendTokenToEOA_WithDecimals() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 10.52 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 10.52 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 20 ether);
 
@@ -174,7 +210,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
     function test_ConvertWethToEthOnExternalTransfer() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 50 ETH to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 50 ETH to ", SubjectUtils.addressTChecksumHexString(recipient));
 
         // Mint 100 WETH to sender wallet; we only send 50
         vm.deal(walletAddr, 100 ether);
