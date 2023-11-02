@@ -8,13 +8,19 @@ import {EmailWalletCore} from "../EmailWalletCore.sol";
 import {TokenRegistry} from "../utils/TokenRegistry.sol";
 import "../interfaces/Types.sol";
 
+import "./PoolFinder.sol";
+
+
 contract UniswapExtension is Extension {
     EmailWalletCore public core;
     ISwapRouter public router;
     TokenRegistry public tokenRegistry;
+    PoolFinder public poolFinder;
 
     // For this example, we will set the pool fee to 0.3%.
     uint24 public constant poolFee = 3000;
+    // For this example, we will set the maximum slippage to 0.5%.
+    uint24 public constant slippageBasisPoints = 50;
 
     mapping(string => address) public addressOfNFTName;
 
@@ -25,11 +31,12 @@ contract UniswapExtension is Extension {
         _;
     }
 
-    constructor(address coreAddr, address _tokenReg, address _router) {
+    constructor(address coreAddr, address _tokenReg, address _router, address _factory) {
         core = EmailWalletCore(payable(coreAddr));
         tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
 
     function execute(
@@ -69,7 +76,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, 0)
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(
@@ -84,7 +91,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: wethAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(wethAddr, tokenOutAddr, 0)
             });
             router.exactInputSingle(swapParams2);
         } else {
@@ -96,9 +103,33 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, tokenOutAddr, 0)
             });
             router.exactInputSingle(swapParams);
+        }
+    }
+
+    function getSqrtPriceLimitX96(
+        address tokenIn, 
+        address tokenOut,
+        uint160 sqrtPriceLimitX96
+    ) internal view returns (uint160) {
+        bool zeroForOne = tokenIn < tokenOut;
+
+        IUniswapV3Pool pool = poolFinder.getPool(tokenIn, tokenOut, poolFee);
+        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
+
+        if (sqrtPriceLimitX96 == 0) {
+            sqrtPriceLimitX96 = sqrtPriceX96;
+        }
+
+        uint160 minPriceX96 = sqrtPriceLimitX96 - (sqrtPriceLimitX96 * slippageBasisPoints / 10000);
+        uint160 maxPriceX96 = sqrtPriceLimitX96 + (sqrtPriceLimitX96 * slippageBasisPoints / 10000);
+
+        if (zeroForOne) {
+            return minPriceX96;
+        } else {
+            return maxPriceX96;
         }
     }
 }
