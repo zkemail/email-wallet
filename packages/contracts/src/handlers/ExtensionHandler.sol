@@ -108,7 +108,8 @@ contract ExtensionHandler is Ownable {
                 !Strings.equal(command, Commands.STRING_TEMPLATE) &&
                 !Strings.equal(command, Commands.UINT_TEMPLATE) &&
                 !Strings.equal(command, Commands.INT_TEMPLATE) &&
-                !Strings.equal(command, Commands.ADDRESS_TEMPLATE),
+                !Strings.equal(command, Commands.ADDRESS_TEMPLATE) &&
+                !Strings.equal(command, Commands.RECIPIENT_TEMPLATE),
             "command cannot be a template matcher"
         );
 
