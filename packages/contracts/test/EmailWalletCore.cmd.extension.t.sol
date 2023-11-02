@@ -15,6 +15,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     string[][] public nftExtTemplates = new string[][](1);
     string[][] public mockExtTemplates = new string[][](10);
 
+    fallback() external {
+        // For one test below to call this contract with empty calldata
+    }
+
     function setUp() public override {
         super.setUp();
         _registerRelayer();
@@ -357,7 +361,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     }
 
     function test_ExecuteAsExtension() public {
-        address randomAddress = vm.addr(3); // since execute is on a EOA it wont revert
+        address randomAddress = address(this); // random contract addr;
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";

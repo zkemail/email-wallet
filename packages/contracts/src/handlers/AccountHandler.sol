@@ -221,13 +221,13 @@ contract AccountHandler is Ownable {
     /// @param walletSalt Salt used to deploy the wallet
     /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
     function getDKIMPublicKeyHash(bytes32 walletSalt, string memory emailDomain) public view returns (bytes32) {
-        IDKIMRegistry dkimRegistry = dkimRegistryOfWalletSalt[walletSalt];
+        address dkimRegistry = dkimRegistryOfWalletSalt[walletSalt];
 
         if (dkimRegistry == address(0)) {
-            dkimRegistry = defaultDkimRegistry;
+            dkimRegistry = address(defaultDkimRegistry);
         }
 
-        return dkimRegistry.getDKIMPublicKeyHash(emailDomain);
+        return IDKIMRegistry(dkimRegistry).getDKIMPublicKeyHash(emailDomain);
     }
 
     /// @notice Return the info of an account key commitment
