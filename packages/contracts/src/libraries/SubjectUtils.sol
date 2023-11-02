@@ -71,6 +71,8 @@ library SubjectUtils {
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
+            require(Address.isContract(target), "target is not a contract");
+
             require(
                 target != address(core) &&
                     target != address(core.unclaimsHandler()) &&

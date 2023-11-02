@@ -330,6 +330,8 @@ contract EmailWalletCore {
             "target cannot be core or handlers"
         );
 
+        require(Address.isContract(target), "target is not a contract");
+
         require(target != currContext.walletAddr, "target cannot be wallet");
 
         // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)
