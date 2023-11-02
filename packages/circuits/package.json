@@ -14,6 +14,9 @@
     "gen-random-proofs": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/gen_random_proofs.ts",
     "verify-proofs": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/verify_proofs.ts",
     "extract-email-sign-rand": "npx ts-node scripts/extract_email_sign_rand.ts",
+    "psi-step1": "npx ts-node scripts/psi_step1.ts",
+    "psi-step2": "npx ts-node scripts/psi_step2.ts",
+    "psi-step3": "npx ts-node scripts/psi_step3.ts",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {
