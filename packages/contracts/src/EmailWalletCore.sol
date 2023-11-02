@@ -487,8 +487,7 @@ contract EmailWalletCore {
                     Strings.equal(matcher, Commands.STRING_TEMPLATE) ||
                     Strings.equal(matcher, Commands.UINT_TEMPLATE) ||
                     Strings.equal(matcher, Commands.INT_TEMPLATE) ||
-                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE) ||
-                    Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)
+                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)
                 ) {
                     nextParamIndex++;
                 }
