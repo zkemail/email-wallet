@@ -32,7 +32,7 @@ impl EmailsPool for FileEmailsPool {
         for path in dir.into_iter() {
             let path = path?.path();
             let email = fs::read_to_string(path)?;
-            emails.push((calculate_email_hash(&email), email));
+            emails.push((calculate_default_hash(&email), email));
         }
         Ok(emails)
     }

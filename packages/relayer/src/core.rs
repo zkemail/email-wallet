@@ -318,12 +318,12 @@ pub(crate) async fn handle_email(
             let is_fund = command == SEND_COMMAND;
             let expire_time = if is_fund {
                 let unclaimed_fund = chain_client
-                    .query_unclaimed_fund(recipient_email_addr_commit.clone())
+                    .query_unclaimed_fund(recipient_email_addr_commit)
                     .await?;
                 i64::try_from(unclaimed_fund.expire_time.as_u64()).unwrap()
             } else {
                 let unclaimed_state = chain_client
-                    .query_unclaimed_state(recipient_email_addr_commit.clone())
+                    .query_unclaimed_state(recipient_email_addr_commit)
                     .await?;
                 i64::try_from(unclaimed_state.expire_time.as_u64()).unwrap()
             };
@@ -542,7 +542,7 @@ pub(crate) async fn generate_email_sender_input(
     email: &str,
     relayer_rand: &str,
 ) -> Result<String> {
-    let email_hash = calculate_email_hash(email);
+    let email_hash = calculate_default_hash(email);
     let email_file_name = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(email_hash.to_string() + ".email");
@@ -615,7 +615,7 @@ pub(crate) async fn generate_account_init_input(
     email: &str,
     relayer_rand: &str,
 ) -> Result<String> {
-    let email_hash = calculate_email_hash(email);
+    let email_hash = calculate_default_hash(email);
     let email_file_name = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(email_hash.to_string() + ".email");
@@ -657,7 +657,7 @@ pub(crate) async fn generate_account_transport_input(
     old_relayer_hash: &str,
     new_relayer_rand: &str,
 ) -> Result<String> {
-    let email_hash = calculate_email_hash(email);
+    let email_hash = calculate_default_hash(email);
     let email_file_name = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(email_hash.to_string() + ".email");
@@ -759,7 +759,7 @@ pub(crate) async fn generate_proof(
     Ok((proof, pub_signals))
 }
 
-pub(crate) fn calculate_email_hash(input: &str) -> String {
+pub(crate) fn calculate_default_hash(input: &str) -> String {
     let mut hasher = DefaultHasher::new();
     input.hash(&mut hasher);
     let hash_code = hasher.finish();

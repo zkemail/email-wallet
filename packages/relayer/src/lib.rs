@@ -135,7 +135,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     if let Some(body) = email.body() {
                         let body = String::from_utf8(body.to_vec())?;
                         info!("Received email {}", body);
-                        let email_hash = calculate_email_hash(&body);
+                        let email_hash = calculate_default_hash(&body);
                         let emails_pool = FileEmailsPool::new();
                         if !emails_pool.contains_email(&email_hash).await? {
                             emails_pool.insert_email(&email_hash, &body).await?;

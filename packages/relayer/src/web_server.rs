@@ -21,12 +21,6 @@ struct UnclaimRequest {
     tx_hash: String,
 }
 
-#[derive(Deserialize)]
-struct BalanceOfRequest {
-    email_address: String,
-    token: String,
-}
-
 async fn unclaim(
     payload: UnclaimRequest,
     db: Arc<Database>,
