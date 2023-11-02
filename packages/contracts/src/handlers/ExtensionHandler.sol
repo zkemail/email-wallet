@@ -136,11 +136,13 @@ contract ExtensionHandler is Ownable {
     /// @param walletAddr The user's wallet address
     /// @param command Command for which the extension address is to be returned
     function getExtensionForCommand(address walletAddr, string memory command) public view returns (address) {
-        address extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
+        address extensionAddr;
         address userextensionAddr = userExtensionOfCommand[walletAddr][command];
 
         if (userextensionAddr != address(0)) {
             extensionAddr = userextensionAddr;
+        } else {
+            extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
         }
 
         return extensionAddr;
