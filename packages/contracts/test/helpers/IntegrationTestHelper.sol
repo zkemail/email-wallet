@@ -450,8 +450,9 @@ abstract contract IntegrationTestHelper is Test {
 
     function _getUniswapSubjectTemplates() internal returns (string[][] memory) {
         delete subjectTemplates;
-        subjectTemplates = new string[][](1);
+        subjectTemplates = new string[][](2);
         subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        subjectTemplates[1] = ["Swap", "{tokenAmount}", "{sqrtPriceLimitX96}", "to", "{string}"];
         return subjectTemplates;
     }
 
