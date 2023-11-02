@@ -24,7 +24,7 @@ contract UniswapExtension is Extension {
 
     mapping(string => address) public addressOfNFTName;
 
-    string[][] public templates = new string[][](1);
+    string[][] public templates = new string[][](2);
 
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
@@ -36,6 +36,7 @@ contract UniswapExtension is Extension {
         tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        templates[1] = ["Swap", "{tokenAmount}", "{sqrtPriceLimitX96}", "to", "{string}"];
         poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
 
@@ -49,23 +50,36 @@ contract UniswapExtension is Extension {
     ) external override onlyCore {
         recipientETHAddr;
         emailNullifier;
+        require(templateIndex <= 1, "invalid templateIndex");
+        require(!hasEmailRecipient, "recipient is not supported");
+
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
-        string memory tokenOut = abi.decode(subjectParams[1], (string));
+
+        uint160 sqrtPriceLimitX96;
+        string memory tokenOut;
+        if (templateIndex == 0) {
+            sqrtPriceLimitX96 = 0;
+            tokenOut = abi.decode(subjectParams[1], (string));
+        } else {
+            sqrtPriceLimitX96 = abi.decode(subjectParams[1], (uint160));
+            tokenOut = abi.decode(subjectParams[2], (string));
+        }
         address tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
         address tokenOutAddr = tokenRegistry.getTokenAddress(tokenOut);
-        require(templateIndex == 0, "invalid templateIndex");
         require(tokenOutAddr != address(0), "invalid out token name");
-        require(!hasEmailRecipient, "recipient is not supported");
-        uint balanceIn = IERC20(tokenInAddr).balanceOf(address(this));
-        core.requestTokenAsExtension(tokenInAddr, tokenInAmount);
-        require(
-            IERC20(tokenInAddr).balanceOf(address(this)) - balanceIn == tokenInAmount,
-            "token is not sent from core"
-        );
-        require(
-            IERC20(tokenInAddr).approve(address(router), tokenInAmount),
-            "approve from the extension to router failed"
-        );
+        // To avoid stack too deep, we use the following bracket
+        {
+            uint balanceIn = IERC20(tokenInAddr).balanceOf(address(this));
+            core.requestTokenAsExtension(tokenInAddr, tokenInAmount);
+            require(
+                IERC20(tokenInAddr).balanceOf(address(this)) - balanceIn == tokenInAmount,
+                "token is not sent from core"
+            );
+            require(
+                IERC20(tokenInAddr).approve(address(router), tokenInAmount),
+                "approve from the extension to router failed"
+            );
+        }
         address wethAddr = tokenRegistry.getTokenAddress("ETH");
         if (tokenInAddr != wethAddr && tokenOutAddr != wethAddr) {
             ISwapRouter.ExactInputSingleParams memory swapParams1 = ISwapRouter.ExactInputSingleParams({
@@ -76,7 +90,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, 0)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, sqrtPriceLimitX96)
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(
@@ -91,7 +105,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: wethAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(wethAddr, tokenOutAddr, 0)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(wethAddr, tokenOutAddr, sqrtPriceLimitX96)
             });
             router.exactInputSingle(swapParams2);
         } else {
@@ -103,12 +117,19 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, tokenOutAddr, 0)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, tokenOutAddr, sqrtPriceLimitX96)
             });
             router.exactInputSingle(swapParams);
         }
     }
 
+    /// @notice Get the price limit for the swap if sqrtPriceLimitX96 is not set, this function uses the current price
+    /// @param tokenIn Token to be swapped
+    /// @param tokenOut Token to be received
+    /// @param sqrtPriceLimitX96 The price limit for the swap
+    /// @return The price limit for the swap with slippage
+    /// @dev minPriceX96 The minimum price for the swap it used for token0(tokenIn) -> token1(tokenOut)
+    /// @dev maxPriceX96 The maximum price for the swap it used for token1(tokenIn) -> token0(tokenOut)
     function getSqrtPriceLimitX96(
         address tokenIn, 
         address tokenOut,
