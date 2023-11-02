@@ -56,7 +56,6 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
         address nftAddr = addressOfNFTName[nftName];
 
         require(nftAddr != address(0), "invalid NFT");
-        require(tokenId != 0, "invalid tokenId");
 
         if (hasEmailRecipient) {
             bytes memory data = abi.encodeWithSignature("approve(address,uint256)", address(this), tokenId);
