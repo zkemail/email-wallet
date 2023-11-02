@@ -12,6 +12,7 @@ import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
+
 contract UnclaimsHandler is ReentrancyGuard, Ownable {
     // Verifier contract
     IVerifier public immutable verifier;
@@ -40,6 +41,9 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
     // Mapping of emailAddrCommit to unclaimed state
     mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
+
+    uint256 constant ETH_TRANSFER_GAS = 21000;
+    uint256 constant WETH_DEPOSIT_GAS = 27938;
 
     constructor(
         address _relayerHandler,
@@ -213,8 +217,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // Transfer token from Core contract to sender's wallet
         ERC20(fund.tokenAddr).transfer(fund.sender, fund.amount);
 
-        // Gas consumed so far + approx. cost for 2 ETH transfers; Ignoring event emission gas
-        uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
+        // Gas consumed so far + approx. cost for 1 ETH transfers and 1 deposit to WETH; Ignoring event emission gas
+        uint256 consumedGas = initialGas - gasleft() + ETH_TRANSFER_GAS + WETH_DEPOSIT_GAS;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
         (bool success, ) = payable(fund.sender).call{value: (unclaimedFundClaimGas - consumedGas) * maxFeePerGas}("");
@@ -376,7 +380,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         Extension extension = Extension(us.extensionAddr);
 
         // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` and pass to extension
-        uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - 21000;
+        uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
 
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
@@ -413,7 +417,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         // Gas consumed for verification and next steps is deducated from `unclaimedStateClaimGas`
         // and rest is passed to extension
-        uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - 21000 - 21000;
+        uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS - WETH_DEPOSIT_GAS;
 
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
@@ -427,7 +431,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         }
 
         // Gas consumed so far + cost for 2 ETH transfers
-        uint256 consumedGas = initialGas - gasleft() + 21000 + 21000;
+        uint256 consumedGas = initialGas - gasleft() + ETH_TRANSFER_GAS + WETH_DEPOSIT_GAS;
 
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
         (success, ) = payable(us.sender).call{value: (unclaimedStateClaimGas - consumedGas) * maxFeePerGas}("");
