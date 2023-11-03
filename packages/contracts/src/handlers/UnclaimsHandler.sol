@@ -3,7 +3,8 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 import "../interfaces/Extension.sol";
@@ -13,6 +14,8 @@ import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
 contract UnclaimsHandler is ReentrancyGuard, Ownable {
+    using SafeERC20 for IERC20;
+
     // Verifier contract
     IVerifier public immutable verifier;
 
@@ -122,7 +125,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         require(unclaimedFundOfEmailAddrCommit[emailAddrCommit].amount == 0, "unclaimed fund exists");
 
         // Transfer token from sender to Core contract - sender should have set enough allowance for Core contract
-        ERC20(tokenAddr).transferFrom(msg.sender, address(this), amount);
+        IERC20(tokenAddr).safeTransferFrom(msg.sender, address(this), amount);
 
         UnclaimedFund memory fund = UnclaimedFund({
             emailAddrCommit: emailAddrCommit,
@@ -192,7 +195,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         delete unclaimedFundOfEmailAddrCommit[emailAddrCommit];
 
         // Transfer token from Core contract to recipient's wallet
-        ERC20(fund.tokenAddr).transfer(recipientAddr, fund.amount);
+        IERC20(fund.tokenAddr).safeTransfer(recipientAddr, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
         payable(msg.sender).transfer(unclaimedFundClaimGas * maxFeePerGas);
@@ -214,7 +217,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         delete unclaimedFundOfEmailAddrCommit[emailAddrCommit];
 
         // Transfer token from Core contract to sender's wallet
-        ERC20(fund.tokenAddr).transfer(fund.sender, fund.amount);
+        IERC20(fund.tokenAddr).safeTransfer(fund.sender, fund.amount);
 
         // Gas consumed so far + approx. cost for 1 ETH transfers and 1 deposit to WETH; Ignoring event emission gas
         uint256 consumedGas = initialGas - gasleft() + ETH_TRANSFER_GAS + WETH_DEPOSIT_GAS;
