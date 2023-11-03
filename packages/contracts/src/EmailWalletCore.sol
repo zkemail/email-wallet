@@ -276,7 +276,8 @@ contract EmailWalletCore {
             extensionAddr,
             currContext.walletAddr,
             currContext.recipientEmailAddrCommit,
-            state
+            state,
+            extensionAddr == currContext.extensionAddr
         );
     }
 
