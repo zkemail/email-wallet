@@ -27,6 +27,7 @@ import "./helpers/IntegrationTestHelper.sol";
 contract IntegrationTest is IntegrationTestHelper {
     using Strings for *;
     using console for *;
+    using SubjectUtils for *;
 
     function testIntegration_Account_Creation() public {
         vm.startPrank(relayer1);
@@ -195,7 +196,7 @@ contract IntegrationTest is IntegrationTestHelper {
             string.concat(projectRoot, "/test/emails/token_transfer_test2.eml"),
             relayer1Rand,
             "Send",
-            string.concat("Send 0.25 ETH to ", recipient.toHexString()),
+            string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
             "gmail.com",
             "ETH"
         );
@@ -526,7 +527,7 @@ contract IntegrationTest is IntegrationTestHelper {
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test2.eml"),
             relayer1Rand,
             "Send",
-            string.concat("Send 0.25 ETH to ", recipient.toHexString()),
+            string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
             "gmail.com",
             "ETH"
         );
@@ -740,7 +741,7 @@ contract IntegrationTest is IntegrationTestHelper {
             string.concat(projectRoot, "/test/emails/nft_transfer_test2.eml"),
             relayer1Rand,
             "NFT",
-            string.concat("NFT Send 1 of APE to ", recipient.toHexString()),
+            string.concat("NFT Send 1 of APE to ", recipient.addressToChecksumHexString()),
             "gmail.com",
             "ETH"
         );
@@ -944,7 +945,7 @@ contract IntegrationTest is IntegrationTestHelper {
             string.concat(projectRoot, "/test/emails/nft_approve_test1.eml"),
             relayer1Rand,
             "NFT",
-            string.concat("NFT Approve ", recipient.toHexString(), " for 1 of APE"),
+            string.concat("NFT Approve ", recipient.addressToChecksumHexString(), " for 1 of APE"),
             "gmail.com",
             "ETH"
         );
