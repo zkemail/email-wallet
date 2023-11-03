@@ -1805,10 +1805,10 @@
   dependencies:
     "@zk-email/zk-regex-circom" "^1.1.1"
 
-"@zk-email/contracts@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-3.2.0.tgz#85a9bbb77ae3fc65e09f8f54c3ddf2f70a85bc46"
-  integrity sha512-ii9BOu39PPbwW3wPt/epaaXp3Ys9Tlhg50i+11Y9lbuiJq9h81iyLLt9Y5mpKyBQj0NiBvGrHAIVjB1sTitV2Q==
+"@zk-email/contracts@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-3.3.0.tgz#32d3995059f822d02589d51988094eba21394a17"
+  integrity sha512-C2srVPVatb5Vgkj9EsHCBhDGOJa2/nqojIxs1QtMfl4CVaW9oKeOZUU6kDTWOtVDi50KtE/2uCJHzgnam008yw==
   dependencies:
     "@openzeppelin/contracts" "^4.9.3"
 
