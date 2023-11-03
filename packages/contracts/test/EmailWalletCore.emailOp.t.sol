@@ -145,7 +145,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getTokenSendingEmailOp();
         emailOp.hasEmailRecipient = false;
         emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         vm.startPrank(relayer);
         vm.expectRevert("recipientEmailAddrCommit not allowed");
@@ -168,7 +168,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_ShouldReturnFeeIfUnclaimsNotRegistered() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
 
@@ -194,7 +194,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RelayerGasReimbursement_WhenUserPaysInETH() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
 
@@ -226,7 +226,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RelayerGasReimbursement_WhenUserPaysInToken() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
         usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
@@ -253,7 +253,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RelayerGasReimbursement_WithCustomFeePerGas() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
         uint256 feePerGas = 3 gwei;
 
         daiToken.freeMint(walletAddr, 150 ether);
@@ -339,7 +339,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RevertIf_RelayerGasReimbursementFails() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
         usdcToken.freeMint(walletAddr, 100 wei); // This is not enough for gas reimbursement

@@ -16,7 +16,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
         emailOp.recipientETHAddr = recipient;
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
@@ -31,7 +31,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
         emailOp.recipientETHAddr = recipient;
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
@@ -128,7 +128,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
     function test_SendTokenToEOA() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
         daiToken.freeMint(walletAddr, 150 ether);
@@ -152,7 +152,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
     function test_SendTokenToEOA_WithDecimals() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 10.52 DAI to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 10.52 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 20 ether);
 
@@ -210,7 +210,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
     function test_ConvertWethToEthOnExternalTransfer() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 50 ETH to ", SubjectUtils.addressTChecksumHexString(recipient));
+        string memory subject = string.concat("Send 50 ETH to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         // Mint 100 WETH to sender wallet; we only send 50
         vm.deal(walletAddr, 100 ether);
