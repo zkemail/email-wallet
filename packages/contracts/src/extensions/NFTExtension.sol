@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {Extension} from "../interfaces/Extension.sol";
 import {EmailWalletCore} from "../EmailWalletCore.sol";
@@ -91,9 +92,9 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
     function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
-        ERC721 nft = ERC721(nftAddr);
-        require(ERC721(nftAddr).getApproved(tokenId) == address(this), "NFT not approved to extension");
-        nft.transferFrom(unclaimedState.sender, address(this), tokenId);
+        IERC721 nft = IERC721(nftAddr);
+        require(IERC721(nftAddr).getApproved(tokenId) == address(this), "NFT not approved to extension");
+        nft.safeTransferFrom(unclaimedState.sender, address(this), tokenId);
         require(nft.ownerOf(tokenId) == address(this), "NFT not transferred to extension");
     }
 
@@ -101,13 +102,13 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer nft to wallet
-        ERC721(nftAddr).transferFrom(address(this), wallet, tokenId);
+        IERC721(nftAddr).safeTransferFrom(address(this), wallet, tokenId);
     }
 
     function voidUnclaimedState(UnclaimedState memory unclaimedState) external override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         // Transfer nft back to sender
-        ERC721(nftAddr).transferFrom(address(this), unclaimedState.sender, tokenId);
+        IERC721(nftAddr).safeTransferFrom(address(this), unclaimedState.sender, tokenId);
     }
 }
