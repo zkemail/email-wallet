@@ -12,7 +12,6 @@ import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
-
 contract UnclaimsHandler is ReentrancyGuard, Ownable {
     // Verifier contract
     IVerifier public immutable verifier;
@@ -265,7 +264,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
+        try extension.registerUnclaimedState(us) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
@@ -313,7 +312,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
+        try extension.registerUnclaimedState(us) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");

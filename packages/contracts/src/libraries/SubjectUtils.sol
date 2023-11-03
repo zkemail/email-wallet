@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import "./DecimalUtils.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Commands.sol";
@@ -14,7 +15,7 @@ library SubjectUtils {
     bytes16 private constant LOWER_HEX_DIGITS = "0123456789abcdef";
     bytes16 private constant UPPER_HEX_DIGITS = "0123456789ABCDEF";
 
-    function addressTChecksumHexString(address addr) internal pure returns (string memory) {
+    function addressToChecksumHexString(address addr) internal pure returns (string memory) {
         string memory lowerCaseAddrWithOx = Strings.toHexString(addr);
 
         bytes memory lowerCaseAddr = new bytes(40); // Remove 0x added by the OZ lib
@@ -100,10 +101,7 @@ library SubjectUtils {
             );
 
             if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject = string.concat(
-                    maskedSubject,
-                    addressTChecksumHexString(emailOp.recipientETHAddr)
-                );
+                maskedSubject = string.concat(maskedSubject, addressToChecksumHexString(emailOp.recipientETHAddr));
             }
         }
         // Sample: Execute 0x000112aa..
@@ -113,6 +111,8 @@ library SubjectUtils {
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
+            require(Address.isContract(target), "target is not a contract");
+
             require(
                 target != address(core) &&
                     target != address(core.unclaimsHandler()) &&
@@ -155,7 +155,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
                 " Email Wallet. Change ownership to ",
-                addressTChecksumHexString(emailOp.newWalletOwner)
+                addressToChecksumHexString(emailOp.newWalletOwner)
             );
         }
         // Sample: DKIM registry as 0x000112aa..
@@ -165,7 +165,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.DKIM,
                 " registry set to ",
-                addressTChecksumHexString(emailOp.newDkimRegistry)
+                addressToChecksumHexString(emailOp.newDkimRegistry)
             );
         }
         // The command is for an extension
@@ -228,13 +228,13 @@ library SubjectUtils {
                 // {addres} for wallet address
                 else if (Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)) {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
-                    value = addressTChecksumHexString(addr);
+                    value = addressToChecksumHexString(addr);
                     nextParamIndex++;
                 }
                 // {recipient} is either the recipient's ETH address or zero bytes with the same length of the email address
                 else if (Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {
-                        value = addressTChecksumHexString(emailOp.recipientETHAddr);
+                        value = addressToChecksumHexString(emailOp.recipientETHAddr);
                     } else {
                         bytes memory zeros = new bytes(emailOp.numRecipientEmailAddrBytes);
                         value = string(zeros);

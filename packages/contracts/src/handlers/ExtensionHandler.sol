@@ -108,7 +108,8 @@ contract ExtensionHandler is Ownable {
                 !Strings.equal(command, Commands.STRING_TEMPLATE) &&
                 !Strings.equal(command, Commands.UINT_TEMPLATE) &&
                 !Strings.equal(command, Commands.INT_TEMPLATE) &&
-                !Strings.equal(command, Commands.ADDRESS_TEMPLATE),
+                !Strings.equal(command, Commands.ADDRESS_TEMPLATE) &&
+                !Strings.equal(command, Commands.RECIPIENT_TEMPLATE),
             "command cannot be a template matcher"
         );
 
@@ -135,11 +136,13 @@ contract ExtensionHandler is Ownable {
     /// @param walletAddr The user's wallet address
     /// @param command Command for which the extension address is to be returned
     function getExtensionForCommand(address walletAddr, string memory command) public view returns (address) {
-        address extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
+        address extensionAddr;
         address userextensionAddr = userExtensionOfCommand[walletAddr][command];
 
         if (userextensionAddr != address(0)) {
             extensionAddr = userextensionAddr;
+        } else {
+            extensionAddr = defaultExtensionOfCommand[command]; // Global extension installed by default for all users
         }
 
         return extensionAddr;

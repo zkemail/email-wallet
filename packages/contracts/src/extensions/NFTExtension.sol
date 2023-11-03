@@ -56,7 +56,6 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
         address nftAddr = addressOfNFTName[nftName];
 
         require(nftAddr != address(0), "invalid NFT");
-        require(tokenId != 0, "invalid tokenId");
 
         if (hasEmailRecipient) {
             bytes memory data = abi.encodeWithSignature("approve(address,uint256)", address(this), tokenId);
@@ -89,7 +88,7 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
         }
     }
 
-    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public override onlyCore {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState) public override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         ERC721 nft = ERC721(nftAddr);

@@ -111,7 +111,12 @@ contract Deploy is Script {
         address uniswapV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
         // address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
         // TODO: To avoid stack too deep, uniswapV3Factory variable is not used
-        UniswapExtension uniExt = new UniswapExtension(address(core), tokenRegistry, uniswapV2Router, 0x1F98431c8aD98523631AE4a59f267346ea31F984);
+        UniswapExtension uniExt = new UniswapExtension(
+            address(core),
+            tokenRegistry,
+            uniswapV2Router,
+            0x1F98431c8aD98523631AE4a59f267346ea31F984
+        );
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 

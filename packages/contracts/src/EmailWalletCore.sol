@@ -270,14 +270,14 @@ contract EmailWalletCore {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
 
+        currContext.unclaimedStateRegistered = true;
+
         unclaimsHandler.registerUnclaimedStateInternal(
             extensionAddr,
             currContext.walletAddr,
             currContext.recipientEmailAddrCommit,
             state
         );
-
-        currContext.unclaimedStateRegistered = true;
     }
 
     /// @notice For extension in context to request token from user's wallet during handleEmailOp
@@ -330,6 +330,8 @@ contract EmailWalletCore {
             "target cannot be core or handlers"
         );
 
+        require(Address.isContract(target), "target is not a contract");
+
         require(target != currContext.walletAddr, "target cannot be wallet");
 
         // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)
@@ -361,14 +363,14 @@ contract EmailWalletCore {
                     return (success, returnData);
                 }
 
+                currContext.unclaimedFundRegistered = true;
+
                 unclaimsHandler.registerUnclaimedFundInternal(
                     currContext.walletAddr,
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
                     walletParams.amount
                 );
-
-                currContext.unclaimedFundRegistered = true;
             }
 
             if (!emailOp.hasEmailRecipient) {
@@ -485,8 +487,7 @@ contract EmailWalletCore {
                     Strings.equal(matcher, Commands.STRING_TEMPLATE) ||
                     Strings.equal(matcher, Commands.UINT_TEMPLATE) ||
                     Strings.equal(matcher, Commands.INT_TEMPLATE) ||
-                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE) ||
-                    Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)
+                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)
                 ) {
                     nextParamIndex++;
                 }
