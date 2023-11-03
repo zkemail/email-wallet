@@ -88,7 +88,7 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
         }
     }
 
-    function registerUnclaimedState(UnclaimedState memory unclaimedState) public override onlyCore {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public override onlyCore {
         (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
 
         ERC721 nft = ERC721(nftAddr);

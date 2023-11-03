@@ -96,7 +96,7 @@ contract TestExtension is Extension {
         }
     }
 
-    function registerUnclaimedState(UnclaimedState memory unclaimedState) public pure override {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public pure override {
         unclaimedState;
     }
 

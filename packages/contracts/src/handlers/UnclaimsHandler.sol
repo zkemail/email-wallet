@@ -264,7 +264,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us) {} catch Error(string memory reason) {
+        try extension.registerUnclaimedState(us,false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
@@ -288,11 +288,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     /// @param sender Address of the sender of the unclaimed state
     /// @param recipientEmailAddrCommit Email address commitment of the recipient
     /// @param state State to be registered
+    /// @param isInternal A flag whether the unclaimed state is registered from `registerUnclaimedStateAsExtension` and the caller and callee extensions are the same.
     function registerUnclaimedStateInternal(
         address extensionAddr,
         address sender,
         bytes32 recipientEmailAddrCommit,
-        bytes calldata state
+        bytes calldata state,
+        bool isInternal
     ) public onlyOwner {
         require(
             unclaimedStateOfEmailAddrCommit[recipientEmailAddrCommit].sender == address(0),
@@ -312,7 +314,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us) {} catch Error(string memory reason) {
+        try extension.registerUnclaimedState(us, isInternal) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
