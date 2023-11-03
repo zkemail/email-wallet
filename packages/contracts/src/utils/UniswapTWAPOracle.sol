@@ -51,6 +51,6 @@ contract UniswapTWAPOracle is IPriceOracle {
 
     /// @inheritdoc IPriceOracle
     function getRecentPriceInETH(address token) public view override returns (uint256) {
-        return getTWAPInWETH(token, 3600); // 5 minutes
+        return getTWAPInWETH(token, 3600); // 1 hour
     }
 }

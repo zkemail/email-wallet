@@ -18,7 +18,7 @@ contract UniswapExtension is Extension {
 
     // For this example, we will set the pool fee to 0.3%.
     uint24 public constant poolFee = 3000;
-    // For this example, we will set the maximum slippage to 0.5%.
+    // It's a default slippage, we will set the maximum slippage to 0.5%.
     uint24 public constant slippageBasisPoints = 50;
 
     mapping(string => address) public addressOfNFTName;
