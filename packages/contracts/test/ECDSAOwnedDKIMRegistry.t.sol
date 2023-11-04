@@ -56,6 +56,24 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
     }
 
+    function test_RevokeDKIMPublicKeyHash() public {
+        vm.chainId(1);
+        uint timestamp = block.timestamp;
+        string memory signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash, timestamp);
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
+
+        // Revoke
+        string memory revokeMsg = string.concat("REVOKE", domainName, Strings.toString(uint256(publicKeyHash)));
+        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, bytes(revokeMsg).toEthSignedMessageHash());
+        bytes memory revokeSig = abi.encodePacked(r1, s1, v1);
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, revokeSig);
+
+        require(!registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash));
+    }
+
     function test_RevertIfExpired() public {
         vm.chainId(1);
         uint timestamp = block.timestamp;
