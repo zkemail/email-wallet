@@ -38,7 +38,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.command = "Send 1 ETH to someone@sample.com";
 
         vm.startPrank(relayer);
-        vm.expectRevert("cannot find DKIM for domain");
+        vm.expectRevert("invalid DKIM public key");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }

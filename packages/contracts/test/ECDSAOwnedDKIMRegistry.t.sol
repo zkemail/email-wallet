@@ -31,7 +31,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
-        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
     }
 
     function test_SetDKIMPublicKeyHashMultiDomain() public {
@@ -42,7 +42,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
-        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
 
         selector = "67890";
         domainName = "example2.com";
@@ -53,7 +53,25 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         (v, r, s) = vm.sign(1, digest);
         signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
-        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
+    }
+
+    function test_RevokeDKIMPublicKeyHash() public {
+        vm.chainId(1);
+        uint timestamp = block.timestamp;
+        string memory signedMsg = registry.computeSignedMsg(selector, domainName, publicKeyHash, timestamp);
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+        registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
+
+        // Revoke
+        string memory revokeMsg = string.concat("REVOKE", domainName, Strings.toString(uint256(publicKeyHash)));
+        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, bytes(revokeMsg).toEthSignedMessageHash());
+        bytes memory revokeSig = abi.encodePacked(r1, s1, v1);
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, revokeSig);
+
+        require(!registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash));
     }
 
     function test_RevertIfExpired() public {
@@ -66,7 +84,6 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         vm.warp(timestamp + signValidityDuration + 1);
         vm.expectRevert("Signature expired");
         registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
-        require(registry.getDKIMPublicKeyHash(domainName) == bytes32(0), "Invalid public key hash");
     }
 
     function test_RevertIfSignatureInvalid() public {
@@ -78,7 +95,6 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectRevert("Invalid signature");
         registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
-        require(registry.getDKIMPublicKeyHash(domainName) == bytes32(0), "Invalid public key hash");
     }
 
     function test_RevertIfChainIdInvalid() public {
@@ -90,7 +106,6 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectRevert("Invalid signature");
         registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
-        require(registry.getDKIMPublicKeyHash(domainName) == bytes32(0), "Invalid public key hash");
     }
 
     function test_Dfinity_Oracle_Response() public {
@@ -110,6 +125,6 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
                 "0x875fae3da3e58a97971663934b3ddafd4057706ddb7281de07d25d51e3587c3b179c4fcc45b6710bacde082933d22e69076f4b49da02273ee30a3cc5d04febe81c"
             )
         );
-        require(registry.getDKIMPublicKeyHash(domainName) == publicKeyHash, "Invalid public key hash");
+        require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
     }
 }

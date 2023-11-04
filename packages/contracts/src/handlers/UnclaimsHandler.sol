@@ -264,13 +264,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us,false) {} catch Error(string memory reason) {
+        unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
+
+        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
         }
-
-        unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
 
         emit EmailWalletEvents.UnclaimedStateRegistered(
             emailAddrCommit,
@@ -314,13 +314,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
+        unclaimedStateOfEmailAddrCommit[recipientEmailAddrCommit] = us;
+
         try extension.registerUnclaimedState(us, isInternal) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
         }
-
-        unclaimedStateOfEmailAddrCommit[recipientEmailAddrCommit] = us;
 
         emit EmailWalletEvents.UnclaimedStateRegistered(
             recipientEmailAddrCommit,
@@ -376,12 +376,12 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt
         );
 
-        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
-
         Extension extension = Extension(us.extensionAddr);
 
         // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` and pass to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
+
+        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
@@ -412,13 +412,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.expiryTime < block.timestamp, "unclaimed state not expired");
 
-        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
-
         Extension extension = Extension(us.extensionAddr);
 
         // Gas consumed for verification and next steps is deducated from `unclaimedStateClaimGas`
         // and rest is passed to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS - WETH_DEPOSIT_GAS;
+
+        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
 
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
