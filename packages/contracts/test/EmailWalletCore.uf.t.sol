@@ -393,7 +393,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
+        accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockDKIMHash, mockProof);
 
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         vm.stopPrank();
@@ -448,7 +448,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockProof);
+        accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockDKIMHash, mockProof);
 
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
         unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit2, newEmailAddrPointer, mockProof);
@@ -497,7 +497,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({ dkimPublicKeyHash: mockDKIMHash,nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
             mockProof
         );
 

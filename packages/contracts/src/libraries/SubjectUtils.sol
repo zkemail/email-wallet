@@ -79,13 +79,12 @@ library SubjectUtils {
         address walletAddr,
         EmailWalletCore core
     ) public view returns (string memory maskedSubject, bool isExtension) {
-        TokenRegistry tokenRegistry = TokenRegistry(core.tokenRegistry());
         ExtensionHandler extensionHandler = ExtensionHandler(core.extensionHandler());
 
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(tokenRegistry.getTokenAddress(emailOp.walletParams.tokenName));
+            ERC20 token = ERC20(TokenRegistry(core.tokenRegistry()).getTokenAddress(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
@@ -123,7 +122,10 @@ library SubjectUtils {
             );
 
             require(target != walletAddr, "cannot execute on wallet");
-            require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
+            require(
+                bytes(TokenRegistry(core.tokenRegistry()).getTokenNameOfAddress(target)).length == 0,
+                "cannot execute on token"
+            );
             require(data.length > 0, "execute data cannot be empty");
 
             maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
@@ -190,7 +192,7 @@ library SubjectUtils {
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256, string)
                     );
-                    address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
+                    address tokenAddr = TokenRegistry(core.tokenRegistry()).getTokenAddress(tokenName);
 
                     require(tokenAddr != address(0), "token not supported");
                     // We are not validating token balance here, as tokenAmount might not be always for debiting from wallet
