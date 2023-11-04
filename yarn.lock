@@ -1827,10 +1827,10 @@
   dependencies:
     "@zk-email/zk-regex-circom" "^1.1.1"
 
-"@zk-email/contracts@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-4.0.0.tgz#97728a73aafc65f86aa973bf2b290dba1489a643"
-  integrity sha512-TrqcMj+1eG1nztP/CdAcwl4hfNCQoNTs5RGntcmLXP6jycYuG6J04MgcB1XM+Mt7Y5j8P7MxbmqVDzrN4OWIiw==
+"@zk-email/contracts@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@zk-email/contracts/-/contracts-4.0.1.tgz#d5c69ff37bd1007d7b37317d7e446cc71194734e"
+  integrity sha512-XkFBSoXf0miJtwPsZND4xWU881sLznqgSNg889GfXUSo43WBIVDZSB5UTC+iLdlXUuUmqEbNbDeAU18z9c7kyQ==
   dependencies:
     "@openzeppelin/contracts" "^4.9.3"
 
