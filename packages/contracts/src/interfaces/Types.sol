@@ -17,6 +17,7 @@ struct EmailOp {
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email
+    bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
     uint256 timestamp; // Timestamp of the email
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
@@ -70,6 +71,7 @@ struct EmailProof {
     string domain; // Domain name of the sender's email
     uint256 timestamp; // Timestamp of the email
     bytes32 nullifier; // Nullifier of email to prevent re-run
+    bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
     bytes proof; // ZK Proof of Email
 }
 

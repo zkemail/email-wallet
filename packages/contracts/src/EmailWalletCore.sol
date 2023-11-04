@@ -8,7 +8,6 @@ import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Crea
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {SubjectUtils} from "./libraries/SubjectUtils.sol";
@@ -132,19 +131,25 @@ contract EmailWalletCore {
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
             accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
         );
-        bytes32 dkimPublicKeyHash = accountHandler.getDKIMPublicKeyHash(accountKeyInfo.walletSalt, emailOp.emailDomain);
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
         require(accountKeyInfo.initialized, "account not initialized");
         require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
         require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
+        require(
+            accountHandler.isDKIMPublicKeyHashValid(
+                accountKeyInfo.walletSalt,
+                emailOp.emailDomain,
+                emailOp.dkimPublicKeyHash
+            ),
+            "invalid DKIM public key"
+        );
 
         if (emailOp.hasEmailRecipient) {
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
@@ -173,7 +178,7 @@ contract EmailWalletCore {
         require(
             verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
-                dkimPublicKeyHash,
+                emailOp.dkimPublicKeyHash,
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
