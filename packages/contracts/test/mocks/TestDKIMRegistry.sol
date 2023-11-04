@@ -7,7 +7,7 @@ contract TestDKIMRegistry is IDKIMRegistry {
     function isDKIMPublicKeyHashValid(
         string memory domainName,
         bytes32 publicKeyHash
-    ) external view returns (bool) {
+    ) external pure returns (bool) {
         domainName;
         return bytes32(uint256(123)) == publicKeyHash;
     }
