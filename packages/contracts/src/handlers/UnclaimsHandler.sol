@@ -381,10 +381,11 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` and pass to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
 
+        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
         try extension.claimUnclaimedState{gas: gasForExt}(us, recipientAddr) {
-            delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
             success = true;
         } catch Error(string memory reason) {
             success = false;
@@ -417,10 +418,11 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // and rest is passed to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS - WETH_DEPOSIT_GAS;
 
+        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
         try extension.voidUnclaimedState{gas: gasForExt}(us) {
-            delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
             success = true;
         } catch Error(string memory reason) {
             success = false;
