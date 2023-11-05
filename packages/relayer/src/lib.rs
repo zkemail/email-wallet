@@ -266,14 +266,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 return Ok(());
             }
             let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
-                event.commitment_randomness,
+                &event.commitment_randomness,
             ))?);
             let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
+                id: event.id,
                 email_address: event.email_addr,
                 random,
                 commit,
-                expire_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
+                expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: true,
                 is_announced: true,
             };
@@ -285,14 +286,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 return Ok(());
             }
             let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
-                event.commitment_randomness,
+                &event.commitment_randomness,
             ))?);
             let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
+                id: event.id,
                 email_address: event.email_addr,
                 random,
                 commit,
-                expire_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
+                expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: false,
                 is_announced: true,
             };

@@ -13,27 +13,23 @@ pub(crate) async fn void_unclaims(
 ) -> Result<()> {
     let now = now();
     let commit = hex2field(&claim.commit)?;
-    db.delete_claim(&claim.commit, claim.is_fund).await?;
+    db.delete_claim(&claim.id, claim.is_fund).await?;
     let (reply_msg, tx_hash) = if claim.is_fund {
-        let unclaimed_fund = chain_client
-            .query_unclaimed_fund(fr_to_bytes32(&commit)?)
-            .await?;
-        if unclaimed_fund.expire_time.as_u64() > u64::try_from(now).unwrap() {
+        let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
+        if unclaimed_fund.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(fr_to_bytes32(&commit)?, true).await?;
+        let result = chain_client.void(claim.id, true).await?;
         (
             format!("Voided fund: {}", unclaimed_fund.token_addr),
             result,
         )
     } else {
-        let unclaimed_state = chain_client
-            .query_unclaimed_state(fr_to_bytes32(&commit)?)
-            .await?;
-        if unclaimed_state.expire_time.as_u64() > u64::try_from(now).unwrap() {
+        let unclaimed_state = chain_client.query_unclaimed_state(claim.id).await?;
+        if unclaimed_state.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(fr_to_bytes32(&commit)?, false).await?;
+        let result = chain_client.void(claim.id, false).await?;
         (
             format!("Voided state: {}", unclaimed_state.extension_addr),
             result,

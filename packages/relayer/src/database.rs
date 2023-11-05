@@ -40,10 +40,11 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS claims (
+                id TEXT PRIMARY KEY,
                 email_address TEXT NOT NULL,
                 random TEXT NOT NULL,
                 email_addr_commit TEXT NOT NULL,
-                expire_time BIGINT NOT NULL,
+                expiry_time BIGINT NOT NULL,
                 is_fund BOOLEAN NOT NULL,
                 is_announced BOOLEAN NOT NULL
             );",
@@ -116,11 +117,11 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn get_claims_by_commit(&self, commit: &str) -> Result<Vec<Claim>> {
+    pub(crate) async fn get_claims_by_id(&self, id: &U256) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE email_addr_commit = $1")
-            .bind(commit)
+        let rows = sqlx::query("SELECT * FROM claims WHERE id = $1")
+            .bind(u256_to_hex(id))
             .fetch_all(&self.db)
             .await?;
 
@@ -128,14 +129,15 @@ impl Database {
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
-            let expire_time: i64 = row.get("expire_time");
+            let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
             vec.push(Claim {
+                id: *id,
                 email_address,
                 random,
                 commit,
-                expire_time,
+                expiry_time,
                 is_fund,
                 is_announced,
             })
@@ -152,17 +154,19 @@ impl Database {
             .await?;
 
         for row in rows {
+            let id: String = row.get("id");
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
-            let expire_time: i64 = row.get("expire_time");
+            let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
             vec.push(Claim {
+                id: hex_to_u256(&id)?,
                 email_address,
                 random,
                 commit,
-                expire_time,
+                expiry_time,
                 is_fund,
                 is_announced,
             })
@@ -173,23 +177,25 @@ impl Database {
     pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
         info!("now {}", now);
-        let rows = sqlx::query("SELECT * FROM claims WHERE expire_time < $1")
+        let rows = sqlx::query("SELECT * FROM claims WHERE expiry_time < $1")
             .bind(now)
             .fetch_all(&self.db)
             .await?;
 
         for row in rows {
+            let id: String = row.get("id");
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
-            let expire_time: i64 = row.get("expire_time");
+            let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
             vec.push(Claim {
+                id: hex_to_u256(&id)?,
                 email_address,
                 random,
                 commit,
-                expire_time,
+                expiry_time,
                 is_fund,
                 is_announced,
             })
@@ -197,25 +203,18 @@ impl Database {
         Ok(vec)
     }
 
-    pub(crate) async fn insert_claim(
-        &self,
-        email_address: &str,
-        random: &str,
-        commit: &str,
-        expire_time: i64,
-        is_fund: bool,
-        is_announced: bool,
-    ) -> Result<()> {
-        info!("expire_time {}", expire_time);
+    pub(crate) async fn insert_claim(&self, claim: &Claim) -> Result<()> {
+        info!("expiry_time {}", claim.expiry_time);
         let row = sqlx::query(
-            "INSERT INTO claims (email_address, random, email_addr_commit, expire_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            "INSERT INTO claims (id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
         )
-        .bind(email_address)
-        .bind(random)
-        .bind(commit)
-        .bind(expire_time)
-        .bind(is_fund)
-        .bind(is_announced)
+        .bind(u256_to_hex(&claim.id))
+        .bind(claim.email_address.clone())
+        .bind(claim.random.clone())
+        .bind(claim.commit.clone())
+        .bind(claim.expiry_time)
+        .bind(claim.is_fund)
+        .bind(claim.is_announced)
         .fetch_one(&self.db)
         .await?;
         info!(
@@ -225,9 +224,9 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn delete_claim(&self, commit: &str, is_fund: bool) -> Result<()> {
-        sqlx::query("DELETE FROM claims WHERE email_addr_commit = $1 AND is_fund = $2")
-            .bind(commit)
+    pub(crate) async fn delete_claim(&self, id: &U256, is_fund: bool) -> Result<()> {
+        sqlx::query("DELETE FROM claims WHERE id = $1 AND is_fund = $2")
+            .bind(u256_to_hex(id))
             .bind(is_fund)
             .execute(&self.db)
             .await?;

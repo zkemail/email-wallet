@@ -1,4 +1,5 @@
 use crate::*;
+use ethers::abi::{ParamType, RawLog, Token};
 use ethers::prelude::*;
 use ethers::signers::Signer;
 
@@ -45,28 +46,10 @@ pub struct RegisterUnclaimedFundInput {
 
 #[derive(Default, Debug)]
 pub struct ClaimInput {
-    pub(crate) email_addr_commit: [u8; 32],
+    pub(crate) id: U256,
     pub(crate) email_addr_pointer: [u8; 32],
     pub(crate) is_fund: bool,
     pub(crate) proof: Bytes,
-}
-
-#[derive(Default, Debug)]
-pub struct UnclaimedFund {
-    pub(crate) email_addr_commit: Fr,
-    pub(crate) sender: Address,
-    pub(crate) token_addr: Address,
-    pub(crate) amount: U256,
-    pub(crate) expire_time: U256,
-}
-
-#[derive(Default, Debug)]
-pub struct UnclaimedState {
-    pub(crate) email_addr_commit: Fr,
-    pub(crate) extension_addr: Address,
-    pub(crate) sender: Address,
-    pub(crate) state: Bytes,
-    pub(crate) expire_time: U256,
 }
 
 type SignerM = SignerMiddleware<Provider<Http>, LocalWallet>;
@@ -205,7 +188,7 @@ impl ChainClient {
     pub async fn claim(&self, data: ClaimInput) -> Result<String> {
         if data.is_fund {
             let call = self.unclaims_handler.claim_unclaimed_fund(
-                data.email_addr_commit,
+                data.id,
                 data.email_addr_pointer,
                 data.proof,
             );
@@ -220,7 +203,7 @@ impl ChainClient {
             Ok(tx_hash)
         } else {
             let call = self.unclaims_handler.claim_unclaimed_state(
-                data.email_addr_commit,
+                data.id,
                 data.email_addr_pointer,
                 data.proof,
             );
@@ -236,9 +219,9 @@ impl ChainClient {
         }
     }
 
-    pub async fn void(&self, email_addr_commit: [u8; 32], is_fund: bool) -> Result<String> {
+    pub async fn void(&self, id: U256, is_fund: bool) -> Result<String> {
         if is_fund {
-            let call = self.unclaims_handler.void_unclaimed_fund(email_addr_commit);
+            let call = self.unclaims_handler.void_unclaimed_fund(id);
             let tx = call.send().await?;
             let receipt = tx
                 .log()
@@ -249,9 +232,7 @@ impl ChainClient {
             let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
             Ok(tx_hash)
         } else {
-            let call = self
-                .unclaims_handler
-                .void_unclaimed_state(email_addr_commit);
+            let call = self.unclaims_handler.void_unclaimed_state(id);
             let tx = call.send().await?;
             let receipt = tx
                 .log()
@@ -264,7 +245,7 @@ impl ChainClient {
         }
     }
 
-    pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<String> {
+    pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<(String, U256)> {
         let value = if !email_op.has_email_recipient {
             U256::zero()
         } else if email_op.command == SEND_COMMAND {
@@ -286,7 +267,33 @@ impl ChainClient {
             .ok_or(anyhow!("No receipt"))?;
         let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        Ok(tx_hash)
+        let log = receipt
+            .logs
+            .into_iter()
+            .filter(|log| {
+                if let Ok(log) = EmailWalletEventsEvents::decode_log(&RawLog::from(log.clone())) {
+                    if let EmailWalletEventsEvents::EmailOpHandledFilter(_) = log {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    false
+                }
+            })
+            .collect::<Vec<_>>();
+        if log.len() != 1 {
+            return Err(anyhow!(
+                "the number of EmailOpHandled event must be 1 but is {}",
+                log.len()
+            ));
+        }
+        let registered_unclaim_id = abi::decode(&[ParamType::Uint(256)], &log[2].data)?;
+        if let Token::Uint(id) = registered_unclaim_id[0] {
+            Ok((tx_hash, id))
+        } else {
+            Err(anyhow!("the registered unclaim id is not a uint"))
+        }
     }
 
     pub async fn query_account_key_commit(&self, pointer: &Fr) -> Result<Fr> {
@@ -425,36 +432,13 @@ impl ChainClient {
         Ok((account_key_commits, relayers))
     }
 
-    pub async fn query_unclaimed_fund(&self, email_addr_commit: [u8; 32]) -> Result<UnclaimedFund> {
-        let (email_addr_commit, sender, token_addr, amount, expire_time) = self
-            .unclaims_handler
-            .unclaimed_fund_of_email_addr_commit(email_addr_commit)
-            .await?;
-        let unclaimed_fund = UnclaimedFund {
-            email_addr_commit: bytes32_to_fr(&email_addr_commit)?,
-            sender,
-            token_addr,
-            amount,
-            expire_time,
-        };
+    pub async fn query_unclaimed_fund(&self, id: U256) -> Result<UnclaimedFund> {
+        let unclaimed_fund = self.unclaims_handler.get_unclaimed_fund(id).await?;
         Ok(unclaimed_fund)
     }
 
-    pub async fn query_unclaimed_state(
-        &self,
-        email_addr_commit: [u8; 32],
-    ) -> Result<UnclaimedState> {
-        let (email_addr_commit, extension_addr, sender, state, expire_time) = self
-            .unclaims_handler
-            .unclaimed_state_of_email_addr_commit(email_addr_commit)
-            .await?;
-        let unclaimed_state = UnclaimedState {
-            email_addr_commit: bytes32_to_fr(&email_addr_commit)?,
-            extension_addr,
-            sender,
-            state,
-            expire_time,
-        };
+    pub async fn query_unclaimed_state(&self, id: U256) -> Result<UnclaimedState> {
+        let unclaimed_state = self.unclaims_handler.get_unclaimed_state(id).await?;
         Ok(unclaimed_state)
     }
 

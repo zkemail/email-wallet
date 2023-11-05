@@ -286,6 +286,13 @@ pub mod email_wallet_core {
                                     ::std::borrow::ToOwned::to_owned("uint256"),
                                 ),
                             },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("registeredUnclaimId",),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                            },
                         ],
                         constant: ::core::option::Option::None,
                         state_mutability: ::ethers::core::abi::ethabi::StateMutability::Payable,
@@ -661,6 +668,7 @@ pub mod email_wallet_core {
             (
                 bool,
                 ::ethers::core::types::Bytes,
+                ::ethers::core::types::U256,
                 ::ethers::core::types::U256,
             ),
         > {
@@ -1407,6 +1415,7 @@ pub mod email_wallet_core {
         pub success: bool,
         pub err: ::ethers::core::types::Bytes,
         pub total_fee_in_eth: ::ethers::core::types::U256,
+        pub registered_unclaim_id: ::ethers::core::types::U256,
     }
     ///Container type for all return fields from the `maxFeePerGas` function with signature `maxFeePerGas()` and selector `0x2728bf2c`
     #[derive(

@@ -14,9 +14,10 @@ struct EmailAddrCommitRequest {
 
 #[derive(Deserialize)]
 struct UnclaimRequest {
+    id: String,
     email_address: String,
     random: String,
-    expire_time: i64,
+    expiry_time: i64,
     is_fund: bool,
     tx_hash: String,
 }
@@ -39,10 +40,11 @@ async fn unclaim(
         field2hex(&commit)
     );
     let claim = Claim {
+        id: hex_to_u256(&payload.id)?,
         email_address: payload.email_address.clone(),
         random: payload.random.clone(),
         commit: field2hex(&commit),
-        expire_time: payload.expire_time,
+        expiry_time: payload.expiry_time,
         is_fund: payload.is_fund,
         is_announced: false,
     };

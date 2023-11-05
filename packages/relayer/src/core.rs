@@ -270,11 +270,11 @@ pub(crate) async fn handle_email(
         let (email_proof, pub_signals) =
             generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
         trace!("proof generated");
-        let email_addr_pointer = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
+        let email_addr_pointer = u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
         let has_email_recipient = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into();
         let recipient_email_addr_commit =
-            u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
-        let email_nullifier = u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]);
+            u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
+        let email_nullifier = u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]);
         let timestamp = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6];
         let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&subject)?;
         info!("masked_subject {}", masked_subject);
@@ -295,7 +295,7 @@ pub(crate) async fn handle_email(
             command: command.clone(),
             email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
-            dkim_public_key_hash: u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 0]),
+            dkim_public_key_hash: u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 0]),
             timestamp,
             masked_subject,
             fee_token_name,
@@ -310,30 +310,31 @@ pub(crate) async fn handle_email(
         };
         trace!("email_op constructed: {:?}", email_op);
         // [TODO] simulation
-        let result = chain_client.handle_email_op(email_op).await?;
-        info!("email_op broadcased to chain: {}", result);
+        let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op).await?;
+        info!("email_op broadcased to chain: {}", tx_hash);
         if let Some(email_addr) = recipient_email_addr.as_ref() {
             info!("recipient email address: {}", email_addr);
             let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
             // let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
             let is_fund = command == SEND_COMMAND;
-            let expire_time = if is_fund {
-                let unclaimed_fund = chain_client
-                    .query_unclaimed_fund(recipient_email_addr_commit)
+            let expiry_time = if is_fund {
+                let unclaimed_fund: UnclaimedFund = chain_client
+                    .query_unclaimed_fund(registered_unclaim_id)
                     .await?;
-                i64::try_from(unclaimed_fund.expire_time.as_u64()).unwrap()
+                i64::try_from(unclaimed_fund.expiry_time.as_u64()).unwrap()
             } else {
                 let unclaimed_state = chain_client
-                    .query_unclaimed_state(recipient_email_addr_commit)
+                    .query_unclaimed_state(registered_unclaim_id)
                     .await?;
-                i64::try_from(unclaimed_state.expire_time.as_u64()).unwrap()
+                i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
             };
 
             let claim = Claim {
+                id: registered_unclaim_id,
                 email_address: email_addr.clone(),
                 commit: "0x".to_string() + &hex::encode(recipient_email_addr_commit),
                 random: field2hex(&commit_rand),
-                expire_time,
+                expiry_time,
                 is_fund,
                 is_announced: false,
             };
@@ -345,9 +346,9 @@ pub(crate) async fn handle_email(
             .send(EmailMessage {
                 subject: format!(
                     "Your transaction request was completed in {}",
-                    result.as_str()
+                    tx_hash.as_str()
                 ),
-                body: result.to_string(),
+                body: tx_hash.to_string(),
                 to: from_address,
                 message_id: None,
             })
@@ -355,8 +356,8 @@ pub(crate) async fn handle_email(
         if let Some(email_addr) = recipient_email_addr {
             tx_sender
                 .send(EmailMessage {
-                    subject: format!("Email wallet transaction for you in {}", result.as_str()),
-                    body: result,
+                    subject: format!("Email wallet transaction for you in {}", tx_hash.as_str()),
+                    body: tx_hash,
                     to: email_addr,
                     message_id: None,
                 })
@@ -395,11 +396,11 @@ pub(crate) async fn handle_account_init(
     // let relayer_rand = hex2field(RELAYER_RAND.get().unwrap())?;
     // let email_addr_pointer = u256_to_bytes32(pub_signals[])
     let data = AccountInitInput {
-        email_addr_pointer: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 3]),
+        email_addr_pointer: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
         email_domain: parsed_email.get_email_domain()?,
         email_timestamp: pub_signals[DOMAIN_FIELDS + 5],
-        email_nullifier: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 2]),
-        dkim_public_key_hash: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 0]),
+        email_nullifier: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 2]),
+        dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
         proof,
     };
     info!("account init data {:?}", data);
@@ -451,7 +452,7 @@ pub(crate) async fn handle_account_transport(
     let email_proof = EmailProof {
         domain: parsed_email.get_email_domain()?,
         timestamp: parsed_email.get_timestamp()?.into(),
-        dkim_public_key_hash: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 0]),
+        dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
         nullifier: fr_to_bytes32(&email_nullifier(&parsed_email.signature)?)?,
         proof: transport_proof,
     };
@@ -814,10 +815,21 @@ pub(crate) fn get_psi_point_bytes(x: U256, y: U256) -> Bytes {
     Bytes::from(abi::encode(&[Token::Uint(x), Token::Uint(y)]))
 }
 
-pub(crate) fn u256_to_bytes32(x: U256) -> [u8; 32] {
+pub(crate) fn u256_to_bytes32(x: &U256) -> [u8; 32] {
     let mut bytes = [0u8; 32];
     x.to_big_endian(&mut bytes);
     bytes
+}
+
+pub(crate) fn u256_to_hex(x: &U256) -> String {
+    "0x".to_string() + &hex::encode(u256_to_bytes32(x))
+}
+
+pub(crate) fn hex_to_u256(hex: &str) -> Result<U256> {
+    let bytes = hex::decode(&hex[2..])?;
+    let mut array = [0u8; 32];
+    array.copy_from_slice(&bytes);
+    Ok(U256::from_big_endian(&array))
 }
 
 pub(crate) fn fr_to_bytes32(fr: &Fr) -> Result<[u8; 32]> {

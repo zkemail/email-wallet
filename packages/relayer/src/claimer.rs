@@ -7,10 +7,11 @@ use ethers::utils::format_units;
 use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) struct Claim {
+    pub id: U256,
     pub email_address: String,
     pub random: String,
     pub commit: String,
-    pub expire_time: i64,
+    pub expiry_time: i64,
     pub is_fund: bool,
     pub is_announced: bool,
 }
@@ -24,15 +25,7 @@ pub(crate) async fn claim_unclaims(
 ) -> Result<()> {
     if !db.contains_user(&claim.email_address).await.unwrap() {
         tx_creator.send(claim.email_address.clone())?;
-        db.insert_claim(
-            &claim.email_address,
-            &claim.random,
-            &claim.commit,
-            claim.expire_time,
-            claim.is_fund,
-            claim.is_announced,
-        )
-        .await?;
+        db.insert_claim(&claim).await?;
         return Ok(());
     }
     let account_key_str = db
@@ -69,10 +62,8 @@ pub(crate) async fn claim_unclaims(
     let now = now();
     let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
     let reply_msg = if claim.is_fund {
-        let unclaimed_fund = chain_client
-            .query_unclaimed_fund(fr_to_bytes32(&hex2field(&claim.commit)?)?)
-            .await?;
-        if unclaimed_fund.expire_time.as_u64() < u64::try_from(now).unwrap() {
+        let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
+        if unclaimed_fund.expiry_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
         let mut token_name = chain_client
@@ -90,10 +81,8 @@ pub(crate) async fn claim_unclaims(
             token_amount_str, token_name, unclaimed_fund.sender
         )
     } else {
-        let unclaimed_state = chain_client
-            .query_unclaimed_state(fr_to_bytes32(&hex2field(&claim.commit)?)?)
-            .await?;
-        if unclaimed_state.expire_time.as_u64() < u64::try_from(now).unwrap() {
+        let unclaimed_state = chain_client.query_unclaimed_state(claim.id).await?;
+        if unclaimed_state.expiry_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
         if claim.is_announced
@@ -122,13 +111,13 @@ pub(crate) async fn claim_unclaims(
     info!("original randomness {}", claim.random);
     info!("commit in pub signals: {}", pub_signals[2]);
     let data = ClaimInput {
-        email_addr_pointer: u256_to_bytes32(pub_signals[1]),
-        email_addr_commit: u256_to_bytes32(pub_signals[2]),
+        id: claim.id,
+        email_addr_pointer: u256_to_bytes32(&pub_signals[1]),
         is_fund: claim.is_fund,
         proof,
     };
     let result = chain_client.claim(data).await?;
-    db.delete_claim(&claim.commit, claim.is_fund).await?;
+    db.delete_claim(&claim.id, claim.is_fund).await?;
     tx_sender
         .send(EmailMessage {
             subject: reply_msg.to_string(),
