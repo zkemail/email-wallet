@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import json
 from flask import Flask, request, jsonify
 import random
 import sys

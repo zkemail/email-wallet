@@ -87,16 +87,6 @@ export const accountHandlerABI = [
   {
     stateMutability: 'view',
     type: 'function',
-    inputs: [
-      { name: 'walletSalt', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'emailDomain', internalType: 'string', type: 'string' },
-    ],
-    name: 'getDKIMPublicKeyHash',
-    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
     inputs: [{ name: 'accountKeyCommit', internalType: 'bytes32', type: 'bytes32' }],
     name: 'getInfoOfAccountKeyCommit',
     outputs: [
@@ -145,10 +135,22 @@ export const accountHandlerABI = [
       { name: 'emailDomain', internalType: 'string', type: 'string' },
       { name: 'emailTimestamp', internalType: 'uint256', type: 'uint256' },
       { name: 'emailNullifier', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'dkimPublicKeyHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'proof', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'initializeAccount',
     outputs: [],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'walletSalt', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'emailDomain', internalType: 'string', type: 'string' },
+      { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'isDKIMPublicKeyHashValid',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
   },
   {
     stateMutability: 'view',
@@ -195,6 +197,7 @@ export const accountHandlerABI = [
           { name: 'domain', internalType: 'string', type: 'string' },
           { name: 'timestamp', internalType: 'uint256', type: 'uint256' },
           { name: 'nullifier', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'dkimPublicKeyHash', internalType: 'bytes32', type: 'bytes32' },
           { name: 'proof', internalType: 'bytes', type: 'bytes' },
         ],
       },
@@ -365,7 +368,7 @@ export const erc20ABI = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export const emailWalletCoreABI = [
   {
@@ -452,6 +455,7 @@ export const emailWalletCoreABI = [
           { name: 'command', internalType: 'string', type: 'string' },
           { name: 'emailNullifier', internalType: 'bytes32', type: 'bytes32' },
           { name: 'emailDomain', internalType: 'string', type: 'string' },
+          { name: 'dkimPublicKeyHash', internalType: 'bytes32', type: 'bytes32' },
           { name: 'timestamp', internalType: 'uint256', type: 'uint256' },
           { name: 'maskedSubject', internalType: 'string', type: 'string' },
           { name: 'feeTokenName', internalType: 'string', type: 'string' },
@@ -582,6 +586,7 @@ export const emailWalletCoreABI = [
           { name: 'command', internalType: 'string', type: 'string' },
           { name: 'emailNullifier', internalType: 'bytes32', type: 'bytes32' },
           { name: 'emailDomain', internalType: 'string', type: 'string' },
+          { name: 'dkimPublicKeyHash', internalType: 'bytes32', type: 'bytes32' },
           { name: 'timestamp', internalType: 'uint256', type: 'uint256' },
           { name: 'maskedSubject', internalType: 'string', type: 'string' },
           { name: 'feeTokenName', internalType: 'string', type: 'string' },
@@ -633,14 +638,14 @@ export const emailWalletCoreABI = [
 ] as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export const emailWalletCoreAddress = {
-  11155111: '0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b',
+  11155111: '0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3',
 } as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export const emailWalletCoreConfig = { address: emailWalletCoreAddress, abi: emailWalletCoreABI } as const
 
@@ -846,6 +851,72 @@ export const relayerHandlerABI = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TokenCallbackHandler
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const tokenCallbackHandlerABI = [
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC1155BatchReceived',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC1155Received',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC721Received',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'pure',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+      { name: '', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'tokensReceived',
+    outputs: [],
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TokenRegistry
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -855,10 +926,29 @@ export const tokenRegistryABI = [
     type: 'event',
     anonymous: false,
     inputs: [
+      { name: 'chainName', internalType: 'string', type: 'string', indexed: true },
+      { name: 'chainId', internalType: 'uint256', type: 'uint256', indexed: true },
+    ],
+    name: 'ChainRegistered',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       { name: 'previousOwner', internalType: 'address', type: 'address', indexed: true },
       { name: 'newOwner', internalType: 'address', type: 'address', indexed: true },
     ],
     name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'chainId', internalType: 'uint256', type: 'uint256', indexed: true },
+      { name: 'tokenName', internalType: 'string', type: 'string', indexed: true },
+      { name: 'addr', internalType: 'address', type: 'address', indexed: true },
+    ],
+    name: 'TokenRegistered',
   },
   {
     stateMutability: 'view',
@@ -1331,6 +1421,7 @@ export const unclaimsHandlerABI = [
       { name: 'sender', internalType: 'address', type: 'address' },
       { name: 'recipientEmailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
       { name: 'state', internalType: 'bytes', type: 'bytes' },
+      { name: 'isInternal', internalType: 'bool', type: 'bool' },
     ],
     name: 'registerUnclaimedStateInternal',
     outputs: [],
@@ -1668,25 +1759,6 @@ export function useAccountHandlerEmailValidityDuration<
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link accountHandlerABI}__ and `functionName` set to `"getDKIMPublicKeyHash"`.
- */
-export function useAccountHandlerGetDkimPublicKeyHash<
-  TFunctionName extends 'getDKIMPublicKeyHash',
-  TSelectData = ReadContractResult<typeof accountHandlerABI, TFunctionName>,
->(
-  config: Omit<
-    UseContractReadConfig<typeof accountHandlerABI, TFunctionName, TSelectData>,
-    'abi' | 'functionName'
-  > = {} as any,
-) {
-  return useContractRead({
-    abi: accountHandlerABI,
-    functionName: 'getDKIMPublicKeyHash',
-    ...config,
-  } as UseContractReadConfig<typeof accountHandlerABI, TFunctionName, TSelectData>)
-}
-
-/**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link accountHandlerABI}__ and `functionName` set to `"getInfoOfAccountKeyCommit"`.
  */
 export function useAccountHandlerGetInfoOfAccountKeyCommit<
@@ -1758,6 +1830,25 @@ export function useAccountHandlerInfoOfAccountKeyCommit<
   return useContractRead({
     abi: accountHandlerABI,
     functionName: 'infoOfAccountKeyCommit',
+    ...config,
+  } as UseContractReadConfig<typeof accountHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link accountHandlerABI}__ and `functionName` set to `"isDKIMPublicKeyHashValid"`.
+ */
+export function useAccountHandlerIsDkimPublicKeyHashValid<
+  TFunctionName extends 'isDKIMPublicKeyHashValid',
+  TSelectData = ReadContractResult<typeof accountHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof accountHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: accountHandlerABI,
+    functionName: 'isDKIMPublicKeyHashValid',
     ...config,
   } as UseContractReadConfig<typeof accountHandlerABI, TFunctionName, TSelectData>)
 }
@@ -2491,7 +2582,7 @@ export function useErc20TransferEvent(
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreRead<
   TFunctionName extends string,
@@ -2511,7 +2602,7 @@ export function useEmailWalletCoreRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"accountHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreAccountHandler<
   TFunctionName extends 'accountHandler',
@@ -2533,7 +2624,7 @@ export function useEmailWalletCoreAccountHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"emailNullifiers"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreEmailNullifiers<
   TFunctionName extends 'emailNullifiers',
@@ -2555,7 +2646,7 @@ export function useEmailWalletCoreEmailNullifiers<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"emailValidityDuration"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreEmailValidityDuration<
   TFunctionName extends 'emailValidityDuration',
@@ -2577,7 +2668,7 @@ export function useEmailWalletCoreEmailValidityDuration<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"extensionHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreExtensionHandler<
   TFunctionName extends 'extensionHandler',
@@ -2599,7 +2690,7 @@ export function useEmailWalletCoreExtensionHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"maxFeePerGas"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreMaxFeePerGas<
   TFunctionName extends 'maxFeePerGas',
@@ -2621,7 +2712,7 @@ export function useEmailWalletCoreMaxFeePerGas<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"priceOracle"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCorePriceOracle<
   TFunctionName extends 'priceOracle',
@@ -2643,7 +2734,7 @@ export function useEmailWalletCorePriceOracle<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"relayerHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreRelayerHandler<
   TFunctionName extends 'relayerHandler',
@@ -2665,7 +2756,7 @@ export function useEmailWalletCoreRelayerHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"tokenRegistry"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreTokenRegistry<
   TFunctionName extends 'tokenRegistry',
@@ -2687,7 +2778,7 @@ export function useEmailWalletCoreTokenRegistry<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimedFundClaimGas"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreUnclaimedFundClaimGas<
   TFunctionName extends 'unclaimedFundClaimGas',
@@ -2709,7 +2800,7 @@ export function useEmailWalletCoreUnclaimedFundClaimGas<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimedStateClaimGas"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreUnclaimedStateClaimGas<
   TFunctionName extends 'unclaimedStateClaimGas',
@@ -2731,7 +2822,7 @@ export function useEmailWalletCoreUnclaimedStateClaimGas<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimsHandler"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreUnclaimsHandler<
   TFunctionName extends 'unclaimsHandler',
@@ -2753,7 +2844,7 @@ export function useEmailWalletCoreUnclaimsHandler<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"validateEmailOp"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreValidateEmailOp<
   TFunctionName extends 'validateEmailOp',
@@ -2775,7 +2866,7 @@ export function useEmailWalletCoreValidateEmailOp<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"verifier"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreVerifier<
   TFunctionName extends 'verifier',
@@ -2797,7 +2888,7 @@ export function useEmailWalletCoreVerifier<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"wethContract"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreWethContract<
   TFunctionName extends 'wethContract',
@@ -2819,7 +2910,7 @@ export function useEmailWalletCoreWethContract<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreWrite<
   TFunctionName extends string,
@@ -2848,7 +2939,7 @@ export function useEmailWalletCoreWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"depositTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreDepositTokenAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -2878,7 +2969,7 @@ export function useEmailWalletCoreDepositTokenAsExtension<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"executeAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreExecuteAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -2908,7 +2999,7 @@ export function useEmailWalletCoreExecuteAsExtension<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"handleEmailOp"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreHandleEmailOp<
   TMode extends WriteContractMode = undefined,
@@ -2938,7 +3029,7 @@ export function useEmailWalletCoreHandleEmailOp<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreInitialize<
   TMode extends WriteContractMode = undefined,
@@ -2968,7 +3059,7 @@ export function useEmailWalletCoreInitialize<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"registerUnclaimedStateAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -2998,7 +3089,7 @@ export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"requestTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreRequestTokenAsExtension<
   TMode extends WriteContractMode = undefined,
@@ -3028,7 +3119,7 @@ export function useEmailWalletCoreRequestTokenAsExtension<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreWrite<TFunctionName extends string>(
   config: Omit<UsePrepareContractWriteConfig<typeof emailWalletCoreABI, TFunctionName>, 'abi' | 'address'> & {
@@ -3045,7 +3136,7 @@ export function usePrepareEmailWalletCoreWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"depositTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreDepositTokenAsExtension(
   config: Omit<
@@ -3064,7 +3155,7 @@ export function usePrepareEmailWalletCoreDepositTokenAsExtension(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"executeAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreExecuteAsExtension(
   config: Omit<
@@ -3083,7 +3174,7 @@ export function usePrepareEmailWalletCoreExecuteAsExtension(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"handleEmailOp"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreHandleEmailOp(
   config: Omit<
@@ -3102,7 +3193,7 @@ export function usePrepareEmailWalletCoreHandleEmailOp(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"initialize"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreInitialize(
   config: Omit<
@@ -3121,7 +3212,7 @@ export function usePrepareEmailWalletCoreInitialize(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"registerUnclaimedStateAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreRegisterUnclaimedStateAsExtension(
   config: Omit<
@@ -3140,7 +3231,7 @@ export function usePrepareEmailWalletCoreRegisterUnclaimedStateAsExtension(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"requestTokenAsExtension"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreRequestTokenAsExtension(
   config: Omit<
@@ -3891,6 +3982,115 @@ export function useRelayerHandlerOwnershipTransferredEvent(
 }
 
 /**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenCallbackHandlerABI}__.
+ */
+export function useTokenCallbackHandlerRead<
+  TFunctionName extends string,
+  TSelectData = ReadContractResult<typeof tokenCallbackHandlerABI, TFunctionName>,
+>(config: Omit<UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>, 'abi'> = {} as any) {
+  return useContractRead({ abi: tokenCallbackHandlerABI, ...config } as UseContractReadConfig<
+    typeof tokenCallbackHandlerABI,
+    TFunctionName,
+    TSelectData
+  >)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenCallbackHandlerABI}__ and `functionName` set to `"onERC1155BatchReceived"`.
+ */
+export function useTokenCallbackHandlerOnErc1155BatchReceived<
+  TFunctionName extends 'onERC1155BatchReceived',
+  TSelectData = ReadContractResult<typeof tokenCallbackHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: tokenCallbackHandlerABI,
+    functionName: 'onERC1155BatchReceived',
+    ...config,
+  } as UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenCallbackHandlerABI}__ and `functionName` set to `"onERC1155Received"`.
+ */
+export function useTokenCallbackHandlerOnErc1155Received<
+  TFunctionName extends 'onERC1155Received',
+  TSelectData = ReadContractResult<typeof tokenCallbackHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: tokenCallbackHandlerABI,
+    functionName: 'onERC1155Received',
+    ...config,
+  } as UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenCallbackHandlerABI}__ and `functionName` set to `"onERC721Received"`.
+ */
+export function useTokenCallbackHandlerOnErc721Received<
+  TFunctionName extends 'onERC721Received',
+  TSelectData = ReadContractResult<typeof tokenCallbackHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: tokenCallbackHandlerABI,
+    functionName: 'onERC721Received',
+    ...config,
+  } as UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenCallbackHandlerABI}__ and `functionName` set to `"supportsInterface"`.
+ */
+export function useTokenCallbackHandlerSupportsInterface<
+  TFunctionName extends 'supportsInterface',
+  TSelectData = ReadContractResult<typeof tokenCallbackHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: tokenCallbackHandlerABI,
+    functionName: 'supportsInterface',
+    ...config,
+  } as UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenCallbackHandlerABI}__ and `functionName` set to `"tokensReceived"`.
+ */
+export function useTokenCallbackHandlerTokensReceived<
+  TFunctionName extends 'tokensReceived',
+  TSelectData = ReadContractResult<typeof tokenCallbackHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: tokenCallbackHandlerABI,
+    functionName: 'tokensReceived',
+    ...config,
+  } as UseContractReadConfig<typeof tokenCallbackHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link tokenRegistryABI}__.
  */
 export function useTokenRegistryRead<
@@ -4231,6 +4431,18 @@ export function useTokenRegistryEvent<TEventName extends string>(
 }
 
 /**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link tokenRegistryABI}__ and `eventName` set to `"ChainRegistered"`.
+ */
+export function useTokenRegistryChainRegisteredEvent(
+  config: Omit<UseContractEventConfig<typeof tokenRegistryABI, 'ChainRegistered'>, 'abi' | 'eventName'> = {} as any,
+) {
+  return useContractEvent({ abi: tokenRegistryABI, eventName: 'ChainRegistered', ...config } as UseContractEventConfig<
+    typeof tokenRegistryABI,
+    'ChainRegistered'
+  >)
+}
+
+/**
  * Wraps __{@link useContractEvent}__ with `abi` set to __{@link tokenRegistryABI}__ and `eventName` set to `"OwnershipTransferred"`.
  */
 export function useTokenRegistryOwnershipTransferredEvent(
@@ -4244,6 +4456,18 @@ export function useTokenRegistryOwnershipTransferredEvent(
     eventName: 'OwnershipTransferred',
     ...config,
   } as UseContractEventConfig<typeof tokenRegistryABI, 'OwnershipTransferred'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link tokenRegistryABI}__ and `eventName` set to `"TokenRegistered"`.
+ */
+export function useTokenRegistryTokenRegisteredEvent(
+  config: Omit<UseContractEventConfig<typeof tokenRegistryABI, 'TokenRegistered'>, 'abi' | 'eventName'> = {} as any,
+) {
+  return useContractEvent({ abi: tokenRegistryABI, eventName: 'TokenRegistered', ...config } as UseContractEventConfig<
+    typeof tokenRegistryABI,
+    'TokenRegistered'
+  >)
 }
 
 /**
