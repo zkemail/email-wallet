@@ -491,6 +491,7 @@ export const emailWalletCoreABI = [
       { name: 'success', internalType: 'bool', type: 'bool' },
       { name: 'err', internalType: 'bytes', type: 'bytes' },
       { name: 'totalFeeInETH', internalType: 'uint256', type: 'uint256' },
+      { name: 'registeredUnclaimId', internalType: 'uint256', type: 'uint256' },
     ],
   },
   {
@@ -1324,7 +1325,7 @@ export const unclaimsHandlerABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'id', internalType: 'uint256', type: 'uint256' },
       { name: 'recipientEmailAddrPointer', internalType: 'bytes32', type: 'bytes32' },
       { name: 'proof', internalType: 'bytes', type: 'bytes' },
     ],
@@ -1335,7 +1336,7 @@ export const unclaimsHandlerABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'id', internalType: 'uint256', type: 'uint256' },
       { name: 'recipientEmailAddrPointer', internalType: 'bytes32', type: 'bytes32' },
       { name: 'proof', internalType: 'bytes', type: 'bytes' },
     ],
@@ -1348,22 +1349,64 @@ export const unclaimsHandlerABI = [
   {
     stateMutability: 'view',
     type: 'function',
-    inputs: [{ name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'getSenderOfUnclaimedFund',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    inputs: [{ name: 'id', internalType: 'uint256', type: 'uint256' }],
+    name: 'getUnclaimedFund',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct UnclaimedFund',
+        type: 'tuple',
+        components: [
+          { name: 'id', internalType: 'uint256', type: 'uint256' },
+          { name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'sender', internalType: 'address', type: 'address' },
+          { name: 'tokenAddr', internalType: 'address', type: 'address' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          { name: 'expiryTime', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
   },
   {
     stateMutability: 'view',
     type: 'function',
-    inputs: [{ name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'getSenderOfUnclaimedState',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    inputs: [{ name: 'id', internalType: 'uint256', type: 'uint256' }],
+    name: 'getUnclaimedState',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct UnclaimedState',
+        type: 'tuple',
+        components: [
+          { name: 'id', internalType: 'uint256', type: 'uint256' },
+          { name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'extensionAddr', internalType: 'address', type: 'address' },
+          { name: 'sender', internalType: 'address', type: 'address' },
+          { name: 'state', internalType: 'bytes', type: 'bytes' },
+          { name: 'expiryTime', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
   },
   {
     stateMutability: 'view',
     type: 'function',
     inputs: [],
     name: 'maxFeePerGas',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'numUnclaimedFunds',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'numUnclaimedStates',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
@@ -1385,7 +1428,7 @@ export const unclaimsHandlerABI = [
       { name: 'announceEmailAddr', internalType: 'string', type: 'string' },
     ],
     name: 'registerUnclaimedFund',
-    outputs: [],
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -1397,7 +1440,7 @@ export const unclaimsHandlerABI = [
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'registerUnclaimedFundInternal',
-    outputs: [],
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'payable',
@@ -1411,7 +1454,7 @@ export const unclaimsHandlerABI = [
       { name: 'announceEmailAddr', internalType: 'string', type: 'string' },
     ],
     name: 'registerUnclaimedState',
-    outputs: [],
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -1424,7 +1467,7 @@ export const unclaimsHandlerABI = [
       { name: 'isInternal', internalType: 'bool', type: 'bool' },
     ],
     name: 'registerUnclaimedStateInternal',
-    outputs: [],
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'view',
@@ -1451,9 +1494,10 @@ export const unclaimsHandlerABI = [
   {
     stateMutability: 'view',
     type: 'function',
-    inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'unclaimedFundOfEmailAddrCommit',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'unclaimedFundOfId',
     outputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256' },
       { name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
       { name: 'sender', internalType: 'address', type: 'address' },
       { name: 'tokenAddr', internalType: 'address', type: 'address' },
@@ -1471,9 +1515,10 @@ export const unclaimsHandlerABI = [
   {
     stateMutability: 'view',
     type: 'function',
-    inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'unclaimedStateOfEmailAddrCommit',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'unclaimedStateOfId',
     outputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256' },
       { name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' },
       { name: 'extensionAddr', internalType: 'address', type: 'address' },
       { name: 'sender', internalType: 'address', type: 'address' },
@@ -1498,14 +1543,14 @@ export const unclaimsHandlerABI = [
   {
     stateMutability: 'nonpayable',
     type: 'function',
-    inputs: [{ name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: 'id', internalType: 'uint256', type: 'uint256' }],
     name: 'voidUnclaimedFund',
     outputs: [],
   },
   {
     stateMutability: 'nonpayable',
     type: 'function',
-    inputs: [{ name: 'emailAddrCommit', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: 'id', internalType: 'uint256', type: 'uint256' }],
     name: 'voidUnclaimedState',
     outputs: [
       { name: 'success', internalType: 'bool', type: 'bool' },
@@ -1643,6 +1688,7 @@ export const weth9ABI = [
     name: 'withdraw',
     outputs: [],
   },
+  { stateMutability: 'payable', type: 'receive' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5085,10 +5131,10 @@ export function useUnclaimsHandlerAccountHandler<
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"getSenderOfUnclaimedFund"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"getUnclaimedFund"`.
  */
-export function useUnclaimsHandlerGetSenderOfUnclaimedFund<
-  TFunctionName extends 'getSenderOfUnclaimedFund',
+export function useUnclaimsHandlerGetUnclaimedFund<
+  TFunctionName extends 'getUnclaimedFund',
   TSelectData = ReadContractResult<typeof unclaimsHandlerABI, TFunctionName>,
 >(
   config: Omit<
@@ -5098,16 +5144,16 @@ export function useUnclaimsHandlerGetSenderOfUnclaimedFund<
 ) {
   return useContractRead({
     abi: unclaimsHandlerABI,
-    functionName: 'getSenderOfUnclaimedFund',
+    functionName: 'getUnclaimedFund',
     ...config,
   } as UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>)
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"getSenderOfUnclaimedState"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"getUnclaimedState"`.
  */
-export function useUnclaimsHandlerGetSenderOfUnclaimedState<
-  TFunctionName extends 'getSenderOfUnclaimedState',
+export function useUnclaimsHandlerGetUnclaimedState<
+  TFunctionName extends 'getUnclaimedState',
   TSelectData = ReadContractResult<typeof unclaimsHandlerABI, TFunctionName>,
 >(
   config: Omit<
@@ -5117,7 +5163,7 @@ export function useUnclaimsHandlerGetSenderOfUnclaimedState<
 ) {
   return useContractRead({
     abi: unclaimsHandlerABI,
-    functionName: 'getSenderOfUnclaimedState',
+    functionName: 'getUnclaimedState',
     ...config,
   } as UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>)
 }
@@ -5139,6 +5185,44 @@ export function useUnclaimsHandlerMaxFeePerGas<
     TFunctionName,
     TSelectData
   >)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"numUnclaimedFunds"`.
+ */
+export function useUnclaimsHandlerNumUnclaimedFunds<
+  TFunctionName extends 'numUnclaimedFunds',
+  TSelectData = ReadContractResult<typeof unclaimsHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: unclaimsHandlerABI,
+    functionName: 'numUnclaimedFunds',
+    ...config,
+  } as UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"numUnclaimedStates"`.
+ */
+export function useUnclaimsHandlerNumUnclaimedStates<
+  TFunctionName extends 'numUnclaimedStates',
+  TSelectData = ReadContractResult<typeof unclaimsHandlerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return useContractRead({
+    abi: unclaimsHandlerABI,
+    functionName: 'numUnclaimedStates',
+    ...config,
+  } as UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>)
 }
 
 /**
@@ -5199,10 +5283,10 @@ export function useUnclaimsHandlerUnclaimedFundClaimGas<
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"unclaimedFundOfEmailAddrCommit"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"unclaimedFundOfId"`.
  */
-export function useUnclaimsHandlerUnclaimedFundOfEmailAddrCommit<
-  TFunctionName extends 'unclaimedFundOfEmailAddrCommit',
+export function useUnclaimsHandlerUnclaimedFundOfId<
+  TFunctionName extends 'unclaimedFundOfId',
   TSelectData = ReadContractResult<typeof unclaimsHandlerABI, TFunctionName>,
 >(
   config: Omit<
@@ -5212,7 +5296,7 @@ export function useUnclaimsHandlerUnclaimedFundOfEmailAddrCommit<
 ) {
   return useContractRead({
     abi: unclaimsHandlerABI,
-    functionName: 'unclaimedFundOfEmailAddrCommit',
+    functionName: 'unclaimedFundOfId',
     ...config,
   } as UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>)
 }
@@ -5237,10 +5321,10 @@ export function useUnclaimsHandlerUnclaimedStateClaimGas<
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"unclaimedStateOfEmailAddrCommit"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link unclaimsHandlerABI}__ and `functionName` set to `"unclaimedStateOfId"`.
  */
-export function useUnclaimsHandlerUnclaimedStateOfEmailAddrCommit<
-  TFunctionName extends 'unclaimedStateOfEmailAddrCommit',
+export function useUnclaimsHandlerUnclaimedStateOfId<
+  TFunctionName extends 'unclaimedStateOfId',
   TSelectData = ReadContractResult<typeof unclaimsHandlerABI, TFunctionName>,
 >(
   config: Omit<
@@ -5250,7 +5334,7 @@ export function useUnclaimsHandlerUnclaimedStateOfEmailAddrCommit<
 ) {
   return useContractRead({
     abi: unclaimsHandlerABI,
-    functionName: 'unclaimedStateOfEmailAddrCommit',
+    functionName: 'unclaimedStateOfId',
     ...config,
   } as UseContractReadConfig<typeof unclaimsHandlerABI, TFunctionName, TSelectData>)
 }
