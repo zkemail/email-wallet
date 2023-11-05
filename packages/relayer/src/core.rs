@@ -328,11 +328,24 @@ pub(crate) async fn handle_email(
                     .await?;
                 i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
             };
+            let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
+            // let psi_client =
+            //     PSIClient::new(Arc::clone(&chain_client), email_addr, commit.clone()).await?;
+            // // let psi_res;
+            // if {
+            //     let account_key = db.get_account_key(email_addr).await?;
+            //     account_key.is_none()
+            //         || chain_client
+            //             .check_if_account_initialized_by_account_key(&account_key.unwrap())
+            //             .await?
+            // } {
+            //     println!("hello world");
+            // }
 
             let claim = Claim {
                 id: registered_unclaim_id,
                 email_address: email_addr.clone(),
-                commit: "0x".to_string() + &hex::encode(recipient_email_addr_commit),
+                commit,
                 random: field2hex(&commit_rand),
                 expiry_time,
                 is_fund,

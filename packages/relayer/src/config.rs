@@ -19,6 +19,7 @@ pub struct RelayerConfig {
     pub(crate) core_contract_address: String,
     pub(crate) fee_per_gas: U256,
     pub(crate) input_files_dir: String,
+    pub(crate) email_templates: String,
 }
 
 impl RelayerConfig {
@@ -73,6 +74,7 @@ impl RelayerConfig {
             core_contract_address: env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap(),
             fee_per_gas,
             input_files_dir,
+            email_templates: env::var(EMAIL_TEMPLATES_PATH_KEY).unwrap(),
         }
     }
 }

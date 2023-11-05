@@ -39,6 +39,7 @@ simple_logger = "4.2.0"
 log = "0.4"
 ff = { version = "0.13.0", default-features = false, features = ["std"] }
 async-trait = "0.1.36"
+handlebars = "4.4.0"
 
 [build-dependencies]
 ethers = "2.0.10"

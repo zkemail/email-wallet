@@ -497,9 +497,41 @@ impl ChainClient {
         Ok(res == U256::zero())
     }
 
-    pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {
-        // self.relayer_handler.relayers(p0)
+    pub(crate) async fn check_if_account_initialized_by_account_key(
+        &self,
+        account_key: &str,
+    ) -> Result<bool> {
         todo!()
+    }
+
+    pub(crate) async fn check_if_account_initialized_by_point(&self, point: Point) -> Result<bool> {
+        let Point { x, y } = point;
+        let x = hex2field(&x)?;
+        let y = hex2field(&y)?;
+        let x = U256::from_little_endian(&x.to_bytes());
+        let y = U256::from_little_endian(&y.to_bytes());
+        let pointer = self
+            .account_handler
+            .pointer_of_psi_point(get_psi_point_bytes(x, y))
+            .call()
+            .await?;
+        let account_key_commitment = self
+            .account_handler
+            .account_key_commit_of_pointer(pointer)
+            .call()
+            .await?;
+        let account_key_info = self
+            .account_handler
+            .info_of_account_key_commit(account_key_commitment)
+            .call()
+            .await?;
+
+        Ok(account_key_info.1 == true)
+    }
+
+    pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {
+        // TODO: iteration over relayers
+        Ok(vec![])
     }
 }
 
