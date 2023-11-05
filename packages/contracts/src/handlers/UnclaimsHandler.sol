@@ -50,13 +50,6 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     // Mapping of id to unclaimed state
     mapping(uint256 => UnclaimedState) public unclaimedStateOfId;
 
-    // Mapping of sender to the last registered unclaimed fund id
-    mapping(address => uint256) public lastRegisteredUnclaimedFundIdOfSender;
-
-    // Mapping of sender to the last registered unclaimed state id
-    mapping(address => uint256) public lastRegisteredUnclaimedStateIdOfSender;
-
-
     uint256 constant ETH_TRANSFER_GAS = 21000;
     uint256 constant WETH_DEPOSIT_GAS = 27938;
 
@@ -107,7 +100,6 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         unclaimedFundOfId[fund.id] = fund;
         numUnclaimedFunds ++;
-        lastRegisteredUnclaimedFundIdOfSender[sender] = fund.id;
         emit EmailWalletEvents.UnclaimedFundRegistered(fund.id, emailAddrCommit, tokenAddr, amount, sender, expiryTime, 0, "");
         return fund.id;
     }
@@ -155,7 +147,6 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         unclaimedFundOfId[fund.id] = fund;
         numUnclaimedFunds ++;
-        lastRegisteredUnclaimedFundIdOfSender[msg.sender] = fund.id;
         emit EmailWalletEvents.UnclaimedFundRegistered(
             fund.id,
             emailAddrCommit,
@@ -293,7 +284,6 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         unclaimedStateOfId[us.id] = us;
         numUnclaimedStates ++;
-        lastRegisteredUnclaimedStateIdOfSender[msg.sender] = us.id;
     
         try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
@@ -349,7 +339,6 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         unclaimedStateOfId[us.id] = us;
         numUnclaimedStates ++;
-        lastRegisteredUnclaimedStateIdOfSender[sender] = us.id;
 
         try extension.registerUnclaimedState(us, isInternal) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
