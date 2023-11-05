@@ -471,11 +471,11 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         emit EmailWalletEvents.UnclaimedStateVoided(id, us.emailAddrCommit, us.sender);
     }
 
-    function getSenderOfUnclaimedFund(uint256 id) public view returns (address) {
-        return unclaimedFundOfId[id].sender;
+    function getUnclaimedFund(uint256 id) public view returns (UnclaimedFund memory) {
+        return unclaimedFundOfId[id];
     }
 
-    function getSenderOfUnclaimedState(uint256 id) public view returns (address) {
-        return unclaimedStateOfId[id].sender;
+    function getUnclaimedState(uint256 id) public view returns (UnclaimedState memory) {
+        return unclaimedStateOfId[id];
     }
 }
