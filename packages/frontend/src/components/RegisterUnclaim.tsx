@@ -66,7 +66,7 @@ export function RegisterUnclaim(props: { toEmailAddr: string, tokenName: string,
         })()
     }, [props.toEmailAddr, txState]);
 
-    const { data: tokenRegistryAddrRaw } = useEmailWalletCoreTokenRegistry();
+    const { data: tokenRegistryAddrRaw } = useEmailWalletCoreTokenRegistry({ address: process.env.NEXT_PUBLIC_CORE_ADDRESS as `0x${string}` });
     const tokenRegistryAddr = tokenRegistryAddrRaw || "0x";
     console.log(tokenRegistryAddr);
 
@@ -97,7 +97,7 @@ export function RegisterUnclaim(props: { toEmailAddr: string, tokenName: string,
     const amount = ethers.parseUnits(props.amountStr, decimalsSize);
     console.log(amount);
 
-    const { data: unclaimsHandlerRaw } = useEmailWalletCoreUnclaimsHandler();
+    const { data: unclaimsHandlerRaw } = useEmailWalletCoreUnclaimsHandler({ address: process.env.NEXT_PUBLIC_CORE_ADDRESS as `0x${string}` });
     const unclaimsHandler = unclaimsHandlerRaw || "0x";
     console.log(unclaimsHandler);
 

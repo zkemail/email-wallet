@@ -7,7 +7,6 @@ import {
   UsePrepareContractWriteConfig,
   useContractEvent,
   UseContractEventConfig,
-  Address,
 } from 'wagmi'
 import { ReadContractResult, WriteContractMode, PrepareWriteContractResult } from 'wagmi/actions'
 
@@ -367,9 +366,6 @@ export const erc20ABI = [
 // EmailWalletCore
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
- */
 export const emailWalletCoreABI = [
   {
     stateMutability: 'nonpayable',
@@ -637,18 +633,6 @@ export const emailWalletCoreABI = [
   },
   { stateMutability: 'payable', type: 'receive' },
 ] as const
-
-/**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
- */
-export const emailWalletCoreAddress = {
-  11155111: '0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3',
-} as const
-
-/**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
- */
-export const emailWalletCoreConfig = { address: emailWalletCoreAddress, abi: emailWalletCoreABI } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionHandler
@@ -2627,28 +2611,20 @@ export function useErc20TransferEvent(
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreRead<
   TFunctionName extends string,
   TSelectData = ReadContractResult<typeof emailWalletCoreABI, TFunctionName>,
->(
-  config: Omit<UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>, 'abi' | 'address'> & {
-    chainId?: keyof typeof emailWalletCoreAddress
-  } = {} as any,
-) {
-  return useContractRead({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    ...config,
-  } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
+>(config: Omit<UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>, 'abi'> = {} as any) {
+  return useContractRead({ abi: emailWalletCoreABI, ...config } as UseContractReadConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName,
+    TSelectData
+  >)
 }
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"accountHandler"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreAccountHandler<
   TFunctionName extends 'accountHandler',
@@ -2656,12 +2632,11 @@ export function useEmailWalletCoreAccountHandler<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'accountHandler',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2669,8 +2644,6 @@ export function useEmailWalletCoreAccountHandler<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"emailNullifiers"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreEmailNullifiers<
   TFunctionName extends 'emailNullifiers',
@@ -2678,12 +2651,11 @@ export function useEmailWalletCoreEmailNullifiers<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'emailNullifiers',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2691,8 +2663,6 @@ export function useEmailWalletCoreEmailNullifiers<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"emailValidityDuration"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreEmailValidityDuration<
   TFunctionName extends 'emailValidityDuration',
@@ -2700,12 +2670,11 @@ export function useEmailWalletCoreEmailValidityDuration<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'emailValidityDuration',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2713,8 +2682,6 @@ export function useEmailWalletCoreEmailValidityDuration<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"extensionHandler"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreExtensionHandler<
   TFunctionName extends 'extensionHandler',
@@ -2722,12 +2689,11 @@ export function useEmailWalletCoreExtensionHandler<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'extensionHandler',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2735,8 +2701,6 @@ export function useEmailWalletCoreExtensionHandler<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"maxFeePerGas"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreMaxFeePerGas<
   TFunctionName extends 'maxFeePerGas',
@@ -2744,21 +2708,18 @@ export function useEmailWalletCoreMaxFeePerGas<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
-  return useContractRead({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    functionName: 'maxFeePerGas',
-    ...config,
-  } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
+  return useContractRead({ abi: emailWalletCoreABI, functionName: 'maxFeePerGas', ...config } as UseContractReadConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName,
+    TSelectData
+  >)
 }
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"priceOracle"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCorePriceOracle<
   TFunctionName extends 'priceOracle',
@@ -2766,21 +2727,18 @@ export function useEmailWalletCorePriceOracle<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
-  return useContractRead({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    functionName: 'priceOracle',
-    ...config,
-  } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
+  return useContractRead({ abi: emailWalletCoreABI, functionName: 'priceOracle', ...config } as UseContractReadConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName,
+    TSelectData
+  >)
 }
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"relayerHandler"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreRelayerHandler<
   TFunctionName extends 'relayerHandler',
@@ -2788,12 +2746,11 @@ export function useEmailWalletCoreRelayerHandler<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'relayerHandler',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2801,8 +2758,6 @@ export function useEmailWalletCoreRelayerHandler<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"tokenRegistry"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreTokenRegistry<
   TFunctionName extends 'tokenRegistry',
@@ -2810,21 +2765,18 @@ export function useEmailWalletCoreTokenRegistry<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
-  return useContractRead({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    functionName: 'tokenRegistry',
-    ...config,
-  } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
+  return useContractRead({ abi: emailWalletCoreABI, functionName: 'tokenRegistry', ...config } as UseContractReadConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName,
+    TSelectData
+  >)
 }
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimedFundClaimGas"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreUnclaimedFundClaimGas<
   TFunctionName extends 'unclaimedFundClaimGas',
@@ -2832,12 +2784,11 @@ export function useEmailWalletCoreUnclaimedFundClaimGas<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'unclaimedFundClaimGas',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2845,8 +2796,6 @@ export function useEmailWalletCoreUnclaimedFundClaimGas<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimedStateClaimGas"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreUnclaimedStateClaimGas<
   TFunctionName extends 'unclaimedStateClaimGas',
@@ -2854,12 +2803,11 @@ export function useEmailWalletCoreUnclaimedStateClaimGas<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'unclaimedStateClaimGas',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2867,8 +2815,6 @@ export function useEmailWalletCoreUnclaimedStateClaimGas<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"unclaimsHandler"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreUnclaimsHandler<
   TFunctionName extends 'unclaimsHandler',
@@ -2876,12 +2822,11 @@ export function useEmailWalletCoreUnclaimsHandler<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'unclaimsHandler',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2889,8 +2834,6 @@ export function useEmailWalletCoreUnclaimsHandler<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"validateEmailOp"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreValidateEmailOp<
   TFunctionName extends 'validateEmailOp',
@@ -2898,12 +2841,11 @@ export function useEmailWalletCoreValidateEmailOp<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return useContractRead({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'validateEmailOp',
     ...config,
   } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
@@ -2911,8 +2853,6 @@ export function useEmailWalletCoreValidateEmailOp<
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"verifier"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreVerifier<
   TFunctionName extends 'verifier',
@@ -2920,21 +2860,18 @@ export function useEmailWalletCoreVerifier<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
-  return useContractRead({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    functionName: 'verifier',
-    ...config,
-  } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
+  return useContractRead({ abi: emailWalletCoreABI, functionName: 'verifier', ...config } as UseContractReadConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName,
+    TSelectData
+  >)
 }
 
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"wethContract"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function useEmailWalletCoreWethContract<
   TFunctionName extends 'wethContract',
@@ -2942,71 +2879,53 @@ export function useEmailWalletCoreWethContract<
 >(
   config: Omit<
     UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
-  return useContractRead({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    functionName: 'wethContract',
-    ...config,
-  } as UseContractReadConfig<typeof emailWalletCoreABI, TFunctionName, TSelectData>)
+  return useContractRead({ abi: emailWalletCoreABI, functionName: 'wethContract', ...config } as UseContractReadConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName,
+    TSelectData
+  >)
 }
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreWrite<
-  TFunctionName extends string,
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreWrite<TFunctionName extends string, TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, string>['request']['abi'],
         TFunctionName,
         TMode
-      > & { address?: Address; chainId?: TChainId }
+      >
     : UseContractWriteConfig<typeof emailWalletCoreABI, TFunctionName, TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, TFunctionName, TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     ...config,
   } as any)
 }
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"depositTokenAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreDepositTokenAsExtension<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreDepositTokenAsExtension<TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, 'depositTokenAsExtension'>['request']['abi'],
         'depositTokenAsExtension',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'depositTokenAsExtension' }
+      > & { functionName?: 'depositTokenAsExtension' }
     : UseContractWriteConfig<typeof emailWalletCoreABI, 'depositTokenAsExtension', TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
         functionName?: 'depositTokenAsExtension'
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, 'depositTokenAsExtension', TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'depositTokenAsExtension',
     ...config,
   } as any)
@@ -3014,29 +2933,21 @@ export function useEmailWalletCoreDepositTokenAsExtension<
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"executeAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreExecuteAsExtension<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreExecuteAsExtension<TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, 'executeAsExtension'>['request']['abi'],
         'executeAsExtension',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'executeAsExtension' }
+      > & { functionName?: 'executeAsExtension' }
     : UseContractWriteConfig<typeof emailWalletCoreABI, 'executeAsExtension', TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
         functionName?: 'executeAsExtension'
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, 'executeAsExtension', TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'executeAsExtension',
     ...config,
   } as any)
@@ -3044,29 +2955,21 @@ export function useEmailWalletCoreExecuteAsExtension<
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"handleEmailOp"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreHandleEmailOp<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreHandleEmailOp<TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, 'handleEmailOp'>['request']['abi'],
         'handleEmailOp',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'handleEmailOp' }
+      > & { functionName?: 'handleEmailOp' }
     : UseContractWriteConfig<typeof emailWalletCoreABI, 'handleEmailOp', TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
         functionName?: 'handleEmailOp'
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, 'handleEmailOp', TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'handleEmailOp',
     ...config,
   } as any)
@@ -3074,29 +2977,21 @@ export function useEmailWalletCoreHandleEmailOp<
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"initialize"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreInitialize<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreInitialize<TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, 'initialize'>['request']['abi'],
         'initialize',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'initialize' }
+      > & { functionName?: 'initialize' }
     : UseContractWriteConfig<typeof emailWalletCoreABI, 'initialize', TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
         functionName?: 'initialize'
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, 'initialize', TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'initialize',
     ...config,
   } as any)
@@ -3104,29 +2999,21 @@ export function useEmailWalletCoreInitialize<
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"registerUnclaimedStateAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, 'registerUnclaimedStateAsExtension'>['request']['abi'],
         'registerUnclaimedStateAsExtension',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'registerUnclaimedStateAsExtension' }
+      > & { functionName?: 'registerUnclaimedStateAsExtension' }
     : UseContractWriteConfig<typeof emailWalletCoreABI, 'registerUnclaimedStateAsExtension', TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
         functionName?: 'registerUnclaimedStateAsExtension'
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, 'registerUnclaimedStateAsExtension', TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'registerUnclaimedStateAsExtension',
     ...config,
   } as any)
@@ -3134,29 +3021,21 @@ export function useEmailWalletCoreRegisterUnclaimedStateAsExtension<
 
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"requestTokenAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
-export function useEmailWalletCoreRequestTokenAsExtension<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof emailWalletCoreAddress,
->(
+export function useEmailWalletCoreRequestTokenAsExtension<TMode extends WriteContractMode = undefined>(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<typeof emailWalletCoreABI, 'requestTokenAsExtension'>['request']['abi'],
         'requestTokenAsExtension',
         TMode
-      > & { address?: Address; chainId?: TChainId; functionName?: 'requestTokenAsExtension' }
+      > & { functionName?: 'requestTokenAsExtension' }
     : UseContractWriteConfig<typeof emailWalletCoreABI, 'requestTokenAsExtension', TMode> & {
         abi?: never
-        address?: never
-        chainId?: TChainId
         functionName?: 'requestTokenAsExtension'
       } = {} as any,
 ) {
   return useContractWrite<typeof emailWalletCoreABI, 'requestTokenAsExtension', TMode>({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'requestTokenAsExtension',
     ...config,
   } as any)
@@ -3164,35 +3043,27 @@ export function useEmailWalletCoreRequestTokenAsExtension<
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreWrite<TFunctionName extends string>(
-  config: Omit<UsePrepareContractWriteConfig<typeof emailWalletCoreABI, TFunctionName>, 'abi' | 'address'> & {
-    chainId?: keyof typeof emailWalletCoreAddress
-  } = {} as any,
+  config: Omit<UsePrepareContractWriteConfig<typeof emailWalletCoreABI, TFunctionName>, 'abi'> = {} as any,
 ) {
-  return usePrepareContractWrite({
-    abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
-    ...config,
-  } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, TFunctionName>)
+  return usePrepareContractWrite({ abi: emailWalletCoreABI, ...config } as UsePrepareContractWriteConfig<
+    typeof emailWalletCoreABI,
+    TFunctionName
+  >)
 }
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"depositTokenAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreDepositTokenAsExtension(
   config: Omit<
     UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'depositTokenAsExtension'>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'depositTokenAsExtension',
     ...config,
   } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'depositTokenAsExtension'>)
@@ -3200,18 +3071,15 @@ export function usePrepareEmailWalletCoreDepositTokenAsExtension(
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"executeAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreExecuteAsExtension(
   config: Omit<
     UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'executeAsExtension'>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'executeAsExtension',
     ...config,
   } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'executeAsExtension'>)
@@ -3219,18 +3087,15 @@ export function usePrepareEmailWalletCoreExecuteAsExtension(
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"handleEmailOp"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreHandleEmailOp(
   config: Omit<
     UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'handleEmailOp'>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'handleEmailOp',
     ...config,
   } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'handleEmailOp'>)
@@ -3238,18 +3103,15 @@ export function usePrepareEmailWalletCoreHandleEmailOp(
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"initialize"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreInitialize(
   config: Omit<
     UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'initialize'>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'initialize',
     ...config,
   } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'initialize'>)
@@ -3257,18 +3119,15 @@ export function usePrepareEmailWalletCoreInitialize(
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"registerUnclaimedStateAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreRegisterUnclaimedStateAsExtension(
   config: Omit<
     UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'registerUnclaimedStateAsExtension'>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'registerUnclaimedStateAsExtension',
     ...config,
   } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'registerUnclaimedStateAsExtension'>)
@@ -3276,18 +3135,15 @@ export function usePrepareEmailWalletCoreRegisterUnclaimedStateAsExtension(
 
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link emailWalletCoreABI}__ and `functionName` set to `"requestTokenAsExtension"`.
- *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3)
  */
 export function usePrepareEmailWalletCoreRequestTokenAsExtension(
   config: Omit<
     UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'requestTokenAsExtension'>,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof emailWalletCoreAddress } = {} as any,
+    'abi' | 'functionName'
+  > = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: emailWalletCoreABI,
-    address: emailWalletCoreAddress[11155111],
     functionName: 'requestTokenAsExtension',
     ...config,
   } as UsePrepareContractWriteConfig<typeof emailWalletCoreABI, 'requestTokenAsExtension'>)
