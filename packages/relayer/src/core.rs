@@ -295,6 +295,7 @@ pub(crate) async fn handle_email(
             command: command.clone(),
             email_nullifier,
             email_domain: parsed_email.get_email_domain()?,
+            dkim_public_key_hash: u256_to_bytes32(pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 0]),
             timestamp,
             masked_subject,
             fee_token_name,
@@ -398,6 +399,7 @@ pub(crate) async fn handle_account_init(
         email_domain: parsed_email.get_email_domain()?,
         email_timestamp: pub_signals[DOMAIN_FIELDS + 5],
         email_nullifier: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 2]),
+        dkim_public_key_hash: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 0]),
         proof,
     };
     info!("account init data {:?}", data);
@@ -443,12 +445,13 @@ pub(crate) async fn handle_account_transport(
         RELAYER_RAND.get().unwrap(),
     )
     .await?;
-    let (transport_proof, _) =
+    let (transport_proof, pub_signals) =
         generate_proof(&input, "account_transport", PROVER_ADDRESS.get().unwrap()).await?;
 
     let email_proof = EmailProof {
         domain: parsed_email.get_email_domain()?,
         timestamp: parsed_email.get_timestamp()?.into(),
+        dkim_public_key_hash: u256_to_bytes32(pub_signals[DOMAIN_FIELDS + 0]),
         nullifier: fr_to_bytes32(&email_nullifier(&parsed_email.signature)?)?,
         proof: transport_proof,
     };

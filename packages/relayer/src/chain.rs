@@ -19,6 +19,7 @@ pub struct AccountInitInput {
     pub(crate) email_domain: String,
     pub(crate) email_timestamp: U256,
     pub(crate) email_nullifier: [u8; 32],
+    pub(crate) dkim_public_key_hash: [u8; 32],
     pub(crate) proof: Bytes,
 }
 
@@ -167,6 +168,7 @@ impl ChainClient {
             data.email_domain,
             data.email_timestamp,
             data.email_nullifier,
+            data.dkim_public_key_hash,
             data.proof,
         );
         let tx = call.send().await?;
