@@ -125,10 +125,11 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 100 ether); // for fee reimbursement
 
         vm.startPrank(relayer);
+        uint256 unclaimsStateId = unclaimsHandler.numUnclaimedStates();
         core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
-        (, , , bytes memory state, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , bytes memory state, ) = unclaimsHandler.unclaimedStateOfId(unclaimsStateId);
         assertTrue(state.length > 0, "unclaimed state should not be empty");
     }
 
@@ -264,7 +265,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -283,7 +284,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(walletAddr, 25 ether); // For token request by extension; ext will request for 25 twice
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp should have failed");
@@ -325,7 +326,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, string.concat("handleEmailOp failed: ", string(reason)));
@@ -348,7 +349,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
@@ -374,7 +375,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(randomAddress);
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -392,7 +393,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(core));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
@@ -411,7 +412,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(unclaimsHandler));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
@@ -427,7 +428,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(walletAddr);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
@@ -446,7 +447,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(usdcToken));
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");

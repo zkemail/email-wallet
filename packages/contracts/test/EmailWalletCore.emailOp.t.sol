@@ -183,7 +183,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         // Send 1 ETH to handleEmail
-        (bool success, , ) = core.handleEmailOp{value: 1 ether}(emailOp);
+        (bool success, , ,) = core.handleEmailOp{value: 1 ether}(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -214,7 +214,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = maxFeePerGas;
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee; // ETH = WETH
@@ -241,7 +241,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = maxFeePerGas;
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
@@ -269,7 +269,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = feePerGas; // Custom fee per gas < maxFeePerGas
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
@@ -301,7 +301,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         uint256 unclaimFee = unclaimedFundClaimGas * maxFeePerGas;
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp{value: unclaimFee}(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp{value: unclaimFee}(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
@@ -326,7 +326,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp succeded"); // Execution fails

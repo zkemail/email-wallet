@@ -78,6 +78,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateRegistered(
+            0,
             recipientEmailAddrCommit,
             address(nftExtension),
             walletAddr,
@@ -86,17 +87,19 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0, // dont announce randomness and email
             ""
         );
-        (bool success, , ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ,uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         (
+            uint256 foundId,
             bytes32 emailAddrCommit,
             address extensionAddr,
             address sender,
             bytes memory state,
             uint256 expiryTime
-        ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        ) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
 
+        assertEq(foundId, registeredUnclaimId, "foundId mismatch");
         assertEq(success, true, "handleEmailOp should succeed");
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
         assertEq(extensionAddr, address(nftExtension), "extensionAddr mismatch");
@@ -145,13 +148,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+        (bool success, bytes memory reason, ,uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
             emailOp
         );
         vm.stopPrank();
 
-        (bytes32 emailAddrCommit, address extensionAddr, , bytes memory state, ) = unclaimsHandler
-            .unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, bytes32 emailAddrCommit, address extensionAddr, , bytes memory state, ) = unclaimsHandler
+            .unclaimedStateOfId(registeredUnclaimId);
 
         assertEq(success, true, string.concat("handleEmailOp failed", string(reason)));
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
@@ -177,7 +180,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, unclaimedStateClaimGas * maxFeePerGas); // For fee reibursement
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+        (bool success, bytes memory reason, ,) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
             emailOp
         );
         vm.stopPrank();
@@ -208,7 +211,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_UnclaimedStateExists_Internal() public {
+    function test_UnclaimedStateExists_Internal() public {
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -227,10 +230,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         emailOp2.maskedSubject = string.concat("NFT Send 22 of APE to ");
         emailOp2.extensionParams.subjectTemplateIndex = 0;
         emailOp2.hasEmailRecipient = true;
-        emailOp.feeTokenName = "DAI";
+        emailOp2.feeTokenName = "DAI";
         emailOp2.recipientEmailAddrCommit = recipientEmailAddrCommit; // Use same emailAddrCommit
         emailOp2.extensionParams.subjectParams = new bytes[](2);
-        emailOp2.extensionParams.subjectParams[0] = abi.encode(55);
+        emailOp2.extensionParams.subjectParams[0] = abi.encode(22);
         emailOp2.extensionParams.subjectParams[1] = abi.encode("APE");
         emailOp2.emailNullifier = bytes32(uint256(1212123));
 
@@ -239,10 +242,14 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 10 ether); // For fee reibursement
 
         vm.startPrank(relayer);
-        core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
-
-        vm.expectRevert("unclaimed state exists");
-        core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp2);
+        (, , , uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        require(registeredUnclaimId == 0, "the first registeredUnclaimId mismatch");
+        dummyNFT.freeMint(walletAddr, 22);
+        bool success;
+        daiToken.freeMint(walletAddr, 10 ether);
+        (success, , , registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp2);
+        require(success, "handleEmailOp failed");
+        require(registeredUnclaimId == 1, "the second registeredUnclaimId mismatch");
         vm.stopPrank();
     }
 
@@ -261,7 +268,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+        (bool success, bytes memory reason, ,) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
             emailOp
         );
         vm.stopPrank();
@@ -285,7 +292,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(relayer, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
+        (bool success, bytes memory reason, ,) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(
             emailOp
         );
         vm.stopPrank();
@@ -310,6 +317,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
 
         emit EmailWalletEvents.UnclaimedStateRegistered(
+            0,
             recipientEmailAddrCommit,
             address(nftExtension),
             sender,
@@ -318,7 +326,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0, // dont announce randomness and email
             ""
         );
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -328,14 +336,16 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (
+        (   
+            uint256 foundId,
             bytes32 emailAddrCommit,
             address extensionAddr,
             address ufSender,
             bytes memory usState,
             uint256 expiryTime
-        ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        ) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
 
+        assertEq(foundId, registeredUnclaimId, "foundId mismatch");
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
         assertEq(extensionAddr, address(nftExtension), "extensionAddr mismatch");
         assertEq(sender, ufSender, "sender mismatch");
@@ -357,7 +367,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -367,7 +377,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (, , , , uint256 usExpiry) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , , uint256 usExpiry) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
 
         assertEq(expiryTime, usExpiry, "expiryTime mismatch");
     }
@@ -389,6 +399,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(sender);
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateRegistered(
+            0,
             recipientEmailAddrCommit,
             address(nftExtension),
             sender,
@@ -483,7 +494,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, 2 * unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             abi.encode(address(dummyNFT), 23),
@@ -491,9 +502,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
+        require(registeredUnclaimId == 0, "the first registeredUnclaimId mismatch");
 
-        vm.expectRevert("unclaimed state exists");
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             abi.encode(address(dummyNFT), 33),
@@ -501,6 +512,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
+        require(registeredUnclaimId == 1, "the second registeredUnclaimId mismatch");
         vm.stopPrank();
     }
 
@@ -528,6 +540,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateRegistered(
+            0,
             recipientEmailAddrCommit,
             address(nftExtension),
             walletAddr,
@@ -536,7 +549,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0, // dont announce randomness and email
             ""
         );
-        (bool success, , ) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (, , ,uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(
@@ -548,13 +561,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, walletAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(55), walletAddr, "NFT not transferred to account");
-        (, , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
         assertEq(st.length, 0, "unclaimed state not cleared");
 
         assertEq(address(relayer).balance, unclaimedStateClaimGas * maxFeePerGas, "relayer didnt receive claim fee");
@@ -574,7 +587,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -593,13 +606,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed state to account
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, walletAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), walletAddr, "NFT not transferred to account");
-        (, , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
         assertEq(st.length, 0, "unclaimed state not cleared");
 
         assertEq(address(relayer).balance, unclaimedStateClaimGas * maxFeePerGas, "relayer didnt receive claim fee");
@@ -625,7 +638,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -642,13 +655,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockDKIMHash, mockProof);
 
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedStateClaimed(recipientEmailAddrCommit, newWalletAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, newWalletAddr);
 
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), newWalletAddr, "NFT not transferred to account");
-        (, , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
         assertEq(st.length, 0, "unclaimed state not cleared");
     }
 
@@ -673,7 +686,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, 2 * unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId1 = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             abi.encode(address(dummyNFT), 23),
@@ -681,7 +694,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId2 = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit2,
             address(nftExtension),
             abi.encode(address(dummyNFT), 33),
@@ -697,8 +710,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockDKIMHash, mockProof);
 
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit2, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newEmailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), newWalletAddr, "NFT 23 didnt transfer to account");
@@ -722,7 +735,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -744,7 +757,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             mockProof
         );
 
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -762,7 +775,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -776,7 +789,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         vm.expectRevert("invalid relayer for account");
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -793,7 +806,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -807,7 +820,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("unclaimed state expired");
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -830,7 +843,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -844,7 +857,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSI, mockProof);
         vm.expectRevert("account not initialized");
-        unclaimsHandler.claimUnclaimedState(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -862,7 +875,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -876,8 +889,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedStateVoided(recipientEmailAddrCommit, sender);
-        unclaimsHandler.voidUnclaimedState(recipientEmailAddrCommit);
+        emit EmailWalletEvents.UnclaimedStateVoided(registeredUnclaimId, recipientEmailAddrCommit, sender);
+        unclaimsHandler.voidUnclaimedState(registeredUnclaimId);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), sender, "NFT not returned to sender");
@@ -887,7 +900,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             "claim fee not returned correctly"
         );
 
-        (, , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , bytes memory st, ) = unclaimsHandler.unclaimedStateOfId(registeredUnclaimId);
         assertEq(st.length, 0, "unclaimed state not cleared");
     }
 
@@ -905,7 +918,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),
             state,
@@ -917,7 +930,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectRevert("unclaimed state not expired");
-        unclaimsHandler.voidUnclaimedState(recipientEmailAddrCommit);
+        unclaimsHandler.voidUnclaimedState(registeredUnclaimId);
         vm.stopPrank();
     }
 }

@@ -154,14 +154,6 @@ contract EmailWalletCore {
         if (emailOp.hasEmailRecipient) {
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
             require(emailOp.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
-            require(
-                unclaimsHandler.getSenderOfUnclaimedFund(emailOp.recipientEmailAddrCommit) == address(0),
-                "unclaimed fund exist"
-            );
-            require(
-                unclaimsHandler.getSenderOfUnclaimedState(emailOp.recipientEmailAddrCommit) == address(0),
-                "unclaimed state exists"
-            );
         } else {
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
@@ -202,7 +194,7 @@ contract EmailWalletCore {
     /// @dev ~ verificationGas(fixed) + executionGas(extension.maxGas if extension) + feeForReimbursement(50k) + msg.value
     function handleEmailOp(
         EmailOp calldata emailOp
-    ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH) {
+    ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH, uint256 registeredUnclaimId) {
         require(currContext.walletAddr == address(0), "context already set");
 
         uint256 initialGas = gasleft();
@@ -210,7 +202,6 @@ contract EmailWalletCore {
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = accountHandler.getWalletOfEmailAddrPointer(emailOp.emailAddrPointer);
-
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -238,8 +229,11 @@ contract EmailWalletCore {
         }
         // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
         else {
+            require(currContext.registeredUnclaimId == 0, "registeredUnclaimId must be zero if no unclaimed fund/state is registered");
             payable(msg.sender).transfer(msg.value);
         }
+
+        registeredUnclaimId = currContext.registeredUnclaimId;
 
         uint256 gasForRefund = 55000; // Rough estimate of gas cost for refund (ERC20 transfer) and other operation below
         uint256 totalGas = initialGas - gasleft() + gasForRefund;
@@ -249,6 +243,7 @@ contract EmailWalletCore {
 
         if (feeAmountInToken > 0) {
             address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
+            
             (success, err) = _transferERC20FromUserWallet(
                 currContext.walletAddr,
                 msg.sender,
@@ -264,6 +259,7 @@ contract EmailWalletCore {
         currContext.extensionAddr = address(0);
         currContext.unclaimedFundRegistered = false;
         currContext.unclaimedStateRegistered = false;
+        currContext.registeredUnclaimId = 0;
         delete currContext.tokenAllowances;
     }
 
@@ -277,7 +273,7 @@ contract EmailWalletCore {
 
         currContext.unclaimedStateRegistered = true;
 
-        unclaimsHandler.registerUnclaimedStateInternal(
+        currContext.registeredUnclaimId = unclaimsHandler.registerUnclaimedStateInternal(
             extensionAddr,
             currContext.walletAddr,
             currContext.recipientEmailAddrCommit,
@@ -371,7 +367,7 @@ contract EmailWalletCore {
 
                 currContext.unclaimedFundRegistered = true;
 
-                unclaimsHandler.registerUnclaimedFundInternal(
+                currContext.registeredUnclaimId = unclaimsHandler.registerUnclaimedFundInternal(
                     currContext.walletAddr,
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
