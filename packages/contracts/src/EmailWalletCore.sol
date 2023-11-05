@@ -24,6 +24,7 @@ import {ExtensionHandler} from "./handlers/ExtensionHandler.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "./interfaces/Events.sol";
 
 contract EmailWalletCore {
     // ZK proof verifier
@@ -260,6 +261,8 @@ contract EmailWalletCore {
         currContext.unclaimedFundRegistered = false;
         currContext.unclaimedStateRegistered = false;
         delete currContext.tokenAllowances;
+
+        emit EmailWalletEvents.EmailOpHandled(success, registeredUnclaimId, emailOp.emailNullifier);
     }
 
     /// For extension in context to register Unclaimed State during handleEmailOp
