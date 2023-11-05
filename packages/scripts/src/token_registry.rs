@@ -11,7 +11,7 @@ const CONFIRMATIONS: usize = 1;
 const UNISWAP_TOKEN_LIST: &str =
     "https://raw.githubusercontent.com/Uniswap/default-token-list/main/src/tokens/mainnet.json";
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Token {
     name: String,
     symbol: String,
@@ -37,8 +37,15 @@ impl TokenRegistryUtil {
 
         let tokens = &self.get_popular_tokens().await;
 
+        // These are hardcoded in contract
+        let filtered: Vec<Token> = tokens
+            .iter()
+            .filter(|t| t.symbol != "WETH" && t.symbol != "USDC" && t.symbol != "DAI")
+            .cloned()
+            .collect();
+
         // Update registry in chunks of 50
-        let chunks: Vec<&[Token]> = tokens.chunks(50).collect();
+        let chunks: Vec<&[Token]> = filtered.chunks(50).collect();
         for chunk in chunks {
             self.add_token_to_registry(chunk).await;
         }
@@ -68,27 +75,38 @@ impl TokenRegistryUtil {
         ));
         let token_registry = TokenRegistry::new(self.token_registry, client);
 
-        for token in tokens.iter() {
-            let exists = token_registry
-                .get_token_address_with_chain_id(chain_id_u256, token.name.clone())
-                .await
-                .unwrap();
+        // for token in tokens.iter() {
+        //     let exists = token_registry
+        //         .get_token_address_with_chain_id(chain_id_u256, token.symbol.clone())
+        //         .await
+        //         .unwrap();
 
-            if exists != H160::zero() {
-                println!(
-                    "Token {} already exists in registry, address = {}",
-                    &token.name, exists
-                );
-                return;
-            }
-        }
+        //     println!("{}", exists);
 
-        println!("Adding {} to registry...", tokens.len());
+        //     if exists != H160::zero() {
+        //         println!(
+        //             "Token {} already exists in registry, address = {}",
+        //             &token.name, exists
+        //         );
+        //         return;
+        //     }
+        // }
+
+        let token_symbols = tokens
+            .iter()
+            .map(|t| t.symbol.clone())
+            .collect::<Vec<String>>();
+        let token_addresses = tokens
+            .iter()
+            .map(|t| t.address.clone())
+            .collect::<Vec<H160>>();
+
+        println!("Adding to registry...\n{:?}", token_symbols);
 
         let call = token_registry.set_token_addresses(
-            self.chain_id.to_string().parse().unwrap(),
-            tokens.iter().map(|t| t.name.clone()).collect(),
-            tokens.iter().map(|t| t.address.clone()).collect(),
+            chain_id_u256,
+            token_symbols,
+            token_addresses,
         );
 
         let tx = call.send().await.unwrap();
