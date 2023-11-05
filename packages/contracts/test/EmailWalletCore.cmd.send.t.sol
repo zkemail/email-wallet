@@ -141,7 +141,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -163,7 +163,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
@@ -193,15 +193,15 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ,uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
         assertEq(daiToken.balanceOf(walletAddr), 34.6 ether, "sender did not have correct DAI left");
 
         // Should register unclaimed funds
-        (, , address tokenAddr, uint256 amount, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(
-            recipientEmailAddrCommit
+        (, , , address tokenAddr, uint256 amount, ) = unclaimsHandler.unclaimedFundOfId(
+            registeredUnclaimId
         );
         assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
         assertEq(amount, 65.4 ether, "amount mismatch");
@@ -225,7 +225,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, bytes memory reason, ) = core.handleEmailOp(emailOp);
+        (bool success, bytes memory reason, ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, string(reason));

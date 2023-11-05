@@ -251,10 +251,11 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 2]));
         emailAddrPointer = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 3]));
         uint emailTimestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
+        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 0]));
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_init_proof.json")
         );
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, mockDKIMHash, proof);
+        accountHandler.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, publicKeyHash, proof);
     }
 
     function accountTransport(
@@ -326,6 +327,7 @@ abstract contract IntegrationTestHelper is Test {
         transportEmailProof.nullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 1]));
         transportEmailProof.timestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
         transportEmailProof.domain = emailDomain;
+        transportEmailProof.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 0]));
         transportEmailProof.proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_transport_proof.json")
         );
@@ -369,10 +371,12 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.hasEmailRecipient = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4]) == 1;
         emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]));
         emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]));
+        emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 0]));
         emailOp.timestamp = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6]);
     }
 
     function claimFund(
+        uint256 registeredUnclaimId,
         string memory emailAddr,
         bytes32 relayerRand,
         bytes32 emailAddrRand
@@ -392,12 +396,12 @@ abstract contract IntegrationTestHelper is Test {
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
-        bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(emailAddrCommit, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(registeredUnclaimId, recipientEmailAddrPointer, proof);
     }
 
     function claimState(
+        uint256 registeredUnclaimId,
         string memory emailAddr,
         bytes32 relayerRand,
         bytes32 emailAddrRand
@@ -417,9 +421,8 @@ abstract contract IntegrationTestHelper is Test {
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
-        bytes32 emailAddrCommit = bytes32(vm.parseUint(pubSignals[2]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(emailAddrCommit, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(registeredUnclaimId, recipientEmailAddrPointer, proof);
     }
 
     function genAnnouncement(

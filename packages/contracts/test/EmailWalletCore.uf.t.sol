@@ -34,6 +34,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedFundRegistered(
+            0,
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -42,19 +43,21 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
-        (bool success, , ) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , , uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(success, true, "handleEmailOp failed");
 
         (
+            uint256 foundId,
             bytes32 emailAddrCommit,
             address sender,
             address tokenAddr,
             uint256 amount,
             uint256 expiryTime
-        ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
 
+        assertEq(foundId, registeredUnclaimId, "foundId mismatch");
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
         assertEq(sender, walletAddr, "sender mismatch");
         assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
@@ -110,6 +113,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedFundRegistered(
+            0,
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -118,7 +122,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -128,14 +132,16 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (
+        (   
+            uint256 foundId,
             bytes32 emailAddrCommit,
             address ufSender,
             address tokenAddr,
             uint256 amount,
             uint256 expiryTime
-        ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
 
+        assertEq(foundId, registeredUnclaimId, "foundId mismatch");
         assertEq(emailAddrCommit, recipientEmailAddrCommit, "emailAddrCommit mismatch");
         assertEq(ufSender, sender, "sender mismatch");
         assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
@@ -154,7 +160,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -164,7 +170,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (, , , , uint256 expiryTime) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , , uint256 expiryTime) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
 
         assertEq(expiryTime, expiry, "expiryTime mismatch");
     }
@@ -203,6 +209,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedFundRegistered(
+            0,
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -245,7 +252,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_RegisteringExistingCommitment() public {
+    function test_RegisteringExistingCommitment() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
 
@@ -255,7 +262,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -263,11 +270,11 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
+        require(registeredUnclaimId == 0, "the first registeredUnclaimId mismatch");
 
         // Register another with same commitment
         usdcToken.approve(address(core.unclaimsHandler()), 50 ether);
-        vm.expectRevert("unclaimed fund exists");
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(usdcToken),
             50 ether,
@@ -275,6 +282,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             0,
             ""
         );
+        require(registeredUnclaimId == 1, "the second registeredUnclaimId mismatch");
         vm.stopPrank();
     }
 
@@ -299,7 +307,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
-        core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
+        (, , , uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedFundClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
 
         assertEq(
@@ -311,13 +319,13 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed fund to account
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedFundClaimed(recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
+        emit EmailWalletEvents.UnclaimedFundClaimed(registeredUnclaimId, recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
 
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
-        (, , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
         assertEq(amt, 0, "unclaimed fund not cleared");
 
         assertEq(address(relayer).balance, unclaimedFundClaimGas * maxFeePerGas, "relayer didnt receive claim fee");
@@ -333,7 +341,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -352,13 +360,13 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed fund to account
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedFundClaimed(recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
+        emit EmailWalletEvents.UnclaimedFundClaimed(registeredUnclaimId, recipientEmailAddrCommit, address(daiToken), 100 ether, walletAddr);
 
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
-        (, , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
         assertEq(amt, 0, "unclaimed fund not cleared");
 
         assertEq(address(relayer).balance, unclaimedFundClaimGas * maxFeePerGas, "relayer didnt receive claim fee");
@@ -379,7 +387,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+         uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -395,7 +403,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockDKIMHash, mockProof);
 
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(
@@ -420,7 +428,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(sender, 100 ether);
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId1 = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -434,7 +442,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         usdcToken.freeMint(sender2, 50 ether);
         vm.startPrank(sender2);
         usdcToken.approve(address(core.unclaimsHandler()), 50 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId2 = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit2,
             address(usdcToken),
             50 ether,
@@ -450,8 +458,8 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
         accountHandler.initializeAccount(newEmailAddrPointer, emailDomain, block.timestamp, emailNullifier2, mockDKIMHash, mockProof);
 
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit2, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId2, newEmailAddrPointer, mockProof);
         vm.stopPrank();
 
         assertEq(
@@ -479,7 +487,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -501,7 +509,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             mockProof
         );
 
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -515,7 +523,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -529,7 +537,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
         vm.expectRevert("invalid relayer for account");
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -544,7 +552,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -558,7 +566,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("unclaimed fund expired");
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -575,7 +583,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -589,7 +597,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSI, mockProof);
         vm.expectRevert("account not initialized");
-        unclaimsHandler.claimUnclaimedFund(recipientEmailAddrCommit, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
     }
 
@@ -603,7 +611,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -617,8 +625,8 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.UnclaimedFundVoided(recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
-        unclaimsHandler.voidUnclaimedFund(recipientEmailAddrCommit);
+        emit EmailWalletEvents.UnclaimedFundVoided(registeredUnclaimId, recipientEmailAddrCommit, address(daiToken), 100 ether, sender);
+        unclaimsHandler.voidUnclaimedFund(registeredUnclaimId);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(address(unclaimsHandler)), 0, "core contract still have tokens");
@@ -629,7 +637,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             "claim fee not returned correctly"
         );
 
-        (, , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfEmailAddrCommit(recipientEmailAddrCommit);
+        (, , , , uint256 amt, ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
         assertEq(amt, 0, "unclaimed fund not cleared");
     }
 
@@ -643,7 +651,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(sender);
         daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
+        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{value: unclaimedFundClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(daiToken),
             100 ether,
@@ -655,7 +663,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(voidUser);
         vm.expectRevert("unclaimed fund not expired");
-        unclaimsHandler.voidUnclaimedFund(recipientEmailAddrCommit);
+        unclaimsHandler.voidUnclaimedFund(registeredUnclaimId);
         vm.stopPrank();
     }
 }

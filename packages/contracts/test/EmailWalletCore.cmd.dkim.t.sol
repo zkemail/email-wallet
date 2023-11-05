@@ -28,7 +28,7 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
