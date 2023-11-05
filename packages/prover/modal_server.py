@@ -14,7 +14,12 @@ stub = modal.Stub("email-wallet-relayer-v1")
 image = modal.Image.from_dockerfile("Dockerfile")
 
 
-@stub.function(image=image, mounts=modal.Mount.from_local_python_packages("core"))
+@stub.function(
+    image=image,
+    mounts=[
+        modal.Mount.from_local_python_packages("core"),
+    ],
+)
 @modal.wsgi_app()
 def flask_app():
     from flask import Flask, request, jsonify
