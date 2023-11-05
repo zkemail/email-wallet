@@ -1,5 +1,8 @@
+use std::str::FromStr;
+
 use crate::*;
 use ethers::abi::{ParamType, RawLog, Token};
+use ethers::middleware::Middleware;
 use ethers::prelude::*;
 use ethers::signers::Signer;
 
@@ -267,33 +270,17 @@ impl ChainClient {
             .ok_or(anyhow!("No receipt"))?;
         let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        let log = receipt
-            .logs
-            .into_iter()
-            .filter(|log| {
-                if let Ok(log) = EmailWalletEventsEvents::decode_log(&RawLog::from(log.clone())) {
-                    if let EmailWalletEventsEvents::EmailOpHandledFilter(_) = log {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                } else {
-                    false
+        for log in receipt.logs.into_iter() {
+            match EmailWalletEventsEvents::decode_log(&RawLog::from(log))? {
+                EmailWalletEventsEvents::EmailOpHandledFilter(event) => {
+                    return Ok((tx_hash, event.registered_unclaim_id));
                 }
-            })
-            .collect::<Vec<_>>();
-        if log.len() != 1 {
-            return Err(anyhow!(
-                "the number of EmailOpHandled event must be 1 but is {}",
-                log.len()
-            ));
+                _ => {
+                    continue;
+                }
+            }
         }
-        let registered_unclaim_id = abi::decode(&[ParamType::Uint(256)], &log[2].data)?;
-        if let Token::Uint(id) = registered_unclaim_id[0] {
-            Ok((tx_hash, id))
-        } else {
-            Err(anyhow!("the registered unclaim id is not a uint"))
-        }
+        Err(anyhow!("no EmailOpHandled event found in the receipt"))
     }
 
     pub async fn query_account_key_commit(&self, pointer: &Fr) -> Result<Fr> {
@@ -440,6 +427,41 @@ impl ChainClient {
     pub async fn query_unclaimed_state(&self, id: U256) -> Result<UnclaimedState> {
         let unclaimed_state = self.unclaims_handler.get_unclaimed_state(id).await?;
         Ok(unclaimed_state)
+    }
+
+    pub async fn get_unclaim_id_from_tx_hash(&self, tx_hash: &str, is_fund: bool) -> Result<U256> {
+        let receipt: TransactionReceipt = self
+            .client
+            .get_transaction_receipt(H256::from_str(tx_hash)?)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        for log in receipt.logs.into_iter() {
+            match EmailWalletEventsEvents::decode_log(&RawLog::from(log))? {
+                EmailWalletEventsEvents::UnclaimedFundRegisteredFilter(event) => {
+                    if !is_fund {
+                        return Err(anyhow!(
+                            "the transaction does not register an unclaimed fund"
+                        ));
+                    }
+                    return Ok(event.id);
+                }
+                EmailWalletEventsEvents::UnclaimedStateRegisteredFilter(event) => {
+                    if is_fund {
+                        return Err(anyhow!(
+                            "the transaction does not register an unclaimed state"
+                        ));
+                    }
+                    return Ok(event.id);
+                }
+                _ => {
+                    continue;
+                }
+            }
+        }
+        Err(anyhow!(
+            "the transaction registers neither an unclaim fund nor state"
+        ))
     }
 
     pub async fn stream_unclaim_fund_registration<
