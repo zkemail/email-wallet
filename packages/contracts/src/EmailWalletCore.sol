@@ -7,6 +7,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
@@ -25,6 +26,7 @@ import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 
 contract EmailWalletCore {
+    using SafeERC20 for IERC20;
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -314,7 +316,7 @@ contract EmailWalletCore {
     function depositTokenAsExtension(address tokenAddr, uint256 amount) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension in context");
 
-        IERC20(tokenAddr).transferFrom(msg.sender, currContext.walletAddr, amount);
+        IERC20(tokenAddr).safeTransferFrom(msg.sender, currContext.walletAddr, amount);
     }
 
     /// @notice For extension in context to execute on user's wallet during handleEmailOp

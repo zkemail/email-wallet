@@ -12,7 +12,8 @@
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
     "@uniswap/v3-core": "https://github.com/Uniswap/v3-core#0.8",
     "@uniswap/v3-periphery": "https://github.com/Uniswap/v3-periphery.git",
-    "@zk-email/contracts": "^4.0.0",
+    "@zk-email/contracts": "^4.0.2",
+    "accountabstraction": "eth-infinitism/account-abstraction#v0.6.0",
     "solady": "^0.0.123"
   },
   "devDependencies": {

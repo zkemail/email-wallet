@@ -549,8 +549,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             0, // dont announce randomness and email
             ""
         );
-        (, , ,uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
+        (bool success, , ,uint256 registeredUnclaimId) = core.handleEmailOp{value: unclaimedStateClaimGas * maxFeePerGas}(emailOp);
         vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
 
         assertEq(
             address(unclaimsHandler).balance,

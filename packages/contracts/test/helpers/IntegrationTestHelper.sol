@@ -61,6 +61,8 @@ abstract contract IntegrationTestHelper is Test {
     ERC20 daiToken;
     ERC20 usdcToken;
 
+    bytes32 mockDKIMHash = bytes32(uint256(123));
+
     address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
     address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
     address constant USDC_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
