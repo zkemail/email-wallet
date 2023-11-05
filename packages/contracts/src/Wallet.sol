@@ -4,13 +4,14 @@ pragma solidity ^0.8.12;
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol";
 
 /// @title EmailWallet
 /// @notice Simple Wallet contract to be used as the EmailWallet for users
 /// @notice This wallet can `execute` any function on any contract provided calle is `owner`
 /// @notice The deployed is the `owner` by default (EmailWalletCore)
 /// @dev External contracts should use `call` to deposit ETH if needed
-contract Wallet is OwnableUpgradeable, UUPSUpgradeable {
+contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
 
     /// @notice Fallback function to receive ETH

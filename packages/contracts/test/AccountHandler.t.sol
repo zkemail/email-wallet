@@ -101,7 +101,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.AccountInitialized(emailAddrPointer, accountKeyCommit, walletSalt);
 
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
 
         (, bool initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
@@ -111,7 +118,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function test_RevertIf_InitializingAccountNotRegistered() public {
         vm.startPrank(relayer);
         vm.expectRevert("account not registered");
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
     }
 
@@ -124,7 +138,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
 
         vm.startPrank(relayer2);
@@ -138,7 +159,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             newEmailAddrPointer,
             newAccountKeyCommit,
             newPSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -170,7 +197,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
 
         // Transporting will nullify the accountKeyCommit of relayer1
@@ -181,7 +215,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             relayer2Pointer,
             relayer2AccountKeyCommit,
             relayer2PSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -194,7 +234,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             relayer3Pointer,
             relayer3AccountKeyCommit,
             relayer3PSIPoint,
-            EmailProof({nullifier: emailNullifier3, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier3,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -231,7 +277,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             relayer2Pointer,
             relayer2AccountKeyCommit,
             relayer2PSIPoint,
-            EmailProof({nullifier: emailNullifier, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -250,7 +302,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         // Register and initialize with relayer 1
         vm.startPrank(relayer);
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
 
         // Register wtih relayer 2 (dont initialized), then transport from relayer 1 to relayer 2
@@ -268,7 +327,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             relayer2Pointer, // Pointer will be same as relayer2 has already created the account for email
             relayer2NewAccountKeyCommit, // Different accountKeyCommitment as AK is the one used had with relayer1
             relayer2PSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -292,7 +357,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         // Register and initialize with relayer 1
         vm.startPrank(relayer);
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
 
         // Transport from relayer 1 to relayer 2
@@ -303,7 +375,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             relayer2Pointer,
             relayer2AccountKeyCommit,
             relayer2PSIPoint,
-            EmailProof({nullifier: emailNullifier2, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();
@@ -316,7 +394,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
             emailAddrPointer,
             accountKeyCommit, // newAccountKeyCommit is the first (relayer1) accountKeyCommit
             psiPoint,
-            EmailProof({nullifier: emailNullifier3, domain: emailDomain, timestamp: block.timestamp, proof: mockProof}),
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier3,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            }),
             mockProof
         );
         vm.stopPrank();

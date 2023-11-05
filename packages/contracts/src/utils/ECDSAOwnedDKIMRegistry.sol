@@ -11,7 +11,6 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     using Strings for *;
     using ECDSA for *;
 
-    // mapping(string => uint256) public nonceOfDomain;
     uint signValidityDuration;
     DKIMRegistry public dkimRegistry;
     address public signer;
@@ -20,6 +19,10 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         dkimRegistry = new DKIMRegistry();
         signer = _signer;
         signValidityDuration = _signValidityDuration;
+    }
+
+    function isDKIMPublicKeyHashValid(string memory domainName, bytes32 publicKeyHash) public view returns (bool) {
+        return dkimRegistry.isDKIMPublicKeyHashValid(domainName, publicKeyHash);
     }
 
     function setDKIMPublicKeyHash(
@@ -33,15 +36,22 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(block.timestamp - timestamp <= signValidityDuration, "Signature expired");
+
         string memory signedMsg = computeSignedMsg(selector, domainName, publicKeyHash, timestamp);
         bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
         address recoveredSigner = digest.recover(signature);
         require(recoveredSigner == signer, "Invalid signature");
+
         dkimRegistry.setDKIMPublicKeyHash(domainName, publicKeyHash);
     }
 
-    function getDKIMPublicKeyHash(string memory domainName) public view returns (bytes32) {
-        return bytes32(dkimRegistry.getDKIMPublicKeyHash(domainName));
+    function revokeDKIMPublicKeyHash(string memory domainName, bytes32 publicKeyHash, bytes memory signature) public {
+        string memory signedMsg = string.concat("REVOKE", domainName, Strings.toString(uint256(publicKeyHash)));
+        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        address recoveredSigner = digest.recover(signature);
+        require(recoveredSigner == signer, "Invalid signature");
+
+        dkimRegistry.revokeDKIMPublicKeyHash(publicKeyHash);
     }
 
     function computeSignedMsg(

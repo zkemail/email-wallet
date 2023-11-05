@@ -3,7 +3,8 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 import "../interfaces/Extension.sol";
@@ -13,6 +14,8 @@ import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
 contract UnclaimsHandler is ReentrancyGuard, Ownable {
+    using SafeERC20 for IERC20;
+
     // Verifier contract
     IVerifier public immutable verifier;
 
@@ -35,11 +38,17 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     // Max fee per gas in wei that relayer can set in a UserOp
     uint256 public immutable maxFeePerGas;
 
-    // Mapping of recipient's emailAddrCommit (hash(email, randomness)) to the unclaimedFund
-    mapping(bytes32 => UnclaimedFund) public unclaimedFundOfEmailAddrCommit;
+    /// The total number of registered unclaimed funds.
+    uint256 public numUnclaimedFunds;
 
-    // Mapping of emailAddrCommit to unclaimed state
-    mapping(bytes32 => UnclaimedState) public unclaimedStateOfEmailAddrCommit;
+    /// The total number of registered unclaimed states.
+    uint256 public numUnclaimedStates;
+
+    // Mapping of id to the unclaimed fund
+    mapping(uint256 => UnclaimedFund) public unclaimedFundOfId;
+
+    // Mapping of id to unclaimed state
+    mapping(uint256 => UnclaimedState) public unclaimedStateOfId;
 
     uint256 constant ETH_TRANSFER_GAS = 21000;
     uint256 constant WETH_DEPOSIT_GAS = 27938;
@@ -76,10 +85,12 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         bytes32 emailAddrCommit,
         address tokenAddr,
         uint256 amount
-    ) public onlyOwner {
+    ) public onlyOwner returns (uint256) {
+        require(unclaimedFundOfId[numUnclaimedFunds].amount == 0, "unclaimed fund exists");
         uint256 expiryTime = block.timestamp + unclaimsExpiryDuration;
 
         UnclaimedFund memory fund = UnclaimedFund({
+            id: numUnclaimedFunds,
             emailAddrCommit: emailAddrCommit,
             tokenAddr: tokenAddr,
             amount: amount,
@@ -87,9 +98,10 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             sender: sender
         });
 
-        unclaimedFundOfEmailAddrCommit[emailAddrCommit] = fund;
-
-        emit EmailWalletEvents.UnclaimedFundRegistered(emailAddrCommit, tokenAddr, amount, sender, expiryTime, 0, "");
+        unclaimedFundOfId[fund.id] = fund;
+        numUnclaimedFunds ++;
+        emit EmailWalletEvents.UnclaimedFundRegistered(fund.id, emailAddrCommit, tokenAddr, amount, sender, expiryTime, 0, "");
+        return fund.id;
     }
 
     /// @notice Register unclaimed fund for the recipient - for external users to deposit tokens to an email address.
@@ -108,7 +120,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 expiryTime,
         uint256 announceCommitRandomness,
         string calldata announceEmailAddr
-    ) public payable {
+    ) public payable returns (uint256) {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
         }
@@ -119,12 +131,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         require(tokenAddr != address(0), "invalid token contract");
         require(emailAddrCommit != bytes32(0), "invalid emailAddrCommit");
         require(expiryTime > block.timestamp, "invalid expiry time");
-        require(unclaimedFundOfEmailAddrCommit[emailAddrCommit].amount == 0, "unclaimed fund exists");
+        require(unclaimedFundOfId[numUnclaimedFunds].amount == 0, "unclaimed fund exists");
 
         // Transfer token from sender to Core contract - sender should have set enough allowance for Core contract
-        ERC20(tokenAddr).transferFrom(msg.sender, address(this), amount);
+        IERC20(tokenAddr).safeTransferFrom(msg.sender, address(this), amount);
 
         UnclaimedFund memory fund = UnclaimedFund({
+            id: numUnclaimedFunds,
             emailAddrCommit: emailAddrCommit,
             tokenAddr: tokenAddr,
             amount: amount,
@@ -132,9 +145,10 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             sender: msg.sender
         });
 
-        unclaimedFundOfEmailAddrCommit[emailAddrCommit] = fund;
-
+        unclaimedFundOfId[fund.id] = fund;
+        numUnclaimedFunds ++;
         emit EmailWalletEvents.UnclaimedFundRegistered(
+            fund.id,
             emailAddrCommit,
             tokenAddr,
             amount,
@@ -143,21 +157,23 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             announceCommitRandomness,
             announceEmailAddr
         );
+        return fund.id;
     }
 
     /// Claim an unclaimed fund to the recipient's (initialized) wallet.
-    /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @param id The id of the unclaimed fund to claim.
     /// @param recipientEmailAddrPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
     /// @dev Relayer should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
     function claimUnclaimedFund(
-        bytes32 emailAddrCommit,
+        uint256 id,
         bytes32 recipientEmailAddrPointer,
         bytes calldata proof
     ) public nonReentrant {
-        UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedFund memory fund = unclaimedFundOfId[id];
         bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer);
 
+        require(id < numUnclaimedFunds, "invalid id");
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "caller not relayer");
         require(
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).relayer == msg.sender,
@@ -179,42 +195,43 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             verifier.verifyClaimFundProof(
                 relayerHandler.getRandHash(msg.sender),
                 recipientEmailAddrPointer,
-                emailAddrCommit,
+                fund.emailAddrCommit,
                 proof
             ),
             "invalid proof"
         );
-
+        
         address recipientAddr = accountHandler.getWalletOfSalt(
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt
         );
 
-        delete unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        delete unclaimedFundOfId[id];
 
         // Transfer token from Core contract to recipient's wallet
-        ERC20(fund.tokenAddr).transfer(recipientAddr, fund.amount);
+        IERC20(fund.tokenAddr).safeTransfer(recipientAddr, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
         payable(msg.sender).transfer(unclaimedFundClaimGas * maxFeePerGas);
 
-        emit EmailWalletEvents.UnclaimedFundClaimed(emailAddrCommit, fund.tokenAddr, fund.amount, recipientAddr);
+        emit EmailWalletEvents.UnclaimedFundClaimed(id, fund.emailAddrCommit, fund.tokenAddr, fund.amount, recipientAddr);
     }
 
     /// @notice Return unclaimed fund after expiry time
-    /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @param id The id of the unclaimed fund to void.
     /// @dev Callee should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
-    function voidUnclaimedFund(bytes32 emailAddrCommit) public nonReentrant {
+    function voidUnclaimedFund(uint256 id) public nonReentrant {
         uint256 initialGas = gasleft();
 
-        UnclaimedFund memory fund = unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedFund memory fund = unclaimedFundOfId[id];
 
+        require(id < numUnclaimedFunds, "invalid id");
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime < block.timestamp, "unclaimed fund not expired");
 
-        delete unclaimedFundOfEmailAddrCommit[emailAddrCommit];
+        delete unclaimedFundOfId[id];
 
         // Transfer token from Core contract to sender's wallet
-        ERC20(fund.tokenAddr).transfer(fund.sender, fund.amount);
+        IERC20(fund.tokenAddr).safeTransfer(fund.sender, fund.amount);
 
         // Gas consumed so far + approx. cost for 1 ETH transfers and 1 deposit to WETH; Ignoring event emission gas
         uint256 consumedGas = initialGas - gasleft() + ETH_TRANSFER_GAS + WETH_DEPOSIT_GAS;
@@ -224,7 +241,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         require(success, "ETH transfer to fund.sender failed");
         payable(msg.sender).transfer(consumedGas * maxFeePerGas);
 
-        emit EmailWalletEvents.UnclaimedFundVoided(emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
+        emit EmailWalletEvents.UnclaimedFundVoided(id, fund.emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
     }
 
     /// Register unclaimed state of an extension for the recipient email address commitment
@@ -241,7 +258,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 expiryTime,
         uint256 announceCommitRandomness,
         string calldata announceEmailAddr
-    ) public payable {
+    ) public payable returns (uint256){
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
         }
@@ -252,9 +269,10 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         require(state.length > 0, "state cannot be empty");
         require(emailAddrCommit != bytes32(0), "invalid emailAddrCommit");
         require(expiryTime > block.timestamp, "invalid expiry time");
-        require(unclaimedStateOfEmailAddrCommit[emailAddrCommit].sender == address(0), "unclaimed state exists");
+        require(unclaimedStateOfId[numUnclaimedStates].sender == address(0), "unclaimed state exists");
 
         UnclaimedState memory us = UnclaimedState({
+            id: numUnclaimedStates,
             emailAddrCommit: emailAddrCommit,
             extensionAddr: extensionAddr,
             sender: msg.sender,
@@ -264,15 +282,17 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
-        try extension.registerUnclaimedState(us,false) {} catch Error(string memory reason) {
+        unclaimedStateOfId[us.id] = us;
+        numUnclaimedStates ++;
+    
+        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
         }
 
-        unclaimedStateOfEmailAddrCommit[emailAddrCommit] = us;
-
         emit EmailWalletEvents.UnclaimedStateRegistered(
+            us.id,
             emailAddrCommit,
             extensionAddr,
             msg.sender,
@@ -281,6 +301,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             announceCommitRandomness,
             announceEmailAddr
         );
+
+        return us.id;
     }
 
     /// Register unclaimed state from an extension
@@ -295,9 +317,9 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         bytes32 recipientEmailAddrCommit,
         bytes calldata state,
         bool isInternal
-    ) public onlyOwner {
+    ) public onlyOwner returns (uint256) {
         require(
-            unclaimedStateOfEmailAddrCommit[recipientEmailAddrCommit].sender == address(0),
+            unclaimedStateOfId[numUnclaimedStates].sender == address(0),
             "unclaimed state exists"
         );
         require(state.length > 0, "state cannot be empty");
@@ -305,6 +327,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 expiryTime = block.timestamp + unclaimsExpiryDuration;
 
         UnclaimedState memory us = UnclaimedState({
+            id: numUnclaimedStates,
             emailAddrCommit: recipientEmailAddrCommit,
             extensionAddr: extensionAddr,
             sender: sender,
@@ -314,15 +337,17 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         Extension extension = Extension(extensionAddr);
 
+        unclaimedStateOfId[us.id] = us;
+        numUnclaimedStates ++;
+
         try extension.registerUnclaimedState(us, isInternal) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
             revert("unclaimed state reg err");
         }
 
-        unclaimedStateOfEmailAddrCommit[recipientEmailAddrCommit] = us;
-
         emit EmailWalletEvents.UnclaimedStateRegistered(
+            us.id,
             recipientEmailAddrCommit,
             extensionAddr,
             sender,
@@ -331,20 +356,23 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             0,
             ""
         );
+
+        return us.id;
     }
 
     /// Claim unclaimed state to the recipient's (initialized) wallet.
-    /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed fund was registered.
+    /// @param id The id of the unclaimed state to claim.
     /// @param recipientEmailAddrPointer The pointer to the recipient's email address.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
     function claimUnclaimedState(
-        bytes32 emailAddrCommit,
+        uint256 id,
         bytes32 recipientEmailAddrPointer,
         bytes calldata proof
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
+        require(id < numUnclaimedStates, "invalid id");
 
-        UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedState memory us = unclaimedStateOfId[id];
         bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer);
 
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "caller not relayer");
@@ -366,7 +394,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             verifier.verifyClaimFundProof(
                 relayerHandler.getRandHash(msg.sender),
                 recipientEmailAddrPointer,
-                emailAddrCommit,
+                us.emailAddrCommit,
                 proof
             ),
             "invalid proof"
@@ -376,13 +404,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt
         );
 
-        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
-
         Extension extension = Extension(us.extensionAddr);
 
-        // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` and pass to extension
-        uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
+        delete unclaimedStateOfId[id];
 
+        // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` + gas to store one value and pass to extension
+        uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
+        require(gasleft() > gasForExt, "insufficient gas left");
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
         try extension.claimUnclaimedState{gas: gasForExt}(us, recipientAddr) {
@@ -397,29 +425,30 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // Transfer claim fee to the sender (relayer)
         payable(msg.sender).transfer(unclaimedStateClaimGas * maxFeePerGas);
 
-        emit EmailWalletEvents.UnclaimedStateClaimed(emailAddrCommit, recipientAddr);
+        emit EmailWalletEvents.UnclaimedStateClaimed(id, us.emailAddrCommit, recipientAddr);
     }
 
     /// @notice Return unclaimed state after expiry time
-    /// @param emailAddrCommit The commitment of the recipient's email address to which the unclaimed state was registered.
+    /// @param id The id of the unclaimed state to claim.
     function voidUnclaimedState(
-        bytes32 emailAddrCommit
+        uint256 id
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
+        require(id < numUnclaimedStates, "invalid id");
 
-        UnclaimedState memory us = unclaimedStateOfEmailAddrCommit[emailAddrCommit];
+        UnclaimedState memory us = unclaimedStateOfId[id];
 
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.expiryTime < block.timestamp, "unclaimed state not expired");
 
-        delete unclaimedStateOfEmailAddrCommit[emailAddrCommit];
-
         Extension extension = Extension(us.extensionAddr);
+
+        delete unclaimedStateOfId[id];
 
         // Gas consumed for verification and next steps is deducated from `unclaimedStateClaimGas`
         // and rest is passed to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS - WETH_DEPOSIT_GAS;
-
+        require(gasleft() > gasForExt, "insufficient gas left");
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
         try extension.voidUnclaimedState{gas: gasForExt}(us) {
@@ -439,14 +468,14 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         require(success, "ETH transfer to us.sender failed");
         payable(msg.sender).transfer(consumedGas * maxFeePerGas);
 
-        emit EmailWalletEvents.UnclaimedStateVoided(emailAddrCommit, us.sender);
+        emit EmailWalletEvents.UnclaimedStateVoided(id, us.emailAddrCommit, us.sender);
     }
 
-    function getSenderOfUnclaimedFund(bytes32 emailAddrCommit) public view returns (address) {
-        return unclaimedFundOfEmailAddrCommit[emailAddrCommit].sender;
+    function getUnclaimedFund(uint256 id) public view returns (UnclaimedFund memory) {
+        return unclaimedFundOfId[id];
     }
 
-    function getSenderOfUnclaimedState(bytes32 emailAddrCommit) public view returns (address) {
-        return unclaimedStateOfEmailAddrCommit[emailAddrCommit].sender;
+    function getUnclaimedState(uint256 id) public view returns (UnclaimedState memory) {
+        return unclaimedStateOfId[id];
     }
 }

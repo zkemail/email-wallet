@@ -17,6 +17,7 @@ struct EmailOp {
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email
+    bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
     uint256 timestamp; // Timestamp of the email
     string maskedSubject; // Subject string with email address masked
     string feeTokenName; // Name of the token to pay the fee
@@ -43,6 +44,7 @@ struct ExtensionParams {
 
 // Struct to represent a fund transfer that is not claimed by the recipient (relayer)
 struct UnclaimedFund {
+    uint256 id;
     bytes32 emailAddrCommit;
     address sender;
     address tokenAddr;
@@ -51,6 +53,7 @@ struct UnclaimedFund {
 }
 
 struct UnclaimedState {
+    uint256 id;
     bytes32 emailAddrCommit;
     address extensionAddr;
     address sender;
@@ -70,6 +73,7 @@ struct EmailProof {
     string domain; // Domain name of the sender's email
     uint256 timestamp; // Timestamp of the email
     bytes32 nullifier; // Nullifier of email to prevent re-run
+    bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
     bytes proof; // ZK Proof of Email
 }
 
@@ -85,6 +89,7 @@ struct ExecutionContext {
     address extensionAddr; // Address of extension in use
     bool unclaimedFundRegistered; // Flag to indicate whether the unclaimed state has been registered
     bool unclaimedStateRegistered; // Flag to indicate whether the unclaimed state has been registered
+    uint256 registeredUnclaimId; // Id of the registered unclaimed fund/state
     bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address when there is email recipient
     TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension
 }
