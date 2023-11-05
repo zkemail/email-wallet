@@ -40,6 +40,18 @@ contract TokenRegistry is Ownable {
         emit TokenRegistered(chainId, tokenName, addr);
     }
 
+    /// @notice Set token addresses for a chain
+    /// @param chainId Chain id of the network
+    /// @param tokenNames Token names - other than ones hardcoded in `getTokenAddress()`
+    /// @param addrs Addresses of the tokens in the chain
+    function setTokenAddresses(uint256 chainId, string[] memory tokenNames, address[] memory addrs) public onlyOwner {
+        require(tokenNames.length == addrs.length, "tokenNames and addrs length mismatch");
+
+        for (uint256 i = 0; i < tokenNames.length; i++) {
+            setTokenAddress(chainId, tokenNames[i], addrs[i]);
+        }
+    }
+
     /// @notice Set token address for the current chain
     /// @param tokenName Token name - other than ones hardcoded in `getTokenAddress()`
     /// @param addr Address of the token in the chain
