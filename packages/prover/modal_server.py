@@ -1,23 +1,25 @@
 import modal
 
+from core import (
+    gen_account_creation_proof,
+    gen_account_init_proof,
+    gen_account_transport_proof,
+    gen_claim_proof,
+    gen_email_sender_proof,
+)
+
+
 stub = modal.Stub("email-wallet-relayer-v1")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 
 
-@stub.function(image=image, mounts=modal.create_package_mounts(["core"]))
+@stub.function(image=image, mounts=modal.Mount.from_local_python_packages(["core"]))
 @modal.wsgi_app()
 def flask_app():
     from flask import Flask, request, jsonify
     import random
     import sys
-    from core import (
-        gen_account_creation_proof,
-        gen_account_init_proof,
-        gen_account_transport_proof,
-        gen_claim_proof,
-        gen_email_sender_proof,
-    )
 
     app = Flask(__name__)
 
