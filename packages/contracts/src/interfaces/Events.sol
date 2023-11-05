@@ -53,4 +53,10 @@ library EmailWalletEvents {
         string[][] subjectTemplates,
         uint256 maxExecutionGas
     );
+
+    event EmailOpHandled(
+        bool indexed success,
+        uint256 indexed registeredUnclaimId, 
+        bytes32 indexed emailNullifier
+    );
 }

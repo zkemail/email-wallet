@@ -24,6 +24,7 @@ import {ExtensionHandler} from "./handlers/ExtensionHandler.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "./interfaces/Events.sol";
 
 contract EmailWalletCore {
     using SafeERC20 for IERC20;
@@ -263,6 +264,8 @@ contract EmailWalletCore {
         currContext.unclaimedStateRegistered = false;
         currContext.registeredUnclaimId = 0;
         delete currContext.tokenAllowances;
+
+        emit EmailWalletEvents.EmailOpHandled(success, registeredUnclaimId, emailOp.emailNullifier);
     }
 
     /// For extension in context to register Unclaimed State during handleEmailOp
