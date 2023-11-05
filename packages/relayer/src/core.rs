@@ -308,7 +308,6 @@ pub(crate) async fn handle_email(
             email_proof,
         };
         trace!("email_op constructed: {:?}", email_op);
-        // [TODO] simulation
         let result = chain_client.handle_email_op(email_op).await?;
         info!("email_op broadcased to chain: {}", result);
         if let Some(email_addr) = recipient_email_addr.as_ref() {
@@ -327,10 +326,23 @@ pub(crate) async fn handle_email(
                     .await?;
                 i64::try_from(unclaimed_state.expire_time.as_u64()).unwrap()
             };
+            let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
+            // let psi_client =
+            //     PSIClient::new(Arc::clone(&chain_client), email_addr, commit.clone()).await?;
+            // // let psi_res;
+            // if {
+            //     let account_key = db.get_account_key(email_addr).await?;
+            //     account_key.is_none()
+            //         || chain_client
+            //             .check_if_account_initialized_by_account_key(&account_key.unwrap())
+            //             .await?
+            // } {
+            //     println!("hello world");
+            // }
 
             let claim = Claim {
                 email_address: email_addr.clone(),
-                commit: "0x".to_string() + &hex::encode(recipient_email_addr_commit),
+                commit,
                 random: field2hex(&commit_rand),
                 expire_time,
                 is_fund,

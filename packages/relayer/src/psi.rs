@@ -47,7 +47,7 @@ pub(crate) struct Point {
     pub(crate) y: String,
 }
 
-struct PSIClient {
+pub(crate) struct PSIClient {
     pub(crate) point: Point,
     pub(crate) random: String,
     pub(crate) email_addr: String,
@@ -94,36 +94,44 @@ impl PSIClient {
         )
         .await?;
 
-        self.chain_client
-            .check_if_point_registered(result_point)
-            .await
+        Ok(self
+            .chain_client
+            .check_if_point_registered(result_point.clone())
+            .await?
+            && self
+                .chain_client
+                .check_if_account_initialized_by_point(result_point)
+                .await?)
     }
 
-    pub(crate) async fn find<'a>(&self) -> Result<Option<String>> {
+    pub(crate) async fn find<'a>(&self) -> Result<Vec<String>> {
         let client = reqwest::Client::new();
         let relayers = self.chain_client.get_relayers().await?;
+        let mut result = vec![];
 
         for relayer in relayers {
             if self.check(client.clone(), &relayer).await? {
-                return Ok(Some(relayer));
+                result.push(relayer);
             }
         }
 
-        Ok(None)
+        Ok(result)
     }
 
     pub(crate) async fn reveal(
-        address: &str,
+        addresses: &[&str],
         randomness: &str,
         recipient_commitment: &str,
     ) -> Result<()> {
         let client = reqwest::Client::new();
-        let res = client
+        for &address in addresses {
+            let res = client
             .post(format!("{}/serveReveal/", address))
             .json(&serde_json::json!({ "randomness": randomness, "recipient_commitment": recipient_commitment }))
             .send()
             .await?
             .error_for_status()?;
+        }
 
         Ok(())
     }
