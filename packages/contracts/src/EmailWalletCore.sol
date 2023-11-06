@@ -247,13 +247,13 @@ contract EmailWalletCore {
         if (feeAmountInToken > 0) {
             address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
             
-            (success, err) = _transferERC20FromUserWallet(
+            (bool transferSuccess, bytes memory transferErr) = _transferERC20FromUserWallet(
                 currContext.walletAddr,
                 msg.sender,
                 feeToken,
                 feeAmountInToken
             );
-            require(success, string.concat("fee reimbursement failed: ", string(err)));
+            require(transferSuccess, string.concat("fee reimbursement failed: ", string(transferErr)));
         }
 
         // Reset context
