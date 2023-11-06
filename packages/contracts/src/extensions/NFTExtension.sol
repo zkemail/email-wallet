@@ -14,7 +14,7 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
     // Mapping from NFT name to its address
     mapping(string => address) public addressOfNFTName;
 
-    string[][] public templates = new string[][](3);
+    string[][] public templates = new string[][](2);
 
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
@@ -24,8 +24,7 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
     constructor(address coreAddr) {
         core = EmailWalletCore(payable(coreAddr));
         templates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        templates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
-        templates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        templates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
     }
 
     /// @inheritdoc IERC721Receiver
@@ -50,31 +49,27 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
         address recipientETHAddr,
         bytes32
     ) external override onlyCore {
-        require(templateIndex == 0 || templateIndex == 1 || templateIndex == 2, "invalid templateIndex");
-        require(templateIndex == 0 || !hasEmailRecipient, "recipient must be ETH address if templateIndex is not 0");
+        // Parse subject tempaltes
+        // This can be common for both templates as [0] is `tokenId` and [1] is `nftName` (`recipient` is not included in subjectParams)
         uint256 tokenId = abi.decode(subjectParams[0], (uint256));
         string memory nftName = abi.decode(subjectParams[1], (string));
         address nftAddr = addressOfNFTName[nftName];
-
         require(nftAddr != address(0), "invalid NFT");
 
-        if (hasEmailRecipient) {
-            bytes memory data = abi.encodeWithSignature("approve(address,uint256)", address(this), tokenId);
-            core.executeAsExtension(nftAddr, data);
-
-            bytes memory unclaimedState = abi.encode(nftAddr, tokenId);
-            core.registerUnclaimedStateAsExtension(address(this), unclaimedState);
-        } else {
-            require(recipientETHAddr != address(0), "invalid recipientETHAddr");
-            if (templateIndex == 0) {
-                bytes memory data = abi.encodeWithSignature(
-                    "transferFrom(address,address,uint256)",
-                    wallet,
-                    recipientETHAddr,
-                    tokenId
-                );
+        // NFT Send
+        if (templateIndex == 0) {
+            // If sending to email, approve for "this" (to transfer later) and register unclaimed state
+            if (hasEmailRecipient) {
+                bytes memory data = abi.encodeWithSignature("approve(address,uint256)", address(this), tokenId);
                 core.executeAsExtension(nftAddr, data);
-            } else if (templateIndex == 1) {
+
+                bytes memory unclaimedState = abi.encode(nftAddr, tokenId);
+                core.registerUnclaimedStateAsExtension(address(this), unclaimedState);
+            }
+            // If recipient is ETH addr, send directly to recipient
+            else {
+                require(recipientETHAddr != address(0), "should have recipientETHAddr");
+
                 bytes memory data = abi.encodeWithSignature(
                     "safeTransferFrom(address,address,uint256)",
                     wallet,
@@ -82,11 +77,22 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
                     tokenId
                 );
                 core.executeAsExtension(nftAddr, data);
-            } else {
-                bytes memory data = abi.encodeWithSignature("approve(address,uint256)", recipientETHAddr, tokenId);
-                core.executeAsExtension(nftAddr, data);
             }
+
+            return;
         }
+
+        // NFT Approve
+        if (templateIndex == 1) {
+            require(recipientETHAddr != address(0), "should have ETH add for approve");
+
+            bytes memory data = abi.encodeWithSignature("approve(address,uint256)", recipientETHAddr, tokenId);
+            core.executeAsExtension(nftAddr, data);
+
+            return;
+        }
+
+        revert("invalid templateIndex");
     }
 
     function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public override onlyCore {
@@ -94,6 +100,7 @@ contract NFTExtension is Extension, IERC721Receiver, Ownable {
 
         IERC721 nft = IERC721(nftAddr);
         require(IERC721(nftAddr).getApproved(tokenId) == address(this), "NFT not approved to extension");
+
         nft.safeTransferFrom(unclaimedState.sender, address(this), tokenId);
         require(nft.ownerOf(tokenId) == address(this), "NFT not transferred to extension");
     }
