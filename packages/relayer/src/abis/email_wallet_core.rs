@@ -16,6 +16,34 @@ pub mod email_wallet_core {
             constructor: ::core::option::Option::Some(::ethers::core::abi::ethabi::Constructor {
                 inputs: ::std::vec![
                     ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_relayerHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_accountHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_unclaimsHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_extensionHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
                         name: ::std::borrow::ToOwned::to_owned("_verifier"),
                         kind: ::ethers::core::abi::ethabi::ParamType::Address,
                         internal_type: ::core::option::Option::Some(
@@ -23,21 +51,7 @@ pub mod email_wallet_core {
                         ),
                     },
                     ::ethers::core::abi::ethabi::Param {
-                        name: ::std::borrow::ToOwned::to_owned("_walletImplementationAddr",),
-                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                        internal_type: ::core::option::Option::Some(
-                            ::std::borrow::ToOwned::to_owned("address"),
-                        ),
-                    },
-                    ::ethers::core::abi::ethabi::Param {
                         name: ::std::borrow::ToOwned::to_owned("_tokenRegistry"),
-                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                        internal_type: ::core::option::Option::Some(
-                            ::std::borrow::ToOwned::to_owned("address"),
-                        ),
-                    },
-                    ::ethers::core::abi::ethabi::Param {
-                        name: ::std::borrow::ToOwned::to_owned("_defaultDkimRegistry"),
                         kind: ::ethers::core::abi::ethabi::ParamType::Address,
                         internal_type: ::core::option::Option::Some(
                             ::std::borrow::ToOwned::to_owned("address"),
@@ -80,13 +94,6 @@ pub mod email_wallet_core {
                     },
                     ::ethers::core::abi::ethabi::Param {
                         name: ::std::borrow::ToOwned::to_owned("_unclaimedStateClaimGas",),
-                        kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
-                        internal_type: ::core::option::Option::Some(
-                            ::std::borrow::ToOwned::to_owned("uint256"),
-                        ),
-                    },
-                    ::ethers::core::abi::ethabi::Param {
-                        name: ::std::borrow::ToOwned::to_owned("_unclaimsExpiryDuration",),
                         kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
                         internal_type: ::core::option::Option::Some(
                             ::std::borrow::ToOwned::to_owned("uint256"),
@@ -230,6 +237,7 @@ pub mod email_wallet_core {
                                 ::ethers::core::abi::ethabi::ParamType::String,
                                 ::ethers::core::abi::ethabi::ParamType::FixedBytes(32usize),
                                 ::ethers::core::abi::ethabi::ParamType::String,
+                                ::ethers::core::abi::ethabi::ParamType::FixedBytes(32usize),
                                 ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
                                 ::ethers::core::abi::ethabi::ParamType::String,
                                 ::ethers::core::abi::ethabi::ParamType::String,
@@ -273,6 +281,13 @@ pub mod email_wallet_core {
                             },
                             ::ethers::core::abi::ethabi::Param {
                                 name: ::std::borrow::ToOwned::to_owned("totalFeeInETH"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("registeredUnclaimId",),
                                 kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
                                 internal_type: ::core::option::Option::Some(
                                     ::std::borrow::ToOwned::to_owned("uint256"),
@@ -480,6 +495,7 @@ pub mod email_wallet_core {
                                 ::ethers::core::abi::ethabi::ParamType::String,
                                 ::ethers::core::abi::ethabi::ParamType::FixedBytes(32usize),
                                 ::ethers::core::abi::ethabi::ParamType::String,
+                                ::ethers::core::abi::ethabi::ParamType::FixedBytes(32usize),
                                 ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
                                 ::ethers::core::abi::ethabi::ParamType::String,
                                 ::ethers::core::abi::ethabi::ParamType::String,
@@ -521,22 +537,6 @@ pub mod email_wallet_core {
                             kind: ::ethers::core::abi::ethabi::ParamType::Address,
                             internal_type: ::core::option::Option::Some(
                                 ::std::borrow::ToOwned::to_owned("contract IVerifier"),
-                            ),
-                        },],
-                        constant: ::core::option::Option::None,
-                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                    },],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("walletImplementation"),
-                    ::std::vec![::ethers::core::abi::ethabi::Function {
-                        name: ::std::borrow::ToOwned::to_owned("walletImplementation",),
-                        inputs: ::std::vec![],
-                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
-                            name: ::std::string::String::new(),
-                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                            internal_type: ::core::option::Option::Some(
-                                ::std::borrow::ToOwned::to_owned("address"),
                             ),
                         },],
                         constant: ::core::option::Option::None,
@@ -659,7 +659,7 @@ pub mod email_wallet_core {
                 .method_hash([159, 109, 29, 131], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `handleEmailOp` (0x2c8e7c7c) function
+        ///Calls the contract's `handleEmailOp` (0x1377df44) function
         pub fn handle_email_op(
             &self,
             email_op: EmailOp,
@@ -669,10 +669,11 @@ pub mod email_wallet_core {
                 bool,
                 ::ethers::core::types::Bytes,
                 ::ethers::core::types::U256,
+                ::ethers::core::types::U256,
             ),
         > {
             self.0
-                .method_hash([44, 142, 124, 124], (email_op,))
+                .method_hash([19, 119, 223, 68], (email_op,))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `initialize` (0x6f2de70e) function
@@ -760,13 +761,13 @@ pub mod email_wallet_core {
                 .method_hash([213, 229, 193, 200], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `validateEmailOp` (0x76479e7e) function
+        ///Calls the contract's `validateEmailOp` (0xa3964475) function
         pub fn validate_email_op(
             &self,
             email_op: EmailOp,
         ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
-                .method_hash([118, 71, 158, 126], (email_op,))
+                .method_hash([163, 150, 68, 117], (email_op,))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `verifier` (0x2b7ac3f3) function
@@ -775,14 +776,6 @@ pub mod email_wallet_core {
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
             self.0
                 .method_hash([43, 122, 195, 243], ())
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `walletImplementation` (0x8117abc1) function
-        pub fn wallet_implementation(
-            &self,
-        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
-            self.0
-                .method_hash([129, 23, 171, 193], ())
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `wethContract` (0x4780eac1) function
@@ -888,11 +881,11 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "extensionHandler", abi = "extensionHandler()")]
     pub struct ExtensionHandlerCall;
-    ///Container type for all input parameters for the `handleEmailOp` function with signature `handleEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0x2c8e7c7c`
+    ///Container type for all input parameters for the `handleEmailOp` function with signature `handleEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0x1377df44`
     #[derive(Clone, ::ethers::contract::EthCall, ::ethers::contract::EthDisplay)]
     #[ethcall(
         name = "handleEmailOp",
-        abi = "handleEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))"
+        abi = "handleEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))"
     )]
     pub struct HandleEmailOpCall {
         pub email_op: EmailOp,
@@ -1041,11 +1034,11 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "unclaimsHandler", abi = "unclaimsHandler()")]
     pub struct UnclaimsHandlerCall;
-    ///Container type for all input parameters for the `validateEmailOp` function with signature `validateEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0x76479e7e`
+    ///Container type for all input parameters for the `validateEmailOp` function with signature `validateEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0xa3964475`
     #[derive(Clone, ::ethers::contract::EthCall, ::ethers::contract::EthDisplay)]
     #[ethcall(
         name = "validateEmailOp",
-        abi = "validateEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))"
+        abi = "validateEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))"
     )]
     pub struct ValidateEmailOpCall {
         pub email_op: EmailOp,
@@ -1063,19 +1056,6 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "verifier", abi = "verifier()")]
     pub struct VerifierCall;
-    ///Container type for all input parameters for the `walletImplementation` function with signature `walletImplementation()` and selector `0x8117abc1`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash,
-    )]
-    #[ethcall(name = "walletImplementation", abi = "walletImplementation()")]
-    pub struct WalletImplementationCall;
     ///Container type for all input parameters for the `wethContract` function with signature `wethContract()` and selector `0x4780eac1`
     #[derive(
         Clone,
@@ -1111,7 +1091,6 @@ pub mod email_wallet_core {
         UnclaimsHandler(UnclaimsHandlerCall),
         ValidateEmailOp(ValidateEmailOpCall),
         Verifier(VerifierCall),
-        WalletImplementation(WalletImplementationCall),
         WethContract(WethContractCall),
     }
     impl ::ethers::core::abi::AbiDecode for EmailWalletCoreCalls {
@@ -1207,11 +1186,6 @@ pub mod email_wallet_core {
             if let Ok(decoded) = <VerifierCall as ::ethers::core::abi::AbiDecode>::decode(data) {
                 return Ok(Self::Verifier(decoded));
             }
-            if let Ok(decoded) =
-                <WalletImplementationCall as ::ethers::core::abi::AbiDecode>::decode(data)
-            {
-                return Ok(Self::WalletImplementation(decoded));
-            }
             if let Ok(decoded) = <WethContractCall as ::ethers::core::abi::AbiDecode>::decode(data)
             {
                 return Ok(Self::WethContract(decoded));
@@ -1255,9 +1229,6 @@ pub mod email_wallet_core {
                 Self::UnclaimsHandler(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::ValidateEmailOp(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::Verifier(element) => ::ethers::core::abi::AbiEncode::encode(element),
-                Self::WalletImplementation(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
                 Self::WethContract(element) => ::ethers::core::abi::AbiEncode::encode(element),
             }
         }
@@ -1286,7 +1257,6 @@ pub mod email_wallet_core {
                 Self::UnclaimsHandler(element) => ::core::fmt::Display::fmt(element, f),
                 Self::ValidateEmailOp(element) => ::core::fmt::Display::fmt(element, f),
                 Self::Verifier(element) => ::core::fmt::Display::fmt(element, f),
-                Self::WalletImplementation(element) => ::core::fmt::Display::fmt(element, f),
                 Self::WethContract(element) => ::core::fmt::Display::fmt(element, f),
             }
         }
@@ -1386,11 +1356,6 @@ pub mod email_wallet_core {
             Self::Verifier(value)
         }
     }
-    impl ::core::convert::From<WalletImplementationCall> for EmailWalletCoreCalls {
-        fn from(value: WalletImplementationCall) -> Self {
-            Self::WalletImplementation(value)
-        }
-    }
     impl ::core::convert::From<WethContractCall> for EmailWalletCoreCalls {
         fn from(value: WethContractCall) -> Self {
             Self::WethContract(value)
@@ -1444,12 +1409,13 @@ pub mod email_wallet_core {
         Hash,
     )]
     pub struct ExtensionHandlerReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `handleEmailOp` function with signature `handleEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0x2c8e7c7c`
+    ///Container type for all return fields from the `handleEmailOp` function with signature `handleEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0x1377df44`
     #[derive(Clone, ::ethers::contract::EthAbiType, ::ethers::contract::EthAbiCodec)]
     pub struct HandleEmailOpReturn {
         pub success: bool,
         pub err: ::ethers::core::types::Bytes,
         pub total_fee_in_eth: ::ethers::core::types::U256,
+        pub registered_unclaim_id: ::ethers::core::types::U256,
     }
     ///Container type for all return fields from the `maxFeePerGas` function with signature `maxFeePerGas()` and selector `0x2728bf2c`
     #[derive(
@@ -1547,18 +1513,6 @@ pub mod email_wallet_core {
         Hash,
     )]
     pub struct VerifierReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `walletImplementation` function with signature `walletImplementation()` and selector `0x8117abc1`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthAbiType,
-        ::ethers::contract::EthAbiCodec,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash,
-    )]
-    pub struct WalletImplementationReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `wethContract` function with signature `wethContract()` and selector `0x4780eac1`
     #[derive(
         Clone,
@@ -1571,7 +1525,7 @@ pub mod email_wallet_core {
         Hash,
     )]
     pub struct WethContractReturn(pub ::ethers::core::types::Address);
-    ///`EmailOp(bytes32,bool,bytes32,uint256,address,string,bytes32,string,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes)`
+    ///`EmailOp(bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes)`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -1591,6 +1545,7 @@ pub mod email_wallet_core {
         pub command: ::std::string::String,
         pub email_nullifier: [u8; 32],
         pub email_domain: ::std::string::String,
+        pub dkim_public_key_hash: [u8; 32],
         pub timestamp: ::ethers::core::types::U256,
         pub masked_subject: ::std::string::String,
         pub fee_token_name: ::std::string::String,

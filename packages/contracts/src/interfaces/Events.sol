@@ -18,6 +18,7 @@ library EmailWalletEvents {
     event AccountTransported(bytes32 oldAccountKeyCommit, bytes32 newEmailAddrPointer, bytes32 newAccountKeyCommit);
 
     event UnclaimedFundRegistered(
+        uint256 indexed id,
         bytes32 indexed emailAddrCommit,
         address tokenAddr,
         uint256 amount,
@@ -27,11 +28,12 @@ library EmailWalletEvents {
         string emailAddr
     );
 
-    event UnclaimedFundClaimed(bytes32 indexed emailAddrCommit, address tokenAddr, uint256 amount, address recipient);
+    event UnclaimedFundClaimed(uint256 indexed id, bytes32 indexed emailAddrCommit, address tokenAddr, uint256 amount, address recipient);
 
-    event UnclaimedFundVoided(bytes32 indexed emailAddrCommit, address tokenAddr, uint256 amount, address sender);
+    event UnclaimedFundVoided(uint256 indexed id, bytes32 indexed emailAddrCommit, address tokenAddr, uint256 amount, address sender);
 
     event UnclaimedStateRegistered(
+        uint256 indexed id,
         bytes32 indexed emailAddrCommit,
         address extensionAddr,
         address sender,
@@ -41,14 +43,20 @@ library EmailWalletEvents {
         string emailAddr
     );
 
-    event UnclaimedStateClaimed(bytes32 indexed emailAddrCommit, address recipient);
+    event UnclaimedStateClaimed(uint256 indexed id, bytes32 indexed emailAddrCommit, address recipient);
 
-    event UnclaimedStateVoided(bytes32 indexed emailAddrCommit, address sender);
+    event UnclaimedStateVoided(uint256 indexed id, bytes32 indexed emailAddrCommit, address sender);
 
     event ExtensionPublished(
         string indexed name,
         address indexed extensionAddr,
         string[][] subjectTemplates,
         uint256 maxExecutionGas
+    );
+
+    event EmailOpHandled(
+        bool indexed success,
+        uint256 indexed registeredUnclaimId, 
+        bytes32 indexed emailNullifier
     );
 }

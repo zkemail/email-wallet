@@ -14,11 +14,6 @@ export default defineConfig({
                 "ERC20.sol/**",
                 "WETH9.sol/**",
             ],
-            deployments: {
-                EmailWalletCore: {
-                    [chains.sepolia.id]: "0x9E2C7f79a1e530471B99f5E05f0aab932A3009B3"
-                }
-            }
         }),
         react()
     ],

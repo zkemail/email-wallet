@@ -12,32 +12,22 @@ use tokio::sync::mpsc::UnboundedSender;
 const DELAY: u64 = 300;
 
 pub(crate) enum UnclaimType {
-    Fund {
-        email_addr_commit: [u8; 32],
-        sender: Address,
-        token_addr: Address,
-        amount: U256,
-        expiry_time: U256,
-    },
-    State {
-        email_addr_commit: [u8; 32],
-        sender: Address,
-        extension_addr: Address,
-        state: Bytes,
-        expiry_time: U256,
-    },
+    Fund(UnclaimedFund),
+    State(UnclaimedState),
 }
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct CheckRequest {
     pub(crate) point: Point,
-    pub(crate) recipient_commitment: String,
+    pub(crate) id: U256,
+    pub(crate) is_fund: bool,
 }
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct RevealRequest {
+    pub(crate) id: U256,
+    pub(crate) is_fund: bool,
     pub(crate) randomness: String,
-    pub(crate) recipient_commitment: String,
     pub(crate) email_address: String,
 }
 
@@ -141,7 +131,7 @@ pub(crate) async fn serve_check_request(
     chain_client: Arc<ChainClient>,
     payload: CheckRequest,
 ) -> Result<Json<Point>> {
-    check_unclaim_valid(Arc::clone(&chain_client), &payload.recipient_commitment).await?;
+    check_unclaim_valid(Arc::clone(&chain_client), &payload.id, payload.is_fund).await?;
 
     let res = psi_step2(
         CIRCUITS_DIR_PATH.get().unwrap(),
@@ -158,19 +148,14 @@ pub(crate) async fn serve_reveal_request(
     chain_client: Arc<ChainClient>,
     tx_claimer: UnboundedSender<Claim>,
 ) -> Result<String> {
-    match check_unclaim_valid(Arc::clone(&chain_client), &payload.recipient_commitment).await? {
-        UnclaimType::Fund {
-            email_addr_commit,
-            sender,
-            token_addr,
-            amount,
-            expiry_time,
-        } => {
+    match check_unclaim_valid(Arc::clone(&chain_client), &payload.id, payload.is_fund).await? {
+        UnclaimType::Fund(unclaimed_fund) => {
             tx_claimer.send(Claim {
+                id: payload.id,
                 email_address: payload.email_address.clone(),
                 random: payload.randomness,
-                commit: payload.recipient_commitment,
-                expire_time: expiry_time.as_u64() as i64,
+                commit: "0x".to_string() + &hex::encode(unclaimed_fund.email_addr_commit),
+                expiry_time: unclaimed_fund.expiry_time.as_u64() as i64,
                 is_fund: true,
                 is_announced: false,
             })?;
@@ -179,18 +164,13 @@ pub(crate) async fn serve_reveal_request(
                 payload.email_address
             ))
         }
-        UnclaimType::State {
-            email_addr_commit,
-            sender,
-            extension_addr,
-            state,
-            expiry_time,
-        } => {
+        UnclaimType::State(unclaimed_state) => {
             tx_claimer.send(Claim {
+                id: payload.id,
                 email_address: payload.email_address.clone(),
                 random: payload.randomness,
-                commit: payload.recipient_commitment,
-                expire_time: expiry_time.as_u64() as i64,
+                commit: "0x".to_string() + &hex::encode(unclaimed_state.email_addr_commit),
+                expiry_time: unclaimed_state.expiry_time.as_u64() as i64,
                 is_fund: false,
                 is_announced: false,
             })?;
@@ -204,47 +184,27 @@ pub(crate) async fn serve_reveal_request(
 
 pub(crate) async fn check_unclaim_valid(
     chain_client: Arc<ChainClient>,
-    commitment: &str,
+    id: &U256,
+    is_fund: bool,
 ) -> Result<UnclaimType> {
-    let recipient_commitment = hex2field(commitment)?;
-    let unclaimed_fund = chain_client
-        .unclaims_handler
-        .unclaimed_fund_of_email_addr_commit(recipient_commitment.to_bytes())
-        .call()
-        .await?;
-    let unclaimed_state = chain_client
-        .unclaims_handler
-        .unclaimed_state_of_email_addr_commit(recipient_commitment.to_bytes())
-        .call()
-        .await?;
-    let current_time = U256::from(
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("Time went backwards")
-            .as_secs(),
-    );
+    // let recipient_commitment = hex2field(commitment)?;
+    let current_time = U256::from(now());
     let current_time_delayed = current_time + U256::from(DELAY);
-    if unclaimed_fund.4 < current_time_delayed && unclaimed_state.4 < current_time_delayed {
-        bail!("Unclaimed state/fund is expired");
-    }
-
-    if unclaimed_fund.3.is_zero() {
-        Ok(UnclaimType::State {
-            email_addr_commit: unclaimed_state.0,
-            sender: unclaimed_state.1,
-            extension_addr: unclaimed_state.2,
-            state: unclaimed_state.3,
-            expiry_time: unclaimed_state.4,
-        })
+    let unclaim = if is_fund {
+        let fund = chain_client.query_unclaimed_fund(*id).await?;
+        if fund.expiry_time < current_time_delayed {
+            bail!("Unclaimed fund is expired");
+        }
+        UnclaimType::Fund(fund)
     } else {
-        Ok(UnclaimType::Fund {
-            email_addr_commit: unclaimed_fund.0,
-            sender: unclaimed_fund.1,
-            token_addr: unclaimed_fund.2,
-            amount: unclaimed_fund.3,
-            expiry_time: unclaimed_fund.4,
-        })
-    }
+        let state = chain_client.query_unclaimed_state(*id).await?;
+        if state.expiry_time < current_time_delayed {
+            bail!("Unclaimed state is expired");
+        }
+        UnclaimType::State(state)
+    };
+
+    Ok(unclaim)
 }
 
 pub(crate) async fn psi_step1(

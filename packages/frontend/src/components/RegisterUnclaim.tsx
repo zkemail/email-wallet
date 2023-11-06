@@ -26,7 +26,7 @@ export function RegisterUnclaim(props: { toEmailAddr: string, tokenName: string,
             if (props.toEmailAddr.length > 256) {
                 return;
             }
-            if (txState != TxState.Init) {
+            if (txState != TxState.Approved) {
                 return;
             }
             const poseidon = await buildPoseidon();
@@ -66,7 +66,7 @@ export function RegisterUnclaim(props: { toEmailAddr: string, tokenName: string,
         })()
     }, [props.toEmailAddr, txState]);
 
-    const { data: tokenRegistryAddrRaw } = useEmailWalletCoreTokenRegistry();
+    const { data: tokenRegistryAddrRaw } = useEmailWalletCoreTokenRegistry({ address: process.env.NEXT_PUBLIC_CORE_ADDRESS as `0x${string}` });
     const tokenRegistryAddr = tokenRegistryAddrRaw || "0x";
     console.log(tokenRegistryAddr);
 
@@ -97,7 +97,7 @@ export function RegisterUnclaim(props: { toEmailAddr: string, tokenName: string,
     const amount = ethers.parseUnits(props.amountStr, decimalsSize);
     console.log(amount);
 
-    const { data: unclaimsHandlerRaw } = useEmailWalletCoreUnclaimsHandler();
+    const { data: unclaimsHandlerRaw } = useEmailWalletCoreUnclaimsHandler({ address: process.env.NEXT_PUBLIC_CORE_ADDRESS as `0x${string}` });
     const unclaimsHandler = unclaimsHandlerRaw || "0x";
     console.log(unclaimsHandler);
 
@@ -218,7 +218,7 @@ function RegisterUnclaimedFund({ emailAddrCommit, tokenAddr, amount, unclaimsHan
                 const body = JSON.stringify({
                     email_address: toEmailAddr,
                     random: random,
-                    expire_time: Number(now),
+                    expiry_time: Number(now),
                     is_fund: true,
                     tx_hash: data?.hash || "0x"
                 });
@@ -232,7 +232,7 @@ function RegisterUnclaimedFund({ emailAddrCommit, tokenAddr, amount, unclaimsHan
                         },
                         body: body,
                     });
-                    console.log(result);
+                    console.log(await result.text());
                 } catch (e) {
                     console.error(e);
                 }
