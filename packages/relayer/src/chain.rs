@@ -274,6 +274,7 @@ impl ChainClient {
             if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
                 match decoded {
                     EmailWalletEventsEvents::EmailOpHandledFilter(event) => {
+                        info!("event {:?}", event);
                         return Ok((tx_hash, event.registered_unclaim_id));
                     }
                     _ => {

@@ -1043,6 +1043,17 @@ export const tokenRegistryABI = [
     outputs: [],
   },
   {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'chainId', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokenNames', internalType: 'string[]', type: 'string[]' },
+      { name: 'addrs', internalType: 'address[]', type: 'address[]' },
+    ],
+    name: 'setTokenAddresses',
+    outputs: [],
+  },
+  {
     stateMutability: 'view',
     type: 'function',
     inputs: [
@@ -4223,6 +4234,28 @@ export function useTokenRegistrySetTokenAddress<TMode extends WriteContractMode 
 }
 
 /**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link tokenRegistryABI}__ and `functionName` set to `"setTokenAddresses"`.
+ */
+export function useTokenRegistrySetTokenAddresses<TMode extends WriteContractMode = undefined>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<typeof tokenRegistryABI, 'setTokenAddresses'>['request']['abi'],
+        'setTokenAddresses',
+        TMode
+      > & { functionName?: 'setTokenAddresses' }
+    : UseContractWriteConfig<typeof tokenRegistryABI, 'setTokenAddresses', TMode> & {
+        abi?: never
+        functionName?: 'setTokenAddresses'
+      } = {} as any,
+) {
+  return useContractWrite<typeof tokenRegistryABI, 'setTokenAddresses', TMode>({
+    abi: tokenRegistryABI,
+    functionName: 'setTokenAddresses',
+    ...config,
+  } as any)
+}
+
+/**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link tokenRegistryABI}__ and `functionName` set to `"transferOwnership"`.
  */
 export function useTokenRegistryTransferOwnership<TMode extends WriteContractMode = undefined>(
@@ -4302,6 +4335,22 @@ export function usePrepareTokenRegistrySetTokenAddress(
     functionName: 'setTokenAddress',
     ...config,
   } as UsePrepareContractWriteConfig<typeof tokenRegistryABI, 'setTokenAddress'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link tokenRegistryABI}__ and `functionName` set to `"setTokenAddresses"`.
+ */
+export function usePrepareTokenRegistrySetTokenAddresses(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof tokenRegistryABI, 'setTokenAddresses'>,
+    'abi' | 'functionName'
+  > = {} as any,
+) {
+  return usePrepareContractWrite({
+    abi: tokenRegistryABI,
+    functionName: 'setTokenAddresses',
+    ...config,
+  } as UsePrepareContractWriteConfig<typeof tokenRegistryABI, 'setTokenAddresses'>)
 }
 
 /**
