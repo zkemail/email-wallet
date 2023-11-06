@@ -32,7 +32,8 @@ impl Database {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS users (
                 email_address TEXT PRIMARY KEY,
-                account_key TEXT NOT NULL
+                account_key TEXT NOT NULL,
+                tx_hash TEXT NOT NULL,
             );",
         )
         .execute(&self.db)
@@ -105,12 +106,18 @@ impl Database {
     //     Ok(result.is_some())
     // }
 
-    pub(crate) async fn insert_user(&self, email_address: &str, account_key: &str) -> Result<()> {
+    pub(crate) async fn insert_user(
+        &self,
+        email_address: &str,
+        account_key: &str,
+        tx_hash: &str,
+    ) -> Result<()> {
         let row = sqlx::query(
-            "INSERT INTO users (email_address, account_key) VALUES ($1, $2) RETURNING *",
+            "INSERT INTO users (email_address, account_key, tx_hash) VALUES ($1, $2, $3) RETURNING *",
         )
         .bind(email_address)
         .bind(account_key)
+        .bind(tx_hash)
         .fetch_one(&self.db)
         .await?;
         info!("inserted row: {}", row.get::<String, _>("email_address"));
@@ -252,6 +259,22 @@ impl Database {
             Ok(row) => {
                 let account_key: String = row.get("account_key");
                 Ok(Some(account_key))
+            }
+            Err(sqlx::error::Error::RowNotFound) => Ok(None),
+            Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,
+        }
+    }
+
+    pub(crate) async fn get_creation_tx_hash(&self, email_address: &str) -> Result<Option<String>> {
+        let row_result = sqlx::query("SELECT tx_hash FROM users WHERE email_address = $1")
+            .bind(email_address)
+            .fetch_one(&self.db)
+            .await;
+
+        match row_result {
+            Ok(row) => {
+                let tx_hash: String = row.get("tx_hash");
+                Ok(Some(tx_hash))
             }
             Err(sqlx::error::Error::RowNotFound) => Ok(None),
             Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,
