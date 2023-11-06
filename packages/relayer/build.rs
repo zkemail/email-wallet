@@ -1,15 +1,16 @@
 use ethers::contract::Abigen;
-use std::path::Path;
+// use std::path::Path;
 
 fn main() {
-    if !Path::new("../contracts/artifacts").exists() {
-        panic!("Please run `forge build` in `../contracts` first");
-    }
-    let _ = std::process::Command::new("forge")
-        .arg("build")
-        .arg("--root")
-        .arg("../contracts")
-        .status();
+    // if !Path::new("../contracts/artifacts").exists() {
+    //     panic!("Please run `forge build` in `../contracts` first");
+    // }
+    // let _ = std::process::Command::new("forge")
+    //     .arg("build")
+    //     .arg("--root")
+    //     .arg("../contracts")
+    //     .status();
+
     Abigen::new(
         "EmailWalletCore",
         "../contracts/artifacts/EmailWalletCore.sol/EmailWalletCore.json",

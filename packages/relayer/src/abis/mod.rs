@@ -1,11 +1,11 @@
-mod account_handler;
-mod email_wallet_core;
-mod erc20;
-mod events;
-mod extension_handler;
-mod relayer_handler;
-mod token_registry;
-mod unclaims_handler;
+pub(crate) mod account_handler;
+pub(crate) mod email_wallet_core;
+pub(crate) mod erc20;
+pub(crate) mod events;
+pub(crate) mod extension_handler;
+pub(crate) mod relayer_handler;
+pub(crate) mod token_registry;
+pub(crate) mod unclaims_handler;
 
 pub(crate) use account_handler::*;
 pub(crate) use email_wallet_core::*;

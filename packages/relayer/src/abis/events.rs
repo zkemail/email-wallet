@@ -446,12 +446,12 @@ pub mod email_wallet_events {
     pub static EMAILWALLETEVENTS_ABI: ::ethers::contract::Lazy<::ethers::core::abi::Abi> =
         ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
-    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \x8A\xE6\xCE\x81\xA3l\x13J\x1B\xB0\x01\xC4Q9y\x0C+\xA7\xA6to\xB8\x96(\x8B\x15\tU\x06\x9A\x9D\xAAdsolcC\0\x08\x11\x003";
+    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xC1\x13e\x1F\xAD\x8BesAh\xE0\xD7\xAD\x90\xCAf}=X\xC0\xBD\xDA/\xC5\x84\xCE\xFA\xBB\xA1\x81\x8D\xDFdsolcC\0\x08\x15\x003";
     /// The bytecode of the contract.
     pub static EMAILWALLETEVENTS_BYTECODE: ::ethers::core::types::Bytes =
         ::ethers::core::types::Bytes::from_static(__BYTECODE);
     #[rustfmt::skip]
-    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \x8A\xE6\xCE\x81\xA3l\x13J\x1B\xB0\x01\xC4Q9y\x0C+\xA7\xA6to\xB8\x96(\x8B\x15\tU\x06\x9A\x9D\xAAdsolcC\0\x08\x11\x003";
+    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xC1\x13e\x1F\xAD\x8BesAh\xE0\xD7\xAD\x90\xCAf}=X\xC0\xBD\xDA/\xC5\x84\xCE\xFA\xBB\xA1\x81\x8D\xDFdsolcC\0\x08\x15\x003";
     /// The deployed bytecode of the contract.
     pub static EMAILWALLETEVENTS_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes =
         ::ethers::core::types::Bytes::from_static(__DEPLOYED_BYTECODE);
