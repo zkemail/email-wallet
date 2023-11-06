@@ -33,7 +33,7 @@ impl Database {
             "CREATE TABLE IF NOT EXISTS users (
                 email_address TEXT PRIMARY KEY,
                 account_key TEXT NOT NULL,
-                tx_hash TEXT NOT NULL,
+                tx_hash TEXT NOT NULL
             );",
         )
         .execute(&self.db)
