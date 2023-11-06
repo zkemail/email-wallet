@@ -114,6 +114,10 @@ pub(crate) async fn handle_email(
         let account_key = AccountKey::from(hex2field(&account_key)?);
         let wallet_salt = account_key.to_wallet_salt()?;
         trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+        let wallet_addr = chain_client
+            .get_wallet_addr_from_salt(&wallet_salt.0)
+            .await?;
+        info!("Sender wallet address: {}", wallet_addr);
         let fee_token_name = select_fee_token(&wallet_salt, &chain_client).await?;
         trace!("Fee token name: {}", fee_token_name);
         let (template_idx, template_vals) = match command.as_str() {
@@ -305,7 +309,7 @@ pub(crate) async fn handle_email(
             email_proof,
         };
         trace!("email_op constructed: {:?}", email_op);
-        // [TODO] simulation
+        chain_client.validate_email_op(email_op.clone()).await?;
         let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op).await?;
         info!("email_op broadcased to chain: {}", tx_hash);
         if let Some(email_addr) = recipient_email_addr.as_ref() {

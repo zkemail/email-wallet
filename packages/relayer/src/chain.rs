@@ -472,6 +472,12 @@ impl ChainClient {
         ))
     }
 
+    pub async fn validate_email_op(&self, email_op: EmailOp) -> Result<()> {
+        let call = self.core.validate_email_op(email_op);
+        let res = call.call().await?;
+        Ok(())
+    }
+
     pub async fn stream_unclaim_fund_registration<
         F: FnMut(UnclaimedFundRegisteredFilter, LogMeta) -> Result<()>,
     >(
