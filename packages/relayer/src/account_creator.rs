@@ -43,7 +43,14 @@ pub(crate) async fn create_account(
     db.insert_user(&email_address, &account_key, &res).await?;
     tx.send(EmailMessage {
         subject: format!("New Account - CODE:{}", account_key),
-        body: email_create_message(&account_key, &res).await?,
+        body: email_template_message(
+            &format!(
+                "New Email Wallet account was created for you; Your Account Key: {}",
+                account_key
+            ),
+            &res,
+        )
+        .await?,
         to: email_address.to_string(),
         message_id: Some(account_key),
     })

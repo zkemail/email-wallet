@@ -37,8 +37,8 @@ pub(crate) async fn void_unclaims(
     };
     tx_sender
         .send(EmailMessage {
-            subject: reply_msg.to_string(),
-            body: format!("{} Transaction: {}", reply_msg, tx_hash),
+            subject: "New Email Wallet Notification".to_string(),
+            body: email_template_message(&reply_msg, &tx_hash).await?,
             to: claim.email_address.to_string(),
             message_id: None,
         })
