@@ -265,7 +265,7 @@ contract EmailWalletCore {
         currContext.registeredUnclaimId = 0;
         delete currContext.tokenAllowances;
 
-        emit EmailWalletEvents.EmailOpHandled(success, registeredUnclaimId, emailOp.emailNullifier);
+        emit EmailWalletEvents.EmailOpHandled(success, registeredUnclaimId, emailOp.emailNullifier, emailOp.emailAddrPointer, emailOp.recipientEmailAddrCommit, emailOp.recipientETHAddr, err);
     }
 
     /// For extension in context to register Unclaimed State during handleEmailOp

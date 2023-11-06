@@ -57,6 +57,10 @@ library EmailWalletEvents {
     event EmailOpHandled(
         bool indexed success,
         uint256 indexed registeredUnclaimId, 
-        bytes32 indexed emailNullifier
+        bytes32 indexed emailNullifier,
+        bytes32 emailAddrPointer,
+        bytes32 recipientEmailAddrCommit,
+        address recipientETHAddr,
+        bytes err
     );
 }
