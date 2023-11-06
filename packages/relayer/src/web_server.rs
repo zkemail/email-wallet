@@ -34,13 +34,10 @@ async fn unclaim(
     );
     let commit = padded_email_addr.to_commitment(&hex2field(&payload.random)?)?;
     info!("commit {:?}", commit);
-    info!(
-        "commit derived from the provided email address and randomness: {}",
-        field2hex(&commit)
-    );
     let id = chain_client
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
         .await?;
+    info!("id {:?}", id);
     let claim = Claim {
         id,
         email_address: payload.email_address.clone(),

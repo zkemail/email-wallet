@@ -187,8 +187,8 @@ pub(crate) async fn handle_email(
                     eth_addr,
                 } = &template_vals[1]
                 {
-                    recipient_email_addr = email_addr.clone();
                     if *is_email {
+                        recipient_email_addr = email_addr.clone();
                         let padded_email_addr =
                             PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                         let email_addr_commit = padded_email_addr
@@ -223,35 +223,31 @@ pub(crate) async fn handle_email(
             _ => {
                 let mut subject_params = vec![];
                 for val in template_vals.iter() {
-                    let amount_decimal = if let TemplateValue::TokenAmount { token_name, amount } =
-                        val
-                    {
-                        let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
-                        Some(decimal_size)
-                    } else if let TemplateValue::Amount(amount) = val {
-                        Some(18)
-                    } else if let TemplateValue::Recipient {
-                        is_email,
-                        email_addr,
-                        eth_addr,
-                    } = val
-                    {
-                        recipient_email_addr = email_addr.clone();
-                        if *is_email {
-                            let padded_email_addr =
-                                PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
-                            let email_addr_commit = padded_email_addr
-                                .to_commitment_with_signature(&parsed_email.signature)?;
-                            // num_recipient_email_addr_bytes =
-                            //     U256::from(email_addr.as_ref().unwrap().len());
-                        } else {
-                            recipient_eth_addr = eth_addr.unwrap();
+                    match val {
+                        TemplateValue::TokenAmount { token_name, amount } => {
+                            let decimal_size = chain_client
+                                .query_decimals_of_erc20(token_name.as_str())
+                                .await?;
+                            subject_params.push(val.abi_encode(Some(decimal_size))?);
                         }
-                        None
-                    } else {
-                        None
-                    };
-                    subject_params.push(val.abi_encode(amount_decimal)?);
+                        TemplateValue::Amount(amount) => {
+                            subject_params.push(val.abi_encode(Some(18))?);
+                        }
+                        TemplateValue::Recipient {
+                            is_email,
+                            email_addr,
+                            eth_addr,
+                        } => {
+                            if !is_email {
+                                recipient_eth_addr = eth_addr.unwrap();
+                            } else {
+                                recipient_email_addr = email_addr.clone();
+                            }
+                        }
+                        _ => {
+                            subject_params.push(val.abi_encode(None)?);
+                        }
+                    }
                 }
                 ExtensionParams {
                     subject_template_index: template_idx as u8,

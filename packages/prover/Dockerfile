@@ -12,20 +12,20 @@ RUN apt-get update && \
 # Node install
 RUN npm install -g n 
 RUN n 18
-RUN npm install -g yarn
+RUN npm install -g yarn snarkjs
 
 RUN git clone https://github.com/zkemail/email-wallet.git -b feat/v1
 WORKDIR /email-wallet/packages/prover
-
-
-
 RUN pip install -r requirements.txt
+RUN cp ./circom_proofgen.sh /root
+WORKDIR /root
 RUN gdown "https://drive.google.com/uc?id=1qwyksneAArAsuTPC91qTqBDY5nAbP0XH"
 RUN unzip params.zip -d "params"
 RUN chmod +x circom_proofgen.sh
+RUN mkdir build
 
 RUN git clone https://github.com/iden3/rapidsnark.git
-WORKDIR /email-wallet/packages/prover/rapidsnark
+WORKDIR /root/rapidsnark
 RUN yarn
 RUN git submodule init
 RUN git submodule update
@@ -33,4 +33,3 @@ RUN npx task createFieldSources
 RUN npx task buildPistache
 RUN npx task buildProver
 RUN chmod +x build/prover
-WORKDIR /email-wallet/packages/prover

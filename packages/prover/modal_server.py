@@ -19,6 +19,7 @@ image = modal.Image.from_dockerfile("Dockerfile")
     mounts=[
         modal.Mount.from_local_python_packages("core"),
     ],
+    cpu=14,
 )
 @modal.wsgi_app()
 def flask_app():
@@ -38,7 +39,7 @@ def flask_app():
             0,
             sys.maxsize,
         )
-        proof = gen_account_creation_proof(str(nonce), True, input)
+        proof = gen_account_creation_proof(str(nonce), False, input)
         return jsonify(proof)
 
     @app.post("/prove/account_init")
@@ -49,7 +50,7 @@ def flask_app():
             0,
             sys.maxsize,
         )
-        proof = gen_account_init_proof(str(nonce), True, input)
+        proof = gen_account_init_proof(str(nonce), False, input)
         return jsonify(proof)
 
     @app.post("/prove/account_transport")
@@ -60,7 +61,7 @@ def flask_app():
             0,
             sys.maxsize,
         )
-        proof = gen_account_transport_proof(str(nonce), True, input)
+        proof = gen_account_transport_proof(str(nonce), False, input)
         return jsonify(proof)
 
     @app.post("/prove/claim")
@@ -71,7 +72,7 @@ def flask_app():
             0,
             sys.maxsize,
         )
-        proof = gen_claim_proof(str(nonce), True, input)
+        proof = gen_claim_proof(str(nonce), False, input)
         return jsonify(proof)
 
     @app.post("/prove/email_sender")
@@ -82,7 +83,7 @@ def flask_app():
             0,
             sys.maxsize,
         )
-        proof = gen_email_sender_proof(str(nonce), True, input)
+        proof = gen_email_sender_proof(str(nonce), False, input)
         return jsonify(proof)
 
     return app

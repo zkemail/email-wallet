@@ -271,12 +271,14 @@ impl ChainClient {
         let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         for log in receipt.logs.into_iter() {
-            match EmailWalletEventsEvents::decode_log(&RawLog::from(log))? {
-                EmailWalletEventsEvents::EmailOpHandledFilter(event) => {
-                    return Ok((tx_hash, event.registered_unclaim_id));
-                }
-                _ => {
-                    continue;
+            if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
+                match decoded {
+                    EmailWalletEventsEvents::EmailOpHandledFilter(event) => {
+                        return Ok((tx_hash, event.registered_unclaim_id));
+                    }
+                    _ => {
+                        continue;
+                    }
                 }
             }
         }
@@ -435,27 +437,32 @@ impl ChainClient {
             .get_transaction_receipt(H256::from_str(tx_hash)?)
             .await?
             .ok_or(anyhow!("No receipt"))?;
+        info!("receipt {:?}", receipt);
 
         for log in receipt.logs.into_iter() {
-            match EmailWalletEventsEvents::decode_log(&RawLog::from(log))? {
-                EmailWalletEventsEvents::UnclaimedFundRegisteredFilter(event) => {
-                    if !is_fund {
-                        return Err(anyhow!(
-                            "the transaction does not register an unclaimed fund"
-                        ));
+            info!("log {:?}", log);
+            if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
+                info!("decoded {:?}", decoded);
+                match decoded {
+                    EmailWalletEventsEvents::UnclaimedFundRegisteredFilter(event) => {
+                        if !is_fund {
+                            return Err(anyhow!(
+                                "the transaction does not register an unclaimed fund"
+                            ));
+                        }
+                        return Ok(event.id);
                     }
-                    return Ok(event.id);
-                }
-                EmailWalletEventsEvents::UnclaimedStateRegisteredFilter(event) => {
-                    if is_fund {
-                        return Err(anyhow!(
-                            "the transaction does not register an unclaimed state"
-                        ));
+                    EmailWalletEventsEvents::UnclaimedStateRegisteredFilter(event) => {
+                        if is_fund {
+                            return Err(anyhow!(
+                                "the transaction does not register an unclaimed state"
+                            ));
+                        }
+                        return Ok(event.id);
                     }
-                    return Ok(event.id);
-                }
-                _ => {
-                    continue;
+                    _ => {
+                        continue;
+                    }
                 }
             }
         }

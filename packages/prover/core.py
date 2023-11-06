@@ -83,7 +83,7 @@ def gen_proof(circuit_name: str, nonce: str, is_local: bool):
     cur_dir = get_cur_dir()
     params_dir = os.path.join(cur_dir, "params")
     build_dir = os.path.join(cur_dir, "build")
-    subprocess.run(
+    result = subprocess.run(
         [
             os.path.join(cur_dir, "circom_proofgen.sh"),
             circuit_name,
@@ -93,6 +93,8 @@ def gen_proof(circuit_name: str, nonce: str, is_local: bool):
             str(is_local_int),
         ]
     )
+    print(result.stdout)
+    print(result.stderr)
 
 
 def get_cur_dir() -> str:
