@@ -956,7 +956,7 @@ contract IntegrationTest is IntegrationTestHelper {
         bytes[] memory extensionBytes = new bytes[](2);
         extensionBytes[0] = abi.encode(uint(1));
         extensionBytes[1] = abi.encode("APE");
-        emailOp.extensionParams = ExtensionParams(2, extensionBytes);
+        emailOp.extensionParams = ExtensionParams(1, extensionBytes);
         emailOp.recipientETHAddr = recipient;
         deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
         (success, reason, ,) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
