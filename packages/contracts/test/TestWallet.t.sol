@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../src/EmailWallet.sol";
-import "../src/TestERC20.sol";
+import "../src/wallet/EmailWallet.sol";
+import "../src/wallet/TestERC20.sol";
 import "../src/utils/StringUtils.sol";
-import "../src/Groth16VerifierWalletAnon.sol";
-import "../src/MIMC.sol";
+import "../src/wallet/Groth16VerifierWalletAnon.sol";
+import "../src/wallet/MIMC.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract IERC20DAI {

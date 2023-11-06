@@ -1,4 +1,3 @@
-
 pragma circom 2.1.5;
 
 include "circomlib/circuits/bitify.circom";
@@ -16,7 +15,6 @@ include "@zk-email/circuits/regexes/body_hash_regex.circom";
 include "@zk-email/circuits/regexes/subject_regex_operation.circom";
 include "@zk-email/circuits/regexes/message_id_regex.circom";
 include "@zk-email/circuits/email-verifier.circom";
-
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each

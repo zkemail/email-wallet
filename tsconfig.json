@@ -15,8 +15,9 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "typeRoots": ["./node_modules/@types"],
-    "types": ["node"],
+    "types": ["node", "jest"],
     "incremental": true
   },
-  "exclude": ["node_modules"]
+  "include": ["declarations.d.ts"],
+  "exclude": ["node_modules", "packages/contracts/lib", "jest.config.js"],
 }
