@@ -49,10 +49,8 @@ pub(crate) async fn claim_unclaims(
         tx_sender
             .send(EmailMessage {
                 subject: format!("New Account - CODE:{}", account_key_str),
-                body: format!(
-                    "New Account Was Created For You with Account Key set to {}",
-                    account_key_str
-                ),
+                // TODO: get transaction hash
+                body: email_create_message(&account_key_str, "TransactionHash").await?,
                 to: claim.email_address.to_string(),
                 message_id: Some(account_key_str),
             })
