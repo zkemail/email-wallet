@@ -330,30 +330,41 @@ pub(crate) async fn handle_email(
                 i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
             };
             let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
-            // let psi_client =
-            //     PSIClient::new(Arc::clone(&chain_client), email_addr, commit.clone()).await?;
-            // // let psi_res;
-            // if {
-            //     let account_key = db.get_account_key(email_addr).await?;
-            //     account_key.is_none()
-            //         || chain_client
-            //             .check_if_account_initialized_by_account_key(&account_key.unwrap())
-            //             .await?
-            // } {
-            //     println!("hello world");
-            // }
-
-            let claim = Claim {
-                id: registered_unclaim_id,
-                email_address: email_addr.clone(),
-                commit,
-                random: field2hex(&commit_rand),
-                expiry_time,
-                is_fund,
-                is_announced: false,
+            let psi_client =
+                PSIClient::new(Arc::clone(&chain_client), email_addr, commit.clone()).await?;
+            let mut psi_res = vec![];
+            let psi_condition = {
+                let account_key = db.get_account_key(email_addr).await?;
+                (account_key.is_none()
+                    || !chain_client
+                        .check_if_account_initialized_by_account_key(&account_key.unwrap())
+                        .await?)
+                    && {
+                        psi_res = psi_client.find().await?;
+                        !psi_res.is_empty()
+                    }
             };
-            tx_claimer.send(claim)?;
-            trace!("claim sent to tx_claimer");
+            if psi_condition {
+                psi_client
+                    .reveal(
+                        &psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>(),
+                        &field2hex(&commit_rand),
+                        &commit,
+                    )
+                    .await?;
+            } else {
+                let claim = Claim {
+                    id: registered_unclaim_id,
+                    email_address: email_addr.clone(),
+                    commit,
+                    random: field2hex(&commit_rand),
+                    expiry_time,
+                    is_fund,
+                    is_announced: false,
+                };
+                tx_claimer.send(claim)?;
+                trace!("claim sent to tx_claimer");
+            }
         }
 
         tx_sender

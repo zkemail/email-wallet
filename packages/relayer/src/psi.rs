@@ -50,7 +50,7 @@ impl PSIClient {
         email_addr: &str,
         recipient_commitment: String,
     ) -> Result<Self> {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rngs::OsRng;
         let random = rng.gen_biguint(253);
         let random = Fr::from_bytes(&random.to_bytes_le().try_into().unwrap()).unwrap();
         let random = field2hex(&random);
@@ -108,6 +108,7 @@ impl PSIClient {
     }
 
     pub(crate) async fn reveal(
+        &self,
         addresses: &[&str],
         randomness: &str,
         recipient_commitment: &str,
