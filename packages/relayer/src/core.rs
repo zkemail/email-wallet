@@ -1,4 +1,5 @@
 #![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::identity_op)]
 
 use crate::*;
 use chrono::{DateTime, Local};

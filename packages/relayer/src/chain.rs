@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use crate::*;
-use ethers::abi::{ParamType, RawLog, Token};
+use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
 use ethers::prelude::*;
 use ethers::signers::Signer;
@@ -556,7 +556,7 @@ impl ChainClient {
             .call()
             .await?;
 
-        Ok(account_key_info.1 == true)
+        Ok(account_key_info.1)
     }
 
     pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {
