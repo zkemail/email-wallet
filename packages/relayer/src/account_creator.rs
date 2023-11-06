@@ -40,7 +40,7 @@ pub(crate) async fn create_account(
     info!("Account creation data {:?}", data);
     let res = chain_client.create_account(data).await?;
     info!("account creation tx hash: {}", res);
-    db.insert_user(&email_address, &account_key).await?;
+    db.insert_user(&email_address, &account_key, &res).await?;
     tx.send(EmailMessage {
         subject: format!("New Account - CODE:{}", account_key),
         body: email_create_message(&account_key, &res).await?,
