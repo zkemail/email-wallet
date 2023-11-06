@@ -265,7 +265,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let event_listener_task = tokio::task::spawn(async move {
         let mut from_block_fund = U64::from(0);
         let mut from_block_state = U64::from(0);
-        let fund_f = |event: UnclaimedFundRegisteredFilter, meta: LogMeta| {
+        let fund_f = |event: email_wallet_events::UnclaimedFundRegisteredFilter, meta: LogMeta| {
             if event.email_addr.is_empty() {
                 return Ok(());
             }
@@ -285,7 +285,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             tx_claimer_for_listener_task.send(claim)?;
             Ok(())
         };
-        let state_f = |event: UnclaimedStateRegisteredFilter, meta: LogMeta| {
+        let state_f = |event: email_wallet_events::UnclaimedStateRegisteredFilter,
+                       meta: LogMeta| {
             if event.email_addr.is_empty() {
                 return Ok(());
             }

@@ -49,8 +49,16 @@ pub(crate) async fn claim_unclaims(
         tx_sender
             .send(EmailMessage {
                 subject: format!("New Account - CODE:{}", account_key_str),
-                // TODO: get transaction hash
-                body: email_create_message(&account_key_str, "TransactionHash").await?,
+                body: email_template_message(
+                    &format!(
+                        "New Email Wallet account was created for you; Your Account Key: {}",
+                        account_key_str
+                    ),
+                    &db.get_creation_tx_hash(&claim.email_address)
+                        .await?
+                        .unwrap(),
+                )
+                .await?,
                 to: claim.email_address.to_string(),
                 message_id: Some(account_key_str),
             })
@@ -118,8 +126,8 @@ pub(crate) async fn claim_unclaims(
     db.delete_claim(&claim.id, claim.is_fund).await?;
     tx_sender
         .send(EmailMessage {
-            subject: reply_msg.to_string(),
-            body: format!("{} Transaction: {}", reply_msg, result),
+            subject: String::from("Email Wallet notification"),
+            body: email_template_message(&reply_msg, &result).await?,
             to: claim.email_address.to_string(),
             message_id: None,
         })

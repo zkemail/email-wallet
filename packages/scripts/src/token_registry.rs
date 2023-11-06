@@ -3,7 +3,6 @@ use crate::abis::TokenRegistry;
 use dotenv::dotenv;
 use ethers::prelude::*;
 use ethers::signers::Signer;
-use reqwest;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -20,11 +19,8 @@ pub struct Token {
 
 struct TokenRegistryUtil {
     chain_id: u64,
-
     rpc_url: String,
-
     token_registry: H160,
-
     private_key: String,
 }
 
@@ -35,13 +31,12 @@ impl TokenRegistryUtil {
         println!("TOKEN_REGISTRY: {}", &self.token_registry);
         println!("Populating token registry...");
 
-        let tokens = &self.get_popular_tokens().await;
+        let tokens = self.get_popular_tokens().await;
 
         // These are hardcoded in contract
         let filtered: Vec<Token> = tokens
-            .iter()
+            .into_iter()
             .filter(|t| t.symbol != "WETH" && t.symbol != "USDC" && t.symbol != "DAI")
-            .cloned()
             .collect();
 
         // Update registry in chunks of 50
@@ -61,7 +56,7 @@ impl TokenRegistryUtil {
             .await
             .unwrap();
 
-        return tokens;
+        tokens
     }
 
     pub async fn add_token_to_registry(&self, tokens: &[Token]) {
@@ -96,18 +91,12 @@ impl TokenRegistryUtil {
             .iter()
             .map(|t| t.symbol.clone())
             .collect::<Vec<String>>();
-        let token_addresses = tokens
-            .iter()
-            .map(|t| t.address.clone())
-            .collect::<Vec<H160>>();
+        let token_addresses = tokens.iter().map(|t| t.address).collect::<Vec<H160>>();
 
         println!("Adding to registry...\n{:?}", token_symbols);
 
-        let call = token_registry.set_token_addresses(
-            chain_id_u256,
-            token_symbols,
-            token_addresses,
-        );
+        let call =
+            token_registry.set_token_addresses(chain_id_u256, token_symbols, token_addresses);
 
         let tx = call.send().await.unwrap();
         let receipt = tx

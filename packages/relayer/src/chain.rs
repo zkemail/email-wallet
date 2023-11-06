@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use crate::*;
-use ethers::abi::{ParamType, RawLog, Token};
+use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
 use ethers::prelude::*;
 use ethers::signers::Signer;
@@ -400,9 +400,9 @@ impl ChainClient {
         &self,
         wallet_salt: &WalletSalt,
     ) -> Result<(Vec<Fr>, Vec<Address>)> {
-        let events: Vec<(AccountCreatedFilter, LogMeta)> = self
+        let events: Vec<(email_wallet_events::AccountCreatedFilter, LogMeta)> = self
             .account_handler
-            .event_for_name::<AccountCreatedFilter>("AccountCreated")?
+            .event_for_name::<email_wallet_events::AccountCreatedFilter>("AccountCreated")?
             .from_block(0)
             .topic2(H256::from(fr_to_bytes32(&wallet_salt.0)?))
             .query_with_meta()
@@ -479,7 +479,7 @@ impl ChainClient {
     }
 
     pub async fn stream_unclaim_fund_registration<
-        F: FnMut(UnclaimedFundRegisteredFilter, LogMeta) -> Result<()>,
+        F: FnMut(email_wallet_events::UnclaimedFundRegisteredFilter, LogMeta) -> Result<()>,
     >(
         &self,
         from_block: U64,
@@ -487,7 +487,9 @@ impl ChainClient {
     ) -> Result<U64> {
         let ev = self
             .unclaims_handler
-            .event_for_name::<UnclaimedFundRegisteredFilter>("UnclaimedFundRegistered")?
+            .event_for_name::<email_wallet_events::UnclaimedFundRegisteredFilter>(
+                "UnclaimedFundRegistered",
+            )?
             .from_block(from_block);
         let mut stream = ev.stream_with_meta().await?;
         let mut last_block = from_block;
@@ -499,7 +501,7 @@ impl ChainClient {
     }
 
     pub async fn stream_unclaim_state_registration<
-        F: FnMut(UnclaimedStateRegisteredFilter, LogMeta) -> Result<()>,
+        F: FnMut(email_wallet_events::UnclaimedStateRegisteredFilter, LogMeta) -> Result<()>,
     >(
         &self,
         from_block: U64,
@@ -507,7 +509,9 @@ impl ChainClient {
     ) -> Result<U64> {
         let ev = self
             .unclaims_handler
-            .event_for_name::<UnclaimedStateRegisteredFilter>("UnclaimedStateRegistered")?
+            .event_for_name::<email_wallet_events::UnclaimedStateRegisteredFilter>(
+                "UnclaimedStateRegistered",
+            )?
             .from_block(from_block);
         let mut stream = ev.stream_with_meta().await?;
         let mut last_block = from_block;
@@ -562,7 +566,7 @@ impl ChainClient {
             .call()
             .await?;
 
-        Ok(account_key_info.1 == true)
+        Ok(account_key_info.1)
     }
 
     pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {

@@ -1,4 +1,5 @@
 #![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::identity_op)]
 
 use crate::*;
 use chrono::{DateTime, Local};
@@ -357,11 +358,9 @@ pub(crate) async fn handle_email(
 
         tx_sender
             .send(EmailMessage {
-                subject: format!(
-                    "Your transaction request was completed in {}",
-                    tx_hash.as_str()
-                ),
-                body: tx_hash.to_string(),
+                subject: String::from("Email Wallet notification"),
+                body: email_template_message("Your transaction request was completed", &tx_hash)
+                    .await?,
                 to: from_address,
                 message_id: None,
             })
@@ -369,8 +368,9 @@ pub(crate) async fn handle_email(
         if let Some(email_addr) = recipient_email_addr {
             tx_sender
                 .send(EmailMessage {
-                    subject: format!("Email wallet transaction for you in {}", tx_hash.as_str()),
-                    body: tx_hash,
+                    subject: String::from("Email Wallet notification"),
+                    body: email_template_message("You receive new Email Wallet tx", &tx_hash)
+                        .await?,
                     to: email_addr,
                     message_id: None,
                 })
@@ -421,8 +421,8 @@ pub(crate) async fn handle_account_init(
     info!("account init tx hash: {}", result);
     tx_sender
         .send(EmailMessage {
-            subject: "Your Account was initialized".to_string(),
-            body: result,
+            subject: "New Email Wallet Notification".to_string(),
+            body: email_template_message("Your account was initialized", &result).await?,
             to: from_address,
             message_id: None,
         })
@@ -493,8 +493,8 @@ pub(crate) async fn handle_account_transport(
 
     tx_sender
         .send(EmailMessage {
-            subject: "Account was ".to_string(),
-            body: result,
+            subject: "New Email Wallet Notification".to_string(),
+            body: email_template_message("Your account was transported", &result).await?,
             to: from_address,
             message_id: None,
         })
