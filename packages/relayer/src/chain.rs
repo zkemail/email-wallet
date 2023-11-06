@@ -474,7 +474,7 @@ impl ChainClient {
 
     pub async fn validate_email_op(&self, email_op: EmailOp) -> Result<()> {
         let call = self.core.validate_email_op(email_op);
-        let res = call.call().await?;
+        call.call().await?;
         Ok(())
     }
 
@@ -539,9 +539,22 @@ impl ChainClient {
 
     pub(crate) async fn check_if_account_initialized_by_account_key(
         &self,
+        email_addr: &str,
         account_key: &str,
     ) -> Result<bool> {
-        todo!()
+        let account_key = AccountKey(hex2field(account_key)?);
+        let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
+        let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+        let account_key_commitment =
+            account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
+
+        let account_key_info = self
+            .account_handler
+            .info_of_account_key_commit(Fr::to_bytes(&account_key_commitment))
+            .call()
+            .await?;
+
+        Ok(account_key_info.1)
     }
 
     pub(crate) async fn check_if_account_initialized_by_point(&self, point: Point) -> Result<bool> {

@@ -337,7 +337,10 @@ pub(crate) async fn handle_email(
                 let account_key = db.get_account_key(email_addr).await?;
                 (account_key.is_none()
                     || !chain_client
-                        .check_if_account_initialized_by_account_key(&account_key.unwrap())
+                        .check_if_account_initialized_by_account_key(
+                            email_addr,
+                            &account_key.unwrap(),
+                        )
                         .await?)
                     && {
                         psi_res = psi_client.find().await?;
