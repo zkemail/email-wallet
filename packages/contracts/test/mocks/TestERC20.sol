@@ -13,4 +13,9 @@ contract TestERC20 is ERC20 {
     function freeMint(address to, uint256 amount) public {
         _mint(to, amount);
     }
+
+    function approve(address spender, uint256 amount) public override returns (bool) {
+        _approve(msg.sender, spender, amount);
+        return true;
+    }
 }
