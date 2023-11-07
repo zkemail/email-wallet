@@ -143,26 +143,7 @@ impl ImapClient {
 
         self = self.wait_new_email().await?;
 
-        loop {
-            match self.session.uid_search("UNSEEN").await {
-                Ok(uids) => {
-                    let mut results = vec![];
-                    for uid in uids {
-                        let res = self
-                            .session
-                            .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")
-                            .await?;
-                        let res = res.try_collect::<Vec<_>>().await?;
-                        results.push(res);
-                    }
-                    return Ok((results, self));
-                }
-                Err(e) => {
-                    error!("Connection reset, reconnecting...");
-                    self.reconnect().await?;
-                }
-            }
-        }
+        Ok((self.get_unseen_emails().await?, self))
     }
 
     async fn get_unseen_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
