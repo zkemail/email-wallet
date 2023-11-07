@@ -17,7 +17,7 @@ contract Deploy is Script {
     uint256 constant unclaimsExpiryDuration = 30 days;
 
     string[][] nftExtTemplates = new string[][](3);
-    string[][] uniswapExtTemplates = new string[][](1);
+    string[][] uniswapExtTemplates = new string[][](4);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -117,6 +117,10 @@ contract Deploy is Script {
             0x1F98431c8aD98523631AE4a59f267346ea31F984
         );
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+        uniswapExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
+        uniswapExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
+        uniswapExtTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt price limit"];
+
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
         core.initialize(defaultExtensions);
