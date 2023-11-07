@@ -33,6 +33,7 @@ pub(crate) struct ImapConfig {
     pub(crate) domain_name: String,
     pub(crate) port: u16,
     pub(crate) auth: ImapAuth,
+    pub(crate) initially_checked: bool,
 }
 
 struct OAuth2 {
@@ -130,7 +131,16 @@ impl ImapClient {
         Ok(Self { session, config })
     }
 
-    pub(crate) async fn retrieve_new_emails(mut self) -> Result<(Self, Vec<Vec<Fetch>>)> {
+    pub(crate) async fn retrieve_new_emails(mut self) -> Result<(Vec<Vec<Fetch>>, Self)> {
+        if !self.config.initially_checked {
+            self.config.initially_checked = true;
+            let result =
+                tokio::time::timeout(Duration::from_secs(10), self.get_unseen_emails()).await;
+            if let Ok(Ok(result)) = result {
+                return Ok((result, self));
+            }
+        }
+
         self = self.wait_new_email().await?;
 
         loop {
@@ -145,7 +155,30 @@ impl ImapClient {
                         let res = res.try_collect::<Vec<_>>().await?;
                         results.push(res);
                     }
-                    return Ok((self, results));
+                    return Ok((results, self));
+                }
+                Err(e) => {
+                    error!("Connection reset, reconnecting...");
+                    self.reconnect().await?;
+                }
+            }
+        }
+    }
+
+    async fn get_unseen_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
+        loop {
+            match self.session.uid_search("UNSEEN").await {
+                Ok(uids) => {
+                    let mut results = vec![];
+                    for uid in uids {
+                        let res = self
+                            .session
+                            .uid_fetch(uid.to_string(), "(BODY[] ENVELOPE)")
+                            .await?;
+                        let res = res.try_collect::<Vec<_>>().await?;
+                        results.push(res);
+                    }
+                    return Ok(results);
                 }
                 Err(e) => {
                     error!("Connection reset, reconnecting...");
