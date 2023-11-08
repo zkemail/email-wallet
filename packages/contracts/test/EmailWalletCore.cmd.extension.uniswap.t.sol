@@ -160,7 +160,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
 
-        // Mock for daiToken approval should return true.
+        // Mock for usdcToken approval should return true.
         vm.mockCall(
             address(usdcToken),
             abi.encodeWithSelector(TestERC20.approve.selector),
