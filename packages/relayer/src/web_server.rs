@@ -99,6 +99,10 @@ pub(crate) async fn run_server(
     chain_client: Arc<ChainClient>,
     tx_claimer: UnboundedSender<Claim>,
 ) -> Result<()> {
+    let chain_client_check_clone = Arc::clone(&chain_client);
+    let chain_client_reveal_clone = Arc::clone(&chain_client);
+    let tx_claimer_reveal_clone = tx_claimer.clone();
+
     let app = Router::new()
         .route(
             "/api/emailAddrCommit",
@@ -122,6 +126,34 @@ pub(crate) async fn run_server(
                 let json = serde_json::from_str::<UnclaimRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
                 unclaim(json, Arc::clone(&db), Arc::clone(&chain_client), tx_claimer)
+                    .await
+                    .map_err(|err| {
+                        error!("Failed to accept unclaim: {}", err);
+                        err.to_string()
+                    })
+            }),
+        )
+        .route(
+            "/api/serveCheck/",
+            axum::routing::post(move |payload: String| async move {
+                info!("/serveCheck Received payload: {}", payload);
+                let json = serde_json::from_str::<CheckRequest>(&payload)
+                    .map_err(|_| "Invalid payload json".to_string())?;
+                serve_check_request(json, chain_client_check_clone)
+                    .await
+                    .map_err(|err| {
+                        error!("Failed to accept unclaim: {}", err);
+                        err.to_string()
+                    })
+            }),
+        )
+        .route(
+            "/api/serveReveal/",
+            axum::routing::post(move |payload: String| async move {
+                info!("/serveCheck Received payload: {}", payload);
+                let json = serde_json::from_str::<RevealRequest>(&payload)
+                    .map_err(|_| "Invalid payload json".to_string())?;
+                serve_reveal_request(json, chain_client_reveal_clone, tx_claimer_reveal_clone)
                     .await
                     .map_err(|err| {
                         error!("Failed to accept unclaim: {}", err);

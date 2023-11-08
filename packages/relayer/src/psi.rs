@@ -135,8 +135,8 @@ impl PSIClient {
 }
 
 pub(crate) async fn serve_check_request(
-    chain_client: Arc<ChainClient>,
     payload: CheckRequest,
+    chain_client: Arc<ChainClient>,
 ) -> Result<Json<Point>> {
     check_unclaim_valid(Arc::clone(&chain_client), &payload.id, payload.is_fund).await?;
 
