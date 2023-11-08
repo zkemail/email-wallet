@@ -40,26 +40,29 @@ pub(crate) struct PSIClient {
     pub(crate) point: Point,
     pub(crate) random: String,
     pub(crate) email_addr: String,
-    pub(crate) recipient_commitment: String,
+    pub(crate) id: U256,
+    pub(crate) is_fund: bool,
     pub(crate) chain_client: Arc<ChainClient>,
 }
 
 impl PSIClient {
     pub(crate) async fn new(
         chain_client: Arc<ChainClient>,
-        email_addr: &str,
-        recipient_commitment: String,
+        email_addr: String,
+        id: U256,
+        is_fund: bool,
     ) -> Result<Self> {
         let mut rng = rand::rngs::OsRng;
         let random = rng.gen_biguint(253);
         let random = Fr::from_bytes(&random.to_bytes_le().try_into().unwrap()).unwrap();
         let random = field2hex(&random);
 
-        let point = psi_step1(CIRCUITS_DIR_PATH.get().unwrap(), email_addr, &random).await?;
+        let point = psi_step1(CIRCUITS_DIR_PATH.get().unwrap(), &email_addr, &random).await?;
 
         Ok(Self {
-            email_addr: email_addr.to_string(),
-            recipient_commitment,
+            email_addr,
+            id,
+            is_fund,
             random,
             point,
             chain_client,
@@ -69,7 +72,11 @@ impl PSIClient {
     pub(crate) async fn check(&self, client: reqwest::Client, address: &str) -> Result<bool> {
         let res = client
             .post(format!("{}/serveCheck/", address))
-            .json(&serde_json::json!({ "point": self.point.clone(), "tx_hash": &self.recipient_commitment }))
+            .json(&CheckRequest {
+                point: self.point.clone(),
+                id: self.id,
+                is_fund: self.is_fund,
+            })
             .send()
             .await?
             .error_for_status()?;
@@ -107,20 +114,20 @@ impl PSIClient {
         Ok(result)
     }
 
-    pub(crate) async fn reveal(
-        &self,
-        addresses: &[&str],
-        randomness: &str,
-        recipient_commitment: &str,
-    ) -> Result<()> {
+    pub(crate) async fn reveal(&self, addresses: &[&str]) -> Result<()> {
         let client = reqwest::Client::new();
         for &address in addresses {
             let res = client
-            .post(format!("{}/serveReveal/", address))
-            .json(&serde_json::json!({ "randomness": randomness, "recipient_commitment": recipient_commitment }))
-            .send()
-            .await?
-            .error_for_status()?;
+                .post(format!("{}/serveReveal/", address))
+                .json(&RevealRequest {
+                    id: self.id,
+                    email_address: self.email_addr.clone(),
+                    randomness: self.random.clone(),
+                    is_fund: self.is_fund,
+                })
+                .send()
+                .await?
+                .error_for_status()?;
         }
 
         Ok(())
@@ -150,6 +157,7 @@ pub(crate) async fn serve_reveal_request(
 ) -> Result<String> {
     match check_unclaim_valid(Arc::clone(&chain_client), &payload.id, payload.is_fund).await? {
         UnclaimType::Fund(unclaimed_fund) => {
+            // TODO: local check of recipient_commit = hash(random, email_addr)
             tx_claimer.send(Claim {
                 id: payload.id,
                 email_address: payload.email_address.clone(),
@@ -165,6 +173,7 @@ pub(crate) async fn serve_reveal_request(
             ))
         }
         UnclaimType::State(unclaimed_state) => {
+            // TODO: local check of recipient_commit = hash(random, email_addr)
             tx_claimer.send(Claim {
                 id: payload.id,
                 email_address: payload.email_address.clone(),
@@ -187,7 +196,6 @@ pub(crate) async fn check_unclaim_valid(
     id: &U256,
     is_fund: bool,
 ) -> Result<UnclaimType> {
-    // let recipient_commitment = hex2field(commitment)?;
     let current_time = U256::from(now());
     let current_time_delayed = current_time + U256::from(DELAY);
     let unclaim = if is_fund {
