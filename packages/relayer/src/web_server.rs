@@ -1,8 +1,9 @@
 use crate::*;
 
+use anyhow::Ok;
 use axum::Router;
 use log::trace;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowMethods, Any, CorsLayer};
 
@@ -19,6 +20,18 @@ struct UnclaimRequest {
     expiry_time: i64,
     is_fund: bool,
     tx_hash: String,
+}
+
+#[derive(Deserialize)]
+struct AccountRegistrationRequest {
+    email_address: String,
+}
+
+#[derive(Serialize)]
+struct AccountRegistrationResponse {
+    account_key: String,
+    wallet_addr: String,
+    onboard_token_sent: bool,
 }
 
 async fn unclaim(
@@ -93,6 +106,34 @@ async fn unclaim(
     }
 }
 
+async fn onboard(
+    payload: AccountRegistrationRequest,
+    db: Arc<Database>,
+    chain_client: Arc<ChainClient>,
+) -> Result<axum::Json<AccountRegistrationResponse>> {
+    let account_key = AccountKey::new(rand::thread_rng());
+    let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
+    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+
+    let account_key_commit =
+        account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
+    let wallet_salt = account_key.to_wallet_salt().unwrap().0;
+    let wallet_addr = chain_client.get_wallet_addr_from_salt(&wallet_salt).await?;
+
+    info!("Counterfactual wallet address for email: {}", wallet_addr);
+
+    // TODO: Implement distribution limit
+    let onboard_token_sent = chain_client
+        .transfer_onboarding_tokens(wallet_addr.clone())
+        .await?;
+
+    return Ok(axum::Json(AccountRegistrationResponse {
+        account_key: field2hex(&account_key_commit),
+        wallet_addr: format!("{:?}", wallet_addr),
+        onboard_token_sent: onboard_token_sent,
+    }));
+}
+
 pub(crate) async fn run_server(
     addr: &str,
     db: Arc<Database>,
@@ -102,6 +143,9 @@ pub(crate) async fn run_server(
     let chain_client_check_clone = Arc::clone(&chain_client);
     let chain_client_reveal_clone = Arc::clone(&chain_client);
     let tx_claimer_reveal_clone = tx_claimer.clone();
+
+    let chain_client_clone = Arc::clone(&chain_client);
+    let db_clone = Arc::clone(&db);
 
     let app = Router::new()
         .route(
@@ -125,7 +169,22 @@ pub(crate) async fn run_server(
                 info!("/unclaim Received payload: {}", payload);
                 let json = serde_json::from_str::<UnclaimRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
-                unclaim(json, Arc::clone(&db), Arc::clone(&chain_client), tx_claimer)
+                unclaim(json, db, chain_client, tx_claimer)
+                    .await
+                    .map_err(|err| {
+                        error!("Failed to accept unclaim: {}", err);
+                        err.to_string()
+                    })
+            }),
+        )
+        .route(
+            "/api/onboard",
+            axum::routing::post(move |payload: String| async move {
+                info!("/onboard Received payload: {}", payload);
+                let json = serde_json::from_str::<AccountRegistrationRequest>(&payload)
+                    .map_err(|_| "Invalid payload json".to_string())?;
+
+                onboard(json, db_clone, chain_client_clone)
                     .await
                     .map_err(|err| {
                         error!("Failed to accept unclaim: {}", err);
