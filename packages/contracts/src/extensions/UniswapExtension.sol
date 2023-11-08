@@ -19,7 +19,7 @@ contract UniswapExtension is Extension {
     // For this example, we will set the pool fee to 0.3%.
     uint24 public constant poolFee = 3000;
     // It's a default slippage, we will set the maximum slippage to 0.5%.
-    uint24 public constant slippageBasisPoints = 50;
+    uint24 public constant defaultSlippagePoints = 50;
 
     mapping(string => address) public addressOfNFTName;
 
@@ -71,7 +71,7 @@ contract UniswapExtension is Extension {
 
         // Each template has different input parameters
         if (templateIndex == 0) {
-            slippagePoints = slippageBasisPoints;
+            slippagePoints = defaultSlippagePoints;
 
             sqrtPriceLimitX96 = 0;
         } 
@@ -87,7 +87,7 @@ contract UniswapExtension is Extension {
         }
 
         if (templateIndex == 2) {
-            slippagePoints = slippageBasisPoints;
+            slippagePoints = defaultSlippagePoints;
 
             uint256 sqrtPriceLimitX96Uint256;
             sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
