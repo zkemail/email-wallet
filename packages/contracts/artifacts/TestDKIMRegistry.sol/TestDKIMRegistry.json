@@ -1,0 +1,493 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "domainName",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "publicKeyHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "isDKIMPublicKeyHashValid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b5061015a806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea2646970667358221220fcbf263d679d3f6d52e004db1ed407b947acc41e10b96fe7ba9f4acab314e0a764736f6c63430008150033",
+    "sourceMap": "117:267:174:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea2646970667358221220fcbf263d679d3f6d52e004db1ed407b947acc41e10b96fe7ba9f4acab314e0a764736f6c63430008150033",
+    "sourceMap": "117:267:174:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;166:216;;;;;;:::i;:::-;353:3;337:38;;166:216;-1:-1:-1;166:216:174;;;;1316:14:179;;1309:22;1291:41;;1279:2;1264:18;166:216:174;;;;;;;14:127:179;75:10;70:3;66:20;63:1;56:31;106:4;103:1;96:15;130:4;127:1;120:15;146:1000;224:6;232;285:2;273:9;264:7;260:23;256:32;253:52;;;301:1;298;291:12;253:52;328:23;;-1:-1:-1;;;;;400:14:179;;;397:34;;;427:1;424;417:12;397:34;465:6;454:9;450:22;440:32;;510:7;503:4;499:2;495:13;491:27;481:55;;532:1;529;522:12;481:55;568:2;555:16;590:2;586;583:10;580:36;;;596:18;;:::i;:::-;671:2;665:9;639:2;725:13;;-1:-1:-1;;721:22:179;;;745:2;717:31;713:40;701:53;;;769:18;;;789:22;;;766:46;763:72;;;815:18;;:::i;:::-;855:10;851:2;844:22;890:2;882:6;875:18;932:7;925:4;920:2;916;912:11;908:22;905:35;902:55;;;953:1;950;943:12;902:55;1013:2;1006:4;1002:2;998:13;991:4;983:6;979:17;966:50;1060:1;1053:4;1036:15;;;1032:26;;1025:37;1036:15;1119:20;;;;1106:34;;-1:-1:-1;;;;;;146:1000:179:o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "isDKIMPublicKeyHashValid(string,bytes32)": "e7a7977a"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/TestDKIMRegistry.sol\":\"TestDKIMRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]},\"test/mocks/TestDKIMRegistry.sol\":{\"keccak256\":\"0xe5fafcdfdfe7a06023479ef00692ef0471339d2f811647ce4ed79617fd1a2231\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1c83ff747703b267b579c11ac2226fbff4c6c8926ffcfb5c69ba8f73b04b921c\",\"dweb:/ipfs/QmPYvjKDVL3PadDPd6TrWXuYRGn3yAfCh5TRapNBD7NESP\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "domainName",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "publicKeyHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "isDKIMPublicKeyHashValid",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 1
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "test/mocks/TestDKIMRegistry.sol": "TestDKIMRegistry"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol": {
+        "keccak256": "0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d",
+        "urls": [
+          "bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6",
+          "dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V"
+        ],
+        "license": "MIT"
+      },
+      "test/mocks/TestDKIMRegistry.sol": {
+        "keccak256": "0xe5fafcdfdfe7a06023479ef00692ef0471339d2f811647ce4ed79617fd1a2231",
+        "urls": [
+          "bzz-raw://1c83ff747703b267b579c11ac2226fbff4c6c8926ffcfb5c69ba8f73b04b921c",
+          "dweb:/ipfs/QmPYvjKDVL3PadDPd6TrWXuYRGn3yAfCh5TRapNBD7NESP"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "test/mocks/TestDKIMRegistry.sol",
+    "id": 100586,
+    "exportedSymbols": {
+      "IDKIMRegistry": [
+        4822
+      ],
+      "TestDKIMRegistry": [
+        100585
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:353:174",
+    "nodes": [
+      {
+        "id": 100559,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:174",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".9"
+        ]
+      },
+      {
+        "id": 100560,
+        "nodeType": "ImportDirective",
+        "src": "57:58:174",
+        "nodes": [],
+        "absolutePath": "../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol",
+        "file": "@zk-email/contracts/interfaces/IDKIMRegistry.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 100586,
+        "sourceUnit": 4823,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 100585,
+        "nodeType": "ContractDefinition",
+        "src": "117:267:174",
+        "nodes": [
+          {
+            "id": 100584,
+            "nodeType": "FunctionDefinition",
+            "src": "166:216:174",
+            "nodes": [],
+            "body": {
+              "id": 100583,
+              "nodeType": "Block",
+              "src": "300:82:174",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "id": 100571,
+                    "name": "domainName",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 100564,
+                    "src": "310:10:174",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_memory_ptr",
+                      "typeString": "string memory"
+                    }
+                  },
+                  "id": 100572,
+                  "nodeType": "ExpressionStatement",
+                  "src": "310:10:174"
+                },
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    },
+                    "id": 100581,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "arguments": [
+                        {
+                          "arguments": [
+                            {
+                              "hexValue": "313233",
+                              "id": 100577,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "353:3:174",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_123_by_1",
+                                "typeString": "int_const 123"
+                              },
+                              "value": "123"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_rational_123_by_1",
+                                "typeString": "int_const 123"
+                              }
+                            ],
+                            "id": 100576,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "lValueRequested": false,
+                            "nodeType": "ElementaryTypeNameExpression",
+                            "src": "345:7:174",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_uint256_$",
+                              "typeString": "type(uint256)"
+                            },
+                            "typeName": {
+                              "id": 100575,
+                              "name": "uint256",
+                              "nodeType": "ElementaryTypeName",
+                              "src": "345:7:174",
+                              "typeDescriptions": {}
+                            }
+                          },
+                          "id": 100578,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "typeConversion",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "345:12:174",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        ],
+                        "id": 100574,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "nodeType": "ElementaryTypeNameExpression",
+                        "src": "337:7:174",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_bytes32_$",
+                          "typeString": "type(bytes32)"
+                        },
+                        "typeName": {
+                          "id": 100573,
+                          "name": "bytes32",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "337:7:174",
+                          "typeDescriptions": {}
+                        }
+                      },
+                      "id": 100579,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "337:21:174",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "id": 100580,
+                      "name": "publicKeyHash",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 100566,
+                      "src": "362:13:174",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "337:38:174",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 100570,
+                  "id": 100582,
+                  "nodeType": "Return",
+                  "src": "330:45:174"
+                }
+              ]
+            },
+            "baseFunctions": [
+              4821
+            ],
+            "functionSelector": "e7a7977a",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isDKIMPublicKeyHashValid",
+            "nameLocation": "175:24:174",
+            "parameters": {
+              "id": 100567,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 100564,
+                  "mutability": "mutable",
+                  "name": "domainName",
+                  "nameLocation": "223:10:174",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 100584,
+                  "src": "209:24:174",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 100563,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "209:6:174",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 100566,
+                  "mutability": "mutable",
+                  "name": "publicKeyHash",
+                  "nameLocation": "251:13:174",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 100584,
+                  "src": "243:21:174",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 100565,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "243:7:174",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "199:71:174"
+            },
+            "returnParameters": {
+              "id": 100570,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 100569,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 100584,
+                  "src": "294:4:174",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 100568,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "294:4:174",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "293:6:174"
+            },
+            "scope": 100585,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 100561,
+              "name": "IDKIMRegistry",
+              "nameLocations": [
+                "146:13:174"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 4822,
+              "src": "146:13:174"
+            },
+            "id": 100562,
+            "nodeType": "InheritanceSpecifier",
+            "src": "146:13:174"
+          }
+        ],
+        "canonicalName": "TestDKIMRegistry",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          100585,
+          4822
+        ],
+        "name": "TestDKIMRegistry",
+        "nameLocation": "126:16:174",
+        "scope": 100586,
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 174
+}
