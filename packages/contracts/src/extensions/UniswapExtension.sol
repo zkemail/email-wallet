@@ -54,10 +54,14 @@ contract UniswapExtension is Extension {
         require(templateIndex <= 3, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
+        // subjectParams[0] and subjectParams[1] are same for all templates
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
+
         address tokenInAddr;
         address tokenOutAddr;
-        // To avoid stack too deep, we use the following bracket
+        uint24 slippagePoints;
+        uint160 sqrtPriceLimitX96;
+
         {
             string memory tokenOut = abi.decode(subjectParams[1], (string));
             tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
@@ -65,35 +69,43 @@ contract UniswapExtension is Extension {
             require(tokenOutAddr != address(0), "invalid out token name");
         }
 
-        uint24 slippagePoints;
-        // To avoid stack too deep, we use the following bracket
-        {
-            if (templateIndex != 1 && templateIndex != 3) {
-                slippagePoints = slippageBasisPoints;
-            } else {
-                uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
-                // This value is user input * 10^18, we need to revert it as (user input * 10^2).
-                slippagePoints256 = slippagePoints256 / 10**16; 
-                require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
-                slippagePoints = uint24(slippagePoints256);
-            }
+        // Each template has different input parameters
+        if (templateIndex == 0) {
+            slippagePoints = slippageBasisPoints;
+
+            sqrtPriceLimitX96 = 0;
+        } 
+
+        if (templateIndex == 1) {
+            uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
+            // This value is user input * 10^18, we need to revert it as (user input * 10^2).
+            slippagePoints256 = slippagePoints256 / 10**16; 
+            require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
+            slippagePoints = uint24(slippagePoints256);
+
+            sqrtPriceLimitX96 = 0;
         }
 
-        uint160 sqrtPriceLimitX96;
-        // To avoid stack too deep, we use the following bracket
-        {
-            if (templateIndex < 2) {
-                sqrtPriceLimitX96 = 0;
-            } else {
-                uint256 sqrtPriceLimitX96Uint256;
-                if (templateIndex == 2) {
-                    sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
-                } else if (templateIndex == 3) {
-                    sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[3], (uint256));
-                }
-                require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
-                sqrtPriceLimitX96 = uint160(sqrtPriceLimitX96Uint256);
-            }
+        if (templateIndex == 2) {
+            slippagePoints = slippageBasisPoints;
+
+            uint256 sqrtPriceLimitX96Uint256;
+            sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
+            require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
+            sqrtPriceLimitX96 = uint160(sqrtPriceLimitX96Uint256);
+        }
+
+        if (templateIndex == 3) {
+            uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
+            // This value is user input * 10^18, we need to revert it as (user input * 10^2).
+            slippagePoints256 = slippagePoints256 / 10**16; 
+            require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
+            slippagePoints = uint24(slippagePoints256);
+
+            uint256 sqrtPriceLimitX96Uint256;
+            sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[3], (uint256));
+            require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
+            sqrtPriceLimitX96 = uint160(sqrtPriceLimitX96Uint256);
         }
 
         // To avoid stack too deep, we use the following bracket
