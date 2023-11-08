@@ -51,7 +51,7 @@ contract UniswapExtension is Extension {
     ) external override onlyCore {
         recipientETHAddr;
         emailNullifier;
-        require(templateIndex <= 1, "invalid templateIndex");
+        require(templateIndex <= 3, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
@@ -180,8 +180,7 @@ contract UniswapExtension is Extension {
     ) internal view returns (uint160) {
         bool zeroForOne = tokenIn < tokenOut;
 
-        IUniswapV3Pool pool = poolFinder.getPool(tokenIn, tokenOut, poolFee);
-        (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
+        (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
 
         if (sqrtPriceLimitX96 == 0) {
             sqrtPriceLimitX96 = sqrtPriceX96;
