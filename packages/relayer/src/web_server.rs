@@ -123,15 +123,13 @@ async fn onboard(
     info!("Counterfactual wallet address for email: {}", wallet_addr);
 
     // TODO: Implement distribution limit
-    let onboard_token_sent = chain_client
-        .transfer_onboarding_tokens(wallet_addr.clone())
-        .await?;
+    let onboard_token_sent = chain_client.transfer_onboarding_tokens(wallet_addr).await?;
 
-    return Ok(axum::Json(AccountRegistrationResponse {
+    Ok(axum::Json(AccountRegistrationResponse {
         account_key: field2hex(&account_key_commit),
         wallet_addr: format!("{:?}", wallet_addr),
-        onboard_token_sent: onboard_token_sent,
-    }));
+        onboard_token_sent,
+    }))
 }
 
 pub(crate) async fn run_server(
@@ -187,7 +185,7 @@ pub(crate) async fn run_server(
                 onboard(json, db_onboard_clone, chain_client_onboard_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed to accept unclaim: {}", err);
+                        error!("Failed to onboard: {}", err);
                         err.to_string()
                     })
             }),
@@ -201,7 +199,7 @@ pub(crate) async fn run_server(
                 serve_check_request(json, chain_client_check_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed to accept unclaim: {}", err);
+                        error!("Failed PSI check serve: {}", err);
                         err.to_string()
                     })
             }),
@@ -215,7 +213,7 @@ pub(crate) async fn run_server(
                 serve_reveal_request(json, chain_client_reveal_clone, tx_claimer_reveal_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed to accept unclaim: {}", err);
+                        error!("Failed PSI reveal serve: {}", err);
                         err.to_string()
                     })
             }),

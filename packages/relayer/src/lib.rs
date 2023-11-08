@@ -59,6 +59,9 @@ static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
 static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
 static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
 static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
+static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
+static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
+static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -102,6 +105,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     FEE_PER_GAS.set(config.fee_per_gas).unwrap();
     INPUT_FILES_DIR.set(config.input_files_dir).unwrap();
     EMAIL_TEMPLATES.set(config.email_templates).unwrap();
+    ONBOARDING_TOKEN_ADDR
+        .set(config.onboarding_token_addr)
+        .unwrap();
+    ONBOARDING_TOKEN_DISTRIBUTION_LIMIT
+        .set(config.onboarding_token_distribution_limit)
+        .unwrap();
+    ONBOARDING_TOKEN_AMOUNT
+        .set(config.onboarding_token_amount)
+        .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();

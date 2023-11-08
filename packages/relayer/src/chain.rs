@@ -588,13 +588,15 @@ impl ChainClient {
     }
 
     pub(crate) async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<bool> {
-        let config = RelayerConfig::default();
-
-        let erc20 = ERC20::new(config.onboarding_token_addr, self.client.clone());
-
-        let call = erc20.transfer(wallet_addr, config.onboarding_token_amount);
-
-        let tx = call.send().await?;
+        let erc20 = ERC20::new(
+            ONBOARDING_TOKEN_ADDR.get().unwrap().to_owned(),
+            self.client.clone(),
+        );
+        let tx = erc20.transfer(
+            wallet_addr,
+            ONBOARDING_TOKEN_AMOUNT.get().unwrap().to_owned(),
+        );
+        let tx = tx.send().await?;
 
         let receipt = tx
             .log()
