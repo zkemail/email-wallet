@@ -144,8 +144,8 @@ pub(crate) async fn run_server(
     let chain_client_reveal_clone = Arc::clone(&chain_client);
     let tx_claimer_reveal_clone = tx_claimer.clone();
 
-    let chain_client_clone = Arc::clone(&chain_client);
-    let db_clone = Arc::clone(&db);
+    let chain_client_onboard_clone = Arc::clone(&chain_client);
+    let db_onboard_clone = Arc::clone(&db);
 
     let app = Router::new()
         .route(
@@ -184,7 +184,7 @@ pub(crate) async fn run_server(
                 let json = serde_json::from_str::<AccountRegistrationRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
 
-                onboard(json, db_clone, chain_client_clone)
+                onboard(json, db_onboard_clone, chain_client_onboard_clone)
                     .await
                     .map_err(|err| {
                         error!("Failed to accept unclaim: {}", err);
