@@ -468,10 +468,9 @@ abstract contract IntegrationTestHelper is Test {
 
     function _getNFTSubjectTemplates() internal returns (string[][] memory) {
         delete subjectTemplates;
-        subjectTemplates = new string[][](3);
+        subjectTemplates = new string[][](2);
         subjectTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        subjectTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
-        subjectTemplates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        subjectTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         return subjectTemplates;
     }
 }

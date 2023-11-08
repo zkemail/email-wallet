@@ -16,7 +16,7 @@ contract Deploy is Script {
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;
 
-    string[][] nftExtTemplates = new string[][](3);
+    string[][] nftExtTemplates = new string[][](2);
     string[][] uniswapExtTemplates = new string[][](1);
 
     function run() external {
@@ -103,8 +103,7 @@ contract Deploy is Script {
 
         NFTExtension nftExt = new NFTExtension(address(core));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        nftExtTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
-        nftExtTemplates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
         address uniswapV3Router = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
