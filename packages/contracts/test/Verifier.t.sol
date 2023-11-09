@@ -20,34 +20,34 @@ contract VerifierTest is Test {
 
     function testVerifier_AccountCreation() public view {
         uint256[2] memory pA = [
-            0x0bb1a492f4f502af3c4c977f29131673c1896111fd472cb6047847977ca76d95,
-            0x26ef4d88d1dbb63ef18fd87570d368d65b374d6ebcfe8a8ac0a9fb9d7a8ea2fb
+            0x19d2869e21e075dc2c7fe066ceffd60968945add2609bd07c803b33f9b53e637,
+            0x04527f7bdfa7e32f3c793f2839725b021874704ed08ed44cae290c36081d57cf
         ];
         uint256[2][2] memory pB = [
             [
-                0x26b4acee0c4487c88320c20f9c86d4f231845bc64e0247defd9fa07c92059bb2,
-                0x262204badb669678be732aa9ffde9d2eb96da4da8314fba444890152a87a415a
+                0x02f4116d2bafbff0ae697b230189880d54e0024f2adff0f4b57f475b9b5a3690,
+                0x0d2d03aa68defc3454ec72eb9dab7e729e44cb28d8c6b44ce2c3ab87b049a46a
             ],
             [
-                0x27c1ecdb3dee0417e93f515de6d9d61f727dac866a645e798199af958fccab90,
-                0x033781924be4e18e066ca8a642577fbad6e33d75aadd729c4d0b7fe62f7c36fa
+                0x0f499dc807c29dde76ce12793612e965894b7b3c1e2afb6800ef0cbb8721b14e,
+                0x1ce7fdff24b89696988c01731198dfdad5bc63af8246d74d3b56009368d4c08e
             ]
         ];
         uint256[2] memory pC = [
-            0x225a539d0e026aeff4d3842d881b54bed93b834f4c1151928dc5c6ecf16095b6,
-            0x1086c24dec0bf5c42fe21a15b584b1f77bc87e5bf3752f880c55185d8ac64330
+            0x08b95f31ca3149e75338e8a6cd382a0517981a7408bd33a552aff89e78b2d79f,
+            0x2cd0f5da1fbf0db490632f002f28e72de64b4b733035f1bf70b1e8b970d96ab7
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         bytes memory psiPoint = abi.encode(
-            0x2af2a2b0a227b2140e26e566374921dacbe55b09e4554a4b83659ee2c3cc34ac,
-            0x215d506ba975c642b07284acc7ba631c56fb5888df65c0e4b7ff4bbe3fbaff47
+            0x137f37195be2846f471ca4c2ebe71d1d2aeb83b01e1a25356bc0430d5e974f1b,
+            0x0024d47abc04548c24a7dae9e7a23d8f791266162467c425fda80d5fad023290
         );
         require(
             verifier.verifyAccountCreationProof(
-                0x29c62c9ffd65f342646caeeebe6b62ecdb96062d4b203b3852a1cbdd8b1109fe,
-                0x061fe8ef6eaa7d1f25c256e8c7ac69af6900f6d99eec1b40b763ff04fbef465c,
-                0x04390282bc61eb88ec0077a286cea2fc77b768f43422828859cc4a00fa58074a,
-                0x2faf230d2774f4824a15a9cb07fdb8a704000925e63bcd5d63d212965b1e3f61,
+                0x0796930f14ad1b325aca059bb26fa26179ff2cd0fa6cd063bda7572886194b1f,
+                0x1665ce2f746c92ddc98c3b0db45a6615793b1afe0192d5d140479c21cae435c3,
+                0x2b205cde32d2644a3aefaf9d1af1886900584371e4735ae2f5230e0deb06e747,
+                0x217e9ff6eeeda73c130fab0fa603f61225e50860e57024fce75d4a6994a884f0,
                 psiPoint,
                 proof
             ),
@@ -57,22 +57,22 @@ contract VerifierTest is Test {
 
     function testVerifier_AccountInit() public view {
         uint256[2] memory pA = [
-            0x09c56aed96e41876d384c7ab9cd29335aef3e262ca54de100edd099c6f48dfe2,
-            0x0ff231bb98f4371bae6405a4935dd59dbfd63b0f5ed22bd28843d832b665ad41
+            0x260162e5d4f1174f10f99fd6f52e8cd2d6fa8d46f21cede71ad8c36910a0c663,
+            0x1a8e5622e6b8491202830e5df6f38b9008c5c3f3ad73ffee3698f8f7b1cd05fe
         ];
         uint256[2][2] memory pB = [
             [
-                0x096510a544f5df10542c9eb7b0e5e9f5da8ae9cc82c96c7d4ba4f638a68d5d75,
-                0x038a28fc9ae89440517e4d7f9892bd1a6d293c6280d1db8c63217185d38dcacf
+                0x030ed667fdf75632ec85576df8f8d3007d495b5dee375e69616ebc6d352819e5,
+                0x0d3f2f8c9232f27b68fd28dc0dda1dc1e4efe072d3203e87e4e7cabecf29fcbf
             ],
             [
-                0x0e683de4acecb70309e80e9660b8db596df8c60ff22cfffd8be99f0fe13d0d1c,
-                0x2e636039c8fd383d6b724e4a65f81029f2eb04212d908732dff299a05c51e8e8
+                0x08a22365700fb07bf7b6e8e2df310f45d7ee1f05adcfff35826db081a1b1a61d,
+                0x29ac833c21c79e0e24480f75581cd69ff1e984415dba59404074b7e1914f0678
             ]
         ];
         uint256[2] memory pC = [
-            0x126f922b00446720ec92a1966691a59606cfbff4cb1853de3d9c3ce319083c23,
-            0x18dabe3e31604d2601f18e7174b8ebb80555d05762bb95ad0a18cfb24873b1f6
+            0x29aee29376de95eb6e96a9f3c9c017bea24a35b945b9a7791243743d53d991ba,
+            0x1c5f3939ed70b71deec5ac151b277f16ed16aae97dce33b1eb2ec5383e8c2400
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
@@ -80,9 +80,9 @@ contract VerifierTest is Test {
                 "gmail.com",
                 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
                 0x0000000000000000000000000000000000000000000000000000000065298ddf,
-                0x29c62c9ffd65f342646caeeebe6b62ecdb96062d4b203b3852a1cbdd8b1109fe,
-                0x061fe8ef6eaa7d1f25c256e8c7ac69af6900f6d99eec1b40b763ff04fbef465c,
-                0x05bfa5728308c74f18ea0126fbb0a5d92fc7b0480dbde536bf98040168de315f,
+                0x0796930f14ad1b325aca059bb26fa26179ff2cd0fa6cd063bda7572886194b1f,
+                0x1665ce2f746c92ddc98c3b0db45a6615793b1afe0192d5d140479c21cae435c3,
+                0x1a72c1328a61e638924582dac6feb46443ba20572a3d91cac2b91a84c738c7ac,
                 0x268bc70efa64d6289086c536bedad66017705a768a7e9114ff4bf0bababb26e6,
                 proof
             ),
@@ -92,22 +92,22 @@ contract VerifierTest is Test {
 
     function testVerifier_AccountTransport() public view {
         uint256[2] memory pA = [
-            0x131a81a99a69f52990a1abc5a8f27457d81a144e788261bcecafe0380fd110c4,
-            0x1840dd019a2e252c3cf9be800a2387caf59e9f863b9b082ba053869e9e2cb99b
+            0x2a0e46ff1f4d6eefc8f6e6a3142480a7f3827fbcc5a89797278f1324befbfc35,
+            0x1dc308920dff6c28a04f3001cb6cc7de05f7649564080a46b806584c60d8057e
         ];
         uint256[2][2] memory pB = [
             [
-                0x159ed1c9e515b9b2df9331b3da6a15132f918229633899412503eb4263e3ec8c,
-                0x044c773c3e11ead1f172ed02046faf717f8a068c4fe9e9d4df51f3aac417d080
+                0x20315c3a8edd6365b031d112197ad3b75636180d6c77ed34e01aff12579981fe,
+                0x03d422941eead7d3e70d0f174d4881c084122aef3b06462c8549b4500bf25a83
             ],
             [
-                0x0cc11c8c9b05f4d9c2ada455c91763fed138bc5f42f3b01608c4bc92cbf1223e,
-                0x06e493b1f75bc3b353d59cc9c6a1ef6ef5affab0726891bc21514cf287193979
+                0x2eefef260826a5530a12a81f75a92dce8264be5159c62ec61bc2fb74ac9d4502,
+                0x2b2b196ecac9bae12528388aaf6f20673b73504ee6d3b2b62c7f69224401c977
             ]
         ];
         uint256[2] memory pC = [
-            0x2f84ef2184ad3befd9a9843fdaef8b8ac70b8b67631ae9e28bb1fac9f9d628c6,
-            0x28389f723197a423bf4535ac67c22ac0fc1c58ac92b3d13cacfeee990dd6a8fc
+            0x037f69cb6a68597312ab4592efd7d916c2deab9ce697cd3ec57176cd3541be60,
+            0x2dbd06d6e5ffb293e756884f26eaaef952d183c47def797ff3248419749563c4
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
@@ -116,10 +116,10 @@ contract VerifierTest is Test {
                 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788,
                 0x0000000000000000000000000000000000000000000000000000000065298ddf,
                 0x268bc70efa64d6289086c536bedad66017705a768a7e9114ff4bf0bababb26e6,
-                0x29c62c9ffd65f342646caeeebe6b62ecdb96062d4b203b3852a1cbdd8b1109fe,
-                0x16620737ea2a3ce070a334cf76e874842e0a2e2cfbc52ebdce72cb614c6bc624,
-                0x05bfa5728308c74f18ea0126fbb0a5d92fc7b0480dbde536bf98040168de315f,
-                0x028b3c9c743d32453c84c27c990b08f3b6b56e21e901151b9414eae5a17ac806,
+                0x0796930f14ad1b325aca059bb26fa26179ff2cd0fa6cd063bda7572886194b1f,
+                0x1a3ce78210397eb208c5f921f20dfa9394cc441776e3deeb0d7179a331a7dd29,
+                0x1a72c1328a61e638924582dac6feb46443ba20572a3d91cac2b91a84c738c7ac,
+                0x2e482e8bab2f3a566f8278e67b74a91cca5259a8cf2f411987b4bfe62619de26,
                 proof
             ),
             "Account transport proof verification failed"
@@ -128,29 +128,29 @@ contract VerifierTest is Test {
 
     function testVerifier_ClaimFund() public view {
         uint256[2] memory pA = [
-            0x15c61dfd4db6f252c9bfc6fb6cbe7a21a3e902d0cd1231147f5b0d54b7ea7e78,
-            0x2d8a674a4b4aac6750e0885d9f569d0df2ece489f85844b0b8eec097e5c9be94
+            0x270164d21f7a359ee6400e60d60edac28738f652b72fcd053ffb326d96a4bb1d,
+            0x0467d07106ea9014c256b23bf2ec4aac3581a14a52612195cf09c5ee2802ec3f
         ];
         uint256[2][2] memory pB = [
             [
-                0x3004c2d2b7ab606a909f552f28a203dd1b605f2101b3a1c5197154c2e274f12e,
-                0x2d4a964777c8ff4cefdfbca28405aab41cb0a50424b3a8cb9171e6a8145a3f7c
+                0x29cbb258c4138535ead7a3a361fe9f72ea5bf92d04063bad0fabaa3bc2f81b2a,
+                0x2feb3d4d40ef40172734b83fe960c134d3111b6f2fd1ecbb9f71bb1c44696ec4
             ],
             [
-                0x246e4aab654b07dba499717762368b28988ff6c81e4d70ad144a471aa5aa9bf8,
-                0x11592e5378fd0a112408e1866888772a4def947416f2370151332525e8f5ffb9
+                0x0462c0f124946fbc5799f9283c527524605fefd67be8ee515ab7af7edc5366a3,
+                0x0e87de99bd7b2863de0e982b8e9550b42e97cbe0c063ff407cd526f5462f0645
             ]
         ];
         uint256[2] memory pC = [
-            0x2e8520bbbd57d34513cf6a94933deb2523770e31c81be64375dca4ce7249e642,
-            0x174797a3e33b4a4ba6940ce01227acd12ca1327587cad7acc55b0a4b503d3c62
+            0x154795b56267a7b44ce4e75adc18182d21a824ec4917b48c958a6057aba40938,
+            0x2df52c049e105fc281f8dd6b7a589039ea4a9f322358393fc710c89d49332bf7
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
             verifier.verifyClaimFundProof(
-                0x29c62c9ffd65f342646caeeebe6b62ecdb96062d4b203b3852a1cbdd8b1109fe,
-                0x061fe8ef6eaa7d1f25c256e8c7ac69af6900f6d99eec1b40b763ff04fbef465c,
-                0x0c7ac0f7f39ad116c8d7424bbbcd215d7ff35b549d27291e5b9c8c12eb796984,
+                0x0796930f14ad1b325aca059bb26fa26179ff2cd0fa6cd063bda7572886194b1f,
+                0x1665ce2f746c92ddc98c3b0db45a6615793b1afe0192d5d140479c21cae435c3,
+                0x0a7f26d0547d1c8ba1ac9bc91dfdb52b2e0361a6990e9ffb0a90c02738e612eb,
                 proof
             ),
             "Claim fund proof verification failed"
@@ -159,22 +159,22 @@ contract VerifierTest is Test {
 
     function testVerifier_EmailSenderProof() public view {
         uint256[2] memory pA = [
-            0x089ad9cc6e6aa2e6a86b748a515d4d4d46e814562f32eca6203a34906c83e3ba,
-            0x111ea5325fee4f7a843e5671774cd55ae77d9ff46e18deea1f527ba340af0f64
+            0x1114225c176fea1d4365722901aea59eeffacd9b754b8d20cbc06d8628d145ef,
+            0x0e437f855823f2a38ca675b2a2d27c32ecc04ac72b5ac8aa97946ae20257d4ff
         ];
         uint256[2][2] memory pB = [
             [
-                0x02c5d28cf18552c85453b1988eabec184468b98f442ba73da08d35a72e6fe850,
-                0x1b660cc943d83a1e1751943877cfb163bc49b013e94d7127a4df1b609e0e940e
+                0x221d505f28dbff0a59baa7e2a92651446e68a7c0926ef75b5d7f8cb56a12ac52,
+                0x2ece94e2e0d2224c85bc78a6fe08d6d7fe766cbd37f558a09d2811e3c6ec4835
             ],
             [
-                0x111c7263f0c9817eca3dafa26a64e31781cdb9f28ab73e8bffd33e8bdcb29e5b,
-                0x0c4ccc9f0bfec10c81c2341f5ebe8264fd64a3328276cf7a960d0b00d4b4cb6e
+                0x1e2a8aaa9bb05b9dc2b03a34f1212b7b0f15e89e9e4707456d2431cccabf7994,
+                0x0c5d73902114ade8e32c59cc47b0388b712c2dda434443566ec4b971d90fd5ba
             ]
         ];
         uint256[2] memory pC = [
-            0x09c79cfcbdbb877e8e3d35332ee022689b738227d3d229ee90e7abfd53875056,
-            0x021157b68dea7be7a12296a7b65a1de114b43bb10be648471768e9e65f22d49c
+            0x0d7ecf32203975e26a4708cf56d3e55b84137be3aa9bdbd1c7538ee4f2a5955e,
+            0x1a406b747cbada94cc0849f296bb384f0691a939b4d8559b33e651d1b18b9397
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
@@ -184,8 +184,8 @@ contract VerifierTest is Test {
                 0x0000000000000000000000000000000000000000000000000000000065077df4,
                 "Send 0.1 ETH to ",
                 0x00a83fce3d4b1c9ef0f600644c1ecc6c8115b57b1596e0e3295e2c5105fbfd8a,
-                0x29c62c9ffd65f342646caeeebe6b62ecdb96062d4b203b3852a1cbdd8b1109fe,
-                0x061fe8ef6eaa7d1f25c256e8c7ac69af6900f6d99eec1b40b763ff04fbef465c,
+                0x0796930f14ad1b325aca059bb26fa26179ff2cd0fa6cd063bda7572886194b1f,
+                0x1665ce2f746c92ddc98c3b0db45a6615793b1afe0192d5d140479c21cae435c3,
                 true,
                 0x1c4df0cda9c4060167d46362872a85eed361b4eec2e148ed5ef30788ce27b32e,
                 proof
@@ -196,29 +196,29 @@ contract VerifierTest is Test {
 
     function testVerifier_Announcement() public view {
         uint256[2] memory pA = [
-            0x26811c26694e3a778e118a3005b41ae6033bbf924bcb97449724cc47606d56cb,
-            0x2d4583d366efca410a72bf929a8b7513b719b6c97f487ad7192b8a11f581a40f
+            0x070fda625542e9868ad7a36cb29a6b654813184a57c1ea1d102d66308fe2605d,
+            0x2f5fc68df2d5ea9b3ba522407fb428874b9a371c4e6d1c33c2283728ca94d6ea
         ];
         uint256[2][2] memory pB = [
             [
-                0x1a1d58816e75a423839f51a75100f0589ad5e7b47bfecb4f4382666e7696e772,
-                0x15384a67cd743ee59e2b26556607db1ece7c3fe570fcc6862b43051bff3d07ab
+                0x06b32882a37b339ef0d5620aef0b853ef2d13cf798729bc5383ffe2eca574502,
+                0x21e821d0b4dc8acb3e8c831764f468383b4b9f4dee161b5f6f6207ad7baa5767
             ],
             [
-                0x1b333dbbe4564fbaf90ec47141e35cdd9272a61038b0c34578eeebe2168a56d4,
-                0x1b2383922ad22fc834e03b04476b426776ee0bd4b3ecb636dd9a07333056db62
+                0x2cf3fb47a2b94c849eb2623e501974085e34fdb193b3d25d86b3a2bad3e4c3cc,
+                0x2c42cae8fcc4501eb2eff5f19b69c370bfb96b827fb4343175eaae5d56127a36
             ]
         ];
         uint256[2] memory pC = [
-            0x070fc365509c8468f255bc5b868ffbc5bb8724dc3979f024fefcb851b1169066,
-            0x1fad99979f555c068c8972e00411fa1749fe6a716860d0848ccafbf99ffcc579
+            0x1dbd4733b624b97f208820b4115906c32c01a0808a7e1d3f0d8d7b2c455211eb,
+            0x14c84f50af2a9cbfb0cfd9be941a03316241b5b3441cdb82a7af947040d30e94
         ];
         bytes memory proof = abi.encode(pA, pB, pC);
         require(
             verifier.verifyAnnouncementProof(
                 "suegamisora@gmail.com",
-                0x12a122dabd5ad76e27c3474d2b6015035b5c684a1ba75b7e41f07c4ad6063c7c,
-                0x0c7ac0f7f39ad116c8d7424bbbcd215d7ff35b549d27291e5b9c8c12eb796984,
+                0x15984bbf2019df84ffa89e17cd965b28ec1af5ed066b156d3cb06e7fadf98deb,
+                0x0a7f26d0547d1c8ba1ac9bc91dfdb52b2e0361a6990e9ffb0a90c02738e612eb,
                 proof
             ),
             "Claim fund proof verification failed"
