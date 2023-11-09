@@ -48,8 +48,7 @@
 #### Tests
 - `tests/*.t.sol` - Contains unit tests for all contracts/functionalities.
 - `tests/Integration.t.sol` - Contains all integration tests. Integration tests generate the proof using the circuit and verify it using contracts. Before running those tests, you need to make a `packages/contracts/test/build_integration` directory, download the zip file from the following link, and place its unziped files under that directory.
-https://drive.google.com/file/d/1qwyksneAArAsuTPC91qTqBDY5nAbP0XH/view?usp=drive_link
-
+https://drive.google.com/file/d/1pe07fwKbtjMLHoQSY8Bcr4rg9aN06mFP/view?usp=sharing
 
 ## Build and Test
 
