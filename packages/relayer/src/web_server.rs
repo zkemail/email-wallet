@@ -35,6 +35,12 @@ struct AccountRegistrationResponse {
     onboard_token_sent: bool,
 }
 
+#[derive(Serialize)]
+struct StatResponse {
+    onboarding_tokens_distributed: u32,
+    onboarding_tokens_left: u32,
+}
+
 async fn unclaim(
     payload: UnclaimRequest,
     db: Arc<Database>,
@@ -187,17 +193,26 @@ pub(crate) async fn run_server(
         )
         .route(
             "/api/onboard",
-            axum::routing::post(move |payload: String| async move {
-                info!("/onboard Received payload: {}", payload);
-                let json = serde_json::from_str::<AccountRegistrationRequest>(&payload)
-                    .map_err(|_| "Invalid payload json".to_string())?;
-
-                onboard(json, db_onboard_clone, chain_client_onboard_clone)
-                    .await
-                    .map_err(|err| {
-                        error!("Failed to onboard: {}", err);
-                        err.to_string()
-                    })
+            axum::routing::post(
+                move |payload: axum::Json<AccountRegistrationRequest>| async move {
+                    onboard(payload.0, db_onboard_clone, chain_client_onboard_clone)
+                        .await
+                        .map_err(|err| {
+                            error!("Failed to onboard: {}", err);
+                            err.to_string()
+                        })
+                },
+            ),
+        )
+        .route(
+            "/api/stats",
+            axum::routing::get(move || async move {
+                let stats = StatResponse {
+                    onboarding_tokens_distributed: ONBOARDING_COUNTER.load(Ordering::SeqCst),
+                    onboarding_tokens_left: *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap()
+                        - ONBOARDING_COUNTER.load(Ordering::SeqCst),
+                };
+                axum::Json(stats)
             }),
         )
         .route(
