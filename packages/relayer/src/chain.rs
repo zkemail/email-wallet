@@ -586,4 +586,27 @@ impl ChainClient {
         // TODO: iteration over relayers
         Ok(vec![])
     }
+
+    pub(crate) async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<bool> {
+        let erc20 = ERC20::new(
+            ONBOARDING_TOKEN_ADDR.get().unwrap().to_owned(),
+            self.client.clone(),
+        );
+        let tx = erc20.transfer(
+            wallet_addr,
+            ONBOARDING_TOKEN_AMOUNT.get().unwrap().to_owned(),
+        );
+        let tx = tx.send().await?;
+
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+
+        Ok(true)
+    }
 }

@@ -45,6 +45,7 @@ use ethers::prelude::*;
 use log::{error, info};
 use std::env;
 use std::path::PathBuf;
+use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
 use tokio::time::{sleep, Duration};
 
@@ -59,6 +60,10 @@ static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
 static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
 static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
 static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
+static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
+static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
+static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
+static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -102,6 +107,15 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     FEE_PER_GAS.set(config.fee_per_gas).unwrap();
     INPUT_FILES_DIR.set(config.input_files_dir).unwrap();
     EMAIL_TEMPLATES.set(config.email_templates).unwrap();
+    ONBOARDING_TOKEN_ADDR
+        .set(config.onboarding_token_addr)
+        .unwrap();
+    ONBOARDING_TOKEN_DISTRIBUTION_LIMIT
+        .set(config.onboarding_token_distribution_limit)
+        .unwrap();
+    ONBOARDING_TOKEN_AMOUNT
+        .set(config.onboarding_token_amount)
+        .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
@@ -151,7 +165,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             email_receiver = new_email_receiver;
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_email_task = tx_sender.clone();
@@ -181,7 +195,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_creator_task = tx_sender.clone();
@@ -205,7 +219,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_claimer_task = tx_sender.clone();
@@ -231,7 +245,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_claimer_for_server_task = tx_claimer.clone();
@@ -257,7 +271,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             email_sender.send_new_email(email).await?;
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_claimer_for_listener_task = tx_claimer.clone();
@@ -317,7 +331,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             from_block_state = last_block + 1;
             sleep(Duration::from_secs(120)).await;
         }
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_voider_task = tx_sender.clone();
@@ -341,7 +355,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             }
             sleep(Duration::from_secs(120)).await;
         }
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let _ = tokio::join!(
