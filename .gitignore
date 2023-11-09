@@ -42,6 +42,9 @@ packages/prover/build/*
 packages/prover/params/*
 packages/prover/__pycache__/*
 
+# Subgraphs
+packages/subgraph/build
+
 # Mac
 .DS_Store
 
@@ -50,4 +53,3 @@ book
 
 # Vs code settings
 .vscode
-
