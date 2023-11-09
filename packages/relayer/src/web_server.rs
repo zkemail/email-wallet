@@ -1,6 +1,7 @@
 use crate::*;
 
-use anyhow::Ok;
+use std::sync::atomic::Ordering;
+
 use axum::Router;
 use log::trace;
 use serde::{Deserialize, Serialize};
@@ -122,14 +123,23 @@ async fn onboard(
 
     info!("Counterfactual wallet address for email: {}", wallet_addr);
 
-    // TODO: Implement distribution limit
-    let onboard_token_sent = chain_client.transfer_onboarding_tokens(wallet_addr).await?;
-
-    Ok(axum::Json(AccountRegistrationResponse {
-        account_key: field2hex(&account_key_commit),
-        wallet_addr: format!("{:?}", wallet_addr),
-        onboard_token_sent,
-    }))
+    let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
+    if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
+        match chain_client.transfer_onboarding_tokens(wallet_addr).await {
+            Ok(onboard_token_sent) => Ok(axum::Json(AccountRegistrationResponse {
+                account_key: field2hex(&account_key_commit),
+                wallet_addr: format!("{:?}", wallet_addr),
+                onboard_token_sent,
+            })),
+            _ => {
+                ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+                bail!("Limit is reached");
+            }
+        }
+    } else {
+        ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+        bail!("Limit is reached");
+    }
 }
 
 pub(crate) async fn run_server(

@@ -45,6 +45,7 @@ use ethers::prelude::*;
 use log::{error, info};
 use std::env;
 use std::path::PathBuf;
+use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
 use tokio::time::{sleep, Duration};
 
@@ -62,6 +63,7 @@ static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
 static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
 static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
 static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
+static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -163,7 +165,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             email_receiver = new_email_receiver;
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_email_task = tx_sender.clone();
@@ -193,7 +195,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_creator_task = tx_sender.clone();
@@ -217,7 +219,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_claimer_task = tx_sender.clone();
@@ -243,7 +245,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_claimer_for_server_task = tx_claimer.clone();
@@ -269,7 +271,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             email_sender.send_new_email(email).await?;
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_claimer_for_listener_task = tx_claimer.clone();
@@ -329,7 +331,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             from_block_state = last_block + 1;
             sleep(Duration::from_secs(120)).await;
         }
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_voider_task = tx_sender.clone();
@@ -353,7 +355,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             }
             sleep(Duration::from_secs(120)).await;
         }
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let _ = tokio::join!(
