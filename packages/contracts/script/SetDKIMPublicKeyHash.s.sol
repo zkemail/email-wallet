@@ -23,14 +23,12 @@ contract Update is Script {
         console.log("selector: %s", selector);
         string memory domainName = vm.envString("DOMAIN_NAME");
         console.log("domainName: %s", domainName);
-        uint256 timestamp = vm.envUint("TIMESTAMP");
-        console.log("timestamp: %s", timestamp);
         bytes32 publicKeyHash = vm.envBytes32("PUBLIC_KEY_HASH");
         console.logBytes32(publicKeyHash);
         bytes memory signature = vm.envBytes("SIGNATURE");
         console.logBytes(signature);
         vm.startBroadcast(deployerPrivateKey);
-        registry.setDKIMPublicKeyHash(selector, domainName, timestamp, publicKeyHash, signature);
+        registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
         vm.stopBroadcast();
     }
 }

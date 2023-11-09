@@ -1,0 +1,980 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "emailAddrCommit",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "extensionAddr",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "state",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiryTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct UnclaimedState",
+          "name": "unclaimedState",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "claimUnclaimedState",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "templateIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "subjectParams",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "hasEmailRecipient",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "recipientETHAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "emailNullifier",
+          "type": "bytes32"
+        }
+      ],
+      "name": "execute",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "templateIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "subjectParams",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "hasEmailRecipient",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "recipientETHAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "emailNullifier",
+          "type": "bytes32"
+        }
+      ],
+      "name": "query",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "querySubjectTemplates",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "emailAddrCommit",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "extensionAddr",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "state",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiryTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct UnclaimedState",
+          "name": "unclaimedState",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bool",
+          "name": "isInternal",
+          "type": "bool"
+        }
+      ],
+      "name": "registerUnclaimedState",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "emailAddrCommit",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "extensionAddr",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "state",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiryTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct UnclaimedState",
+          "name": "unclaimedState",
+          "type": "tuple"
+        }
+      ],
+      "name": "voidUnclaimedState",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "claimUnclaimedState((bytes32,address,address,bytes,uint256),address)": "e05df3ee",
+    "execute(uint8,bytes[],address,bool,address,bytes32)": "e93977e8",
+    "query(uint8,bytes[],address,bool,address,bytes32)": "43494215",
+    "querySubjectTemplates(uint256,uint256)": "62a6e82d",
+    "registerUnclaimedState((bytes32,address,address,bytes,uint256),bool)": "534e4af7",
+    "voidUnclaimedState((bytes32,address,address,bytes,uint256))": "eba8f5b4"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"emailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"extensionAddr\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"state\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"expiryTime\",\"type\":\"uint256\"}],\"internalType\":\"struct UnclaimedState\",\"name\":\"unclaimedState\",\"type\":\"tuple\"},{\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"}],\"name\":\"claimUnclaimedState\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"templateIndex\",\"type\":\"uint8\"},{\"internalType\":\"bytes[]\",\"name\":\"subjectParams\",\"type\":\"bytes[]\"},{\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"hasEmailRecipient\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"recipientETHAddr\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"emailNullifier\",\"type\":\"bytes32\"}],\"name\":\"execute\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"templateIndex\",\"type\":\"uint8\"},{\"internalType\":\"bytes[]\",\"name\":\"subjectParams\",\"type\":\"bytes[]\"},{\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"hasEmailRecipient\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"recipientETHAddr\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"emailNullifier\",\"type\":\"bytes32\"}],\"name\":\"query\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"querySubjectTemplates\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"emailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"extensionAddr\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"state\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"expiryTime\",\"type\":\"uint256\"}],\"internalType\":\"struct UnclaimedState\",\"name\":\"unclaimedState\",\"type\":\"tuple\"},{\"internalType\":\"bool\",\"name\":\"isInternal\",\"type\":\"bool\"}],\"name\":\"registerUnclaimedState\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"emailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"extensionAddr\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"state\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"expiryTime\",\"type\":\"uint256\"}],\"internalType\":\"struct UnclaimedState\",\"name\":\"unclaimedState\",\"type\":\"tuple\"}],\"name\":\"voidUnclaimedState\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"claimUnclaimedState((bytes32,address,address,bytes,uint256),address)\":{\"params\":{\"unclaimedState\":\"Unclaimed state that is being claimed\",\"wallet\":\"Address of users wallet\"}},\"execute(uint8,bytes[],address,bool,address,bytes32)\":{\"details\":\"Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` insteadDecode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)\",\"params\":{\"emailNullifier\":\"Nullifier of the email\",\"hasEmailRecipient\":\"Whether the email subject has a recipient (email address)\",\"recipientETHAddr\":\"The ETH address of the recipient in email (if any, and hasEmailRecipient = false)\",\"subjectParams\":\"Array of params decoded from email subject based on the template, in the same order matchers\",\"templateIndex\":\"Index of the subjectTemplate to which the subject was matched\",\"wallet\":\"Address of users wallet\"}},\"query(uint8,bytes[],address,bool,address,bytes32)\":{\"details\":\"This function is intended to be called from a relayer off-chainDecode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)\",\"params\":{\"emailNullifier\":\"Nullifier of the email\",\"hasEmailRecipient\":\"Whether the email subject has a recipient (email address)\",\"recipientETHAddr\":\"The ETH address of the recipient in email (if any, and hasEmailRecipient = false)\",\"subjectParams\":\"Array of params decoded from email subject based on the template, in the same order matchers\",\"templateIndex\":\"Index of the subjectTemplate to which the subject was matched\",\"wallet\":\"Address of users wallet\"}},\"registerUnclaimedState((bytes32,address,address,bytes,uint256),bool)\":{\"params\":{\"isInternal\":\"A flag whether the unclaimed state is registered from `registerUnclaimedStateAsExtension`.\",\"unclaimedState\":\"Unclaimed state that is registered\"}},\"voidUnclaimedState((bytes32,address,address,bytes,uint256))\":{\"params\":{\"unclaimedState\":\"Unclaimed state that is expired\"}}},\"stateVariables\":{\"querySubjectTemplates\":{\"details\":\"The first word in each template must be a command name.An actual email subject to query on-chain data has a prefix, e.g., \\\"Query:\\\".\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"claimUnclaimedState((bytes32,address,address,bytes,uint256),address)\":{\"notice\":\"Claim an unclaimed state to recipient user\"},\"execute(uint8,bytes[],address,bool,address,bytes32)\":{\"notice\":\"Execute the extension logic\"},\"query(uint8,bytes[],address,bool,address,bytes32)\":{\"notice\":\"Query the on-chain information based on the email subject\"},\"querySubjectTemplates(uint256,uint256)\":{\"notice\":\"Subject template for the query\"},\"registerUnclaimedState((bytes32,address,address,bytes,uint256),bool)\":{\"notice\":\"Register unclaimed state for a recipient emailCommitment\"},\"voidUnclaimedState((bytes32,address,address,bytes,uint256))\":{\"notice\":\"Revert an expired inclaimed state\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/ExtensionQueryable.sol\":\"ExtensionQueryable\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/Extension.sol\":{\"keccak256\":\"0x2652d85f7087b64d6987ad96654a8c8b9a94e9a187ea40e19fdd090d2304658c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b2eded93e515e60aa94c0673b0ddaaf87a4fb90fe2ed2480251081ed2ee552e8\",\"dweb:/ipfs/QmQC1fhz6wQ54LFD8d6kwCUrgcvnkUVPcTerQfPrbjwwg4\"]},\"src/interfaces/ExtensionQueryable.sol\":{\"keccak256\":\"0xdd67947f1c46a33f1a06c7ee90c931639f7922c1a57e106245c90e4ab11eb731\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e0ef57ccfcad82bf5378b988799de6290a537ffb6e6d16578f9da32967dd608e\",\"dweb:/ipfs/QmS8QpdiYEDPQXgrfii9P5WaSe1ENLqW2GaLJqbsCn7W8y\"]},\"src/interfaces/Types.sol\":{\"keccak256\":\"0x2fd969fc0374001912128670c9d18f29a97621f4da9202afc9253367d1b4320c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ab3b14a9bca35a89354e6ade8811fc9af5e2887f5fa589980c0e323e3d285f93\",\"dweb:/ipfs/QmSQ9yzE34wZ3WieQBFmvZdctcE7fow1dnRkBHvqUmy9qU\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "struct UnclaimedState",
+              "name": "unclaimedState",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "emailAddrCommit",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "extensionAddr",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "state",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "expiryTime",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "claimUnclaimedState"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint8",
+              "name": "templateIndex",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "subjectParams",
+              "type": "bytes[]"
+            },
+            {
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "hasEmailRecipient",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "recipientETHAddr",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "emailNullifier",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "execute"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint8",
+              "name": "templateIndex",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "subjectParams",
+              "type": "bytes[]"
+            },
+            {
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "hasEmailRecipient",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "recipientETHAddr",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "emailNullifier",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "query"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "querySubjectTemplates",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct UnclaimedState",
+              "name": "unclaimedState",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "emailAddrCommit",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "extensionAddr",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "state",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "expiryTime",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "bool",
+              "name": "isInternal",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "registerUnclaimedState"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct UnclaimedState",
+              "name": "unclaimedState",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "emailAddrCommit",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "extensionAddr",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "state",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "expiryTime",
+                  "type": "uint256"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "voidUnclaimedState"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "claimUnclaimedState((bytes32,address,address,bytes,uint256),address)": {
+            "params": {
+              "unclaimedState": "Unclaimed state that is being claimed",
+              "wallet": "Address of users wallet"
+            }
+          },
+          "execute(uint8,bytes[],address,bool,address,bytes32)": {
+            "details": "Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` insteadDecode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)",
+            "params": {
+              "emailNullifier": "Nullifier of the email",
+              "hasEmailRecipient": "Whether the email subject has a recipient (email address)",
+              "recipientETHAddr": "The ETH address of the recipient in email (if any, and hasEmailRecipient = false)",
+              "subjectParams": "Array of params decoded from email subject based on the template, in the same order matchers",
+              "templateIndex": "Index of the subjectTemplate to which the subject was matched",
+              "wallet": "Address of users wallet"
+            }
+          },
+          "query(uint8,bytes[],address,bool,address,bytes32)": {
+            "details": "This function is intended to be called from a relayer off-chainDecode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)",
+            "params": {
+              "emailNullifier": "Nullifier of the email",
+              "hasEmailRecipient": "Whether the email subject has a recipient (email address)",
+              "recipientETHAddr": "The ETH address of the recipient in email (if any, and hasEmailRecipient = false)",
+              "subjectParams": "Array of params decoded from email subject based on the template, in the same order matchers",
+              "templateIndex": "Index of the subjectTemplate to which the subject was matched",
+              "wallet": "Address of users wallet"
+            }
+          },
+          "registerUnclaimedState((bytes32,address,address,bytes,uint256),bool)": {
+            "params": {
+              "isInternal": "A flag whether the unclaimed state is registered from `registerUnclaimedStateAsExtension`.",
+              "unclaimedState": "Unclaimed state that is registered"
+            }
+          },
+          "voidUnclaimedState((bytes32,address,address,bytes,uint256))": {
+            "params": {
+              "unclaimedState": "Unclaimed state that is expired"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "claimUnclaimedState((bytes32,address,address,bytes,uint256),address)": {
+            "notice": "Claim an unclaimed state to recipient user"
+          },
+          "execute(uint8,bytes[],address,bool,address,bytes32)": {
+            "notice": "Execute the extension logic"
+          },
+          "query(uint8,bytes[],address,bool,address,bytes32)": {
+            "notice": "Query the on-chain information based on the email subject"
+          },
+          "querySubjectTemplates(uint256,uint256)": {
+            "notice": "Subject template for the query"
+          },
+          "registerUnclaimedState((bytes32,address,address,bytes,uint256),bool)": {
+            "notice": "Register unclaimed state for a recipient emailCommitment"
+          },
+          "voidUnclaimedState((bytes32,address,address,bytes,uint256))": {
+            "notice": "Revert an expired inclaimed state"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@openzeppelin/=../../node_modules/@openzeppelin/",
+        ":@uniswap/=../../node_modules/@uniswap/",
+        ":@zk-email/=../../node_modules/@zk-email/",
+        ":ds-test/=../../node_modules/ds-test/src/",
+        ":forge-std/=../../node_modules/forge-std/src/",
+        ":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        ":solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interfaces/ExtensionQueryable.sol": "ExtensionQueryable"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/interfaces/Extension.sol": {
+        "keccak256": "0x2652d85f7087b64d6987ad96654a8c8b9a94e9a187ea40e19fdd090d2304658c",
+        "urls": [
+          "bzz-raw://b2eded93e515e60aa94c0673b0ddaaf87a4fb90fe2ed2480251081ed2ee552e8",
+          "dweb:/ipfs/QmQC1fhz6wQ54LFD8d6kwCUrgcvnkUVPcTerQfPrbjwwg4"
+        ],
+        "license": "MIT"
+      },
+      "src/interfaces/ExtensionQueryable.sol": {
+        "keccak256": "0xdd67947f1c46a33f1a06c7ee90c931639f7922c1a57e106245c90e4ab11eb731",
+        "urls": [
+          "bzz-raw://e0ef57ccfcad82bf5378b988799de6290a537ffb6e6d16578f9da32967dd608e",
+          "dweb:/ipfs/QmS8QpdiYEDPQXgrfii9P5WaSe1ENLqW2GaLJqbsCn7W8y"
+        ],
+        "license": "MIT"
+      },
+      "src/interfaces/Types.sol": {
+        "keccak256": "0x2fd969fc0374001912128670c9d18f29a97621f4da9202afc9253367d1b4320c",
+        "urls": [
+          "bzz-raw://ab3b14a9bca35a89354e6ade8811fc9af5e2887f5fa589980c0e323e3d285f93",
+          "dweb:/ipfs/QmSQ9yzE34wZ3WieQBFmvZdctcE7fow1dnRkBHvqUmy9qU"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/interfaces/ExtensionQueryable.sol",
+    "id": 65846,
+    "exportedSymbols": {
+      "AccountKeyInfo": [
+        66057
+      ],
+      "EmailOp": [
+        66012
+      ],
+      "EmailProof": [
+        66066
+      ],
+      "ExecutionContext": [
+        66086
+      ],
+      "Extension": [
+        65817
+      ],
+      "ExtensionManagerParams": [
+        66020
+      ],
+      "ExtensionParams": [
+        66026
+      ],
+      "ExtensionQueryable": [
+        65845
+      ],
+      "RelayerConfig": [
+        65972
+      ],
+      "TokenAllowance": [
+        66071
+      ],
+      "UnclaimedFund": [
+        66037
+      ],
+      "UnclaimedState": [
+        66048
+      ],
+      "WalletParams": [
+        66017
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "0:1388:112",
+    "nodes": [
+      {
+        "id": 65819,
+        "nodeType": "ImportDirective",
+        "src": "0:25:112",
+        "nodes": [],
+        "absolutePath": "src/interfaces/Extension.sol",
+        "file": "./Extension.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 65846,
+        "sourceUnit": 65818,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 65820,
+        "nodeType": "PragmaDirective",
+        "src": "58:23:112",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".9"
+        ]
+      },
+      {
+        "id": 65845,
+        "nodeType": "ContractDefinition",
+        "src": "83:1304:112",
+        "nodes": [
+          {
+            "id": 65827,
+            "nodeType": "VariableDeclaration",
+            "src": "337:39:112",
+            "nodes": [],
+            "constant": false,
+            "documentation": {
+              "id": 65823,
+              "nodeType": "StructuredDocumentation",
+              "src": "139:193:112",
+              "text": "Subject template for the query\n @dev The first word in each template must be a command name.\n @dev An actual email subject to query on-chain data has a prefix, e.g., \"Query:\"."
+            },
+            "functionSelector": "62a6e82d",
+            "mutability": "mutable",
+            "name": "querySubjectTemplates",
+            "nameLocation": "355:21:112",
+            "scope": 65845,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_array$_t_string_storage_$dyn_storage_$dyn_storage",
+              "typeString": "string[][]"
+            },
+            "typeName": {
+              "baseType": {
+                "baseType": {
+                  "id": 65824,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "337:6:112",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "id": 65825,
+                "nodeType": "ArrayTypeName",
+                "src": "337:8:112",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_string_storage_$dyn_storage_ptr",
+                  "typeString": "string[]"
+                }
+              },
+              "id": 65826,
+              "nodeType": "ArrayTypeName",
+              "src": "337:10:112",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_array$_t_string_storage_$dyn_storage_$dyn_storage_ptr",
+                "typeString": "string[][]"
+              }
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 65844,
+            "nodeType": "FunctionDefinition",
+            "src": "1153:232:112",
+            "nodes": [],
+            "documentation": {
+              "id": 65828,
+              "nodeType": "StructuredDocumentation",
+              "src": "383:765:112",
+              "text": "Query the on-chain information based on the email subject\n @param templateIndex Index of the subjectTemplate to which the subject was matched\n @param subjectParams Array of params decoded from email subject based on the template, in the same order matchers\n @param wallet Address of users wallet\n @param hasEmailRecipient Whether the email subject has a recipient (email address)\n @param recipientETHAddr The ETH address of the recipient in email (if any, and hasEmailRecipient = false)\n @param emailNullifier Nullifier of the email\n @dev This function is intended to be called from a relayer off-chain\n @dev Decode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)"
+            },
+            "functionSelector": "43494215",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "query",
+            "nameLocation": "1162:5:112",
+            "parameters": {
+              "id": 65842,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 65830,
+                  "mutability": "mutable",
+                  "name": "templateIndex",
+                  "nameLocation": "1183:13:112",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 65844,
+                  "src": "1177:19:112",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  },
+                  "typeName": {
+                    "id": 65829,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1177:5:112",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 65833,
+                  "mutability": "mutable",
+                  "name": "subjectParams",
+                  "nameLocation": "1221:13:112",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 65844,
+                  "src": "1206:28:112",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bytes_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "bytes[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 65831,
+                      "name": "bytes",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1206:5:112",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes_storage_ptr",
+                        "typeString": "bytes"
+                      }
+                    },
+                    "id": 65832,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1206:7:112",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bytes_storage_$dyn_storage_ptr",
+                      "typeString": "bytes[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 65835,
+                  "mutability": "mutable",
+                  "name": "wallet",
+                  "nameLocation": "1252:6:112",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 65844,
+                  "src": "1244:14:112",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 65834,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1244:7:112",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 65837,
+                  "mutability": "mutable",
+                  "name": "hasEmailRecipient",
+                  "nameLocation": "1273:17:112",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 65844,
+                  "src": "1268:22:112",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 65836,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1268:4:112",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 65839,
+                  "mutability": "mutable",
+                  "name": "recipientETHAddr",
+                  "nameLocation": "1308:16:112",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 65844,
+                  "src": "1300:24:112",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 65838,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1300:7:112",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 65841,
+                  "mutability": "mutable",
+                  "name": "emailNullifier",
+                  "nameLocation": "1342:14:112",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 65844,
+                  "src": "1334:22:112",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 65840,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1334:7:112",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1167:195:112"
+            },
+            "returnParameters": {
+              "id": 65843,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1384:0:112"
+            },
+            "scope": 65845,
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "external"
+          }
+        ],
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 65821,
+              "name": "Extension",
+              "nameLocations": [
+                "123:9:112"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 65817,
+              "src": "123:9:112"
+            },
+            "id": 65822,
+            "nodeType": "InheritanceSpecifier",
+            "src": "123:9:112"
+          }
+        ],
+        "canonicalName": "ExtensionQueryable",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          65845,
+          65817
+        ],
+        "name": "ExtensionQueryable",
+        "nameLocation": "101:18:112",
+        "scope": 65846,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 112
+}
