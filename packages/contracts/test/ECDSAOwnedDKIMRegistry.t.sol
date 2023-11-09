@@ -128,23 +128,20 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
     }
 
-    // function test_Dfinity_Oracle_Response() public {
-    //     vm.chainId(1);
-    //     registry = new ECDSAOwnedDKIMRegistry(0x2F6e79a6E1a982a49CA248B70b02F76e921aF400, signValidityDuration);
-    //     selector = "20230601";
-    //     domainName = "gmail.com";
-    //     publicKeyHash = 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
-    //     uint timestamp = 1697948713;
-    //     vm.warp(timestamp + signValidityDuration);
-    //     registry.setDKIMPublicKeyHash(
-    //         selector,
-    //         domainName,
-    //         timestamp,
-    //         publicKeyHash,
-    //         vm.parseBytes(
-    //             "0x875fae3da3e58a97971663934b3ddafd4057706ddb7281de07d25d51e3587c3b179c4fcc45b6710bacde082933d22e69076f4b49da02273ee30a3cc5d04febe81c"
-    //         )
-    //     );
-    //     require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
-    // }
+    function test_Dfinity_Oracle_Response() public {
+        vm.chainId(1);
+        registry = new ECDSAOwnedDKIMRegistry(0x2F6e79a6E1a982a49CA248B70b02F76e921aF400);
+        selector = "20230601";
+        domainName = "gmail.com";
+        publicKeyHash = 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
+        registry.setDKIMPublicKeyHash(
+            selector,
+            domainName,
+            publicKeyHash,
+            vm.parseBytes(
+                "0x39473ba3651237ac631a099ee737aa062f8bd14c8ee22c785452d50f977d5b4477c352187fa427a3d9ab5cf6b2c37b49670018523a4de753406fe442bef720ef1b"
+            )
+        );
+        require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
+    }
 }
