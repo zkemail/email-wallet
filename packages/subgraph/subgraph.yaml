@@ -1,0 +1,48 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  # - kind: ethereum
+  #   name: EmailWalletCore
+  #   network: arbitrum-one
+  #   source:
+  #     address: "0xAE923D216740e3aA0738DB5276A82D41b739339A"
+  #     abi: EmailWalletCore
+  #     startBlock: 147665651
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - EmailOpHandled
+  #     abis:
+  #       - name: EmailWalletCore
+  #         file: ./abis/EmailWalletCore.json
+  #     eventHandlers:
+  #       - event: EmailOpHandled(indexed bool,indexed uint256,indexed
+  #           bytes32,bytes32,bytes32,address,bytes)
+  #         handler: handleEmailOpHandled
+  #     file: ./src/email-wallet-core.ts
+  - kind: ethereum
+    name: RelayerHandler
+    network: arbitrum-one
+    source:
+      address: "0x49abA0A2648d25364dF1215E812a9F97Ef358459"
+      abi: RelayerHandler
+      startBlock: 147665531
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RelayerConfigUpdated
+        - RelayerRegistered
+      abis:
+        - name: RelayerHandler
+          file: ./abis/RelayerHandler.json
+      eventHandlers:
+        - event: RelayerConfigUpdated(indexed address,string)
+          handler: handleRelayerConfigUpdated
+        - event: RelayerRegistered(indexed address,bytes32,string,string)
+          handler: handleRelayerRegistered
+      file: ./src/relayer-handler.ts
