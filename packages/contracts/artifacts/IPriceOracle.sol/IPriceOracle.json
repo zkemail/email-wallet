@@ -125,17 +125,17 @@
   },
   "ast": {
     "absolutePath": "src/interfaces/IPriceOracle.sol",
-    "id": 69024,
+    "id": 68954,
     "exportedSymbols": {
       "IPriceOracle": [
-        69023
+        68953
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:295:138",
     "nodes": [
       {
-        "id": 69014,
+        "id": 68944,
         "nodeType": "PragmaDirective",
         "src": "32:24:138",
         "nodes": [],
@@ -147,17 +147,17 @@
         ]
       },
       {
-        "id": 69023,
+        "id": 68953,
         "nodeType": "ContractDefinition",
         "src": "58:268:138",
         "nodes": [
           {
-            "id": 69022,
+            "id": 68952,
             "nodeType": "FunctionDefinition",
             "src": "248:76:138",
             "nodes": [],
             "documentation": {
-              "id": 69015,
+              "id": 68945,
               "nodeType": "StructuredDocumentation",
               "src": "87:156:138",
               "text": "@notice Get the recent price of a token against ETH/WETH\n @param token Address of the ERC20 token\n @return price Price of the token in wei"
@@ -169,17 +169,17 @@
             "name": "getRecentPriceInETH",
             "nameLocation": "257:19:138",
             "parameters": {
-              "id": 69018,
+              "id": 68948,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 69017,
+                  "id": 68947,
                   "mutability": "mutable",
                   "name": "token",
                   "nameLocation": "285:5:138",
                   "nodeType": "VariableDeclaration",
-                  "scope": 69022,
+                  "scope": 68952,
                   "src": "277:13:138",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -188,7 +188,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 69016,
+                    "id": 68946,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "277:7:138",
@@ -204,17 +204,17 @@
               "src": "276:15:138"
             },
             "returnParameters": {
-              "id": 69021,
+              "id": 68951,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 69020,
+                  "id": 68950,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 69022,
+                  "scope": 68952,
                   "src": "315:7:138",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -223,7 +223,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 69019,
+                    "id": 68949,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "315:7:138",
@@ -237,7 +237,7 @@
               ],
               "src": "314:9:138"
             },
-            "scope": 69023,
+            "scope": 68953,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -250,11 +250,11 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          69023
+          68953
         ],
         "name": "IPriceOracle",
         "nameLocation": "68:12:138",
-        "scope": 69024,
+        "scope": 68954,
         "usedErrors": [],
         "usedEvents": []
       }

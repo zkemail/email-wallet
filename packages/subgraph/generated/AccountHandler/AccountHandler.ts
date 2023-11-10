@@ -90,6 +90,10 @@ export class AccountTransported__Params {
   get newAccountKeyCommit(): Bytes {
     return this._event.parameters[2].value.toBytes();
   }
+
+  get newPSIPoint(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
 }
 
 export class OwnershipTransferred extends ethereum.Event {

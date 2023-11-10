@@ -281,22 +281,22 @@
         362
       ],
       "ERC1967Upgrade": [
-        101727
+        101848
       ],
       "IBeacon": [
-        134815
+        134936
       ],
       "IERC1822Proxiable": [
-        101789
+        101910
       ],
       "IERC1967": [
-        134805
+        134926
       ],
       "Proxy": [
-        101779
+        101900
       ],
       "StorageSlot": [
-        134925
+        135046
       ]
     },
     "nodeType": "SourceUnit",
@@ -323,7 +323,7 @@
         "file": "../Proxy.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 363,
-        "sourceUnit": 101780,
+        "sourceUnit": 101901,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -336,7 +336,7 @@
         "file": "./ERC1967Upgrade.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 363,
-        "sourceUnit": 101728,
+        "sourceUnit": 101849,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -419,7 +419,7 @@
                       "name": "_upgradeToAndCall",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 101522,
+                      "referencedDeclaration": 101643,
                       "src": "1024:17:8",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -553,10 +553,10 @@
                         "name": "ERC1967Upgrade",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 101727,
+                        "referencedDeclaration": 101848,
                         "src": "1246:14:8",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_ERC1967Upgrade_$101727_$",
+                          "typeIdentifier": "t_type$_t_contract$_ERC1967Upgrade_$101848_$",
                           "typeString": "type(contract ERC1967Upgrade)"
                         }
                       },
@@ -568,7 +568,7 @@
                       "memberLocation": "1261:18:8",
                       "memberName": "_getImplementation",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 101453,
+                      "referencedDeclaration": 101574,
                       "src": "1246:33:8",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
@@ -599,7 +599,7 @@
               ]
             },
             "baseFunctions": [
-              101744
+              101865
             ],
             "documentation": {
               "id": 350,
@@ -675,7 +675,7 @@
                 "592:5:8"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 101779,
+              "referencedDeclaration": 101900,
               "src": "592:5:8"
             },
             "id": 332,
@@ -690,7 +690,7 @@
                 "599:14:8"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 101727,
+              "referencedDeclaration": 101848,
               "src": "599:14:8"
             },
             "id": 334,
@@ -710,18 +710,18 @@
         "fullyImplemented": true,
         "linearizedBaseContracts": [
           362,
-          101727,
-          134805,
-          101779
+          101848,
+          134926,
+          101900
         ],
         "name": "ERC1967Proxy",
         "nameLocation": "576:12:8",
         "scope": 363,
         "usedErrors": [],
         "usedEvents": [
-          134792,
-          134799,
-          134804
+          134913,
+          134920,
+          134925
         ]
       }
     ],

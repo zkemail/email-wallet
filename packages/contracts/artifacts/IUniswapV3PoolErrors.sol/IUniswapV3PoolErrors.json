@@ -72,7 +72,7 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AI\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IIA\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LOK\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLM\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLU\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TUM\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Errors emitted by a pool\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contains all events emitted by the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/magamedrasul/projects/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":\"IUniswapV3PoolErrors\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/home/magamedrasul/projects/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":{\"keccak256\":\"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa\",\"dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AI\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IIA\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LOK\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLM\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLU\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TUM\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Errors emitted by a pool\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contains all events emitted by the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":\"IUniswapV3PoolErrors\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":{\"keccak256\":\"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa\",\"dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.21+commit.d9974bed"
@@ -174,12 +174,12 @@
         "bytecodeHash": "ipfs"
       },
       "compilationTarget": {
-        "/home/magamedrasul/projects/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": "IUniswapV3PoolErrors"
+        "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": "IUniswapV3PoolErrors"
       },
       "libraries": {}
     },
     "sources": {
-      "/home/magamedrasul/projects/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": {
+      "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": {
         "keccak256": "0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b",
         "urls": [
           "bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa",
@@ -191,18 +191,18 @@
     "version": 1
   },
   "ast": {
-    "absolutePath": "/home/magamedrasul/projects/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-    "id": 20205,
+    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+    "id": 20162,
     "exportedSymbols": {
       "IUniswapV3PoolErrors": [
-        20204
+        20161
       ]
     },
     "nodeType": "SourceUnit",
     "src": "45:345:95",
     "nodes": [
       {
-        "id": 20178,
+        "id": 20135,
         "nodeType": "PragmaDirective",
         "src": "45:24:95",
         "nodes": [],
@@ -214,12 +214,12 @@
         ]
       },
       {
-        "id": 20204,
+        "id": 20161,
         "nodeType": "ContractDefinition",
         "src": "159:230:95",
         "nodes": [
           {
-            "id": 20181,
+            "id": 20138,
             "nodeType": "ErrorDefinition",
             "src": "196:12:95",
             "nodes": [],
@@ -227,14 +227,14 @@
             "name": "LOK",
             "nameLocation": "202:3:95",
             "parameters": {
-              "id": 20180,
+              "id": 20137,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "205:2:95"
             }
           },
           {
-            "id": 20183,
+            "id": 20140,
             "nodeType": "ErrorDefinition",
             "src": "213:12:95",
             "nodes": [],
@@ -242,14 +242,14 @@
             "name": "TLU",
             "nameLocation": "219:3:95",
             "parameters": {
-              "id": 20182,
+              "id": 20139,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "222:2:95"
             }
           },
           {
-            "id": 20185,
+            "id": 20142,
             "nodeType": "ErrorDefinition",
             "src": "230:12:95",
             "nodes": [],
@@ -257,14 +257,14 @@
             "name": "TLM",
             "nameLocation": "236:3:95",
             "parameters": {
-              "id": 20184,
+              "id": 20141,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "239:2:95"
             }
           },
           {
-            "id": 20187,
+            "id": 20144,
             "nodeType": "ErrorDefinition",
             "src": "247:12:95",
             "nodes": [],
@@ -272,14 +272,14 @@
             "name": "TUM",
             "nameLocation": "253:3:95",
             "parameters": {
-              "id": 20186,
+              "id": 20143,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "256:2:95"
             }
           },
           {
-            "id": 20189,
+            "id": 20146,
             "nodeType": "ErrorDefinition",
             "src": "264:11:95",
             "nodes": [],
@@ -287,14 +287,14 @@
             "name": "AI",
             "nameLocation": "270:2:95",
             "parameters": {
-              "id": 20188,
+              "id": 20145,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "272:2:95"
             }
           },
           {
-            "id": 20191,
+            "id": 20148,
             "nodeType": "ErrorDefinition",
             "src": "280:11:95",
             "nodes": [],
@@ -302,14 +302,14 @@
             "name": "M0",
             "nameLocation": "286:2:95",
             "parameters": {
-              "id": 20190,
+              "id": 20147,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "288:2:95"
             }
           },
           {
-            "id": 20193,
+            "id": 20150,
             "nodeType": "ErrorDefinition",
             "src": "296:11:95",
             "nodes": [],
@@ -317,14 +317,14 @@
             "name": "M1",
             "nameLocation": "302:2:95",
             "parameters": {
-              "id": 20192,
+              "id": 20149,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "304:2:95"
             }
           },
           {
-            "id": 20195,
+            "id": 20152,
             "nodeType": "ErrorDefinition",
             "src": "312:11:95",
             "nodes": [],
@@ -332,14 +332,14 @@
             "name": "AS",
             "nameLocation": "318:2:95",
             "parameters": {
-              "id": 20194,
+              "id": 20151,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "320:2:95"
             }
           },
           {
-            "id": 20197,
+            "id": 20154,
             "nodeType": "ErrorDefinition",
             "src": "328:12:95",
             "nodes": [],
@@ -347,14 +347,14 @@
             "name": "IIA",
             "nameLocation": "334:3:95",
             "parameters": {
-              "id": 20196,
+              "id": 20153,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "337:2:95"
             }
           },
           {
-            "id": 20199,
+            "id": 20156,
             "nodeType": "ErrorDefinition",
             "src": "345:10:95",
             "nodes": [],
@@ -362,14 +362,14 @@
             "name": "L",
             "nameLocation": "351:1:95",
             "parameters": {
-              "id": 20198,
+              "id": 20155,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "352:2:95"
             }
           },
           {
-            "id": 20201,
+            "id": 20158,
             "nodeType": "ErrorDefinition",
             "src": "360:11:95",
             "nodes": [],
@@ -377,14 +377,14 @@
             "name": "F0",
             "nameLocation": "366:2:95",
             "parameters": {
-              "id": 20200,
+              "id": 20157,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "368:2:95"
             }
           },
           {
-            "id": 20203,
+            "id": 20160,
             "nodeType": "ErrorDefinition",
             "src": "376:11:95",
             "nodes": [],
@@ -392,7 +392,7 @@
             "name": "F1",
             "nameLocation": "382:2:95",
             "parameters": {
-              "id": 20202,
+              "id": 20159,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "384:2:95"
@@ -405,31 +405,31 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 20179,
+          "id": 20136,
           "nodeType": "StructuredDocumentation",
           "src": "71:88:95",
           "text": "@title Errors emitted by a pool\n @notice Contains all events emitted by the pool"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          20204
+          20161
         ],
         "name": "IUniswapV3PoolErrors",
         "nameLocation": "169:20:95",
-        "scope": 20205,
+        "scope": 20162,
         "usedErrors": [
-          20181,
-          20183,
-          20185,
-          20187,
-          20189,
-          20191,
-          20193,
-          20195,
-          20197,
-          20199,
-          20201,
-          20203
+          20138,
+          20140,
+          20142,
+          20144,
+          20146,
+          20148,
+          20150,
+          20152,
+          20154,
+          20156,
+          20158,
+          20160
         ],
         "usedEvents": []
       }

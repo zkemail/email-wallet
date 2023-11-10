@@ -318,19 +318,19 @@
         3036
       ],
       "ERC1967Upgrade": [
-        101727
+        101848
       ],
       "IBeacon": [
-        134815
+        134936
       ],
       "IERC1822Proxiable": [
-        101789
+        101910
       ],
       "IERC1967": [
-        134805
+        134926
       ],
       "StorageSlot": [
-        134925
+        135046
       ],
       "UUPSUpgradeable": [
         478
@@ -360,7 +360,7 @@
         "file": "../../interfaces/draft-IERC1822.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 479,
-        "sourceUnit": 101790,
+        "sourceUnit": 101911,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -373,7 +373,7 @@
         "file": "../ERC1967/ERC1967Upgrade.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 479,
-        "sourceUnit": 101728,
+        "sourceUnit": 101849,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -658,7 +658,7 @@
                             "name": "_getImplementation",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 101453,
+                            "referencedDeclaration": 101574,
                             "src": "1727:18:12",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
@@ -991,7 +991,7 @@
                     "name": "_IMPLEMENTATION_SLOT",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 101440,
+                    "referencedDeclaration": 101561,
                     "src": "2866:20:12",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
@@ -1006,7 +1006,7 @@
               ]
             },
             "baseFunctions": [
-              101788
+              101909
             ],
             "documentation": {
               "id": 417,
@@ -1268,7 +1268,7 @@
                       "name": "_upgradeToAndCallUUPS",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 101575,
+                      "referencedDeclaration": 101696,
                       "src": "3270:21:12",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -1500,7 +1500,7 @@
                       "name": "_upgradeToAndCallUUPS",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 101575,
+                      "referencedDeclaration": 101696,
                       "src": "3818:21:12",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -1704,7 +1704,7 @@
                 "913:17:12"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 101789,
+              "referencedDeclaration": 101910,
               "src": "913:17:12"
             },
             "id": 369,
@@ -1719,7 +1719,7 @@
                 "932:14:12"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 101727,
+              "referencedDeclaration": 101848,
               "src": "932:14:12"
             },
             "id": 371,
@@ -1739,18 +1739,18 @@
         "fullyImplemented": false,
         "linearizedBaseContracts": [
           478,
-          101727,
-          134805,
-          101789
+          101848,
+          134926,
+          101910
         ],
         "name": "UUPSUpgradeable",
         "nameLocation": "894:15:12",
         "scope": 479,
         "usedErrors": [],
         "usedEvents": [
-          134792,
-          134799,
-          134804
+          134913,
+          134920,
+          134925
         ]
       }
     ],
