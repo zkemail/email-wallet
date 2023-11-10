@@ -58,3 +58,26 @@ type UnclaimedState @entity {
   claimedAt: BigInt!
   voidedAt: BigInt!
 }
+
+type EmailOp @entity(immutable: true) {
+  id: Bytes!
+  success: Boolean! # bool
+  emailAddrPointer: Bytes! # bytes32
+  hasRecipient: Boolean! # bool
+  hasEmailRecipient: Boolean! # bool
+  registeredUnclaimId: BigInt! # uint256
+  emailNullifier: Bytes! # bytes32
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+  createdAt: BigInt!
+}
+
+type Extension @entity(immutable: true) {
+  id: Bytes!
+  name: String! # string
+  extensionAddr: Bytes! # address
+  subjectTemplates: [[String!]!]! # string[][]
+  maxExecutionGas: BigInt! # uint256
+  createdAt: BigInt!
+  createdBy: Bytes! # address
+}
