@@ -1,0 +1,405 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayerHandler",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_defaultDkimRegistry",
+        "type": "address"
+      },
+      { "internalType": "address", "name": "_verifier", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_walletImplementation",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_emailValidityDuration",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "emailAddrPointer",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "accountKeyCommit",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "walletSalt",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "psiPoint",
+        "type": "bytes"
+      }
+    ],
+    "name": "AccountCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "emailAddrPointer",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "accountKeyCommit",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "walletSalt",
+        "type": "bytes32"
+      }
+    ],
+    "name": "AccountInitialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "oldAccountKeyCommit",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "newEmailAddrPointer",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "newAccountKeyCommit",
+        "type": "bytes32"
+      }
+    ],
+    "name": "AccountTransported",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "accountKeyCommitOfPointer",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "emailAddrPointer",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "accountKeyCommit",
+        "type": "bytes32"
+      },
+      { "internalType": "bytes32", "name": "walletSalt", "type": "bytes32" },
+      { "internalType": "bytes", "name": "psiPoint", "type": "bytes" },
+      { "internalType": "bytes", "name": "proof", "type": "bytes" }
+    ],
+    "name": "createAccount",
+    "outputs": [
+      { "internalType": "contract Wallet", "name": "wallet", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "defaultDkimRegistry",
+    "outputs": [
+      {
+        "internalType": "contract IDKIMRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "dkimRegistryOfWalletSalt",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "emailNullifiers",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "emailValidityDuration",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "accountKeyCommit",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getInfoOfAccountKeyCommit",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "relayer", "type": "address" },
+          { "internalType": "bool", "name": "initialized", "type": "bool" },
+          { "internalType": "bytes32", "name": "walletSalt", "type": "bytes32" }
+        ],
+        "internalType": "struct AccountKeyInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "emailAddrPointer",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getWalletOfEmailAddrPointer",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "salt", "type": "bytes32" }
+    ],
+    "name": "getWalletOfSalt",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "infoOfAccountKeyCommit",
+    "outputs": [
+      { "internalType": "address", "name": "relayer", "type": "address" },
+      { "internalType": "bool", "name": "initialized", "type": "bool" },
+      { "internalType": "bytes32", "name": "walletSalt", "type": "bytes32" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "emailAddrPointer",
+        "type": "bytes32"
+      },
+      { "internalType": "string", "name": "emailDomain", "type": "string" },
+      {
+        "internalType": "uint256",
+        "name": "emailTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "emailNullifier",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "dkimPublicKeyHash",
+        "type": "bytes32"
+      },
+      { "internalType": "bytes", "name": "proof", "type": "bytes" }
+    ],
+    "name": "initializeAccount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "walletSalt", "type": "bytes32" },
+      { "internalType": "string", "name": "emailDomain", "type": "string" },
+      { "internalType": "bytes32", "name": "publicKeyHash", "type": "bytes32" }
+    ],
+    "name": "isDKIMPublicKeyHashValid",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }],
+    "name": "pointerOfPSIPoint",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "relayerHandler",
+    "outputs": [
+      {
+        "internalType": "contract RelayerHandler",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "oldAccountKeyCommit",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "newEmailAddrPointer",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "newAccountKeyCommit",
+        "type": "bytes32"
+      },
+      { "internalType": "bytes", "name": "newPSIPoint", "type": "bytes" },
+      {
+        "components": [
+          { "internalType": "string", "name": "domain", "type": "string" },
+          { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+          { "internalType": "bytes32", "name": "nullifier", "type": "bytes32" },
+          {
+            "internalType": "bytes32",
+            "name": "dkimPublicKeyHash",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes", "name": "proof", "type": "bytes" }
+        ],
+        "internalType": "struct EmailProof",
+        "name": "transportEmailProof",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "accountCreationProof",
+        "type": "bytes"
+      }
+    ],
+    "name": "transportAccount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "walletSalt", "type": "bytes32" },
+      { "internalType": "address", "name": "dkimRegistry", "type": "address" }
+    ],
+    "name": "updateDKIMRegistryOfWalletSalt",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "verifier",
+    "outputs": [
+      { "internalType": "contract IVerifier", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "walletImplementation",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
