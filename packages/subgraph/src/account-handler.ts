@@ -36,7 +36,7 @@ export function handleAccountInitialized(event: AccountInitializedEvent): void {
     }
 
     relayerAccount.isInitialized = true;
-    relayerAccount.updatedAt = event.block.timestamp;
+    relayerAccount.initializedAt = event.block.timestamp;
     relayerAccount.save();
 }
 
@@ -53,5 +53,6 @@ export function handleAccountTransported(event: AccountTransportedEvent): void {
     newRelayerAccount.account = oldRelayerAccount.account;
     newRelayerAccount.relayer = event.transaction.from;
     newRelayerAccount.isInitialized = true;
+    newRelayerAccount.initializedAt = event.block.timestamp;
     newRelayerAccount.save();
 }

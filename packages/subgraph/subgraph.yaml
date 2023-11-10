@@ -51,3 +51,43 @@ dataSources:
         - event: AccountTransported(bytes32,bytes32,bytes32,bytes)
           handler: handleAccountTransported
       file: ./src/account-handler.ts
+  - kind: ethereum
+    name: UnclaimsHandler
+    network: arbitrum-one
+    source:
+      address: "0xB16ea3758e82792f568f5241c890125CC5898c96"
+      abi: UnclaimsHandler
+      startBlock: 147665621
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - UnclaimedFundClaimed
+        - UnclaimedFundRegistered
+        - UnclaimedFundVoided
+        - UnclaimedStateClaimed
+        - UnclaimedStateRegistered
+        - UnclaimedStateVoided
+      abis:
+        - name: UnclaimsHandler
+          file: ./abis/UnclaimsHandler.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: UnclaimedFundClaimed(indexed uint256,indexed bytes32,address,uint256,address)
+          handler: handleUnclaimedFundClaimed
+        - event: UnclaimedFundRegistered(indexed uint256,indexed
+            bytes32,address,uint256,address,uint256,uint256,string)
+          handler: handleUnclaimedFundRegistered
+        - event: UnclaimedFundVoided(indexed uint256,indexed bytes32,address,uint256,address)
+          handler: handleUnclaimedFundVoided
+        - event: UnclaimedStateClaimed(indexed uint256,indexed bytes32,address)
+          handler: handleUnclaimedStateClaimed
+        - event: UnclaimedStateRegistered(indexed uint256,indexed
+            bytes32,address,address,uint256,bytes,uint256,string)
+          handler: handleUnclaimedStateRegistered
+        - event: UnclaimedStateVoided(indexed uint256,indexed bytes32,address)
+          handler: handleUnclaimedStateVoided
+      file: ./src/unclaims-handler.ts

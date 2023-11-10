@@ -18,7 +18,7 @@ type RelayerAccount @entity {
   psiPoint: Bytes! # bytes
   isInitialized: Boolean!
   createdAt: BigInt!
-  updatedAt: BigInt!
+  initializedAt: BigInt!
 }
 
 type Account @entity {
@@ -28,10 +28,33 @@ type Account @entity {
   walletAddr: Bytes! # address
   createdAt: BigInt!
 }
-type AccountCreation @entity(immutable: true) {
-  id: Bytes!
-  emailAddrPointer: Bytes! # bytes32
-  accountKeyCommit: Bytes! # bytes32
-  walletSalt: Bytes! # bytes32
-  psiPoint: Bytes! # bytes
+
+type UnclaimedFund @entity {
+  id: String!
+  emailAddrCommit: Bytes! # bytes32
+  tokenAddr: Bytes! # address
+  amount: BigInt! # uint256
+  sender: Bytes! # address
+  expiryTime: BigInt! # uint256
+  commitmentRandomness: BigInt! # uint256
+  emailAddr: String! # string
+  recipient: Bytes! # address
+  createdAt: BigInt!
+  claimedAt: BigInt!
+  voidedAt: BigInt!
+}
+
+type UnclaimedState @entity {
+  id: String!
+  emailAddrCommit: Bytes! # bytes32
+  extensionAddr: Bytes! # address
+  sender: Bytes! # address
+  expiryTime: BigInt! # uint256
+  state: Bytes! # bytes
+  commitmentRandomness: BigInt! # uint256
+  emailAddr: String! # string
+  recipient: Bytes! # address
+  createdAt: BigInt!
+  claimedAt: BigInt!
+  voidedAt: BigInt!
 }
