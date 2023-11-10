@@ -71,3 +71,13 @@ type EmailOp @entity(immutable: true) {
   transactionHash: Bytes!
   createdAt: BigInt!
 }
+
+type Extension @entity(immutable: true) {
+  id: Bytes!
+  name: String! # string
+  extensionAddr: Bytes! # address
+  subjectTemplates: [[String!]!]! # string[][]
+  maxExecutionGas: BigInt! # uint256
+  createdAt: BigInt!
+  createdBy: Bytes! # address
+}

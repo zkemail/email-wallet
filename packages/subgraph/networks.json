@@ -12,6 +12,9 @@
     },
     "UnclaimsHandler": {
       "address": "0xB16ea3758e82792f568f5241c890125CC5898c96"
+    },
+    "ExtensionHandler": {
+      "address": "0x84a612b6cCA4c09f75363253CFcD8ff786a8caB7"
     }
   }
 }
