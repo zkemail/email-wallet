@@ -125,6 +125,69 @@ pub(crate) async fn handle_email(
             },
             email_proof: Bytes::from(proof.into_bytes()),
         };
+        trace!("email_op constructed: {:?}", email_op);
+        chain_client.validate_email_op(email_op.clone()).await?;
+        let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op).await?;
+        info!("email_op broadcased to chain: {}", tx_hash);
+        if let Some(email_addr) = recipient_email_addr.as_ref() {
+            info!("recipient email address: {}", email_addr);
+            let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
+            // let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
+            let is_fund = command == SEND_COMMAND;
+            let expiry_time = if is_fund {
+                let unclaimed_fund: UnclaimedFund = chain_client
+                    .query_unclaimed_fund(registered_unclaim_id)
+                    .await?;
+                i64::try_from(unclaimed_fund.expiry_time.as_u64()).unwrap()
+            } else {
+                let unclaimed_state = chain_client
+                    .query_unclaimed_state(registered_unclaim_id)
+                    .await?;
+                i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
+            };
+            let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
+            let psi_client = PSIClient::new(
+                Arc::clone(&chain_client),
+                email_addr.to_string(),
+                registered_unclaim_id,
+                is_fund,
+            )
+            .await?;
+            let mut psi_res = vec![];
+            let psi_condition = {
+                let account_key = db.get_account_key(email_addr).await?;
+                (account_key.is_none()
+                    || !chain_client
+                        .check_if_account_initialized_by_account_key(
+                            email_addr,
+                            &account_key.unwrap(),
+                        )
+                        .await?)
+                    && {
+                        trace!("Starting PSI");
+                        psi_res = psi_client.find().await?;
+                        !psi_res.is_empty()
+                    }
+            };
+            if psi_condition {
+                trace!("Reveal PSI");
+                psi_client
+                    .reveal(&psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
+                    .await?;
+            } else {
+                let claim = Claim {
+                    id: registered_unclaim_id,
+                    email_address: email_addr.clone(),
+                    commit,
+                    random: field2hex(&commit_rand),
+                    expiry_time,
+                    is_fund,
+                    is_announced: false,
+                };
+                tx_claimer.send(claim)?;
+                trace!("claim sent to tx_claimer");
+            }
+        }
 
         let result = call_handle_email_op(email_op).await?;
 

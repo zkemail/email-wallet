@@ -1,0 +1,21 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "test/EmailWalletCore.us.sol",
+    "id": 74431,
+    "exportedSymbols": {},
+    "nodeType": "SourceUnit",
+    "src": "2682:0:132",
+    "nodes": [],
+    "license": "MIT"
+  },
+  "id": 132
+}

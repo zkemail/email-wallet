@@ -60,7 +60,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let email_receiver_task = tokio::task::spawn(async move {
         let mut email_receiver = ImapClient::new(config.imap_config).await?;
         loop {
-            let (new_email_receiver, fetches) = email_receiver.retrieve_new_emails().await?;
+            let (fetches, new_email_receiver) = email_receiver.retrieve_new_emails().await?;
+            info!("Fetched {} emails", fetches.len());
             for fetch in fetches {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {

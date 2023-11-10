@@ -44,6 +44,7 @@ impl RelayerConfig {
             domain_name: env::var(IMAP_DOMAIN_NAME_KEY).unwrap(),
             port: env::var(IMAP_PORT_KEY).unwrap().parse().unwrap(),
             auth: imap_auth,
+            initially_checked: false,
         };
 
         let smtp_config = SmtpConfig {
