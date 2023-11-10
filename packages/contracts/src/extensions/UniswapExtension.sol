@@ -131,11 +131,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(
-                    tokenInAddr, 
-                    wethAddr, 
-                    slippagePoints, 
-                    sqrtPriceLimitX96)
+                sqrtPriceLimitX96: 0 // Even if sqrtPriceLimitX96 is set, it is ignored by first swap.
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(
@@ -193,7 +189,7 @@ contract UniswapExtension is Extension {
         bool zeroForOne = tokenIn < tokenOut;
 
         (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
-
+        
         if (sqrtPriceLimitX96 == 0) {
             sqrtPriceLimitX96 = sqrtPriceX96;
         }
