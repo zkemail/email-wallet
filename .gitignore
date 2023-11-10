@@ -43,6 +43,9 @@ packages/prover/params/*
 # Subgraphs
 packages/subgraph/build
 
+# Subgraphs
+packages/subgraph/build
+
 # Mac
 .DS_Store
 
