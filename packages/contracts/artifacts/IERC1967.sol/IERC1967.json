@@ -57,7 +57,7 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousAdmin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"AdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"beacon\",\"type\":\"address\"}],\"name\":\"BeaconUpgraded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"}],\"devdoc\":{\"details\":\"ERC-1967: Proxy Storage Slots. This interface contains the events defined in the ERC. _Available since v4.8.3._\",\"events\":{\"AdminChanged(address,address)\":{\"details\":\"Emitted when the admin account has changed.\"},\"BeaconUpgraded(address)\":{\"details\":\"Emitted when the beacon is changed.\"},\"Upgraded(address)\":{\"details\":\"Emitted when the implementation is upgraded.\"}},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/magamedrasul/projects/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol\":\"IERC1967\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/home/magamedrasul/projects/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol\":{\"keccak256\":\"0x3cbef5ebc24b415252e2f8c0c9254555d30d9f085603b4b80d9b5ed20ab87e90\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e8fa670c3bdce78e642cc6ae11c4cb38b133499cdce5e1990a9979d424703263\",\"dweb:/ipfs/QmVxeCUk4jL2pXQyhsoNJwyU874wRufS2WvGe8TgPKPqhE\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousAdmin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"AdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"beacon\",\"type\":\"address\"}],\"name\":\"BeaconUpgraded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"}],\"devdoc\":{\"details\":\"ERC-1967: Proxy Storage Slots. This interface contains the events defined in the ERC. _Available since v4.8.3._\",\"events\":{\"AdminChanged(address,address)\":{\"details\":\"Emitted when the admin account has changed.\"},\"BeaconUpgraded(address)\":{\"details\":\"Emitted when the beacon is changed.\"},\"Upgraded(address)\":{\"details\":\"Emitted when the implementation is upgraded.\"}},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol\":\"IERC1967\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol\":{\"keccak256\":\"0x3cbef5ebc24b415252e2f8c0c9254555d30d9f085603b4b80d9b5ed20ab87e90\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e8fa670c3bdce78e642cc6ae11c4cb38b133499cdce5e1990a9979d424703263\",\"dweb:/ipfs/QmVxeCUk4jL2pXQyhsoNJwyU874wRufS2WvGe8TgPKPqhE\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.21+commit.d9974bed"
@@ -144,12 +144,12 @@
         "bytecodeHash": "ipfs"
       },
       "compilationTarget": {
-        "/home/magamedrasul/projects/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol": "IERC1967"
+        "/Users/saleel/EF/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol": "IERC1967"
       },
       "libraries": {}
     },
     "sources": {
-      "/home/magamedrasul/projects/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol": {
+      "/Users/saleel/EF/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol": {
         "keccak256": "0x3cbef5ebc24b415252e2f8c0c9254555d30d9f085603b4b80d9b5ed20ab87e90",
         "urls": [
           "bzz-raw://e8fa670c3bdce78e642cc6ae11c4cb38b133499cdce5e1990a9979d424703263",
@@ -161,18 +161,18 @@
     "version": 1
   },
   "ast": {
-    "absolutePath": "/home/magamedrasul/projects/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol",
-    "id": 17676,
+    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@openzeppelin/contracts/interfaces/IERC1967.sol",
+    "id": 17633,
     "exportedSymbols": {
       "IERC1967": [
-        17675
+        17632
       ]
     },
     "nodeType": "SourceUnit",
     "src": "107:560:74",
     "nodes": [
       {
-        "id": 17656,
+        "id": 17613,
         "nodeType": "PragmaDirective",
         "src": "107:23:74",
         "nodes": [],
@@ -184,18 +184,18 @@
         ]
       },
       {
-        "id": 17675,
+        "id": 17632,
         "nodeType": "ContractDefinition",
         "src": "266:400:74",
         "nodes": [
           {
-            "id": 17662,
+            "id": 17619,
             "nodeType": "EventDefinition",
             "src": "364:47:74",
             "nodes": [],
             "anonymous": false,
             "documentation": {
-              "id": 17658,
+              "id": 17615,
               "nodeType": "StructuredDocumentation",
               "src": "291:68:74",
               "text": " @dev Emitted when the implementation is upgraded."
@@ -204,18 +204,18 @@
             "name": "Upgraded",
             "nameLocation": "370:8:74",
             "parameters": {
-              "id": 17661,
+              "id": 17618,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17660,
+                  "id": 17617,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "implementation",
                   "nameLocation": "395:14:74",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17662,
+                  "scope": 17619,
                   "src": "379:30:74",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -224,7 +224,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 17659,
+                    "id": 17616,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "379:7:74",
@@ -241,13 +241,13 @@
             }
           },
           {
-            "id": 17669,
+            "id": 17626,
             "nodeType": "EventDefinition",
             "src": "489:60:74",
             "nodes": [],
             "anonymous": false,
             "documentation": {
-              "id": 17663,
+              "id": 17620,
               "nodeType": "StructuredDocumentation",
               "src": "417:67:74",
               "text": " @dev Emitted when the admin account has changed."
@@ -256,18 +256,18 @@
             "name": "AdminChanged",
             "nameLocation": "495:12:74",
             "parameters": {
-              "id": 17668,
+              "id": 17625,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17665,
+                  "id": 17622,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "previousAdmin",
                   "nameLocation": "516:13:74",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17669,
+                  "scope": 17626,
                   "src": "508:21:74",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -276,7 +276,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 17664,
+                    "id": 17621,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "508:7:74",
@@ -290,13 +290,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 17667,
+                  "id": 17624,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "newAdmin",
                   "nameLocation": "539:8:74",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17669,
+                  "scope": 17626,
                   "src": "531:16:74",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -305,7 +305,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 17666,
+                    "id": 17623,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "531:7:74",
@@ -322,13 +322,13 @@
             }
           },
           {
-            "id": 17674,
+            "id": 17631,
             "nodeType": "EventDefinition",
             "src": "619:45:74",
             "nodes": [],
             "anonymous": false,
             "documentation": {
-              "id": 17670,
+              "id": 17627,
               "nodeType": "StructuredDocumentation",
               "src": "555:59:74",
               "text": " @dev Emitted when the beacon is changed."
@@ -337,18 +337,18 @@
             "name": "BeaconUpgraded",
             "nameLocation": "625:14:74",
             "parameters": {
-              "id": 17673,
+              "id": 17630,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17672,
+                  "id": 17629,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "beacon",
                   "nameLocation": "656:6:74",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17674,
+                  "scope": 17631,
                   "src": "640:22:74",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -357,7 +357,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 17671,
+                    "id": 17628,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "640:7:74",
@@ -380,23 +380,23 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 17657,
+          "id": 17614,
           "nodeType": "StructuredDocumentation",
           "src": "132:133:74",
           "text": " @dev ERC-1967: Proxy Storage Slots. This interface contains the events defined in the ERC.\n _Available since v4.8.3._"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          17675
+          17632
         ],
         "name": "IERC1967",
         "nameLocation": "276:8:74",
-        "scope": 17676,
+        "scope": 17633,
         "usedErrors": [],
         "usedEvents": [
-          17662,
-          17669,
-          17674
+          17619,
+          17626,
+          17631
         ]
       }
     ],

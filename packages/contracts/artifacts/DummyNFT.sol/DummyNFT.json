@@ -915,19 +915,19 @@
   },
   "ast": {
     "absolutePath": "test/mocks/DummyNFT.sol",
-    "id": 100558,
+    "id": 100679,
     "exportedSymbols": {
       "Address": [
         3036
       ],
       "Context": [
-        101423
+        101544
       ],
       "DummyNFT": [
-        100557
+        100678
       ],
       "ERC165": [
-        101901
+        102022
       ],
       "ERC721": [
         2552
@@ -939,16 +939,16 @@
         2668
       ],
       "IERC721Metadata": [
-        101877
+        101998
       ],
       "IERC721Receiver": [
         2686
       ],
       "Math": [
-        102767
+        102888
       ],
       "SignedMath": [
-        102872
+        102993
       ],
       "Strings": [
         3265
@@ -958,7 +958,7 @@
     "src": "32:261:173",
     "nodes": [
       {
-        "id": 100532,
+        "id": 100653,
         "nodeType": "PragmaDirective",
         "src": "32:23:173",
         "nodes": [],
@@ -970,30 +970,30 @@
         ]
       },
       {
-        "id": 100533,
+        "id": 100654,
         "nodeType": "ImportDirective",
         "src": "57:57:173",
         "nodes": [],
         "absolutePath": "../../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "file": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 100558,
+        "scope": 100679,
         "sourceUnit": 2553,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 100557,
+        "id": 100678,
         "nodeType": "ContractDefinition",
         "src": "116:176:173",
         "nodes": [
           {
-            "id": 100543,
+            "id": 100664,
             "nodeType": "FunctionDefinition",
             "src": "150:43:173",
             "nodes": [],
             "body": {
-              "id": 100542,
+              "id": 100663,
               "nodeType": "Block",
               "src": "191:2:173",
               "nodes": [],
@@ -1006,7 +1006,7 @@
                 "arguments": [
                   {
                     "hexValue": "44756d6d7941706573",
-                    "id": 100538,
+                    "id": 100659,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1022,7 +1022,7 @@
                   },
                   {
                     "hexValue": "415045",
-                    "id": 100539,
+                    "id": 100660,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -1037,10 +1037,10 @@
                     "value": "APE"
                   }
                 ],
-                "id": 100540,
+                "id": 100661,
                 "kind": "baseConstructorSpecifier",
                 "modifierName": {
-                  "id": 100537,
+                  "id": 100658,
                   "name": "ERC721",
                   "nameLocations": [
                     "164:6:173"
@@ -1056,29 +1056,29 @@
             "name": "",
             "nameLocation": "-1:-1:-1",
             "parameters": {
-              "id": 100536,
+              "id": 100657,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "161:2:173"
             },
             "returnParameters": {
-              "id": 100541,
+              "id": 100662,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "191:0:173"
             },
-            "scope": 100557,
+            "scope": 100678,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           },
           {
-            "id": 100556,
+            "id": 100677,
             "nodeType": "FunctionDefinition",
             "src": "199:91:173",
             "nodes": [],
             "body": {
-              "id": 100555,
+              "id": 100676,
               "nodeType": "Block",
               "src": "255:35:173",
               "nodes": [],
@@ -1087,11 +1087,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 100551,
+                        "id": 100672,
                         "name": "to",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 100545,
+                        "referencedDeclaration": 100666,
                         "src": "271:2:173",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1099,11 +1099,11 @@
                         }
                       },
                       {
-                        "id": 100552,
+                        "id": 100673,
                         "name": "tokenId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 100547,
+                        "referencedDeclaration": 100668,
                         "src": "275:7:173",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1122,7 +1122,7 @@
                           "typeString": "uint256"
                         }
                       ],
-                      "id": 100550,
+                      "id": 100671,
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
@@ -1133,7 +1133,7 @@
                         "typeString": "function (address,uint256)"
                       }
                     },
-                    "id": 100553,
+                    "id": 100674,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1149,7 +1149,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 100554,
+                  "id": 100675,
                   "nodeType": "ExpressionStatement",
                   "src": "265:18:173"
                 }
@@ -1162,17 +1162,17 @@
             "name": "freeMint",
             "nameLocation": "208:8:173",
             "parameters": {
-              "id": 100548,
+              "id": 100669,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 100545,
+                  "id": 100666,
                   "mutability": "mutable",
                   "name": "to",
                   "nameLocation": "225:2:173",
                   "nodeType": "VariableDeclaration",
-                  "scope": 100556,
+                  "scope": 100677,
                   "src": "217:10:173",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1181,7 +1181,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 100544,
+                    "id": 100665,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "217:7:173",
@@ -1195,12 +1195,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 100547,
+                  "id": 100668,
                   "mutability": "mutable",
                   "name": "tokenId",
                   "nameLocation": "237:7:173",
                   "nodeType": "VariableDeclaration",
-                  "scope": 100556,
+                  "scope": 100677,
                   "src": "229:15:173",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1209,7 +1209,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 100546,
+                    "id": 100667,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "229:7:173",
@@ -1224,12 +1224,12 @@
               "src": "216:29:173"
             },
             "returnParameters": {
-              "id": 100549,
+              "id": 100670,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "255:0:173"
             },
-            "scope": 100557,
+            "scope": 100678,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -1239,7 +1239,7 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 100534,
+              "id": 100655,
               "name": "ERC721",
               "nameLocations": [
                 "137:6:173"
@@ -1248,7 +1248,7 @@
               "referencedDeclaration": 2552,
               "src": "137:6:173"
             },
-            "id": 100535,
+            "id": 100656,
             "nodeType": "InheritanceSpecifier",
             "src": "137:6:173"
           }
@@ -1258,17 +1258,17 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          100557,
+          100678,
           2552,
-          101877,
+          101998,
           2668,
-          101901,
+          102022,
           3643,
-          101423
+          101544
         ],
         "name": "DummyNFT",
         "nameLocation": "125:8:173",
-        "scope": 100558,
+        "scope": 100679,
         "usedErrors": [],
         "usedEvents": [
           2567,

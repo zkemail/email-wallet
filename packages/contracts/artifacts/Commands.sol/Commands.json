@@ -424,17 +424,17 @@
   },
   "ast": {
     "absolutePath": "src/interfaces/Commands.sol",
-    "id": 68797,
+    "id": 68725,
     "exportedSymbols": {
       "Commands": [
-        68796
+        68724
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:1262:135",
     "nodes": [
       {
-        "id": 68756,
+        "id": 68684,
         "nodeType": "PragmaDirective",
         "src": "32:23:135",
         "nodes": [],
@@ -446,12 +446,12 @@
         ]
       },
       {
-        "id": 68796,
+        "id": 68724,
         "nodeType": "ContractDefinition",
         "src": "557:736:135",
         "nodes": [
           {
-            "id": 68759,
+            "id": 68687,
             "nodeType": "VariableDeclaration",
             "src": "580:36:135",
             "nodes": [],
@@ -460,7 +460,7 @@
             "mutability": "constant",
             "name": "SEND",
             "nameLocation": "603:4:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -468,7 +468,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68757,
+              "id": 68685,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "580:6:135",
@@ -479,7 +479,7 @@
             },
             "value": {
               "hexValue": "53656e64",
-              "id": 68758,
+              "id": 68686,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -496,7 +496,7 @@
             "visibility": "public"
           },
           {
-            "id": 68762,
+            "id": 68690,
             "nodeType": "VariableDeclaration",
             "src": "622:42:135",
             "nodes": [],
@@ -505,7 +505,7 @@
             "mutability": "constant",
             "name": "EXECUTE",
             "nameLocation": "645:7:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -513,7 +513,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68760,
+              "id": 68688,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "622:6:135",
@@ -524,7 +524,7 @@
             },
             "value": {
               "hexValue": "45786563757465",
-              "id": 68761,
+              "id": 68689,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -541,7 +541,7 @@
             "visibility": "public"
           },
           {
-            "id": 68765,
+            "id": 68693,
             "nodeType": "VariableDeclaration",
             "src": "670:36:135",
             "nodes": [],
@@ -550,7 +550,7 @@
             "mutability": "constant",
             "name": "DKIM",
             "nameLocation": "693:4:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -558,7 +558,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68763,
+              "id": 68691,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "670:6:135",
@@ -569,7 +569,7 @@
             },
             "value": {
               "hexValue": "444b494d",
-              "id": 68764,
+              "id": 68692,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -586,7 +586,7 @@
             "visibility": "public"
           },
           {
-            "id": 68768,
+            "id": 68696,
             "nodeType": "VariableDeclaration",
             "src": "712:52:135",
             "nodes": [],
@@ -595,7 +595,7 @@
             "mutability": "constant",
             "name": "INSTALL_EXTENSION",
             "nameLocation": "735:17:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -603,7 +603,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68766,
+              "id": 68694,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "712:6:135",
@@ -614,7 +614,7 @@
             },
             "value": {
               "hexValue": "496e7374616c6c",
-              "id": 68767,
+              "id": 68695,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -631,7 +631,7 @@
             "visibility": "public"
           },
           {
-            "id": 68771,
+            "id": 68699,
             "nodeType": "VariableDeclaration",
             "src": "770:56:135",
             "nodes": [],
@@ -640,7 +640,7 @@
             "mutability": "constant",
             "name": "UNINSTALL_EXTENSION",
             "nameLocation": "793:19:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -648,7 +648,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68769,
+              "id": 68697,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "770:6:135",
@@ -659,7 +659,7 @@
             },
             "value": {
               "hexValue": "556e696e7374616c6c",
-              "id": 68770,
+              "id": 68698,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -676,7 +676,7 @@
             "visibility": "public"
           },
           {
-            "id": 68774,
+            "id": 68702,
             "nodeType": "VariableDeclaration",
             "src": "832:49:135",
             "nodes": [],
@@ -685,7 +685,7 @@
             "mutability": "constant",
             "name": "EXIT_EMAIL_WALLET",
             "nameLocation": "855:17:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -693,7 +693,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68772,
+              "id": 68700,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "832:6:135",
@@ -704,7 +704,7 @@
             },
             "value": {
               "hexValue": "45786974",
-              "id": 68773,
+              "id": 68701,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -721,7 +721,7 @@
             "visibility": "public"
           },
           {
-            "id": 68777,
+            "id": 68705,
             "nodeType": "VariableDeclaration",
             "src": "888:62:135",
             "nodes": [],
@@ -730,7 +730,7 @@
             "mutability": "constant",
             "name": "TOKEN_AMOUNT_TEMPLATE",
             "nameLocation": "911:21:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -738,7 +738,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68775,
+              "id": 68703,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "888:6:135",
@@ -749,7 +749,7 @@
             },
             "value": {
               "hexValue": "7b746f6b656e416d6f756e747d",
-              "id": 68776,
+              "id": 68704,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -766,7 +766,7 @@
             "visibility": "public"
           },
           {
-            "id": 68780,
+            "id": 68708,
             "nodeType": "VariableDeclaration",
             "src": "956:51:135",
             "nodes": [],
@@ -775,7 +775,7 @@
             "mutability": "constant",
             "name": "AMOUNT_TEMPLATE",
             "nameLocation": "979:15:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -783,7 +783,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68778,
+              "id": 68706,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "956:6:135",
@@ -794,7 +794,7 @@
             },
             "value": {
               "hexValue": "7b616d6f756e747d",
-              "id": 68779,
+              "id": 68707,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -811,7 +811,7 @@
             "visibility": "public"
           },
           {
-            "id": 68783,
+            "id": 68711,
             "nodeType": "VariableDeclaration",
             "src": "1013:51:135",
             "nodes": [],
@@ -820,7 +820,7 @@
             "mutability": "constant",
             "name": "STRING_TEMPLATE",
             "nameLocation": "1036:15:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -828,7 +828,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68781,
+              "id": 68709,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "1013:6:135",
@@ -839,7 +839,7 @@
             },
             "value": {
               "hexValue": "7b737472696e677d",
-              "id": 68782,
+              "id": 68710,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -856,7 +856,7 @@
             "visibility": "public"
           },
           {
-            "id": 68786,
+            "id": 68714,
             "nodeType": "VariableDeclaration",
             "src": "1070:47:135",
             "nodes": [],
@@ -865,7 +865,7 @@
             "mutability": "constant",
             "name": "UINT_TEMPLATE",
             "nameLocation": "1093:13:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -873,7 +873,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68784,
+              "id": 68712,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "1070:6:135",
@@ -884,7 +884,7 @@
             },
             "value": {
               "hexValue": "7b75696e747d",
-              "id": 68785,
+              "id": 68713,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -901,7 +901,7 @@
             "visibility": "public"
           },
           {
-            "id": 68789,
+            "id": 68717,
             "nodeType": "VariableDeclaration",
             "src": "1123:45:135",
             "nodes": [],
@@ -910,7 +910,7 @@
             "mutability": "constant",
             "name": "INT_TEMPLATE",
             "nameLocation": "1146:12:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -918,7 +918,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68787,
+              "id": 68715,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "1123:6:135",
@@ -929,7 +929,7 @@
             },
             "value": {
               "hexValue": "7b696e747d",
-              "id": 68788,
+              "id": 68716,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -946,7 +946,7 @@
             "visibility": "public"
           },
           {
-            "id": 68792,
+            "id": 68720,
             "nodeType": "VariableDeclaration",
             "src": "1174:53:135",
             "nodes": [],
@@ -955,7 +955,7 @@
             "mutability": "constant",
             "name": "ADDRESS_TEMPLATE",
             "nameLocation": "1197:16:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -963,7 +963,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68790,
+              "id": 68718,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "1174:6:135",
@@ -974,7 +974,7 @@
             },
             "value": {
               "hexValue": "7b616464726573737d",
-              "id": 68791,
+              "id": 68719,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -991,7 +991,7 @@
             "visibility": "public"
           },
           {
-            "id": 68795,
+            "id": 68723,
             "nodeType": "VariableDeclaration",
             "src": "1233:57:135",
             "nodes": [],
@@ -1000,7 +1000,7 @@
             "mutability": "constant",
             "name": "RECIPIENT_TEMPLATE",
             "nameLocation": "1256:18:135",
-            "scope": 68796,
+            "scope": 68724,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -1008,7 +1008,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 68793,
+              "id": 68721,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "1233:6:135",
@@ -1019,7 +1019,7 @@
             },
             "value": {
               "hexValue": "7b726563697069656e747d",
-              "id": 68794,
+              "id": 68722,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1043,11 +1043,11 @@
         "contractKind": "library",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          68796
+          68724
         ],
         "name": "Commands",
         "nameLocation": "565:8:135",
-        "scope": 68797,
+        "scope": 68725,
         "usedErrors": [],
         "usedEvents": []
       }

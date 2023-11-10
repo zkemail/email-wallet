@@ -1392,83 +1392,83 @@
   },
   "ast": {
     "absolutePath": "test/DecimalUtils.t.sol",
-    "id": 75567,
+    "id": 75548,
     "exportedSymbols": {
       "DSTest": [
-        7238
+        7195
       ],
       "DecimalUtils": [
-        69492
+        69422
       ],
       "DecimalUtilsTest": [
-        75566
+        75547
       ],
       "Math": [
-        102767
+        102888
       ],
       "SignedMath": [
-        102872
+        102993
       ],
       "StdAssertions": [
-        134129
+        134250
       ],
       "StdChains": [
-        104159
+        104280
       ],
       "StdCheats": [
-        107012
+        107133
       ],
       "StdInvariant": [
-        134454
+        134575
       ],
       "StdStorage": [
-        7309
+        7266
       ],
       "StdStyle": [
-        108957
+        109078
       ],
       "StdUtils": [
-        109805
+        109926
       ],
       "Strings": [
         3265
       ],
       "Test": [
-        8999
+        8956
       ],
       "TestBase": [
-        103386
+        103507
       ],
       "Vm": [
-        111511
+        111632
       ],
       "console": [
-        17063
+        17020
       ],
       "console2": [
-        119636
+        119757
       ],
       "safeconsole": [
-        132711
+        132832
       ],
       "stdError": [
-        134195
+        134316
       ],
       "stdJson": [
-        107604
+        107725
       ],
       "stdMath": [
-        107746
+        107867
       ],
       "stdStorage": [
-        8948
+        8905
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:3228:154",
     "nodes": [
       {
-        "id": 75180,
+        "id": 75161,
         "nodeType": "PragmaDirective",
         "src": "32:24:154",
         "nodes": [],
@@ -1480,69 +1480,69 @@
         ]
       },
       {
-        "id": 75181,
+        "id": 75162,
         "nodeType": "ImportDirective",
         "src": "58:28:154",
         "nodes": [],
         "absolutePath": "../../node_modules/forge-std/src/Test.sol",
         "file": "forge-std/Test.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 75567,
-        "sourceUnit": 9000,
+        "scope": 75548,
+        "sourceUnit": 8957,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 75182,
+        "id": 75163,
         "nodeType": "ImportDirective",
         "src": "87:31:154",
         "nodes": [],
         "absolutePath": "../../node_modules/forge-std/src/console.sol",
         "file": "forge-std/console.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 75567,
-        "sourceUnit": 17064,
+        "scope": 75548,
+        "sourceUnit": 17021,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 75183,
+        "id": 75164,
         "nodeType": "ImportDirective",
         "src": "119:51:154",
         "nodes": [],
         "absolutePath": "../../node_modules/@openzeppelin/contracts/utils/Strings.sol",
         "file": "@openzeppelin/contracts/utils/Strings.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 75567,
+        "scope": 75548,
         "sourceUnit": 3266,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 75184,
+        "id": 75165,
         "nodeType": "ImportDirective",
         "src": "171:43:154",
         "nodes": [],
         "absolutePath": "src/libraries/DecimalUtils.sol",
         "file": "../src/libraries/DecimalUtils.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 75567,
-        "sourceUnit": 69493,
+        "scope": 75548,
+        "sourceUnit": 69423,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 75566,
+        "id": 75547,
         "nodeType": "ContractDefinition",
         "src": "216:3043:154",
         "nodes": [
           {
-            "id": 75200,
+            "id": 75181,
             "nodeType": "FunctionDefinition",
             "src": "256:134:154",
             "nodes": [],
             "body": {
-              "id": 75199,
+              "id": 75180,
               "nodeType": "Block",
               "src": "333:57:154",
               "nodes": [],
@@ -1551,11 +1551,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 75194,
+                        "id": 75175,
                         "name": "value",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 75188,
+                        "referencedDeclaration": 75169,
                         "src": "363:5:154",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1563,11 +1563,11 @@
                         }
                       },
                       {
-                        "id": 75195,
+                        "id": 75176,
                         "name": "expected",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 75190,
+                        "referencedDeclaration": 75171,
                         "src": "370:8:154",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -1576,7 +1576,7 @@
                       },
                       {
                         "hexValue": "3138",
-                        "id": 75196,
+                        "id": 75177,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1606,21 +1606,21 @@
                           "typeString": "int_const 18"
                         }
                       ],
-                      "id": 75193,
+                      "id": 75174,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "343:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75197,
+                    "id": 75178,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1636,7 +1636,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75198,
+                  "id": 75179,
                   "nodeType": "ExpressionStatement",
                   "src": "343:40:154"
                 }
@@ -1648,17 +1648,17 @@
             "name": "_checkDecimalString",
             "nameLocation": "265:19:154",
             "parameters": {
-              "id": 75191,
+              "id": 75172,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 75188,
+                  "id": 75169,
                   "mutability": "mutable",
                   "name": "value",
                   "nameLocation": "293:5:154",
                   "nodeType": "VariableDeclaration",
-                  "scope": 75200,
+                  "scope": 75181,
                   "src": "285:13:154",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1667,7 +1667,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 75187,
+                    "id": 75168,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "285:7:154",
@@ -1680,12 +1680,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 75190,
+                  "id": 75171,
                   "mutability": "mutable",
                   "name": "expected",
                   "nameLocation": "314:8:154",
                   "nodeType": "VariableDeclaration",
-                  "scope": 75200,
+                  "scope": 75181,
                   "src": "300:22:154",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1694,7 +1694,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 75189,
+                    "id": 75170,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "300:6:154",
@@ -1709,40 +1709,40 @@
               "src": "284:39:154"
             },
             "returnParameters": {
-              "id": 75192,
+              "id": 75173,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "333:0:154"
             },
-            "scope": 75566,
+            "scope": 75547,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 75233,
+            "id": 75214,
             "nodeType": "FunctionDefinition",
             "src": "396:271:154",
             "nodes": [],
             "body": {
-              "id": 75232,
+              "id": 75213,
               "nodeType": "Block",
               "src": "487:180:154",
               "nodes": [],
               "statements": [
                 {
                   "assignments": [
-                    75210
+                    75191
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 75210,
+                      "id": 75191,
                       "mutability": "mutable",
                       "name": "actual",
                       "nameLocation": "511:6:154",
                       "nodeType": "VariableDeclaration",
-                      "scope": 75232,
+                      "scope": 75213,
                       "src": "497:20:154",
                       "stateVariable": false,
                       "storageLocation": "memory",
@@ -1751,7 +1751,7 @@
                         "typeString": "string"
                       },
                       "typeName": {
-                        "id": 75209,
+                        "id": 75190,
                         "name": "string",
                         "nodeType": "ElementaryTypeName",
                         "src": "497:6:154",
@@ -1763,15 +1763,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 75216,
+                  "id": 75197,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 75213,
+                        "id": 75194,
                         "name": "value",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 75202,
+                        "referencedDeclaration": 75183,
                         "src": "553:5:154",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1779,11 +1779,11 @@
                         }
                       },
                       {
-                        "id": 75214,
+                        "id": 75195,
                         "name": "decimal",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 75206,
+                        "referencedDeclaration": 75187,
                         "src": "560:7:154",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1803,18 +1803,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 75211,
+                        "id": 75192,
                         "name": "DecimalUtils",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 69492,
+                        "referencedDeclaration": 69422,
                         "src": "520:12:154",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_DecimalUtils_$69492_$",
+                          "typeIdentifier": "t_type$_t_contract$_DecimalUtils_$69422_$",
                           "typeString": "type(library DecimalUtils)"
                         }
                       },
-                      "id": 75212,
+                      "id": 75193,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1822,14 +1822,14 @@
                       "memberLocation": "533:19:154",
                       "memberName": "uintToDecimalString",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 69491,
+                      "referencedDeclaration": 69421,
                       "src": "520:32:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_pure$_t_uint256_$_t_uint256_$returns$_t_string_memory_ptr_$",
                         "typeString": "function (uint256,uint256) pure returns (string memory)"
                       }
                     },
-                    "id": 75215,
+                    "id": 75196,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1854,11 +1854,11 @@
                       {
                         "arguments": [
                           {
-                            "id": 75220,
+                            "id": 75201,
                             "name": "actual",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 75210,
+                            "referencedDeclaration": 75191,
                             "src": "603:6:154",
                             "typeDescriptions": {
                               "typeIdentifier": "t_string_memory_ptr",
@@ -1866,11 +1866,11 @@
                             }
                           },
                           {
-                            "id": 75221,
+                            "id": 75202,
                             "name": "expected",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 75204,
+                            "referencedDeclaration": 75185,
                             "src": "611:8:154",
                             "typeDescriptions": {
                               "typeIdentifier": "t_string_memory_ptr",
@@ -1890,7 +1890,7 @@
                             }
                           ],
                           "expression": {
-                            "id": 75218,
+                            "id": 75199,
                             "name": "Strings",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
@@ -1901,7 +1901,7 @@
                               "typeString": "type(library Strings)"
                             }
                           },
-                          "id": 75219,
+                          "id": 75200,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -1916,7 +1916,7 @@
                             "typeString": "function (string memory,string memory) pure returns (bool)"
                           }
                         },
-                        "id": 75222,
+                        "id": 75203,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1935,11 +1935,11 @@
                       {
                         "arguments": [
                           {
-                            "id": 75226,
+                            "id": 75207,
                             "name": "expected",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 75204,
+                            "referencedDeclaration": 75185,
                             "src": "636:8:154",
                             "typeDescriptions": {
                               "typeIdentifier": "t_string_memory_ptr",
@@ -1948,7 +1948,7 @@
                           },
                           {
                             "hexValue": "213d",
-                            "id": 75227,
+                            "id": 75208,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -1963,11 +1963,11 @@
                             "value": "!="
                           },
                           {
-                            "id": 75228,
+                            "id": 75209,
                             "name": "actual",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 75210,
+                            "referencedDeclaration": 75191,
                             "src": "652:6:154",
                             "typeDescriptions": {
                               "typeIdentifier": "t_string_memory_ptr",
@@ -1991,7 +1991,7 @@
                             }
                           ],
                           "expression": {
-                            "id": 75224,
+                            "id": 75205,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -2003,14 +2003,14 @@
                               "typeString": "type(string storage pointer)"
                             },
                             "typeName": {
-                              "id": 75223,
+                              "id": 75204,
                               "name": "string",
                               "nodeType": "ElementaryTypeName",
                               "src": "622:6:154",
                               "typeDescriptions": {}
                             }
                           },
-                          "id": 75225,
+                          "id": 75206,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -2024,7 +2024,7 @@
                             "typeString": "function () pure returns (string memory)"
                           }
                         },
-                        "id": 75229,
+                        "id": 75210,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -2052,21 +2052,21 @@
                           "typeString": "string memory"
                         }
                       ],
-                      "id": 75217,
+                      "id": 75198,
                       "name": "assertTrue",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        5216,
-                        5237
+                        5173,
+                        5194
                       ],
-                      "referencedDeclaration": 5237,
+                      "referencedDeclaration": 5194,
                       "src": "578:10:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bool_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (bool,string memory)"
                       }
                     },
-                    "id": 75230,
+                    "id": 75211,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2082,7 +2082,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75231,
+                  "id": 75212,
                   "nodeType": "ExpressionStatement",
                   "src": "578:82:154"
                 }
@@ -2094,17 +2094,17 @@
             "name": "_checkDecimalString",
             "nameLocation": "405:19:154",
             "parameters": {
-              "id": 75207,
+              "id": 75188,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 75202,
+                  "id": 75183,
                   "mutability": "mutable",
                   "name": "value",
                   "nameLocation": "433:5:154",
                   "nodeType": "VariableDeclaration",
-                  "scope": 75233,
+                  "scope": 75214,
                   "src": "425:13:154",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2113,7 +2113,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 75201,
+                    "id": 75182,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "425:7:154",
@@ -2126,12 +2126,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 75204,
+                  "id": 75185,
                   "mutability": "mutable",
                   "name": "expected",
                   "nameLocation": "454:8:154",
                   "nodeType": "VariableDeclaration",
-                  "scope": 75233,
+                  "scope": 75214,
                   "src": "440:22:154",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2140,7 +2140,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 75203,
+                    "id": 75184,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "440:6:154",
@@ -2153,12 +2153,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 75206,
+                  "id": 75187,
                   "mutability": "mutable",
                   "name": "decimal",
                   "nameLocation": "469:7:154",
                   "nodeType": "VariableDeclaration",
-                  "scope": 75233,
+                  "scope": 75214,
                   "src": "464:12:154",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2167,7 +2167,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 75205,
+                    "id": 75186,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "464:4:154",
@@ -2182,23 +2182,23 @@
               "src": "424:53:154"
             },
             "returnParameters": {
-              "id": 75208,
+              "id": 75189,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "487:0:154"
             },
-            "scope": 75566,
+            "scope": 75547,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 75352,
+            "id": 75333,
             "nodeType": "FunctionDefinition",
             "src": "673:1346:154",
             "nodes": [],
             "body": {
-              "id": 75351,
+              "id": 75332,
               "nodeType": "Block",
               "src": "724:1295:154",
               "nodes": [],
@@ -2208,7 +2208,7 @@
                     "arguments": [
                       {
                         "hexValue": "31",
-                        "id": 75237,
+                        "id": 75218,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2225,7 +2225,7 @@
                       },
                       {
                         "hexValue": "31",
-                        "id": 75238,
+                        "id": 75219,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2251,21 +2251,21 @@
                           "typeString": "literal_string \"1\""
                         }
                       ],
-                      "id": 75236,
+                      "id": 75217,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "734:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75239,
+                    "id": 75220,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2281,7 +2281,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75240,
+                  "id": 75221,
                   "nodeType": "ExpressionStatement",
                   "src": "734:33:154"
                 },
@@ -2290,7 +2290,7 @@
                     "arguments": [
                       {
                         "hexValue": "3130",
-                        "id": 75242,
+                        "id": 75223,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2307,7 +2307,7 @@
                       },
                       {
                         "hexValue": "3130",
-                        "id": 75243,
+                        "id": 75224,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2333,21 +2333,21 @@
                           "typeString": "literal_string \"10\""
                         }
                       ],
-                      "id": 75241,
+                      "id": 75222,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "777:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75244,
+                    "id": 75225,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2363,7 +2363,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75245,
+                  "id": 75226,
                   "nodeType": "ExpressionStatement",
                   "src": "777:35:154"
                 },
@@ -2372,7 +2372,7 @@
                     "arguments": [
                       {
                         "hexValue": "323030",
-                        "id": 75247,
+                        "id": 75228,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2389,7 +2389,7 @@
                       },
                       {
                         "hexValue": "323030",
-                        "id": 75248,
+                        "id": 75229,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2415,21 +2415,21 @@
                           "typeString": "literal_string \"200\""
                         }
                       ],
-                      "id": 75246,
+                      "id": 75227,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "822:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75249,
+                    "id": 75230,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2445,7 +2445,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75250,
+                  "id": 75231,
                   "nodeType": "ExpressionStatement",
                   "src": "822:37:154"
                 },
@@ -2454,7 +2454,7 @@
                     "arguments": [
                       {
                         "hexValue": "31302e3231",
-                        "id": 75252,
+                        "id": 75233,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2471,7 +2471,7 @@
                       },
                       {
                         "hexValue": "31302e3231",
-                        "id": 75253,
+                        "id": 75234,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2497,21 +2497,21 @@
                           "typeString": "literal_string \"10.21\""
                         }
                       ],
-                      "id": 75251,
+                      "id": 75232,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "869:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75254,
+                    "id": 75235,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2527,7 +2527,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75255,
+                  "id": 75236,
                   "nodeType": "ExpressionStatement",
                   "src": "869:41:154"
                 },
@@ -2536,7 +2536,7 @@
                     "arguments": [
                       {
                         "hexValue": "332e31",
-                        "id": 75257,
+                        "id": 75238,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2553,7 +2553,7 @@
                       },
                       {
                         "hexValue": "332e31",
-                        "id": 75258,
+                        "id": 75239,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2579,21 +2579,21 @@
                           "typeString": "literal_string \"3.1\""
                         }
                       ],
-                      "id": 75256,
+                      "id": 75237,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "920:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75259,
+                    "id": 75240,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2609,7 +2609,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75260,
+                  "id": 75241,
                   "nodeType": "ExpressionStatement",
                   "src": "920:37:154"
                 },
@@ -2618,7 +2618,7 @@
                     "arguments": [
                       {
                         "hexValue": "322e3031",
-                        "id": 75262,
+                        "id": 75243,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2635,7 +2635,7 @@
                       },
                       {
                         "hexValue": "322e3031",
-                        "id": 75263,
+                        "id": 75244,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2661,21 +2661,21 @@
                           "typeString": "literal_string \"2.01\""
                         }
                       ],
-                      "id": 75261,
+                      "id": 75242,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "967:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75264,
+                    "id": 75245,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2691,7 +2691,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75265,
+                  "id": 75246,
                   "nodeType": "ExpressionStatement",
                   "src": "967:39:154"
                 },
@@ -2700,7 +2700,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e31",
-                        "id": 75267,
+                        "id": 75248,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2717,7 +2717,7 @@
                       },
                       {
                         "hexValue": "302e31",
-                        "id": 75268,
+                        "id": 75249,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2743,21 +2743,21 @@
                           "typeString": "literal_string \"0.1\""
                         }
                       ],
-                      "id": 75266,
+                      "id": 75247,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1016:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75269,
+                    "id": 75250,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2773,7 +2773,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75270,
+                  "id": 75251,
                   "nodeType": "ExpressionStatement",
                   "src": "1016:37:154"
                 },
@@ -2782,7 +2782,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e3031",
-                        "id": 75272,
+                        "id": 75253,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2799,7 +2799,7 @@
                       },
                       {
                         "hexValue": "302e3031",
-                        "id": 75273,
+                        "id": 75254,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2825,21 +2825,21 @@
                           "typeString": "literal_string \"0.01\""
                         }
                       ],
-                      "id": 75271,
+                      "id": 75252,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1063:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75274,
+                    "id": 75255,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2855,7 +2855,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75275,
+                  "id": 75256,
                   "nodeType": "ExpressionStatement",
                   "src": "1063:39:154"
                 },
@@ -2864,7 +2864,7 @@
                     "arguments": [
                       {
                         "hexValue": "342e32303031",
-                        "id": 75277,
+                        "id": 75258,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2881,7 +2881,7 @@
                       },
                       {
                         "hexValue": "342e32303031",
-                        "id": 75278,
+                        "id": 75259,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2907,21 +2907,21 @@
                           "typeString": "literal_string \"4.2001\""
                         }
                       ],
-                      "id": 75276,
+                      "id": 75257,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1112:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75279,
+                    "id": 75260,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2937,7 +2937,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75280,
+                  "id": 75261,
                   "nodeType": "ExpressionStatement",
                   "src": "1112:43:154"
                 },
@@ -2946,7 +2946,7 @@
                     "arguments": [
                       {
                         "hexValue": "332e31303034303031",
-                        "id": 75282,
+                        "id": 75263,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2963,7 +2963,7 @@
                       },
                       {
                         "hexValue": "332e31303034303031",
-                        "id": 75283,
+                        "id": 75264,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2989,21 +2989,21 @@
                           "typeString": "literal_string \"3.1004001\""
                         }
                       ],
-                      "id": 75281,
+                      "id": 75262,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1165:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75284,
+                    "id": 75265,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3019,7 +3019,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75285,
+                  "id": 75266,
                   "nodeType": "ExpressionStatement",
                   "src": "1165:49:154"
                 },
@@ -3028,7 +3028,7 @@
                     "arguments": [
                       {
                         "hexValue": "3232",
-                        "id": 75287,
+                        "id": 75268,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3045,7 +3045,7 @@
                       },
                       {
                         "hexValue": "3232",
-                        "id": 75288,
+                        "id": 75269,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3071,21 +3071,21 @@
                           "typeString": "literal_string \"22\""
                         }
                       ],
-                      "id": 75286,
+                      "id": 75267,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1224:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75289,
+                    "id": 75270,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3101,7 +3101,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75290,
+                  "id": 75271,
                   "nodeType": "ExpressionStatement",
                   "src": "1224:35:154"
                 },
@@ -3110,7 +3110,7 @@
                     "arguments": [
                       {
                         "hexValue": "322e30303731",
-                        "id": 75292,
+                        "id": 75273,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3127,7 +3127,7 @@
                       },
                       {
                         "hexValue": "322e30303731",
-                        "id": 75293,
+                        "id": 75274,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3153,21 +3153,21 @@
                           "typeString": "literal_string \"2.0071\""
                         }
                       ],
-                      "id": 75291,
+                      "id": 75272,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1269:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75294,
+                    "id": 75275,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3183,7 +3183,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75295,
+                  "id": 75276,
                   "nodeType": "ExpressionStatement",
                   "src": "1269:43:154"
                 },
@@ -3192,7 +3192,7 @@
                     "arguments": [
                       {
                         "hexValue": "332e30303030303831",
-                        "id": 75297,
+                        "id": 75278,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3209,7 +3209,7 @@
                       },
                       {
                         "hexValue": "332e30303030303831",
-                        "id": 75298,
+                        "id": 75279,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3235,21 +3235,21 @@
                           "typeString": "literal_string \"3.0000081\""
                         }
                       ],
-                      "id": 75296,
+                      "id": 75277,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1322:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75299,
+                    "id": 75280,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3265,7 +3265,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75300,
+                  "id": 75281,
                   "nodeType": "ExpressionStatement",
                   "src": "1322:49:154"
                 },
@@ -3274,7 +3274,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e303032",
-                        "id": 75302,
+                        "id": 75283,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3291,7 +3291,7 @@
                       },
                       {
                         "hexValue": "302e303032",
-                        "id": 75303,
+                        "id": 75284,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3317,21 +3317,21 @@
                           "typeString": "literal_string \"0.002\""
                         }
                       ],
-                      "id": 75301,
+                      "id": 75282,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1381:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75304,
+                    "id": 75285,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3347,7 +3347,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75305,
+                  "id": 75286,
                   "nodeType": "ExpressionStatement",
                   "src": "1381:41:154"
                 },
@@ -3356,7 +3356,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e3134",
-                        "id": 75307,
+                        "id": 75288,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3373,7 +3373,7 @@
                       },
                       {
                         "hexValue": "302e3134",
-                        "id": 75308,
+                        "id": 75289,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3399,21 +3399,21 @@
                           "typeString": "literal_string \"0.14\""
                         }
                       ],
-                      "id": 75306,
+                      "id": 75287,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1432:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75309,
+                    "id": 75290,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3429,7 +3429,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75310,
+                  "id": 75291,
                   "nodeType": "ExpressionStatement",
                   "src": "1432:39:154"
                 },
@@ -3438,7 +3438,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e303134",
-                        "id": 75312,
+                        "id": 75293,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3455,7 +3455,7 @@
                       },
                       {
                         "hexValue": "302e303134",
-                        "id": 75313,
+                        "id": 75294,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3481,21 +3481,21 @@
                           "typeString": "literal_string \"0.014\""
                         }
                       ],
-                      "id": 75311,
+                      "id": 75292,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1481:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75314,
+                    "id": 75295,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3511,7 +3511,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75315,
+                  "id": 75296,
                   "nodeType": "ExpressionStatement",
                   "src": "1481:41:154"
                 },
@@ -3520,7 +3520,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e30313330303231",
-                        "id": 75317,
+                        "id": 75298,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3537,7 +3537,7 @@
                       },
                       {
                         "hexValue": "302e30313330303231",
-                        "id": 75318,
+                        "id": 75299,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3563,21 +3563,21 @@
                           "typeString": "literal_string \"0.0130021\""
                         }
                       ],
-                      "id": 75316,
+                      "id": 75297,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1532:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75319,
+                    "id": 75300,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3593,7 +3593,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75320,
+                  "id": 75301,
                   "nodeType": "ExpressionStatement",
                   "src": "1532:49:154"
                 },
@@ -3602,7 +3602,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e303030303030303032",
-                        "id": 75322,
+                        "id": 75303,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3619,7 +3619,7 @@
                       },
                       {
                         "hexValue": "302e303030303030303032",
-                        "id": 75323,
+                        "id": 75304,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3645,21 +3645,21 @@
                           "typeString": "literal_string \"0.000000002\""
                         }
                       ],
-                      "id": 75321,
+                      "id": 75302,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1591:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75324,
+                    "id": 75305,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3675,7 +3675,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75325,
+                  "id": 75306,
                   "nodeType": "ExpressionStatement",
                   "src": "1591:53:154"
                 },
@@ -3684,7 +3684,7 @@
                     "arguments": [
                       {
                         "hexValue": "302e303030303030303030303030303030303031",
-                        "id": 75327,
+                        "id": 75308,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3701,7 +3701,7 @@
                       },
                       {
                         "hexValue": "302e303030303030303030303030303030303031",
-                        "id": 75328,
+                        "id": 75309,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3727,21 +3727,21 @@
                           "typeString": "literal_string \"0.000000000000000001\""
                         }
                       ],
-                      "id": 75326,
+                      "id": 75307,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1654:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75329,
+                    "id": 75310,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3757,7 +3757,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75330,
+                  "id": 75311,
                   "nodeType": "ExpressionStatement",
                   "src": "1654:71:154"
                 },
@@ -3766,7 +3766,7 @@
                     "arguments": [
                       {
                         "hexValue": "312e303030303030303030303030303030303031",
-                        "id": 75332,
+                        "id": 75313,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3783,7 +3783,7 @@
                       },
                       {
                         "hexValue": "312e303030303030303030303030303030303031",
-                        "id": 75333,
+                        "id": 75314,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3809,21 +3809,21 @@
                           "typeString": "literal_string \"1.000000000000000001\""
                         }
                       ],
-                      "id": 75331,
+                      "id": 75312,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1735:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75334,
+                    "id": 75315,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3839,7 +3839,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75335,
+                  "id": 75316,
                   "nodeType": "ExpressionStatement",
                   "src": "1735:71:154"
                 },
@@ -3848,7 +3848,7 @@
                     "arguments": [
                       {
                         "hexValue": "32312e30",
-                        "id": 75337,
+                        "id": 75318,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3865,7 +3865,7 @@
                       },
                       {
                         "hexValue": "3231",
-                        "id": 75338,
+                        "id": 75319,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3891,21 +3891,21 @@
                           "typeString": "literal_string \"21\""
                         }
                       ],
-                      "id": 75336,
+                      "id": 75317,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1877:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75339,
+                    "id": 75320,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3921,7 +3921,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75340,
+                  "id": 75321,
                   "nodeType": "ExpressionStatement",
                   "src": "1877:37:154"
                 },
@@ -3930,7 +3930,7 @@
                     "arguments": [
                       {
                         "hexValue": "32312e3030",
-                        "id": 75342,
+                        "id": 75323,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3947,7 +3947,7 @@
                       },
                       {
                         "hexValue": "3231",
-                        "id": 75343,
+                        "id": 75324,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3973,21 +3973,21 @@
                           "typeString": "literal_string \"21\""
                         }
                       ],
-                      "id": 75341,
+                      "id": 75322,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1924:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75344,
+                    "id": 75325,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4003,7 +4003,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75345,
+                  "id": 75326,
                   "nodeType": "ExpressionStatement",
                   "src": "1924:38:154"
                 },
@@ -4012,7 +4012,7 @@
                     "arguments": [
                       {
                         "hexValue": "332e343930",
-                        "id": 75347,
+                        "id": 75328,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4029,7 +4029,7 @@
                       },
                       {
                         "hexValue": "332e3439",
-                        "id": 75348,
+                        "id": 75329,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4055,21 +4055,21 @@
                           "typeString": "literal_string \"3.49\""
                         }
                       ],
-                      "id": 75346,
+                      "id": 75327,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75200,
+                      "referencedDeclaration": 75181,
                       "src": "1972:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (uint256,string memory)"
                       }
                     },
-                    "id": 75349,
+                    "id": 75330,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4085,7 +4085,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75350,
+                  "id": 75331,
                   "nodeType": "ExpressionStatement",
                   "src": "1972:40:154"
                 }
@@ -4098,29 +4098,29 @@
             "name": "test_UintToDecimalString_Default",
             "nameLocation": "682:32:154",
             "parameters": {
-              "id": 75234,
+              "id": 75215,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "714:2:154"
             },
             "returnParameters": {
-              "id": 75235,
+              "id": 75216,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "724:0:154"
             },
-            "scope": 75566,
+            "scope": 75547,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           },
           {
-            "id": 75565,
+            "id": 75546,
             "nodeType": "FunctionDefinition",
             "src": "2025:1232:154",
             "nodes": [],
             "body": {
-              "id": 75564,
+              "id": 75545,
               "nodeType": "Block",
               "src": "2079:1178:154",
               "nodes": [],
@@ -4133,14 +4133,14 @@
                           "typeIdentifier": "t_rational_1000000_by_1",
                           "typeString": "int_const 1000000"
                         },
-                        "id": 75361,
+                        "id": 75342,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "31",
-                          "id": 75356,
+                          "id": 75337,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -4163,14 +4163,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75359,
+                              "id": 75340,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75357,
+                                "id": 75338,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4188,7 +4188,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75358,
+                                "id": 75339,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4209,7 +4209,7 @@
                               }
                             }
                           ],
-                          "id": 75360,
+                          "id": 75341,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -4230,7 +4230,7 @@
                       },
                       {
                         "hexValue": "31",
-                        "id": 75362,
+                        "id": 75343,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4246,7 +4246,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75363,
+                        "id": 75344,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4276,21 +4276,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75355,
+                      "id": 75336,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2089:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75364,
+                    "id": 75345,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4306,7 +4306,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75365,
+                  "id": 75346,
                   "nodeType": "ExpressionStatement",
                   "src": "2089:42:154"
                 },
@@ -4318,14 +4318,14 @@
                           "typeIdentifier": "t_rational_10000000_by_1",
                           "typeString": "int_const 10000000"
                         },
-                        "id": 75372,
+                        "id": 75353,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "3130",
-                          "id": 75367,
+                          "id": 75348,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -4348,14 +4348,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75370,
+                              "id": 75351,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75368,
+                                "id": 75349,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4373,7 +4373,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75369,
+                                "id": 75350,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4394,7 +4394,7 @@
                               }
                             }
                           ],
-                          "id": 75371,
+                          "id": 75352,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -4415,7 +4415,7 @@
                       },
                       {
                         "hexValue": "3130",
-                        "id": 75373,
+                        "id": 75354,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4431,7 +4431,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75374,
+                        "id": 75355,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4461,21 +4461,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75366,
+                      "id": 75347,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2141:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75375,
+                    "id": 75356,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4491,7 +4491,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75376,
+                  "id": 75357,
                   "nodeType": "ExpressionStatement",
                   "src": "2141:44:154"
                 },
@@ -4503,14 +4503,14 @@
                           "typeIdentifier": "t_rational_200000000_by_1",
                           "typeString": "int_const 200000000"
                         },
-                        "id": 75383,
+                        "id": 75364,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "323030",
-                          "id": 75378,
+                          "id": 75359,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -4533,14 +4533,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75381,
+                              "id": 75362,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75379,
+                                "id": 75360,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4558,7 +4558,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75380,
+                                "id": 75361,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4579,7 +4579,7 @@
                               }
                             }
                           ],
-                          "id": 75382,
+                          "id": 75363,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -4600,7 +4600,7 @@
                       },
                       {
                         "hexValue": "323030",
-                        "id": 75384,
+                        "id": 75365,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4616,7 +4616,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75385,
+                        "id": 75366,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4646,21 +4646,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75377,
+                      "id": 75358,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2195:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75386,
+                    "id": 75367,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4676,7 +4676,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75387,
+                  "id": 75368,
                   "nodeType": "ExpressionStatement",
                   "src": "2195:46:154"
                 },
@@ -4688,14 +4688,14 @@
                           "typeIdentifier": "t_rational_10210000_by_1",
                           "typeString": "int_const 10210000"
                         },
-                        "id": 75394,
+                        "id": 75375,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "31302e3231",
-                          "id": 75389,
+                          "id": 75370,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -4718,14 +4718,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75392,
+                              "id": 75373,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75390,
+                                "id": 75371,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4743,7 +4743,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75391,
+                                "id": 75372,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4764,7 +4764,7 @@
                               }
                             }
                           ],
-                          "id": 75393,
+                          "id": 75374,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -4785,7 +4785,7 @@
                       },
                       {
                         "hexValue": "31302e3231",
-                        "id": 75395,
+                        "id": 75376,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4801,7 +4801,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75396,
+                        "id": 75377,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4831,21 +4831,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75388,
+                      "id": 75369,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2251:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75397,
+                    "id": 75378,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4861,7 +4861,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75398,
+                  "id": 75379,
                   "nodeType": "ExpressionStatement",
                   "src": "2251:50:154"
                 },
@@ -4873,14 +4873,14 @@
                           "typeIdentifier": "t_rational_3100000_by_1",
                           "typeString": "int_const 3100000"
                         },
-                        "id": 75405,
+                        "id": 75386,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "332e31",
-                          "id": 75400,
+                          "id": 75381,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -4903,14 +4903,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75403,
+                              "id": 75384,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75401,
+                                "id": 75382,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4928,7 +4928,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75402,
+                                "id": 75383,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -4949,7 +4949,7 @@
                               }
                             }
                           ],
-                          "id": 75404,
+                          "id": 75385,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -4970,7 +4970,7 @@
                       },
                       {
                         "hexValue": "332e31",
-                        "id": 75406,
+                        "id": 75387,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4986,7 +4986,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75407,
+                        "id": 75388,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5016,21 +5016,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75399,
+                      "id": 75380,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2311:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75408,
+                    "id": 75389,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5046,7 +5046,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75409,
+                  "id": 75390,
                   "nodeType": "ExpressionStatement",
                   "src": "2311:46:154"
                 },
@@ -5058,14 +5058,14 @@
                           "typeIdentifier": "t_rational_2010000_by_1",
                           "typeString": "int_const 2010000"
                         },
-                        "id": 75416,
+                        "id": 75397,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "322e3031",
-                          "id": 75411,
+                          "id": 75392,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -5088,14 +5088,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75414,
+                              "id": 75395,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75412,
+                                "id": 75393,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5113,7 +5113,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75413,
+                                "id": 75394,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5134,7 +5134,7 @@
                               }
                             }
                           ],
-                          "id": 75415,
+                          "id": 75396,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -5155,7 +5155,7 @@
                       },
                       {
                         "hexValue": "322e3031",
-                        "id": 75417,
+                        "id": 75398,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5171,7 +5171,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75418,
+                        "id": 75399,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5201,21 +5201,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75410,
+                      "id": 75391,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2367:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75419,
+                    "id": 75400,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5231,7 +5231,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75420,
+                  "id": 75401,
                   "nodeType": "ExpressionStatement",
                   "src": "2367:48:154"
                 },
@@ -5243,14 +5243,14 @@
                           "typeIdentifier": "t_rational_100000_by_1",
                           "typeString": "int_const 100000"
                         },
-                        "id": 75427,
+                        "id": 75408,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "302e31",
-                          "id": 75422,
+                          "id": 75403,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -5273,14 +5273,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75425,
+                              "id": 75406,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75423,
+                                "id": 75404,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5298,7 +5298,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75424,
+                                "id": 75405,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5319,7 +5319,7 @@
                               }
                             }
                           ],
-                          "id": 75426,
+                          "id": 75407,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -5340,7 +5340,7 @@
                       },
                       {
                         "hexValue": "302e31",
-                        "id": 75428,
+                        "id": 75409,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5356,7 +5356,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75429,
+                        "id": 75410,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5386,21 +5386,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75421,
+                      "id": 75402,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2425:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75430,
+                    "id": 75411,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5416,7 +5416,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75431,
+                  "id": 75412,
                   "nodeType": "ExpressionStatement",
                   "src": "2425:46:154"
                 },
@@ -5428,14 +5428,14 @@
                           "typeIdentifier": "t_rational_10000_by_1",
                           "typeString": "int_const 10000"
                         },
-                        "id": 75438,
+                        "id": 75419,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "302e3031",
-                          "id": 75433,
+                          "id": 75414,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -5458,14 +5458,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75436,
+                              "id": 75417,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75434,
+                                "id": 75415,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5483,7 +5483,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75435,
+                                "id": 75416,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5504,7 +5504,7 @@
                               }
                             }
                           ],
-                          "id": 75437,
+                          "id": 75418,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -5525,7 +5525,7 @@
                       },
                       {
                         "hexValue": "302e3031",
-                        "id": 75439,
+                        "id": 75420,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5541,7 +5541,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75440,
+                        "id": 75421,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5571,21 +5571,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75432,
+                      "id": 75413,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2481:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75441,
+                    "id": 75422,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5601,7 +5601,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75442,
+                  "id": 75423,
                   "nodeType": "ExpressionStatement",
                   "src": "2481:48:154"
                 },
@@ -5613,14 +5613,14 @@
                           "typeIdentifier": "t_rational_4200100_by_1",
                           "typeString": "int_const 4200100"
                         },
-                        "id": 75449,
+                        "id": 75430,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "342e32303031",
-                          "id": 75444,
+                          "id": 75425,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -5643,14 +5643,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75447,
+                              "id": 75428,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75445,
+                                "id": 75426,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5668,7 +5668,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75446,
+                                "id": 75427,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5689,7 +5689,7 @@
                               }
                             }
                           ],
-                          "id": 75448,
+                          "id": 75429,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -5710,7 +5710,7 @@
                       },
                       {
                         "hexValue": "342e32303031",
-                        "id": 75450,
+                        "id": 75431,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5726,7 +5726,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75451,
+                        "id": 75432,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5756,21 +5756,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75443,
+                      "id": 75424,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2539:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75452,
+                    "id": 75433,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5786,7 +5786,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75453,
+                  "id": 75434,
                   "nodeType": "ExpressionStatement",
                   "src": "2539:52:154"
                 },
@@ -5798,14 +5798,14 @@
                           "typeIdentifier": "t_rational_22000000_by_1",
                           "typeString": "int_const 22000000"
                         },
-                        "id": 75460,
+                        "id": 75441,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "3232",
-                          "id": 75455,
+                          "id": 75436,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -5828,14 +5828,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75458,
+                              "id": 75439,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75456,
+                                "id": 75437,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5853,7 +5853,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75457,
+                                "id": 75438,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -5874,7 +5874,7 @@
                               }
                             }
                           ],
-                          "id": 75459,
+                          "id": 75440,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -5895,7 +5895,7 @@
                       },
                       {
                         "hexValue": "3232",
-                        "id": 75461,
+                        "id": 75442,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5911,7 +5911,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75462,
+                        "id": 75443,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5941,21 +5941,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75454,
+                      "id": 75435,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2601:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75463,
+                    "id": 75444,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5971,7 +5971,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75464,
+                  "id": 75445,
                   "nodeType": "ExpressionStatement",
                   "src": "2601:44:154"
                 },
@@ -5983,14 +5983,14 @@
                           "typeIdentifier": "t_rational_2007100_by_1",
                           "typeString": "int_const 2007100"
                         },
-                        "id": 75471,
+                        "id": 75452,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "322e30303731",
-                          "id": 75466,
+                          "id": 75447,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -6013,14 +6013,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75469,
+                              "id": 75450,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75467,
+                                "id": 75448,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6038,7 +6038,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75468,
+                                "id": 75449,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6059,7 +6059,7 @@
                               }
                             }
                           ],
-                          "id": 75470,
+                          "id": 75451,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -6080,7 +6080,7 @@
                       },
                       {
                         "hexValue": "322e30303731",
-                        "id": 75472,
+                        "id": 75453,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6096,7 +6096,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75473,
+                        "id": 75454,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6126,21 +6126,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75465,
+                      "id": 75446,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2655:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75474,
+                    "id": 75455,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -6156,7 +6156,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75475,
+                  "id": 75456,
                   "nodeType": "ExpressionStatement",
                   "src": "2655:52:154"
                 },
@@ -6168,14 +6168,14 @@
                           "typeIdentifier": "t_rational_3000081_by_1",
                           "typeString": "int_const 3000081"
                         },
-                        "id": 75482,
+                        "id": 75463,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "332e303030303831",
-                          "id": 75477,
+                          "id": 75458,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -6198,14 +6198,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75480,
+                              "id": 75461,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75478,
+                                "id": 75459,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6223,7 +6223,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75479,
+                                "id": 75460,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6244,7 +6244,7 @@
                               }
                             }
                           ],
-                          "id": 75481,
+                          "id": 75462,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -6265,7 +6265,7 @@
                       },
                       {
                         "hexValue": "332e303030303831",
-                        "id": 75483,
+                        "id": 75464,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6281,7 +6281,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75484,
+                        "id": 75465,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6311,21 +6311,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75476,
+                      "id": 75457,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2717:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75485,
+                    "id": 75466,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -6341,7 +6341,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75486,
+                  "id": 75467,
                   "nodeType": "ExpressionStatement",
                   "src": "2717:56:154"
                 },
@@ -6353,14 +6353,14 @@
                           "typeIdentifier": "t_rational_2000_by_1",
                           "typeString": "int_const 2000"
                         },
-                        "id": 75493,
+                        "id": 75474,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "302e303032",
-                          "id": 75488,
+                          "id": 75469,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -6383,14 +6383,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75491,
+                              "id": 75472,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75489,
+                                "id": 75470,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6408,7 +6408,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75490,
+                                "id": 75471,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6429,7 +6429,7 @@
                               }
                             }
                           ],
-                          "id": 75492,
+                          "id": 75473,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -6450,7 +6450,7 @@
                       },
                       {
                         "hexValue": "302e303032",
-                        "id": 75494,
+                        "id": 75475,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6466,7 +6466,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75495,
+                        "id": 75476,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6496,21 +6496,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75487,
+                      "id": 75468,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2783:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75496,
+                    "id": 75477,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -6526,7 +6526,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75497,
+                  "id": 75478,
                   "nodeType": "ExpressionStatement",
                   "src": "2783:50:154"
                 },
@@ -6538,14 +6538,14 @@
                           "typeIdentifier": "t_rational_140000_by_1",
                           "typeString": "int_const 140000"
                         },
-                        "id": 75504,
+                        "id": 75485,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "302e3134",
-                          "id": 75499,
+                          "id": 75480,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -6568,14 +6568,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75502,
+                              "id": 75483,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75500,
+                                "id": 75481,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6593,7 +6593,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75501,
+                                "id": 75482,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6614,7 +6614,7 @@
                               }
                             }
                           ],
-                          "id": 75503,
+                          "id": 75484,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -6635,7 +6635,7 @@
                       },
                       {
                         "hexValue": "302e3134",
-                        "id": 75505,
+                        "id": 75486,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6651,7 +6651,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75506,
+                        "id": 75487,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6681,21 +6681,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75498,
+                      "id": 75479,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2843:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75507,
+                    "id": 75488,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -6711,7 +6711,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75508,
+                  "id": 75489,
                   "nodeType": "ExpressionStatement",
                   "src": "2843:48:154"
                 },
@@ -6723,14 +6723,14 @@
                           "typeIdentifier": "t_rational_14000_by_1",
                           "typeString": "int_const 14000"
                         },
-                        "id": 75515,
+                        "id": 75496,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "302e303134",
-                          "id": 75510,
+                          "id": 75491,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -6753,14 +6753,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75513,
+                              "id": 75494,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75511,
+                                "id": 75492,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6778,7 +6778,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75512,
+                                "id": 75493,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6799,7 +6799,7 @@
                               }
                             }
                           ],
-                          "id": 75514,
+                          "id": 75495,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -6820,7 +6820,7 @@
                       },
                       {
                         "hexValue": "302e303134",
-                        "id": 75516,
+                        "id": 75497,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6836,7 +6836,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75517,
+                        "id": 75498,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -6866,21 +6866,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75509,
+                      "id": 75490,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2901:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75518,
+                    "id": 75499,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -6896,7 +6896,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75519,
+                  "id": 75500,
                   "nodeType": "ExpressionStatement",
                   "src": "2901:50:154"
                 },
@@ -6908,14 +6908,14 @@
                           "typeIdentifier": "t_rational_13001_by_1",
                           "typeString": "int_const 13001"
                         },
-                        "id": 75526,
+                        "id": 75507,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "302e303133303031",
-                          "id": 75521,
+                          "id": 75502,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -6938,14 +6938,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75524,
+                              "id": 75505,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75522,
+                                "id": 75503,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6963,7 +6963,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75523,
+                                "id": 75504,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -6984,7 +6984,7 @@
                               }
                             }
                           ],
-                          "id": 75525,
+                          "id": 75506,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -7005,7 +7005,7 @@
                       },
                       {
                         "hexValue": "302e303133303031",
-                        "id": 75527,
+                        "id": 75508,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7021,7 +7021,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75528,
+                        "id": 75509,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7051,21 +7051,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75520,
+                      "id": 75501,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "2961:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75529,
+                    "id": 75510,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -7081,7 +7081,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75530,
+                  "id": 75511,
                   "nodeType": "ExpressionStatement",
                   "src": "2961:56:154"
                 },
@@ -7093,14 +7093,14 @@
                           "typeIdentifier": "t_rational_21000000_by_1",
                           "typeString": "int_const 21000000"
                         },
-                        "id": 75537,
+                        "id": 75518,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "32312e30",
-                          "id": 75532,
+                          "id": 75513,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -7123,14 +7123,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75535,
+                              "id": 75516,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75533,
+                                "id": 75514,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -7148,7 +7148,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75534,
+                                "id": 75515,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -7169,7 +7169,7 @@
                               }
                             }
                           ],
-                          "id": 75536,
+                          "id": 75517,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -7190,7 +7190,7 @@
                       },
                       {
                         "hexValue": "3231",
-                        "id": 75538,
+                        "id": 75519,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7206,7 +7206,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75539,
+                        "id": 75520,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7236,21 +7236,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75531,
+                      "id": 75512,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "3088:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75540,
+                    "id": 75521,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -7266,7 +7266,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75541,
+                  "id": 75522,
                   "nodeType": "ExpressionStatement",
                   "src": "3088:46:154"
                 },
@@ -7278,14 +7278,14 @@
                           "typeIdentifier": "t_rational_21000000_by_1",
                           "typeString": "int_const 21000000"
                         },
-                        "id": 75548,
+                        "id": 75529,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "32312e3030",
-                          "id": 75543,
+                          "id": 75524,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -7308,14 +7308,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75546,
+                              "id": 75527,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75544,
+                                "id": 75525,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -7333,7 +7333,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75545,
+                                "id": 75526,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -7354,7 +7354,7 @@
                               }
                             }
                           ],
-                          "id": 75547,
+                          "id": 75528,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -7375,7 +7375,7 @@
                       },
                       {
                         "hexValue": "3231",
-                        "id": 75549,
+                        "id": 75530,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7391,7 +7391,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75550,
+                        "id": 75531,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7421,21 +7421,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75542,
+                      "id": 75523,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "3144:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75551,
+                    "id": 75532,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -7451,7 +7451,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75552,
+                  "id": 75533,
                   "nodeType": "ExpressionStatement",
                   "src": "3144:47:154"
                 },
@@ -7463,14 +7463,14 @@
                           "typeIdentifier": "t_rational_3490000_by_1",
                           "typeString": "int_const 3490000"
                         },
-                        "id": 75559,
+                        "id": 75540,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "leftExpression": {
                           "hexValue": "332e343930",
-                          "id": 75554,
+                          "id": 75535,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -7493,14 +7493,14 @@
                                 "typeIdentifier": "t_rational_1000000_by_1",
                                 "typeString": "int_const 1000000"
                               },
-                              "id": 75557,
+                              "id": 75538,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "lValueRequested": false,
                               "leftExpression": {
                                 "hexValue": "3130",
-                                "id": 75555,
+                                "id": 75536,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -7518,7 +7518,7 @@
                               "operator": "**",
                               "rightExpression": {
                                 "hexValue": "36",
-                                "id": 75556,
+                                "id": 75537,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -7539,7 +7539,7 @@
                               }
                             }
                           ],
-                          "id": 75558,
+                          "id": 75539,
                           "isConstant": false,
                           "isInlineArray": false,
                           "isLValue": false,
@@ -7560,7 +7560,7 @@
                       },
                       {
                         "hexValue": "332e3439",
-                        "id": 75560,
+                        "id": 75541,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7576,7 +7576,7 @@
                       },
                       {
                         "hexValue": "36",
-                        "id": 75561,
+                        "id": 75542,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -7606,21 +7606,21 @@
                           "typeString": "int_const 6"
                         }
                       ],
-                      "id": 75553,
+                      "id": 75534,
                       "name": "_checkDecimalString",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        75200,
-                        75233
+                        75181,
+                        75214
                       ],
-                      "referencedDeclaration": 75233,
+                      "referencedDeclaration": 75214,
                       "src": "3201:19:154",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_string_memory_ptr_$_t_uint256_$returns$__$",
                         "typeString": "function (uint256,string memory,uint256)"
                       }
                     },
-                    "id": 75562,
+                    "id": 75543,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -7636,7 +7636,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 75563,
+                  "id": 75544,
                   "nodeType": "ExpressionStatement",
                   "src": "3201:49:154"
                 }
@@ -7649,18 +7649,18 @@
             "name": "test_UintToDecimalString_NotDefault",
             "nameLocation": "2034:35:154",
             "parameters": {
-              "id": 75353,
+              "id": 75334,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2069:2:154"
             },
             "returnParameters": {
-              "id": 75354,
+              "id": 75335,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2079:0:154"
             },
-            "scope": 75566,
+            "scope": 75547,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
@@ -7670,16 +7670,16 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 75185,
+              "id": 75166,
               "name": "Test",
               "nameLocations": [
                 "245:4:154"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 8999,
+              "referencedDeclaration": 8956,
               "src": "245:4:154"
             },
-            "id": 75186,
+            "id": 75167,
             "nodeType": "InheritanceSpecifier",
             "src": "245:4:154"
           }
@@ -7689,45 +7689,45 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          75566,
-          8999,
-          109805,
-          134454,
-          107012,
-          106219,
-          104159,
-          134129,
-          7238,
-          103386,
-          103383
+          75547,
+          8956,
+          109926,
+          134575,
+          107133,
+          106340,
+          104280,
+          134250,
+          7195,
+          103507,
+          103504
         ],
         "name": "DecimalUtilsTest",
         "nameLocation": "225:16:154",
-        "scope": 75567,
+        "scope": 75548,
         "usedErrors": [],
         "usedEvents": [
-          4952,
-          4956,
-          4960,
-          4964,
-          4968,
-          4972,
-          4976,
-          4980,
-          4986,
-          4992,
-          5000,
-          5008,
-          5014,
-          5020,
-          5026,
-          5032,
-          132724,
-          132729,
-          132734,
-          132741,
-          132748,
-          132755
+          4909,
+          4913,
+          4917,
+          4921,
+          4925,
+          4929,
+          4933,
+          4937,
+          4943,
+          4949,
+          4957,
+          4965,
+          4971,
+          4977,
+          4983,
+          4989,
+          132845,
+          132850,
+          132855,
+          132862,
+          132869,
+          132876
         ]
       }
     ],
