@@ -7,6 +7,9 @@
     "RelayerHandler": {
       "address": "0x49abA0A2648d25364dF1215E812a9F97Ef358459",
       "startBlock": 147665651
+    },
+    "AccountHandler": {
+      "address": "0xf3B074b72Cd14aEa171ec05707C26266f548a9Ba"
     }
   }
 }
