@@ -63,7 +63,6 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - OwnershipTransferred
         - UnclaimedFundClaimed
         - UnclaimedFundRegistered
         - UnclaimedFundVoided
@@ -74,8 +73,6 @@ dataSources:
         - name: UnclaimsHandler
           file: ./abis/UnclaimsHandler.json
       eventHandlers:
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: UnclaimedFundClaimed(indexed uint256,indexed bytes32,address,uint256,address)
           handler: handleUnclaimedFundClaimed
         - event: UnclaimedFundRegistered(indexed uint256,indexed
@@ -125,13 +122,10 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - ExtensionPublished
-        - ExtensionHandlerOwnershipTransferred
       abis:
         - name: ExtensionHandler
           file: ./abis/ExtensionHandler.json
       eventHandlers:
         - event: ExtensionPublished(indexed string,indexed address,string[][],uint256)
           handler: handleExtensionPublished
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
       file: ./src/extension-handler.ts
