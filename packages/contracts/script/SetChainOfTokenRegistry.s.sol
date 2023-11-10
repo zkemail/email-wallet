@@ -13,6 +13,10 @@ contract Deploy is Script {
             return;
         }
         address _tokenRegistry = vm.envAddress("TOKEN_REGISTRY");
+        if(_tokenRegistry == address(0)) {
+            console.log("TOKEN_REGISTRY env var not set");
+            return;
+        }
         string memory chainName = vm.envString("CHAIN_NAME");
         uint256 chainId = vm.envUint("CHAIN_ID");
         vm.startBroadcast(ownerPrivateKey);
