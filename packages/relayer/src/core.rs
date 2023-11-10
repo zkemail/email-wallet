@@ -59,10 +59,11 @@ impl ProofJson {
     }
 }
 
-pub(crate) async fn handle_email(
+pub(crate) async fn handle_email<P: EmailsPool>(
     email: String,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
+    emails_pool: P,
     tx_sender: UnboundedSender<EmailMessage>,
     tx_claimer: UnboundedSender<Claim>,
 ) -> Result<()> {
@@ -102,6 +103,34 @@ pub(crate) async fn handle_email(
         }
     } else {
         trace!("Normal email");
+        if let Ok(account_key_hex) =
+            extract_account_key_from_subject(&parsed_email.get_subject_all()?)
+        {
+            let account_key = AccountKey(hex2field(&account_key_hex)?);
+            if !db.contains_user(&from_address).await? {
+                let email_hash = calculate_default_hash(&email);
+                emails_pool.insert_email(&email_hash, &email).await?;
+                return Ok(());
+            }
+            trace!("Account init");
+            handle_account_init(
+                email,
+                &parsed_email,
+                account_key,
+                db.clone(),
+                chain_client.clone(),
+                tx_sender,
+            )
+            .await?;
+            let wallet_salt = account_key.to_wallet_salt()?;
+            trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+            let wallet_addr = chain_client
+                .get_wallet_addr_from_salt(&wallet_salt.0)
+                .await?;
+            info!("Sender wallet address: {}", wallet_addr);
+
+            return Ok(());
+        }
         let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
         let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
         let subject = parsed_email.get_subject_all()?;

@@ -5,8 +5,8 @@ type Relayer @entity {
   emailAddress: String! # string
   hostname: String! # string
   relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "relayer")
-  createdAt: BigInt!
-  updatedAt: BigInt!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type RelayerAccount @entity {
