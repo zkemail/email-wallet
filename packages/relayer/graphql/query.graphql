@@ -8,3 +8,13 @@ query GetRelayers($wallet_addr: String) {
     }
   }
 }
+
+query AllRelayersForPSI { 
+  relayers {
+    address
+    relayerAccounts {
+      psiPoint
+      isInitialized
+    }
+  }
+}
