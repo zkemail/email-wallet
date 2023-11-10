@@ -38,7 +38,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.command = "Send 1 ETH to someone@sample.com";
 
         vm.startPrank(relayer);
-        vm.expectRevert("cannot find DKIM for domain");
+        vm.expectRevert("invalid DKIM public key");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -145,7 +145,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getTokenSendingEmailOp();
         emailOp.hasEmailRecipient = false;
         emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", Strings.toHexString(uint256(uint160(recipient)), 20));
+        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         vm.startPrank(relayer);
         vm.expectRevert("recipientEmailAddrCommit not allowed");
@@ -168,7 +168,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_ShouldReturnFeeIfUnclaimsNotRegistered() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
 
@@ -183,7 +183,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         // Send 1 ETH to handleEmail
-        (bool success, , ) = core.handleEmailOp{value: 1 ether}(emailOp);
+        (bool success, , ,) = core.handleEmailOp{value: 1 ether}(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -194,7 +194,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RelayerGasReimbursement_WhenUserPaysInETH() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
 
@@ -214,7 +214,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = maxFeePerGas;
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee; // ETH = WETH
@@ -226,7 +226,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RelayerGasReimbursement_WhenUserPaysInToken() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
         usdcToken.freeMint(walletAddr, 50 ether); // For gas  reimbursement
@@ -241,7 +241,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = maxFeePerGas;
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
@@ -253,7 +253,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RelayerGasReimbursement_WithCustomFeePerGas() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
         uint256 feePerGas = 3 gwei;
 
         daiToken.freeMint(walletAddr, 150 ether);
@@ -269,7 +269,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = feePerGas; // Custom fee per gas < maxFeePerGas
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
@@ -301,7 +301,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         uint256 unclaimFee = unclaimedFundClaimGas * maxFeePerGas;
 
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp{value: unclaimFee}(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp{value: unclaimFee}(emailOp);
         vm.stopPrank();
 
         uint256 expectedReimbursement = totalFee * 1500; // 1 ETH = 1500 USDC set in TestOracle.sol
@@ -326,7 +326,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);
-        (bool success, , uint256 totalFee) = core.handleEmailOp(emailOp);
+        (bool success, , uint256 totalFee, ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp succeded"); // Execution fails
@@ -339,7 +339,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
     function test_RevertIf_RelayerGasReimbursementFails() public {
         address recipient = vm.addr(5);
-        string memory subject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory subject = string.concat("Send 100 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
 
         daiToken.freeMint(walletAddr, 150 ether);
         usdcToken.freeMint(walletAddr, 100 wei); // This is not enough for gas reimbursement

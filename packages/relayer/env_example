@@ -1,0 +1,24 @@
+CORE_CONTRACT_ADDRESS=0xDBEf046EA0f17aC352212bA620F5B6Abc7F5017b           # Address of the deployed wallet contract.
+PRIVATE_KEY=                      # Private key for Relayer's account.
+CHAIN_RPC_PROVIDER=https://eth-sepolia.g.alchemy.com/v2/0wNX4kFawU4OGPNwkoyoXwHSOsTmpG3Y
+CHAIN_ID=11155111                    # Chain ID of the testnet.
+
+# IMAP + SMTP (Settings will be provided by your email provider)
+IMAP_DOMAIN_NAME=imap.gmail.com
+IMAP_PORT=993
+AUTH_TYPE=password
+SMTP_DOMAIN_NAME=smtp.gmail.com
+LOGIN_ID=                     # IMAP login id - usually your email address.
+LOGIN_PASSWORD=         # IMAP password - usually your email password.
+
+PROVER_LOCATION=local         # Keep this local for running the prover locally.
+PROVER_ADDRESS="http://0.0.0.0:8080"
+
+FEE_PER_GAS=1000000000        # Fee per gas in wei.
+# DATABASE_PATH=/Users/suegamisora/codes/zk-email-wallet/packages/relayer/test.db
+DATABASE_URL="postgres://suegamisora@localhost/emailwallet_test"
+RELAYER_EMAIL_ADDR=emailwallet.relayer@gmail.com
+RELAYER_HOSTNAME="example.com"
+WEB_SERVER_ADDRESS="127.0.0.1:4500"
+CIRCUITS_DIR_PATH=/Users/suegamisora/codes/zk-email-wallet/packages/circuits
+INPUT_FILES_DIR_PATH=/Users/suegamisora/codes/zk-email-wallet/packages/relayer/input_files

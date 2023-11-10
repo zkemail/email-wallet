@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use async_imap::{extensions::idle::IdleResponse::*, types::Fetch, Session};
 use async_native_tls::TlsStream;
 use futures::TryStreamExt;
-use log::{debug, error, info, trace, warn};
+use log::{error, trace};
 use oauth2::reqwest::async_http_client;
 use oauth2::{
     basic::BasicClient, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
@@ -33,6 +33,7 @@ pub(crate) struct ImapConfig {
     pub(crate) domain_name: String,
     pub(crate) port: u16,
     pub(crate) auth: ImapAuth,
+    pub(crate) initially_checked: bool,
 }
 
 struct OAuth2 {
@@ -40,7 +41,7 @@ struct OAuth2 {
     access_token: String,
 }
 
-impl async_imap::Authenticator for OAuth2 {
+impl async_imap::Authenticator for &OAuth2 {
     type Response = String;
 
     fn process(&mut self, _: &[u8]) -> Self::Response {
@@ -117,7 +118,7 @@ impl ImapClient {
                 };
 
                 client
-                    .authenticate("XOAUTH2", oauthed)
+                    .authenticate("XOAUTH2", &oauthed)
                     .await
                     .map_err(|e| e.0)
             }
@@ -130,9 +131,22 @@ impl ImapClient {
         Ok(Self { session, config })
     }
 
-    pub(crate) async fn retrieve_new_emails(mut self) -> Result<(Self, Vec<Vec<Fetch>>)> {
+    pub(crate) async fn retrieve_new_emails(mut self) -> Result<(Vec<Vec<Fetch>>, Self)> {
+        if !self.config.initially_checked {
+            self.config.initially_checked = true;
+            let result =
+                tokio::time::timeout(Duration::from_secs(10), self.get_unseen_emails()).await;
+            if let Ok(Ok(result)) = result {
+                return Ok((result, self));
+            }
+        }
+
         self = self.wait_new_email().await?;
 
+        Ok((self.get_unseen_emails().await?, self))
+    }
+
+    async fn get_unseen_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
         loop {
             match self.session.uid_search("UNSEEN").await {
                 Ok(uids) => {
@@ -145,7 +159,7 @@ impl ImapClient {
                         let res = res.try_collect::<Vec<_>>().await?;
                         results.push(res);
                     }
-                    return Ok((self, results));
+                    return Ok(results);
                 }
                 Err(e) => {
                     error!("Connection reset, reconnecting...");

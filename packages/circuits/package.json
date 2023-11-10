@@ -14,12 +14,15 @@
     "gen-random-proofs": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/gen_random_proofs.ts",
     "verify-proofs": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/verify_proofs.ts",
     "extract-email-sign-rand": "npx ts-node scripts/extract_email_sign_rand.ts",
+    "psi-step1": "npx ts-node scripts/psi_step1.ts",
+    "psi-step2": "npx ts-node scripts/psi_step2.ts",
+    "psi-step3": "npx ts-node scripts/psi_step3.ts",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {
-    "@zk-email/circuits": "^3.0.0",
+    "@zk-email/circuits": "^3.2.0",
     "@zk-email/helpers": "^2.0.0",
-    "@zk-email/zk-regex-circom": "^1.1.1",
+    "@zk-email/zk-regex-circom": "^1.2.1",
     "circom-grumpkin": "https://github.com/zkemail/circom-grumpkin.git",
     "commander": "^11.0.0",
     "snarkjs": "^0.7.0"

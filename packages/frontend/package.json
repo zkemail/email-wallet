@@ -1,0 +1,31 @@
+{
+  "name": "frontend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "circomlibjs": "https://github.com/iden3/circomlibjs.git",
+    "ethers": "^6.8.0",
+    "next": "^13.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "use-debounce": "^9.0.4",
+    "viem": "~0.3.36",
+    "wagmi": "^1.0.6"
+  },
+  "devDependencies": {
+    "@types/circomlibjs": "^0.1.5",
+    "@types/node": "^17.0.31",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.3",
+    "@wagmi/cli": "^1.5.2",
+    "eslint": "^8.15.0",
+    "eslint-config-next": "^12.1.6",
+    "typescript": "^5.0.4"
+  }
+}

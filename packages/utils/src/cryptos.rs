@@ -1,17 +1,10 @@
-use std::convert::TryInto;
-use std::str::FromStr;
-
 use crate::converters::*;
 use anyhow;
-use halo2curves::ff::derive::rand_core::OsRng;
 use halo2curves::ff::{Field, PrimeField};
-use halo2curves::{ff::derive::rand_core::RngCore, serde::SerdeObject};
 use itertools::Itertools;
 use neon::prelude::*;
-use neon::result::Throw;
-use num_bigint::BigUint;
-use num_traits::Zero;
 use poseidon_rs::*;
+use rand_core::{OsRng, RngCore};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
@@ -30,7 +23,7 @@ impl RelayerRand {
     }
 
     pub fn hash(&self) -> Result<Fr, PoseidonError> {
-        poseidon_fields(&[self.0.clone()])
+        poseidon_fields(&[self.0])
     }
 }
 
@@ -61,7 +54,7 @@ impl PaddedEmailAddr {
     }
 
     pub fn to_commitment(&self, rand: &Fr) -> Result<Fr, PoseidonError> {
-        let mut inputs = vec![rand.clone()];
+        let mut inputs = vec![*rand];
         inputs.append(&mut self.to_email_addr_fields());
         poseidon_fields(&inputs)
     }
@@ -73,7 +66,9 @@ impl PaddedEmailAddr {
 }
 
 pub fn extract_rand_from_signature(signature: &[u8]) -> Result<Fr, PoseidonError> {
-    let mut inputs = bytes_chunk_fields(signature, 121, 2);
+    let mut signature = signature.to_vec();
+    signature.reverse();
+    let mut inputs = bytes_chunk_fields(&signature, 121, 2);
     inputs.push(Fr::one());
     let cm_rand = poseidon_fields(&inputs)?;
     Ok(cm_rand)
@@ -96,14 +91,14 @@ impl AccountKey {
         email_addr: &PaddedEmailAddr,
         relayer_rand_hash: &Fr,
     ) -> Result<Fr, PoseidonError> {
-        let mut inputs = vec![self.0.clone()];
+        let mut inputs = vec![self.0];
         inputs.append(&mut email_addr.to_email_addr_fields());
-        inputs.push(relayer_rand_hash.clone());
+        inputs.push(*relayer_rand_hash);
         poseidon_fields(&inputs)
     }
 
     pub fn to_wallet_salt(&self) -> Result<WalletSalt, PoseidonError> {
-        let field = poseidon_fields(&[self.0.clone(), Fr::zero()])?;
+        let field = poseidon_fields(&[self.0, Fr::zero()])?;
         Ok(WalletSalt(field))
     }
 
@@ -213,11 +208,11 @@ pub fn email_addr_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
     let signature = cx.argument::<JsString>(1)?.value(&mut cx);
-    let mut signature = match hex::decode(&signature[2..]) {
+    let signature = match hex::decode(&signature[2..]) {
         Ok(bytes) => bytes,
         Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
     };
-    signature.reverse();
+    // signature.reverse();
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
     let email_addr_commit = match padded_email_addr.to_commitment_with_signature(&signature) {
         Ok(fr) => fr,
@@ -229,11 +224,11 @@ pub fn email_addr_commit_with_signature_node(mut cx: FunctionContext) -> JsResul
 
 pub fn extract_rand_from_signature_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let signature = cx.argument::<JsString>(0)?.value(&mut cx);
-    let mut signature = match hex::decode(&signature[2..]) {
+    let signature = match hex::decode(&signature[2..]) {
         Ok(bytes) => bytes,
         Err(e) => return cx.throw_error(&format!("signature is an invalid hex string: {}", e)),
     };
-    signature.reverse();
+    // signature.reverse();
     let rand = match extract_rand_from_signature(&signature) {
         Ok(fr) => fr,
         Err(e) => return cx.throw_error(&format!("extract_rand_from_signature failed: {}", e)),

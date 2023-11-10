@@ -14,7 +14,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         address newOwner = vm.addr(5);
         string memory subject = string.concat(
             "Exit Email Wallet. Change ownership to ",
-            Strings.toHexString(uint160(newOwner), 20)
+            SubjectUtils.addressToChecksumHexString(newOwner)
         );
         Wallet wallet = Wallet(payable(walletAddr));
 
@@ -24,7 +24,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         emailOp.maskedSubject = subject;
 
         vm.startPrank(relayer);
-        (bool success, , ) = core.handleEmailOp(emailOp);
+        (bool success, , ,) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
@@ -35,7 +35,10 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         address recipient = vm.addr(7);
 
         EmailOp memory sendEmailOp = _getBaseEmailOp();
-        string memory sendSubject = string.concat("Send 100 DAI to ", Strings.toHexString(uint160(recipient), 20));
+        string memory sendSubject = string.concat(
+            "Send 100 DAI to ",
+            SubjectUtils.addressToChecksumHexString(recipient)
+        );
         sendEmailOp.command = Commands.SEND;
         sendEmailOp.walletParams.tokenName = "DAI";
         sendEmailOp.walletParams.amount = 100 ether;
@@ -44,7 +47,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         sendEmailOp.emailNullifier = bytes32(uint(9853094850));
 
         vm.startPrank(relayer);
-        (bool sendSuccess, bytes memory errData, ) = core.handleEmailOp(sendEmailOp);
+        (bool sendSuccess, bytes memory errData, ,) = core.handleEmailOp(sendEmailOp);
         vm.stopPrank();
 
         assertFalse(sendSuccess, "handleEmailOp succeeded after exit");

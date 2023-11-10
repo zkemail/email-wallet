@@ -8,7 +8,7 @@ use dotenv::dotenv;
 pub struct RelayerConfig {
     pub(crate) imap_config: ImapConfig,
     pub(crate) smtp_config: SmtpConfig,
-    pub(crate) db_path: PathBuf,
+    pub(crate) db_path: String,
     // pub(crate) relayer_randomness: String,
     pub(crate) web_server_address: String,
     pub(crate) circuits_dir_path: PathBuf,
@@ -18,6 +18,8 @@ pub struct RelayerConfig {
     pub(crate) private_key: String,
     pub(crate) core_contract_address: String,
     pub(crate) fee_per_gas: U256,
+    pub(crate) input_files_dir: String,
+    pub(crate) email_templates: String,
 }
 
 impl RelayerConfig {
@@ -45,6 +47,7 @@ impl RelayerConfig {
             domain_name: env::var(IMAP_DOMAIN_NAME_KEY).unwrap(),
             port: env::var(IMAP_PORT_KEY).unwrap().parse().unwrap(),
             auth: imap_auth,
+            initially_checked: false,
         };
 
         let smtp_config = SmtpConfig {
@@ -56,10 +59,12 @@ impl RelayerConfig {
         let fee_per_gas = env::var(FEE_PER_GAS_KEY).unwrap();
         let fee_per_gas = U256::from_dec_str(&fee_per_gas).unwrap();
 
+        let input_files_dir = env::var(INPUT_FILES_DIR_KEY).unwrap();
+
         Self {
             imap_config,
             smtp_config,
-            db_path: env::var(DATABASE_PATH_KEY).unwrap().into(),
+            db_path: env::var(DATABASE_PATH_KEY).unwrap(),
             // relayer_randomness: env::var(RELAYER_RANDOMNESS_KEY).unwrap(),
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),
             circuits_dir_path: env::var(CIRCUITS_DIR_PATH_KEY).unwrap().into(),
@@ -69,6 +74,8 @@ impl RelayerConfig {
             private_key: env::var(PRIVATE_KEY_KEY).unwrap(),
             core_contract_address: env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap(),
             fee_per_gas,
+            input_files_dir,
+            email_templates: env::var(EMAIL_TEMPLATES_PATH_KEY).unwrap(),
         }
     }
 }

@@ -24,7 +24,7 @@ abstract contract Extension {
 
     /// Register unclaimed state for a recipient emailCommitment
     /// @param unclaimedState Unclaimed state that is registered
-    /// @param isInternal A flag whether the unclaimed state is registered from `registerUnclaimedStateAsExtension`.
+    /// @param isInternal A flag whether the unclaimed state is registered from `registerUnclaimedStateAsExtension` and the caller and callee extensions are the same.
     function registerUnclaimedState(UnclaimedState memory unclaimedState, bool isInternal) public virtual {
         unclaimedState;
         isInternal;

@@ -4,32 +4,7 @@ use crate::*;
 
 use ethers::abi::{self, Token};
 use ethers::types::{Address, Bytes, I256, U256};
-// use num_bigint::{BigInt, BigUint};
-// use num_traits::Num;
 use regex::Regex;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
-
-const AMOUNT_REGEX: &'static str = "[0-9]+(\\.[0-9]+)?";
-const TOKEN_NAME_REGEX: &'static str = "[A-Z]+";
-const STRING_RGEX: &'static str = ".+";
-const UINT_REGEX: &'static str = "[0-9]+";
-const INT_REGEX: &'static str = "-?[0-9]+";
-const ETH_ADDR_REGEX: &'static str = "0x[0-9a-fA-F]{40}";
-const EMAIL_ADDR_REGEX: &'static str =
-    "[a-zA-Z0-9!#$%&'\\*\\+-/=\\?^_`{\\|}~\\.]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9\\.-]+";
-pub(crate) const SEND_COMMAND: &'static str = "Send";
-pub(crate) const EXECUTE_COMMAND: &'static str = "Execute";
-pub(crate) const INSTALL_COMMAND: &'static str = "Install";
-pub(crate) const UNINSTALL_COMMAND: &'static str = "Uninstall";
-pub(crate) const EXIT_COMMAND: &'static str = "Exit";
-pub(crate) const DKIM_COMMAND: &'static str = "DKIM";
 
 #[derive(Debug, Clone)]
 pub enum TemplateValue {
@@ -55,24 +30,20 @@ impl TemplateValue {
         match self {
             Self::TokenAmount { token_name, amount } => {
                 let amount_u256 = Self::amount_to_uint(amount, amount_decimal_size.unwrap());
-                let tuple = Token::Tuple(vec![
+                info!("amount_u256: {}", amount_u256);
+                Ok(Bytes::from(abi::encode(&[
                     Token::Uint(amount_u256),
                     Token::String(token_name.clone()),
-                ]);
-                Ok(Bytes::from(abi::encode(&[tuple])))
+                ])))
             }
             Self::Amount(amount) => {
                 let amount_u256 = Self::amount_to_uint(amount, amount_decimal_size.unwrap());
                 Ok(Bytes::from(abi::encode(&[Token::Uint(amount_u256)])))
             }
             Self::String(string) => Ok(Bytes::from(abi::encode(&[Token::String(string.clone())]))),
-            Self::Uint(uint) => Ok(Bytes::from(abi::encode(&[Token::Uint(uint.clone())]))),
-            Self::Int(int) => Ok(Bytes::from(abi::encode(&[Token::Int(
-                int.into_raw().clone(),
-            )]))),
-            Self::Address(address) => {
-                Ok(Bytes::from(abi::encode(&[Token::Address(address.clone())])))
-            }
+            Self::Uint(uint) => Ok(Bytes::from(abi::encode(&[Token::Uint(*uint)]))),
+            Self::Int(int) => Ok(Bytes::from(abi::encode(&[Token::Int(int.into_raw())]))),
+            Self::Address(address) => Ok(Bytes::from(abi::encode(&[Token::Address(*address)]))),
             Self::Recipient {
                 is_email,
                 email_addr,
@@ -82,7 +53,7 @@ impl TemplateValue {
                     Ok(Bytes::default())
                 } else {
                     Ok(Bytes::from(abi::encode(&[Token::Address(
-                        eth_addr.clone().unwrap(),
+                        eth_addr.unwrap(),
                     )])))
                 }
             }
@@ -110,7 +81,7 @@ impl TemplateValue {
 
 pub fn extract_command_from_subject(subject: &str) -> Result<String> {
     let command = subject
-        .split(" ")
+        .split(' ')
         .next()
         .ok_or(anyhow!("No command found"))?
         .to_string();
@@ -203,11 +174,11 @@ pub fn extract_template_vals_and_idx(
             }
         }
     }
-    return Ok((None, Vec::new()));
+    Ok((None, Vec::new()))
 }
 
 fn extract_template_vals(input: &str, templates: Vec<String>) -> Result<Vec<TemplateValue>> {
-    let input_decomposed: Vec<&str> = input.split(" ").collect();
+    let input_decomposed: Vec<&str> = input.split(' ').collect();
     let mut template_vals = Vec::new();
     let mut input_idx = 0;
     for template in templates.iter() {

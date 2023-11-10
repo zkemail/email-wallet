@@ -1,16 +1,11 @@
 use std::convert::TryInto;
-use std::str::FromStr;
 
 use anyhow;
-use halo2curves::ff::derive::rand_core::OsRng;
 use halo2curves::ff::{Field, PrimeField};
-use halo2curves::{ff::derive::rand_core::RngCore, serde::SerdeObject};
 use itertools::Itertools;
 use neon::prelude::*;
-use neon::result::Throw;
-use num_bigint::BigUint;
-use num_traits::Zero;
 use poseidon_rs::*;
+use rand_core::{OsRng, RngCore};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub fn hex2field(input_hex: &str) -> anyhow::Result<Fr> {
@@ -55,7 +50,7 @@ pub fn field2hex(field: &Fr) -> String {
 }
 
 pub fn digits2int(input_digits: &str) -> anyhow::Result<u64> {
-    Ok(u64::from_str_radix(input_digits, 10)?)
+    Ok(input_digits.parse()?)
 }
 
 pub fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
@@ -71,7 +66,7 @@ pub fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
 
 pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: usize) -> Vec<Fr> {
     let bits = bytes
-        .into_iter()
+        .iter()
         .flat_map(|byte| {
             let mut bits = vec![];
             for i in 0..8 {
@@ -98,7 +93,7 @@ pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: u
             let mut input = Fr::zero();
             let mut coeff = Fr::one();
             let offset = Fr::from_u128(1u128 << chunk_size);
-            for (i, word) in words.iter().enumerate() {
+            for (_, word) in words.iter().enumerate() {
                 input += coeff * word;
                 coeff *= offset;
             }

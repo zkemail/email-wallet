@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import "./DecimalUtils.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Commands.sol";
@@ -11,6 +12,48 @@ import "../handlers/ExtensionHandler.sol";
 import "../EmailWalletCore.sol";
 
 library SubjectUtils {
+    bytes16 private constant LOWER_HEX_DIGITS = "0123456789abcdef";
+    bytes16 private constant UPPER_HEX_DIGITS = "0123456789ABCDEF";
+
+    function addressToChecksumHexString(address addr) internal pure returns (string memory) {
+        string memory lowerCaseAddrWithOx = Strings.toHexString(addr);
+
+        bytes memory lowerCaseAddr = new bytes(40); // Remove 0x added by the OZ lib
+        for (uint8 i = 2; i < 42; i++) {
+            lowerCaseAddr[i - 2] = bytes(lowerCaseAddrWithOx)[i];
+        }
+
+        // Hash of lowercase addr
+        uint256 lowerCaseHash = uint256(keccak256(abi.encodePacked(lowerCaseAddr)));
+
+        // Result hex = 42 chars with 0x prefix
+        bytes memory result = new bytes(42);
+        result[0] = "0";
+        result[1] = "x";
+
+        // Shift 24 bytes (96 bits) to the right; as we only need first 20 bytes of the hash to compare
+        lowerCaseHash >>= 24 * 4;
+
+        uint256 intAddr = uint256(uint160(addr));
+
+        for (uint8 i = 41; i > 1; --i) {
+            uint8 hashChar = uint8(lowerCaseHash & 0xf); // Get last char of the hex
+            uint8 addrChar = uint8(intAddr & 0xf); // Get last char of the address
+
+            if (hashChar >= 8) {
+                result[i] = UPPER_HEX_DIGITS[addrChar];
+            } else {
+                result[i] = LOWER_HEX_DIGITS[addrChar];
+            }
+
+            // Remove last char from both hash and addr
+            intAddr >>= 4;
+            lowerCaseHash >>= 4;
+        }
+
+        return string(result);
+    }
+
     /// @notice Convert bytes to hex string without 0x prefix
     /// @param data bytes to convert
     function bytesToHexString(bytes memory data) public pure returns (string memory) {
@@ -36,13 +79,12 @@ library SubjectUtils {
         address walletAddr,
         EmailWalletCore core
     ) public view returns (string memory maskedSubject, bool isExtension) {
-        TokenRegistry tokenRegistry = TokenRegistry(core.tokenRegistry());
         ExtensionHandler extensionHandler = ExtensionHandler(core.extensionHandler());
 
         // Sample: Send 1 ETH to recipient@domain.com
         if (Strings.equal(emailOp.command, Commands.SEND)) {
             WalletParams memory walletParams = emailOp.walletParams;
-            ERC20 token = ERC20(tokenRegistry.getTokenAddress(emailOp.walletParams.tokenName));
+            ERC20 token = ERC20(TokenRegistry(core.tokenRegistry()).getTokenAddress(emailOp.walletParams.tokenName));
 
             require(token != ERC20(address(0)), "token not supported");
             require(emailOp.walletParams.amount > 0, "send amount should be >0");
@@ -58,10 +100,7 @@ library SubjectUtils {
             );
 
             if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject = string.concat(
-                    maskedSubject,
-                    Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20)
-                );
+                maskedSubject = string.concat(maskedSubject, addressToChecksumHexString(emailOp.recipientETHAddr));
             }
         }
         // Sample: Execute 0x000112aa..
@@ -71,6 +110,8 @@ library SubjectUtils {
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
+            require(Address.isContract(target), "target is not a contract");
+
             require(
                 target != address(core) &&
                     target != address(core.unclaimsHandler()) &&
@@ -81,7 +122,10 @@ library SubjectUtils {
             );
 
             require(target != walletAddr, "cannot execute on wallet");
-            require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "cannot execute on token");
+            require(
+                bytes(TokenRegistry(core.tokenRegistry()).getTokenNameOfAddress(target)).length == 0,
+                "cannot execute on token"
+            );
             require(data.length > 0, "execute data cannot be empty");
 
             maskedSubject = string.concat(Commands.EXECUTE, " 0x", bytesToHexString(emailOp.executeCallData));
@@ -113,7 +157,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
                 " Email Wallet. Change ownership to ",
-                Strings.toHexString(uint256(uint160(emailOp.newWalletOwner)), 20)
+                addressToChecksumHexString(emailOp.newWalletOwner)
             );
         }
         // Sample: DKIM registry as 0x000112aa..
@@ -123,7 +167,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.DKIM,
                 " registry set to ",
-                Strings.toHexString(uint256(uint160(emailOp.newDkimRegistry)), 20)
+                addressToChecksumHexString(emailOp.newDkimRegistry)
             );
         }
         // The command is for an extension
@@ -148,7 +192,7 @@ library SubjectUtils {
                         emailOp.extensionParams.subjectParams[nextParamIndex],
                         (uint256, string)
                     );
-                    address tokenAddr = tokenRegistry.getTokenAddress(tokenName);
+                    address tokenAddr = TokenRegistry(core.tokenRegistry()).getTokenAddress(tokenName);
 
                     require(tokenAddr != address(0), "token not supported");
                     // We are not validating token balance here, as tokenAmount might not be always for debiting from wallet
@@ -186,13 +230,13 @@ library SubjectUtils {
                 // {addres} for wallet address
                 else if (Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)) {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
-                    value = Strings.toHexString(uint256(uint160(addr)), 20);
+                    value = addressToChecksumHexString(addr);
                     nextParamIndex++;
                 }
                 // {recipient} is either the recipient's ETH address or zero bytes with the same length of the email address
                 else if (Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {
-                        value = Strings.toHexString(uint256(uint160(emailOp.recipientETHAddr)), 20);
+                        value = addressToChecksumHexString(emailOp.recipientETHAddr);
                     } else {
                         bytes memory zeros = new bytes(emailOp.numRecipientEmailAddrBytes);
                         value = string(zeros);

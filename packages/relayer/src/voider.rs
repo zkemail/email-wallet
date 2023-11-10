@@ -2,23 +2,8 @@
 
 use crate::*;
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-
-use chrono::{DateTime, Local};
-use email_wallet_utils::*;
-use ethers::abi::Token;
-use ethers::types::{Address, Bytes, U256};
-use ethers::utils::hex::FromHex;
-use num_bigint::RandBigInt;
-use regex::Regex;
-use serde::Deserialize;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
+use ethers::types::Address;
+use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) async fn void_unclaims(
     claim: Claim,
@@ -28,32 +13,32 @@ pub(crate) async fn void_unclaims(
 ) -> Result<()> {
     let now = now();
     let commit = hex2field(&claim.commit)?;
+    db.delete_claim(&claim.id, claim.is_fund).await?;
     let (reply_msg, tx_hash) = if claim.is_fund {
-        let unclaimed_fund = chain_client.query_unclaimed_fund(&commit).await?;
-        if (unclaimed_fund.expire_time.as_u64() as i64) > now {
+        let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
+        if unclaimed_fund.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(commit.to_bytes(), true).await?;
+        let result = chain_client.void(claim.id, true).await?;
         (
             format!("Voided fund: {}", unclaimed_fund.token_addr),
             result,
         )
     } else {
-        let unclaimed_state = chain_client.query_unclaimed_state(&commit).await?;
-        if (unclaimed_state.expire_time.as_u64() as i64) > now {
+        let unclaimed_state = chain_client.query_unclaimed_state(claim.id).await?;
+        if unclaimed_state.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(commit.to_bytes(), false).await?;
+        let result = chain_client.void(claim.id, false).await?;
         (
             format!("Voided state: {}", unclaimed_state.extension_addr),
             result,
         )
     };
-    db.delete_claim(&claim.commit, claim.is_fund).await?;
     tx_sender
         .send(EmailMessage {
-            subject: format!("{}", reply_msg),
-            body: format!("{} Transaction: {}", reply_msg, tx_hash),
+            subject: "New Email Wallet Notification".to_string(),
+            body: email_template_message(&reply_msg, &tx_hash).await?,
             to: claim.email_address.to_string(),
             message_id: None,
         })

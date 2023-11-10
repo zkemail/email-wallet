@@ -16,7 +16,7 @@ contract Deploy is Script {
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;
 
-    string[][] nftExtTemplates = new string[][](3);
+    string[][] nftExtTemplates = new string[][](2);
     string[][] uniswapExtTemplates = new string[][](1);
 
     function run() external {
@@ -103,12 +103,18 @@ contract Deploy is Script {
 
         NFTExtension nftExt = new NFTExtension(address(core));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        nftExtTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
-        nftExtTemplates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        address uniswapV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-        UniswapExtension uniExt = new UniswapExtension(address(core), address(tokenRegistry), uniswapV2Router);
+        address uniswapV3Router = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+        // address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+        // TODO: To avoid stack too deep, uniswapV3Factory variable is not used
+        UniswapExtension uniExt = new UniswapExtension(
+            address(core),
+            tokenRegistry,
+            uniswapV3Router,
+            0x1F98431c8aD98523631AE4a59f267346ea31F984
+        );
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 

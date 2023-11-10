@@ -1,6 +1,5 @@
 // Config strings
 pub const ZK_EMAIL_PATH_KEY: &str = "LOCAL_ZK_EMAIL_CIRCOM_PATH";
-pub const INCOMING_EML_PATH: &str = "MODAL_INCOMING_EML_PATH";
 pub const IMAP_DOMAIN_NAME_KEY: &str = "IMAP_DOMAIN_NAME";
 pub const IMAP_PORT_KEY: &str = "IMAP_PORT";
 pub const IMAP_AUTH_TYPE_KEY: &str = "AUTH_TYPE";
@@ -13,7 +12,7 @@ pub const SMTP_DOMAIN_NAME_KEY: &str = "SMTP_DOMAIN_NAME";
 pub const SMTP_PORT_KEY: &str = "SMTP_PORT";
 pub const LOGIN_ID_KEY: &str = "LOGIN_ID";
 pub const LOGIN_PASSWORD_KEY: &str = "LOGIN_PASSWORD";
-pub const DATABASE_PATH_KEY: &str = "DATABASE_PATH";
+pub const DATABASE_PATH_KEY: &str = "DATABASE_URL";
 // pub const RELAYER_RANDOMNESS_KEY: &str = "RELAYER_RANDOMNESS";
 pub const WEB_SERVER_ADDRESS_KEY: &str = "WEB_SERVER_ADDRESS";
 pub const CIRCUITS_DIR_PATH_KEY: &str = "CIRCUITS_DIR_PATH";
@@ -25,6 +24,8 @@ pub const CORE_CONTRACT_ADDRESS_KEY: &str = "CORE_CONTRACT_ADDRESS";
 pub const FEE_PER_GAS_KEY: &str = "FEE_PER_GAS";
 pub const RELAYER_EMAIL_ADDR_KEY: &str = "RELAYER_EMAIL_ADDR";
 pub const RELAYER_HOSTNAME_KEY: &str = "RELAYER_HOSTNAME";
+pub const INPUT_FILES_DIR_KEY: &str = "INPUT_FILES_DIR_PATH";
+pub const EMAIL_TEMPLATES_PATH_KEY: &str = "EMAIL_TEMPLATES_PATH";
 
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";
@@ -34,3 +35,19 @@ pub const CANNOT_GET_EMAIL_FROM_QUEUE: &str = "Cannot get email from mpsc in han
 pub const NOT_MY_SENDER: &str = "NOT_MY_SENDER";
 pub const WRONG_SUBJECT_FORMAT: &str = "Wrong subject format";
 pub const INSUFFICIENT_BALANCE: &str = "Insufficient balance";
+
+// Core REGEX'es and Commands
+pub(crate) const AMOUNT_REGEX: &str = "[0-9]+(\\.[0-9]+)?";
+pub(crate) const TOKEN_NAME_REGEX: &str = "[A-Z]+";
+pub(crate) const STRING_RGEX: &str = ".+";
+pub(crate) const UINT_REGEX: &str = "[0-9]+";
+pub(crate) const INT_REGEX: &str = "-?[0-9]+";
+pub(crate) const ETH_ADDR_REGEX: &str = "0x[0-9a-fA-F]{40}";
+pub(crate) const EMAIL_ADDR_REGEX: &str =
+    "[a-zA-Z0-9!#$%&'\\*\\+-/=\\?^_`{\\|}~\\.]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9\\.-]+";
+pub(crate) const SEND_COMMAND: &str = "Send";
+pub(crate) const EXECUTE_COMMAND: &str = "Execute";
+pub(crate) const INSTALL_COMMAND: &str = "Install";
+pub(crate) const UNINSTALL_COMMAND: &str = "Uninstall";
+pub(crate) const EXIT_COMMAND: &str = "Exit";
+pub(crate) const DKIM_COMMAND: &str = "DKIM";

@@ -96,9 +96,8 @@ contract TestExtension is Extension {
         }
     }
 
-    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool isInternal) public pure override {
+    function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public pure override {
         unclaimedState;
-        isInternal;
     }
 
     function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external pure override {

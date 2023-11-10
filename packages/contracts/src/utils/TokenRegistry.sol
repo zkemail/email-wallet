@@ -7,6 +7,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 /// @title TokenRegistry
 /// @notice A registry of token name and their address on different chains
 contract TokenRegistry is Ownable {
+
+    event ChainRegistered(string indexed chainName, uint256 indexed chainId);
+    event TokenRegistered(uint256 indexed chainId, string indexed tokenName, address indexed addr);
+
     // Mapping of chainId to token name to address
     mapping(uint256 => mapping(string => address)) public addressOfTokenName;
 
@@ -29,8 +33,23 @@ contract TokenRegistry is Ownable {
     function setTokenAddress(uint256 chainId, string memory tokenName, address addr) public onlyOwner {
         require(addressOfTokenName[chainId][tokenName] == address(0), "Token already registered");
         require(bytes(tokenNameOfAddress[chainId][addr]).length == 0, "Address already registered");
+        
         addressOfTokenName[chainId][tokenName] = addr;
         tokenNameOfAddress[chainId][addr] = tokenName;
+
+        emit TokenRegistered(chainId, tokenName, addr);
+    }
+
+    /// @notice Set token addresses for a chain
+    /// @param chainId Chain id of the network
+    /// @param tokenNames Token names - other than ones hardcoded in `getTokenAddress()`
+    /// @param addrs Addresses of the tokens in the chain
+    function setTokenAddresses(uint256 chainId, string[] memory tokenNames, address[] memory addrs) public onlyOwner {
+        require(tokenNames.length == addrs.length, "tokenNames and addrs length mismatch");
+
+        for (uint256 i = 0; i < tokenNames.length; i++) {
+            setTokenAddress(chainId, tokenNames[i], addrs[i]);
+        }
     }
 
     /// @notice Set token address for the current chain
@@ -115,6 +134,8 @@ contract TokenRegistry is Ownable {
         require(chainIdOfName[chainName] == 0, "chain id already set");
 
         chainIdOfName[chainName] = chainId;
+
+        emit ChainRegistered(chainName, chainId);
     }
 
     /// @notice Get chain id for the given chain name

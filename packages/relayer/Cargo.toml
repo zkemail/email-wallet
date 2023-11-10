@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+tower-http = { version = "0.4", git = "https://github.com/tower-rs/tower-http.git", features = [
+    "cors",
+] }
 tokio = { version = "1.0", features = ["full"] }
 sled = "0.34.2"
 anyhow = "1.0.75"
@@ -23,7 +26,7 @@ lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
 ethers = "2.0.10"
 email-wallet-utils = { path = "../utils" }
 futures = "0.3.28"
-sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio"] }
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio"] }
 regex = "1.10.2"
 axum = "0.6.20"
 rand = "0.8.5"
@@ -35,7 +38,8 @@ chrono = "0.4.31"
 simple_logger = "4.2.0"
 log = "0.4"
 ff = { version = "0.13.0", default-features = false, features = ["std"] }
-
+async-trait = "0.1.36"
+handlebars = "4.4.0"
 
 [build-dependencies]
 ethers = "2.0.10"

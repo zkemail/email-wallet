@@ -1,7 +1,6 @@
 use relayer::*;
 
 use anyhow::Result;
-use ethers::prelude::*;
 use std::env;
 
 #[tokio::main]

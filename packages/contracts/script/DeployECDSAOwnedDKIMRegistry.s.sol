@@ -19,10 +19,10 @@ contract Deploy is Script {
             return;
         }
 
-        uint signValidityDuration = 1 hours;
+        // uint signValidityDuration = 1 hours;
 
         vm.startBroadcast(deployerPrivateKey);
-        ECDSAOwnedDKIMRegistry dkim = new ECDSAOwnedDKIMRegistry(signer, signValidityDuration);
+        ECDSAOwnedDKIMRegistry dkim = new ECDSAOwnedDKIMRegistry(signer);
         vm.stopBroadcast();
 
         console.log("ECDSAOwnedDKIMRegistry deployed at: %s", address(dkim));

@@ -118,6 +118,69 @@ pub mod email_wallet_events {
                                     ),
                                     indexed: false,
                                 },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("newPSIPoint"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
+                                    indexed: false,
+                                },
+                            ],
+                            anonymous: false,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned("EmailOpHandled"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Event {
+                            name: ::std::borrow::ToOwned::to_owned("EmailOpHandled"),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("success"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned(
+                                        "registeredUnclaimId",
+                                    ),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("emailNullifier"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
+                                        32usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("emailAddrPointer"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
+                                        32usize,
+                                    ),
+                                    indexed: false,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned(
+                                        "recipientEmailAddrCommit",
+                                    ),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
+                                        32usize,
+                                    ),
+                                    indexed: false,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("recipientETHAddr"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: false,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("err"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
+                                    indexed: false,
+                                },
                             ],
                             anonymous: false,
                         },
@@ -229,6 +292,13 @@ pub mod email_wallet_events {
                             ),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("id"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddrCommit"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
                                         32usize,
@@ -265,6 +335,13 @@ pub mod email_wallet_events {
                                 "UnclaimedFundRegistered",
                             ),
                             inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("id"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
                                 ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddrCommit"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
@@ -324,6 +401,13 @@ pub mod email_wallet_events {
                             ),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("id"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddrCommit"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
                                         32usize,
@@ -361,6 +445,13 @@ pub mod email_wallet_events {
                             ),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("id"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddrCommit"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
                                         32usize,
@@ -385,6 +476,13 @@ pub mod email_wallet_events {
                                 "UnclaimedStateRegistered",
                             ),
                             inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("id"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
                                 ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddrCommit"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
@@ -442,6 +540,13 @@ pub mod email_wallet_events {
                             ),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("id"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddrCommit"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
                                         32usize,
@@ -469,13 +574,13 @@ pub mod email_wallet_events {
         ::ethers::core::abi::Abi,
     > = ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
-    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xB1z\xC2\x14q\xFD^\xCE\xAD\x0F0\xEE\xC8=k\r\xDD?yt\x81<\xD5\x1AS\x97\xC8O\x81>\xAFMdsolcC\0\x08\x11\x003";
+    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xA3\xCD\xEF\xD9\xFA\x9FOy\x13\xA5\xDD\x1E\x9D\xF0\xA6\xE1\xF0\xD3\x9D\x8AIql}\x89_qV\xDF\x9B\xDAzdsolcC\0\x08\x15\x003";
     /// The bytecode of the contract.
     pub static EMAILWALLETEVENTS_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __BYTECODE,
     );
     #[rustfmt::skip]
-    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xB1z\xC2\x14q\xFD^\xCE\xAD\x0F0\xEE\xC8=k\r\xDD?yt\x81<\xD5\x1AS\x97\xC8O\x81>\xAFMdsolcC\0\x08\x11\x003";
+    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xA3\xCD\xEF\xD9\xFA\x9FOy\x13\xA5\xDD\x1E\x9D\xF0\xA6\xE1\xF0\xD3\x9D\x8AIql}\x89_qV\xDF\x9B\xDAzdsolcC\0\x08\x15\x003";
     /// The deployed bytecode of the contract.
     pub static EMAILWALLETEVENTS_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __DEPLOYED_BYTECODE,
@@ -585,6 +690,16 @@ pub mod email_wallet_events {
             ::std::sync::Arc<M>,
             M,
             AccountTransportedFilter,
+        > {
+            self.0.event()
+        }
+        ///Gets the contract's `EmailOpHandled` event
+        pub fn email_op_handled_filter(
+            &self,
+        ) -> ::ethers::contract::builders::Event<
+            ::std::sync::Arc<M>,
+            M,
+            EmailOpHandledFilter,
         > {
             self.0.event()
         }
@@ -748,12 +863,39 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "AccountTransported",
-        abi = "AccountTransported(bytes32,bytes32,bytes32)"
+        abi = "AccountTransported(bytes32,bytes32,bytes32,bytes)"
     )]
     pub struct AccountTransportedFilter {
         pub old_account_key_commit: [u8; 32],
         pub new_email_addr_pointer: [u8; 32],
         pub new_account_key_commit: [u8; 32],
+        pub new_psi_point: ::ethers::core::types::Bytes,
+    }
+    #[derive(
+        Clone,
+        ::ethers::contract::EthEvent,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethevent(
+        name = "EmailOpHandled",
+        abi = "EmailOpHandled(bool,uint256,bytes32,bytes32,bytes32,address,bytes)"
+    )]
+    pub struct EmailOpHandledFilter {
+        #[ethevent(indexed)]
+        pub success: bool,
+        #[ethevent(indexed)]
+        pub registered_unclaim_id: ::ethers::core::types::U256,
+        #[ethevent(indexed)]
+        pub email_nullifier: [u8; 32],
+        pub email_addr_pointer: [u8; 32],
+        pub recipient_email_addr_commit: [u8; 32],
+        pub recipient_eth_addr: ::ethers::core::types::Address,
+        pub err: ::ethers::core::types::Bytes,
     }
     #[derive(
         Clone,
@@ -829,9 +971,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "UnclaimedFundClaimed",
-        abi = "UnclaimedFundClaimed(bytes32,address,uint256,address)"
+        abi = "UnclaimedFundClaimed(uint256,bytes32,address,uint256,address)"
     )]
     pub struct UnclaimedFundClaimedFilter {
+        #[ethevent(indexed)]
+        pub id: ::ethers::core::types::U256,
         #[ethevent(indexed)]
         pub email_addr_commit: [u8; 32],
         pub token_addr: ::ethers::core::types::Address,
@@ -850,9 +994,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "UnclaimedFundRegistered",
-        abi = "UnclaimedFundRegistered(bytes32,address,uint256,address,uint256,uint256,string)"
+        abi = "UnclaimedFundRegistered(uint256,bytes32,address,uint256,address,uint256,uint256,string)"
     )]
     pub struct UnclaimedFundRegisteredFilter {
+        #[ethevent(indexed)]
+        pub id: ::ethers::core::types::U256,
         #[ethevent(indexed)]
         pub email_addr_commit: [u8; 32],
         pub token_addr: ::ethers::core::types::Address,
@@ -874,9 +1020,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "UnclaimedFundVoided",
-        abi = "UnclaimedFundVoided(bytes32,address,uint256,address)"
+        abi = "UnclaimedFundVoided(uint256,bytes32,address,uint256,address)"
     )]
     pub struct UnclaimedFundVoidedFilter {
+        #[ethevent(indexed)]
+        pub id: ::ethers::core::types::U256,
         #[ethevent(indexed)]
         pub email_addr_commit: [u8; 32],
         pub token_addr: ::ethers::core::types::Address,
@@ -895,9 +1043,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "UnclaimedStateClaimed",
-        abi = "UnclaimedStateClaimed(bytes32,address)"
+        abi = "UnclaimedStateClaimed(uint256,bytes32,address)"
     )]
     pub struct UnclaimedStateClaimedFilter {
+        #[ethevent(indexed)]
+        pub id: ::ethers::core::types::U256,
         #[ethevent(indexed)]
         pub email_addr_commit: [u8; 32],
         pub recipient: ::ethers::core::types::Address,
@@ -914,9 +1064,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "UnclaimedStateRegistered",
-        abi = "UnclaimedStateRegistered(bytes32,address,address,uint256,bytes,uint256,string)"
+        abi = "UnclaimedStateRegistered(uint256,bytes32,address,address,uint256,bytes,uint256,string)"
     )]
     pub struct UnclaimedStateRegisteredFilter {
+        #[ethevent(indexed)]
+        pub id: ::ethers::core::types::U256,
         #[ethevent(indexed)]
         pub email_addr_commit: [u8; 32],
         pub extension_addr: ::ethers::core::types::Address,
@@ -938,9 +1090,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "UnclaimedStateVoided",
-        abi = "UnclaimedStateVoided(bytes32,address)"
+        abi = "UnclaimedStateVoided(uint256,bytes32,address)"
     )]
     pub struct UnclaimedStateVoidedFilter {
+        #[ethevent(indexed)]
+        pub id: ::ethers::core::types::U256,
         #[ethevent(indexed)]
         pub email_addr_commit: [u8; 32],
         pub sender: ::ethers::core::types::Address,
@@ -951,6 +1105,7 @@ pub mod email_wallet_events {
         AccountCreatedFilter(AccountCreatedFilter),
         AccountInitializedFilter(AccountInitializedFilter),
         AccountTransportedFilter(AccountTransportedFilter),
+        EmailOpHandledFilter(EmailOpHandledFilter),
         ExtensionPublishedFilter(ExtensionPublishedFilter),
         RelayerConfigUpdatedFilter(RelayerConfigUpdatedFilter),
         RelayerRegisteredFilter(RelayerRegisteredFilter),
@@ -973,6 +1128,9 @@ pub mod email_wallet_events {
             }
             if let Ok(decoded) = AccountTransportedFilter::decode_log(log) {
                 return Ok(EmailWalletEventsEvents::AccountTransportedFilter(decoded));
+            }
+            if let Ok(decoded) = EmailOpHandledFilter::decode_log(log) {
+                return Ok(EmailWalletEventsEvents::EmailOpHandledFilter(decoded));
             }
             if let Ok(decoded) = ExtensionPublishedFilter::decode_log(log) {
                 return Ok(EmailWalletEventsEvents::ExtensionPublishedFilter(decoded));
@@ -1020,6 +1178,9 @@ pub mod email_wallet_events {
                 Self::AccountTransportedFilter(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
+                Self::EmailOpHandledFilter(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
                 Self::ExtensionPublishedFilter(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
@@ -1063,6 +1224,11 @@ pub mod email_wallet_events {
     impl ::core::convert::From<AccountTransportedFilter> for EmailWalletEventsEvents {
         fn from(value: AccountTransportedFilter) -> Self {
             Self::AccountTransportedFilter(value)
+        }
+    }
+    impl ::core::convert::From<EmailOpHandledFilter> for EmailWalletEventsEvents {
+        fn from(value: EmailOpHandledFilter) -> Self {
+            Self::EmailOpHandledFilter(value)
         }
     }
     impl ::core::convert::From<ExtensionPublishedFilter> for EmailWalletEventsEvents {

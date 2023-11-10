@@ -7,8 +7,8 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {SubjectUtils} from "./libraries/SubjectUtils.sol";
@@ -24,8 +24,10 @@ import {ExtensionHandler} from "./handlers/ExtensionHandler.sol";
 import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
+import "./interfaces/Events.sol";
 
 contract EmailWalletCore {
+    using SafeERC20 for IERC20;
     // ZK proof verifier
     IVerifier public immutable verifier;
 
@@ -132,31 +134,29 @@ contract EmailWalletCore {
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
             accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
         );
-        bytes32 dkimPublicKeyHash = accountHandler.getDKIMPublicKeyHash(accountKeyInfo.walletSalt, emailOp.emailDomain);
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
         require(accountKeyInfo.initialized, "account not initialized");
         require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(dkimPublicKeyHash != bytes32(0), "cannot find DKIM for domain");
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
         require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
+        require(
+            accountHandler.isDKIMPublicKeyHashValid(
+                accountKeyInfo.walletSalt,
+                emailOp.emailDomain,
+                emailOp.dkimPublicKeyHash
+            ),
+            "invalid DKIM public key"
+        );
 
         if (emailOp.hasEmailRecipient) {
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
             require(emailOp.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
-            require(
-                unclaimsHandler.getSenderOfUnclaimedFund(emailOp.recipientEmailAddrCommit) == address(0),
-                "unclaimed fund exist"
-            );
-            require(
-                unclaimsHandler.getSenderOfUnclaimedState(emailOp.recipientEmailAddrCommit) == address(0),
-                "unclaimed state exists"
-            );
         } else {
             require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
@@ -173,7 +173,7 @@ contract EmailWalletCore {
         require(
             verifier.verifyEmailOpProof(
                 emailOp.emailDomain,
-                dkimPublicKeyHash,
+                emailOp.dkimPublicKeyHash,
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
@@ -197,7 +197,7 @@ contract EmailWalletCore {
     /// @dev ~ verificationGas(fixed) + executionGas(extension.maxGas if extension) + feeForReimbursement(50k) + msg.value
     function handleEmailOp(
         EmailOp calldata emailOp
-    ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH) {
+    ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH, uint256 registeredUnclaimId) {
         require(currContext.walletAddr == address(0), "context already set");
 
         uint256 initialGas = gasleft();
@@ -205,7 +205,6 @@ contract EmailWalletCore {
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
         currContext.walletAddr = accountHandler.getWalletOfEmailAddrPointer(emailOp.emailAddrPointer);
-
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -233,8 +232,11 @@ contract EmailWalletCore {
         }
         // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
         else {
+            require(currContext.registeredUnclaimId == 0, "registeredUnclaimId must be zero if no unclaimed fund/state is registered");
             payable(msg.sender).transfer(msg.value);
         }
+
+        registeredUnclaimId = currContext.registeredUnclaimId;
 
         uint256 gasForRefund = 55000; // Rough estimate of gas cost for refund (ERC20 transfer) and other operation below
         uint256 totalGas = initialGas - gasleft() + gasForRefund;
@@ -244,13 +246,14 @@ contract EmailWalletCore {
 
         if (feeAmountInToken > 0) {
             address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
-            (success, err) = _transferERC20FromUserWallet(
+            
+            (bool transferSuccess, bytes memory transferErr) = _transferERC20FromUserWallet(
                 currContext.walletAddr,
                 msg.sender,
                 feeToken,
                 feeAmountInToken
             );
-            require(success, string.concat("fee reimbursement failed: ", string(err)));
+            require(transferSuccess, string.concat("fee reimbursement failed: ", string(transferErr)));
         }
 
         // Reset context
@@ -259,7 +262,10 @@ contract EmailWalletCore {
         currContext.extensionAddr = address(0);
         currContext.unclaimedFundRegistered = false;
         currContext.unclaimedStateRegistered = false;
+        currContext.registeredUnclaimId = 0;
         delete currContext.tokenAllowances;
+
+        emit EmailWalletEvents.EmailOpHandled(success, registeredUnclaimId, emailOp.emailNullifier, emailOp.emailAddrPointer, emailOp.recipientEmailAddrCommit, emailOp.recipientETHAddr, err);
     }
 
     /// For extension in context to register Unclaimed State during handleEmailOp
@@ -270,14 +276,15 @@ contract EmailWalletCore {
         require(msg.sender == currContext.extensionAddr, "caller not extension");
         require(currContext.unclaimedStateRegistered == false, "unclaimed state exists");
 
-        unclaimsHandler.registerUnclaimedStateInternal(
+        currContext.unclaimedStateRegistered = true;
+
+        currContext.registeredUnclaimId = unclaimsHandler.registerUnclaimedStateInternal(
             extensionAddr,
             currContext.walletAddr,
             currContext.recipientEmailAddrCommit,
-            state
+            state,
+            extensionAddr == currContext.extensionAddr
         );
-
-        currContext.unclaimedStateRegistered = true;
     }
 
     /// @notice For extension in context to request token from user's wallet during handleEmailOp
@@ -312,7 +319,7 @@ contract EmailWalletCore {
     function depositTokenAsExtension(address tokenAddr, uint256 amount) public {
         require(msg.sender == currContext.extensionAddr, "caller not extension in context");
 
-        IERC20(tokenAddr).transferFrom(msg.sender, currContext.walletAddr, amount);
+        IERC20(tokenAddr).safeTransferFrom(msg.sender, currContext.walletAddr, amount);
     }
 
     /// @notice For extension in context to execute on user's wallet during handleEmailOp
@@ -329,6 +336,8 @@ contract EmailWalletCore {
                 target != address(extensionHandler),
             "target cannot be core or handlers"
         );
+
+        require(Address.isContract(target), "target is not a contract");
 
         require(target != currContext.walletAddr, "target cannot be wallet");
 
@@ -361,14 +370,14 @@ contract EmailWalletCore {
                     return (success, returnData);
                 }
 
-                unclaimsHandler.registerUnclaimedFundInternal(
+                currContext.unclaimedFundRegistered = true;
+
+                currContext.registeredUnclaimId = unclaimsHandler.registerUnclaimedFundInternal(
                     currContext.walletAddr,
                     emailOp.recipientEmailAddrCommit,
                     tokenAddr,
                     walletParams.amount
                 );
-
-                currContext.unclaimedFundRegistered = true;
             }
 
             if (!emailOp.hasEmailRecipient) {
@@ -485,8 +494,7 @@ contract EmailWalletCore {
                     Strings.equal(matcher, Commands.STRING_TEMPLATE) ||
                     Strings.equal(matcher, Commands.UINT_TEMPLATE) ||
                     Strings.equal(matcher, Commands.INT_TEMPLATE) ||
-                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE) ||
-                    Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)
+                    Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)
                 ) {
                     nextParamIndex++;
                 }

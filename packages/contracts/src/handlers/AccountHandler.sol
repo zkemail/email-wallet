@@ -107,24 +107,32 @@ contract AccountHandler is Ownable {
         string calldata emailDomain,
         uint256 emailTimestamp,
         bytes32 emailNullifier,
+        bytes32 dkimPublicKeyHash,
         bytes calldata proof
     ) public {
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
-        bytes32 relayerRandHash = relayerHandler.getRandHash(msg.sender);
 
-        require(relayerRandHash != bytes32(0), "relayer not registered");
+        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(accountKeyCommit != bytes32(0), "account not registered");
         require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
         require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullified");
         require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
+        require(
+            isDKIMPublicKeyHashValid(
+                infoOfAccountKeyCommit[accountKeyCommit].walletSalt,
+                emailDomain,
+                dkimPublicKeyHash
+            ),
+            "invalid DKIM public key hash"
+        );
 
         require(
             verifier.verifyAccountInitializaionProof(
                 emailDomain,
-                getDKIMPublicKeyHash(infoOfAccountKeyCommit[accountKeyCommit].walletSalt, emailDomain),
+                dkimPublicKeyHash,
                 emailTimestamp,
-                relayerRandHash,
+                relayerHandler.getRandHash(msg.sender),
                 emailAddrPointer,
                 accountKeyCommit,
                 emailNullifier,
@@ -166,8 +174,9 @@ contract AccountHandler is Ownable {
         require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullified");
 
         // New relayer might have already created an account, but not initialized.
-        if (accountKeyCommitOfPointer[newEmailAddrPointer] == bytes32(0)) {
+        if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
             require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
+        } else {
             require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
         }
 
@@ -186,10 +195,7 @@ contract AccountHandler is Ownable {
         require(
             verifier.verifyAccountTransportProof(
                 transportEmailProof.domain,
-                getDKIMPublicKeyHash(
-                    infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt,
-                    transportEmailProof.domain
-                ),
+                transportEmailProof.dkimPublicKeyHash,
                 transportEmailProof.timestamp,
                 transportEmailProof.nullifier,
                 relayerHandler.getRandHash(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer),
@@ -213,22 +219,29 @@ contract AccountHandler is Ownable {
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
 
-        infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt = bytes32(0);
-
-        emit EmailWalletEvents.AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
+        emit EmailWalletEvents.AccountTransported(
+            oldAccountKeyCommit,
+            newEmailAddrPointer,
+            newAccountKeyCommit,
+            newPSIPoint
+        );
     }
 
     /// @notice Return the DKIM public key hash for a given email domain and walletSalt
     /// @param walletSalt Salt used to deploy the wallet
     /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
-    function getDKIMPublicKeyHash(bytes32 walletSalt, string memory emailDomain) public view returns (bytes32) {
-        IDKIMRegistry dkimRegistry = defaultDkimRegistry;
+    function isDKIMPublicKeyHashValid(
+        bytes32 walletSalt,
+        string memory emailDomain,
+        bytes32 publicKeyHash
+    ) public view returns (bool) {
+        address dkimRegistry = dkimRegistryOfWalletSalt[walletSalt];
 
-        if (dkimRegistryOfWalletSalt[walletSalt] != address(0)) {
-            dkimRegistry = IDKIMRegistry(dkimRegistryOfWalletSalt[walletSalt]);
+        if (dkimRegistry == address(0)) {
+            dkimRegistry = address(defaultDkimRegistry);
         }
 
-        return dkimRegistry.getDKIMPublicKeyHash(emailDomain);
+        return IDKIMRegistry(dkimRegistry).isDKIMPublicKeyHashValid(emailDomain, publicKeyHash);
     }
 
     /// @notice Return the info of an account key commitment

@@ -21,6 +21,7 @@ import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
 import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
 import {UnclaimsHandler} from "../../src/handlers/UnclaimsHandler.sol";
 import {ExtensionHandler} from "../../src/handlers/ExtensionHandler.sol";
+import "../../src/libraries/SubjectUtils.sol";
 import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
@@ -38,6 +39,7 @@ contract EmailWalletCoreTestHelper is Test {
     address deployer;
     address relayer;
 
+    bytes32 mockDKIMHash = bytes32(uint256(123));
     bytes mockProof = abi.encodePacked(bytes1(0x01));
 
     uint256 maxFeePerGas = 5 gwei;
@@ -52,11 +54,9 @@ contract EmailWalletCoreTestHelper is Test {
 
     // User details (sender) - for when sender failure is not expected
     // Computing hashes to resemble the actual process
-    string senderEmail = "sender@test.com";
     string emailDomain = "test.com";
-    uint256 accountKey = 2001;
-    bytes32 emailAddrPointer = keccak256(abi.encodePacked(relayerRand, senderEmail));
-    bytes32 accountKeyCommit = keccak256(abi.encodePacked(accountKey, senderEmail, randHash));
+    bytes32 emailAddrPointer = keccak256(abi.encodePacked(relayerRand, "sender@test.com"));
+    bytes32 accountKeyCommit = keccak256(abi.encodePacked(uint256(2001), "sender@test.com", randHash));
     bytes32 walletSalt = keccak256(abi.encodePacked(accountKeyCommit, uint(0)));
     bytes psiPoint = abi.encodePacked(uint(1004));
     address walletAddr;
@@ -141,7 +141,7 @@ contract EmailWalletCoreTestHelper is Test {
         walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
 
         // Set a mock DKIM public key hash for test sender's emailDomain
-        dkimRegistry.setDKIMPublicKeyHash(emailDomain, bytes32(uint256(111122223333)));
+        dkimRegistry.setDKIMPublicKeyHash(emailDomain, mockDKIMHash);
 
         // Deploy some ERC20 test tokens and add them to registry
         daiToken = new TestERC20("DAI", "DAI");
@@ -164,7 +164,7 @@ contract EmailWalletCoreTestHelper is Test {
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockProof);
+        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockDKIMHash, mockProof);
         vm.stopPrank();
     }
 
@@ -180,6 +180,7 @@ contract EmailWalletCoreTestHelper is Test {
                 command: "",
                 emailNullifier: bytes32(uint256(13981239)),
                 emailDomain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
                 timestamp: block.timestamp,
                 maskedSubject: "",
                 feeTokenName: "ETH",

@@ -2,23 +2,8 @@
 
 use crate::*;
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::path::Path;
-
-use email_wallet_utils::*;
-use ethers::abi::Token;
-use ethers::types::{Address, Bytes, U256};
-use ethers::utils::hex::FromHex;
-use log::{debug, error, info, trace, warn};
-use num_bigint::RandBigInt;
-use regex::Regex;
-use serde::Deserialize;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
+use log::trace;
+use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) async fn create_account(
     email_address: String,
@@ -34,39 +19,38 @@ pub(crate) async fn create_account(
 
     trace!("Generated account_key {account_key}");
 
-    db.insert_user(&email_address, &account_key).await.unwrap();
-
     let input = generate_account_creation_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email_address,
         RELAYER_RAND.get().unwrap(),
         &account_key,
     )
-    .await
-    .unwrap();
+    .await?;
 
-    let (proof, pub_signals) = generate_proof(
-        &input,
-        "generateCreationProof",
-        PROVER_ADDRESS.get().unwrap(),
-    )
-    .await
-    .unwrap();
+    let (proof, pub_signals) =
+        generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
 
     let data = AccountCreationInput {
-        email_addr_pointer: u256_to_bytes32(pub_signals[1]),
-        account_key_commit: u256_to_bytes32(pub_signals[2]),
-        wallet_salt: u256_to_bytes32(pub_signals[3]),
+        email_addr_pointer: u256_to_bytes32(&pub_signals[1]),
+        account_key_commit: u256_to_bytes32(&pub_signals[2]),
+        wallet_salt: u256_to_bytes32(&pub_signals[3]),
         psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
         proof,
     };
-    let res = chain_client.create_account(data).await.unwrap();
+    info!("Account creation data {:?}", data);
+    let res = chain_client.create_account(data).await?;
+    info!("account creation tx hash: {}", res);
+    db.insert_user(&email_address, &account_key, &res).await?;
     tx.send(EmailMessage {
         subject: format!("New Account - CODE:{}", account_key),
-        body: format!(
-            "New Account Was Created For You with Account Key set to {}",
-            account_key
-        ),
+        body: email_template_message(
+            &format!(
+                "New Email Wallet account was created for you; Your Account Key: {}",
+                account_key
+            ),
+            &res,
+        )
+        .await?,
         to: email_address.to_string(),
         message_id: Some(account_key),
     })
