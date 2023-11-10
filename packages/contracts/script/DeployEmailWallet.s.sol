@@ -103,8 +103,7 @@ contract Deploy is Script {
 
         NFTExtension nftExt = new NFTExtension(address(core));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        nftExtTemplates[1] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}", "safely"];
-        nftExtTemplates[2] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
+        nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
         address uniswapV3Router = 0xE592427A0AEce92De3Edee1F18E0157C05861564;

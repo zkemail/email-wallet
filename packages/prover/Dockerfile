@@ -19,8 +19,8 @@ WORKDIR /email-wallet/packages/prover
 RUN pip install -r requirements.txt
 RUN cp ./circom_proofgen.sh /root
 WORKDIR /root
-RUN gdown "https://drive.google.com/uc?id=1qwyksneAArAsuTPC91qTqBDY5nAbP0XH"
-RUN unzip params.zip -d "params"
+RUN gdown "https://drive.google.com/uc?id=1pe07fwKbtjMLHoQSY8Bcr4rg9aN06mFP"
+RUN unzip params.zip
 RUN chmod +x circom_proofgen.sh
 RUN mkdir build
 

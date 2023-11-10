@@ -13,6 +13,10 @@ contract Deploy is Script {
             return;
         }
         address _nftExtension = vm.envAddress("NFT_EXTENSION");
+        if(_nftExtension == address(0)) {
+            console.log("NFT_EXTENSION env var not set");
+            return;
+        }
         string memory tokenName = vm.envString("TOKEN_NAME");
         address tokenAddr = vm.envAddress("TOKEN_ADDR");
         vm.startBroadcast(ownerPrivateKey);

@@ -330,8 +330,13 @@ pub(crate) async fn handle_email(
                 i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
             };
             let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
-            let psi_client =
-                PSIClient::new(Arc::clone(&chain_client), email_addr, commit.clone()).await?;
+            let psi_client = PSIClient::new(
+                Arc::clone(&chain_client),
+                email_addr.to_string(),
+                registered_unclaim_id,
+                is_fund,
+            )
+            .await?;
             let mut psi_res = vec![];
             let psi_condition = {
                 let account_key = db.get_account_key(email_addr).await?;
@@ -343,17 +348,15 @@ pub(crate) async fn handle_email(
                         )
                         .await?)
                     && {
+                        trace!("Starting PSI");
                         psi_res = psi_client.find().await?;
                         !psi_res.is_empty()
                     }
             };
             if psi_condition {
+                trace!("Reveal PSI");
                 psi_client
-                    .reveal(
-                        &psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>(),
-                        &field2hex(&commit_rand),
-                        &commit,
-                    )
+                    .reveal(&psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
                     .await?;
             } else {
                 let claim = Claim {

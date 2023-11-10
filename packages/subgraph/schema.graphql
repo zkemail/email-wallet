@@ -1,0 +1,7 @@
+type Relayer @entity(immutable: true) {
+  id: Bytes!
+  address: Bytes! # address
+  randHash: Bytes! # bytes32
+  emailAddress: String! # string
+  hostname: String! # string
+}

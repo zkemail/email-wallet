@@ -20,7 +20,6 @@ packages/circuits/*.ptau
 packages/contracts/broadcast
 packages/contracts/cache
 packages/contracts/out
-packages/contracts/artifacts
 packages/contracts/cache
 packages/contracts/test/build_integration/*.json
 packages/contracts/test/build_integration/*.zkey
@@ -43,6 +42,9 @@ packages/prover/build/*
 packages/prover/params/*
 packages/prover/__pycache__/*
 
+# Subgraphs
+packages/subgraph/build
+
 # Mac
 .DS_Store
 
@@ -51,4 +53,3 @@ book
 
 # Vs code settings
 .vscode
-
