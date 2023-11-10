@@ -118,6 +118,11 @@ pub mod email_wallet_events {
                                     ),
                                     indexed: false,
                                 },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("newPSIPoint"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
+                                    indexed: false,
+                                },
                             ],
                             anonymous: false,
                         },
@@ -569,13 +574,13 @@ pub mod email_wallet_events {
         ::ethers::core::abi::Abi,
     > = ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
-    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xC1\x13e\x1F\xAD\x8BesAh\xE0\xD7\xAD\x90\xCAf}=X\xC0\xBD\xDA/\xC5\x84\xCE\xFA\xBB\xA1\x81\x8D\xDFdsolcC\0\x08\x15\x003";
+    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xA3\xCD\xEF\xD9\xFA\x9FOy\x13\xA5\xDD\x1E\x9D\xF0\xA6\xE1\xF0\xD3\x9D\x8AIql}\x89_qV\xDF\x9B\xDAzdsolcC\0\x08\x15\x003";
     /// The bytecode of the contract.
     pub static EMAILWALLETEVENTS_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __BYTECODE,
     );
     #[rustfmt::skip]
-    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xC1\x13e\x1F\xAD\x8BesAh\xE0\xD7\xAD\x90\xCAf}=X\xC0\xBD\xDA/\xC5\x84\xCE\xFA\xBB\xA1\x81\x8D\xDFdsolcC\0\x08\x15\x003";
+    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xA3\xCD\xEF\xD9\xFA\x9FOy\x13\xA5\xDD\x1E\x9D\xF0\xA6\xE1\xF0\xD3\x9D\x8AIql}\x89_qV\xDF\x9B\xDAzdsolcC\0\x08\x15\x003";
     /// The deployed bytecode of the contract.
     pub static EMAILWALLETEVENTS_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __DEPLOYED_BYTECODE,
@@ -858,12 +863,13 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "AccountTransported",
-        abi = "AccountTransported(bytes32,bytes32,bytes32)"
+        abi = "AccountTransported(bytes32,bytes32,bytes32,bytes)"
     )]
     pub struct AccountTransportedFilter {
         pub old_account_key_commit: [u8; 32],
         pub new_email_addr_pointer: [u8; 32],
         pub new_account_key_commit: [u8; 32],
+        pub new_psi_point: ::ethers::core::types::Bytes,
     }
     #[derive(
         Clone,
