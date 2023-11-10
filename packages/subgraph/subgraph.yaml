@@ -46,3 +46,23 @@ dataSources:
         - event: RelayerRegistered(indexed address,bytes32,string,string)
           handler: handleRelayerRegistered
       file: ./src/relayer-handler.ts
+  - kind: ethereum
+    name: AccountHandler
+    network: arbitrum-one
+    source:
+      address: "0xf3B074b72Cd14aEa171ec05707C26266f548a9Ba"
+      abi: AccountHandler
+      startBlock: 147665531
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AccountCreated
+      abis:
+        - name: AccountHandler
+          file: ./abis/AccountHandler.json
+      eventHandlers:
+        - event: AccountCreated(bytes32,bytes32,indexed bytes32,bytes)
+          handler: handleAccountCreated
+      file: ./src/account-handler.ts

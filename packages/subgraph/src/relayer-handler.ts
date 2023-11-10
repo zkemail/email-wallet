@@ -20,3 +20,4 @@ export function handleRelayerConfigUpdated(event: RelayerConfigUpdatedEvent): vo
 
   entity.save();
 }
+

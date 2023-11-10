@@ -19,6 +19,7 @@ pub struct RelayerConfig {
     pub(crate) fee_per_gas: U256,
     pub(crate) input_files_dir: String,
     pub(crate) email_templates: String,
+    pub(crate) subgraph_url: String,
     pub(crate) onboarding_token_addr: H160,
     pub(crate) onboarding_token_amount: U256,
     pub(crate) onboarding_token_distribution_limit: u32,
@@ -63,6 +64,8 @@ impl RelayerConfig {
 
         let input_files_dir = env::var(INPUT_FILES_DIR_KEY).unwrap();
 
+        let subgraph_url = env::var(SUBGRAPH_URL_KEY).unwrap();
+
         let onboarding_token_addr: H160 = env::var(ONBOARDING_TOKEN_ADDR_KEY)
             .unwrap()
             .parse()
@@ -89,6 +92,7 @@ impl RelayerConfig {
             fee_per_gas,
             input_files_dir,
             email_templates: env::var(EMAIL_TEMPLATES_PATH_KEY).unwrap(),
+            subgraph_url,
             onboarding_token_addr,
             onboarding_token_distribution_limit,
             onboarding_token_amount,

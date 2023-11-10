@@ -5,3 +5,10 @@ type Relayer @entity(immutable: true) {
   emailAddress: String! # string
   hostname: String! # string
 }
+type AccountCreation @entity(immutable: true) {
+  id: Bytes!
+  emailAddrPointer: Bytes! # bytes32
+  accountKeyCommit: Bytes! # bytes32
+  walletSalt: Bytes! # bytes32
+  psiPoint: Bytes! # bytes
+}

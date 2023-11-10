@@ -15,6 +15,7 @@ pub(crate) mod imap_client;
 pub(crate) mod psi;
 pub(crate) mod smtp_client;
 pub(crate) mod strings;
+pub(crate) mod subgraph;
 pub(crate) mod subject_templates;
 pub(crate) mod voider;
 pub(crate) mod web_server;
@@ -34,6 +35,7 @@ pub(crate) use psi::*;
 use rand::rngs::OsRng;
 pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
+pub(crate) use subgraph::*;
 pub(crate) use subject_templates::*;
 pub(crate) use voider::*;
 pub(crate) use web_server::*;
@@ -60,6 +62,7 @@ static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
 static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
 static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
 static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
+static SUBGRAPH_URL: OnceLock<String> = OnceLock::new();
 static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
 static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
 static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
@@ -107,6 +110,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     FEE_PER_GAS.set(config.fee_per_gas).unwrap();
     INPUT_FILES_DIR.set(config.input_files_dir).unwrap();
     EMAIL_TEMPLATES.set(config.email_templates).unwrap();
+    SUBGRAPH_URL.set(config.subgraph_url).unwrap();
     ONBOARDING_TOKEN_ADDR
         .set(config.onboarding_token_addr)
         .unwrap();
@@ -135,15 +139,22 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         panic!("Relayer randomness is not registered");
     }
 
-    let emails_pool = FileEmailsPool::new();
-
-    for (email_hash, _) in emails_pool.get_unhandled_emails().await? {
-        info!("unhandled email {}", email_hash);
-        tx_handler.send(email_hash)?;
-    }
-
+    let tx_handler_for_fetcher_task = tx_handler.clone();
+    let emails_pool_fetcher_task = tokio::task::spawn(async move {
+        loop {
+            let emails_pool = FileEmailsPool::new();
+            let unhandled_emails = emails_pool.get_unhandled_emails().await?;
+            for (email_hash, _) in unhandled_emails {
+                info!("unhandled email {}", email_hash);
+                tx_handler_for_fetcher_task.send(email_hash)?;
+            }
+            sleep(Duration::from_secs(30)).await;
+        }
+        anyhow::Ok(())
+    });
     let db_clone_receiver = Arc::clone(&db);
     let mut email_receiver = ImapClient::new(config.imap_config).await?;
+    let tx_handler_for_receiver_task = tx_handler.clone();
     let email_receiver_task = tokio::task::spawn(async move {
         loop {
             let (fetches, new_email_receiver) = email_receiver.retrieve_new_emails().await?;
@@ -157,7 +168,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                         let emails_pool = FileEmailsPool::new();
                         if !emails_pool.contains_email(&email_hash).await? {
                             emails_pool.insert_email(&email_hash, &body).await?;
-                            tx_handler.send(email_hash)?;
+                            tx_handler_for_receiver_task.send(email_hash)?;
                         }
                     }
                 }
@@ -179,6 +190,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
             info!("Handling email hash {}", email_hash);
+            let emails_pool = FileEmailsPool::new();
             let email = emails_pool.get_email_by_hash(&email_hash).await?;
             info!("Handled email {}", email);
             let emails_pool = FileEmailsPool::new();
@@ -188,6 +200,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     email,
                     Arc::clone(&db_clone),
                     Arc::clone(&client_clone),
+                    emails_pool,
                     tx_sender_for_email_task.clone(),
                     tx_claimer_for_email_task.clone(),
                 )
