@@ -10,6 +10,9 @@
     },
     "AccountHandler": {
       "address": "0xf3B074b72Cd14aEa171ec05707C26266f548a9Ba"
+    },
+    "UnclaimsHandler": {
+      "address": "0xB16ea3758e82792f568f5241c890125CC5898c96"
     }
   }
 }
