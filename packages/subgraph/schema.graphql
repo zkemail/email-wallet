@@ -1,7 +1,83 @@
-type Relayer @entity(immutable: true) {
+type Relayer @entity {
   id: Bytes!
   address: Bytes! # address
   randHash: Bytes! # bytes32
   emailAddress: String! # string
   hostname: String! # string
+  relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "relayer")
+  createdAt: String!
+  updatedAt: String!
+}
+
+type RelayerAccount @entity {
+  id: Bytes!
+  relayer: Relayer!
+  account: Account!
+  emailAddrPointer: Bytes! # bytes32
+  accountKeyCommit: Bytes! # bytes32
+  psiPoint: Bytes! # bytes
+  isInitialized: Boolean!
+  createdAt: BigInt!
+  initializedAt: BigInt!
+}
+
+type Account @entity {
+  id: Bytes!
+  relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "account")
+  walletSalt: Bytes! # bytes32
+  walletAddr: Bytes! # address
+  createdAt: BigInt!
+}
+
+type UnclaimedFund @entity {
+  id: String!
+  emailAddrCommit: Bytes! # bytes32
+  tokenAddr: Bytes! # address
+  amount: BigInt! # uint256
+  sender: Bytes! # address
+  expiryTime: BigInt! # uint256
+  commitmentRandomness: BigInt! # uint256
+  emailAddr: String! # string
+  recipient: Bytes! # address
+  createdAt: BigInt!
+  claimedAt: BigInt!
+  voidedAt: BigInt!
+}
+
+type UnclaimedState @entity {
+  id: String!
+  emailAddrCommit: Bytes! # bytes32
+  extensionAddr: Bytes! # address
+  sender: Bytes! # address
+  expiryTime: BigInt! # uint256
+  state: Bytes! # bytes
+  commitmentRandomness: BigInt! # uint256
+  emailAddr: String! # string
+  recipient: Bytes! # address
+  createdAt: BigInt!
+  claimedAt: BigInt!
+  voidedAt: BigInt!
+}
+
+type EmailOp @entity(immutable: true) {
+  id: Bytes!
+  success: Boolean! # bool
+  emailAddrPointer: Bytes! # bytes32
+  hasRecipient: Boolean! # bool
+  hasEmailRecipient: Boolean! # bool
+  registeredUnclaimId: BigInt! # uint256
+  emailNullifier: Bytes! # bytes32
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+  createdAt: BigInt!
+}
+
+type Extension @entity(immutable: true) {
+  id: Bytes!
+  name: String! # string
+  extensionAddr: Bytes! # address
+  subjectTemplates: [[String!]!]! # string[][]
+  maxExecutionGas: BigInt! # uint256
+  createdAt: BigInt!
+  createdBy: Bytes! # address
 }

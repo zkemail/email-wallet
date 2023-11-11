@@ -122,17 +122,17 @@
   },
   "ast": {
     "absolutePath": "../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol",
-    "id": 4823,
+    "id": 4780,
     "exportedSymbols": {
       "IDKIMRegistry": [
-        4822
+        4779
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:192:49",
     "nodes": [
       {
-        "id": 4812,
+        "id": 4769,
         "nodeType": "PragmaDirective",
         "src": "32:23:49",
         "nodes": [],
@@ -144,12 +144,12 @@
         ]
       },
       {
-        "id": 4822,
+        "id": 4779,
         "nodeType": "ContractDefinition",
         "src": "57:166:49",
         "nodes": [
           {
-            "id": 4821,
+            "id": 4778,
             "nodeType": "FunctionDefinition",
             "src": "87:134:49",
             "nodes": [],
@@ -160,17 +160,17 @@
             "name": "isDKIMPublicKeyHashValid",
             "nameLocation": "96:24:49",
             "parameters": {
-              "id": 4817,
+              "id": 4774,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4814,
+                  "id": 4771,
                   "mutability": "mutable",
                   "name": "domainName",
                   "nameLocation": "144:10:49",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4821,
+                  "scope": 4778,
                   "src": "130:24:49",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -179,7 +179,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 4813,
+                    "id": 4770,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "130:6:49",
@@ -192,12 +192,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 4816,
+                  "id": 4773,
                   "mutability": "mutable",
                   "name": "publicKeyHash",
                   "nameLocation": "172:13:49",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4821,
+                  "scope": 4778,
                   "src": "164:21:49",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -206,7 +206,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 4815,
+                    "id": 4772,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "164:7:49",
@@ -221,17 +221,17 @@
               "src": "120:71:49"
             },
             "returnParameters": {
-              "id": 4820,
+              "id": 4777,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4819,
+                  "id": 4776,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4821,
+                  "scope": 4778,
                   "src": "215:4:49",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -240,7 +240,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 4818,
+                    "id": 4775,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "215:4:49",
@@ -254,7 +254,7 @@
               ],
               "src": "214:6:49"
             },
-            "scope": 4822,
+            "scope": 4779,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -267,11 +267,11 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          4822
+          4779
         ],
         "name": "IDKIMRegistry",
         "nameLocation": "67:13:49",
-        "scope": 4823,
+        "scope": 4780,
         "usedErrors": [],
         "usedEvents": []
       }

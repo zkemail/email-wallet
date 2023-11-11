@@ -103,7 +103,7 @@
         1249
       ],
       "IERC20Permit": [
-        101850
+        101971
       ],
       "SafeERC20": [
         1625
@@ -146,7 +146,7 @@
         "file": "../extensions/IERC20Permit.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 1626,
-        "sourceUnit": 101851,
+        "sourceUnit": 101972,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -3380,7 +3380,7 @@
                         "referencedDeclaration": 1486,
                         "src": "4588:5:19",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IERC20Permit_$101850",
+                          "typeIdentifier": "t_contract$_IERC20Permit_$101971",
                           "typeString": "contract IERC20Permit"
                         }
                       },
@@ -3392,7 +3392,7 @@
                       "memberLocation": "4594:6:19",
                       "memberName": "nonces",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 101843,
+                      "referencedDeclaration": 101964,
                       "src": "4588:12:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
@@ -3545,7 +3545,7 @@
                         "referencedDeclaration": 1486,
                         "src": "4617:5:19",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IERC20Permit_$101850",
+                          "typeIdentifier": "t_contract$_IERC20Permit_$101971",
                           "typeString": "contract IERC20Permit"
                         }
                       },
@@ -3557,7 +3557,7 @@
                       "memberLocation": "4623:6:19",
                       "memberName": "permit",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 101835,
+                      "referencedDeclaration": 101956,
                       "src": "4617:12:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_uint256_$_t_uint8_$_t_bytes32_$_t_bytes32_$returns$__$",
@@ -3648,7 +3648,7 @@
                         "referencedDeclaration": 1486,
                         "src": "4702:5:19",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IERC20Permit_$101850",
+                          "typeIdentifier": "t_contract$_IERC20Permit_$101971",
                           "typeString": "contract IERC20Permit"
                         }
                       },
@@ -3660,7 +3660,7 @@
                       "memberLocation": "4708:6:19",
                       "memberName": "nonces",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 101843,
+                      "referencedDeclaration": 101964,
                       "src": "4702:12:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
@@ -3856,7 +3856,7 @@
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_IERC20Permit_$101850",
+                    "typeIdentifier": "t_contract$_IERC20Permit_$101971",
                     "typeString": "contract IERC20Permit"
                   },
                   "typeName": {
@@ -3869,13 +3869,13 @@
                         "4370:12:19"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 101850,
+                      "referencedDeclaration": 101971,
                       "src": "4370:12:19"
                     },
-                    "referencedDeclaration": 101850,
+                    "referencedDeclaration": 101971,
                     "src": "4370:12:19",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_IERC20Permit_$101850",
+                      "typeIdentifier": "t_contract$_IERC20Permit_$101971",
                       "typeString": "contract IERC20Permit"
                     }
                   },

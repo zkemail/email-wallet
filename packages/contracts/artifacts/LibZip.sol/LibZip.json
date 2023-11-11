@@ -70,17 +70,17 @@
   },
   "ast": {
     "absolutePath": "../../node_modules/solady/src/utils/LibZip.sol",
-    "id": 17114,
+    "id": 17071,
     "exportedSymbols": {
       "LibZip": [
-        17113
+        17070
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:12363:70",
     "nodes": [
       {
-        "id": 17065,
+        "id": 17022,
         "nodeType": "PragmaDirective",
         "src": "32:23:70",
         "nodes": [],
@@ -92,17 +92,17 @@
         ]
       },
       {
-        "id": 17113,
+        "id": 17070,
         "nodeType": "ContractDefinition",
         "src": "492:11902:70",
         "nodes": [
           {
-            "id": 17076,
+            "id": 17033,
             "nodeType": "FunctionDefinition",
             "src": "1102:4019:70",
             "nodes": [],
             "body": {
-              "id": 17075,
+              "id": 17032,
               "nodeType": "Block",
               "src": "1186:3935:70",
               "nodes": [],
@@ -4460,63 +4460,63 @@
                   "evmVersion": "paris",
                   "externalReferences": [
                     {
-                      "declaration": 17069,
+                      "declaration": 17026,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3502:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17069,
+                      "declaration": 17026,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3593:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17069,
+                      "declaration": 17026,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4572:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17072,
+                      "declaration": 17029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4603:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17072,
+                      "declaration": 17029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4650:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17072,
+                      "declaration": 17029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4717:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17072,
+                      "declaration": 17029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4853:6:70",
                       "valueSize": 1
                     }
                   ],
-                  "id": 17074,
+                  "id": 17031,
                   "nodeType": "InlineAssembly",
                   "src": "1239:3876:70"
                 }
               ]
             },
             "documentation": {
-              "id": 17067,
+              "id": 17024,
               "nodeType": "StructuredDocumentation",
               "src": "1058:39:70",
               "text": "@dev Returns the compressed `data`."
@@ -4527,17 +4527,17 @@
             "name": "flzCompress",
             "nameLocation": "1111:11:70",
             "parameters": {
-              "id": 17070,
+              "id": 17027,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17069,
+                  "id": 17026,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "1136:4:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17076,
+                  "scope": 17033,
                   "src": "1123:17:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -4546,7 +4546,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17068,
+                    "id": 17025,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "1123:5:70",
@@ -4561,17 +4561,17 @@
               "src": "1122:19:70"
             },
             "returnParameters": {
-              "id": 17073,
+              "id": 17030,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17072,
+                  "id": 17029,
                   "mutability": "mutable",
                   "name": "result",
                   "nameLocation": "1178:6:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17076,
+                  "scope": 17033,
                   "src": "1165:19:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -4580,7 +4580,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17071,
+                    "id": 17028,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "1165:5:70",
@@ -4594,18 +4594,18 @@
               ],
               "src": "1164:21:70"
             },
-            "scope": 17113,
+            "scope": 17070,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 17086,
+            "id": 17043,
             "nodeType": "FunctionDefinition",
             "src": "5173:1620:70",
             "nodes": [],
             "body": {
-              "id": 17085,
+              "id": 17042,
               "nodeType": "Block",
               "src": "5259:1534:70",
               "nodes": [],
@@ -6255,119 +6255,119 @@
                   "evmVersion": "paris",
                   "externalReferences": [
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5377:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5396:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5495:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5507:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5524:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5571:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5728:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5759:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5771:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "6480:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17079,
+                      "declaration": 17036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "6492:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17082,
+                      "declaration": 17039,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5415:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17082,
+                      "declaration": 17039,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5463:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17082,
+                      "declaration": 17039,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "6573:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17082,
+                      "declaration": 17039,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "6634:6:70",
                       "valueSize": 1
                     }
                   ],
-                  "id": 17084,
+                  "id": 17041,
                   "nodeType": "InlineAssembly",
                   "src": "5312:1475:70"
                 }
               ]
             },
             "documentation": {
-              "id": 17077,
+              "id": 17034,
               "nodeType": "StructuredDocumentation",
               "src": "5127:41:70",
               "text": "@dev Returns the decompressed `data`."
@@ -6378,17 +6378,17 @@
             "name": "flzDecompress",
             "nameLocation": "5182:13:70",
             "parameters": {
-              "id": 17080,
+              "id": 17037,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17079,
+                  "id": 17036,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "5209:4:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17086,
+                  "scope": 17043,
                   "src": "5196:17:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -6397,7 +6397,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17078,
+                    "id": 17035,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "5196:5:70",
@@ -6412,17 +6412,17 @@
               "src": "5195:19:70"
             },
             "returnParameters": {
-              "id": 17083,
+              "id": 17040,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17082,
+                  "id": 17039,
                   "mutability": "mutable",
                   "name": "result",
                   "nameLocation": "5251:6:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17086,
+                  "scope": 17043,
                   "src": "5238:19:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -6431,7 +6431,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17081,
+                    "id": 17038,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "5238:5:70",
@@ -6445,18 +6445,18 @@
               ],
               "src": "5237:21:70"
             },
-            "scope": 17113,
+            "scope": 17070,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 17096,
+            "id": 17053,
             "nodeType": "FunctionDefinition",
             "src": "7683:1728:70",
             "nodes": [],
             "body": {
-              "id": 17095,
+              "id": 17052,
               "nodeType": "Block",
               "src": "7766:1645:70",
               "nodes": [],
@@ -8115,98 +8115,98 @@
                   "evmVersion": "paris",
                   "externalReferences": [
                     {
-                      "declaration": 17089,
+                      "declaration": 17046,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8222:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17089,
+                      "declaration": 17046,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8234:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17089,
+                      "declaration": 17046,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8253:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17089,
+                      "declaration": 17046,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8286:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17089,
+                      "declaration": 17046,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8298:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17089,
+                      "declaration": 17046,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8347:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17092,
+                      "declaration": 17049,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8020:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17092,
+                      "declaration": 17049,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "8067:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17092,
+                      "declaration": 17049,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9155:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17092,
+                      "declaration": 17049,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9181:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17092,
+                      "declaration": 17049,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9214:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17092,
+                      "declaration": 17049,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9233:6:70",
                       "valueSize": 1
                     }
                   ],
-                  "id": 17094,
+                  "id": 17051,
                   "nodeType": "InlineAssembly",
                   "src": "7819:1586:70"
                 }
               ]
             },
             "documentation": {
-              "id": 17087,
+              "id": 17044,
               "nodeType": "StructuredDocumentation",
               "src": "7639:39:70",
               "text": "@dev Returns the compressed `data`."
@@ -8217,17 +8217,17 @@
             "name": "cdCompress",
             "nameLocation": "7692:10:70",
             "parameters": {
-              "id": 17090,
+              "id": 17047,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17089,
+                  "id": 17046,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "7716:4:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17096,
+                  "scope": 17053,
                   "src": "7703:17:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -8236,7 +8236,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17088,
+                    "id": 17045,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "7703:5:70",
@@ -8251,17 +8251,17 @@
               "src": "7702:19:70"
             },
             "returnParameters": {
-              "id": 17093,
+              "id": 17050,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17092,
+                  "id": 17049,
                   "mutability": "mutable",
                   "name": "result",
                   "nameLocation": "7758:6:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17096,
+                  "scope": 17053,
                   "src": "7745:19:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -8270,7 +8270,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17091,
+                    "id": 17048,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "7745:5:70",
@@ -8284,18 +8284,18 @@
               ],
               "src": "7744:21:70"
             },
-            "scope": 17113,
+            "scope": 17070,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 17106,
+            "id": 17063,
             "nodeType": "FunctionDefinition",
             "src": "9463:1408:70",
             "nodes": [],
             "body": {
-              "id": 17105,
+              "id": 17062,
               "nodeType": "Block",
               "src": "9548:1323:70",
               "nodes": [],
@@ -9355,119 +9355,119 @@
                   "evmVersion": "paris",
                   "externalReferences": [
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "10042:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "10108:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "10120:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "10177:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9633:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9751:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9825:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9837:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9941:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9977:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17099,
+                      "declaration": 17056,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9989:4:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17102,
+                      "declaration": 17059,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "10652:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17102,
+                      "declaration": 17059,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "10671:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17102,
+                      "declaration": 17059,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9657:6:70",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 17102,
+                      "declaration": 17059,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "9708:6:70",
                       "valueSize": 1
                     }
                   ],
-                  "id": 17104,
+                  "id": 17061,
                   "nodeType": "InlineAssembly",
                   "src": "9601:1264:70"
                 }
               ]
             },
             "documentation": {
-              "id": 17097,
+              "id": 17054,
               "nodeType": "StructuredDocumentation",
               "src": "9417:41:70",
               "text": "@dev Returns the decompressed `data`."
@@ -9478,17 +9478,17 @@
             "name": "cdDecompress",
             "nameLocation": "9472:12:70",
             "parameters": {
-              "id": 17100,
+              "id": 17057,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17099,
+                  "id": 17056,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "9498:4:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17106,
+                  "scope": 17063,
                   "src": "9485:17:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -9497,7 +9497,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17098,
+                    "id": 17055,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "9485:5:70",
@@ -9512,17 +9512,17 @@
               "src": "9484:19:70"
             },
             "returnParameters": {
-              "id": 17103,
+              "id": 17060,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 17102,
+                  "id": 17059,
                   "mutability": "mutable",
                   "name": "result",
                   "nameLocation": "9540:6:70",
                   "nodeType": "VariableDeclaration",
-                  "scope": 17106,
+                  "scope": 17063,
                   "src": "9527:19:70",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -9531,7 +9531,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 17101,
+                    "id": 17058,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "9527:5:70",
@@ -9545,18 +9545,18 @@
               ],
               "src": "9526:21:70"
             },
-            "scope": 17113,
+            "scope": 17070,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 17112,
+            "id": 17069,
             "nodeType": "FunctionDefinition",
             "src": "11272:1120:70",
             "nodes": [],
             "body": {
-              "id": 17111,
+              "id": 17068,
               "nodeType": "Block",
               "src": "11303:1089:70",
               "nodes": [],
@@ -10629,14 +10629,14 @@
                   },
                   "evmVersion": "paris",
                   "externalReferences": [],
-                  "id": 17110,
+                  "id": 17067,
                   "nodeType": "InlineAssembly",
                   "src": "11313:1073:70"
                 }
               ]
             },
             "documentation": {
-              "id": 17107,
+              "id": 17064,
               "nodeType": "StructuredDocumentation",
               "src": "10877:390:70",
               "text": "@dev To be called in the `receive` and `fallback` functions.\n ```\n     receive() external payable { LibZip.cdFallback(); }\n     fallback() external payable { LibZip.cdFallback(); }\n ```\n For efficiency, this function will directly return the results, terminating the context.\n If called internally, it must be called at the end of the function."
@@ -10647,18 +10647,18 @@
             "name": "cdFallback",
             "nameLocation": "11281:10:70",
             "parameters": {
-              "id": 17108,
+              "id": 17065,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "11291:2:70"
             },
             "returnParameters": {
-              "id": 17109,
+              "id": 17066,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "11303:0:70"
             },
-            "scope": 17113,
+            "scope": 17070,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
@@ -10670,18 +10670,18 @@
         "contractDependencies": [],
         "contractKind": "library",
         "documentation": {
-          "id": 17066,
+          "id": 17023,
           "nodeType": "StructuredDocumentation",
           "src": "57:435:70",
           "text": "@notice Library for compressing and decompressing bytes.\n @author Solady (https://github.com/vectorized/solady/blob/main/src/utils/LibZip.sol)\n @author Calldata compression by clabby (https://github.com/clabby/op-kompressor)\n @author FastLZ by ariya (https://github.com/ariya/FastLZ)\n @dev Note:\n The accompanying solady.js library includes implementations of\n FastLZ and calldata operations for convenience."
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          17113
+          17070
         ],
         "name": "LibZip",
         "nameLocation": "500:6:70",
-        "scope": 17114,
+        "scope": 17071,
         "usedErrors": [],
         "usedEvents": []
       }

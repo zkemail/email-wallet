@@ -489,60 +489,60 @@
   },
   "ast": {
     "absolutePath": "src/interfaces/Extension.sol",
-    "id": 69013,
+    "id": 68943,
     "exportedSymbols": {
       "AccountKeyInfo": [
-        69226
+        69156
       ],
       "EmailOp": [
-        69182
+        69112
       ],
       "EmailProof": [
-        69237
+        69167
       ],
       "ExecutionContext": [
-        69259
+        69189
       ],
       "Extension": [
-        69012
+        68942
       ],
       "ExtensionParams": [
-        69193
+        69123
       ],
       "RelayerConfig": [
-        69139
+        69069
       ],
       "TokenAllowance": [
-        69242
+        69172
       ],
       "UnclaimedFund": [
-        69206
+        69136
       ],
       "UnclaimedState": [
-        69219
+        69149
       ],
       "WalletParams": [
-        69187
+        69117
       ]
     },
     "nodeType": "SourceUnit",
     "src": "0:2208:137",
     "nodes": [
       {
-        "id": 68947,
+        "id": 68877,
         "nodeType": "ImportDirective",
         "src": "0:21:137",
         "nodes": [],
         "absolutePath": "src/interfaces/Types.sol",
         "file": "./Types.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 69013,
-        "sourceUnit": 69260,
+        "scope": 68943,
+        "sourceUnit": 69190,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 68948,
+        "id": 68878,
         "nodeType": "PragmaDirective",
         "src": "55:23:137",
         "nodes": [],
@@ -554,17 +554,17 @@
         ]
       },
       {
-        "id": 69012,
+        "id": 68942,
         "nodeType": "ContractDefinition",
         "src": "80:2127:137",
         "nodes": [
           {
-            "id": 68965,
+            "id": 68895,
             "nodeType": "FunctionDefinition",
             "src": "908:229:137",
             "nodes": [],
             "documentation": {
-              "id": 68949,
+              "id": 68879,
               "nodeType": "StructuredDocumentation",
               "src": "114:789:137",
               "text": "Execute the extension logic\n @param templateIndex Index of the subjectTemplate to which the subject was matched\n @param subjectParams Array of params decoded from email subject based on the template, in the same order matchers\n @param wallet Address of users wallet\n @param hasEmailRecipient Whether the email subject has a recipient (email address)\n @param recipientETHAddr The ETH address of the recipient in email (if any, and hasEmailRecipient = false)\n @param emailNullifier Nullifier of the email\n @dev Implementations should not send tokens to `wallet` directly and use `EmailWalletCore.depositTokenToAccount()` instead\n @dev Decode {tokenAmount} in template as `abi.decode(uint256,string)` (`tokenName` and `tokenAmount`)"
@@ -576,17 +576,17 @@
             "name": "execute",
             "nameLocation": "917:7:137",
             "parameters": {
-              "id": 68963,
+              "id": 68893,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68951,
+                  "id": 68881,
                   "mutability": "mutable",
                   "name": "templateIndex",
                   "nameLocation": "940:13:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68965,
+                  "scope": 68895,
                   "src": "934:19:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -595,7 +595,7 @@
                     "typeString": "uint8"
                   },
                   "typeName": {
-                    "id": 68950,
+                    "id": 68880,
                     "name": "uint8",
                     "nodeType": "ElementaryTypeName",
                     "src": "934:5:137",
@@ -608,12 +608,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68954,
+                  "id": 68884,
                   "mutability": "mutable",
                   "name": "subjectParams",
                   "nameLocation": "978:13:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68965,
+                  "scope": 68895,
                   "src": "963:28:137",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -623,7 +623,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 68952,
+                      "id": 68882,
                       "name": "bytes",
                       "nodeType": "ElementaryTypeName",
                       "src": "963:5:137",
@@ -632,7 +632,7 @@
                         "typeString": "bytes"
                       }
                     },
-                    "id": 68953,
+                    "id": 68883,
                     "nodeType": "ArrayTypeName",
                     "src": "963:7:137",
                     "typeDescriptions": {
@@ -644,12 +644,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68956,
+                  "id": 68886,
                   "mutability": "mutable",
                   "name": "wallet",
                   "nameLocation": "1009:6:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68965,
+                  "scope": 68895,
                   "src": "1001:14:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -658,7 +658,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 68955,
+                    "id": 68885,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1001:7:137",
@@ -672,12 +672,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68958,
+                  "id": 68888,
                   "mutability": "mutable",
                   "name": "hasEmailRecipient",
                   "nameLocation": "1030:17:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68965,
+                  "scope": 68895,
                   "src": "1025:22:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -686,7 +686,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 68957,
+                    "id": 68887,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "1025:4:137",
@@ -699,12 +699,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68960,
+                  "id": 68890,
                   "mutability": "mutable",
                   "name": "recipientETHAddr",
                   "nameLocation": "1065:16:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68965,
+                  "scope": 68895,
                   "src": "1057:24:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -713,7 +713,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 68959,
+                    "id": 68889,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1057:7:137",
@@ -727,12 +727,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68962,
+                  "id": 68892,
                   "mutability": "mutable",
                   "name": "emailNullifier",
                   "nameLocation": "1099:14:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68965,
+                  "scope": 68895,
                   "src": "1091:22:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -741,7 +741,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 68961,
+                    "id": 68891,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "1091:7:137",
@@ -756,65 +756,65 @@
               "src": "924:195:137"
             },
             "returnParameters": {
-              "id": 68964,
+              "id": 68894,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1136:0:137"
             },
-            "scope": 69012,
+            "scope": 68942,
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "external"
           },
           {
-            "id": 68979,
+            "id": 68909,
             "nodeType": "FunctionDefinition",
             "src": "1440:153:137",
             "nodes": [],
             "body": {
-              "id": 68978,
+              "id": 68908,
               "nodeType": "Block",
               "src": "1542:51:137",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 68974,
+                    "id": 68904,
                     "name": "unclaimedState",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 68969,
+                    "referencedDeclaration": 68899,
                     "src": "1552:14:137",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_UnclaimedState_$69219_memory_ptr",
+                      "typeIdentifier": "t_struct$_UnclaimedState_$69149_memory_ptr",
                       "typeString": "struct UnclaimedState memory"
                     }
                   },
-                  "id": 68975,
+                  "id": 68905,
                   "nodeType": "ExpressionStatement",
                   "src": "1552:14:137"
                 },
                 {
                   "expression": {
-                    "id": 68976,
+                    "id": 68906,
                     "name": "isInternal",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 68971,
+                    "referencedDeclaration": 68901,
                     "src": "1576:10:137",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "id": 68977,
+                  "id": 68907,
                   "nodeType": "ExpressionStatement",
                   "src": "1576:10:137"
                 }
               ]
             },
             "documentation": {
-              "id": 68966,
+              "id": 68896,
               "nodeType": "StructuredDocumentation",
               "src": "1143:292:137",
               "text": "Register unclaimed state for a recipient emailCommitment\n @param unclaimedState Unclaimed state that is registered\n @param isInternal A flag whether the unclaimed state is registered from `registerUnclaimedStateAsExtension` and the caller and callee extensions are the same."
@@ -826,41 +826,41 @@
             "name": "registerUnclaimedState",
             "nameLocation": "1449:22:137",
             "parameters": {
-              "id": 68972,
+              "id": 68902,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68969,
+                  "id": 68899,
                   "mutability": "mutable",
                   "name": "unclaimedState",
                   "nameLocation": "1494:14:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68979,
+                  "scope": 68909,
                   "src": "1472:36:137",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_UnclaimedState_$69219_memory_ptr",
+                    "typeIdentifier": "t_struct$_UnclaimedState_$69149_memory_ptr",
                     "typeString": "struct UnclaimedState"
                   },
                   "typeName": {
-                    "id": 68968,
+                    "id": 68898,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 68967,
+                      "id": 68897,
                       "name": "UnclaimedState",
                       "nameLocations": [
                         "1472:14:137"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 69219,
+                      "referencedDeclaration": 69149,
                       "src": "1472:14:137"
                     },
-                    "referencedDeclaration": 69219,
+                    "referencedDeclaration": 69149,
                     "src": "1472:14:137",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_UnclaimedState_$69219_storage_ptr",
+                      "typeIdentifier": "t_struct$_UnclaimedState_$69149_storage_ptr",
                       "typeString": "struct UnclaimedState"
                     }
                   },
@@ -868,12 +868,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68971,
+                  "id": 68901,
                   "mutability": "mutable",
                   "name": "isInternal",
                   "nameLocation": "1515:10:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68979,
+                  "scope": 68909,
                   "src": "1510:15:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -882,7 +882,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 68970,
+                    "id": 68900,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "1510:4:137",
@@ -897,58 +897,58 @@
               "src": "1471:55:137"
             },
             "returnParameters": {
-              "id": 68973,
+              "id": 68903,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1542:0:137"
             },
-            "scope": 69012,
+            "scope": 68942,
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "public"
           },
           {
-            "id": 68997,
+            "id": 68927,
             "nodeType": "FunctionDefinition",
             "src": "1764:182:137",
             "nodes": [],
             "body": {
-              "id": 68996,
+              "id": 68926,
               "nodeType": "Block",
               "src": "1864:82:137",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 68988,
+                    "id": 68918,
                     "name": "unclaimedState",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 68983,
+                    "referencedDeclaration": 68913,
                     "src": "1874:14:137",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_UnclaimedState_$69219_memory_ptr",
+                      "typeIdentifier": "t_struct$_UnclaimedState_$69149_memory_ptr",
                       "typeString": "struct UnclaimedState memory"
                     }
                   },
-                  "id": 68989,
+                  "id": 68919,
                   "nodeType": "ExpressionStatement",
                   "src": "1874:14:137"
                 },
                 {
                   "expression": {
-                    "id": 68990,
+                    "id": 68920,
                     "name": "wallet",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 68985,
+                    "referencedDeclaration": 68915,
                     "src": "1898:6:137",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "id": 68991,
+                  "id": 68921,
                   "nodeType": "ExpressionStatement",
                   "src": "1898:6:137"
                 },
@@ -957,7 +957,7 @@
                     "arguments": [
                       {
                         "hexValue": "4e6f7420696d706c656d656e746564",
-                        "id": 68993,
+                        "id": 68923,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -979,7 +979,7 @@
                           "typeString": "literal_string \"Not implemented\""
                         }
                       ],
-                      "id": 68992,
+                      "id": 68922,
                       "name": "revert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -993,7 +993,7 @@
                         "typeString": "function (string memory) pure"
                       }
                     },
-                    "id": 68994,
+                    "id": 68924,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1009,14 +1009,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 68995,
+                  "id": 68925,
                   "nodeType": "ExpressionStatement",
                   "src": "1914:25:137"
                 }
               ]
             },
             "documentation": {
-              "id": 68980,
+              "id": 68910,
               "nodeType": "StructuredDocumentation",
               "src": "1599:160:137",
               "text": "Claim an unclaimed state to recipient user\n @param unclaimedState Unclaimed state that is being claimed\n @param wallet Address of users wallet"
@@ -1028,41 +1028,41 @@
             "name": "claimUnclaimedState",
             "nameLocation": "1773:19:137",
             "parameters": {
-              "id": 68986,
+              "id": 68916,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68983,
+                  "id": 68913,
                   "mutability": "mutable",
                   "name": "unclaimedState",
                   "nameLocation": "1815:14:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68997,
+                  "scope": 68927,
                   "src": "1793:36:137",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_UnclaimedState_$69219_memory_ptr",
+                    "typeIdentifier": "t_struct$_UnclaimedState_$69149_memory_ptr",
                     "typeString": "struct UnclaimedState"
                   },
                   "typeName": {
-                    "id": 68982,
+                    "id": 68912,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 68981,
+                      "id": 68911,
                       "name": "UnclaimedState",
                       "nameLocations": [
                         "1793:14:137"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 69219,
+                      "referencedDeclaration": 69149,
                       "src": "1793:14:137"
                     },
-                    "referencedDeclaration": 69219,
+                    "referencedDeclaration": 69149,
                     "src": "1793:14:137",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_UnclaimedState_$69219_storage_ptr",
+                      "typeIdentifier": "t_struct$_UnclaimedState_$69149_storage_ptr",
                       "typeString": "struct UnclaimedState"
                     }
                   },
@@ -1070,12 +1070,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 68985,
+                  "id": 68915,
                   "mutability": "mutable",
                   "name": "wallet",
                   "nameLocation": "1839:6:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68997,
+                  "scope": 68927,
                   "src": "1831:14:137",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1084,7 +1084,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 68984,
+                    "id": 68914,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1831:7:137",
@@ -1100,41 +1100,41 @@
               "src": "1792:54:137"
             },
             "returnParameters": {
-              "id": 68987,
+              "id": 68917,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1864:0:137"
             },
-            "scope": 69012,
+            "scope": 68942,
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "external"
           },
           {
-            "id": 69011,
+            "id": 68941,
             "nodeType": "FunctionDefinition",
             "src": "2056:149:137",
             "nodes": [],
             "body": {
-              "id": 69010,
+              "id": 68940,
               "nodeType": "Block",
               "src": "2139:66:137",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 69004,
+                    "id": 68934,
                     "name": "unclaimedState",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 69001,
+                    "referencedDeclaration": 68931,
                     "src": "2149:14:137",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_UnclaimedState_$69219_memory_ptr",
+                      "typeIdentifier": "t_struct$_UnclaimedState_$69149_memory_ptr",
                       "typeString": "struct UnclaimedState memory"
                     }
                   },
-                  "id": 69005,
+                  "id": 68935,
                   "nodeType": "ExpressionStatement",
                   "src": "2149:14:137"
                 },
@@ -1143,7 +1143,7 @@
                     "arguments": [
                       {
                         "hexValue": "4e6f7420696d706c656d656e746564",
-                        "id": 69007,
+                        "id": 68937,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1165,7 +1165,7 @@
                           "typeString": "literal_string \"Not implemented\""
                         }
                       ],
-                      "id": 69006,
+                      "id": 68936,
                       "name": "revert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -1179,7 +1179,7 @@
                         "typeString": "function (string memory) pure"
                       }
                     },
-                    "id": 69008,
+                    "id": 68938,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1195,14 +1195,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 69009,
+                  "id": 68939,
                   "nodeType": "ExpressionStatement",
                   "src": "2173:25:137"
                 }
               ]
             },
             "documentation": {
-              "id": 68998,
+              "id": 68928,
               "nodeType": "StructuredDocumentation",
               "src": "1952:99:137",
               "text": "Revert an expired inclaimed state\n @param unclaimedState Unclaimed state that is expired"
@@ -1214,41 +1214,41 @@
             "name": "voidUnclaimedState",
             "nameLocation": "2065:18:137",
             "parameters": {
-              "id": 69002,
+              "id": 68932,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 69001,
+                  "id": 68931,
                   "mutability": "mutable",
                   "name": "unclaimedState",
                   "nameLocation": "2106:14:137",
                   "nodeType": "VariableDeclaration",
-                  "scope": 69011,
+                  "scope": 68941,
                   "src": "2084:36:137",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_UnclaimedState_$69219_memory_ptr",
+                    "typeIdentifier": "t_struct$_UnclaimedState_$69149_memory_ptr",
                     "typeString": "struct UnclaimedState"
                   },
                   "typeName": {
-                    "id": 69000,
+                    "id": 68930,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 68999,
+                      "id": 68929,
                       "name": "UnclaimedState",
                       "nameLocations": [
                         "2084:14:137"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 69219,
+                      "referencedDeclaration": 69149,
                       "src": "2084:14:137"
                     },
-                    "referencedDeclaration": 69219,
+                    "referencedDeclaration": 69149,
                     "src": "2084:14:137",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_UnclaimedState_$69219_storage_ptr",
+                      "typeIdentifier": "t_struct$_UnclaimedState_$69149_storage_ptr",
                       "typeString": "struct UnclaimedState"
                     }
                   },
@@ -1258,12 +1258,12 @@
               "src": "2083:38:137"
             },
             "returnParameters": {
-              "id": 69003,
+              "id": 68933,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2139:0:137"
             },
-            "scope": 69012,
+            "scope": 68942,
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "external"
@@ -1276,11 +1276,11 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          69012
+          68942
         ],
         "name": "Extension",
         "nameLocation": "98:9:137",
-        "scope": 69013,
+        "scope": 68943,
         "usedErrors": [],
         "usedEvents": []
       }
