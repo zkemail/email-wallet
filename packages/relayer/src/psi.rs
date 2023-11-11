@@ -3,6 +3,7 @@ use crate::*;
 use std::path::Path;
 
 use axum::Json;
+use log::trace;
 use num_bigint::RandBigInt;
 use serde::{Deserialize, Serialize};
 use tokio::fs::{read_to_string, remove_file};
@@ -69,7 +70,64 @@ impl PSIClient {
         })
     }
 
-    pub(crate) async fn check(&self, client: reqwest::Client, address: &str) -> Result<bool> {
+    pub(crate) async fn check_and_reveal(
+        &self,
+        db: Arc<Database>,
+        chain_client: Arc<ChainClient>,
+        email_addr: &str,
+    ) -> Result<()> {
+        if let Some(account_key) = db.get_account_key(email_addr).await? {
+            let subgraph_client = SubgraphClient::new();
+            let account_key = AccountKey::from(hex2field(&account_key)?);
+            let wallet_salt = account_key.to_wallet_salt()?;
+            trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+            let wallet_addr = chain_client
+                .get_wallet_addr_from_salt(&wallet_salt.0)
+                .await?;
+            let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+            let relayer_rand_hash = relayer_rand.hash()?;
+            let relayer_infos = subgraph_client
+                .get_relayers_by_wallet_addr(&wallet_addr)
+                .await?;
+            if relayer_infos
+                .iter()
+                .filter(|(_, hash, _)| {
+                    bytes32_to_fr(hash).expect("invalid bytes32 of hash") == relayer_rand_hash
+                })
+                .collect::<Vec<_>>()
+                .len()
+                > 0
+            {
+                return Ok(());
+            }
+            let relayer_infos = relayer_infos
+                .iter()
+                .filter(|(_, hash, _)| {
+                    bytes32_to_fr(hash).expect("invalid bytes32 of hash") != relayer_rand_hash
+                })
+                .collect::<Vec<_>>();
+            if relayer_infos.len() > 0 {
+                self.reveal(
+                    relayer_infos
+                        .into_iter()
+                        .map(|(_, _, hostname)| hostname.to_string())
+                        .collect::<Vec<_>>(),
+                )
+                .await?;
+                return Ok(());
+            }
+        }
+        let (created_relayers, inited_relayers) = self.find().await?;
+        if inited_relayers.len() > 0 {
+            self.reveal(inited_relayers).await?;
+        } else {
+            self.reveal(created_relayers).await?;
+        }
+        Ok(())
+    }
+
+    pub(crate) async fn check(&self, address: &str) -> Result<(bool, bool)> {
+        let client = reqwest::Client::new();
         let res = client
             .post(format!("{}/serveCheck/", address))
             .json(&CheckRequest {
@@ -90,33 +148,39 @@ impl PSIClient {
         )
         .await?;
 
-        Ok(self
+        let is_created = self
             .chain_client
             .check_if_point_registered(result_point.clone())
-            .await?
-            && self
-                .chain_client
-                .check_if_account_initialized_by_point(result_point)
-                .await?)
+            .await?;
+        let is_init = self
+            .chain_client
+            .check_if_account_initialized_by_point(result_point)
+            .await?;
+
+        Ok((is_created, is_init))
     }
 
-    pub(crate) async fn find<'a>(&self) -> Result<Vec<String>> {
-        let client = reqwest::Client::new();
-        let relayers = self.chain_client.get_relayers().await?;
-        let mut result = vec![];
+    pub(crate) async fn find<'a>(&self) -> Result<(Vec<String>, Vec<String>)> {
+        let subgraph_client = SubgraphClient::new();
+        let relayers = subgraph_client.get_all_relayers_for_psi().await?;
+        let mut created_hosts = vec![];
+        let mut inited_hosts = vec![];
 
         for relayer in relayers {
-            if self.check(client.clone(), &relayer).await? {
-                result.push(relayer);
+            let (is_created, is_inited) = self.check(&relayer.1).await?;
+            if is_inited {
+                inited_hosts.push(relayer.1.to_string());
+            } else if is_created {
+                created_hosts.push(relayer.1.to_string());
             }
         }
 
-        Ok(result)
+        Ok((created_hosts, inited_hosts))
     }
 
-    pub(crate) async fn reveal(&self, addresses: &[&str]) -> Result<()> {
+    pub(crate) async fn reveal(&self, addresses: Vec<String>) -> Result<()> {
         let client = reqwest::Client::new();
-        for &address in addresses {
+        for address in addresses.into_iter() {
             let res = client
                 .post(format!("{}/serveReveal/", address))
                 .json(&RevealRequest {

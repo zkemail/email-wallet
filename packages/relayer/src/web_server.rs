@@ -65,52 +65,26 @@ async fn unclaim(
         payload.is_fund,
     )
     .await?;
-    let mut psi_res = vec![];
-    let psi_condition = {
-        let account_key = db.get_account_key(&payload.email_address).await?;
-        (account_key.is_none()
-            || !chain_client
-                .check_if_account_initialized_by_account_key(
-                    &payload.email_address,
-                    &account_key.unwrap(),
-                )
-                .await?)
-            && {
-                trace!("Starting PSI");
-                psi_res = psi_client.find().await?;
-                !psi_res.is_empty()
-            }
+    psi_client
+        .check_and_reveal(db.clone(), chain_client.clone(), &payload.email_address)
+        .await?;
+    let claim = Claim {
+        id,
+        email_address: payload.email_address.clone(),
+        random: payload.random.clone(),
+        commit: field2hex(&commit),
+        expiry_time: payload.expiry_time,
+        is_fund: payload.is_fund,
+        is_announced: false,
     };
-    if psi_condition {
-        trace!("Reveal PSI");
-        psi_client
-            .reveal(&psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
-            .await?;
+    tx_claimer.send(claim)?;
+    trace!("claim sent to tx_claimer");
 
-        Ok(format!(
-            "Unclaimed {} for {} was sent to found relayer",
-            if payload.is_fund { "fund" } else { "state" },
-            payload.email_address
-        ))
-    } else {
-        let claim = Claim {
-            id,
-            email_address: payload.email_address.clone(),
-            random: payload.random.clone(),
-            commit: field2hex(&commit),
-            expiry_time: payload.expiry_time,
-            is_fund: payload.is_fund,
-            is_announced: false,
-        };
-        tx_claimer.send(claim)?;
-        trace!("claim sent to tx_claimer");
-
-        Ok(format!(
-            "Unclaimed {} for {} is accepted",
-            if payload.is_fund { "fund" } else { "state" },
-            payload.email_address
-        ))
-    }
+    Ok(format!(
+        "Unclaimed {} for {} is accepted",
+        if payload.is_fund { "fund" } else { "state" },
+        payload.email_address
+    ))
 }
 
 async fn onboard(

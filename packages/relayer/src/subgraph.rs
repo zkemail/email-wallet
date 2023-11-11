@@ -32,11 +32,6 @@ pub(crate) struct GetRelayers;
 )]
 pub(crate) struct AllRelayersForPSI;
 
-pub(crate) struct RelayerInfoForPSI {
-    pub(crate) address: Address,
-    pub(crate) accounts: Vec<(Bytes, bool)>,
-}
-
 pub struct SubgraphClient {
     pub(crate) web_client: reqwest::Client,
     pub(crate) subgraph_api: String,
@@ -53,7 +48,7 @@ impl SubgraphClient {
     pub(crate) async fn get_relayers_by_wallet_addr(
         &self,
         wallet_addr: &Address,
-    ) -> Result<Vec<(Address, [u8; 32])>> {
+    ) -> Result<Vec<(Address, [u8; 32], String)>> {
         let variables = get_relayers::Variables {
             wallet_addr: Some(to_checksum(wallet_addr, CHAIN_ID.get().map(|v| *v as u8))),
         };
@@ -71,12 +66,13 @@ impl SubgraphClient {
             relayer_infos.push((
                 Address::from_str(&relayer_account.relayer.address)?,
                 u256_to_bytes32(&hex_to_u256(&relayer_account.relayer.rand_hash)?),
+                relayer_account.relayer.hostname,
             ));
         }
         Ok(relayer_infos)
     }
 
-    pub(crate) async fn get_all_relayers_for_psi(&self) -> Result<Vec<RelayerInfoForPSI>> {
+    pub(crate) async fn get_all_relayers_for_psi(&self) -> Result<Vec<(Address, String)>> {
         let variables = all_relayers_for_psi::Variables {};
         let response_body =
             post_graphql::<AllRelayersForPSI, _>(&self.web_client, &self.subgraph_api, variables)
@@ -85,17 +81,10 @@ impl SubgraphClient {
         let response_data: all_relayers_for_psi::ResponseData =
             response_body.data.expect("missing response data");
         let relayers = response_data.relayers.expect("no relayer found");
-        let mut relayer_info_for_psi = vec![];
+        let mut relayer_infos = vec![];
         for relayer in relayers.into_iter() {
-            let mut info = RelayerInfoForPSI {
-                address: parse_checksummed(&relayer.address, CHAIN_ID.get().map(|v| *v as u8))?,
-                accounts: vec![],
-            };
-            for account in relayer.relayer_accounts {
-                info.accounts
-                    .push((Bytes::from_hex(&account.psi_point)?, account.is_initialized));
-            }
+            relayer_infos.push((Address::from_str(&relayer.address)?, relayer.hostname));
         }
-        Ok(relayer_info_for_psi)
+        Ok(relayer_infos)
     }
 }
