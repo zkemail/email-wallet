@@ -435,6 +435,52 @@ contract IntegrationTest is IntegrationTestHelper {
         require(success, string(reason));
         require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
         require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
+
+        // template index 1
+        // Swap 0.2 ETH to DAI with 0.5 slippage
+        (emailOp, ) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/uniswap_test5.eml"),
+            relayer1Rand,
+            "Swap",
+            "Swap 0.2 ETH to DAI with 0.5 slippage",
+            "gmail.com",
+            "ETH"
+        );
+        extensionBytes = new bytes[](3);
+        extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
+        extensionBytes[1] = abi.encode("DAI");
+        extensionBytes[2] = abi.encode(uint256(0.5 ether));
+        emailOp.extensionParams = ExtensionParams(1, extensionBytes);
+        preEthBalance = weth.balanceOf(user1Wallet);
+        preDaiBalance = daiToken.balanceOf(user1Wallet);
+        (success, reason, ,) = core.handleEmailOp(emailOp);
+        require(success, string(reason));
+        require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
+        require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+
+        // This test case is not working because of the slippage changes frequently.
+        // // template index 2
+        // // Swap 0.2 ETH to DAI under 3627979510633925696217750990627 sqrt price limit
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test6.eml"),
+        //     relayer1Rand,
+        //     "Swap",
+        //     "Swap 0.2 ETH to DAI under 3627979510633925696217750990627 sqrt price limit",
+        //     "gmail.com",
+        //     "DAI"
+        // );
+        // extensionBytes = new bytes[](3);
+        // extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
+        // extensionBytes[1] = abi.encode("DAI");
+        // extensionBytes[2] = abi.encode(uint(3627979510633925696217750990627));
+        // emailOp.extensionParams = ExtensionParams(2, extensionBytes);
+        // preEthBalance = weth.balanceOf(user1Wallet);
+        // preDaiBalance = daiToken.balanceOf(user1Wallet);
+        // (success, reason, ,) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
+        // require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+
         vm.stopPrank();
     }
 
