@@ -117,8 +117,8 @@ contract Deploy is Script {
         );
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniswapExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
-        uniswapExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
-        uniswapExtTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt price limit"];
+        uniswapExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+        uniswapExtTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt", "price", "limit"];
 
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 

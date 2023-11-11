@@ -463,8 +463,8 @@ abstract contract IntegrationTestHelper is Test {
         subjectTemplates = new string[][](4);
         subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         subjectTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
-        subjectTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
-        subjectTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt price limit"];
+        subjectTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+        subjectTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt", "price", "limit"];
 
         return subjectTemplates;
     }

@@ -34,8 +34,8 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         );
         uniExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
-        uniExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
-        uniExtTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt price limit"];
+        uniExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+        uniExtTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt", "price", "limit"];
         extensionHandler.publishExtension("Uniswap", address(uniExtension), uniExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();

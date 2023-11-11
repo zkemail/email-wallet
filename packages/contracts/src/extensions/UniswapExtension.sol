@@ -36,8 +36,8 @@ contract UniswapExtension is Extension {
         router = ISwapRouter(_router);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         templates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
-        templates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
-        templates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt price limit"];
+        templates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+        templates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt", "price", "limit"];
         poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
 
