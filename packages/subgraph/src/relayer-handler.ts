@@ -5,18 +5,22 @@ import {
 import { Relayer } from "../generated/schema";
 
 export function handleRelayerRegistered(event: RelayerRegisteredEvent): void {
-  let entity = new Relayer(event.params.addr); // Using address as the ID
-  entity.address = event.params.addr;
-  entity.randHash = event.params.randHash;
-  entity.emailAddress = event.params.emailAddr;
-  entity.hostname = event.params.hostname;
+  let relayer = new Relayer(event.params.addr); // Using address as the ID
+  relayer.address = event.params.addr;
+  relayer.randHash = event.params.randHash;
+  relayer.emailAddress = event.params.emailAddr;
+  relayer.hostname = event.params.hostname;
+  relayer.createdAt = event.block.timestamp;
+  relayer.updatedAt = event.block.timestamp;
 
-  entity.save();
+  relayer.save();
 }
 
 export function handleRelayerConfigUpdated(event: RelayerConfigUpdatedEvent): void {
-  let entity = new Relayer(event.params.addr);
-  entity.hostname = event.params.hostname;
+  let relayer = new Relayer(event.params.addr);
+  relayer.hostname = event.params.hostname;
+  relayer.updatedAt = event.block.timestamp;
 
-  entity.save();
+  relayer.save();
 }
+

@@ -152,7 +152,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
         relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
 
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountTransported(accountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
+        emit EmailWalletEvents.AccountTransported(
+            accountKeyCommit,
+            newEmailAddrPointer,
+            newAccountKeyCommit,
+            newPSIPoint
+        );
 
         accountHandler.transportAccount(
             accountKeyCommit,
