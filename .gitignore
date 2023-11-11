@@ -45,6 +45,12 @@ packages/prover/__pycache__/*
 # Subgraphs
 packages/subgraph/build
 
+# Subgraphs
+packages/subgraph/build
+
+# Subgraphs
+packages/subgraph/build
+
 # Mac
 .DS_Store
 
