@@ -14,8 +14,8 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     DKIMRegistry public dkimRegistry;
     address public signer;
 
-    string constant public SET_PREFIX = "SET:";
-    string constant public REVOKE_PREFIX = "REVOKE:";
+    string public constant SET_PREFIX = "SET:";
+    string public constant REVOKE_PREFIX = "REVOKE:";
 
     constructor(address _signer) {
         dkimRegistry = new DKIMRegistry();
@@ -35,8 +35,8 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         require(bytes(selector).length != 0, "Invalid selector");
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
-        require(isDKIMPublicKeyHashValid(domainName, publicKeyHash)==false, "publicKeyHash is already set");
-        require(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash)==false, "publicKeyHash is revoked");
+        require(isDKIMPublicKeyHashValid(domainName, publicKeyHash) == false, "publicKeyHash is already set");
+        require(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash) == false, "publicKeyHash is revoked");
 
         string memory signedMsg = computeSignedMsg(SET_PREFIX, selector, domainName, publicKeyHash);
         bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
@@ -49,16 +49,16 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     function revokeDKIMPublicKeyHash(
         string memory selector,
         string memory domainName,
-        bytes32 publicKeyHash, 
+        bytes32 publicKeyHash,
         bytes memory signature
     ) public {
         require(bytes(selector).length != 0, "Invalid selector");
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
-        require(isDKIMPublicKeyHashValid(domainName, publicKeyHash)==true, "publicKeyHash is not set");
-        require(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash)==false, "publicKeyHash is already revoked");
-        
-        string memory signedMsg = computeSignedMsg(REVOKE_PREFIX,selector,domainName,publicKeyHash);
+        require(isDKIMPublicKeyHashValid(domainName, publicKeyHash) == true, "publicKeyHash is not set");
+        require(dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash) == false, "publicKeyHash is already revoked");
+
+        string memory signedMsg = computeSignedMsg(REVOKE_PREFIX, selector, domainName, publicKeyHash);
         bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
         address recoveredSigner = digest.recover(signature);
         require(recoveredSigner == signer, "Invalid signature");

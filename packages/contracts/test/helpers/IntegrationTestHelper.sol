@@ -255,7 +255,14 @@ abstract contract IntegrationTestHelper is Test {
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_init_proof.json")
         );
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, emailTimestamp, emailNullifier, publicKeyHash, proof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            emailTimestamp,
+            emailNullifier,
+            publicKeyHash,
+            proof
+        );
     }
 
     function accountTransport(
@@ -397,7 +404,11 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(registeredUnclaimId, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(
+            registeredUnclaimId,
+            recipientEmailAddrPointer,
+            proof
+        );
     }
 
     function claimState(
@@ -422,7 +433,11 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
         bytes32 recipientEmailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(registeredUnclaimId, recipientEmailAddrPointer, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(
+            registeredUnclaimId,
+            recipientEmailAddrPointer,
+            proof
+        );
     }
 
     function genAnnouncement(
@@ -460,9 +475,25 @@ abstract contract IntegrationTestHelper is Test {
 
     function _getUniswapSubjectTemplates() internal returns (string[][] memory) {
         delete subjectTemplates;
-        subjectTemplates = new string[][](2);
+        subjectTemplates = new string[][](4);
         subjectTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
-        subjectTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
+        subjectTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
+        subjectTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+        subjectTemplates[3] = [
+            "Swap",
+            "{tokenAmount}",
+            "to",
+            "{string}",
+            "with",
+            "{amount}",
+            "slippage",
+            "under",
+            "{uint}",
+            "sqrt",
+            "price",
+            "limit"
+        ];
+
         return subjectTemplates;
     }
 

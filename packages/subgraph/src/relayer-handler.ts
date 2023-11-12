@@ -23,3 +23,4 @@ export function handleRelayerConfigUpdated(event: RelayerConfigUpdatedEvent): vo
 
   relayer.save();
 }
+

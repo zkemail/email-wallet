@@ -1,0 +1,18 @@
+query GetRelayers($wallet_addr: String) {
+  account(where: { walletSalt: $walletSalt }) {
+    relayerAccounts {
+      relayer {
+        address
+        randHash
+        hostname
+      }
+    }
+  }
+}
+
+query AllRelayersForPSI { 
+  relayers {
+    address
+    hostname
+  }
+}

@@ -19,11 +19,11 @@ contract UniswapExtension is Extension {
     // For this example, we will set the pool fee to 0.3%.
     uint24 public constant poolFee = 3000;
     // It's a default slippage, we will set the maximum slippage to 0.5%.
-    uint24 public constant slippageBasisPoints = 50;
+    uint24 public constant defaultSlippagePoints = 50;
 
     mapping(string => address) public addressOfNFTName;
 
-    string[][] public templates = new string[][](2);
+    string[][] public templates = new string[][](4);
 
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
@@ -35,7 +35,22 @@ contract UniswapExtension is Extension {
         tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
-        templates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt price limit"];
+        templates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
+        templates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+        templates[3] = [
+            "Swap",
+            "{tokenAmount}",
+            "to",
+            "{string}",
+            "with",
+            "{amount}",
+            "slippage",
+            "under",
+            "{uint}",
+            "sqrt",
+            "price",
+            "limit"
+        ];
         poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
 
@@ -49,23 +64,63 @@ contract UniswapExtension is Extension {
     ) external override onlyCore {
         recipientETHAddr;
         emailNullifier;
-        require(templateIndex <= 1, "invalid templateIndex");
+        require(templateIndex <= 3, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
+        // subjectParams[0] and subjectParams[1] are same for all templates
         (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
 
+        address tokenInAddr;
+        address tokenOutAddr;
+        uint24 slippagePoints;
         uint160 sqrtPriceLimitX96;
-        string memory tokenOut = abi.decode(subjectParams[1], (string));
+
+        {
+            string memory tokenOut = abi.decode(subjectParams[1], (string));
+            tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
+            tokenOutAddr = tokenRegistry.getTokenAddress(tokenOut);
+            require(tokenOutAddr != address(0), "invalid out token name");
+        }
+
+        // Each template has different input parameters
         if (templateIndex == 0) {
+            slippagePoints = defaultSlippagePoints;
+
             sqrtPriceLimitX96 = 0;
-        } else {
-            uint256 sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
+        }
+
+        if (templateIndex == 1) {
+            uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
+            // This value is user input * 10^18, we need to revert it as (user input * 10^2).
+            slippagePoints256 = slippagePoints256 / 10 ** 16;
+            require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
+            slippagePoints = uint24(slippagePoints256);
+
+            sqrtPriceLimitX96 = 0;
+        }
+
+        if (templateIndex == 2) {
+            slippagePoints = defaultSlippagePoints;
+
+            uint256 sqrtPriceLimitX96Uint256;
+            sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[2], (uint256));
             require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
             sqrtPriceLimitX96 = uint160(sqrtPriceLimitX96Uint256);
         }
-        address tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
-        address tokenOutAddr = tokenRegistry.getTokenAddress(tokenOut);
-        require(tokenOutAddr != address(0), "invalid out token name");
+
+        if (templateIndex == 3) {
+            uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
+            // This value is user input * 10^18, we need to revert it as (user input * 10^2).
+            slippagePoints256 = slippagePoints256 / 10 ** 16;
+            require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
+            slippagePoints = uint24(slippagePoints256);
+
+            uint256 sqrtPriceLimitX96Uint256;
+            sqrtPriceLimitX96Uint256 = abi.decode(subjectParams[3], (uint256));
+            require(sqrtPriceLimitX96Uint256 <= type(uint160).max, "sqrtPriceLimitX96 argument overflow detected");
+            sqrtPriceLimitX96 = uint160(sqrtPriceLimitX96Uint256);
+        }
+
         // To avoid stack too deep, we use the following bracket
         {
             uint balanceIn = IERC20(tokenInAddr).balanceOf(address(this));
@@ -89,7 +144,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, sqrtPriceLimitX96)
+                sqrtPriceLimitX96: 0 // Even if sqrtPriceLimitX96 is set, it is ignored by first swap.
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(
@@ -104,7 +159,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: wethAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(wethAddr, tokenOutAddr, sqrtPriceLimitX96)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(wethAddr, tokenOutAddr, slippagePoints, sqrtPriceLimitX96)
             });
             router.exactInputSingle(swapParams2);
         } else {
@@ -116,7 +171,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, tokenOutAddr, sqrtPriceLimitX96)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, tokenOutAddr, slippagePoints, sqrtPriceLimitX96)
             });
             router.exactInputSingle(swapParams);
         }
@@ -125,6 +180,7 @@ contract UniswapExtension is Extension {
     /// @notice Get the price limit for the swap if sqrtPriceLimitX96 is not set, this function uses the current price
     /// @param tokenIn Token to be swapped
     /// @param tokenOut Token to be received
+    /// @param slippagePoints The slippage points for the swap
     /// @param sqrtPriceLimitX96 The price limit for the swap
     /// @return The price limit for the swap with slippage
     /// @dev minPriceX96 The minimum price for the swap it used for token0(tokenIn) -> token1(tokenOut)
@@ -132,19 +188,19 @@ contract UniswapExtension is Extension {
     function getSqrtPriceLimitX96(
         address tokenIn,
         address tokenOut,
+        uint24 slippagePoints,
         uint160 sqrtPriceLimitX96
     ) internal view returns (uint160) {
         bool zeroForOne = tokenIn < tokenOut;
 
-        IUniswapV3Pool pool = poolFinder.getPool(tokenIn, tokenOut, poolFee);
-        (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
+        (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
 
         if (sqrtPriceLimitX96 == 0) {
             sqrtPriceLimitX96 = sqrtPriceX96;
         }
 
-        uint160 minPriceX96 = sqrtPriceLimitX96 - ((sqrtPriceLimitX96 * slippageBasisPoints) / 10000);
-        uint160 maxPriceX96 = sqrtPriceLimitX96 + ((sqrtPriceLimitX96 * slippageBasisPoints) / 10000);
+        uint160 minPriceX96 = sqrtPriceLimitX96 - ((sqrtPriceLimitX96 * slippagePoints) / 10000);
+        uint160 maxPriceX96 = sqrtPriceLimitX96 + ((sqrtPriceLimitX96 * slippagePoints) / 10000);
 
         if (zeroForOne) {
             return minPriceX96;

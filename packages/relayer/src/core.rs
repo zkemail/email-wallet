@@ -59,10 +59,11 @@ impl ProofJson {
     }
 }
 
-pub(crate) async fn handle_email(
+pub(crate) async fn handle_email<P: EmailsPool>(
     email: String,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
+    emails_pool: P,
     tx_sender: UnboundedSender<EmailMessage>,
     tx_claimer: UnboundedSender<Claim>,
 ) -> Result<()> {
@@ -102,6 +103,34 @@ pub(crate) async fn handle_email(
         }
     } else {
         trace!("Normal email");
+        if let Ok(account_key_hex) =
+            extract_account_key_from_subject(&parsed_email.get_subject_all()?)
+        {
+            let account_key = AccountKey(hex2field(&account_key_hex)?);
+            if !db.contains_user(&from_address).await? {
+                let email_hash = calculate_default_hash(&email);
+                emails_pool.insert_email(&email_hash, &email).await?;
+                return Ok(());
+            }
+            trace!("Account init");
+            handle_account_init(
+                email,
+                &parsed_email,
+                account_key,
+                db.clone(),
+                chain_client.clone(),
+                tx_sender,
+            )
+            .await?;
+            let wallet_salt = account_key.to_wallet_salt()?;
+            trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+            let wallet_addr = chain_client
+                .get_wallet_addr_from_salt(&wallet_salt.0)
+                .await?;
+            info!("Sender wallet address: {}", wallet_addr);
+
+            return Ok(());
+        }
         let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
         let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
         let subject = parsed_email.get_subject_all()?;
@@ -337,40 +366,29 @@ pub(crate) async fn handle_email(
                 is_fund,
             )
             .await?;
-            let mut psi_res = vec![];
-            let psi_condition = {
-                let account_key = db.get_account_key(email_addr).await?;
-                (account_key.is_none()
-                    || !chain_client
-                        .check_if_account_initialized_by_account_key(
-                            email_addr,
-                            &account_key.unwrap(),
-                        )
-                        .await?)
-                    && {
-                        trace!("Starting PSI");
-                        psi_res = psi_client.find().await?;
-                        !psi_res.is_empty()
-                    }
+            psi_client
+                .check_and_reveal(db.clone(), chain_client.clone(), &email_addr)
+                .await?;
+            let claim = Claim {
+                id: registered_unclaim_id,
+                email_address: email_addr.clone(),
+                commit,
+                random: field2hex(&commit_rand),
+                expiry_time,
+                is_fund,
+                is_announced: false,
             };
-            if psi_condition {
-                trace!("Reveal PSI");
-                psi_client
-                    .reveal(&psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
-                    .await?;
-            } else {
-                let claim = Claim {
-                    id: registered_unclaim_id,
-                    email_address: email_addr.clone(),
-                    commit,
-                    random: field2hex(&commit_rand),
-                    expiry_time,
-                    is_fund,
-                    is_announced: false,
-                };
-                tx_claimer.send(claim)?;
-                trace!("claim sent to tx_claimer");
-            }
+            tx_claimer.send(claim)?;
+            trace!("claim sent to tx_claimer");
+            tx_sender
+                .send(EmailMessage {
+                    subject: String::from("Email Wallet notification"),
+                    body: email_template_message("You receive new Email Wallet tx", &tx_hash)
+                        .await?,
+                    to: email_addr.to_string(),
+                    message_id: None,
+                })
+                .unwrap();
         }
 
         tx_sender
@@ -382,17 +400,6 @@ pub(crate) async fn handle_email(
                 message_id: None,
             })
             .unwrap();
-        if let Some(email_addr) = recipient_email_addr {
-            tx_sender
-                .send(EmailMessage {
-                    subject: String::from("Email Wallet notification"),
-                    body: email_template_message("You receive new Email Wallet tx", &tx_hash)
-                        .await?,
-                    to: email_addr,
-                    message_id: None,
-                })
-                .unwrap();
-        }
         trace!("email_op sent to tx_sender");
     }
     Ok(())
@@ -423,8 +430,6 @@ pub(crate) async fn handle_account_init(
     info!("account init input {}", input);
     let (proof, pub_signals) =
         generate_proof(&input, "account_init", PROVER_ADDRESS.get().unwrap()).await?;
-    // let relayer_rand = hex2field(RELAYER_RAND.get().unwrap())?;
-    // let email_addr_pointer = u256_to_bytes32(pub_signals[])
     let data = AccountInitInput {
         email_addr_pointer: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
         email_domain: parsed_email.get_email_domain()?,
@@ -462,17 +467,26 @@ pub(crate) async fn handle_account_transport(
     let new_account_key_commit =
         account_key.to_commitment(&padded_from_address, &relayer_rand.0)?;
     let wallet_salt = account_key.to_wallet_salt()?;
-    let (old_account_keys, relayers) = chain_client
-        .query_ak_commit_and_relayer_of_wallet_salt(&wallet_salt)
+    let wallet_addr = chain_client
+        .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
-    let old_account_key = old_account_keys[0];
-    let old_relayer = relayers[0];
+    let subgraph_client = SubgraphClient::new();
+    let relayers = subgraph_client
+        .get_relayers_by_wallet_addr(&wallet_addr)
+        .await?;
+    if relayers.len() == 0 {
+        return Err(anyhow!(
+            "No relayer found for wallet address {}",
+            wallet_addr
+        ));
+    }
+    let (old_relayer, old_relayer_rand_hash, _) = relayers[0];
     let old_relayer_rand_hash = chain_client.query_rand_hash_of_relayer(old_relayer).await?;
 
     let input = generate_account_transport_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email,
-        &field2hex(&old_account_key),
+        &field2hex(&old_relayer_rand_hash),
         RELAYER_RAND.get().unwrap(),
     )
     .await?;
@@ -498,7 +512,7 @@ pub(crate) async fn handle_account_transport(
         generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
     let new_psi_point = get_psi_point_bytes(pub_signals[4], pub_signals[5]);
     let data = AccountTransportInput {
-        old_account_key_commit: fr_to_bytes32(&old_account_key)?,
+        old_account_key_commit: u256_to_bytes32(&pub_signals[11]),
         new_email_addr_pointer: email_addr_pointer,
         new_account_key_commit: fr_to_bytes32(&new_account_key_commit)?,
         new_psi_point,
@@ -548,28 +562,6 @@ pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
         Err(_) => Ok((subject.to_string(), 0)),
     }
 }
-// pub(crate) fn validate_send_subject(subject: &str) -> Result<(U256, String, String)> {
-//     let re = Regex::new(
-//         r"(?i)send\s+(\d+(\.\d+)?)\s+(\w+)\s+to\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",
-//     )
-//     .unwrap();
-//     let caps = re.captures(subject).ok_or(anyhow!(WRONG_SUBJECT_FORMAT))?;
-
-//     let amount = U256::from_dec_str(&caps[1])?;
-//     let token = caps[3].to_string();
-//     let recipient = caps[4].to_string();
-
-//     Ok((amount, token, recipient))
-// }
-
-// pub(crate) fn get_email_domain(email_address: &str) -> Result<String> {
-//     let re = Regex::new(r"@([a-zA-Z0-9.-]+)").unwrap();
-//     let res = re
-//         .captures(email_address)
-//         .ok_or(anyhow!(WRONG_SUBJECT_FORMAT))?;
-
-//     Ok(res[1].to_string())
-// }
 
 pub(crate) async fn generate_email_sender_input(
     circuits_dir_path: &Path,
@@ -586,9 +578,6 @@ pub(crate) async fn generate_email_sender_input(
 
     let mut email_file = File::create(&email_file_name).await?;
     email_file.write_all(email.as_bytes()).await?;
-
-    // File::create(&input_file_name).await?;s
-    // let current_dir = std::env::current_dir()?;
 
     let command_str = format!(
         "--cwd {} gen-email-sender-input --email-file {} --relayer-rand {} --input-file {}",
@@ -736,9 +725,6 @@ pub(crate) async fn generate_claim_input(
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(email_address.to_string() + ".json");
 
-    // File::create(&input_file_name).await?;
-    // let current_dir = std::env::current_dir()?;
-
     let command_str =
         format!(
         "--cwd {} gen-claim-input --email-addr {} --relayer-rand {} --email-addr-rand {} --input-file {}",
@@ -856,7 +842,7 @@ pub(crate) fn u256_to_hex(x: &U256) -> String {
 }
 
 pub(crate) fn hex_to_u256(hex: &str) -> Result<U256> {
-    let bytes = hex::decode(&hex[2..])?;
+    let bytes: Vec<u8> = hex::decode(&hex[2..])?;
     let mut array = [0u8; 32];
     array.copy_from_slice(&bytes);
     Ok(U256::from_big_endian(&array))

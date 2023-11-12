@@ -1,20 +1,20 @@
 {
   "abi": [],
   "bytecode": {
-    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220f2d66d6064cdbd64c90725e562e8ef6304696edd52d758375227c839b3d7ddc664736f6c63430008150033",
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220f9ff5ae6fc15947832130f70e9a7ce99c8b51c98256635ba5c70e3a3bd58d0fb64736f6c63430008110033",
     "sourceMap": "245:134:44:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;245:134:44;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220f2d66d6064cdbd64c90725e562e8ef6304696edd52d758375227c839b3d7ddc664736f6c63430008150033",
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220f9ff5ae6fc15947832130f70e9a7ce99c8b51c98256635ba5c70e3a3bd58d0fb64736f6c63430008110033",
     "sourceMap": "245:134:44:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"Used in SqrtPriceMath.sol\",\"kind\":\"dev\",\"methods\":{},\"title\":\"FixedPoint96\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"A library for handling binary fixed point numbers, see https://en.wikipedia.org/wiki/Q_(number_format)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/FixedPoint96.sol\":\"FixedPoint96\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/FixedPoint96.sol\":{\"keccak256\":\"0x0ba8a9b95a956a4050749c0158e928398c447c91469682ca8a7cc7e77a7fe032\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://186d3b528866065a5856f96d2aeec698efa99f8da913e9adf34f8cc296cc993d\",\"dweb:/ipfs/QmUAiMvtAQp8c9dy57bqJYzG7hkb1uChiPaQmt264skoqP\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"Used in SqrtPriceMath.sol\",\"kind\":\"dev\",\"methods\":{},\"title\":\"FixedPoint96\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"A library for handling binary fixed point numbers, see https://en.wikipedia.org/wiki/Q_(number_format)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/FixedPoint96.sol\":\"FixedPoint96\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/FixedPoint96.sol\":{\"keccak256\":\"0x0ba8a9b95a956a4050749c0158e928398c447c91469682ca8a7cc7e77a7fe032\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://186d3b528866065a5856f96d2aeec698efa99f8da913e9adf34f8cc296cc993d\",\"dweb:/ipfs/QmUAiMvtAQp8c9dy57bqJYzG7hkb1uChiPaQmt264skoqP\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.21+commit.d9974bed"
+      "version": "0.8.17+commit.8df45f5f"
     },
     "language": "Solidity",
     "output": {
@@ -203,8 +203,7 @@
         "name": "FixedPoint96",
         "nameLocation": "253:12:44",
         "scope": 3783,
-        "usedErrors": [],
-        "usedEvents": []
+        "usedErrors": []
       }
     ],
     "license": "GPL-2.0-or-later"

@@ -396,31 +396,31 @@ impl ChainClient {
         bytes32_to_fr(&rand_hash)
     }
 
-    pub async fn query_ak_commit_and_relayer_of_wallet_salt(
-        &self,
-        wallet_salt: &WalletSalt,
-    ) -> Result<(Vec<Fr>, Vec<Address>)> {
-        let events: Vec<(email_wallet_events::AccountCreatedFilter, LogMeta)> = self
-            .account_handler
-            .event_for_name::<email_wallet_events::AccountCreatedFilter>("AccountCreated")?
-            .from_block(0)
-            .topic2(H256::from(fr_to_bytes32(&wallet_salt.0)?))
-            .query_with_meta()
-            .await?;
-        let mut account_key_commits = vec![];
-        let mut relayers = vec![];
-        for (created, log_meta) in events {
-            let account_key_commit = bytes32_to_fr(&created.account_key_commit)?;
-            account_key_commits.push(account_key_commit);
-            let tx_hash = log_meta.transaction_hash;
-            let tx = self.client.get_transaction(tx_hash).await?;
-            if let Some(tx) = tx {
-                let relayer = tx.from;
-                relayers.push(relayer);
-            }
-        }
-        Ok((account_key_commits, relayers))
-    }
+    // pub async fn query_ak_commit_and_relayer_of_wallet_salt(
+    //     &self,
+    //     wallet_salt: &WalletSalt,
+    // ) -> Result<(Vec<Fr>, Vec<Address>)> {
+    //     let events: Vec<(email_wallet_events::AccountCreatedFilter, LogMeta)> = self
+    //         .account_handler
+    //         .event_for_name::<email_wallet_events::AccountCreatedFilter>("AccountCreated")?
+    //         .from_block(0)
+    //         .topic2(H256::from(fr_to_bytes32(&wallet_salt.0)?))
+    //         .query_with_meta()
+    //         .await?;
+    //     let mut account_key_commits = vec![];
+    //     let mut relayers = vec![];
+    //     for (created, log_meta) in events {
+    //         let account_key_commit = bytes32_to_fr(&created.account_key_commit)?;
+    //         account_key_commits.push(account_key_commit);
+    //         let tx_hash = log_meta.transaction_hash;
+    //         let tx = self.client.get_transaction(tx_hash).await?;
+    //         if let Some(tx) = tx {
+    //             let relayer = tx.from;
+    //             relayers.push(relayer);
+    //         }
+    //     }
+    //     Ok((account_key_commits, relayers))
+    // }
 
     pub async fn query_unclaimed_fund(&self, id: U256) -> Result<UnclaimedFund> {
         let unclaimed_fund = self.unclaims_handler.get_unclaimed_fund(id).await?;
@@ -585,5 +585,28 @@ impl ChainClient {
     pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {
         // TODO: iteration over relayers
         Ok(vec![])
+    }
+
+    pub(crate) async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<bool> {
+        let erc20 = ERC20::new(
+            ONBOARDING_TOKEN_ADDR.get().unwrap().to_owned(),
+            self.client.clone(),
+        );
+        let tx = erc20.transfer(
+            wallet_addr,
+            ONBOARDING_TOKEN_AMOUNT.get().unwrap().to_owned(),
+        );
+        let tx = tx.send().await?;
+
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+
+        Ok(true)
     }
 }

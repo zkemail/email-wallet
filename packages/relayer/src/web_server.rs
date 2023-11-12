@@ -1,8 +1,10 @@
 use crate::*;
 
+use std::sync::atomic::Ordering;
+
 use axum::Router;
 use log::trace;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowMethods, Any, CorsLayer};
 
@@ -19,6 +21,24 @@ struct UnclaimRequest {
     expiry_time: i64,
     is_fund: bool,
     tx_hash: String,
+}
+
+#[derive(Deserialize)]
+struct AccountRegistrationRequest {
+    email_address: String,
+}
+
+#[derive(Serialize)]
+struct AccountRegistrationResponse {
+    account_key: String,
+    wallet_addr: String,
+    onboard_token_sent: bool,
+}
+
+#[derive(Serialize)]
+struct StatResponse {
+    onboarding_tokens_distributed: u32,
+    onboarding_tokens_left: u32,
 }
 
 async fn unclaim(
@@ -45,51 +65,60 @@ async fn unclaim(
         payload.is_fund,
     )
     .await?;
-    let mut psi_res = vec![];
-    let psi_condition = {
-        let account_key = db.get_account_key(&payload.email_address).await?;
-        (account_key.is_none()
-            || !chain_client
-                .check_if_account_initialized_by_account_key(
-                    &payload.email_address,
-                    &account_key.unwrap(),
-                )
-                .await?)
-            && {
-                trace!("Starting PSI");
-                psi_res = psi_client.find().await?;
-                !psi_res.is_empty()
-            }
+    psi_client
+        .check_and_reveal(db.clone(), chain_client.clone(), &payload.email_address)
+        .await?;
+    let claim = Claim {
+        id,
+        email_address: payload.email_address.clone(),
+        random: payload.random.clone(),
+        commit: field2hex(&commit),
+        expiry_time: payload.expiry_time,
+        is_fund: payload.is_fund,
+        is_announced: false,
     };
-    if psi_condition {
-        trace!("Reveal PSI");
-        psi_client
-            .reveal(&psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
-            .await?;
+    tx_claimer.send(claim)?;
+    trace!("claim sent to tx_claimer");
 
-        Ok(format!(
-            "Unclaimed {} for {} was sent to found relayer",
-            if payload.is_fund { "fund" } else { "state" },
-            payload.email_address
-        ))
+    Ok(format!(
+        "Unclaimed {} for {} is accepted",
+        if payload.is_fund { "fund" } else { "state" },
+        payload.email_address
+    ))
+}
+
+async fn onboard(
+    payload: AccountRegistrationRequest,
+    db: Arc<Database>,
+    chain_client: Arc<ChainClient>,
+) -> Result<axum::Json<AccountRegistrationResponse>> {
+    let account_key = AccountKey::new(rand::thread_rng());
+    let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
+    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+
+    let account_key_commit =
+        account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
+    let wallet_salt = account_key.to_wallet_salt().unwrap().0;
+    let wallet_addr = chain_client.get_wallet_addr_from_salt(&wallet_salt).await?;
+
+    info!("Counterfactual wallet address for email: {}", wallet_addr);
+
+    let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
+    if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
+        match chain_client.transfer_onboarding_tokens(wallet_addr).await {
+            Ok(onboard_token_sent) => Ok(axum::Json(AccountRegistrationResponse {
+                account_key: field2hex(&account_key_commit),
+                wallet_addr: format!("{:?}", wallet_addr),
+                onboard_token_sent,
+            })),
+            _ => {
+                ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+                bail!("Limit is reached");
+            }
+        }
     } else {
-        let claim = Claim {
-            id,
-            email_address: payload.email_address.clone(),
-            random: payload.random.clone(),
-            commit: field2hex(&commit),
-            expiry_time: payload.expiry_time,
-            is_fund: payload.is_fund,
-            is_announced: false,
-        };
-        tx_claimer.send(claim)?;
-        trace!("claim sent to tx_claimer");
-
-        Ok(format!(
-            "Unclaimed {} for {} is accepted",
-            if payload.is_fund { "fund" } else { "state" },
-            payload.email_address
-        ))
+        ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+        bail!("Limit is reached");
     }
 }
 
@@ -102,6 +131,9 @@ pub(crate) async fn run_server(
     let chain_client_check_clone = Arc::clone(&chain_client);
     let chain_client_reveal_clone = Arc::clone(&chain_client);
     let tx_claimer_reveal_clone = tx_claimer.clone();
+
+    let chain_client_onboard_clone = Arc::clone(&chain_client);
+    let db_onboard_clone = Arc::clone(&db);
 
     let app = Router::new()
         .route(
@@ -125,12 +157,36 @@ pub(crate) async fn run_server(
                 info!("/unclaim Received payload: {}", payload);
                 let json = serde_json::from_str::<UnclaimRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
-                unclaim(json, Arc::clone(&db), Arc::clone(&chain_client), tx_claimer)
+                unclaim(json, db, chain_client, tx_claimer)
                     .await
                     .map_err(|err| {
                         error!("Failed to accept unclaim: {}", err);
                         err.to_string()
                     })
+            }),
+        )
+        .route(
+            "/api/onboard",
+            axum::routing::post(
+                move |payload: axum::Json<AccountRegistrationRequest>| async move {
+                    onboard(payload.0, db_onboard_clone, chain_client_onboard_clone)
+                        .await
+                        .map_err(|err| {
+                            error!("Failed to onboard: {}", err);
+                            err.to_string()
+                        })
+                },
+            ),
+        )
+        .route(
+            "/api/stats",
+            axum::routing::get(move || async move {
+                let stats = StatResponse {
+                    onboarding_tokens_distributed: ONBOARDING_COUNTER.load(Ordering::SeqCst),
+                    onboarding_tokens_left: *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap()
+                        - ONBOARDING_COUNTER.load(Ordering::SeqCst),
+                };
+                axum::Json(stats)
             }),
         )
         .route(
@@ -142,7 +198,7 @@ pub(crate) async fn run_server(
                 serve_check_request(json, chain_client_check_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed to accept unclaim: {}", err);
+                        error!("Failed PSI check serve: {}", err);
                         err.to_string()
                     })
             }),
@@ -156,7 +212,7 @@ pub(crate) async fn run_server(
                 serve_reveal_request(json, chain_client_reveal_clone, tx_claimer_reveal_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed to accept unclaim: {}", err);
+                        error!("Failed PSI reveal serve: {}", err);
                         err.to_string()
                     })
             }),

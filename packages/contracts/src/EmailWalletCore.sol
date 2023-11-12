@@ -232,7 +232,10 @@ contract EmailWalletCore {
         }
         // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
         else {
-            require(currContext.registeredUnclaimId == 0, "registeredUnclaimId must be zero if no unclaimed fund/state is registered");
+            require(
+                currContext.registeredUnclaimId == 0,
+                "registeredUnclaimId must be zero if no unclaimed fund/state is registered"
+            );
             payable(msg.sender).transfer(msg.value);
         }
 
@@ -246,7 +249,7 @@ contract EmailWalletCore {
 
         if (feeAmountInToken > 0) {
             address feeToken = tokenRegistry.getTokenAddress(emailOp.feeTokenName);
-            
+
             (bool transferSuccess, bytes memory transferErr) = _transferERC20FromUserWallet(
                 currContext.walletAddr,
                 msg.sender,
@@ -265,7 +268,15 @@ contract EmailWalletCore {
         currContext.registeredUnclaimId = 0;
         delete currContext.tokenAllowances;
 
-        emit EmailWalletEvents.EmailOpHandled(success, registeredUnclaimId, emailOp.emailNullifier, emailOp.emailAddrPointer, emailOp.recipientEmailAddrCommit, emailOp.recipientETHAddr, err);
+        emit EmailWalletEvents.EmailOpHandled(
+            success,
+            registeredUnclaimId,
+            emailOp.emailNullifier,
+            emailOp.emailAddrPointer,
+            emailOp.recipientEmailAddrCommit,
+            emailOp.recipientETHAddr,
+            err
+        );
     }
 
     /// For extension in context to register Unclaimed State during handleEmailOp

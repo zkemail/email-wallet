@@ -52,20 +52,20 @@
     }
   ],
   "bytecode": {
-    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212204ab318b92316c564310e6486107a681ea2c1570527a60c050f079cf859ca8aac64736f6c63430008150033",
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220dda8846d8f9cccbb544780a554176b1c24c3ce9da50c6fd59c6fbcafde34629664736f6c63430008110033",
     "sourceMap": "368:8500:109:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;368:8500:109;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212204ab318b92316c564310e6486107a681ea2c1570527a60c050f079cf859ca8aac64736f6c63430008150033",
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220dda8846d8f9cccbb544780a554176b1c24c3ce9da50c6fd59c6fbcafde34629664736f6c63430008110033",
     "sourceMap": "368:8500:109:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"who\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fsig\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keysHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slot\",\"type\":\"uint256\"}],\"name\":\"SlotFound\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"who\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slot\",\"type\":\"uint256\"}],\"name\":\"WARNING_UninitedSlot\",\"type\":\"event\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/forge-std/src/StdStorage.sol\":\"stdStorageSafe\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/forge-std/src/StdStorage.sol\":{\"keccak256\":\"0x4298f3f4cedaedb07029820b1daad2c03af45379559392201f7bf3ec71105811\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e062f36d8d1ae3c383ef8975757926eaa9c4de3a92b5f1fe2d12748bcd8db32\",\"dweb:/ipfs/QmcWkv3ia5Ew4DZNcudMNSTNXZ3W2QiXTZunRd44e9BT8z\"]},\"/Users/saleel/EF/email-wallet/node_modules/forge-std/src/Vm.sol\":{\"keccak256\":\"0x039a59e16791fb3595615f1ad19d614cdb1f1e567ed3bfc1a35d97177387be68\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://da3d0bfe99104664a3a053665578ad1277ea79e0704519d3b7ff98b3b7054155\",\"dweb:/ipfs/QmesLHpsvzvC6DoTFLdgNibRU5sfeNggYtyaRfA64t2PsD\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"who\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fsig\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"keysHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slot\",\"type\":\"uint256\"}],\"name\":\"SlotFound\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"who\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slot\",\"type\":\"uint256\"}],\"name\":\"WARNING_UninitedSlot\",\"type\":\"event\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/StdStorage.sol\":\"stdStorageSafe\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/StdStorage.sol\":{\"keccak256\":\"0x4298f3f4cedaedb07029820b1daad2c03af45379559392201f7bf3ec71105811\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e062f36d8d1ae3c383ef8975757926eaa9c4de3a92b5f1fe2d12748bcd8db32\",\"dweb:/ipfs/QmcWkv3ia5Ew4DZNcudMNSTNXZ3W2QiXTZunRd44e9BT8z\"]},\"/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/Vm.sol\":{\"keccak256\":\"0x039a59e16791fb3595615f1ad19d614cdb1f1e567ed3bfc1a35d97177387be68\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://da3d0bfe99104664a3a053665578ad1277ea79e0704519d3b7ff98b3b7054155\",\"dweb:/ipfs/QmesLHpsvzvC6DoTFLdgNibRU5sfeNggYtyaRfA64t2PsD\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.21+commit.d9974bed"
+      "version": "0.8.17+commit.8df45f5f"
     },
     "language": "Solidity",
     "output": {
@@ -154,12 +154,12 @@
         "bytecodeHash": "ipfs"
       },
       "compilationTarget": {
-        "/Users/saleel/EF/email-wallet/node_modules/forge-std/src/StdStorage.sol": "stdStorageSafe"
+        "/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/StdStorage.sol": "stdStorageSafe"
       },
       "libraries": {}
     },
     "sources": {
-      "/Users/saleel/EF/email-wallet/node_modules/forge-std/src/StdStorage.sol": {
+      "/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/StdStorage.sol": {
         "keccak256": "0x4298f3f4cedaedb07029820b1daad2c03af45379559392201f7bf3ec71105811",
         "urls": [
           "bzz-raw://6e062f36d8d1ae3c383ef8975757926eaa9c4de3a92b5f1fe2d12748bcd8db32",
@@ -167,7 +167,7 @@
         ],
         "license": "MIT"
       },
-      "/Users/saleel/EF/email-wallet/node_modules/forge-std/src/Vm.sol": {
+      "/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/Vm.sol": {
         "keccak256": "0x039a59e16791fb3595615f1ad19d614cdb1f1e567ed3bfc1a35d97177387be68",
         "urls": [
           "bzz-raw://da3d0bfe99104664a3a053665578ad1277ea79e0704519d3b7ff98b3b7054155",
@@ -179,7 +179,7 @@
     "version": 1
   },
   "ast": {
-    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/forge-std/src/StdStorage.sol",
+    "absolutePath": "/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/StdStorage.sol",
     "id": 28307,
     "exportedSymbols": {
       "StdStorage": [
@@ -218,7 +218,7 @@
         "nodeType": "ImportDirective",
         "src": "65:28:109",
         "nodes": [],
-        "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/forge-std/src/Vm.sol",
+        "absolutePath": "/Users/suegamisora/codes/zk-email-wallet/node_modules/forge-std/src/Vm.sol",
         "file": "./Vm.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 28307,
@@ -263,8 +263,6 @@
             },
             "typeName": {
               "id": 26646,
-              "keyName": "",
-              "keyNameLocation": "-1:-1:-1",
               "keyType": {
                 "id": 26640,
                 "name": "address",
@@ -281,12 +279,8 @@
                 "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_bytes4_$_t_mapping$_t_bytes32_$_t_uint256_$_$_$",
                 "typeString": "mapping(address => mapping(bytes4 => mapping(bytes32 => uint256)))"
               },
-              "valueName": "",
-              "valueNameLocation": "-1:-1:-1",
               "valueType": {
                 "id": 26645,
-                "keyName": "",
-                "keyNameLocation": "-1:-1:-1",
                 "keyType": {
                   "id": 26641,
                   "name": "bytes4",
@@ -303,12 +297,8 @@
                   "typeIdentifier": "t_mapping$_t_bytes4_$_t_mapping$_t_bytes32_$_t_uint256_$_$",
                   "typeString": "mapping(bytes4 => mapping(bytes32 => uint256))"
                 },
-                "valueName": "",
-                "valueNameLocation": "-1:-1:-1",
                 "valueType": {
                   "id": 26644,
-                  "keyName": "",
-                  "keyNameLocation": "-1:-1:-1",
                   "keyType": {
                     "id": 26642,
                     "name": "bytes32",
@@ -325,8 +315,6 @@
                     "typeIdentifier": "t_mapping$_t_bytes32_$_t_uint256_$",
                     "typeString": "mapping(bytes32 => uint256)"
                   },
-                  "valueName": "",
-                  "valueNameLocation": "-1:-1:-1",
                   "valueType": {
                     "id": 26643,
                     "name": "uint256",
@@ -359,8 +347,6 @@
             },
             "typeName": {
               "id": 26654,
-              "keyName": "",
-              "keyNameLocation": "-1:-1:-1",
               "keyType": {
                 "id": 26648,
                 "name": "address",
@@ -377,12 +363,8 @@
                 "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_bytes4_$_t_mapping$_t_bytes32_$_t_bool_$_$_$",
                 "typeString": "mapping(address => mapping(bytes4 => mapping(bytes32 => bool)))"
               },
-              "valueName": "",
-              "valueNameLocation": "-1:-1:-1",
               "valueType": {
                 "id": 26653,
-                "keyName": "",
-                "keyNameLocation": "-1:-1:-1",
                 "keyType": {
                   "id": 26649,
                   "name": "bytes4",
@@ -399,12 +381,8 @@
                   "typeIdentifier": "t_mapping$_t_bytes4_$_t_mapping$_t_bytes32_$_t_bool_$_$",
                   "typeString": "mapping(bytes4 => mapping(bytes32 => bool))"
                 },
-                "valueName": "",
-                "valueNameLocation": "-1:-1:-1",
                 "valueType": {
                   "id": 26652,
-                  "keyName": "",
-                  "keyNameLocation": "-1:-1:-1",
                   "keyType": {
                     "id": 26650,
                     "name": "bytes32",
@@ -421,8 +399,6 @@
                     "typeIdentifier": "t_mapping$_t_bytes32_$_t_bool_$",
                     "typeString": "mapping(bytes32 => bool)"
                   },
-                  "valueName": "",
-                  "valueNameLocation": "-1:-1:-1",
                   "valueType": {
                     "id": 26651,
                     "name": "bool",
@@ -8194,7 +8170,7 @@
                       "nodeType": "MemberAccess",
                       "src": "5151:15:109",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_array$_t_bytes32_$dyn_storage_ptr_$_t_bytes32_$returns$__$attached_to$_t_array$_t_bytes32_$dyn_storage_ptr_$",
+                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_array$_t_bytes32_$dyn_storage_ptr_$_t_bytes32_$returns$__$bound_to$_t_array$_t_bytes32_$dyn_storage_ptr_$",
                         "typeString": "function (bytes32[] storage pointer,bytes32)"
                       }
                     },
@@ -8481,7 +8457,7 @@
                       "nodeType": "MemberAccess",
                       "src": "5336:15:109",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_array$_t_bytes32_$dyn_storage_ptr_$_t_bytes32_$returns$__$attached_to$_t_array$_t_bytes32_$dyn_storage_ptr_$",
+                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_array$_t_bytes32_$dyn_storage_ptr_$_t_bytes32_$returns$__$bound_to$_t_array$_t_bytes32_$dyn_storage_ptr_$",
                         "typeString": "function (bytes32[] storage pointer,bytes32)"
                       }
                     },
@@ -8722,7 +8698,7 @@
                       "nodeType": "MemberAccess",
                       "src": "5503:15:109",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_array$_t_bytes32_$dyn_storage_ptr_$_t_bytes32_$returns$__$attached_to$_t_array$_t_bytes32_$dyn_storage_ptr_$",
+                        "typeIdentifier": "t_function_arraypush_nonpayable$_t_array$_t_bytes32_$dyn_storage_ptr_$_t_bytes32_$returns$__$bound_to$_t_array$_t_bytes32_$dyn_storage_ptr_$",
                         "typeString": "function (bytes32[] storage pointer,bytes32)"
                       }
                     },
@@ -13842,7 +13818,6 @@
                       },
                       {
                         "AST": {
-                          "nativeSrc": "8751:75:109",
                           "nodeType": "YulBlock",
                           "src": "8751:75:109",
                           "statements": [
@@ -13853,7 +13828,6 @@
                                     "arguments": [
                                       {
                                         "name": "result",
-                                        "nativeSrc": "8780:6:109",
                                         "nodeType": "YulIdentifier",
                                         "src": "8780:6:109"
                                       },
@@ -13861,7 +13835,6 @@
                                         "arguments": [
                                           {
                                             "kind": "number",
-                                            "nativeSrc": "8792:2:109",
                                             "nodeType": "YulLiteral",
                                             "src": "8792:2:109",
                                             "type": "",
@@ -13871,7 +13844,6 @@
                                             "arguments": [
                                               {
                                                 "kind": "number",
-                                                "nativeSrc": "8800:2:109",
                                                 "nodeType": "YulLiteral",
                                                 "src": "8800:2:109",
                                                 "type": "",
@@ -13879,68 +13851,57 @@
                                               },
                                               {
                                                 "name": "i",
-                                                "nativeSrc": "8804:1:109",
                                                 "nodeType": "YulIdentifier",
                                                 "src": "8804:1:109"
                                               }
                                             ],
                                             "functionName": {
                                               "name": "mul",
-                                              "nativeSrc": "8796:3:109",
                                               "nodeType": "YulIdentifier",
                                               "src": "8796:3:109"
                                             },
-                                            "nativeSrc": "8796:10:109",
                                             "nodeType": "YulFunctionCall",
                                             "src": "8796:10:109"
                                           }
                                         ],
                                         "functionName": {
                                           "name": "add",
-                                          "nativeSrc": "8788:3:109",
                                           "nodeType": "YulIdentifier",
                                           "src": "8788:3:109"
                                         },
-                                        "nativeSrc": "8788:19:109",
                                         "nodeType": "YulFunctionCall",
                                         "src": "8788:19:109"
                                       }
                                     ],
                                     "functionName": {
                                       "name": "add",
-                                      "nativeSrc": "8776:3:109",
                                       "nodeType": "YulIdentifier",
                                       "src": "8776:3:109"
                                     },
-                                    "nativeSrc": "8776:32:109",
                                     "nodeType": "YulFunctionCall",
                                     "src": "8776:32:109"
                                   },
                                   {
                                     "name": "k",
-                                    "nativeSrc": "8810:1:109",
                                     "nodeType": "YulIdentifier",
                                     "src": "8810:1:109"
                                   }
                                 ],
                                 "functionName": {
                                   "name": "mstore",
-                                  "nativeSrc": "8769:6:109",
                                   "nodeType": "YulIdentifier",
                                   "src": "8769:6:109"
                                 },
-                                "nativeSrc": "8769:43:109",
                                 "nodeType": "YulFunctionCall",
                                 "src": "8769:43:109"
                               },
-                              "nativeSrc": "8769:43:109",
                               "nodeType": "YulExpressionStatement",
                               "src": "8769:43:109"
                             }
                           ]
                         },
                         "documentation": "@solidity memory-safe-assembly",
-                        "evmVersion": "paris",
+                        "evmVersion": "london",
                         "externalReferences": [
                           {
                             "declaration": 27692,
@@ -14236,11 +14197,7 @@
         "name": "stdStorageSafe",
         "nameLocation": "376:14:109",
         "scope": 28307,
-        "usedErrors": [],
-        "usedEvents": [
-          26677,
-          26683
-        ]
+        "usedErrors": []
       },
       {
         "id": 28306,
@@ -17267,24 +17224,20 @@
                 },
                 {
                   "AST": {
-                    "nativeSrc": "10888:34:109",
                     "nodeType": "YulBlock",
                     "src": "10888:34:109",
                     "statements": [
                       {
-                        "nativeSrc": "10902:10:109",
                         "nodeType": "YulAssignment",
                         "src": "10902:10:109",
                         "value": {
                           "name": "write",
-                          "nativeSrc": "10907:5:109",
                           "nodeType": "YulIdentifier",
                           "src": "10907:5:109"
                         },
                         "variableNames": [
                           {
                             "name": "t",
-                            "nativeSrc": "10902:1:109",
                             "nodeType": "YulIdentifier",
                             "src": "10902:1:109"
                           }
@@ -17293,7 +17246,7 @@
                     ]
                   },
                   "documentation": "@solidity memory-safe-assembly",
-                  "evmVersion": "paris",
+                  "evmVersion": "london",
                   "externalReferences": [
                     {
                       "declaration": 27954,
@@ -21599,7 +21552,6 @@
                       },
                       {
                         "AST": {
-                          "nativeSrc": "13673:75:109",
                           "nodeType": "YulBlock",
                           "src": "13673:75:109",
                           "statements": [
@@ -21610,7 +21562,6 @@
                                     "arguments": [
                                       {
                                         "name": "result",
-                                        "nativeSrc": "13702:6:109",
                                         "nodeType": "YulIdentifier",
                                         "src": "13702:6:109"
                                       },
@@ -21618,7 +21569,6 @@
                                         "arguments": [
                                           {
                                             "kind": "number",
-                                            "nativeSrc": "13714:2:109",
                                             "nodeType": "YulLiteral",
                                             "src": "13714:2:109",
                                             "type": "",
@@ -21628,7 +21578,6 @@
                                             "arguments": [
                                               {
                                                 "kind": "number",
-                                                "nativeSrc": "13722:2:109",
                                                 "nodeType": "YulLiteral",
                                                 "src": "13722:2:109",
                                                 "type": "",
@@ -21636,68 +21585,57 @@
                                               },
                                               {
                                                 "name": "i",
-                                                "nativeSrc": "13726:1:109",
                                                 "nodeType": "YulIdentifier",
                                                 "src": "13726:1:109"
                                               }
                                             ],
                                             "functionName": {
                                               "name": "mul",
-                                              "nativeSrc": "13718:3:109",
                                               "nodeType": "YulIdentifier",
                                               "src": "13718:3:109"
                                             },
-                                            "nativeSrc": "13718:10:109",
                                             "nodeType": "YulFunctionCall",
                                             "src": "13718:10:109"
                                           }
                                         ],
                                         "functionName": {
                                           "name": "add",
-                                          "nativeSrc": "13710:3:109",
                                           "nodeType": "YulIdentifier",
                                           "src": "13710:3:109"
                                         },
-                                        "nativeSrc": "13710:19:109",
                                         "nodeType": "YulFunctionCall",
                                         "src": "13710:19:109"
                                       }
                                     ],
                                     "functionName": {
                                       "name": "add",
-                                      "nativeSrc": "13698:3:109",
                                       "nodeType": "YulIdentifier",
                                       "src": "13698:3:109"
                                     },
-                                    "nativeSrc": "13698:32:109",
                                     "nodeType": "YulFunctionCall",
                                     "src": "13698:32:109"
                                   },
                                   {
                                     "name": "k",
-                                    "nativeSrc": "13732:1:109",
                                     "nodeType": "YulIdentifier",
                                     "src": "13732:1:109"
                                   }
                                 ],
                                 "functionName": {
                                   "name": "mstore",
-                                  "nativeSrc": "13691:6:109",
                                   "nodeType": "YulIdentifier",
                                   "src": "13691:6:109"
                                 },
-                                "nativeSrc": "13691:43:109",
                                 "nodeType": "YulFunctionCall",
                                 "src": "13691:43:109"
                               },
-                              "nativeSrc": "13691:43:109",
                               "nodeType": "YulExpressionStatement",
                               "src": "13691:43:109"
                             }
                           ]
                         },
                         "documentation": "@solidity memory-safe-assembly",
-                        "evmVersion": "paris",
+                        "evmVersion": "london",
                         "externalReferences": [
                           {
                             "declaration": 28283,
@@ -21993,8 +21931,7 @@
         "name": "stdStorage",
         "nameLocation": "8878:10:109",
         "scope": 28307,
-        "usedErrors": [],
-        "usedEvents": []
+        "usedErrors": []
       }
     ],
     "license": "MIT"
