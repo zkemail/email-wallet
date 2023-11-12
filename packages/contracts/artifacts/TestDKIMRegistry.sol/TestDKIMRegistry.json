@@ -26,22 +26,22 @@
     }
   ],
   "bytecode": {
-    "object": "0x608060405234801561001057600080fd5b5061015a806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea2646970667358221220fcbf263d679d3f6d52e004db1ed407b947acc41e10b96fe7ba9f4acab314e0a764736f6c63430008150033",
-    "sourceMap": "117:267:174:-:0;;;;;;;;;;;;;;;;;;;",
+    "object": "0x608060405234801561001057600080fd5b5061015a806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea264697066735822122008ea7674a40effc5b8ab5b2eae6740e2f20f7d58ea79952f0c2d13b92909042164736f6c63430008110033",
+    "sourceMap": "117:267:176:-:0;;;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea2646970667358221220fcbf263d679d3f6d52e004db1ed407b947acc41e10b96fe7ba9f4acab314e0a764736f6c63430008150033",
-    "sourceMap": "117:267:174:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;166:216;;;;;;:::i;:::-;353:3;337:38;;166:216;-1:-1:-1;166:216:174;;;;1316:14:179;;1309:22;1291:41;;1279:2;1264:18;166:216:174;;;;;;;14:127:179;75:10;70:3;66:20;63:1;56:31;106:4;103:1;96:15;130:4;127:1;120:15;146:1000;224:6;232;285:2;273:9;264:7;260:23;256:32;253:52;;;301:1;298;291:12;253:52;328:23;;-1:-1:-1;;;;;400:14:179;;;397:34;;;427:1;424;417:12;397:34;465:6;454:9;450:22;440:32;;510:7;503:4;499:2;495:13;491:27;481:55;;532:1;529;522:12;481:55;568:2;555:16;590:2;586;583:10;580:36;;;596:18;;:::i;:::-;671:2;665:9;639:2;725:13;;-1:-1:-1;;721:22:179;;;745:2;717:31;713:40;701:53;;;769:18;;;789:22;;;766:46;763:72;;;815:18;;:::i;:::-;855:10;851:2;844:22;890:2;882:6;875:18;932:7;925:4;920:2;916;912:11;908:22;905:35;902:55;;;953:1;950;943:12;902:55;1013:2;1006:4;1002:2;998:13;991:4;983:6;979:17;966:50;1060:1;1053:4;1036:15;;;1032:26;;1025:37;1036:15;1119:20;;;;1106:34;;-1:-1:-1;;;;;;146:1000:179:o",
+    "object": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea264697066735822122008ea7674a40effc5b8ab5b2eae6740e2f20f7d58ea79952f0c2d13b92909042164736f6c63430008110033",
+    "sourceMap": "117:267:176:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;166:216;;;;;;:::i;:::-;353:3;337:38;;166:216;-1:-1:-1;166:216:176;;;;1316:14:181;;1309:22;1291:41;;1279:2;1264:18;166:216:176;;;;;;;14:127:181;75:10;70:3;66:20;63:1;56:31;106:4;103:1;96:15;130:4;127:1;120:15;146:1000;224:6;232;285:2;273:9;264:7;260:23;256:32;253:52;;;301:1;298;291:12;253:52;328:23;;-1:-1:-1;;;;;400:14:181;;;397:34;;;427:1;424;417:12;397:34;465:6;454:9;450:22;440:32;;510:7;503:4;499:2;495:13;491:27;481:55;;532:1;529;522:12;481:55;568:2;555:16;590:2;586;583:10;580:36;;;596:18;;:::i;:::-;671:2;665:9;639:2;725:13;;-1:-1:-1;;721:22:181;;;745:2;717:31;713:40;701:53;;;769:18;;;789:22;;;766:46;763:72;;;815:18;;:::i;:::-;855:10;851:2;844:22;890:2;882:6;875:18;932:7;925:4;920:2;916;912:11;908:22;905:35;902:55;;;953:1;950;943:12;902:55;1013:2;1006:4;1002:2;998:13;991:4;983:6;979:17;966:50;1060:1;1053:4;1036:15;;;1032:26;;1025:37;1036:15;1119:20;;;;1106:34;;-1:-1:-1;;;;;;146:1000:181:o",
     "linkReferences": {}
   },
   "methodIdentifiers": {
     "isDKIMPublicKeyHashValid(string,bytes32)": "e7a7977a"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/TestDKIMRegistry.sol\":\"TestDKIMRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]},\"test/mocks/TestDKIMRegistry.sol\":{\"keccak256\":\"0xe5fafcdfdfe7a06023479ef00692ef0471339d2f811647ce4ed79617fd1a2231\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1c83ff747703b267b579c11ac2226fbff4c6c8926ffcfb5c69ba8f73b04b921c\",\"dweb:/ipfs/QmPYvjKDVL3PadDPd6TrWXuYRGn3yAfCh5TRapNBD7NESP\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/TestDKIMRegistry.sol\":\"TestDKIMRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]},\"test/mocks/TestDKIMRegistry.sol\":{\"keccak256\":\"0xe5fafcdfdfe7a06023479ef00692ef0471339d2f811647ce4ed79617fd1a2231\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1c83ff747703b267b579c11ac2226fbff4c6c8926ffcfb5c69ba8f73b04b921c\",\"dweb:/ipfs/QmPYvjKDVL3PadDPd6TrWXuYRGn3yAfCh5TRapNBD7NESP\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.21+commit.d9974bed"
+      "version": "0.8.17+commit.8df45f5f"
     },
     "language": "Solidity",
     "output": {
@@ -130,22 +130,22 @@
   },
   "ast": {
     "absolutePath": "test/mocks/TestDKIMRegistry.sol",
-    "id": 100707,
+    "id": 102766,
     "exportedSymbols": {
       "IDKIMRegistry": [
         4779
       ],
       "TestDKIMRegistry": [
-        100706
+        102765
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:353:174",
+    "src": "32:353:176",
     "nodes": [
       {
-        "id": 100680,
+        "id": 102739,
         "nodeType": "PragmaDirective",
-        "src": "32:23:174",
+        "src": "32:23:176",
         "nodes": [],
         "literals": [
           "solidity",
@@ -155,50 +155,50 @@
         ]
       },
       {
-        "id": 100681,
+        "id": 102740,
         "nodeType": "ImportDirective",
-        "src": "57:58:174",
+        "src": "57:58:176",
         "nodes": [],
         "absolutePath": "../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol",
         "file": "@zk-email/contracts/interfaces/IDKIMRegistry.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 100707,
+        "scope": 102766,
         "sourceUnit": 4780,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 100706,
+        "id": 102765,
         "nodeType": "ContractDefinition",
-        "src": "117:267:174",
+        "src": "117:267:176",
         "nodes": [
           {
-            "id": 100705,
+            "id": 102764,
             "nodeType": "FunctionDefinition",
-            "src": "166:216:174",
+            "src": "166:216:176",
             "nodes": [],
             "body": {
-              "id": 100704,
+              "id": 102763,
               "nodeType": "Block",
-              "src": "300:82:174",
+              "src": "300:82:176",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 100692,
+                    "id": 102751,
                     "name": "domainName",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 100685,
-                    "src": "310:10:174",
+                    "referencedDeclaration": 102744,
+                    "src": "310:10:176",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_memory_ptr",
                       "typeString": "string memory"
                     }
                   },
-                  "id": 100693,
+                  "id": 102752,
                   "nodeType": "ExpressionStatement",
-                  "src": "310:10:174"
+                  "src": "310:10:176"
                 },
                 {
                   "expression": {
@@ -206,7 +206,7 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 100702,
+                    "id": 102761,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -217,14 +217,14 @@
                           "arguments": [
                             {
                               "hexValue": "313233",
-                              "id": 100698,
+                              "id": 102757,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "kind": "number",
                               "lValueRequested": false,
                               "nodeType": "Literal",
-                              "src": "353:3:174",
+                              "src": "353:3:176",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_rational_123_by_1",
                                 "typeString": "int_const 123"
@@ -239,26 +239,26 @@
                                 "typeString": "int_const 123"
                               }
                             ],
-                            "id": 100697,
+                            "id": 102756,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
                             "lValueRequested": false,
                             "nodeType": "ElementaryTypeNameExpression",
-                            "src": "345:7:174",
+                            "src": "345:7:176",
                             "typeDescriptions": {
                               "typeIdentifier": "t_type$_t_uint256_$",
                               "typeString": "type(uint256)"
                             },
                             "typeName": {
-                              "id": 100696,
+                              "id": 102755,
                               "name": "uint256",
                               "nodeType": "ElementaryTypeName",
-                              "src": "345:7:174",
+                              "src": "345:7:176",
                               "typeDescriptions": {}
                             }
                           },
-                          "id": 100699,
+                          "id": 102758,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -267,7 +267,7 @@
                           "nameLocations": [],
                           "names": [],
                           "nodeType": "FunctionCall",
-                          "src": "345:12:174",
+                          "src": "345:12:176",
                           "tryCall": false,
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -282,26 +282,26 @@
                             "typeString": "uint256"
                           }
                         ],
-                        "id": 100695,
+                        "id": 102754,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "lValueRequested": false,
                         "nodeType": "ElementaryTypeNameExpression",
-                        "src": "337:7:174",
+                        "src": "337:7:176",
                         "typeDescriptions": {
                           "typeIdentifier": "t_type$_t_bytes32_$",
                           "typeString": "type(bytes32)"
                         },
                         "typeName": {
-                          "id": 100694,
+                          "id": 102753,
                           "name": "bytes32",
                           "nodeType": "ElementaryTypeName",
-                          "src": "337:7:174",
+                          "src": "337:7:176",
                           "typeDescriptions": {}
                         }
                       },
-                      "id": 100700,
+                      "id": 102759,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -310,7 +310,7 @@
                       "nameLocations": [],
                       "names": [],
                       "nodeType": "FunctionCall",
-                      "src": "337:21:174",
+                      "src": "337:21:176",
                       "tryCall": false,
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -320,27 +320,27 @@
                     "nodeType": "BinaryOperation",
                     "operator": "==",
                     "rightExpression": {
-                      "id": 100701,
+                      "id": 102760,
                       "name": "publicKeyHash",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 100687,
-                      "src": "362:13:174",
+                      "referencedDeclaration": 102746,
+                      "src": "362:13:176",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
                         "typeString": "bytes32"
                       }
                     },
-                    "src": "337:38:174",
+                    "src": "337:38:176",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "functionReturnParameters": 100691,
-                  "id": 100703,
+                  "functionReturnParameters": 102750,
+                  "id": 102762,
                   "nodeType": "Return",
-                  "src": "330:45:174"
+                  "src": "330:45:176"
                 }
               ]
             },
@@ -352,20 +352,20 @@
             "kind": "function",
             "modifiers": [],
             "name": "isDKIMPublicKeyHashValid",
-            "nameLocation": "175:24:174",
+            "nameLocation": "175:24:176",
             "parameters": {
-              "id": 100688,
+              "id": 102747,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 100685,
+                  "id": 102744,
                   "mutability": "mutable",
                   "name": "domainName",
-                  "nameLocation": "223:10:174",
+                  "nameLocation": "223:10:176",
                   "nodeType": "VariableDeclaration",
-                  "scope": 100705,
-                  "src": "209:24:174",
+                  "scope": 102764,
+                  "src": "209:24:176",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -373,10 +373,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 100684,
+                    "id": 102743,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "209:6:174",
+                    "src": "209:6:176",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -386,13 +386,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 100687,
+                  "id": 102746,
                   "mutability": "mutable",
                   "name": "publicKeyHash",
-                  "nameLocation": "251:13:174",
+                  "nameLocation": "251:13:176",
                   "nodeType": "VariableDeclaration",
-                  "scope": 100705,
-                  "src": "243:21:174",
+                  "scope": 102764,
+                  "src": "243:21:176",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -400,10 +400,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 100686,
+                    "id": 102745,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "243:7:174",
+                    "src": "243:7:176",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -412,21 +412,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "199:71:174"
+              "src": "199:71:176"
             },
             "returnParameters": {
-              "id": 100691,
+              "id": 102750,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 100690,
+                  "id": 102749,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 100705,
-                  "src": "294:4:174",
+                  "scope": 102764,
+                  "src": "294:4:176",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -434,10 +434,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 100689,
+                    "id": 102748,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "294:4:174",
+                    "src": "294:4:176",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -446,9 +446,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "293:6:174"
+              "src": "293:6:176"
             },
-            "scope": 100706,
+            "scope": 102765,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "external"
@@ -458,18 +458,18 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 100682,
+              "id": 102741,
               "name": "IDKIMRegistry",
               "nameLocations": [
-                "146:13:174"
+                "146:13:176"
               ],
               "nodeType": "IdentifierPath",
               "referencedDeclaration": 4779,
-              "src": "146:13:174"
+              "src": "146:13:176"
             },
-            "id": 100683,
+            "id": 102742,
             "nodeType": "InheritanceSpecifier",
-            "src": "146:13:174"
+            "src": "146:13:176"
           }
         ],
         "canonicalName": "TestDKIMRegistry",
@@ -477,17 +477,16 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          100706,
+          102765,
           4779
         ],
         "name": "TestDKIMRegistry",
-        "nameLocation": "126:16:174",
-        "scope": 100707,
-        "usedErrors": [],
-        "usedEvents": []
+        "nameLocation": "126:16:176",
+        "scope": 102766,
+        "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 174
+  "id": 176
 }

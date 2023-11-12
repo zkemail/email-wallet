@@ -106,14 +106,14 @@ contract Deploy is Script {
         nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        address uniswapV3Router = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+        address uniswapV3Router = 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45;
         // address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
         // TODO: To avoid stack too deep, uniswapV3Factory variable is not used
         UniswapExtension uniExt = new UniswapExtension(
             address(core),
             tokenRegistry,
             uniswapV3Router,
-            0x1F98431c8aD98523631AE4a59f267346ea31F984
+            0x1F98431c8aD98523631AE4a59f267346ea31F984	
         );
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniswapExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
