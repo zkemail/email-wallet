@@ -1,53 +1,75 @@
-# ------------------ Chef stage -------------------
-# Use cargo chef to cache dependencies
-FROM rustlang/rust:nightly AS chef
+FROM rustlang/rust:nightly
 
-# Install cargo chef
-RUN cargo install cargo-chef 
+RUN apt-get update && apt-get upgrade -y 
+RUN apt-get update && \
+    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm 
 
-# Work in app
-WORKDIR /app
+# Node install
+RUN npm install -g n 
+RUN n 18
+RUN npm install -g yarn
 
-# ------------------ Planner stage -------------------
-FROM chef as planner
+RUN git clone https://github.com/zkemail/email-wallet.git
+WORKDIR /email-wallet
+RUN yarn
 
-# Copy files into container
-COPY Cargo.toml Cargo.lock ./
-COPY packages/relayer ./packages/relayer
-COPY packages/utils ./packages/utils
-COPY packages/scripts ./packages/scripts
+WORKDIR /email-wallet/packages/relayer
+COPY packages/relayer/.env ./.env
+CMD [ "cargo run --release -- setup && cargo run --release >> output.log" ]
 
-# Create a lockfile for cargo chef
-RUN cargo +nightly chef prepare --recipe-path recipe.json
 
-# ------------------ Builder stage -------------------
-FROM chef AS builder
-WORKDIR /relayer
+# # ------------------ Chef stage -------------------
+# # Use cargo chef to cache dependencies
+# FROM rustlang/rust:nightly AS chef
 
-# Copy over our lock file
-COPY --from=planner  /app /relayer
+# # Install cargo chef
+# # RUN cargo install cargo-chef 
 
-# Build for any AWS machine. Same as cargo build but caches dependencies with the chef to make builds faster.
-RUN cargo chef cook --release --recipe-path recipe.json
+# # Work in app
+# WORKDIR /app
 
-### Above this all dependencies should be cached as long as our lock file stays the same
+# # ------------------ Planner stage -------------------
+# FROM chef as planner
 
-# Build binary
-RUN cargo build --release
+# # Copy files into container
+# COPY Cargo.toml Cargo.lock ./
+# COPY packages/relayer ./packages/relayer
+# COPY packages/utils ./packages/utils
+# COPY packages/circuits ./packages/circuits
+# COPY packages/frontend ./packages/frontend
+# COPY packages/scripts ./packages/scripts
 
-# ------------------ Runtime stage -------------------
+# # Create a lockfile for cargo chef
+# RUN cargo +nightly chef prepare --recipe-path recipe.json
 
-# Using super lightweight debian image to reduce overhead
-FROM ubuntu:latest AS runtime
+# # ------------------ Builder stage -------------------
+# FROM chef AS builder
+# WORKDIR /relayer
 
-# Copy prebuild bin from the Builder stage
-COPY --from=builder /relayer/target/release/relayer /relayer/target/release/relayer
-COPY --from=builder /relayer/Cargo.toml /relayer/Cargo.toml
-COPY --from=builder /relayer/Cargo.lock /relayer/Cargo.lock
+# # Copy over our lock file
+# COPY --from=planner  /app /relayer
 
-EXPOSE 4500
+# # Build for any AWS machine. Same as cargo build but caches dependencies with the chef to make builds faster.
+# RUN cargo chef cook --release --recipe-path recipe.json
 
-CMD ["relayer/target/release/relayer"]
+# ### Above this all dependencies should be cached as long as our lock file stays the same
 
-# This cargo chef logic comes from https://github.com/LukeMathWalker/cargo-chef
-# Inspired by Huff: https://github.com/huff-language/huff-rs/blob/main/Dockerfile
+# # Build binary
+# RUN cargo build --release
+
+# # ------------------ Runtime stage -------------------
+
+# # Using super lightweight debian image to reduce overhead
+# FROM ubuntu:latest AS runtime
+
+# # Copy prebuild bin from the Builder stage
+# COPY --from=builder /relayer/target/release/relayer /relayer/target/release/relayer
+# COPY --from=builder /relayer/Cargo.toml /relayer/Cargo.toml
+# COPY --from=builder /relayer/Cargo.lock /relayer/Cargo.lock
+
+# EXPOSE 4500
+
+# CMD ["relayer/target/release/relayer"]
+
+# # This cargo chef logic comes from https://github.com/LukeMathWalker/cargo-chef
+# # Inspired by Huff: https://github.com/huff-language/huff-rs/blob/main/Dockerfile
