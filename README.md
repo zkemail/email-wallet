@@ -32,10 +32,10 @@ This is first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc202
 - ✓ Use NFT extension to mint NFTs.
   - `NFT Send 1337 of Punks to recipient@domain.com` (and more)
 
-- ✓ [Advanced] Use custom DKIM Registry for complete control.
+- ✓  Use custom DKIM Registry for complete control.
   - `DKIM registry set to 0x1ababab111...`
 
-- ✓ [Advanced] Exit email wallet to a new owner. New owner (EOA) can control the wallet by executing any calldata on a target contract.
+- ✓ Set email wallet to a new owner. New owner (EOA) can control the wallet by executing any calldata on a target contract.
   - `Exit Email Wallet. Set owner to 0x1ababab111...`
 
 #### Features:
