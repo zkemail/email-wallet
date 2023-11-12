@@ -67,9 +67,9 @@ Here is how a typical interaction with the wallet looks like:
 
 - You send an email to your Relayer's email address with a subject like "Send 1 ETH to recipient@gmail.com".
 - The Relayer verifies the DKIM signature and creates a zk proof of email.
-- The ZK circuit also extract the subject, recipient email, timestamp, and other data from the email.
+- The ZK circuit extracts the subject, recipient email, timestamp, and other data from the email.
 - Relayer calls the smart contract with the zk proof and the extracted data.
-- Contract computed the subject from the extracted data and match it with the subject passed by the Relayer.
+- Contract computes the subject from the extracted data and matches it with the subject passed by the Relayer.
 - The ZK proof of email is validated on-chain, which also validates the subject.
 - Private data like the sender email, recipient's email in the subject line, is  not exposed on-chain.
 - The smart contract executes the transaction and sends 1 ETH to recipient's Email Wallet address.
