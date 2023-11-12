@@ -15,6 +15,7 @@ pub(crate) async fn create_account(
     if db.contains_user(&email_address).await.unwrap() {
         return Err(anyhow!("User already exists".to_string()));
     }
+    let is_account_key_none = account_key.is_none();
     let account_key = if let Some(account_key) = account_key {
         account_key
     } else {
@@ -46,19 +47,21 @@ pub(crate) async fn create_account(
     let res = chain_client.create_account(data).await?;
     info!("account creation tx hash: {}", res);
     db.insert_user(&email_address, &account_key, &res).await?;
-    tx.send(EmailMessage {
-        subject: format!("New Account - CODE:{}", account_key),
-        body: email_template_message(
-            &format!(
-                "New Email Wallet account was created for you; Your Account Key: {}",
-                account_key
-            ),
-            &res,
-        )
-        .await?,
-        to: email_address.to_string(),
-        message_id: Some(account_key),
-    })
-    .unwrap();
+    if is_account_key_none {
+        tx.send(EmailMessage {
+            subject: format!("New Account - CODE:{}", account_key),
+            body: email_template_message(
+                &format!(
+                    "New Email Wallet account was created for you; Your Account Key: {}",
+                    account_key
+                ),
+                &res,
+            )
+            .await?,
+            to: email_address.to_string(),
+            message_id: Some(account_key),
+        })
+        .unwrap();
+    }
     Ok(())
 }

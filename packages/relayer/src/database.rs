@@ -33,7 +33,8 @@ impl Database {
             "CREATE TABLE IF NOT EXISTS users (
                 email_address TEXT PRIMARY KEY,
                 account_key TEXT NOT NULL,
-                tx_hash TEXT NOT NULL
+                tx_hash TEXT NOT NULL,
+                is_onborded BOOLEAN NOT NULL DEFAULT FALSE,
             );",
         )
         .execute(&self.db)
@@ -121,6 +122,15 @@ impl Database {
         .fetch_one(&self.db)
         .await?;
         info!("inserted row: {}", row.get::<String, _>("email_address"));
+        Ok(())
+    }
+
+    pub(crate) async fn user_onborded(&self, email_address: &str) -> Result<()> {
+        let row = sqlx::query("UPDATE users SET is_onborded=$1 WHERE email_address=$2")
+            .bind(true)
+            .bind(email_address)
+            .fetch_one(&self.db)
+            .await?;
         Ok(())
     }
 
@@ -247,6 +257,14 @@ impl Database {
             .await?;
 
         Ok(result.is_some())
+    }
+
+    pub(crate) async fn is_user_onborded(&self, email_address: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT is_onborded FROM users WHERE email_address = $1")
+            .bind(email_address)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(result.get("is_onborded"))
     }
 
     pub(crate) async fn get_account_key(&self, email_address: &str) -> Result<Option<String>> {
