@@ -188,9 +188,9 @@ contract UniswapExtension is Extension {
     ) internal view returns (uint160) {
         bool zeroForOne = tokenIn < tokenOut;
 
-        (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
         
         if (sqrtPriceLimitX96 == 0) {
+            (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
             sqrtPriceLimitX96 = sqrtPriceX96;
         }
 
