@@ -126,7 +126,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel::<String>();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
-    let (tx_creator, mut rx_creator) = tokio::sync::mpsc::unbounded_channel::<String>();
+    let (tx_creator, mut rx_creator) =
+        tokio::sync::mpsc::unbounded_channel::<(String, Option<AccountKey>)>();
     let (tx_claimer, mut rx_claimer) = tokio::sync::mpsc::unbounded_channel::<Claim>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
@@ -181,6 +182,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let tx_sender_for_email_task = tx_sender.clone();
     let tx_claimer_for_email_task = tx_claimer.clone();
+    let tx_creator_for_email_task = tx_creator.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let email_handler_task = tokio::task::spawn(async move {
@@ -203,6 +205,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     emails_pool,
                     tx_sender_for_email_task.clone(),
                     tx_claimer_for_email_task.clone(),
+                    tx_creator_for_email_task.clone(),
                 )
                 .map_err(|err| error!("Error handling email: {}", err)),
             );
@@ -216,7 +219,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     let client_clone = Arc::clone(&client);
     let account_creation_task = tokio::task::spawn(async move {
         loop {
-            let email_address = rx_creator
+            let (email_address, account_key) = rx_creator
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
@@ -224,6 +227,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             tokio::task::spawn(
                 create_account(
                     email_address,
+                    account_key,
                     Arc::clone(&db_clone),
                     Arc::clone(&client_clone),
                     tx_sender_for_creator_task.clone(),

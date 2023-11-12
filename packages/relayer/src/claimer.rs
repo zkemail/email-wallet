@@ -20,11 +20,11 @@ pub(crate) async fn claim_unclaims(
     claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    tx_creator: UnboundedSender<String>,
+    tx_creator: UnboundedSender<(String, Option<AccountKey>)>,
     tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     if !db.contains_user(&claim.email_address).await.unwrap() {
-        tx_creator.send(claim.email_address.clone())?;
+        tx_creator.send((claim.email_address.clone(), None))?;
         db.insert_claim(&claim).await?;
         return Ok(());
     }

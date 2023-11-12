@@ -7,6 +7,7 @@ use tokio::sync::mpsc::UnboundedSender;
 
 pub(crate) async fn create_account(
     email_address: String,
+    account_key: Option<AccountKey>,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     tx: UnboundedSender<EmailMessage>,

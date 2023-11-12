@@ -66,6 +66,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     emails_pool: P,
     tx_sender: UnboundedSender<EmailMessage>,
     tx_claimer: UnboundedSender<Claim>,
+    tx_creator: UnboundedSender<(String, Option<AccountKey>)>,
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     let from_address = parsed_email.get_from_addr()?;
