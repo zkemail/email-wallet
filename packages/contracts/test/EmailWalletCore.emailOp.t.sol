@@ -183,7 +183,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         // Send 1 ETH to handleEmail
-        (bool success, , ,) = core.handleEmailOp{value: 1 ether}(emailOp);
+        (bool success, , , ) = core.handleEmailOp{value: 1 ether}(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");

@@ -164,7 +164,14 @@ contract EmailWalletCoreTestHelper is Test {
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(emailAddrPointer, emailDomain, block.timestamp, emailNullifier, mockDKIMHash, mockProof);
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
     }
 
