@@ -9,6 +9,9 @@ pub(crate) mod database;
 pub(crate) mod imap_client;
 pub(crate) mod smtp_client;
 pub(crate) mod strings;
+pub(crate) mod subgraph;
+pub(crate) mod subject_templates;
+pub(crate) mod voider;
 pub(crate) mod web_server;
 
 pub(crate) use chain::*;
@@ -18,9 +21,13 @@ pub(crate) use database::*;
 pub(crate) use imap_client::*;
 pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
+pub(crate) use subgraph::*;
+pub(crate) use subject_templates::*;
+pub(crate) use voider::*;
 pub(crate) use web_server::*;
 
 use std::path::PathBuf;
+use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
 
 use anyhow::{anyhow, bail, Result};
@@ -35,6 +42,42 @@ static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
 static CHAIN_ID: OnceLock<u32> = OnceLock::new();
 static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
 static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
+static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
+static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
+static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
+static SUBGRAPH_URL: OnceLock<String> = OnceLock::new();
+static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
+static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
+static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
+static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
+
+pub async fn setup() -> Result<()> {
+    dotenv().ok();
+    PRIVATE_KEY.set(env::var(PRIVATE_KEY_KEY).unwrap()).unwrap();
+    CHAIN_ID
+        .set(env::var(CHAIN_ID_KEY).unwrap().parse().unwrap())
+        .unwrap();
+    CHAIN_RPC_PROVIDER
+        .set(env::var(CHAIN_RPC_PROVIDER_KEY).unwrap())
+        .unwrap();
+    CORE_CONTRACT_ADDRESS
+        .set(env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap())
+        .unwrap();
+
+    let rng = OsRng;
+    let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
+
+    let client = ChainClient::setup().await?;
+    let tx_hash = client
+        .register_relayer(
+            relayer_rand.hash()?,
+            env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
+            env::var(RELAYER_HOSTNAME_KEY).unwrap(),
+        )
+        .await?;
+    println!("Register relayer in {}", tx_hash);
+    Ok(())
+}
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
@@ -47,27 +90,64 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     CORE_CONTRACT_ADDRESS
         .set(config.core_contract_address)
         .unwrap();
+    FEE_PER_GAS.set(config.fee_per_gas).unwrap();
+    INPUT_FILES_DIR.set(config.input_files_dir).unwrap();
+    EMAIL_TEMPLATES.set(config.email_templates).unwrap();
+    SUBGRAPH_URL.set(config.subgraph_url).unwrap();
+    ONBOARDING_TOKEN_ADDR
+        .set(config.onboarding_token_addr)
+        .unwrap();
+    ONBOARDING_TOKEN_DISTRIBUTION_LIMIT
+        .set(config.onboarding_token_distribution_limit)
+        .unwrap();
+    ONBOARDING_TOKEN_AMOUNT
+        .set(config.onboarding_token_amount)
+        .unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
 
     let db = Arc::new(Database::open(&config.db_path).await?);
-    for email in db.get_unhandled_emails().await? {
-        tx_handler.send(email)?;
+    let client = Arc::new(ChainClient::setup().await?);
+
+    let registered_rand_hash = client
+        .query_relayer_rand_hash(client.self_eth_addr())
+        .await?;
+    if registered_rand_hash != relayer_rand.hash()? {
+        panic!("Relayer randomness is not registered");
     }
 
+    let tx_handler_for_fetcher_task = tx_handler.clone();
+    let emails_pool_fetcher_task = tokio::task::spawn(async move {
+        loop {
+            let emails_pool = FileEmailsPool::new();
+            let unhandled_emails = emails_pool.get_unhandled_emails().await?;
+            for (email_hash, _) in unhandled_emails {
+                info!("unhandled email {}", email_hash);
+                tx_handler_for_fetcher_task.send(email_hash)?;
+            }
+            sleep(Duration::from_secs(30)).await;
+        }
+        anyhow::Ok(())
+    });
     let db_clone_receiver = Arc::clone(&db);
+    let mut email_receiver = ImapClient::new(config.imap_config).await?;
+    let tx_handler_for_receiver_task = tx_handler.clone();
     let email_receiver_task = tokio::task::spawn(async move {
         let mut email_receiver = ImapClient::new(config.imap_config).await?;
         loop {
-            let (new_email_receiver, fetches) = email_receiver.retrieve_new_emails().await?;
+            let (fetches, new_email_receiver) = email_receiver.retrieve_new_emails().await?;
+            info!("Fetched {} emails", fetches.len());
             for fetch in fetches {
                 for email in fetch.iter() {
                     if let Some(body) = email.body() {
                         let body = String::from_utf8(body.to_vec())?;
-                        if !db_clone_receiver.contains_email(&body).await? {
-                            db_clone_receiver.insert_email(&body).await?;
-                            tx_handler.send(body)?;
+                        info!("Received email {}", body);
+                        let email_hash = calculate_default_hash(&body);
+                        let emails_pool = FileEmailsPool::new();
+                        if !emails_pool.contains_email(&email_hash).await? {
+                            emails_pool.insert_email(&email_hash, &body).await?;
+                            tx_handler_for_receiver_task.send(email_hash)?;
                         }
                     }
                 }
@@ -75,7 +155,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             email_receiver = new_email_receiver;
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let tx_sender_for_email_task = tx_sender.clone();
@@ -88,15 +168,26 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .recv()
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-
-            tokio::task::spawn(handle_email(
-                email,
-                Arc::clone(&db_clone),
-                tx_sender_for_email_task.clone(),
-            ));
+            info!("Handling email hash {}", email_hash);
+            let emails_pool = FileEmailsPool::new();
+            let email = emails_pool.get_email_by_hash(&email_hash).await?;
+            info!("Handled email {}", email);
+            let emails_pool = FileEmailsPool::new();
+            emails_pool.delete_email(&email_hash).await?;
+            tokio::task::spawn(
+                handle_email(
+                    email,
+                    Arc::clone(&db_clone),
+                    Arc::clone(&client_clone),
+                    emails_pool,
+                    tx_sender_for_email_task.clone(),
+                    tx_claimer_for_email_task.clone(),
+                )
+                .map_err(|err| error!("Error handling email: {}", err)),
+            );
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
     });
 
     let api_server_task = tokio::task::spawn(run_server(
@@ -105,6 +196,47 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         tx_sender_for_server_task,
     ));
 
+        anyhow::Ok(())
+    });
+
+    let tx_sender_for_claimer_task = tx_sender.clone();
+    let tx_creator_for_claimer_task = tx_creator.clone();
+    let db_clone = Arc::clone(&db);
+    let client_clone = Arc::clone(&client);
+    let claimer_task = tokio::task::spawn(async move {
+        loop {
+            let claim = rx_claimer
+                .recv()
+                .await
+                .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+            info!("Claiming unclaim for {:?}", claim.email_address);
+            tokio::task::spawn(
+                claim_unclaims(
+                    claim,
+                    Arc::clone(&db_clone),
+                    Arc::clone(&client_clone),
+                    tx_creator_for_claimer_task.clone(),
+                    tx_sender_for_claimer_task.clone(),
+                )
+                .map_err(|err| error!("Error claiming unclaim: {}", err)),
+            );
+        }
+
+        anyhow::Ok(())
+    });
+
+    let tx_claimer_for_server_task = tx_claimer.clone();
+    let api_server_task = tokio::task::spawn(
+        run_server(
+            WEB_SERVER_ADDRESS.get().unwrap(),
+            Arc::clone(&db),
+            Arc::clone(&client),
+            tx_claimer_for_server_task,
+        )
+        .map_err(|err| error!("Error api server: {}", err)),
+    );
+
+    let email_sender = SmtpClient::new(config.smtp_config)?;
     let email_sender_task = tokio::task::spawn(async move {
         let email_sender = SmtpClient::new(config.smtp_config)?;
         loop {
@@ -116,7 +248,91 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             email_sender.send_new_email(email).await?;
         }
 
-        Ok::<(), anyhow::Error>(())
+        anyhow::Ok(())
+    });
+
+    let tx_claimer_for_listener_task = tx_claimer.clone();
+    let client_clone = Arc::clone(&client);
+    let event_listener_task = tokio::task::spawn(async move {
+        let mut from_block_fund = U64::from(0);
+        let mut from_block_state = U64::from(0);
+        let fund_f = |event: email_wallet_events::UnclaimedFundRegisteredFilter, meta: LogMeta| {
+            if event.email_addr.is_empty() {
+                return Ok(());
+            }
+            let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
+                &event.commitment_randomness,
+            ))?);
+            let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
+            let claim = Claim {
+                id: event.id,
+                email_address: event.email_addr,
+                random,
+                commit,
+                expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
+                is_fund: true,
+                is_announced: true,
+            };
+            tx_claimer_for_listener_task.send(claim)?;
+            Ok(())
+        };
+        let state_f = |event: email_wallet_events::UnclaimedStateRegisteredFilter,
+                       meta: LogMeta| {
+            if event.email_addr.is_empty() {
+                return Ok(());
+            }
+            let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
+                &event.commitment_randomness,
+            ))?);
+            let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
+            let claim = Claim {
+                id: event.id,
+                email_address: event.email_addr,
+                random,
+                commit,
+                expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
+                is_fund: false,
+                is_announced: true,
+            };
+            tx_claimer_for_listener_task.send(claim)?;
+            Ok(())
+        };
+        loop {
+            let last_block = client_clone
+                .stream_unclaim_fund_registration(from_block_fund, fund_f)
+                .await?;
+            from_block_fund = last_block + 1;
+            let last_block = client_clone
+                .stream_unclaim_state_registration(from_block_state, state_f)
+                .await?;
+            from_block_state = last_block + 1;
+            sleep(Duration::from_secs(120)).await;
+        }
+        anyhow::Ok(())
+    });
+
+    let tx_sender_for_voider_task = tx_sender.clone();
+    let db_clone = Arc::clone(&db);
+    let client_clone = Arc::clone(&client);
+    let voider_task = tokio::task::spawn(async move {
+        loop {
+            let now = now();
+            let claims = db_clone.get_claims_expired(now).await?;
+            for claim in claims {
+                info!("Voiding claim for : {}", claim.email_address);
+                tokio::task::spawn(
+                    void_unclaims(
+                        claim,
+                        Arc::clone(&db_clone),
+                        Arc::clone(&client_clone),
+                        tx_sender_for_voider_task.clone(),
+                    )
+                    .map_err(|err| error!("Error voider task: {}", err)),
+                );
+            }
+            sleep(Duration::from_secs(120)).await;
+        }
+        anyhow::Ok(())
     });
 
     let _ = tokio::join!(

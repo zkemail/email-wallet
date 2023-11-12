@@ -15,10 +15,54 @@ use tokio::{
     sync::mpsc::UnboundedSender,
 };
 
-pub(crate) async fn handle_email(
+const DOMAIN_FIELDS: usize = 9;
+const SUBJECT_FIELDS: usize = 17;
+const EMAIL_ADDR_FIELDS: usize = 9;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProverRes {
+    proof: ProofJson,
+    pub_signals: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProofJson {
+    pi_a: Vec<String>,
+    pi_b: Vec<Vec<String>>,
+    pi_c: Vec<String>,
+}
+
+impl ProofJson {
+    pub fn to_eth_bytes(&self) -> Result<Bytes> {
+        let pi_a = Token::FixedArray(vec![
+            Token::Uint(U256::from_dec_str(self.pi_a[0].as_str())?),
+            Token::Uint(U256::from_dec_str(self.pi_a[1].as_str())?),
+        ]);
+        let pi_b = Token::FixedArray(vec![
+            Token::FixedArray(vec![
+                Token::Uint(U256::from_dec_str(self.pi_b[0][1].as_str())?),
+                Token::Uint(U256::from_dec_str(self.pi_b[0][0].as_str())?),
+            ]),
+            Token::FixedArray(vec![
+                Token::Uint(U256::from_dec_str(self.pi_b[1][1].as_str())?),
+                Token::Uint(U256::from_dec_str(self.pi_b[1][0].as_str())?),
+            ]),
+        ]);
+        let pi_c = Token::FixedArray(vec![
+            Token::Uint(U256::from_dec_str(self.pi_c[0].as_str())?),
+            Token::Uint(U256::from_dec_str(self.pi_c[1].as_str())?),
+        ]);
+        Ok(Bytes::from(abi::encode(&[pi_a, pi_b, pi_c])))
+    }
+}
+
+pub(crate) async fn handle_email<P: EmailsPool>(
     email: String,
     db: Arc<Database>,
-    tx: UnboundedSender<EmailMessage>,
+    chain_client: Arc<ChainClient>,
+    emails_pool: P,
+    tx_sender: UnboundedSender<EmailMessage>,
+    tx_claimer: UnboundedSender<Claim>,
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     let from_address = parsed_email.get_from_addr()?;
@@ -65,11 +109,73 @@ pub(crate) async fn handle_email(
             }
         }
     } else {
-        let viewing_key = match db.get_viewing_key(&from_address).await? {
-            Some(viewing_key) => viewing_key,
-            None => {
-                db.remove_email(&email).await?;
-                bail!(NOT_MY_SENDER);
+        trace!("Normal email");
+        if let Ok(account_key_hex) =
+            extract_account_key_from_subject(&parsed_email.get_subject_all()?)
+        {
+            let account_key = AccountKey(hex2field(&account_key_hex)?);
+            if !db.contains_user(&from_address).await? {
+                let email_hash = calculate_default_hash(&email);
+                emails_pool.insert_email(&email_hash, &email).await?;
+                return Ok(());
+            }
+            trace!("Account init");
+            handle_account_init(
+                email,
+                &parsed_email,
+                account_key,
+                db.clone(),
+                chain_client.clone(),
+                tx_sender,
+            )
+            .await?;
+            let wallet_salt = account_key.to_wallet_salt()?;
+            trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+            let wallet_addr = chain_client
+                .get_wallet_addr_from_salt(&wallet_salt.0)
+                .await?;
+            info!("Sender wallet address: {}", wallet_addr);
+
+            return Ok(());
+        }
+        let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
+        let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+        let subject = parsed_email.get_subject_all()?;
+        trace!("Subject: {}", subject);
+        let command = subject_templates::extract_command_from_subject(&subject)?;
+        trace!("Command: {}", command);
+        let account_key = db
+            .get_account_key(&from_address)
+            .await?
+            .ok_or(anyhow!("Account key not found"))?;
+        let account_key = AccountKey::from(hex2field(&account_key)?);
+        let wallet_salt = account_key.to_wallet_salt()?;
+        trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+        let wallet_addr = chain_client
+            .get_wallet_addr_from_salt(&wallet_salt.0)
+            .await?;
+        info!("Sender wallet address: {}", wallet_addr);
+        let fee_token_name = select_fee_token(&wallet_salt, &chain_client).await?;
+        trace!("Fee token name: {}", fee_token_name);
+        let (template_idx, template_vals) = match command.as_str() {
+            SEND_COMMAND => (0, extract_template_vals_send(&subject)?),
+            EXECUTE_COMMAND => (0, extract_template_vals_execute(&subject)?),
+            INSTALL_COMMAND => (0, extract_template_vals_install(&subject)?),
+            UNINSTALL_COMMAND => (0, extract_template_vals_uninstall(&subject)?),
+            EXIT_COMMAND => (0, extract_template_vals_exit(&subject)?),
+            DKIM_COMMAND => (0, extract_template_vals_dkim(&subject)?),
+            _ => {
+                let extension_addr = chain_client
+                    .query_user_extension_for_command(&wallet_salt, command.as_str())
+                    .await?;
+                let subject_templates = chain_client
+                    .query_subject_templates_of_extension(extension_addr)
+                    .await?;
+                let (idx, vals) = extract_template_vals_and_idx(&subject, subject_templates)?;
+                if idx.is_none() {
+                    bail!(WRONG_SUBJECT_FORMAT);
+                }
+                (idx.unwrap(), vals)
             }
         };
         let viewing_key = AccountKey::from(hex2field(&viewing_key)?);
@@ -125,6 +231,69 @@ pub(crate) async fn handle_email(
             },
             email_proof: Bytes::from(proof.into_bytes()),
         };
+        trace!("email_op constructed: {:?}", email_op);
+        chain_client.validate_email_op(email_op.clone()).await?;
+        let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op).await?;
+        info!("email_op broadcased to chain: {}", tx_hash);
+        if let Some(email_addr) = recipient_email_addr.as_ref() {
+            info!("recipient email address: {}", email_addr);
+            let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
+            // let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
+            let is_fund = command == SEND_COMMAND;
+            let expiry_time = if is_fund {
+                let unclaimed_fund: UnclaimedFund = chain_client
+                    .query_unclaimed_fund(registered_unclaim_id)
+                    .await?;
+                i64::try_from(unclaimed_fund.expiry_time.as_u64()).unwrap()
+            } else {
+                let unclaimed_state = chain_client
+                    .query_unclaimed_state(registered_unclaim_id)
+                    .await?;
+                i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
+            };
+            let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
+            let psi_client = PSIClient::new(
+                Arc::clone(&chain_client),
+                email_addr.to_string(),
+                registered_unclaim_id,
+                is_fund,
+            )
+            .await?;
+            let mut psi_res = vec![];
+            let psi_condition = {
+                let account_key = db.get_account_key(email_addr).await?;
+                (account_key.is_none()
+                    || !chain_client
+                        .check_if_account_initialized_by_account_key(
+                            email_addr,
+                            &account_key.unwrap(),
+                        )
+                        .await?)
+                    && {
+                        trace!("Starting PSI");
+                        psi_res = psi_client.find().await?;
+                        !psi_res.is_empty()
+                    }
+            };
+            if psi_condition {
+                trace!("Reveal PSI");
+                psi_client
+                    .reveal(&psi_res.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
+                    .await?;
+            } else {
+                let claim = Claim {
+                    id: registered_unclaim_id,
+                    email_address: email_addr.clone(),
+                    commit,
+                    random: field2hex(&commit_rand),
+                    expiry_time,
+                    is_fund,
+                    is_announced: false,
+                };
+                tx_claimer.send(claim)?;
+                trace!("claim sent to tx_claimer");
+            }
+        }
 
         let result = call_handle_email_op(email_op).await?;
 

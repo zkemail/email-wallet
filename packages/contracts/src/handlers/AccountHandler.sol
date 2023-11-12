@@ -219,7 +219,12 @@ contract AccountHandler is Ownable {
         infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
         infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
 
-        emit EmailWalletEvents.AccountTransported(oldAccountKeyCommit, newEmailAddrPointer, newAccountKeyCommit);
+        emit EmailWalletEvents.AccountTransported(
+            oldAccountKeyCommit,
+            newEmailAddrPointer,
+            newAccountKeyCommit,
+            newPSIPoint
+        );
     }
 
     /// @notice Return the DKIM public key hash for a given email domain and walletSalt

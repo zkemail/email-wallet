@@ -1,0 +1,131 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: RelayerHandler
+    network: arbitrum-one
+    source:
+      address: "0x49abA0A2648d25364dF1215E812a9F97Ef358459"
+      abi: RelayerHandler
+      startBlock: 147665531
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RelayerConfigUpdated
+        - RelayerRegistered
+      abis:
+        - name: RelayerHandler
+          file: ../contracts/artifacts/RelayerHandler.sol/RelayerHandler.json
+      eventHandlers:
+        - event: RelayerConfigUpdated(indexed address,string)
+          handler: handleRelayerConfigUpdated
+        - event: RelayerRegistered(indexed address,bytes32,string,string)
+          handler: handleRelayerRegistered
+      file: ./src/relayer-handler.ts
+  - kind: ethereum
+    name: AccountHandler
+    network: arbitrum-one
+    source:
+      address: "0xf3B074b72Cd14aEa171ec05707C26266f548a9Ba"
+      abi: AccountHandler
+      startBlock: 147665591
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AccountCreated
+        - AccountInitialized
+        - AccountTransported
+      abis:
+        - name: AccountHandler
+          file: ../contracts/artifacts/AccountHandler.sol/AccountHandler.json
+      eventHandlers:
+        - event: AccountCreated(bytes32,bytes32,indexed bytes32,bytes)
+          handler: handleAccountCreated
+        - event: AccountInitialized(bytes32,bytes32,indexed bytes32)
+          handler: handleAccountInitialized
+        - event: AccountTransported(bytes32,bytes32,bytes32,bytes)
+          handler: handleAccountTransported
+      file: ./src/account-handler.ts
+  - kind: ethereum
+    name: UnclaimsHandler
+    network: arbitrum-one
+    source:
+      address: "0xB16ea3758e82792f568f5241c890125CC5898c96"
+      abi: UnclaimsHandler
+      startBlock: 147665621
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - UnclaimedFundClaimed
+        - UnclaimedFundRegistered
+        - UnclaimedFundVoided
+        - UnclaimedStateClaimed
+        - UnclaimedStateRegistered
+        - UnclaimedStateVoided
+      abis:
+        - name: UnclaimsHandler
+          file: ./abis/UnclaimsHandler.json
+      eventHandlers:
+        - event: UnclaimedFundClaimed(indexed uint256,indexed bytes32,address,uint256,address)
+          handler: handleUnclaimedFundClaimed
+        - event: UnclaimedFundRegistered(indexed uint256,indexed
+            bytes32,address,uint256,address,uint256,uint256,string)
+          handler: handleUnclaimedFundRegistered
+        - event: UnclaimedFundVoided(indexed uint256,indexed bytes32,address,uint256,address)
+          handler: handleUnclaimedFundVoided
+        - event: UnclaimedStateClaimed(indexed uint256,indexed bytes32,address)
+          handler: handleUnclaimedStateClaimed
+        - event: UnclaimedStateRegistered(indexed uint256,indexed
+            bytes32,address,address,uint256,bytes,uint256,string)
+          handler: handleUnclaimedStateRegistered
+        - event: UnclaimedStateVoided(indexed uint256,indexed bytes32,address)
+          handler: handleUnclaimedStateVoided
+      file: ./src/unclaims-handler.ts
+  - kind: ethereum
+    name: EmailWalletCore
+    network: arbitrum-one
+    source:
+      address: "0xAE923D216740e3aA0738DB5276A82D41b739339A"
+      abi: EmailWalletCore
+      startBlock: 147665651
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - EmailOpHandled
+      abis:
+        - name: EmailWalletCore
+          file: ./abis/EmailWalletCore.json
+      eventHandlers:
+        - event: EmailOpHandled(indexed bool,indexed uint256,indexed
+            bytes32,bytes32,bytes32,address,bytes)
+          handler: handleEmailOpHandled
+      file: ./src/email-wallet-core.ts
+  - kind: ethereum
+    name: ExtensionHandler
+    network: arbitrum-one
+    source:
+      address: "0x84a612b6cCA4c09f75363253CFcD8ff786a8caB7"
+      abi: ExtensionHandler
+      startBlock: 147665561
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ExtensionPublished
+      abis:
+        - name: ExtensionHandler
+          file: ./abis/ExtensionHandler.json
+      eventHandlers:
+        - event: ExtensionPublished(indexed string,indexed address,string[][],uint256)
+          handler: handleExtensionPublished
+      file: ./src/extension-handler.ts
