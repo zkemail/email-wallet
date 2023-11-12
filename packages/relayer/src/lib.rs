@@ -67,6 +67,7 @@ static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
 static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
 static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
 static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
+static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -119,6 +120,9 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         .unwrap();
     ONBOARDING_TOKEN_AMOUNT
         .set(config.onboarding_token_amount)
+        .unwrap();
+    ONBOARDING_REPLY_MSG
+        .set(config.onboarding_reply_msg)
         .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;

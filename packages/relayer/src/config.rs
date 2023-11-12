@@ -23,6 +23,7 @@ pub struct RelayerConfig {
     pub(crate) onboarding_token_addr: H160,
     pub(crate) onboarding_token_amount: U256,
     pub(crate) onboarding_token_distribution_limit: u32,
+    pub(crate) onboarding_reply_msg: String,
 }
 
 impl RelayerConfig {
@@ -77,6 +78,7 @@ impl RelayerConfig {
                 .unwrap();
         let onboarding_token_amount = env::var(ONBOARDING_TOKEN_AMOUNT_KEY).unwrap();
         let onboarding_token_amount = U256::from_dec_str(&onboarding_token_amount).unwrap();
+        let onboarding_reply_msg = env::var(ONBOARDING_REPLY_KEY).unwrap();
 
         Self {
             imap_config,
@@ -96,6 +98,7 @@ impl RelayerConfig {
             onboarding_token_addr,
             onboarding_token_distribution_limit,
             onboarding_token_amount,
+            onboarding_reply_msg,
         }
     }
 }

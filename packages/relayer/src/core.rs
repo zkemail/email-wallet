@@ -449,13 +449,17 @@ pub(crate) async fn handle_account_init(
     let result = chain_client.init_account(data).await?;
     info!("account init tx hash: {}", result);
     let is_onborded = db.is_user_onborded(&from_address).await?;
-    // let mut msg = if is_onborded {
-    //     format!("You received {} {}", ethers::utils::);
-    // }
+    let mut msg = if is_onborded {
+        ONBOARDING_REPLY_MSG.get().unwrap().to_string()
+    } else {
+        String::new()
+    };
+    msg += &format!("Your account was initialized.",);
+
     tx_sender
         .send(EmailMessage {
             subject: "New Email Wallet Notification".to_string(),
-            body: email_template_message("Your account was initialized", &result).await?,
+            body: email_template_message(&msg, &result).await?,
             to: from_address,
             message_id: None,
         })
