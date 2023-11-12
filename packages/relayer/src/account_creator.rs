@@ -15,7 +15,11 @@ pub(crate) async fn create_account(
     if db.contains_user(&email_address).await.unwrap() {
         return Err(anyhow!("User already exists".to_string()));
     }
-    let account_key = AccountKey::new(rand::thread_rng());
+    let account_key = if let Some(account_key) = account_key {
+        account_key
+    } else {
+        AccountKey::new(rand::thread_rng())
+    };
     let account_key = field2hex(&account_key.0);
 
     trace!("Generated account_key {account_key}");

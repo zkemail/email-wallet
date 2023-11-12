@@ -113,6 +113,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             );
             let account_key = AccountKey(hex2field(&account_key_hex)?);
             if !db.contains_user(&from_address).await? {
+                trace!("Account create");
+                tx_creator.send((from_address, Some(account_key)));
                 let email_hash = calculate_default_hash(&email);
                 emails_pool.insert_email(&email_hash, &email).await?;
                 return Ok(());
