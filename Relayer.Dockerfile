@@ -15,6 +15,7 @@ RUN yarn
 
 WORKDIR /email-wallet/packages/relayer
 COPY packages/relayer/.env ./.env
+RUN cargo build --release
 CMD [ "cargo run --release -- setup && cargo run --release >> output.log" ]
 
 
