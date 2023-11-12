@@ -1,5 +1,4 @@
 import {
-  OwnershipTransferred as OwnershipTransferredEvent,
   UnclaimedFundClaimed as UnclaimedFundClaimedEvent,
   UnclaimedFundRegistered as UnclaimedFundRegisteredEvent,
   UnclaimedFundVoided as UnclaimedFundVoidedEvent,

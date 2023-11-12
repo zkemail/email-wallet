@@ -2,7 +2,6 @@ import {
     AccountCreated as AccountCreatedEvent,
     AccountInitialized as AccountInitializedEvent,
     AccountTransported as AccountTransportedEvent,
-    OwnershipTransferred as OwnershipTransferredEvent,
 } from "../generated/AccountHandler/AccountHandler";
 import { Account, RelayerAccount } from "../generated/schema";
 

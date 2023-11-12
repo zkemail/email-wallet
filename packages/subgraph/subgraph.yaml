@@ -4,11 +4,10 @@ schema:
 dataSources:
   - kind: ethereum
     name: RelayerHandler
-    network: arbitrum-one
+    network: optimism
     source:
-      address: "0x49abA0A2648d25364dF1215E812a9F97Ef358459"
+      address: "0xd3186bb148212db6da699a7df84cf123d31c2d17"
       abi: RelayerHandler
-      startBlock: 147665531
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -18,7 +17,7 @@ dataSources:
         - RelayerRegistered
       abis:
         - name: RelayerHandler
-          file: ../contracts/artifacts/RelayerHandler.sol/RelayerHandler.json
+          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
       eventHandlers:
         - event: RelayerConfigUpdated(indexed address,string)
           handler: handleRelayerConfigUpdated
@@ -27,11 +26,10 @@ dataSources:
       file: ./src/relayer-handler.ts
   - kind: ethereum
     name: AccountHandler
-    network: arbitrum-one
+    network: optimism
     source:
-      address: "0xf3B074b72Cd14aEa171ec05707C26266f548a9Ba"
+      address: "0x64708276A47c3aA3730BA227145A3bD2eb5E7edC"
       abi: AccountHandler
-      startBlock: 147665591
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -42,7 +40,7 @@ dataSources:
         - AccountTransported
       abis:
         - name: AccountHandler
-          file: ../contracts/artifacts/AccountHandler.sol/AccountHandler.json
+          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
       eventHandlers:
         - event: AccountCreated(bytes32,bytes32,indexed bytes32,bytes)
           handler: handleAccountCreated
@@ -53,11 +51,10 @@ dataSources:
       file: ./src/account-handler.ts
   - kind: ethereum
     name: UnclaimsHandler
-    network: arbitrum-one
+    network: optimism
     source:
-      address: "0xB16ea3758e82792f568f5241c890125CC5898c96"
+      address: "0xf136ab1c7482d161cf4a7abe68b2f1607fb5f7df"
       abi: UnclaimsHandler
-      startBlock: 147665621
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -71,7 +68,7 @@ dataSources:
         - UnclaimedStateVoided
       abis:
         - name: UnclaimsHandler
-          file: ./abis/UnclaimsHandler.json
+          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
       eventHandlers:
         - event: UnclaimedFundClaimed(indexed uint256,indexed bytes32,address,uint256,address)
           handler: handleUnclaimedFundClaimed
@@ -90,11 +87,10 @@ dataSources:
       file: ./src/unclaims-handler.ts
   - kind: ethereum
     name: EmailWalletCore
-    network: arbitrum-one
+    network: optimism
     source:
-      address: "0xAE923D216740e3aA0738DB5276A82D41b739339A"
+      address: "0x8fe903e5EBAF917008297371027805E9073bc956"
       abi: EmailWalletCore
-      startBlock: 147665651
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -103,7 +99,7 @@ dataSources:
         - EmailOpHandled
       abis:
         - name: EmailWalletCore
-          file: ./abis/EmailWalletCore.json
+          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
       eventHandlers:
         - event: EmailOpHandled(indexed bool,indexed uint256,indexed
             bytes32,bytes32,bytes32,address,bytes)
@@ -111,11 +107,10 @@ dataSources:
       file: ./src/email-wallet-core.ts
   - kind: ethereum
     name: ExtensionHandler
-    network: arbitrum-one
+    network: optimism
     source:
-      address: "0x84a612b6cCA4c09f75363253CFcD8ff786a8caB7"
+      address: "0x078e99673a6fb4f82c3e9083e6fa32a1fad956b3"
       abi: ExtensionHandler
-      startBlock: 147665561
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -124,7 +119,7 @@ dataSources:
         - ExtensionPublished
       abis:
         - name: ExtensionHandler
-          file: ./abis/ExtensionHandler.json
+          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
       eventHandlers:
         - event: ExtensionPublished(indexed string,indexed address,string[][],uint256)
           handler: handleExtensionPublished

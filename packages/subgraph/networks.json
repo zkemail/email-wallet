@@ -16,5 +16,22 @@
     "ExtensionHandler": {
       "address": "0x84a612b6cCA4c09f75363253CFcD8ff786a8caB7"
     }
+  },
+  "optimism": {
+    "EmailWalletCore": {
+      "address": "0x8fe903e5EBAF917008297371027805E9073bc956"
+    },
+    "RelayerHandler": {
+      "address": "0xd3186bb148212db6da699a7df84cf123d31c2d17",
+    },
+    "AccountHandler": {
+      "address": "0x64708276A47c3aA3730BA227145A3bD2eb5E7edC"
+    },
+    "UnclaimsHandler": {
+      "address": "0xf136ab1c7482d161cf4a7abe68b2f1607fb5f7df"
+    },
+    "ExtensionHandler": {
+      "address": "0x078e99673a6fb4f82c3e9083e6fa32a1fad956b3"
+    }
   }
 }

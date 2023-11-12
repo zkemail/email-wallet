@@ -10,25 +10,161 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class OwnershipTransferred extends ethereum.Event {
-  get params(): OwnershipTransferred__Params {
-    return new OwnershipTransferred__Params(this);
+export class AccountCreated extends ethereum.Event {
+  get params(): AccountCreated__Params {
+    return new AccountCreated__Params(this);
   }
 }
 
-export class OwnershipTransferred__Params {
-  _event: OwnershipTransferred;
+export class AccountCreated__Params {
+  _event: AccountCreated;
 
-  constructor(event: OwnershipTransferred) {
+  constructor(event: AccountCreated) {
     this._event = event;
   }
 
-  get previousOwner(): Address {
-    return this._event.parameters[0].value.toAddress();
+  get emailAddrPointer(): Bytes {
+    return this._event.parameters[0].value.toBytes();
   }
 
-  get newOwner(): Address {
+  get accountKeyCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get walletSalt(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get psiPoint(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+}
+
+export class AccountInitialized extends ethereum.Event {
+  get params(): AccountInitialized__Params {
+    return new AccountInitialized__Params(this);
+  }
+}
+
+export class AccountInitialized__Params {
+  _event: AccountInitialized;
+
+  constructor(event: AccountInitialized) {
+    this._event = event;
+  }
+
+  get emailAddrPointer(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get accountKeyCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get walletSalt(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+}
+
+export class AccountTransported extends ethereum.Event {
+  get params(): AccountTransported__Params {
+    return new AccountTransported__Params(this);
+  }
+}
+
+export class AccountTransported__Params {
+  _event: AccountTransported;
+
+  constructor(event: AccountTransported) {
+    this._event = event;
+  }
+
+  get oldAccountKeyCommit(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get newEmailAddrPointer(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get newAccountKeyCommit(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get newPSIPoint(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+}
+
+export class EmailOpHandled extends ethereum.Event {
+  get params(): EmailOpHandled__Params {
+    return new EmailOpHandled__Params(this);
+  }
+}
+
+export class EmailOpHandled__Params {
+  _event: EmailOpHandled;
+
+  constructor(event: EmailOpHandled) {
+    this._event = event;
+  }
+
+  get success(): boolean {
+    return this._event.parameters[0].value.toBoolean();
+  }
+
+  get registeredUnclaimId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get emailNullifier(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get emailAddrPointer(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+
+  get recipientEmailAddrCommit(): Bytes {
+    return this._event.parameters[4].value.toBytes();
+  }
+
+  get recipientETHAddr(): Address {
+    return this._event.parameters[5].value.toAddress();
+  }
+
+  get err(): Bytes {
+    return this._event.parameters[6].value.toBytes();
+  }
+}
+
+export class ExtensionPublished extends ethereum.Event {
+  get params(): ExtensionPublished__Params {
+    return new ExtensionPublished__Params(this);
+  }
+}
+
+export class ExtensionPublished__Params {
+  _event: ExtensionPublished;
+
+  constructor(event: ExtensionPublished) {
+    this._event = event;
+  }
+
+  get name(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get extensionAddr(): Address {
     return this._event.parameters[1].value.toAddress();
+  }
+
+  get subjectTemplates(): Array<Array<string>> {
+    return this._event.parameters[2].value.toStringMatrix();
+  }
+
+  get maxExecutionGas(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
   }
 }
 
@@ -84,281 +220,220 @@ export class RelayerRegistered__Params {
   }
 }
 
-export class RelayerHandler__relayersResult {
-  value0: Bytes;
-  value1: string;
-  value2: string;
+export class UnclaimedFundClaimed extends ethereum.Event {
+  get params(): UnclaimedFundClaimed__Params {
+    return new UnclaimedFundClaimed__Params(this);
+  }
+}
 
-  constructor(value0: Bytes, value1: string, value2: string) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
+export class UnclaimedFundClaimed__Params {
+  _event: UnclaimedFundClaimed;
+
+  constructor(event: UnclaimedFundClaimed) {
+    this._event = event;
   }
 
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromFixedBytes(this.value0));
-    map.set("value1", ethereum.Value.fromString(this.value1));
-    map.set("value2", ethereum.Value.fromString(this.value2));
-    return map;
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 
-  getRandHash(): Bytes {
-    return this.value0;
+  get emailAddrCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
   }
 
-  getEmailAddr(): string {
-    return this.value1;
+  get tokenAddr(): Address {
+    return this._event.parameters[2].value.toAddress();
   }
 
-  getHostname(): string {
-    return this.value2;
+  get amount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get recipient(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+}
+
+export class UnclaimedFundRegistered extends ethereum.Event {
+  get params(): UnclaimedFundRegistered__Params {
+    return new UnclaimedFundRegistered__Params(this);
+  }
+}
+
+export class UnclaimedFundRegistered__Params {
+  _event: UnclaimedFundRegistered;
+
+  constructor(event: UnclaimedFundRegistered) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get emailAddrCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get tokenAddr(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get sender(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+
+  get expiryTime(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
+  }
+
+  get commitmentRandomness(): BigInt {
+    return this._event.parameters[6].value.toBigInt();
+  }
+
+  get emailAddr(): string {
+    return this._event.parameters[7].value.toString();
+  }
+}
+
+export class UnclaimedFundVoided extends ethereum.Event {
+  get params(): UnclaimedFundVoided__Params {
+    return new UnclaimedFundVoided__Params(this);
+  }
+}
+
+export class UnclaimedFundVoided__Params {
+  _event: UnclaimedFundVoided;
+
+  constructor(event: UnclaimedFundVoided) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get emailAddrCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get tokenAddr(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get sender(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+}
+
+export class UnclaimedStateClaimed extends ethereum.Event {
+  get params(): UnclaimedStateClaimed__Params {
+    return new UnclaimedStateClaimed__Params(this);
+  }
+}
+
+export class UnclaimedStateClaimed__Params {
+  _event: UnclaimedStateClaimed;
+
+  constructor(event: UnclaimedStateClaimed) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get emailAddrCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get recipient(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+}
+
+export class UnclaimedStateRegistered extends ethereum.Event {
+  get params(): UnclaimedStateRegistered__Params {
+    return new UnclaimedStateRegistered__Params(this);
+  }
+}
+
+export class UnclaimedStateRegistered__Params {
+  _event: UnclaimedStateRegistered;
+
+  constructor(event: UnclaimedStateRegistered) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get emailAddrCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get extensionAddr(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get sender(): Address {
+    return this._event.parameters[3].value.toAddress();
+  }
+
+  get expiryTime(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get state(): Bytes {
+    return this._event.parameters[5].value.toBytes();
+  }
+
+  get commitmentRandomness(): BigInt {
+    return this._event.parameters[6].value.toBigInt();
+  }
+
+  get emailAddr(): string {
+    return this._event.parameters[7].value.toString();
+  }
+}
+
+export class UnclaimedStateVoided extends ethereum.Event {
+  get params(): UnclaimedStateVoided__Params {
+    return new UnclaimedStateVoided__Params(this);
+  }
+}
+
+export class UnclaimedStateVoided__Params {
+  _event: UnclaimedStateVoided;
+
+  constructor(event: UnclaimedStateVoided) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get emailAddrCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get sender(): Address {
+    return this._event.parameters[2].value.toAddress();
   }
 }
 
 export class RelayerHandler extends ethereum.SmartContract {
   static bind(address: Address): RelayerHandler {
     return new RelayerHandler("RelayerHandler", address);
-  }
-
-  getRandHash(relayer: Address): Bytes {
-    let result = super.call("getRandHash", "getRandHash(address):(bytes32)", [
-      ethereum.Value.fromAddress(relayer)
-    ]);
-
-    return result[0].toBytes();
-  }
-
-  try_getRandHash(relayer: Address): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "getRandHash",
-      "getRandHash(address):(bytes32)",
-      [ethereum.Value.fromAddress(relayer)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
-  }
-
-  owner(): Address {
-    let result = super.call("owner", "owner():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall("owner", "owner():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  relayerOfEmailAddr(param0: string): Address {
-    let result = super.call(
-      "relayerOfEmailAddr",
-      "relayerOfEmailAddr(string):(address)",
-      [ethereum.Value.fromString(param0)]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_relayerOfEmailAddr(param0: string): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "relayerOfEmailAddr",
-      "relayerOfEmailAddr(string):(address)",
-      [ethereum.Value.fromString(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  relayerOfRandHash(param0: Bytes): Address {
-    let result = super.call(
-      "relayerOfRandHash",
-      "relayerOfRandHash(bytes32):(address)",
-      [ethereum.Value.fromFixedBytes(param0)]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_relayerOfRandHash(param0: Bytes): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "relayerOfRandHash",
-      "relayerOfRandHash(bytes32):(address)",
-      [ethereum.Value.fromFixedBytes(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  relayers(param0: Address): RelayerHandler__relayersResult {
-    let result = super.call(
-      "relayers",
-      "relayers(address):(bytes32,string,string)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-
-    return new RelayerHandler__relayersResult(
-      result[0].toBytes(),
-      result[1].toString(),
-      result[2].toString()
-    );
-  }
-
-  try_relayers(
-    param0: Address
-  ): ethereum.CallResult<RelayerHandler__relayersResult> {
-    let result = super.tryCall(
-      "relayers",
-      "relayers(address):(bytes32,string,string)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new RelayerHandler__relayersResult(
-        value[0].toBytes(),
-        value[1].toString(),
-        value[2].toString()
-      )
-    );
-  }
-}
-
-export class RegisterRelayerCall extends ethereum.Call {
-  get inputs(): RegisterRelayerCall__Inputs {
-    return new RegisterRelayerCall__Inputs(this);
-  }
-
-  get outputs(): RegisterRelayerCall__Outputs {
-    return new RegisterRelayerCall__Outputs(this);
-  }
-}
-
-export class RegisterRelayerCall__Inputs {
-  _call: RegisterRelayerCall;
-
-  constructor(call: RegisterRelayerCall) {
-    this._call = call;
-  }
-
-  get randHash(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get emailAddr(): string {
-    return this._call.inputValues[1].value.toString();
-  }
-
-  get hostname(): string {
-    return this._call.inputValues[2].value.toString();
-  }
-}
-
-export class RegisterRelayerCall__Outputs {
-  _call: RegisterRelayerCall;
-
-  constructor(call: RegisterRelayerCall) {
-    this._call = call;
-  }
-}
-
-export class RenounceOwnershipCall extends ethereum.Call {
-  get inputs(): RenounceOwnershipCall__Inputs {
-    return new RenounceOwnershipCall__Inputs(this);
-  }
-
-  get outputs(): RenounceOwnershipCall__Outputs {
-    return new RenounceOwnershipCall__Outputs(this);
-  }
-}
-
-export class RenounceOwnershipCall__Inputs {
-  _call: RenounceOwnershipCall;
-
-  constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class RenounceOwnershipCall__Outputs {
-  _call: RenounceOwnershipCall;
-
-  constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class TransferOwnershipCall extends ethereum.Call {
-  get inputs(): TransferOwnershipCall__Inputs {
-    return new TransferOwnershipCall__Inputs(this);
-  }
-
-  get outputs(): TransferOwnershipCall__Outputs {
-    return new TransferOwnershipCall__Outputs(this);
-  }
-}
-
-export class TransferOwnershipCall__Inputs {
-  _call: TransferOwnershipCall;
-
-  constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-
-  get newOwner(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class TransferOwnershipCall__Outputs {
-  _call: TransferOwnershipCall;
-
-  constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateRelayerConfigCall extends ethereum.Call {
-  get inputs(): UpdateRelayerConfigCall__Inputs {
-    return new UpdateRelayerConfigCall__Inputs(this);
-  }
-
-  get outputs(): UpdateRelayerConfigCall__Outputs {
-    return new UpdateRelayerConfigCall__Outputs(this);
-  }
-}
-
-export class UpdateRelayerConfigCall__Inputs {
-  _call: UpdateRelayerConfigCall;
-
-  constructor(call: UpdateRelayerConfigCall) {
-    this._call = call;
-  }
-
-  get hostname(): string {
-    return this._call.inputValues[0].value.toString();
-  }
-}
-
-export class UpdateRelayerConfigCall__Outputs {
-  _call: UpdateRelayerConfigCall;
-
-  constructor(call: UpdateRelayerConfigCall) {
-    this._call = call;
   }
 }

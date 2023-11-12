@@ -10,25 +10,213 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class OwnershipTransferred extends ethereum.Event {
-  get params(): OwnershipTransferred__Params {
-    return new OwnershipTransferred__Params(this);
+export class AccountCreated extends ethereum.Event {
+  get params(): AccountCreated__Params {
+    return new AccountCreated__Params(this);
   }
 }
 
-export class OwnershipTransferred__Params {
-  _event: OwnershipTransferred;
+export class AccountCreated__Params {
+  _event: AccountCreated;
 
-  constructor(event: OwnershipTransferred) {
+  constructor(event: AccountCreated) {
     this._event = event;
   }
 
-  get previousOwner(): Address {
+  get emailAddrPointer(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get accountKeyCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get walletSalt(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get psiPoint(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+}
+
+export class AccountInitialized extends ethereum.Event {
+  get params(): AccountInitialized__Params {
+    return new AccountInitialized__Params(this);
+  }
+}
+
+export class AccountInitialized__Params {
+  _event: AccountInitialized;
+
+  constructor(event: AccountInitialized) {
+    this._event = event;
+  }
+
+  get emailAddrPointer(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get accountKeyCommit(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get walletSalt(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+}
+
+export class AccountTransported extends ethereum.Event {
+  get params(): AccountTransported__Params {
+    return new AccountTransported__Params(this);
+  }
+}
+
+export class AccountTransported__Params {
+  _event: AccountTransported;
+
+  constructor(event: AccountTransported) {
+    this._event = event;
+  }
+
+  get oldAccountKeyCommit(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get newEmailAddrPointer(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get newAccountKeyCommit(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get newPSIPoint(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+}
+
+export class EmailOpHandled extends ethereum.Event {
+  get params(): EmailOpHandled__Params {
+    return new EmailOpHandled__Params(this);
+  }
+}
+
+export class EmailOpHandled__Params {
+  _event: EmailOpHandled;
+
+  constructor(event: EmailOpHandled) {
+    this._event = event;
+  }
+
+  get success(): boolean {
+    return this._event.parameters[0].value.toBoolean();
+  }
+
+  get registeredUnclaimId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get emailNullifier(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get emailAddrPointer(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+
+  get recipientEmailAddrCommit(): Bytes {
+    return this._event.parameters[4].value.toBytes();
+  }
+
+  get recipientETHAddr(): Address {
+    return this._event.parameters[5].value.toAddress();
+  }
+
+  get err(): Bytes {
+    return this._event.parameters[6].value.toBytes();
+  }
+}
+
+export class ExtensionPublished extends ethereum.Event {
+  get params(): ExtensionPublished__Params {
+    return new ExtensionPublished__Params(this);
+  }
+}
+
+export class ExtensionPublished__Params {
+  _event: ExtensionPublished;
+
+  constructor(event: ExtensionPublished) {
+    this._event = event;
+  }
+
+  get name(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get extensionAddr(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get subjectTemplates(): Array<Array<string>> {
+    return this._event.parameters[2].value.toStringMatrix();
+  }
+
+  get maxExecutionGas(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class RelayerConfigUpdated extends ethereum.Event {
+  get params(): RelayerConfigUpdated__Params {
+    return new RelayerConfigUpdated__Params(this);
+  }
+}
+
+export class RelayerConfigUpdated__Params {
+  _event: RelayerConfigUpdated;
+
+  constructor(event: RelayerConfigUpdated) {
+    this._event = event;
+  }
+
+  get addr(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get newOwner(): Address {
-    return this._event.parameters[1].value.toAddress();
+  get hostname(): string {
+    return this._event.parameters[1].value.toString();
+  }
+}
+
+export class RelayerRegistered extends ethereum.Event {
+  get params(): RelayerRegistered__Params {
+    return new RelayerRegistered__Params(this);
+  }
+}
+
+export class RelayerRegistered__Params {
+  _event: RelayerRegistered;
+
+  constructor(event: RelayerRegistered) {
+    this._event = event;
+  }
+
+  get addr(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get randHash(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get emailAddr(): string {
+    return this._event.parameters[2].value.toString();
+  }
+
+  get hostname(): string {
+    return this._event.parameters[3].value.toString();
   }
 }
 
@@ -244,1214 +432,8 @@ export class UnclaimedStateVoided__Params {
   }
 }
 
-export class UnclaimsHandler__claimUnclaimedStateResult {
-  value0: boolean;
-  value1: Bytes;
-
-  constructor(value0: boolean, value1: Bytes) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromBoolean(this.value0));
-    map.set("value1", ethereum.Value.fromBytes(this.value1));
-    return map;
-  }
-
-  getSuccess(): boolean {
-    return this.value0;
-  }
-
-  getReturnData(): Bytes {
-    return this.value1;
-  }
-}
-
-export class UnclaimsHandler__getUnclaimedFundResultValue0Struct extends ethereum.Tuple {
-  get id(): BigInt {
-    return this[0].toBigInt();
-  }
-
-  get emailAddrCommit(): Bytes {
-    return this[1].toBytes();
-  }
-
-  get sender(): Address {
-    return this[2].toAddress();
-  }
-
-  get tokenAddr(): Address {
-    return this[3].toAddress();
-  }
-
-  get amount(): BigInt {
-    return this[4].toBigInt();
-  }
-
-  get expiryTime(): BigInt {
-    return this[5].toBigInt();
-  }
-}
-
-export class UnclaimsHandler__getUnclaimedStateResultValue0Struct extends ethereum.Tuple {
-  get id(): BigInt {
-    return this[0].toBigInt();
-  }
-
-  get emailAddrCommit(): Bytes {
-    return this[1].toBytes();
-  }
-
-  get extensionAddr(): Address {
-    return this[2].toAddress();
-  }
-
-  get sender(): Address {
-    return this[3].toAddress();
-  }
-
-  get state(): Bytes {
-    return this[4].toBytes();
-  }
-
-  get expiryTime(): BigInt {
-    return this[5].toBigInt();
-  }
-}
-
-export class UnclaimsHandler__unclaimedFundOfIdResult {
-  value0: BigInt;
-  value1: Bytes;
-  value2: Address;
-  value3: Address;
-  value4: BigInt;
-  value5: BigInt;
-
-  constructor(
-    value0: BigInt,
-    value1: Bytes,
-    value2: Address,
-    value3: Address,
-    value4: BigInt,
-    value5: BigInt
-  ) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
-    this.value3 = value3;
-    this.value4 = value4;
-    this.value5 = value5;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromFixedBytes(this.value1));
-    map.set("value2", ethereum.Value.fromAddress(this.value2));
-    map.set("value3", ethereum.Value.fromAddress(this.value3));
-    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
-    map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
-    return map;
-  }
-
-  getId(): BigInt {
-    return this.value0;
-  }
-
-  getEmailAddrCommit(): Bytes {
-    return this.value1;
-  }
-
-  getSender(): Address {
-    return this.value2;
-  }
-
-  getTokenAddr(): Address {
-    return this.value3;
-  }
-
-  getAmount(): BigInt {
-    return this.value4;
-  }
-
-  getExpiryTime(): BigInt {
-    return this.value5;
-  }
-}
-
-export class UnclaimsHandler__unclaimedStateOfIdResult {
-  value0: BigInt;
-  value1: Bytes;
-  value2: Address;
-  value3: Address;
-  value4: Bytes;
-  value5: BigInt;
-
-  constructor(
-    value0: BigInt,
-    value1: Bytes,
-    value2: Address,
-    value3: Address,
-    value4: Bytes,
-    value5: BigInt
-  ) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
-    this.value3 = value3;
-    this.value4 = value4;
-    this.value5 = value5;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromFixedBytes(this.value1));
-    map.set("value2", ethereum.Value.fromAddress(this.value2));
-    map.set("value3", ethereum.Value.fromAddress(this.value3));
-    map.set("value4", ethereum.Value.fromBytes(this.value4));
-    map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
-    return map;
-  }
-
-  getId(): BigInt {
-    return this.value0;
-  }
-
-  getEmailAddrCommit(): Bytes {
-    return this.value1;
-  }
-
-  getExtensionAddr(): Address {
-    return this.value2;
-  }
-
-  getSender(): Address {
-    return this.value3;
-  }
-
-  getState(): Bytes {
-    return this.value4;
-  }
-
-  getExpiryTime(): BigInt {
-    return this.value5;
-  }
-}
-
-export class UnclaimsHandler__voidUnclaimedStateResult {
-  value0: boolean;
-  value1: Bytes;
-
-  constructor(value0: boolean, value1: Bytes) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromBoolean(this.value0));
-    map.set("value1", ethereum.Value.fromBytes(this.value1));
-    return map;
-  }
-
-  getSuccess(): boolean {
-    return this.value0;
-  }
-
-  getReturnData(): Bytes {
-    return this.value1;
-  }
-}
-
 export class UnclaimsHandler extends ethereum.SmartContract {
   static bind(address: Address): UnclaimsHandler {
     return new UnclaimsHandler("UnclaimsHandler", address);
-  }
-
-  accountHandler(): Address {
-    let result = super.call("accountHandler", "accountHandler():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_accountHandler(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "accountHandler",
-      "accountHandler():(address)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  claimUnclaimedState(
-    id: BigInt,
-    recipientEmailAddrPointer: Bytes,
-    proof: Bytes
-  ): UnclaimsHandler__claimUnclaimedStateResult {
-    let result = super.call(
-      "claimUnclaimedState",
-      "claimUnclaimedState(uint256,bytes32,bytes):(bool,bytes)",
-      [
-        ethereum.Value.fromUnsignedBigInt(id),
-        ethereum.Value.fromFixedBytes(recipientEmailAddrPointer),
-        ethereum.Value.fromBytes(proof)
-      ]
-    );
-
-    return new UnclaimsHandler__claimUnclaimedStateResult(
-      result[0].toBoolean(),
-      result[1].toBytes()
-    );
-  }
-
-  try_claimUnclaimedState(
-    id: BigInt,
-    recipientEmailAddrPointer: Bytes,
-    proof: Bytes
-  ): ethereum.CallResult<UnclaimsHandler__claimUnclaimedStateResult> {
-    let result = super.tryCall(
-      "claimUnclaimedState",
-      "claimUnclaimedState(uint256,bytes32,bytes):(bool,bytes)",
-      [
-        ethereum.Value.fromUnsignedBigInt(id),
-        ethereum.Value.fromFixedBytes(recipientEmailAddrPointer),
-        ethereum.Value.fromBytes(proof)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new UnclaimsHandler__claimUnclaimedStateResult(
-        value[0].toBoolean(),
-        value[1].toBytes()
-      )
-    );
-  }
-
-  getUnclaimedFund(
-    id: BigInt
-  ): UnclaimsHandler__getUnclaimedFundResultValue0Struct {
-    let result = super.call(
-      "getUnclaimedFund",
-      "getUnclaimedFund(uint256):((uint256,bytes32,address,address,uint256,uint256))",
-      [ethereum.Value.fromUnsignedBigInt(id)]
-    );
-
-    return changetype<UnclaimsHandler__getUnclaimedFundResultValue0Struct>(
-      result[0].toTuple()
-    );
-  }
-
-  try_getUnclaimedFund(
-    id: BigInt
-  ): ethereum.CallResult<UnclaimsHandler__getUnclaimedFundResultValue0Struct> {
-    let result = super.tryCall(
-      "getUnclaimedFund",
-      "getUnclaimedFund(uint256):((uint256,bytes32,address,address,uint256,uint256))",
-      [ethereum.Value.fromUnsignedBigInt(id)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      changetype<UnclaimsHandler__getUnclaimedFundResultValue0Struct>(
-        value[0].toTuple()
-      )
-    );
-  }
-
-  getUnclaimedState(
-    id: BigInt
-  ): UnclaimsHandler__getUnclaimedStateResultValue0Struct {
-    let result = super.call(
-      "getUnclaimedState",
-      "getUnclaimedState(uint256):((uint256,bytes32,address,address,bytes,uint256))",
-      [ethereum.Value.fromUnsignedBigInt(id)]
-    );
-
-    return changetype<UnclaimsHandler__getUnclaimedStateResultValue0Struct>(
-      result[0].toTuple()
-    );
-  }
-
-  try_getUnclaimedState(
-    id: BigInt
-  ): ethereum.CallResult<UnclaimsHandler__getUnclaimedStateResultValue0Struct> {
-    let result = super.tryCall(
-      "getUnclaimedState",
-      "getUnclaimedState(uint256):((uint256,bytes32,address,address,bytes,uint256))",
-      [ethereum.Value.fromUnsignedBigInt(id)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      changetype<UnclaimsHandler__getUnclaimedStateResultValue0Struct>(
-        value[0].toTuple()
-      )
-    );
-  }
-
-  maxFeePerGas(): BigInt {
-    let result = super.call("maxFeePerGas", "maxFeePerGas():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_maxFeePerGas(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("maxFeePerGas", "maxFeePerGas():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  numUnclaimedFunds(): BigInt {
-    let result = super.call(
-      "numUnclaimedFunds",
-      "numUnclaimedFunds():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_numUnclaimedFunds(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "numUnclaimedFunds",
-      "numUnclaimedFunds():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  numUnclaimedStates(): BigInt {
-    let result = super.call(
-      "numUnclaimedStates",
-      "numUnclaimedStates():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_numUnclaimedStates(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "numUnclaimedStates",
-      "numUnclaimedStates():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  owner(): Address {
-    let result = super.call("owner", "owner():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall("owner", "owner():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  registerUnclaimedFundInternal(
-    sender: Address,
-    emailAddrCommit: Bytes,
-    tokenAddr: Address,
-    amount: BigInt
-  ): BigInt {
-    let result = super.call(
-      "registerUnclaimedFundInternal",
-      "registerUnclaimedFundInternal(address,bytes32,address,uint256):(uint256)",
-      [
-        ethereum.Value.fromAddress(sender),
-        ethereum.Value.fromFixedBytes(emailAddrCommit),
-        ethereum.Value.fromAddress(tokenAddr),
-        ethereum.Value.fromUnsignedBigInt(amount)
-      ]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_registerUnclaimedFundInternal(
-    sender: Address,
-    emailAddrCommit: Bytes,
-    tokenAddr: Address,
-    amount: BigInt
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "registerUnclaimedFundInternal",
-      "registerUnclaimedFundInternal(address,bytes32,address,uint256):(uint256)",
-      [
-        ethereum.Value.fromAddress(sender),
-        ethereum.Value.fromFixedBytes(emailAddrCommit),
-        ethereum.Value.fromAddress(tokenAddr),
-        ethereum.Value.fromUnsignedBigInt(amount)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  registerUnclaimedStateInternal(
-    extensionAddr: Address,
-    sender: Address,
-    recipientEmailAddrCommit: Bytes,
-    state: Bytes,
-    isInternal: boolean
-  ): BigInt {
-    let result = super.call(
-      "registerUnclaimedStateInternal",
-      "registerUnclaimedStateInternal(address,address,bytes32,bytes,bool):(uint256)",
-      [
-        ethereum.Value.fromAddress(extensionAddr),
-        ethereum.Value.fromAddress(sender),
-        ethereum.Value.fromFixedBytes(recipientEmailAddrCommit),
-        ethereum.Value.fromBytes(state),
-        ethereum.Value.fromBoolean(isInternal)
-      ]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_registerUnclaimedStateInternal(
-    extensionAddr: Address,
-    sender: Address,
-    recipientEmailAddrCommit: Bytes,
-    state: Bytes,
-    isInternal: boolean
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "registerUnclaimedStateInternal",
-      "registerUnclaimedStateInternal(address,address,bytes32,bytes,bool):(uint256)",
-      [
-        ethereum.Value.fromAddress(extensionAddr),
-        ethereum.Value.fromAddress(sender),
-        ethereum.Value.fromFixedBytes(recipientEmailAddrCommit),
-        ethereum.Value.fromBytes(state),
-        ethereum.Value.fromBoolean(isInternal)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  relayerHandler(): Address {
-    let result = super.call("relayerHandler", "relayerHandler():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_relayerHandler(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "relayerHandler",
-      "relayerHandler():(address)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  unclaimedFundClaimGas(): BigInt {
-    let result = super.call(
-      "unclaimedFundClaimGas",
-      "unclaimedFundClaimGas():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_unclaimedFundClaimGas(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "unclaimedFundClaimGas",
-      "unclaimedFundClaimGas():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  unclaimedFundOfId(param0: BigInt): UnclaimsHandler__unclaimedFundOfIdResult {
-    let result = super.call(
-      "unclaimedFundOfId",
-      "unclaimedFundOfId(uint256):(uint256,bytes32,address,address,uint256,uint256)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
-    );
-
-    return new UnclaimsHandler__unclaimedFundOfIdResult(
-      result[0].toBigInt(),
-      result[1].toBytes(),
-      result[2].toAddress(),
-      result[3].toAddress(),
-      result[4].toBigInt(),
-      result[5].toBigInt()
-    );
-  }
-
-  try_unclaimedFundOfId(
-    param0: BigInt
-  ): ethereum.CallResult<UnclaimsHandler__unclaimedFundOfIdResult> {
-    let result = super.tryCall(
-      "unclaimedFundOfId",
-      "unclaimedFundOfId(uint256):(uint256,bytes32,address,address,uint256,uint256)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new UnclaimsHandler__unclaimedFundOfIdResult(
-        value[0].toBigInt(),
-        value[1].toBytes(),
-        value[2].toAddress(),
-        value[3].toAddress(),
-        value[4].toBigInt(),
-        value[5].toBigInt()
-      )
-    );
-  }
-
-  unclaimedStateClaimGas(): BigInt {
-    let result = super.call(
-      "unclaimedStateClaimGas",
-      "unclaimedStateClaimGas():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_unclaimedStateClaimGas(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "unclaimedStateClaimGas",
-      "unclaimedStateClaimGas():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  unclaimedStateOfId(
-    param0: BigInt
-  ): UnclaimsHandler__unclaimedStateOfIdResult {
-    let result = super.call(
-      "unclaimedStateOfId",
-      "unclaimedStateOfId(uint256):(uint256,bytes32,address,address,bytes,uint256)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
-    );
-
-    return new UnclaimsHandler__unclaimedStateOfIdResult(
-      result[0].toBigInt(),
-      result[1].toBytes(),
-      result[2].toAddress(),
-      result[3].toAddress(),
-      result[4].toBytes(),
-      result[5].toBigInt()
-    );
-  }
-
-  try_unclaimedStateOfId(
-    param0: BigInt
-  ): ethereum.CallResult<UnclaimsHandler__unclaimedStateOfIdResult> {
-    let result = super.tryCall(
-      "unclaimedStateOfId",
-      "unclaimedStateOfId(uint256):(uint256,bytes32,address,address,bytes,uint256)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new UnclaimsHandler__unclaimedStateOfIdResult(
-        value[0].toBigInt(),
-        value[1].toBytes(),
-        value[2].toAddress(),
-        value[3].toAddress(),
-        value[4].toBytes(),
-        value[5].toBigInt()
-      )
-    );
-  }
-
-  unclaimsExpiryDuration(): BigInt {
-    let result = super.call(
-      "unclaimsExpiryDuration",
-      "unclaimsExpiryDuration():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_unclaimsExpiryDuration(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "unclaimsExpiryDuration",
-      "unclaimsExpiryDuration():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  verifier(): Address {
-    let result = super.call("verifier", "verifier():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_verifier(): ethereum.CallResult<Address> {
-    let result = super.tryCall("verifier", "verifier():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  voidUnclaimedState(id: BigInt): UnclaimsHandler__voidUnclaimedStateResult {
-    let result = super.call(
-      "voidUnclaimedState",
-      "voidUnclaimedState(uint256):(bool,bytes)",
-      [ethereum.Value.fromUnsignedBigInt(id)]
-    );
-
-    return new UnclaimsHandler__voidUnclaimedStateResult(
-      result[0].toBoolean(),
-      result[1].toBytes()
-    );
-  }
-
-  try_voidUnclaimedState(
-    id: BigInt
-  ): ethereum.CallResult<UnclaimsHandler__voidUnclaimedStateResult> {
-    let result = super.tryCall(
-      "voidUnclaimedState",
-      "voidUnclaimedState(uint256):(bool,bytes)",
-      [ethereum.Value.fromUnsignedBigInt(id)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new UnclaimsHandler__voidUnclaimedStateResult(
-        value[0].toBoolean(),
-        value[1].toBytes()
-      )
-    );
-  }
-}
-
-export class ConstructorCall extends ethereum.Call {
-  get inputs(): ConstructorCall__Inputs {
-    return new ConstructorCall__Inputs(this);
-  }
-
-  get outputs(): ConstructorCall__Outputs {
-    return new ConstructorCall__Outputs(this);
-  }
-}
-
-export class ConstructorCall__Inputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-
-  get _relayerHandler(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _accountHandler(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _verifier(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get _unclaimedFundClaimGas(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-
-  get _unclaimedStateClaimGas(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
-  get _unclaimsExpiryDuration(): BigInt {
-    return this._call.inputValues[5].value.toBigInt();
-  }
-
-  get _maxFeePerGas(): BigInt {
-    return this._call.inputValues[6].value.toBigInt();
-  }
-}
-
-export class ConstructorCall__Outputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
-export class ClaimUnclaimedFundCall extends ethereum.Call {
-  get inputs(): ClaimUnclaimedFundCall__Inputs {
-    return new ClaimUnclaimedFundCall__Inputs(this);
-  }
-
-  get outputs(): ClaimUnclaimedFundCall__Outputs {
-    return new ClaimUnclaimedFundCall__Outputs(this);
-  }
-}
-
-export class ClaimUnclaimedFundCall__Inputs {
-  _call: ClaimUnclaimedFundCall;
-
-  constructor(call: ClaimUnclaimedFundCall) {
-    this._call = call;
-  }
-
-  get id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get recipientEmailAddrPointer(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
-  }
-
-  get proof(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
-  }
-}
-
-export class ClaimUnclaimedFundCall__Outputs {
-  _call: ClaimUnclaimedFundCall;
-
-  constructor(call: ClaimUnclaimedFundCall) {
-    this._call = call;
-  }
-}
-
-export class ClaimUnclaimedStateCall extends ethereum.Call {
-  get inputs(): ClaimUnclaimedStateCall__Inputs {
-    return new ClaimUnclaimedStateCall__Inputs(this);
-  }
-
-  get outputs(): ClaimUnclaimedStateCall__Outputs {
-    return new ClaimUnclaimedStateCall__Outputs(this);
-  }
-}
-
-export class ClaimUnclaimedStateCall__Inputs {
-  _call: ClaimUnclaimedStateCall;
-
-  constructor(call: ClaimUnclaimedStateCall) {
-    this._call = call;
-  }
-
-  get id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get recipientEmailAddrPointer(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
-  }
-
-  get proof(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
-  }
-}
-
-export class ClaimUnclaimedStateCall__Outputs {
-  _call: ClaimUnclaimedStateCall;
-
-  constructor(call: ClaimUnclaimedStateCall) {
-    this._call = call;
-  }
-
-  get success(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-
-  get returnData(): Bytes {
-    return this._call.outputValues[1].value.toBytes();
-  }
-}
-
-export class RegisterUnclaimedFundCall extends ethereum.Call {
-  get inputs(): RegisterUnclaimedFundCall__Inputs {
-    return new RegisterUnclaimedFundCall__Inputs(this);
-  }
-
-  get outputs(): RegisterUnclaimedFundCall__Outputs {
-    return new RegisterUnclaimedFundCall__Outputs(this);
-  }
-}
-
-export class RegisterUnclaimedFundCall__Inputs {
-  _call: RegisterUnclaimedFundCall;
-
-  constructor(call: RegisterUnclaimedFundCall) {
-    this._call = call;
-  }
-
-  get emailAddrCommit(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get tokenAddr(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get expiryTime(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-
-  get announceCommitRandomness(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
-  get announceEmailAddr(): string {
-    return this._call.inputValues[5].value.toString();
-  }
-}
-
-export class RegisterUnclaimedFundCall__Outputs {
-  _call: RegisterUnclaimedFundCall;
-
-  constructor(call: RegisterUnclaimedFundCall) {
-    this._call = call;
-  }
-
-  get value0(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
-  }
-}
-
-export class RegisterUnclaimedFundInternalCall extends ethereum.Call {
-  get inputs(): RegisterUnclaimedFundInternalCall__Inputs {
-    return new RegisterUnclaimedFundInternalCall__Inputs(this);
-  }
-
-  get outputs(): RegisterUnclaimedFundInternalCall__Outputs {
-    return new RegisterUnclaimedFundInternalCall__Outputs(this);
-  }
-}
-
-export class RegisterUnclaimedFundInternalCall__Inputs {
-  _call: RegisterUnclaimedFundInternalCall;
-
-  constructor(call: RegisterUnclaimedFundInternalCall) {
-    this._call = call;
-  }
-
-  get sender(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get emailAddrCommit(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
-  }
-
-  get tokenAddr(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-}
-
-export class RegisterUnclaimedFundInternalCall__Outputs {
-  _call: RegisterUnclaimedFundInternalCall;
-
-  constructor(call: RegisterUnclaimedFundInternalCall) {
-    this._call = call;
-  }
-
-  get value0(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
-  }
-}
-
-export class RegisterUnclaimedStateCall extends ethereum.Call {
-  get inputs(): RegisterUnclaimedStateCall__Inputs {
-    return new RegisterUnclaimedStateCall__Inputs(this);
-  }
-
-  get outputs(): RegisterUnclaimedStateCall__Outputs {
-    return new RegisterUnclaimedStateCall__Outputs(this);
-  }
-}
-
-export class RegisterUnclaimedStateCall__Inputs {
-  _call: RegisterUnclaimedStateCall;
-
-  constructor(call: RegisterUnclaimedStateCall) {
-    this._call = call;
-  }
-
-  get emailAddrCommit(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get extensionAddr(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get state(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
-  }
-
-  get expiryTime(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-
-  get announceCommitRandomness(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
-  get announceEmailAddr(): string {
-    return this._call.inputValues[5].value.toString();
-  }
-}
-
-export class RegisterUnclaimedStateCall__Outputs {
-  _call: RegisterUnclaimedStateCall;
-
-  constructor(call: RegisterUnclaimedStateCall) {
-    this._call = call;
-  }
-
-  get value0(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
-  }
-}
-
-export class RegisterUnclaimedStateInternalCall extends ethereum.Call {
-  get inputs(): RegisterUnclaimedStateInternalCall__Inputs {
-    return new RegisterUnclaimedStateInternalCall__Inputs(this);
-  }
-
-  get outputs(): RegisterUnclaimedStateInternalCall__Outputs {
-    return new RegisterUnclaimedStateInternalCall__Outputs(this);
-  }
-}
-
-export class RegisterUnclaimedStateInternalCall__Inputs {
-  _call: RegisterUnclaimedStateInternalCall;
-
-  constructor(call: RegisterUnclaimedStateInternalCall) {
-    this._call = call;
-  }
-
-  get extensionAddr(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get sender(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get recipientEmailAddrCommit(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
-  }
-
-  get state(): Bytes {
-    return this._call.inputValues[3].value.toBytes();
-  }
-
-  get isInternal(): boolean {
-    return this._call.inputValues[4].value.toBoolean();
-  }
-}
-
-export class RegisterUnclaimedStateInternalCall__Outputs {
-  _call: RegisterUnclaimedStateInternalCall;
-
-  constructor(call: RegisterUnclaimedStateInternalCall) {
-    this._call = call;
-  }
-
-  get value0(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
-  }
-}
-
-export class RenounceOwnershipCall extends ethereum.Call {
-  get inputs(): RenounceOwnershipCall__Inputs {
-    return new RenounceOwnershipCall__Inputs(this);
-  }
-
-  get outputs(): RenounceOwnershipCall__Outputs {
-    return new RenounceOwnershipCall__Outputs(this);
-  }
-}
-
-export class RenounceOwnershipCall__Inputs {
-  _call: RenounceOwnershipCall;
-
-  constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class RenounceOwnershipCall__Outputs {
-  _call: RenounceOwnershipCall;
-
-  constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class TransferOwnershipCall extends ethereum.Call {
-  get inputs(): TransferOwnershipCall__Inputs {
-    return new TransferOwnershipCall__Inputs(this);
-  }
-
-  get outputs(): TransferOwnershipCall__Outputs {
-    return new TransferOwnershipCall__Outputs(this);
-  }
-}
-
-export class TransferOwnershipCall__Inputs {
-  _call: TransferOwnershipCall;
-
-  constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-
-  get newOwner(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class TransferOwnershipCall__Outputs {
-  _call: TransferOwnershipCall;
-
-  constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class VoidUnclaimedFundCall extends ethereum.Call {
-  get inputs(): VoidUnclaimedFundCall__Inputs {
-    return new VoidUnclaimedFundCall__Inputs(this);
-  }
-
-  get outputs(): VoidUnclaimedFundCall__Outputs {
-    return new VoidUnclaimedFundCall__Outputs(this);
-  }
-}
-
-export class VoidUnclaimedFundCall__Inputs {
-  _call: VoidUnclaimedFundCall;
-
-  constructor(call: VoidUnclaimedFundCall) {
-    this._call = call;
-  }
-
-  get id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-}
-
-export class VoidUnclaimedFundCall__Outputs {
-  _call: VoidUnclaimedFundCall;
-
-  constructor(call: VoidUnclaimedFundCall) {
-    this._call = call;
-  }
-}
-
-export class VoidUnclaimedStateCall extends ethereum.Call {
-  get inputs(): VoidUnclaimedStateCall__Inputs {
-    return new VoidUnclaimedStateCall__Inputs(this);
-  }
-
-  get outputs(): VoidUnclaimedStateCall__Outputs {
-    return new VoidUnclaimedStateCall__Outputs(this);
-  }
-}
-
-export class VoidUnclaimedStateCall__Inputs {
-  _call: VoidUnclaimedStateCall;
-
-  constructor(call: VoidUnclaimedStateCall) {
-    this._call = call;
-  }
-
-  get id(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-}
-
-export class VoidUnclaimedStateCall__Outputs {
-  _call: VoidUnclaimedStateCall;
-
-  constructor(call: VoidUnclaimedStateCall) {
-    this._call = call;
-  }
-
-  get success(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-
-  get returnData(): Bytes {
-    return this._call.outputValues[1].value.toBytes();
   }
 }
