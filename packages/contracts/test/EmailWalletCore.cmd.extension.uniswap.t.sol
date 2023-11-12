@@ -26,16 +26,24 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
 
         // Publish and install extension
-        uniExtension = new UniswapExtension(
-            address(core),
-            address(tokenRegistry),
-            address(0),
-            address(0)
-        );
+        uniExtension = new UniswapExtension(address(core), address(tokenRegistry), address(0), address(0));
         uniExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
         uniExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
-        uniExtTemplates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt", "price", "limit"];
+        uniExtTemplates[3] = [
+            "Swap",
+            "{tokenAmount}",
+            "to",
+            "{string}",
+            "with",
+            "{amount}",
+            "slippage",
+            "under",
+            "{uint}",
+            "sqrt",
+            "price",
+            "limit"
+        ];
         extensionHandler.publishExtension("Uniswap", address(uniExtension), uniExtTemplates, 0.1 ether);
 
         EmailOp memory emailOp = _getBaseEmailOp();
@@ -45,9 +53,9 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.emailNullifier = bytes32(uint256(93845));
 
         vm.startPrank(relayer);
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
-        
+
         assertTrue(success, "failed to register uniswap extension");
     }
 
@@ -57,12 +65,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
         vm.stopPrank();
-        
+
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 0.2 ETH to DAI";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
@@ -84,7 +92,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -96,14 +104,14 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(walletAddr);
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
-        deal(address(daiToken), walletAddr, 20*10000 ether);
+        deal(address(daiToken), walletAddr, 20 * 10000 ether);
         vm.stopPrank();
 
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 200 DAI to USDC";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
@@ -113,11 +121,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
 
         // Mock for daiToken approval should return true.
-        vm.mockCall(
-            address(daiToken),
-            abi.encodeWithSelector(TestERC20.approve.selector),
-            abi.encode(true)
-        );
+        vm.mockCall(address(daiToken), abi.encodeWithSelector(TestERC20.approve.selector), abi.encode(true));
 
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
@@ -132,7 +136,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -144,14 +148,14 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(walletAddr);
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
-        deal(address(usdcToken), walletAddr, 20*10000 ether);
+        deal(address(usdcToken), walletAddr, 20 * 10000 ether);
         vm.stopPrank();
 
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 200 USDC to ETH";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
@@ -161,11 +165,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
 
         // Mock for usdcToken approval should return true.
-        vm.mockCall(
-            address(usdcToken),
-            abi.encodeWithSelector(TestERC20.approve.selector),
-            abi.encode(true)
-        );
+        vm.mockCall(address(usdcToken), abi.encodeWithSelector(TestERC20.approve.selector), abi.encode(true));
 
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
@@ -180,7 +180,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -192,14 +192,14 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(walletAddr);
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
-        deal(address(daiToken), walletAddr, 20*10000 ether);
+        deal(address(daiToken), walletAddr, 20 * 10000 ether);
         vm.stopPrank();
 
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 200 DAI to ETH";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
@@ -209,11 +209,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
 
         // Mock for daiToken approval should return true.
-        vm.mockCall(
-            address(daiToken),
-            abi.encodeWithSelector(TestERC20.approve.selector),
-            abi.encode(true)
-        );
+        vm.mockCall(address(daiToken), abi.encodeWithSelector(TestERC20.approve.selector), abi.encode(true));
 
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
@@ -228,7 +224,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -240,12 +236,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
         vm.stopPrank();
-        
+
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 0.2 ETH to DAI with 0.5 slippage";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 1;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](3);
@@ -268,7 +264,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -280,12 +276,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
         vm.stopPrank();
-        
+
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 0.2 ETH to DAI under 1000000 sqrt price limit";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 2;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](3);
@@ -308,7 +304,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
@@ -320,12 +316,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         deal(address(walletAddr), 10 ether);
         weth.deposit{value: 10 ether}();
         vm.stopPrank();
-        
+
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
         emailOp.maskedSubject = "Swap 0.2 ETH to DAI with 0.5 slippage under 1000000 sqrt price limit";
-        emailOp.extensionName = "Uniswap";        
+        emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 3;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](4);
@@ -349,10 +345,9 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(0)
         );
 
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
     }
-
 }

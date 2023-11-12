@@ -101,6 +101,7 @@ contract AccountHandler is Ownable {
     /// @param emailAddrPointer hash(relayerRand, emailAddr)
     /// @param emailDomain domain name of the sender's email
     /// @param emailNullifier nullifier of the email used for proof generation
+    /// @param dkimPublicKeyHash DKIM public key hash of the email domain used in the proof generation
     /// @param proof ZK proof as required by the verifier
     function initializeAccount(
         bytes32 emailAddrPointer,

@@ -13,7 +13,7 @@ contract Deploy is Script {
             return;
         }
         address _tokenRegistry = vm.envAddress("TOKEN_REGISTRY");
-        if(_tokenRegistry == address(0)) {
+        if (_tokenRegistry == address(0)) {
             console.log("TOKEN_REGISTRY env var not set");
             return;
         }
