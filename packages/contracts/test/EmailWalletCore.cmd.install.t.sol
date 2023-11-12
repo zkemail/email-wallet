@@ -40,7 +40,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionName = extensionName;
 
         vm.startPrank(relayer);
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
@@ -69,7 +69,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.extensionName = "Custom";
 
         vm.startPrank(relayer);
-        (bool success, , ,) = core.handleEmailOp(emailOp);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");
@@ -106,7 +106,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         core.handleEmailOp(emailOpInstall);
-        (bool success, , ,) = core.handleEmailOp(emailOpUninstall);
+        (bool success, , , ) = core.handleEmailOp(emailOpUninstall);
         vm.stopPrank();
 
         assertTrue(success, "handleEmailOp failed");

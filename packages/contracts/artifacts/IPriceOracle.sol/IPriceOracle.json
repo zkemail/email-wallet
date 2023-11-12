@@ -33,10 +33,10 @@
   "methodIdentifiers": {
     "getRecentPriceInETH(address)": "01857da8"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getRecentPriceInETH\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getRecentPriceInETH(address)\":{\"params\":{\"token\":\"Address of the ERC20 token\"},\"returns\":{\"_0\":\"price Price of the token in wei\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getRecentPriceInETH(address)\":{\"notice\":\"Get the recent price of a token against ETH/WETH\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IPriceOracle.sol\":\"IPriceOracle\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/IPriceOracle.sol\":{\"keccak256\":\"0x048365ba56117bb08f6c73666f42dea4cd662f744e49e36a3d968d54d6133475\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://32e0ac9a55b21de8f81c8e4ef62ad1723a242744e11a130d226eb4b592d77a83\",\"dweb:/ipfs/QmRyZ4CMnGWTrAPAvWo9vf1b9V13Z4jWRAmfWJAQQEfFhF\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getRecentPriceInETH\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getRecentPriceInETH(address)\":{\"params\":{\"token\":\"Address of the ERC20 token\"},\"returns\":{\"_0\":\"price Price of the token in wei\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getRecentPriceInETH(address)\":{\"notice\":\"Get the recent price of a token against ETH/WETH\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IPriceOracle.sol\":\"IPriceOracle\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/IPriceOracle.sol\":{\"keccak256\":\"0x048365ba56117bb08f6c73666f42dea4cd662f744e49e36a3d968d54d6133475\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://32e0ac9a55b21de8f81c8e4ef62ad1723a242744e11a130d226eb4b592d77a83\",\"dweb:/ipfs/QmRyZ4CMnGWTrAPAvWo9vf1b9V13Z4jWRAmfWJAQQEfFhF\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.21+commit.d9974bed"
+      "version": "0.8.17+commit.8df45f5f"
     },
     "language": "Solidity",
     "output": {
@@ -125,19 +125,19 @@
   },
   "ast": {
     "absolutePath": "src/interfaces/IPriceOracle.sol",
-    "id": 68954,
+    "id": 69229,
     "exportedSymbols": {
       "IPriceOracle": [
-        68953
+        69228
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:295:138",
+    "src": "32:295:139",
     "nodes": [
       {
-        "id": 68944,
+        "id": 69219,
         "nodeType": "PragmaDirective",
-        "src": "32:24:138",
+        "src": "32:24:139",
         "nodes": [],
         "literals": [
           "solidity",
@@ -147,19 +147,19 @@
         ]
       },
       {
-        "id": 68953,
+        "id": 69228,
         "nodeType": "ContractDefinition",
-        "src": "58:268:138",
+        "src": "58:268:139",
         "nodes": [
           {
-            "id": 68952,
+            "id": 69227,
             "nodeType": "FunctionDefinition",
-            "src": "248:76:138",
+            "src": "248:76:139",
             "nodes": [],
             "documentation": {
-              "id": 68945,
+              "id": 69220,
               "nodeType": "StructuredDocumentation",
-              "src": "87:156:138",
+              "src": "87:156:139",
               "text": "@notice Get the recent price of a token against ETH/WETH\n @param token Address of the ERC20 token\n @return price Price of the token in wei"
             },
             "functionSelector": "01857da8",
@@ -167,20 +167,20 @@
             "kind": "function",
             "modifiers": [],
             "name": "getRecentPriceInETH",
-            "nameLocation": "257:19:138",
+            "nameLocation": "257:19:139",
             "parameters": {
-              "id": 68948,
+              "id": 69223,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68947,
+                  "id": 69222,
                   "mutability": "mutable",
                   "name": "token",
-                  "nameLocation": "285:5:138",
+                  "nameLocation": "285:5:139",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68952,
-                  "src": "277:13:138",
+                  "scope": 69227,
+                  "src": "277:13:139",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -188,10 +188,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 68946,
+                    "id": 69221,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "277:7:138",
+                    "src": "277:7:139",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -201,21 +201,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "276:15:138"
+              "src": "276:15:139"
             },
             "returnParameters": {
-              "id": 68951,
+              "id": 69226,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68950,
+                  "id": 69225,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 68952,
-                  "src": "315:7:138",
+                  "scope": 69227,
+                  "src": "315:7:139",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -223,10 +223,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 68949,
+                    "id": 69224,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "315:7:138",
+                    "src": "315:7:139",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -235,9 +235,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "314:9:138"
+              "src": "314:9:139"
             },
-            "scope": 68953,
+            "scope": 69228,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -250,16 +250,15 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          68953
+          69228
         ],
         "name": "IPriceOracle",
-        "nameLocation": "68:12:138",
-        "scope": 68954,
-        "usedErrors": [],
-        "usedEvents": []
+        "nameLocation": "68:12:139",
+        "scope": 69229,
+        "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 138
+  "id": 139
 }

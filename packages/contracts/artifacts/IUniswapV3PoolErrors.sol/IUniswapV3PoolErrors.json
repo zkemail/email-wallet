@@ -72,10 +72,10 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AI\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IIA\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LOK\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLM\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLU\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TUM\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Errors emitted by a pool\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contains all events emitted by the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":\"IUniswapV3PoolErrors\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":{\"keccak256\":\"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa\",\"dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AI\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IIA\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LOK\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLM\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLU\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TUM\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Errors emitted by a pool\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contains all events emitted by the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":\"IUniswapV3PoolErrors\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":{\"keccak256\":\"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa\",\"dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.21+commit.d9974bed"
+      "version": "0.8.17+commit.8df45f5f"
     },
     "language": "Solidity",
     "output": {
@@ -174,12 +174,12 @@
         "bytecodeHash": "ipfs"
       },
       "compilationTarget": {
-        "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": "IUniswapV3PoolErrors"
+        "../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": "IUniswapV3PoolErrors"
       },
       "libraries": {}
     },
     "sources": {
-      "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": {
+      "../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": {
         "keccak256": "0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b",
         "urls": [
           "bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa",
@@ -191,20 +191,20 @@
     "version": 1
   },
   "ast": {
-    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-    "id": 20162,
+    "absolutePath": "../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+    "id": 105228,
     "exportedSymbols": {
       "IUniswapV3PoolErrors": [
-        20161
+        105227
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "45:345:95",
+    "src": "45:345:39",
     "nodes": [
       {
-        "id": 20135,
+        "id": 105201,
         "nodeType": "PragmaDirective",
-        "src": "45:24:95",
+        "src": "45:24:39",
         "nodes": [],
         "literals": [
           "solidity",
@@ -214,188 +214,188 @@
         ]
       },
       {
-        "id": 20161,
+        "id": 105227,
         "nodeType": "ContractDefinition",
-        "src": "159:230:95",
+        "src": "159:230:39",
         "nodes": [
           {
-            "id": 20138,
+            "id": 105204,
             "nodeType": "ErrorDefinition",
-            "src": "196:12:95",
+            "src": "196:12:39",
             "nodes": [],
             "errorSelector": "a1bf7886",
             "name": "LOK",
-            "nameLocation": "202:3:95",
+            "nameLocation": "202:3:39",
             "parameters": {
-              "id": 20137,
+              "id": 105203,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "205:2:95"
+              "src": "205:2:39"
             }
           },
           {
-            "id": 20140,
+            "id": 105206,
             "nodeType": "ErrorDefinition",
-            "src": "213:12:95",
+            "src": "213:12:39",
             "nodes": [],
             "errorSelector": "2fe0284f",
             "name": "TLU",
-            "nameLocation": "219:3:95",
+            "nameLocation": "219:3:39",
             "parameters": {
-              "id": 20139,
+              "id": 105205,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "222:2:95"
+              "src": "222:2:39"
             }
           },
           {
-            "id": 20142,
+            "id": 105208,
             "nodeType": "ErrorDefinition",
-            "src": "230:12:95",
+            "src": "230:12:39",
             "nodes": [],
             "errorSelector": "9ad612e8",
             "name": "TLM",
-            "nameLocation": "236:3:95",
+            "nameLocation": "236:3:39",
             "parameters": {
-              "id": 20141,
+              "id": 105207,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "239:2:95"
+              "src": "239:2:39"
             }
           },
           {
-            "id": 20144,
+            "id": 105210,
             "nodeType": "ErrorDefinition",
-            "src": "247:12:95",
+            "src": "247:12:39",
             "nodes": [],
             "errorSelector": "d7b54ab1",
             "name": "TUM",
-            "nameLocation": "253:3:95",
+            "nameLocation": "253:3:39",
             "parameters": {
-              "id": 20143,
+              "id": 105209,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "256:2:95"
+              "src": "256:2:39"
             }
           },
           {
-            "id": 20146,
+            "id": 105212,
             "nodeType": "ErrorDefinition",
-            "src": "264:11:95",
+            "src": "264:11:39",
             "nodes": [],
             "errorSelector": "9cc0b7f8",
             "name": "AI",
-            "nameLocation": "270:2:95",
+            "nameLocation": "270:2:39",
             "parameters": {
-              "id": 20145,
+              "id": 105211,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "272:2:95"
+              "src": "272:2:39"
             }
           },
           {
-            "id": 20148,
+            "id": 105214,
             "nodeType": "ErrorDefinition",
-            "src": "280:11:95",
+            "src": "280:11:39",
             "nodes": [],
             "errorSelector": "748800af",
             "name": "M0",
-            "nameLocation": "286:2:95",
+            "nameLocation": "286:2:39",
             "parameters": {
-              "id": 20147,
+              "id": 105213,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "288:2:95"
+              "src": "288:2:39"
             }
           },
           {
-            "id": 20150,
+            "id": 105216,
             "nodeType": "ErrorDefinition",
-            "src": "296:11:95",
+            "src": "296:11:39",
             "nodes": [],
             "errorSelector": "20e5672e",
             "name": "M1",
-            "nameLocation": "302:2:95",
+            "nameLocation": "302:2:39",
             "parameters": {
-              "id": 20149,
+              "id": 105215,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "304:2:95"
+              "src": "304:2:39"
             }
           },
           {
-            "id": 20152,
+            "id": 105218,
             "nodeType": "ErrorDefinition",
-            "src": "312:11:95",
+            "src": "312:11:39",
             "nodes": [],
             "errorSelector": "03fff018",
             "name": "AS",
-            "nameLocation": "318:2:95",
+            "nameLocation": "318:2:39",
             "parameters": {
-              "id": 20151,
+              "id": 105217,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "320:2:95"
+              "src": "320:2:39"
             }
           },
           {
-            "id": 20154,
+            "id": 105220,
             "nodeType": "ErrorDefinition",
-            "src": "328:12:95",
+            "src": "328:12:39",
             "nodes": [],
             "errorSelector": "ba0b951e",
             "name": "IIA",
-            "nameLocation": "334:3:95",
+            "nameLocation": "334:3:39",
             "parameters": {
-              "id": 20153,
+              "id": 105219,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "337:2:95"
+              "src": "337:2:39"
             }
           },
           {
-            "id": 20156,
+            "id": 105222,
             "nodeType": "ErrorDefinition",
-            "src": "345:10:95",
+            "src": "345:10:39",
             "nodes": [],
             "errorSelector": "9f13f76d",
             "name": "L",
-            "nameLocation": "351:1:95",
+            "nameLocation": "351:1:39",
             "parameters": {
-              "id": 20155,
+              "id": 105221,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "352:2:95"
+              "src": "352:2:39"
             }
           },
           {
-            "id": 20158,
+            "id": 105224,
             "nodeType": "ErrorDefinition",
-            "src": "360:11:95",
+            "src": "360:11:39",
             "nodes": [],
             "errorSelector": "f704e899",
             "name": "F0",
-            "nameLocation": "366:2:95",
+            "nameLocation": "366:2:39",
             "parameters": {
-              "id": 20157,
+              "id": 105223,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "368:2:95"
+              "src": "368:2:39"
             }
           },
           {
-            "id": 20160,
+            "id": 105226,
             "nodeType": "ErrorDefinition",
-            "src": "376:11:95",
+            "src": "376:11:39",
             "nodes": [],
             "errorSelector": "e90c3493",
             "name": "F1",
-            "nameLocation": "382:2:95",
+            "nameLocation": "382:2:39",
             "parameters": {
-              "id": 20159,
+              "id": 105225,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "384:2:95"
+              "src": "384:2:39"
             }
           }
         ],
@@ -405,36 +405,35 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 20136,
+          "id": 105202,
           "nodeType": "StructuredDocumentation",
-          "src": "71:88:95",
+          "src": "71:88:39",
           "text": "@title Errors emitted by a pool\n @notice Contains all events emitted by the pool"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          20161
+          105227
         ],
         "name": "IUniswapV3PoolErrors",
-        "nameLocation": "169:20:95",
-        "scope": 20162,
+        "nameLocation": "169:20:39",
+        "scope": 105228,
         "usedErrors": [
-          20138,
-          20140,
-          20142,
-          20144,
-          20146,
-          20148,
-          20150,
-          20152,
-          20154,
-          20156,
-          20158,
-          20160
-        ],
-        "usedEvents": []
+          105204,
+          105206,
+          105208,
+          105210,
+          105212,
+          105214,
+          105216,
+          105218,
+          105220,
+          105222,
+          105224,
+          105226
+        ]
       }
     ],
     "license": "GPL-2.0-or-later"
   },
-  "id": 95
+  "id": 39
 }

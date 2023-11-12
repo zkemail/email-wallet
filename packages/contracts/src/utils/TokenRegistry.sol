@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 /// @title TokenRegistry
 /// @notice A registry of token name and their address on different chains
 contract TokenRegistry is Ownable {
-
     event ChainRegistered(string indexed chainName, uint256 indexed chainId);
     event TokenRegistered(uint256 indexed chainId, string indexed tokenName, address indexed addr);
 
@@ -33,7 +32,7 @@ contract TokenRegistry is Ownable {
     function setTokenAddress(uint256 chainId, string memory tokenName, address addr) public onlyOwner {
         require(addressOfTokenName[chainId][tokenName] == address(0), "Token already registered");
         require(bytes(tokenNameOfAddress[chainId][addr]).length == 0, "Address already registered");
-        
+
         addressOfTokenName[chainId][tokenName] = addr;
         tokenNameOfAddress[chainId][addr] = tokenName;
 

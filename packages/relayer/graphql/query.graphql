@@ -4,6 +4,7 @@ query GetRelayers($wallet_addr: String) {
       relayer {
         address
         randHash
+        hostname
       }
     }
   }
@@ -12,9 +13,6 @@ query GetRelayers($wallet_addr: String) {
 query AllRelayersForPSI { 
   relayers {
     address
-    relayerAccounts {
-      psiPoint
-      isInitialized
-    }
+    hostname
   }
 }

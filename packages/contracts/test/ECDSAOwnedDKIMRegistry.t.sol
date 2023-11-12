@@ -62,7 +62,12 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
 
         // Revoke
-        string memory revokeMsg = registry.computeSignedMsg(registry.REVOKE_PREFIX(), selector, domainName, publicKeyHash);
+        string memory revokeMsg = registry.computeSignedMsg(
+            registry.REVOKE_PREFIX(),
+            selector,
+            domainName,
+            publicKeyHash
+        );
         (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, bytes(revokeMsg).toEthSignedMessageHash());
         bytes memory revokeSig = abi.encodePacked(r1, s1, v1);
         registry.revokeDKIMPublicKeyHash(selector, domainName, publicKeyHash, revokeSig);
@@ -94,8 +99,13 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
         require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
 
-         // Revoke
-        string memory revokeMsg = registry.computeSignedMsg(registry.REVOKE_PREFIX(), selector, domainName, publicKeyHash);
+        // Revoke
+        string memory revokeMsg = registry.computeSignedMsg(
+            registry.REVOKE_PREFIX(),
+            selector,
+            domainName,
+            publicKeyHash
+        );
         (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, bytes(revokeMsg).toEthSignedMessageHash());
         bytes memory revokeSig = abi.encodePacked(r1, s1, v1);
         registry.revokeDKIMPublicKeyHash(selector, domainName, publicKeyHash, revokeSig);

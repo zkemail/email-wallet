@@ -684,66 +684,7 @@ pub mod email_wallet_core {
                     ],
                 ),
             ]),
-            events: ::core::convert::From::from([
-                (
-                    ::std::borrow::ToOwned::to_owned("EmailOpHandled"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("EmailOpHandled"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("success"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned(
-                                        "registeredUnclaimId",
-                                    ),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("emailNullifier"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("emailAddrPointer"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    indexed: false,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned(
-                                        "recipientEmailAddrCommit",
-                                    ),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    indexed: false,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("recipientETHAddr"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: false,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("err"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
-                                    indexed: false,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
-                ),
-            ]),
+            events: ::std::collections::BTreeMap::new(),
             errors: ::std::collections::BTreeMap::new(),
             receive: true,
             fallback: true,
@@ -996,58 +937,12 @@ pub mod email_wallet_core {
                 .method_hash([71, 128, 234, 193], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Gets the contract's `EmailOpHandled` event
-        pub fn email_op_handled_filter(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            EmailOpHandledFilter,
-        > {
-            self.0.event()
-        }
-        /// Returns an `Event` builder for all the events of this contract.
-        pub fn events(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            EmailOpHandledFilter,
-        > {
-            self.0.event_with_filter(::core::default::Default::default())
-        }
     }
     impl<M: ::ethers::providers::Middleware> From<::ethers::contract::Contract<M>>
     for EmailWalletCore<M> {
         fn from(contract: ::ethers::contract::Contract<M>) -> Self {
             Self::new(contract.address(), contract.client())
         }
-    }
-    #[derive(
-        Clone,
-        ::ethers::contract::EthEvent,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethevent(
-        name = "EmailOpHandled",
-        abi = "EmailOpHandled(bool,uint256,bytes32,bytes32,bytes32,address,bytes)"
-    )]
-    pub struct EmailOpHandledFilter {
-        #[ethevent(indexed)]
-        pub success: bool,
-        #[ethevent(indexed)]
-        pub registered_unclaim_id: ::ethers::core::types::U256,
-        #[ethevent(indexed)]
-        pub email_nullifier: [u8; 32],
-        pub email_addr_pointer: [u8; 32],
-        pub recipient_email_addr_commit: [u8; 32],
-        pub recipient_eth_addr: ::ethers::core::types::Address,
-        pub err: ::ethers::core::types::Bytes,
     }
     ///Container type for all input parameters for the `accountHandler` function with signature `accountHandler()` and selector `0x33ddfb9a`
     #[derive(

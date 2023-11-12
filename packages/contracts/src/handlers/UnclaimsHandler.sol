@@ -99,8 +99,17 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         });
 
         unclaimedFundOfId[fund.id] = fund;
-        numUnclaimedFunds ++;
-        emit EmailWalletEvents.UnclaimedFundRegistered(fund.id, emailAddrCommit, tokenAddr, amount, sender, expiryTime, 0, "");
+        numUnclaimedFunds++;
+        emit EmailWalletEvents.UnclaimedFundRegistered(
+            fund.id,
+            emailAddrCommit,
+            tokenAddr,
+            amount,
+            sender,
+            expiryTime,
+            0,
+            ""
+        );
         return fund.id;
     }
 
@@ -146,7 +155,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         });
 
         unclaimedFundOfId[fund.id] = fund;
-        numUnclaimedFunds ++;
+        numUnclaimedFunds++;
         emit EmailWalletEvents.UnclaimedFundRegistered(
             fund.id,
             emailAddrCommit,
@@ -200,7 +209,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
             ),
             "invalid proof"
         );
-        
+
         address recipientAddr = accountHandler.getWalletOfSalt(
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt
         );
@@ -213,7 +222,13 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // Transfer claim fee to the sender (relayer)
         payable(msg.sender).transfer(unclaimedFundClaimGas * maxFeePerGas);
 
-        emit EmailWalletEvents.UnclaimedFundClaimed(id, fund.emailAddrCommit, fund.tokenAddr, fund.amount, recipientAddr);
+        emit EmailWalletEvents.UnclaimedFundClaimed(
+            id,
+            fund.emailAddrCommit,
+            fund.tokenAddr,
+            fund.amount,
+            recipientAddr
+        );
     }
 
     /// @notice Return unclaimed fund after expiry time
@@ -258,7 +273,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 expiryTime,
         uint256 announceCommitRandomness,
         string calldata announceEmailAddr
-    ) public payable returns (uint256){
+    ) public payable returns (uint256) {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
         }
@@ -283,8 +298,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         Extension extension = Extension(extensionAddr);
 
         unclaimedStateOfId[us.id] = us;
-        numUnclaimedStates ++;
-    
+        numUnclaimedStates++;
+
         try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
         } catch {
@@ -318,10 +333,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         bytes calldata state,
         bool isInternal
     ) public onlyOwner returns (uint256) {
-        require(
-            unclaimedStateOfId[numUnclaimedStates].sender == address(0),
-            "unclaimed state exists"
-        );
+        require(unclaimedStateOfId[numUnclaimedStates].sender == address(0), "unclaimed state exists");
         require(state.length > 0, "state cannot be empty");
 
         uint256 expiryTime = block.timestamp + unclaimsExpiryDuration;
@@ -338,7 +350,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         Extension extension = Extension(extensionAddr);
 
         unclaimedStateOfId[us.id] = us;
-        numUnclaimedStates ++;
+        numUnclaimedStates++;
 
         try extension.registerUnclaimedState(us, isInternal) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
@@ -410,7 +422,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` + gas to store one value and pass to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
-        require(gasleft() > gasForExt, "insufficient gas left");
+        require(gasleft() * 63 > gasForExt * 64, "insufficient gas left");
+
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
         try extension.claimUnclaimedState{gas: gasForExt}(us, recipientAddr) {
@@ -430,9 +443,7 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
     /// @notice Return unclaimed state after expiry time
     /// @param id The id of the unclaimed state to claim.
-    function voidUnclaimedState(
-        uint256 id
-    ) public nonReentrant returns (bool success, bytes memory returnData) {
+    function voidUnclaimedState(uint256 id) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
         require(id < numUnclaimedStates, "invalid id");
 
@@ -448,7 +459,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // Gas consumed for verification and next steps is deducated from `unclaimedStateClaimGas`
         // and rest is passed to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS - WETH_DEPOSIT_GAS;
-        require(gasleft() > gasForExt, "insufficient gas left");
+        require(gasleft() * 63 > gasForExt * 64, "insufficient gas left");
+
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
         try extension.voidUnclaimedState{gas: gasForExt}(us) {

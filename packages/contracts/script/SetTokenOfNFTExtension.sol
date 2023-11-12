@@ -13,7 +13,7 @@ contract Deploy is Script {
             return;
         }
         address _nftExtension = vm.envAddress("NFT_EXTENSION");
-        if(_nftExtension == address(0)) {
+        if (_nftExtension == address(0)) {
             console.log("NFT_EXTENSION env var not set");
             return;
         }
@@ -23,6 +23,5 @@ contract Deploy is Script {
         NFTExtension nftExtension = NFTExtension(_nftExtension);
         nftExtension.setNFTAddress(tokenName, tokenAddr);
         vm.stopBroadcast();
-
     }
 }

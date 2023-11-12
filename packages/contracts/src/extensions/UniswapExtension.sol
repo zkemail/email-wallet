@@ -37,7 +37,20 @@ contract UniswapExtension is Extension {
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         templates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
         templates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
-        templates[3] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage", "under", "{uint}", "sqrt", "price", "limit"];
+        templates[3] = [
+            "Swap",
+            "{tokenAmount}",
+            "to",
+            "{string}",
+            "with",
+            "{amount}",
+            "slippage",
+            "under",
+            "{uint}",
+            "sqrt",
+            "price",
+            "limit"
+        ];
         poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
 
@@ -74,12 +87,12 @@ contract UniswapExtension is Extension {
             slippagePoints = defaultSlippagePoints;
 
             sqrtPriceLimitX96 = 0;
-        } 
+        }
 
         if (templateIndex == 1) {
             uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
             // This value is user input * 10^18, we need to revert it as (user input * 10^2).
-            slippagePoints256 = slippagePoints256 / 10**16; 
+            slippagePoints256 = slippagePoints256 / 10 ** 16;
             require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
             slippagePoints = uint24(slippagePoints256);
 
@@ -98,7 +111,7 @@ contract UniswapExtension is Extension {
         if (templateIndex == 3) {
             uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
             // This value is user input * 10^18, we need to revert it as (user input * 10^2).
-            slippagePoints256 = slippagePoints256 / 10**16; 
+            slippagePoints256 = slippagePoints256 / 10 ** 16;
             require(slippagePoints256 <= type(uint24).max, "slippagePoints256 argument overflow detected");
             slippagePoints = uint24(slippagePoints256);
 
@@ -146,11 +159,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: wethAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(
-                    wethAddr, 
-                    tokenOutAddr, 
-                    slippagePoints, 
-                    sqrtPriceLimitX96)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(wethAddr, tokenOutAddr, slippagePoints, sqrtPriceLimitX96)
             });
             router.exactInputSingle(swapParams2);
         } else {
@@ -162,11 +171,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(
-                    tokenInAddr, 
-                    tokenOutAddr, 
-                    slippagePoints, 
-                    sqrtPriceLimitX96)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, tokenOutAddr, slippagePoints, sqrtPriceLimitX96)
             });
             router.exactInputSingle(swapParams);
         }
@@ -188,7 +193,6 @@ contract UniswapExtension is Extension {
     ) internal view returns (uint160) {
         bool zeroForOne = tokenIn < tokenOut;
 
-        
         if (sqrtPriceLimitX96 == 0) {
             (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
             sqrtPriceLimitX96 = sqrtPriceX96;

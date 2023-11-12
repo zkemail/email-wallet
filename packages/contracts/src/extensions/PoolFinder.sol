@@ -11,18 +11,25 @@ contract PoolFinder {
         factory = _factory;
     }
 
-    function getPoolSlot0(address tokenA, address tokenB, uint24 fee) external view returns (
-        uint160 sqrtPriceX96,
-        int24 tick,
-        uint16 observationIndex,
-        uint16 observationCardinality,
-        uint16 observationCardinalityNext,
-        uint8 feeProtocol,
-        bool unlocked
-    ) {
+    function getPoolSlot0(
+        address tokenA,
+        address tokenB,
+        uint24 fee
+    )
+        external
+        view
+        returns (
+            uint160 sqrtPriceX96,
+            int24 tick,
+            uint16 observationIndex,
+            uint16 observationCardinality,
+            uint16 observationCardinalityNext,
+            uint8 feeProtocol,
+            bool unlocked
+        )
+    {
         address poolAddress = factory.getPool(tokenA, tokenB, fee);
         require(poolAddress != address(0), "Pool not found");
         return IUniswapV3Pool(poolAddress).slot0();
     }
-
 }
