@@ -102,10 +102,14 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             tx_claimer.send(claim)?;
         }
     } else {
-        trace!("Normal email");
+        trace!("Non-reply email");
         if let Ok(account_key_hex) =
             extract_account_key_from_subject(&parsed_email.get_subject_all()?)
         {
+            info!(
+                "account_key {} is found in the non-reply email",
+                account_key_hex
+            );
             let account_key = AccountKey(hex2field(&account_key_hex)?);
             if !db.contains_user(&from_address).await? {
                 let email_hash = calculate_default_hash(&email);
