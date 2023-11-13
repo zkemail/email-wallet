@@ -67,20 +67,26 @@ contract UniswapExtension is Extension {
         require(templateIndex <= 3, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
-        // subjectParams[0] and subjectParams[1] are same for all templates
-        (uint256 tokenInAmount, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
-
+        
+        
+        uint256 tokenInAmount;
         address tokenInAddr;
         address tokenOutAddr;
         uint24 slippagePoints;
         uint160 sqrtPriceLimitX96;
 
         {
+            // subjectParams[0] and subjectParams[1] are same for all templates
+            (uint256 tokenInAmountParam, string memory tokenIn) = abi.decode(subjectParams[0], (uint256, string));
+            tokenInAmount = tokenInAmountParam;
             string memory tokenOut = abi.decode(subjectParams[1], (string));
             tokenInAddr = tokenRegistry.getTokenAddress(tokenIn);
             tokenOutAddr = tokenRegistry.getTokenAddress(tokenOut);
             require(tokenOutAddr != address(0), "invalid out token name");
         }
+
+        // Check if the pool exists
+        bool isPoolExists = poolFinder.isPoolExists(tokenInAddr, tokenOutAddr, poolFee);
 
         // Each template has different input parameters
         if (templateIndex == 0) {
@@ -100,6 +106,8 @@ contract UniswapExtension is Extension {
         }
 
         if (templateIndex == 2) {
+            require(isPoolExists, "sqrtPriceLimitX96 can not be set because the pool does not exist");
+
             slippagePoints = defaultSlippagePoints;
 
             uint256 sqrtPriceLimitX96Uint256;
@@ -109,6 +117,8 @@ contract UniswapExtension is Extension {
         }
 
         if (templateIndex == 3) {
+            require(isPoolExists, "sqrtPriceLimitX96 can not be set because the pool does not exist");
+
             uint256 slippagePoints256 = abi.decode(subjectParams[2], (uint256));
             // This value is user input * 10^18, we need to revert it as (user input * 10^2).
             slippagePoints256 = slippagePoints256 / 10 ** 16;
@@ -135,7 +145,8 @@ contract UniswapExtension is Extension {
             );
         }
         address wethAddr = tokenRegistry.getTokenAddress("ETH");
-        if (tokenInAddr != wethAddr && tokenOutAddr != wethAddr) {
+        if (!isPoolExists) {
+            // If the pool does not exist, we need to swap the token to WETH first, and then swap WETH to the token.
             ISwapRouter.ExactInputSingleParams memory swapParams1 = ISwapRouter.ExactInputSingleParams({
                 tokenIn: tokenInAddr,
                 tokenOut: wethAddr,
@@ -144,7 +155,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0 // Even if sqrtPriceLimitX96 is set, it is ignored by first swap.
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, slippagePoints, sqrtPriceLimitX96)
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(
@@ -177,7 +188,8 @@ contract UniswapExtension is Extension {
         }
     }
 
-    /// @notice Get the price limit for the swap if sqrtPriceLimitX96 is not set, this function uses the current price
+    /// @notice Get the price limit for the swap if sqrtPriceLimitX96 is not set, this function uses the current price.
+    ///         If the pool does not exist, anyone can not estimate the sqrt price limit.
     /// @param tokenIn Token to be swapped
     /// @param tokenOut Token to be received
     /// @param slippagePoints The slippage points for the swap
@@ -193,10 +205,14 @@ contract UniswapExtension is Extension {
     ) internal view returns (uint160) {
         bool zeroForOne = tokenIn < tokenOut;
 
-        (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
-
         if (sqrtPriceLimitX96 == 0) {
-            sqrtPriceLimitX96 = sqrtPriceX96;
+            bool isPoolExists = poolFinder.isPoolExists(tokenIn, tokenOut, poolFee);
+            if (isPoolExists) {
+                (uint160 sqrtPriceX96, , , , , , ) = poolFinder.getPoolSlot0(tokenIn, tokenOut, poolFee);
+                sqrtPriceLimitX96 = sqrtPriceX96;
+            } else {
+                return 0;
+            }
         }
 
         uint160 minPriceX96 = sqrtPriceLimitX96 - ((sqrtPriceLimitX96 * slippagePoints) / 10000);

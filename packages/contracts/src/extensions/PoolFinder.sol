@@ -32,4 +32,12 @@ contract PoolFinder {
         require(poolAddress != address(0), "Pool not found");
         return IUniswapV3Pool(poolAddress).slot0();
     }
+
+    function isPoolExists(        
+        address tokenA,
+        address tokenB,
+        uint24 fee
+    ) external view returns (bool) {
+        return factory.getPool(tokenA, tokenB, fee) != address(0);
+    }
 }
