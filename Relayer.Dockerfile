@@ -16,7 +16,17 @@ RUN yarn
 WORKDIR /email-wallet/packages/relayer
 COPY packages/relayer/.env ./.env
 RUN cargo build --release
-CMD [ "cargo run --release -- setup && cargo run --release >> output.log" ]
+
+WORKDIR /email-wallet/packages/prover
+RUN apt-get update && apt-get install -y python3.10 python3-distutils python3-pip python3-apt
+RUN pip install modal
+ARG modal_token_id
+ARG modal_token_secret
+RUN modal token set --token-id ${modal_token_id} --token-secret ${modal_token_secret} 
+RUN nohup modal serve modal_server.py &
+
+WORKDIR /email-wallet/packages/relayer
+CMD [ "cargo run --release -- setup; cargo run --release >> output.log" ]
 
 
 # # ------------------ Chef stage -------------------
