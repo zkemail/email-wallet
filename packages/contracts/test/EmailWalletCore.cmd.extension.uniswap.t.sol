@@ -71,6 +71,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -119,6 +125,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(true)
         );
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -167,6 +179,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(true)
         );
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -215,6 +233,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encode(true)
         );
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -255,6 +279,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -295,6 +325,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -336,6 +372,12 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
 
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
