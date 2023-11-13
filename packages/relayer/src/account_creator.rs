@@ -50,7 +50,11 @@ pub(crate) async fn create_account(
     if is_account_key_none {
         tx.send(EmailMessage {
             subject: format!("New Account - CODE:{}", account_key),
-            body: email_template_message(
+            body_plain: format!(
+                "New Email Wallet account was created for you; Your Account Key: {}",
+                account_key
+            ),
+            body_html: email_template_message(
                 &format!(
                     "New Email Wallet account was created for you; Your Account Key: {}",
                     account_key

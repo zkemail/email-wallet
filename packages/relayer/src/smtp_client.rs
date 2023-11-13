@@ -6,7 +6,7 @@ use anyhow::anyhow;
 use lettre::{
     message::{
         header::{Cc, From, Header, HeaderName, InReplyTo, ReplyTo, To},
-        Mailbox, Mailboxes, MessageBuilder,
+        Mailbox, Mailboxes, MessageBuilder, MultiPart,
     },
     transport::smtp::{
         authentication::Credentials, client::SmtpConnection, commands::*, extension::ClientId,
@@ -17,7 +17,8 @@ use lettre::{
 
 pub(crate) struct EmailMessage {
     pub(crate) subject: String,
-    pub(crate) body: String,
+    pub(crate) body_plain: String,
+    pub(crate) body_html: String,
     pub(crate) to: String,
     pub(crate) message_id: Option<String>,
 }
@@ -53,7 +54,10 @@ impl SmtpClient {
             .subject(email.subject)
             .to(to_mbox)
             .message_id(email.message_id)
-            .body(email.body.to_string())?;
+            .multipart(MultiPart::alternative_plain_html(
+                email.body_plain,
+                email.body_html,
+            ))?;
 
         self.transport.send(email).await?;
 

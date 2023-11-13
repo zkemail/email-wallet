@@ -10,6 +10,7 @@ use ethers::utils::hex::FromHex;
 use log::{info, trace};
 use serde::Deserialize;
 use std::collections::hash_map::DefaultHasher;
+use std::fmt::format;
 use std::hash::{Hash, Hasher};
 use std::path::Path;
 use tokio::{
@@ -390,10 +391,20 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             tx_sender
                 .send(EmailMessage {
                     subject: String::from("Email Wallet notification"),
-                    body: email_template_message("You receive new Email Wallet tx", &tx_hash)
-                        .await?,
+                    body_plain: format!(
+                        "You receive new Email Wallet transaction at https://optimistic.etherscan.io/tx/{}",
+                        &tx_hash
+                    ),
+                    body_html: email_template_message(
+                        &format!(
+                        "You receive new Email Wallet transaction at https://optimistic.etherscan.io/tx/{}",
+                        &tx_hash
+                    ),
+                        &tx_hash,
+                    )
+                    .await?,
                     to: email_addr.to_string(),
-                    message_id: None,
+                    message_id: Some(field2hex(&account_key.0)),
                 })
                 .unwrap();
         }
@@ -401,8 +412,16 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         tx_sender
             .send(EmailMessage {
                 subject: String::from("Email Wallet notification"),
-                body: email_template_message("Your transaction request was completed", &tx_hash)
-                    .await?,
+                body_plain: format!(
+                    "Your transaction request was completed at https://optimistic.etherscan.io/tx/{}",
+                    &tx_hash
+                ),
+                body_html: email_template_message(
+                    &format!(
+                    "Your transaction request was completed at https://optimistic.etherscan.io/tx/{}", 
+                    &tx_hash),
+                    &tx_hash
+                ).await?,
                 to: from_address,
                 message_id: None,
             })
@@ -449,19 +468,18 @@ pub(crate) async fn handle_account_init(
     let result = chain_client.init_account(data).await?;
     info!("account init tx hash: {}", result);
     let is_onborded = db.is_user_onborded(&from_address).await?;
-    let mut msg = if is_onborded {
-        ONBOARDING_REPLY_MSG.get().unwrap().to_string()
-    } else {
-        String::new()
+    let mut msg = format!("Welcome to Email Wallet! Your account was initialized at https://optimistic.etherscan.io/tx/{}.", &result);
+    if is_onborded {
+        msg += ONBOARDING_REPLY_MSG.get().unwrap();
     };
-    msg += &format!("Your account was initialized.",);
 
     tx_sender
         .send(EmailMessage {
             subject: "New Email Wallet Notification".to_string(),
-            body: email_template_message(&msg, &result).await?,
+            body_plain: msg.clone(),
+            body_html: email_template_message(&msg, &result).await?,
             to: from_address,
-            message_id: None,
+            message_id: Some(field2hex(&account_key.0)),
         })
         .unwrap();
     Ok(())
@@ -540,7 +558,18 @@ pub(crate) async fn handle_account_transport(
     tx_sender
         .send(EmailMessage {
             subject: "New Email Wallet Notification".to_string(),
-            body: email_template_message("Your account was transported", &result).await?,
+            body_plain: format!(
+                "Your account was transported at https://optimistic.etherscan.io/tx/{}",
+                &result
+            ),
+            body_html: email_template_message(
+                &format!(
+                    "Your account was transported at https://optimistic.etherscan.io/tx/{}",
+                    &result
+                ),
+                &result,
+            )
+            .await?,
             to: from_address,
             message_id: None,
         })

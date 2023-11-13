@@ -44,27 +44,6 @@ pub(crate) async fn claim_unclaims(
         .query_account_info(&account_key_commit)
         .await
         .unwrap();
-    if !info.initialized {
-        info!("Account of {} is not intialized", claim.email_address);
-        tx_sender
-            .send(EmailMessage {
-                subject: format!("New Account - CODE:{}", account_key_str),
-                body: email_template_message(
-                    &format!(
-                        "New Email Wallet account was created for you; Your Account Key: {}",
-                        account_key_str
-                    ),
-                    &db.get_creation_tx_hash(&claim.email_address)
-                        .await?
-                        .unwrap(),
-                )
-                .await?,
-                to: claim.email_address.to_string(),
-                message_id: Some(account_key_str),
-            })
-            .unwrap();
-        return Ok(());
-    }
     let now = now();
     let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
     let reply_msg = if claim.is_fund {
@@ -104,6 +83,25 @@ pub(crate) async fn claim_unclaims(
             unclaimed_state.extension_addr, unclaimed_state.sender
         )
     };
+    if !info.initialized {
+        info!("Account of {} is not intialized", claim.email_address);
+        tx_sender
+            .send(EmailMessage {
+                subject: format!("New Account - CODE:{}", account_key_str),
+                body_plain: format!("{} To use it, please reply to this email", reply_msg),
+                body_html: email_template_message(
+                    &format!("{} To use it, please reply to this email", reply_msg),
+                    &db.get_creation_tx_hash(&claim.email_address)
+                        .await?
+                        .unwrap(),
+                )
+                .await?,
+                to: claim.email_address.to_string(),
+                message_id: Some(account_key_str),
+            })
+            .unwrap();
+        return Ok(());
+    }
     let input = generate_claim_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &claim.email_address,
@@ -127,7 +125,8 @@ pub(crate) async fn claim_unclaims(
     tx_sender
         .send(EmailMessage {
             subject: String::from("Email Wallet notification"),
-            body: email_template_message(&reply_msg, &result).await?,
+            body_plain: reply_msg.clone(),
+            body_html: email_template_message(&reply_msg, &result).await?,
             to: claim.email_address.to_string(),
             message_id: None,
         })
