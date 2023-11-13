@@ -34,7 +34,7 @@ impl Database {
                 email_address TEXT PRIMARY KEY,
                 account_key TEXT NOT NULL,
                 tx_hash TEXT NOT NULL,
-                is_onborded BOOLEAN NOT NULL DEFAULT FALSE,
+                is_onborded BOOLEAN NOT NULL DEFAULT FALSE
             );",
         )
         .execute(&self.db)

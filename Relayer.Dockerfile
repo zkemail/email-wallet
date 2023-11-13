@@ -2,7 +2,7 @@ FROM rustlang/rust:nightly
 
 RUN apt-get update && apt-get upgrade -y 
 RUN apt-get update && \
-    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm 
+    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm vim 
 
 # Node install
 RUN npm install -g n 
