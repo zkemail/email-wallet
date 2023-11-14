@@ -135,6 +135,13 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
             abi.encode(true)
         );
+
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -185,6 +192,13 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
             abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
             abi.encode(true)
         );
+
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
         // Mock for getPoolSlot0 should return slot entity.
         vm.mockCall(
             address(uniExtension.poolFinder()),
@@ -228,6 +242,13 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         // Mock for daiToken approval should return true.
         vm.mockCall(address(daiToken), abi.encodeWithSelector(TestERC20.approve.selector), abi.encode(true));
+
+        // Mock for isPoolExists should return slot entity.
+        vm.mockCall(
+            address(uniExtension.poolFinder()),
+            abi.encodeWithSelector(PoolFinder.isPoolExists.selector),
+            abi.encode(true)
+        );
 
         // Mock for isPoolExists should return slot entity.
         vm.mockCall(

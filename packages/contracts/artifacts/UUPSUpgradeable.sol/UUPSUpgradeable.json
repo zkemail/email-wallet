@@ -318,19 +318,19 @@
         3036
       ],
       "ERC1967Upgrade": [
-        103927
+        104444
       ],
       "IBeacon": [
-        137015
+        137532
       ],
       "IERC1822Proxiable": [
-        103989
+        104506
       ],
       "IERC1967": [
-        137005
+        137522
       ],
       "StorageSlot": [
-        137125
+        137642
       ],
       "UUPSUpgradeable": [
         478
@@ -360,7 +360,7 @@
         "file": "../../interfaces/draft-IERC1822.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 479,
-        "sourceUnit": 103990,
+        "sourceUnit": 104507,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -373,7 +373,7 @@
         "file": "../ERC1967/ERC1967Upgrade.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 479,
-        "sourceUnit": 103928,
+        "sourceUnit": 104445,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -658,7 +658,7 @@
                             "name": "_getImplementation",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 103653,
+                            "referencedDeclaration": 104170,
                             "src": "1727:18:12",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
@@ -991,7 +991,7 @@
                     "name": "_IMPLEMENTATION_SLOT",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 103640,
+                    "referencedDeclaration": 104157,
                     "src": "2866:20:12",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
@@ -1006,7 +1006,7 @@
               ]
             },
             "baseFunctions": [
-              103988
+              104505
             ],
             "documentation": {
               "id": 417,
@@ -1268,7 +1268,7 @@
                       "name": "_upgradeToAndCallUUPS",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 103775,
+                      "referencedDeclaration": 104292,
                       "src": "3270:21:12",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -1500,7 +1500,7 @@
                       "name": "_upgradeToAndCallUUPS",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 103775,
+                      "referencedDeclaration": 104292,
                       "src": "3818:21:12",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -1704,7 +1704,7 @@
                 "913:17:12"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 103989,
+              "referencedDeclaration": 104506,
               "src": "913:17:12"
             },
             "id": 369,
@@ -1719,7 +1719,7 @@
                 "932:14:12"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 103927,
+              "referencedDeclaration": 104444,
               "src": "932:14:12"
             },
             "id": 371,
@@ -1739,9 +1739,9 @@
         "fullyImplemented": false,
         "linearizedBaseContracts": [
           478,
-          103927,
-          137005,
-          103989
+          104444,
+          137522,
+          104506
         ],
         "name": "UUPSUpgradeable",
         "nameLocation": "894:15:12",

@@ -155,7 +155,11 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, slippagePoints, sqrtPriceLimitX96)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(
+                    tokenInAddr, 
+                    wethAddr, 
+                    slippagePoints, 
+                    sqrtPriceLimitX96)
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(

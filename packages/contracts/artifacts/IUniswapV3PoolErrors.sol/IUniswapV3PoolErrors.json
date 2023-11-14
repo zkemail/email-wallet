@@ -192,17 +192,17 @@
   },
   "ast": {
     "absolutePath": "../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-    "id": 105228,
+    "id": 105745,
     "exportedSymbols": {
       "IUniswapV3PoolErrors": [
-        105227
+        105744
       ]
     },
     "nodeType": "SourceUnit",
     "src": "45:345:39",
     "nodes": [
       {
-        "id": 105201,
+        "id": 105718,
         "nodeType": "PragmaDirective",
         "src": "45:24:39",
         "nodes": [],
@@ -214,12 +214,12 @@
         ]
       },
       {
-        "id": 105227,
+        "id": 105744,
         "nodeType": "ContractDefinition",
         "src": "159:230:39",
         "nodes": [
           {
-            "id": 105204,
+            "id": 105721,
             "nodeType": "ErrorDefinition",
             "src": "196:12:39",
             "nodes": [],
@@ -227,14 +227,14 @@
             "name": "LOK",
             "nameLocation": "202:3:39",
             "parameters": {
-              "id": 105203,
+              "id": 105720,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "205:2:39"
             }
           },
           {
-            "id": 105206,
+            "id": 105723,
             "nodeType": "ErrorDefinition",
             "src": "213:12:39",
             "nodes": [],
@@ -242,14 +242,14 @@
             "name": "TLU",
             "nameLocation": "219:3:39",
             "parameters": {
-              "id": 105205,
+              "id": 105722,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "222:2:39"
             }
           },
           {
-            "id": 105208,
+            "id": 105725,
             "nodeType": "ErrorDefinition",
             "src": "230:12:39",
             "nodes": [],
@@ -257,14 +257,14 @@
             "name": "TLM",
             "nameLocation": "236:3:39",
             "parameters": {
-              "id": 105207,
+              "id": 105724,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "239:2:39"
             }
           },
           {
-            "id": 105210,
+            "id": 105727,
             "nodeType": "ErrorDefinition",
             "src": "247:12:39",
             "nodes": [],
@@ -272,14 +272,14 @@
             "name": "TUM",
             "nameLocation": "253:3:39",
             "parameters": {
-              "id": 105209,
+              "id": 105726,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "256:2:39"
             }
           },
           {
-            "id": 105212,
+            "id": 105729,
             "nodeType": "ErrorDefinition",
             "src": "264:11:39",
             "nodes": [],
@@ -287,14 +287,14 @@
             "name": "AI",
             "nameLocation": "270:2:39",
             "parameters": {
-              "id": 105211,
+              "id": 105728,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "272:2:39"
             }
           },
           {
-            "id": 105214,
+            "id": 105731,
             "nodeType": "ErrorDefinition",
             "src": "280:11:39",
             "nodes": [],
@@ -302,14 +302,14 @@
             "name": "M0",
             "nameLocation": "286:2:39",
             "parameters": {
-              "id": 105213,
+              "id": 105730,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "288:2:39"
             }
           },
           {
-            "id": 105216,
+            "id": 105733,
             "nodeType": "ErrorDefinition",
             "src": "296:11:39",
             "nodes": [],
@@ -317,14 +317,14 @@
             "name": "M1",
             "nameLocation": "302:2:39",
             "parameters": {
-              "id": 105215,
+              "id": 105732,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "304:2:39"
             }
           },
           {
-            "id": 105218,
+            "id": 105735,
             "nodeType": "ErrorDefinition",
             "src": "312:11:39",
             "nodes": [],
@@ -332,14 +332,14 @@
             "name": "AS",
             "nameLocation": "318:2:39",
             "parameters": {
-              "id": 105217,
+              "id": 105734,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "320:2:39"
             }
           },
           {
-            "id": 105220,
+            "id": 105737,
             "nodeType": "ErrorDefinition",
             "src": "328:12:39",
             "nodes": [],
@@ -347,14 +347,14 @@
             "name": "IIA",
             "nameLocation": "334:3:39",
             "parameters": {
-              "id": 105219,
+              "id": 105736,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "337:2:39"
             }
           },
           {
-            "id": 105222,
+            "id": 105739,
             "nodeType": "ErrorDefinition",
             "src": "345:10:39",
             "nodes": [],
@@ -362,14 +362,14 @@
             "name": "L",
             "nameLocation": "351:1:39",
             "parameters": {
-              "id": 105221,
+              "id": 105738,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "352:2:39"
             }
           },
           {
-            "id": 105224,
+            "id": 105741,
             "nodeType": "ErrorDefinition",
             "src": "360:11:39",
             "nodes": [],
@@ -377,14 +377,14 @@
             "name": "F0",
             "nameLocation": "366:2:39",
             "parameters": {
-              "id": 105223,
+              "id": 105740,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "368:2:39"
             }
           },
           {
-            "id": 105226,
+            "id": 105743,
             "nodeType": "ErrorDefinition",
             "src": "376:11:39",
             "nodes": [],
@@ -392,7 +392,7 @@
             "name": "F1",
             "nameLocation": "382:2:39",
             "parameters": {
-              "id": 105225,
+              "id": 105742,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "384:2:39"
@@ -405,31 +405,31 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 105202,
+          "id": 105719,
           "nodeType": "StructuredDocumentation",
           "src": "71:88:39",
           "text": "@title Errors emitted by a pool\n @notice Contains all events emitted by the pool"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          105227
+          105744
         ],
         "name": "IUniswapV3PoolErrors",
         "nameLocation": "169:20:39",
-        "scope": 105228,
+        "scope": 105745,
         "usedErrors": [
-          105204,
-          105206,
-          105208,
-          105210,
-          105212,
-          105214,
-          105216,
-          105218,
-          105220,
-          105222,
-          105224,
-          105226
+          105721,
+          105723,
+          105725,
+          105727,
+          105729,
+          105731,
+          105733,
+          105735,
+          105737,
+          105739,
+          105741,
+          105743
         ]
       }
     ],

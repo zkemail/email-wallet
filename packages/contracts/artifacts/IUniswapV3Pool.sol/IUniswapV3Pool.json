@@ -2529,25 +2529,25 @@
         3758
       ],
       "IUniswapV3PoolActions": [
-        105168
+        105685
       ],
       "IUniswapV3PoolDerivedState": [
-        105199
+        105716
       ],
       "IUniswapV3PoolErrors": [
-        105227
+        105744
       ],
       "IUniswapV3PoolEvents": [
-        105346
+        105863
       ],
       "IUniswapV3PoolImmutables": [
-        105386
+        105903
       ],
       "IUniswapV3PoolOwnerActions": [
-        105412
+        105929
       ],
       "IUniswapV3PoolState": [
-        105520
+        106037
       ]
     },
     "nodeType": "SourceUnit",
@@ -2574,7 +2574,7 @@
         "file": "./pool/IUniswapV3PoolImmutables.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105387,
+        "sourceUnit": 105904,
         "symbolAliases": [
           {
             "foreign": {
@@ -2582,7 +2582,7 @@
               "name": "IUniswapV3PoolImmutables",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105386,
+              "referencedDeclaration": 105903,
               "src": "79:24:35",
               "typeDescriptions": {}
             },
@@ -2600,7 +2600,7 @@
         "file": "./pool/IUniswapV3PoolState.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105521,
+        "sourceUnit": 106038,
         "symbolAliases": [
           {
             "foreign": {
@@ -2608,7 +2608,7 @@
               "name": "IUniswapV3PoolState",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105520,
+              "referencedDeclaration": 106037,
               "src": "157:19:35",
               "typeDescriptions": {}
             },
@@ -2626,7 +2626,7 @@
         "file": "./pool/IUniswapV3PoolDerivedState.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105200,
+        "sourceUnit": 105717,
         "symbolAliases": [
           {
             "foreign": {
@@ -2634,7 +2634,7 @@
               "name": "IUniswapV3PoolDerivedState",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105199,
+              "referencedDeclaration": 105716,
               "src": "225:26:35",
               "typeDescriptions": {}
             },
@@ -2652,7 +2652,7 @@
         "file": "./pool/IUniswapV3PoolActions.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105169,
+        "sourceUnit": 105686,
         "symbolAliases": [
           {
             "foreign": {
@@ -2660,7 +2660,7 @@
               "name": "IUniswapV3PoolActions",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105168,
+              "referencedDeclaration": 105685,
               "src": "307:21:35",
               "typeDescriptions": {}
             },
@@ -2678,7 +2678,7 @@
         "file": "./pool/IUniswapV3PoolOwnerActions.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105413,
+        "sourceUnit": 105930,
         "symbolAliases": [
           {
             "foreign": {
@@ -2686,7 +2686,7 @@
               "name": "IUniswapV3PoolOwnerActions",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105412,
+              "referencedDeclaration": 105929,
               "src": "379:26:35",
               "typeDescriptions": {}
             },
@@ -2704,7 +2704,7 @@
         "file": "./pool/IUniswapV3PoolErrors.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105228,
+        "sourceUnit": 105745,
         "symbolAliases": [
           {
             "foreign": {
@@ -2712,7 +2712,7 @@
               "name": "IUniswapV3PoolErrors",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105227,
+              "referencedDeclaration": 105744,
               "src": "461:20:35",
               "typeDescriptions": {}
             },
@@ -2730,7 +2730,7 @@
         "file": "./pool/IUniswapV3PoolEvents.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3759,
-        "sourceUnit": 105347,
+        "sourceUnit": 105864,
         "symbolAliases": [
           {
             "foreign": {
@@ -2738,7 +2738,7 @@
               "name": "IUniswapV3PoolEvents",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 105346,
+              "referencedDeclaration": 105863,
               "src": "531:20:35",
               "typeDescriptions": {}
             },
@@ -2762,7 +2762,7 @@
                 "891:24:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105386,
+              "referencedDeclaration": 105903,
               "src": "891:24:35"
             },
             "id": 3745,
@@ -2777,7 +2777,7 @@
                 "921:19:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105520,
+              "referencedDeclaration": 106037,
               "src": "921:19:35"
             },
             "id": 3747,
@@ -2792,7 +2792,7 @@
                 "946:26:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105199,
+              "referencedDeclaration": 105716,
               "src": "946:26:35"
             },
             "id": 3749,
@@ -2807,7 +2807,7 @@
                 "978:21:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105168,
+              "referencedDeclaration": 105685,
               "src": "978:21:35"
             },
             "id": 3751,
@@ -2822,7 +2822,7 @@
                 "1005:26:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105412,
+              "referencedDeclaration": 105929,
               "src": "1005:26:35"
             },
             "id": 3753,
@@ -2837,7 +2837,7 @@
                 "1037:20:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105227,
+              "referencedDeclaration": 105744,
               "src": "1037:20:35"
             },
             "id": 3755,
@@ -2852,7 +2852,7 @@
                 "1063:20:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 105346,
+              "referencedDeclaration": 105863,
               "src": "1063:20:35"
             },
             "id": 3757,
@@ -2872,30 +2872,30 @@
         "fullyImplemented": false,
         "linearizedBaseContracts": [
           3758,
-          105346,
-          105227,
-          105412,
-          105168,
-          105199,
-          105520,
-          105386
+          105863,
+          105744,
+          105929,
+          105685,
+          105716,
+          106037,
+          105903
         ],
         "name": "IUniswapV3Pool",
         "nameLocation": "869:14:35",
         "scope": 3759,
         "usedErrors": [
-          105204,
-          105206,
-          105208,
-          105210,
-          105212,
-          105214,
-          105216,
-          105218,
-          105220,
-          105222,
-          105224,
-          105226
+          105721,
+          105723,
+          105725,
+          105727,
+          105729,
+          105731,
+          105733,
+          105735,
+          105737,
+          105739,
+          105741,
+          105743
         ]
       }
     ],
