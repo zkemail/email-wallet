@@ -83,25 +83,6 @@ pub(crate) async fn claim_unclaims(
             unclaimed_state.extension_addr, unclaimed_state.sender
         )
     };
-    if !info.initialized {
-        info!("Account of {} is not intialized", claim.email_address);
-        tx_sender
-            .send(EmailMessage {
-                subject: format!("New Account - CODE:{}", account_key_str),
-                body_plain: format!("{} To use it, please reply to this email", reply_msg),
-                body_html: email_template_message(
-                    &format!("{} To use it, please reply to this email", reply_msg),
-                    &db.get_creation_tx_hash(&claim.email_address)
-                        .await?
-                        .unwrap(),
-                )
-                .await?,
-                to: claim.email_address.to_string(),
-                message_id: Some(account_key_str),
-            })
-            .unwrap();
-        return Ok(());
-    }
     let input = generate_claim_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &claim.email_address,
@@ -122,13 +103,20 @@ pub(crate) async fn claim_unclaims(
     };
     let result = chain_client.claim(data).await?;
     db.delete_claim(&claim.id, claim.is_fund).await?;
+    let wallet_addr = chain_client
+        .get_wallet_addr_from_salt(&wallet_salt.0)
+        .await?;
     tx_sender
         .send(EmailMessage {
-            subject: String::from("Email Wallet notification"),
-            body_plain: reply_msg.clone(),
-            body_html: email_template_message(&reply_msg, &result).await?,
             to: claim.email_address.to_string(),
-            message_id: None,
+            email_args: EmailArgs::Claim {
+                user_email_addr: claim.email_address.to_string(),
+                is_fund: claim.is_fund,
+                claim_msg: reply_msg,
+            },
+            account_key: Some(field2hex(&account_key.0)),
+            wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
+            tx_hash: Some(result),
         })
         .unwrap();
     Ok(())

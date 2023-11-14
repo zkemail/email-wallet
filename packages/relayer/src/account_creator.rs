@@ -49,21 +49,13 @@ pub(crate) async fn create_account(
     db.insert_user(&email_address, &account_key, &res).await?;
     if is_account_key_none {
         tx.send(EmailMessage {
-            subject: format!("New Account - CODE:{}", account_key),
-            body_plain: format!(
-                "New Email Wallet account was created for you; Your Account Key: {}",
-                account_key
-            ),
-            body_html: email_template_message(
-                &format!(
-                    "New Email Wallet account was created for you; Your Account Key: {}",
-                    account_key
-                ),
-                &res,
-            )
-            .await?,
             to: email_address.to_string(),
-            message_id: Some(account_key),
+            email_args: EmailArgs::AccountCreation {
+                user_email_addr: email_address,
+            },
+            account_key: Some(account_key),
+            wallet_addr: None,
+            tx_hash: Some(res),
         })
         .unwrap();
     }

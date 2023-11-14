@@ -14,7 +14,7 @@ pub(crate) async fn void_unclaims(
     let now = now();
     let commit = hex2field(&claim.commit)?;
     db.delete_claim(&claim.id, claim.is_fund).await?;
-    let (reply_msg, tx_hash) = if claim.is_fund {
+    let (reply_msg, sender, tx_hash) = if claim.is_fund {
         let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
         if unclaimed_fund.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
@@ -22,6 +22,7 @@ pub(crate) async fn void_unclaims(
         let result = chain_client.void(claim.id, true).await?;
         (
             format!("Voided fund: {}", unclaimed_fund.token_addr),
+            unclaimed_fund.sender,
             result,
         )
     } else {
@@ -32,16 +33,21 @@ pub(crate) async fn void_unclaims(
         let result = chain_client.void(claim.id, false).await?;
         (
             format!("Voided state: {}", unclaimed_state.extension_addr),
+            unclaimed_state.sender,
             result,
         )
     };
     tx_sender
         .send(EmailMessage {
-            subject: "New Email Wallet Notification".to_string(),
-            body_plain: reply_msg.clone(),
-            body_html: email_template_message(&reply_msg, &tx_hash).await?,
             to: claim.email_address.to_string(),
-            message_id: None,
+            email_args: EmailArgs::Void {
+                user_email_addr: claim.email_address.to_string(),
+                is_fund: claim.is_fund,
+                void_msg: reply_msg,
+            },
+            account_key: None,
+            wallet_addr: Some(ethers::utils::to_checksum(&sender, None)),
+            tx_hash: Some(tx_hash),
         })
         .unwrap();
     Ok(())

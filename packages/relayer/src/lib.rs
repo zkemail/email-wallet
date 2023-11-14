@@ -9,7 +9,6 @@ pub(crate) mod claimer;
 pub(crate) mod config;
 pub(crate) mod core;
 pub(crate) mod database;
-pub(crate) mod email_template;
 pub(crate) mod emails_pool;
 pub(crate) mod imap_client;
 pub(crate) mod psi;
@@ -27,7 +26,6 @@ pub(crate) use chain::*;
 pub(crate) use claimer::*;
 pub use config::*;
 pub(crate) use database::*;
-pub(crate) use email_template::*;
 pub(crate) use emails_pool::*;
 use futures::TryFutureExt;
 pub(crate) use imap_client::*;
@@ -288,7 +286,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 .await
                 .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
             info!("Sending email to: {:?}", email.to);
-            info!("Sending email subject: {:?}", email.subject);
+            info!("Email arg: {:?}", email.email_args);
             email_sender.send_new_email(email).await?;
         }
 
