@@ -66,6 +66,7 @@ pub struct ChainClient {
     pub(crate) extension_handler: ExtensionHandler<SignerM>,
     pub(crate) relayer_handler: RelayerHandler<SignerM>,
     pub(crate) unclaims_handler: UnclaimsHandler<SignerM>,
+    pub(crate) test_erc20: TestERC20<SignerM>,
 }
 
 impl ChainClient {
@@ -94,6 +95,10 @@ impl ChainClient {
             core.unclaims_handler().call().await.unwrap(),
             client.clone(),
         );
+        let test_erc20 = TestERC20::new(
+            token_registry.get_token_address("TEST".to_string()).await?,
+            client.clone(),
+        );
         Ok(Self {
             client,
             core,
@@ -102,6 +107,7 @@ impl ChainClient {
             extension_handler,
             relayer_handler,
             unclaims_handler,
+            test_erc20,
         })
     }
 
@@ -284,6 +290,19 @@ impl ChainClient {
             }
         }
         Err(anyhow!("no EmailOpHandled event found in the receipt"))
+    }
+
+    pub async fn free_mint_test_erc20(&self, wallet_addr: Address, amount: U256) -> Result<String> {
+        let call = self.test_erc20.free_mint_with_to(wallet_addr, amount);
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
     }
 
     pub async fn query_account_key_commit(&self, pointer: &Fr) -> Result<Fr> {

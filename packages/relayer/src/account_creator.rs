@@ -21,15 +21,15 @@ pub(crate) async fn create_account(
     } else {
         AccountKey::new(rand::thread_rng())
     };
-    let account_key = field2hex(&account_key.0);
+    let account_key_str = field2hex(&account_key.0);
 
-    trace!("Generated account_key {account_key}");
+    trace!("Generated account_key {account_key_str}");
 
     let input = generate_account_creation_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email_address,
         RELAYER_RAND.get().unwrap(),
-        &account_key,
+        &account_key_str,
     )
     .await?;
 
@@ -46,14 +46,23 @@ pub(crate) async fn create_account(
     info!("Account creation data {:?}", data);
     let res = chain_client.create_account(data).await?;
     info!("account creation tx hash: {}", res);
-    db.insert_user(&email_address, &account_key, &res).await?;
+    let wallet_salt = account_key.to_wallet_salt()?;
+    let wallet_addr = chain_client
+        .get_wallet_addr_from_salt(&wallet_salt.0)
+        .await?;
+    let token_transfered = chain_client
+        .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+        .await?;
+
+    db.insert_user(&email_address, &account_key_str, &res)
+        .await?;
     if is_account_key_none {
         tx.send(EmailMessage {
             to: email_address.to_string(),
             email_args: EmailArgs::AccountCreation {
                 user_email_addr: email_address,
             },
-            account_key: Some(account_key),
+            account_key: Some(account_key_str),
             wallet_addr: None,
             tx_hash: Some(res),
         })

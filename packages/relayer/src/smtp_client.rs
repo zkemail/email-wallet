@@ -96,7 +96,9 @@ impl SmtpClient {
                     "Welcome to Email Wallet, {}!\nYour email
                 wallet account is
                 created.\nPlease reply to this email to start using Email
-                    Wallet. You don't have to add any message in the reply 😄.\nCheck the transaction on etherscan: https://optimistic.etherscan.io/tx/{}",
+                    Wallet. You don't have to add any message in the reply 😄.\nYou already have 100 TEST tokens. Once you reply to this
+                    email, you can send them to your friends by specifying the recpient's
+                    email address.\nCheck the transaction on etherscan: https://optimistic.etherscan.io/tx/{}",
                     user_email_addr, email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "transactionHash": email.tx_hash});

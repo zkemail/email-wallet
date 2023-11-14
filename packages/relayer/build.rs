@@ -80,4 +80,13 @@ fn main() {
     .unwrap()
     .write_to_file("./src/abis/events.rs")
     .unwrap();
+    Abigen::new(
+        "TestERC20",
+        "../contracts/artifacts/TestERC20.sol/TestERC20.json",
+    )
+    .unwrap()
+    .generate()
+    .unwrap()
+    .write_to_file("./src/abis/test_erc20.rs")
+    .unwrap();
 }

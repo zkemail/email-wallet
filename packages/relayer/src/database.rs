@@ -48,7 +48,8 @@ impl Database {
                 email_addr_commit TEXT NOT NULL,
                 expiry_time BIGINT NOT NULL,
                 is_fund BOOLEAN NOT NULL,
-                is_announced BOOLEAN NOT NULL
+                is_announced BOOLEAN NOT NULL,
+                is_deleted BOOLEAN NOT NULL DEFAULT FALSE
             );",
         )
         .execute(&self.db)
@@ -137,7 +138,7 @@ impl Database {
     pub(crate) async fn get_claims_by_id(&self, id: &U256) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE id = $1")
+        let rows = sqlx::query("SELECT * FROM claims WHERE id = $1 AND is_deleted = FALSE")
             .bind(u256_to_hex(id))
             .fetch_all(&self.db)
             .await?;
@@ -165,10 +166,11 @@ impl Database {
     pub(crate) async fn get_claims_by_email_addr(&self, email_addr: &str) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
-        let rows = sqlx::query("SELECT * FROM claims WHERE email_address = $1")
-            .bind(email_addr)
-            .fetch_all(&self.db)
-            .await?;
+        let rows =
+            sqlx::query("SELECT * FROM claims WHERE email_address = $1 AND is_deleted = FALSE")
+                .bind(email_addr)
+                .fetch_all(&self.db)
+                .await?;
 
         for row in rows {
             let id: String = row.get("id");
@@ -194,10 +196,11 @@ impl Database {
     pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
         info!("now {}", now);
-        let rows = sqlx::query("SELECT * FROM claims WHERE expiry_time < $1")
-            .bind(now)
-            .fetch_all(&self.db)
-            .await?;
+        let rows =
+            sqlx::query("SELECT * FROM claims WHERE expiry_time < $1 AND is_deleted = FALSE")
+                .bind(now)
+                .fetch_all(&self.db)
+                .await?;
 
         for row in rows {
             let id: String = row.get("id");
@@ -242,11 +245,16 @@ impl Database {
     }
 
     pub(crate) async fn delete_claim(&self, id: &U256, is_fund: bool) -> Result<()> {
-        sqlx::query("DELETE FROM claims WHERE id = $1 AND is_fund = $2")
+        sqlx::query("UPDATE claims SET is_deleted=TRUE WHERE id = $1 AND is_fund = $2 AND is_deleted = FALSE")
             .bind(u256_to_hex(id))
             .bind(is_fund)
             .execute(&self.db)
             .await?;
+        // sqlx::query("DELETE FROM claims WHERE id = $1 AND is_fund = $2")
+        //     .bind(u256_to_hex(id))
+        //     .bind(is_fund)
+        //     .execute(&self.db)
+        //     .await?;
         Ok(())
     }
 
