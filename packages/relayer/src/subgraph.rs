@@ -80,13 +80,16 @@ impl SubgraphClient {
             post_graphql::<AllRelayersForPSI, _>(&self.web_client, &self.subgraph_api, variables)
                 .await?;
         info!("{:?}", response_body);
-        let response_data: all_relayers_for_psi::ResponseData =
-            response_body.data.expect("missing response data");
-        let relayers = response_data.relayers.expect("no relayer found");
-        let mut relayer_infos = vec![];
-        for relayer in relayers.into_iter() {
-            relayer_infos.push((Address::from_str(&relayer.address)?, relayer.hostname));
+        match response_body.data {
+            Some(response_data) => {
+                let relayers = response_data.relayers.expect("no relayer found");
+                let mut relayer_infos = vec![];
+                for relayer in relayers.into_iter() {
+                    relayer_infos.push((Address::from_str(&relayer.address)?, relayer.hostname));
+                }
+                Ok(relayer_infos)
+            }
+            None => Ok(vec![]),
         }
-        Ok(relayer_infos)
     }
 }
