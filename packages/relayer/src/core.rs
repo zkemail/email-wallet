@@ -10,7 +10,6 @@ use ethers::utils::hex::FromHex;
 use log::{info, trace};
 use serde::Deserialize;
 use std::collections::hash_map::DefaultHasher;
-use std::fmt::format;
 use std::hash::{Hash, Hasher};
 use std::path::Path;
 use tokio::{
@@ -18,6 +17,8 @@ use tokio::{
     io::AsyncWriteExt,
     sync::mpsc::UnboundedSender,
 };
+use std::sync::atomic::Ordering;
+
 
 const DOMAIN_FIELDS: usize = 9;
 const SUBJECT_FIELDS: usize = 17;
@@ -136,6 +137,23 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 .get_wallet_addr_from_salt(&wallet_salt.0)
                 .await?;
             info!("Sender wallet address: {}", wallet_addr);
+
+            // Distribute onboarding tokens
+            let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
+            if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
+                match chain_client.transfer_onboarding_tokens(wallet_addr).await {
+                    Ok(tx_hash) => {
+                        info!("onboarding tokens sent {:?}", tx_hash);
+                    }
+                    _ => {
+                        ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+                        info!("onboarding tokens transfer failed");
+                    }
+                }
+            } else {
+                ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+                info!("onboarding token limit reached");
+            }
 
             return Ok(());
         }
@@ -481,6 +499,7 @@ pub(crate) async fn handle_account_init(
             tx_hash: Some(result),
         })
         .unwrap();
+
     Ok(())
 }
 

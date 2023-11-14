@@ -88,50 +88,6 @@ async fn unclaim(
     ))
 }
 
-async fn onboard(
-    payload: AccountRegistrationRequest,
-    db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
-) -> Result<axum::Json<AccountRegistrationResponse>> {
-    if db.contains_user(&payload.email_address).await? {
-        bail!("You already received onboarding tokens");
-    }
-    // let account_key = AccountKey::new(rand::thread_rng());
-    let account_key = AccountKey::from(hex2field(&payload.account_key)?);
-    info!(
-        "onboard converted account_key {}",
-        field2hex(&account_key.0)
-    );
-    info!("onboard original {}", payload.account_key);
-    let wallet_salt = account_key.to_wallet_salt().unwrap().0;
-    let wallet_addr = chain_client.get_wallet_addr_from_salt(&wallet_salt).await?;
-
-    info!("Counterfactual wallet address for email: {}", wallet_addr);
-
-    let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
-    if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
-        match chain_client.transfer_onboarding_tokens(wallet_addr).await {
-            Ok(tx_hash) => {
-                // db.insert_user(&payload.email_address, &payload.account_key, &tx_hash, true)
-                //     .await?;
-                // db.user_onborded(&payload.email_address).await?;
-                Ok(axum::Json(AccountRegistrationResponse {
-                    account_key: payload.account_key,
-                    wallet_addr: format!("{:?}", wallet_addr),
-                    tx_hash,
-                }))
-            }
-            _ => {
-                ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
-                bail!("Onbording token transfer failed");
-            }
-        }
-    } else {
-        ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
-        bail!("Limit is reached");
-    }
-}
-
 pub(crate) async fn run_server(
     addr: &str,
     db: Arc<Database>,
@@ -141,9 +97,6 @@ pub(crate) async fn run_server(
     let chain_client_check_clone = Arc::clone(&chain_client);
     let chain_client_reveal_clone = Arc::clone(&chain_client);
     let tx_claimer_reveal_clone = tx_claimer.clone();
-
-    let chain_client_onboard_clone = Arc::clone(&chain_client);
-    let db_onboard_clone = Arc::clone(&db);
 
     let app = Router::new()
         .route(
@@ -174,19 +127,6 @@ pub(crate) async fn run_server(
                         err.to_string()
                     })
             }),
-        )
-        .route(
-            "/api/onboard",
-            axum::routing::post(
-                move |payload: axum::Json<AccountRegistrationRequest>| async move {
-                    onboard(payload.0, db_onboard_clone, chain_client_onboard_clone)
-                        .await
-                        .map_err(|err| {
-                            error!("Failed to onboard: {}", err);
-                            err.to_string()
-                        })
-                },
-            ),
         )
         .route(
             "/api/stats",
