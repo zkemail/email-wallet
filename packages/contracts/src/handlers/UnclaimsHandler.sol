@@ -410,7 +410,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
 
         // Deducated consumed gas + 21k for eth transer from `unclaimedStateClaimGas` + gas to store one value and pass to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS;
-        require(gasleft() > gasForExt, "insufficient gas left");
+        require(gasleft() * 63 > gasForExt * 64, "insufficient gas left");
+
         // Relayer should get claim fee (gas reimbursement) even if extension call fails
         // Simulation wont work, as extension logic will depend on global variables
         try extension.claimUnclaimedState{gas: gasForExt}(us, recipientAddr) {
@@ -448,7 +449,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         // Gas consumed for verification and next steps is deducated from `unclaimedStateClaimGas`
         // and rest is passed to extension
         uint256 gasForExt = unclaimedStateClaimGas - (initialGas - gasleft()) - ETH_TRANSFER_GAS - WETH_DEPOSIT_GAS;
-        require(gasleft() > gasForExt, "insufficient gas left");
+        require(gasleft() * 63 > gasForExt * 64, "insufficient gas left");
+
         // Callee should get gas reimbursement even if extension call fails
         // Simulation wont work, as extension logic can depend on global variables
         try extension.voidUnclaimedState{gas: gasForExt}(us) {
