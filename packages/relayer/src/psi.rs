@@ -77,45 +77,46 @@ impl PSIClient {
         email_addr: &str,
     ) -> Result<()> {
         if let Some(account_key) = db.get_account_key(email_addr).await? {
-            let subgraph_client = SubgraphClient::new();
-            let account_key = AccountKey::from(hex2field(&account_key)?);
-            let wallet_salt = account_key.to_wallet_salt()?;
-            trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
-            let wallet_addr = chain_client
-                .get_wallet_addr_from_salt(&wallet_salt.0)
-                .await?;
-            let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-            let relayer_rand_hash = relayer_rand.hash()?;
-            let relayer_infos = subgraph_client
-                .get_relayers_by_wallet_addr(&wallet_addr)
-                .await?;
-            if relayer_infos
-                .iter()
-                .filter(|(_, hash, _)| {
-                    bytes32_to_fr(hash).expect("invalid bytes32 of hash") == relayer_rand_hash
-                })
-                .collect::<Vec<_>>()
-                .len()
-                > 0
-            {
-                return Ok(());
-            }
-            let relayer_infos = relayer_infos
-                .iter()
-                .filter(|(_, hash, _)| {
-                    bytes32_to_fr(hash).expect("invalid bytes32 of hash") != relayer_rand_hash
-                })
-                .collect::<Vec<_>>();
-            if relayer_infos.len() > 0 {
-                self.reveal(
-                    relayer_infos
-                        .into_iter()
-                        .map(|(_, _, hostname)| hostname.to_string())
-                        .collect::<Vec<_>>(),
-                )
-                .await?;
-                return Ok(());
-            }
+            // let subgraph_client = SubgraphClient::new();
+            // let account_key = AccountKey::from(hex2field(&account_key)?);
+            // let wallet_salt = account_key.to_wallet_salt()?;
+            // trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
+            // let wallet_addr = chain_client
+            //     .get_wallet_addr_from_salt(&wallet_salt.0)
+            //     .await?;
+            // let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+            // let relayer_rand_hash = relayer_rand.hash()?;
+            // let relayer_infos = subgraph_client
+            //     .get_relayers_by_wallet_addr(&wallet_addr)
+            //     .await?;
+            // if relayer_infos
+            //     .iter()
+            //     .filter(|(_, hash, _)| {
+            //         bytes32_to_fr(hash).expect("invalid bytes32 of hash") == relayer_rand_hash
+            //     })
+            //     .collect::<Vec<_>>()
+            //     .len()
+            //     > 0
+            // {
+            //     return Ok(());
+            // }
+            // let relayer_infos = relayer_infos
+            //     .iter()
+            //     .filter(|(_, hash, _)| {
+            //         bytes32_to_fr(hash).expect("invalid bytes32 of hash") != relayer_rand_hash
+            //     })
+            //     .collect::<Vec<_>>();
+            // if relayer_infos.len() > 0 {
+            //     self.reveal(
+            //         relayer_infos
+            //             .into_iter()
+            //             .map(|(_, _, hostname)| hostname.to_string())
+            //             .collect::<Vec<_>>(),
+            //     )
+            //     .await?;
+            //     return Ok(());
+            // }
+            return Ok(());
         }
         let (created_relayers, inited_relayers) = self.find().await?;
         if inited_relayers.len() > 0 {
