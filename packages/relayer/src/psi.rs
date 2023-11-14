@@ -3,6 +3,7 @@ use crate::*;
 use std::path::Path;
 
 use axum::Json;
+use ff::Field;
 use log::trace;
 use num_bigint::RandBigInt;
 use serde::{Deserialize, Serialize};
@@ -54,8 +55,7 @@ impl PSIClient {
         is_fund: bool,
     ) -> Result<Self> {
         let mut rng = rand::rngs::OsRng;
-        let random = rng.gen_biguint(253);
-        let random = Fr::from_bytes(&random.to_bytes_le().try_into().unwrap()).unwrap();
+        let random = Fr::random(OsRng);
         let random = field2hex(&random);
 
         let point = psi_step1(CIRCUITS_DIR_PATH.get().unwrap(), &email_addr, &random).await?;
