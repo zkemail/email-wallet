@@ -32,7 +32,7 @@ struct AccountRegistrationRequest {
 struct AccountRegistrationResponse {
     account_key: String,
     wallet_addr: String,
-    onboard_token_sent: bool,
+    tx_hash: String,
 }
 
 #[derive(Serialize)]
@@ -92,12 +92,10 @@ async fn onboard(
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
 ) -> Result<axum::Json<AccountRegistrationResponse>> {
+    if db.contains_user(&payload.email_address).await? {
+        bail!("You already received onboarding tokens");
+    }
     let account_key = AccountKey::new(rand::thread_rng());
-    let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
-    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-
-    let account_key_commit =
-        account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
     let wallet_salt = account_key.to_wallet_salt().unwrap().0;
     let wallet_addr = chain_client.get_wallet_addr_from_salt(&wallet_salt).await?;
 
@@ -106,17 +104,17 @@ async fn onboard(
     let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
     if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
         match chain_client.transfer_onboarding_tokens(wallet_addr).await {
-            Ok(onboard_token_sent) => {
+            Ok(tx_hash) => {
                 db.user_onborded(&payload.email_address).await?;
                 Ok(axum::Json(AccountRegistrationResponse {
-                    account_key: field2hex(&account_key_commit),
+                    account_key: field2hex(&account_key.0),
                     wallet_addr: format!("{:?}", wallet_addr),
-                    onboard_token_sent,
+                    tx_hash,
                 }))
             }
             _ => {
                 ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
-                bail!("Limit is reached");
+                bail!("Onbording token transfer failed");
             }
         }
     } else {
