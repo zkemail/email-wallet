@@ -27,14 +27,17 @@ pub(crate) enum EmailArgs {
         user_email_addr: String,
         relayer_email_addr: String,
         faucet_message: Option<String>,
+        reply_to: String,
     },
     AccountTransport {
         user_email_addr: String,
         relayer_email_addr: String,
+        reply_to: String,
     },
     TxComplete {
         user_email_addr: String,
         original_subject: String,
+        reply_to: String,
     },
     TxReceived {
         user_email_addr: String,
@@ -105,13 +108,21 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("account_creation.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
-                    .await
+                self.send_inner(
+                    email.to,
+                    subject,
+                    Some("CODE:".to_string() + &account_key),
+                    None,
+                    body_plaim,
+                    body_html,
+                )
+                .await
             }
             EmailArgs::AccountInit {
                 user_email_addr,
                 relayer_email_addr,
                 faucet_message,
+                reply_to,
             } => {
                 let account_key = email
                     .account_key
@@ -133,12 +144,20 @@ impl SmtpClient {
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "relayerEmailAddr": relayer_email_addr, "faucetMessage": faucet_message.unwrap_or(String::new()), "walletAddr": email.wallet_addr.expect("wallet_addr must be set"),  "transactionHash": email.tx_hash});
                 let body_html = self.render_html("account_init.html", render_data).await?;
-                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
-                    .await
+                self.send_inner(
+                    email.to,
+                    subject,
+                    Some("CODE:".to_string() + &account_key),
+                    Some(reply_to),
+                    body_plaim,
+                    body_html,
+                )
+                .await
             }
             EmailArgs::AccountTransport {
                 user_email_addr,
                 relayer_email_addr,
+                reply_to,
             } => {
                 let account_key = email
                     .account_key
@@ -155,12 +174,20 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("account_transport.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
-                    .await
+                self.send_inner(
+                    email.to,
+                    subject,
+                    Some("CODE:".to_string() + &account_key),
+                    Some(reply_to),
+                    body_plaim,
+                    body_html,
+                )
+                .await
             }
             EmailArgs::TxComplete {
                 user_email_addr,
                 original_subject,
+                reply_to,
             } => {
                 let account_key = email
                     .account_key
@@ -177,8 +204,15 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("transaction_complete.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
-                    .await
+                self.send_inner(
+                    email.to,
+                    subject,
+                    Some("CODE:".to_string() + &account_key),
+                    Some(reply_to),
+                    body_plaim,
+                    body_html,
+                )
+                .await
             }
             EmailArgs::TxReceived { user_email_addr } => {
                 let subject = format!(
@@ -193,7 +227,7 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("transaction_receiver.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, None, body_plaim, body_html)
+                self.send_inner(email.to, subject, None, None, body_plaim, body_html)
                     .await
             }
             EmailArgs::Claim {
@@ -218,8 +252,15 @@ impl SmtpClient {
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "claimMsg": claim_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
                 let body_html = self.render_html("claim.html", render_data).await?;
-                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
-                    .await
+                self.send_inner(
+                    email.to,
+                    subject,
+                    Some("CODE:".to_string() + &account_key),
+                    None,
+                    body_plaim,
+                    body_html,
+                )
+                .await
             }
             EmailArgs::Void {
                 user_email_addr,
@@ -243,7 +284,7 @@ impl SmtpClient {
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "voidMsg": void_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
                 let body_html = self.render_html("void.html", render_data).await?;
-                self.send_inner(email.to, subject, None, body_plaim, body_html)
+                self.send_inner(email.to, subject, None, None, body_plaim, body_html)
                     .await
             }
         }
@@ -254,6 +295,7 @@ impl SmtpClient {
         to: String,
         subject: String,
         reference: Option<String>,
+        reply_to: Option<String>,
         body_plain: String,
         body_html: String,
     ) -> Result<()> {
@@ -266,6 +308,9 @@ impl SmtpClient {
             .to(to_mbox);
         if let Some(reference) = reference {
             email_builder = email_builder.references(reference);
+        }
+        if let Some(reply_to) = reply_to {
+            email_builder = email_builder.in_reply_to(reply_to);
         }
         let email =
             email_builder.multipart(MultiPart::alternative_plain_html(body_plain, body_html))?;

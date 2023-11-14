@@ -400,13 +400,14 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 })
                 .unwrap();
         }
-
+        let message_id = parsed_email.get_message_id()?;
         tx_sender
             .send(EmailMessage {
                 to: from_address.clone(),
                 email_args: EmailArgs::TxComplete {
                     user_email_addr: from_address,
                     original_subject: subject,
+                    reply_to: message_id,
                 },
                 account_key: Some(field2hex(&account_key.0)),
                 wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
@@ -465,7 +466,7 @@ pub(crate) async fn handle_account_init(
     // if is_onborded {
     //     msg += ONBOARDING_REPLY_MSG.get().unwrap();
     // };
-
+    let message_id = parsed_email.get_message_id()?;
     tx_sender
         .send(EmailMessage {
             to: from_address.clone(),
@@ -473,6 +474,7 @@ pub(crate) async fn handle_account_init(
                 user_email_addr: from_address,
                 relayer_email_addr: env::var(LOGIN_ID_KEY).unwrap(),
                 faucet_message: Some(ONBOARDING_REPLY_MSG.get().unwrap().clone()),
+                reply_to: message_id,
             },
             account_key: Some(field2hex(&account_key.0)),
             wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
@@ -551,6 +553,7 @@ pub(crate) async fn handle_account_transport(
     };
 
     let result = chain_client.transport_account(data).await?;
+    let message_id = parsed_email.get_message_id()?;
 
     tx_sender
         .send(EmailMessage {
@@ -558,6 +561,7 @@ pub(crate) async fn handle_account_transport(
             email_args: EmailArgs::AccountTransport {
                 user_email_addr: from_address,
                 relayer_email_addr: env::var(LOGIN_ID_KEY).unwrap(),
+                reply_to: message_id,
             },
             account_key: Some(field2hex(&account_key.0)),
             wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),

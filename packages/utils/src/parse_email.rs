@@ -99,6 +99,12 @@ impl ParsedEmail {
         let str = subject[idxes.0..idxes.1].to_string();
         Ok(str)
     }
+
+    pub fn get_message_id(&self) -> Result<String> {
+        let idxes = extract_message_id_idxes(&self.canonicalized_header)?[0];
+        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
 }
 
 pub fn parse_email_node(mut cx: FunctionContext) -> JsResult<JsPromise> {
