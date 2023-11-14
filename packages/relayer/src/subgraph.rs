@@ -55,8 +55,10 @@ impl SubgraphClient {
         let response_body =
             post_graphql::<GetRelayers, _>(&self.web_client, &self.subgraph_api, variables).await?;
         info!("{:?}", response_body);
-        let response_data: get_relayers::ResponseData =
-            response_body.data.expect("missing response data");
+        if response_body.data.is_none() {
+            return Ok(vec![]);
+        }
+        let response_data: get_relayers::ResponseData = response_body.data.unwrap();
         let relayer_accounts = response_data
             .account
             .expect("no account in response_data")

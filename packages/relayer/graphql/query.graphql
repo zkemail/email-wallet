@@ -1,5 +1,5 @@
 query GetRelayers($wallet_addr: String) {
-  account(where: { walletSalt: $walletSalt }) {
+  account(where: { walletAddr: $wallet_addr }) {
     relayerAccounts {
       relayer {
         address
