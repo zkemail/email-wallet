@@ -6,7 +6,7 @@ use axum::Router;
 use log::trace;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
-use tower_http::cors::{AllowMethods, AllowHeaders, Any, CorsLayer};
+use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
 #[derive(Deserialize)]
 struct EmailAddrCommitRequest {
@@ -112,6 +112,8 @@ async fn onboard(
     if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
         match chain_client.transfer_onboarding_tokens(wallet_addr).await {
             Ok(tx_hash) => {
+                db.insert_user(&payload.email_address, &payload.account_key, &tx_hash)
+                    .await?;
                 db.user_onborded(&payload.email_address).await?;
                 Ok(axum::Json(AccountRegistrationResponse {
                     account_key: payload.account_key,
