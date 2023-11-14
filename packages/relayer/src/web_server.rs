@@ -6,7 +6,7 @@ use axum::Router;
 use log::trace;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
-use tower_http::cors::{AllowMethods, Any, CorsLayer};
+use tower_http::cors::{AllowMethods, AllowHeaders, Any, CorsLayer};
 
 #[derive(Deserialize)]
 struct EmailAddrCommitRequest {
@@ -221,6 +221,7 @@ pub(crate) async fn run_server(
         .layer(
             CorsLayer::new()
                 .allow_methods(AllowMethods::any())
+                .allow_headers(AllowHeaders::any())
                 .allow_origin(Any),
         );
 
