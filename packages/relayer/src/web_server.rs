@@ -26,6 +26,7 @@ struct UnclaimRequest {
 #[derive(Deserialize)]
 struct AccountRegistrationRequest {
     email_address: String,
+    account_key: String,
 }
 
 #[derive(Serialize)]
@@ -95,7 +96,13 @@ async fn onboard(
     if db.contains_user(&payload.email_address).await? {
         bail!("You already received onboarding tokens");
     }
-    let account_key = AccountKey::new(rand::thread_rng());
+    // let account_key = AccountKey::new(rand::thread_rng());
+    let account_key = AccountKey::from(hex2field(&payload.account_key)?);
+    info!(
+        "onboard converted account_key {}",
+        field2hex(&account_key.0)
+    );
+    info!("onboard original {}", payload.account_key);
     let wallet_salt = account_key.to_wallet_salt().unwrap().0;
     let wallet_addr = chain_client.get_wallet_addr_from_salt(&wallet_salt).await?;
 
@@ -107,7 +114,7 @@ async fn onboard(
             Ok(tx_hash) => {
                 db.user_onborded(&payload.email_address).await?;
                 Ok(axum::Json(AccountRegistrationResponse {
-                    account_key: field2hex(&account_key.0),
+                    account_key: payload.account_key,
                     wallet_addr: format!("{:?}", wallet_addr),
                     tx_hash,
                 }))

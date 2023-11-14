@@ -123,9 +123,9 @@ impl SmtpClient {
                     "Awesome, {}!\nYour Email Wallet account is now
                    initialized. PLEASE DO NOT DELETE THIS EMAIL to keep your account
                    secure.\nYou
-                   can send 10 TEST tokens directly to Vitalik by sending us
+                   can send 10 TEST tokens directly to emailwallet.relayer@gmail.com by sending us
                    ({}) an email with the subject \"Send 10 TEST to
-                   vitalik@ethereum.org\".\nSimilarly,
+                   emailwallet.relayer@gmail.com\".\nSimilarly,
                    you can send any currency we support directly to an email address by
                    sending an email with the amount, currency name, and recipient's
                    email address replaced respectively in the subject line.\n{}\nYour wallet address: https://optimistic.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://optimistic.etherscan.io/tx/{}",
