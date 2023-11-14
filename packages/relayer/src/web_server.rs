@@ -112,8 +112,8 @@ async fn onboard(
     if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
         match chain_client.transfer_onboarding_tokens(wallet_addr).await {
             Ok(tx_hash) => {
-                db.insert_user(&payload.email_address, &payload.account_key, &tx_hash, true)
-                    .await?;
+                // db.insert_user(&payload.email_address, &payload.account_key, &tx_hash, true)
+                //     .await?;
                 // db.user_onborded(&payload.email_address).await?;
                 Ok(axum::Json(AccountRegistrationResponse {
                     account_key: payload.account_key,
