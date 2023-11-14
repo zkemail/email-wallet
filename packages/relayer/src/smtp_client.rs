@@ -105,7 +105,7 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("account_creation.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
                     .await
             }
             EmailArgs::AccountInit {
@@ -133,7 +133,7 @@ impl SmtpClient {
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "relayerEmailAddr": relayer_email_addr, "faucetMessage": faucet_message.unwrap_or(String::new()), "walletAddr": email.wallet_addr.expect("wallet_addr must be set"),  "transactionHash": email.tx_hash});
                 let body_html = self.render_html("account_init.html", render_data).await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
                     .await
             }
             EmailArgs::AccountTransport {
@@ -155,7 +155,7 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("account_transport.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
                     .await
             }
             EmailArgs::TxComplete {
@@ -177,13 +177,10 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("transaction_complete.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
                     .await
             }
             EmailArgs::TxReceived { user_email_addr } => {
-                let account_key = email
-                    .account_key
-                    .expect("account_key must be set for the account creation email.");
                 let subject = format!(
                     "Email Wallet Notification. There is an Email Wallet transaction for you.",
                 );
@@ -196,7 +193,7 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("transaction_receiver.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, None, body_plaim, body_html)
                     .await
             }
             EmailArgs::Claim {
@@ -221,7 +218,7 @@ impl SmtpClient {
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "claimMsg": claim_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
                 let body_html = self.render_html("claim.html", render_data).await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, Some(account_key), body_plaim, body_html)
                     .await
             }
             EmailArgs::Void {
@@ -246,7 +243,7 @@ impl SmtpClient {
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "voidMsg": void_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
                 let body_html = self.render_html("void.html", render_data).await?;
-                self.send_inner(email.to, subject, account_key, body_plaim, body_html)
+                self.send_inner(email.to, subject, None, body_plaim, body_html)
                     .await
             }
         }
@@ -256,19 +253,22 @@ impl SmtpClient {
         &self,
         to: String,
         subject: String,
-        reference: String,
+        reference: Option<String>,
         body_plain: String,
         body_html: String,
     ) -> Result<()> {
         let from_mbox = Mailbox::new(None, self.config.id.parse::<Address>()?);
         let to_mbox = Mailbox::new(None, to.parse::<Address>()?);
 
-        let email = Message::builder()
+        let mut email_builder = Message::builder()
             .from(from_mbox)
             .subject(subject)
-            .to(to_mbox)
-            .references(reference)
-            .multipart(MultiPart::alternative_plain_html(body_plain, body_html))?;
+            .to(to_mbox);
+        if let Some(reference) = reference {
+            email_builder = email_builder.references(reference);
+        }
+        let email =
+            email_builder.multipart(MultiPart::alternative_plain_html(body_plain, body_html))?;
 
         self.transport.send(email).await?;
 
