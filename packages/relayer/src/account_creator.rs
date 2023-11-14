@@ -54,7 +54,7 @@ pub(crate) async fn create_account(
         .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
         .await?;
 
-    db.insert_user(&email_address, &account_key_str, &res)
+    db.insert_user(&email_address, &account_key_str, &res, false)
         .await?;
     if is_account_key_none {
         tx.send(EmailMessage {

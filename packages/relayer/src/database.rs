@@ -113,27 +113,29 @@ impl Database {
         email_address: &str,
         account_key: &str,
         tx_hash: &str,
+        is_onborded: bool,
     ) -> Result<()> {
         let row = sqlx::query(
-            "INSERT INTO users (email_address, account_key, tx_hash) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO users (email_address, account_key, tx_hash, is_onborded) VALUES ($1, $2, $3, $4) RETURNING *",
         )
         .bind(email_address)
         .bind(account_key)
         .bind(tx_hash)
+        .bind(is_onborded)
         .fetch_one(&self.db)
         .await?;
         info!("inserted row: {}", row.get::<String, _>("email_address"));
         Ok(())
     }
 
-    pub(crate) async fn user_onborded(&self, email_address: &str) -> Result<()> {
-        let row = sqlx::query("UPDATE users SET is_onborded=$1 WHERE email_address=$2")
-            .bind(true)
-            .bind(email_address)
-            .fetch_one(&self.db)
-            .await?;
-        Ok(())
-    }
+    // pub(crate) async fn user_onborded(&self, email_address: &str) -> Result<()> {
+    //     let row = sqlx::query("UPDATE users SET is_onborded=$1 WHERE email_address=$2")
+    //         .bind(true)
+    //         .bind(email_address)
+    //         .fetch_one(&self.db)
+    //         .await?;
+    //     Ok(())
+    // }
 
     pub(crate) async fn get_claims_by_id(&self, id: &U256) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
