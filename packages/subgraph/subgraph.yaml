@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum
     name: RelayerHandler
-    network: optimism
+    network: arbitrum-one
     source:
-      address: "0xd3186bb148212db6da699a7df84cf123d31c2d17"
+      address: "0x290D885215FcDa5c8C2F93421e95eA4BCDdAA51C"
       abi: RelayerHandler
     mapping:
       kind: ethereum/events
@@ -26,9 +26,9 @@ dataSources:
       file: ./src/relayer-handler.ts
   - kind: ethereum
     name: AccountHandler
-    network: optimism
+    network: arbitrum-one
     source:
-      address: "0x64708276A47c3aA3730BA227145A3bD2eb5E7edC"
+      address: "0xd79b4f3684a597f12181862D1Eb20d08aD83aA4C"
       abi: AccountHandler
     mapping:
       kind: ethereum/events
@@ -51,9 +51,9 @@ dataSources:
       file: ./src/account-handler.ts
   - kind: ethereum
     name: UnclaimsHandler
-    network: optimism
+    network: arbitrum-one
     source:
-      address: "0xf136ab1c7482d161cf4a7abe68b2f1607fb5f7df"
+      address: "0xc893e5a4ca2E16c52Db5FC5144C7a567f61A6fe1"
       abi: UnclaimsHandler
     mapping:
       kind: ethereum/events
@@ -87,9 +87,9 @@ dataSources:
       file: ./src/unclaims-handler.ts
   - kind: ethereum
     name: EmailWalletCore
-    network: optimism
+    network: arbitrum-one
     source:
-      address: "0x8fe903e5EBAF917008297371027805E9073bc956"
+      address: "0x0F6519a54651DCeCD5da2EA3027F26516F23eB95"
       abi: EmailWalletCore
     mapping:
       kind: ethereum/events
@@ -107,9 +107,9 @@ dataSources:
       file: ./src/email-wallet-core.ts
   - kind: ethereum
     name: ExtensionHandler
-    network: optimism
+    network: arbitrum-one
     source:
-      address: "0x078e99673a6fb4f82c3e9083e6fa32a1fad956b3"
+      address: "0x8b3C35A97e623759ccaDeC571d3Ea5E56c9C0058"
       abi: ExtensionHandler
     mapping:
       kind: ethereum/events

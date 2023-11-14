@@ -462,7 +462,7 @@ pub(crate) async fn handle_account_init(
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
     info!("Sender wallet address: {}", wallet_addr);
-    // let mut msg = format!("Welcome to Email Wallet! Your account was initialized at https://optimistic.etherscan.io/tx/{}.", &result);
+    // let mut msg = format!("Welcome to Email Wallet! Your account was initialized at https://arbiscan.io/tx/{}.", &result);
     // if is_onborded {
     //     msg += ONBOARDING_REPLY_MSG.get().unwrap();
     // };
