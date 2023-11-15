@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",
-    "build": "cp ../contracts/artifacts/AccountHandler.sol/AccountHandler.json ./abis && cp ../contracts/artifacts/EmailWalletCore.sol/EmailWalletCore.json ./abis &&  cp ../contracts/artifacts/RelayerHandler.sol/RelayerHandler.json ./abis && graph build",
+    "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ zk-email/email-wallet",
     "create-local": "graph create --node http://localhost:8020/ zk-email/email-wallet",
     "remove-local": "graph remove --node http://localhost:8020/ zk-email/email-wallet",

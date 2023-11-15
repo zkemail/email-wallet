@@ -3,11 +3,33 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
+    name: EmailWalletCore
+    network: arbitrum-one
+    source:
+      address: "0x0F6519a54651DCeCD5da2EA3027F26516F23eB95"
+      abi: EmailWalletCore
+      startBlock: 150440000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - EmailOpHandled
+      abis:
+        - name: EmailWalletCore
+          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
+      eventHandlers:
+        - event: EmailOpHandled(indexed bool,indexed uint256,indexed
+            bytes32,bytes32,bytes32,address,bytes)
+          handler: handleEmailOpHandled
+      file: ./src/email-wallet-core.ts
+  - kind: ethereum
     name: RelayerHandler
     network: arbitrum-one
     source:
       address: "0x290D885215FcDa5c8C2F93421e95eA4BCDdAA51C"
       abi: RelayerHandler
+      startBlock: 150440000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -30,6 +52,7 @@ dataSources:
     source:
       address: "0xd79b4f3684a597f12181862D1Eb20d08aD83aA4C"
       abi: AccountHandler
+      startBlock: 150440000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -55,6 +78,7 @@ dataSources:
     source:
       address: "0xc893e5a4ca2E16c52Db5FC5144C7a567f61A6fe1"
       abi: UnclaimsHandler
+      startBlock: 150440000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -86,31 +110,12 @@ dataSources:
           handler: handleUnclaimedStateVoided
       file: ./src/unclaims-handler.ts
   - kind: ethereum
-    name: EmailWalletCore
-    network: arbitrum-one
-    source:
-      address: "0x0F6519a54651DCeCD5da2EA3027F26516F23eB95"
-      abi: EmailWalletCore
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - EmailOpHandled
-      abis:
-        - name: EmailWalletCore
-          file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
-      eventHandlers:
-        - event: EmailOpHandled(indexed bool,indexed uint256,indexed
-            bytes32,bytes32,bytes32,address,bytes)
-          handler: handleEmailOpHandled
-      file: ./src/email-wallet-core.ts
-  - kind: ethereum
     name: ExtensionHandler
     network: arbitrum-one
     source:
       address: "0x8b3C35A97e623759ccaDeC571d3Ea5E56c9C0058"
       abi: ExtensionHandler
+      startBlock: 150440000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

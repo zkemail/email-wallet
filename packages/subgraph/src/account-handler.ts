@@ -3,7 +3,7 @@ import {
     AccountInitialized as AccountInitializedEvent,
     AccountTransported as AccountTransportedEvent,
 } from "../generated/AccountHandler/AccountHandler";
-import { Account, RelayerAccount } from "../generated/schema";
+import { Account, RelayerAccount, Relayer } from "../generated/schema";
 
 export function handleAccountCreated(event: AccountCreatedEvent): void {
     let account = new Account(event.params.walletSalt);
@@ -13,7 +13,7 @@ export function handleAccountCreated(event: AccountCreatedEvent): void {
     account.createdAt = event.block.timestamp;
     account.save();
 
-    let relayer = RelayerAccount.load(event.transaction.from);
+    let relayer = Relayer.load(event.transaction.from);
     if (relayer == null) {
         throw new Error("Relayer not found");
     }
