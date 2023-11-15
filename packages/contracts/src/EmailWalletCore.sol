@@ -131,6 +131,7 @@ contract EmailWalletCore {
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
+        validateCommand(emailOp.command);
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
             accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
         );
@@ -198,6 +199,7 @@ contract EmailWalletCore {
     function handleEmailOp(
         EmailOp calldata emailOp
     ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH, uint256 registeredUnclaimId) {
+        validateCommand(emailOp.command);
         require(currContext.walletAddr == address(0), "context already set");
 
         uint256 initialGas = gasleft();
@@ -580,4 +582,18 @@ contract EmailWalletCore {
 
         return priceOracle.getRecentPriceInETH(tokenAddr);
     }
+
+    /// @notice Check the command, we can accept only EXIT command after 2203/11/30 23:59:59 GMT. 
+    /// This function should be defined as modifier,
+    /// but there are some stack too deep problems, so we define it as a function.
+    /// @param command Name of the command to execute
+    function validateCommand(string memory command) internal view {
+        if (block.timestamp > 1701388799) {
+            require(
+                Strings.equal(command, Commands.EXIT_EMAIL_WALLET) || Strings.equal(command, Commands.DKIM),
+                "after 2203/11/30 this command not allowed"
+            );
+        }
+    }
+
 }

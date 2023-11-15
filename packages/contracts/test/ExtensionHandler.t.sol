@@ -72,6 +72,20 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         }
     }
 
+    function testFail_PublishExtension() public {
+        vm.warp(1701388800);
+        address extensionDev = vm.addr(3);
+        string memory extensionName = "testSwap";
+        uint256 maxExecutionGas = 0.1 ether;
+        string[][] memory subjectTemplates = _getSampleSubjectTemplates();
+
+        vm.startPrank(extensionDev);
+        vm.expectEmit(true, true, true, true);
+        emit EmailWalletEvents.ExtensionPublished(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
+        extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, maxExecutionGas);
+        vm.stopPrank();
+    }
+
     function test_RevertIf_ExtensionNameAlreadyUsed() public {
         address extensionDev = vm.addr(3);
         string memory extensionName = "testSwap";
