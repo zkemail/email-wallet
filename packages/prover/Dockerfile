@@ -14,7 +14,7 @@ RUN npm install -g n
 RUN n 18
 RUN npm install -g yarn snarkjs
 
-RUN git clone https://github.com/zkemail/email-wallet.git -b feat/v1
+RUN git clone https://github.com/zkemail/email-wallet.git
 WORKDIR /email-wallet/packages/prover
 RUN pip install -r requirements.txt
 RUN cp ./circom_proofgen.sh /root
