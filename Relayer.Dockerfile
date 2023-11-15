@@ -26,7 +26,7 @@ RUN modal token set --token-id ${modal_token_id} --token-secret ${modal_token_se
 RUN nohup modal serve modal_server.py &
 
 WORKDIR /email-wallet/packages/relayer
-CMD [ "cargo run --release -- setup; cargo run --release >> output.log" ]
+CMD [ "cargo", "run", "--release" ]
 
 
 # # ------------------ Chef stage -------------------
