@@ -26,22 +26,22 @@
     }
   ],
   "bytecode": {
-    "object": "0x608060405234801561001057600080fd5b5061015a806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea26469706673582212207e493c6b6f81cab67055297a347da5b02a16d454bc2c4c8062f4f5c9b9b990c464736f6c63430008110033",
+    "object": "0x608060405234801561001057600080fd5b5061015a806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea2646970667358221220e4b4d2fa2573cb8e5538f3765f07526f64132488255b60b7b9f0367aca675d9564736f6c63430008170033",
     "sourceMap": "117:245:178:-:0;;;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea26469706673582212207e493c6b6f81cab67055297a347da5b02a16d454bc2c4c8062f4f5c9b9b990c464736f6c63430008110033",
+    "object": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063e7a7977a14610030575b600080fd5b61004661003e366004610070565b607b14919050565b604051901515815260200160405180910390f35b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561008357600080fd5b82356001600160401b038082111561009a57600080fd5b818501915085601f8301126100ae57600080fd5b8135818111156100c0576100c061005a565b604051601f8201601f19908116603f011681019083821181831017156100e8576100e861005a565b8160405282815288602084870101111561010157600080fd5b82602086016020830137600060209382018401529896909101359650505050505056fea2646970667358221220e4b4d2fa2573cb8e5538f3765f07526f64132488255b60b7b9f0367aca675d9564736f6c63430008170033",
     "sourceMap": "117:245:178:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;166:194;;;;;;:::i;:::-;331:3;315:38;;166:194;-1:-1:-1;166:194:178;;;;1316:14:183;;1309:22;1291:41;;1279:2;1264:18;166:194:178;;;;;;;14:127:183;75:10;70:3;66:20;63:1;56:31;106:4;103:1;96:15;130:4;127:1;120:15;146:1000;224:6;232;285:2;273:9;264:7;260:23;256:32;253:52;;;301:1;298;291:12;253:52;328:23;;-1:-1:-1;;;;;400:14:183;;;397:34;;;427:1;424;417:12;397:34;465:6;454:9;450:22;440:32;;510:7;503:4;499:2;495:13;491:27;481:55;;532:1;529;522:12;481:55;568:2;555:16;590:2;586;583:10;580:36;;;596:18;;:::i;:::-;671:2;665:9;639:2;725:13;;-1:-1:-1;;721:22:183;;;745:2;717:31;713:40;701:53;;;769:18;;;789:22;;;766:46;763:72;;;815:18;;:::i;:::-;855:10;851:2;844:22;890:2;882:6;875:18;932:7;925:4;920:2;916;912:11;908:22;905:35;902:55;;;953:1;950;943:12;902:55;1013:2;1006:4;1002:2;998:13;991:4;983:6;979:17;966:50;1060:1;1053:4;1036:15;;;1032:26;;1025:37;1036:15;1119:20;;;;1106:34;;-1:-1:-1;;;;;;146:1000:183:o",
     "linkReferences": {}
   },
   "methodIdentifiers": {
     "isDKIMPublicKeyHashValid(string,bytes32)": "e7a7977a"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/TestDKIMRegistry.sol\":\"TestDKIMRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]},\"test/mocks/TestDKIMRegistry.sol\":{\"keccak256\":\"0xe15515adb4b67fff3ffc8508aea9c07d81f8e88e8f7c9553e2a34f0bf658ffbb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a99ab1a77ff2568647d7d9ae47ecf28ffec9eacd868d9fb7e2dfc761b75f3682\",\"dweb:/ipfs/QmRxXshksLFwVo139ZYTtnoXcizeWCNH8zekDEcnj87iDj\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/TestDKIMRegistry.sol\":\"TestDKIMRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]},\"test/mocks/TestDKIMRegistry.sol\":{\"keccak256\":\"0xe15515adb4b67fff3ffc8508aea9c07d81f8e88e8f7c9553e2a34f0bf658ffbb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a99ab1a77ff2568647d7d9ae47ecf28ffec9eacd868d9fb7e2dfc761b75f3682\",\"dweb:/ipfs/QmRxXshksLFwVo139ZYTtnoXcizeWCNH8zekDEcnj87iDj\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.17+commit.8df45f5f"
+      "version": "0.8.23+commit.f704f362"
     },
     "language": "Solidity",
     "output": {
@@ -130,20 +130,20 @@
   },
   "ast": {
     "absolutePath": "test/mocks/TestDKIMRegistry.sol",
-    "id": 103283,
+    "id": 103434,
     "exportedSymbols": {
       "IDKIMRegistry": [
         4779
       ],
       "TestDKIMRegistry": [
-        103282
+        103433
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:331:178",
     "nodes": [
       {
-        "id": 103256,
+        "id": 103407,
         "nodeType": "PragmaDirective",
         "src": "32:23:178",
         "nodes": [],
@@ -155,48 +155,48 @@
         ]
       },
       {
-        "id": 103257,
+        "id": 103408,
         "nodeType": "ImportDirective",
         "src": "57:58:178",
         "nodes": [],
         "absolutePath": "../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol",
         "file": "@zk-email/contracts/interfaces/IDKIMRegistry.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 103283,
+        "scope": 103434,
         "sourceUnit": 4780,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 103282,
+        "id": 103433,
         "nodeType": "ContractDefinition",
         "src": "117:245:178",
         "nodes": [
           {
-            "id": 103281,
+            "id": 103432,
             "nodeType": "FunctionDefinition",
             "src": "166:194:178",
             "nodes": [],
             "body": {
-              "id": 103280,
+              "id": 103431,
               "nodeType": "Block",
               "src": "278:82:178",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 103268,
+                    "id": 103419,
                     "name": "domainName",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 103261,
+                    "referencedDeclaration": 103412,
                     "src": "288:10:178",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_memory_ptr",
                       "typeString": "string memory"
                     }
                   },
-                  "id": 103269,
+                  "id": 103420,
                   "nodeType": "ExpressionStatement",
                   "src": "288:10:178"
                 },
@@ -206,7 +206,7 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 103278,
+                    "id": 103429,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -217,7 +217,7 @@
                           "arguments": [
                             {
                               "hexValue": "313233",
-                              "id": 103274,
+                              "id": 103425,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
@@ -239,7 +239,7 @@
                                 "typeString": "int_const 123"
                               }
                             ],
-                            "id": 103273,
+                            "id": 103424,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -251,14 +251,14 @@
                               "typeString": "type(uint256)"
                             },
                             "typeName": {
-                              "id": 103272,
+                              "id": 103423,
                               "name": "uint256",
                               "nodeType": "ElementaryTypeName",
                               "src": "323:7:178",
                               "typeDescriptions": {}
                             }
                           },
-                          "id": 103275,
+                          "id": 103426,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -282,7 +282,7 @@
                             "typeString": "uint256"
                           }
                         ],
-                        "id": 103271,
+                        "id": 103422,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -294,14 +294,14 @@
                           "typeString": "type(bytes32)"
                         },
                         "typeName": {
-                          "id": 103270,
+                          "id": 103421,
                           "name": "bytes32",
                           "nodeType": "ElementaryTypeName",
                           "src": "315:7:178",
                           "typeDescriptions": {}
                         }
                       },
-                      "id": 103276,
+                      "id": 103427,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -320,11 +320,11 @@
                     "nodeType": "BinaryOperation",
                     "operator": "==",
                     "rightExpression": {
-                      "id": 103277,
+                      "id": 103428,
                       "name": "publicKeyHash",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 103263,
+                      "referencedDeclaration": 103414,
                       "src": "340:13:178",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -337,8 +337,8 @@
                       "typeString": "bool"
                     }
                   },
-                  "functionReturnParameters": 103267,
-                  "id": 103279,
+                  "functionReturnParameters": 103418,
+                  "id": 103430,
                   "nodeType": "Return",
                   "src": "308:45:178"
                 }
@@ -354,17 +354,17 @@
             "name": "isDKIMPublicKeyHashValid",
             "nameLocation": "175:24:178",
             "parameters": {
-              "id": 103264,
+              "id": 103415,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 103261,
+                  "id": 103412,
                   "mutability": "mutable",
                   "name": "domainName",
                   "nameLocation": "214:10:178",
                   "nodeType": "VariableDeclaration",
-                  "scope": 103281,
+                  "scope": 103432,
                   "src": "200:24:178",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -373,7 +373,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 103260,
+                    "id": 103411,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "200:6:178",
@@ -386,12 +386,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 103263,
+                  "id": 103414,
                   "mutability": "mutable",
                   "name": "publicKeyHash",
                   "nameLocation": "234:13:178",
                   "nodeType": "VariableDeclaration",
-                  "scope": 103281,
+                  "scope": 103432,
                   "src": "226:21:178",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -400,7 +400,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 103262,
+                    "id": 103413,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "226:7:178",
@@ -415,17 +415,17 @@
               "src": "199:49:178"
             },
             "returnParameters": {
-              "id": 103267,
+              "id": 103418,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 103266,
+                  "id": 103417,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 103281,
+                  "scope": 103432,
                   "src": "272:4:178",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -434,7 +434,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 103265,
+                    "id": 103416,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "272:4:178",
@@ -448,7 +448,7 @@
               ],
               "src": "271:6:178"
             },
-            "scope": 103282,
+            "scope": 103433,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "external"
@@ -458,7 +458,7 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 103258,
+              "id": 103409,
               "name": "IDKIMRegistry",
               "nameLocations": [
                 "146:13:178"
@@ -467,7 +467,7 @@
               "referencedDeclaration": 4779,
               "src": "146:13:178"
             },
-            "id": 103259,
+            "id": 103410,
             "nodeType": "InheritanceSpecifier",
             "src": "146:13:178"
           }
@@ -477,13 +477,14 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          103282,
+          103433,
           4779
         ],
         "name": "TestDKIMRegistry",
         "nameLocation": "126:16:178",
-        "scope": 103283,
-        "usedErrors": []
+        "scope": 103434,
+        "usedErrors": [],
+        "usedEvents": []
       }
     ],
     "license": "MIT"

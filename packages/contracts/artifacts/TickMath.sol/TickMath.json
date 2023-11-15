@@ -12,20 +12,20 @@
     }
   ],
   "bytecode": {
-    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212209c438b2e220358eb1e8633e65782709aceec991515ae917140a9e6071c0623ea64736f6c63430008110033",
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212201ef09d3aac08ee43a70839d3dd734dc2472a83d3145c4807f01a0fea7df07ef964736f6c63430008170033",
     "sourceMap": "305:9112:46:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;305:9112:46;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212209c438b2e220358eb1e8633e65782709aceec991515ae917140a9e6071c0623ea64736f6c63430008110033",
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212201ef09d3aac08ee43a70839d3dd734dc2472a83d3145c4807f01a0fea7df07ef964736f6c63430008170033",
     "sourceMap": "305:9112:46:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"R\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"T\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"stateVariables\":{\"MAX_SQRT_RATIO\":{\"details\":\"The maximum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MAX_TICK)\"},\"MAX_TICK\":{\"details\":\"The maximum tick that may be passed to #getSqrtRatioAtTick computed from log base 1.0001 of 2**128\"},\"MIN_SQRT_RATIO\":{\"details\":\"The minimum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MIN_TICK)\"},\"MIN_TICK\":{\"details\":\"The minimum tick that may be passed to #getSqrtRatioAtTick computed from log base 1.0001 of 2**-128\"}},\"title\":\"Math library for computing sqrt prices from ticks and vice versa\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Computes sqrt price for ticks of size 1.0001, i.e. sqrt(1.0001^tick) as fixed point Q64.96 numbers. Supports prices between 2**-128 and 2**128\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/TickMath.sol\":\"TickMath\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/TickMath.sol\":{\"keccak256\":\"0x5c57de03a91cc2ec8939865dbbcb0197bb6c353b711075eefd8e0fca5e102129\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://1e994c24fd891ef8a3f5dbf5eba42b34feaf05e0376a29f91322faa18054449c\",\"dweb:/ipfs/QmNdUJGUQxd1dPkMbnA5f5UNqakxRkQE5r7bTZJAuHeapS\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"R\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"T\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"stateVariables\":{\"MAX_SQRT_RATIO\":{\"details\":\"The maximum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MAX_TICK)\"},\"MAX_TICK\":{\"details\":\"The maximum tick that may be passed to #getSqrtRatioAtTick computed from log base 1.0001 of 2**128\"},\"MIN_SQRT_RATIO\":{\"details\":\"The minimum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MIN_TICK)\"},\"MIN_TICK\":{\"details\":\"The minimum tick that may be passed to #getSqrtRatioAtTick computed from log base 1.0001 of 2**-128\"}},\"title\":\"Math library for computing sqrt prices from ticks and vice versa\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Computes sqrt price for ticks of size 1.0001, i.e. sqrt(1.0001^tick) as fixed point Q64.96 numbers. Supports prices between 2**-128 and 2**128\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/TickMath.sol\":\"TickMath\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/libraries/TickMath.sol\":{\"keccak256\":\"0x5c57de03a91cc2ec8939865dbbcb0197bb6c353b711075eefd8e0fca5e102129\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://1e994c24fd891ef8a3f5dbf5eba42b34feaf05e0376a29f91322faa18054449c\",\"dweb:/ipfs/QmNdUJGUQxd1dPkMbnA5f5UNqakxRkQE5r7bTZJAuHeapS\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.17+commit.8df45f5f"
+      "version": "0.8.23+commit.f704f362"
     },
     "language": "Solidity",
     "output": {
@@ -6109,16 +6109,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5009:155:46",
                         "nodeType": "YulBlock",
                         "src": "5009:155:46",
                         "statements": [
                           {
+                            "nativeSrc": "5027:58:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5027:58:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5040:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5040:1:46",
                                   "type": "",
@@ -6128,11 +6131,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5046:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5046:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5049:34:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5049:34:46",
                                       "type": "",
@@ -6141,24 +6146,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5043:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5043:2:46"
                                   },
+                                  "nativeSrc": "5043:41:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5043:41:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5036:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5036:3:46"
                               },
+                              "nativeSrc": "5036:49:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5036:49:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5031:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5031:1:46",
                                 "type": ""
@@ -6166,64 +6176,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "5102:17:46",
                             "nodeType": "YulAssignment",
                             "src": "5102:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "5112:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5112:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5117:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5117:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "5109:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5109:2:46"
                               },
+                              "nativeSrc": "5109:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5109:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "5102:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5102:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "5136:14:46",
                             "nodeType": "YulAssignment",
                             "src": "5136:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5145:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5145:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "5148:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5148:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "5141:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5141:3:46"
                               },
+                              "nativeSrc": "5141:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5141:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "5136:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5136:1:46"
                               }
@@ -6231,7 +6253,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -6275,16 +6297,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5186:139:46",
                         "nodeType": "YulBlock",
                         "src": "5186:139:46",
                         "statements": [
                           {
+                            "nativeSrc": "5204:42:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5204:42:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5217:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5217:1:46",
                                   "type": "",
@@ -6294,11 +6319,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5223:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5223:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5226:18:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5226:18:46",
                                       "type": "",
@@ -6307,24 +6334,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5220:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5220:2:46"
                                   },
+                                  "nativeSrc": "5220:25:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5220:25:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5213:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5213:3:46"
                               },
+                              "nativeSrc": "5213:33:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5213:33:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5208:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5208:1:46",
                                 "type": ""
@@ -6332,64 +6364,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "5263:17:46",
                             "nodeType": "YulAssignment",
                             "src": "5263:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "5273:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5273:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5278:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5278:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "5270:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5270:2:46"
                               },
+                              "nativeSrc": "5270:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5270:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "5263:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5263:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "5297:14:46",
                             "nodeType": "YulAssignment",
                             "src": "5297:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5306:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5306:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "5309:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5309:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "5302:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5302:3:46"
                               },
+                              "nativeSrc": "5302:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5302:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "5297:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5297:1:46"
                               }
@@ -6397,7 +6441,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -6441,16 +6485,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5347:131:46",
                         "nodeType": "YulBlock",
                         "src": "5347:131:46",
                         "statements": [
                           {
+                            "nativeSrc": "5365:34:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5365:34:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5378:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5378:1:46",
                                   "type": "",
@@ -6460,11 +6507,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5384:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5384:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5387:10:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5387:10:46",
                                       "type": "",
@@ -6473,24 +6522,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5381:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5381:2:46"
                                   },
+                                  "nativeSrc": "5381:17:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5381:17:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5374:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5374:3:46"
                               },
+                              "nativeSrc": "5374:25:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5374:25:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5369:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5369:1:46",
                                 "type": ""
@@ -6498,64 +6552,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "5416:17:46",
                             "nodeType": "YulAssignment",
                             "src": "5416:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "5426:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5426:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5431:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5431:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "5423:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5423:2:46"
                               },
+                              "nativeSrc": "5423:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5423:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "5416:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5416:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "5450:14:46",
                             "nodeType": "YulAssignment",
                             "src": "5450:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5459:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5459:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "5462:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5462:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "5455:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5455:3:46"
                               },
+                              "nativeSrc": "5455:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5455:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "5450:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5450:1:46"
                               }
@@ -6563,7 +6629,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -6607,16 +6673,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5500:127:46",
                         "nodeType": "YulBlock",
                         "src": "5500:127:46",
                         "statements": [
                           {
+                            "nativeSrc": "5518:30:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5518:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5531:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5531:1:46",
                                   "type": "",
@@ -6626,11 +6695,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5537:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5537:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5540:6:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5540:6:46",
                                       "type": "",
@@ -6639,24 +6710,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5534:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5534:2:46"
                                   },
+                                  "nativeSrc": "5534:13:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5534:13:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5527:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5527:3:46"
                               },
+                              "nativeSrc": "5527:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5527:21:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5522:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5522:1:46",
                                 "type": ""
@@ -6664,64 +6740,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "5565:17:46",
                             "nodeType": "YulAssignment",
                             "src": "5565:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "5575:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5575:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5580:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5580:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "5572:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5572:2:46"
                               },
+                              "nativeSrc": "5572:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5572:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "5565:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5565:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "5599:14:46",
                             "nodeType": "YulAssignment",
                             "src": "5599:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5608:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5608:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "5611:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5611:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "5604:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5604:3:46"
                               },
+                              "nativeSrc": "5604:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5604:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "5599:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5599:1:46"
                               }
@@ -6729,7 +6817,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -6773,16 +6861,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5649:125:46",
                         "nodeType": "YulBlock",
                         "src": "5649:125:46",
                         "statements": [
                           {
+                            "nativeSrc": "5667:28:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5667:28:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5680:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5680:1:46",
                                   "type": "",
@@ -6792,11 +6883,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5686:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5686:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5689:4:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5689:4:46",
                                       "type": "",
@@ -6805,24 +6898,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5683:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5683:2:46"
                                   },
+                                  "nativeSrc": "5683:11:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5683:11:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5676:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5676:3:46"
                               },
+                              "nativeSrc": "5676:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5676:19:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5671:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5671:1:46",
                                 "type": ""
@@ -6830,64 +6928,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "5712:17:46",
                             "nodeType": "YulAssignment",
                             "src": "5712:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "5722:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5722:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5727:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5727:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "5719:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5719:2:46"
                               },
+                              "nativeSrc": "5719:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5719:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "5712:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5712:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "5746:14:46",
                             "nodeType": "YulAssignment",
                             "src": "5746:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5755:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5755:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "5758:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5758:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "5751:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5751:3:46"
                               },
+                              "nativeSrc": "5751:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5751:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "5746:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5746:1:46"
                               }
@@ -6895,7 +7005,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -6939,16 +7049,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5796:124:46",
                         "nodeType": "YulBlock",
                         "src": "5796:124:46",
                         "statements": [
                           {
+                            "nativeSrc": "5814:27:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5814:27:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5827:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5827:1:46",
                                   "type": "",
@@ -6958,11 +7071,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5833:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5833:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5836:3:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5836:3:46",
                                       "type": "",
@@ -6971,24 +7086,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5830:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5830:2:46"
                                   },
+                                  "nativeSrc": "5830:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5830:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5823:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5823:3:46"
                               },
+                              "nativeSrc": "5823:18:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5823:18:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5818:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5818:1:46",
                                 "type": ""
@@ -6996,64 +7116,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "5858:17:46",
                             "nodeType": "YulAssignment",
                             "src": "5858:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "5868:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5868:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5873:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5873:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "5865:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5865:2:46"
                               },
+                              "nativeSrc": "5865:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5865:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "5858:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5858:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "5892:14:46",
                             "nodeType": "YulAssignment",
                             "src": "5892:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "5901:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5901:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "5904:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "5904:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "5897:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5897:3:46"
                               },
+                              "nativeSrc": "5897:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5897:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "5892:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5892:1:46"
                               }
@@ -7061,7 +7193,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -7105,16 +7237,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "5942:124:46",
                         "nodeType": "YulBlock",
                         "src": "5942:124:46",
                         "statements": [
                           {
+                            "nativeSrc": "5960:27:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "5960:27:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "5973:1:46",
                                   "nodeType": "YulLiteral",
                                   "src": "5973:1:46",
                                   "type": "",
@@ -7124,11 +7259,13 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "5979:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "5979:1:46"
                                     },
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "5982:3:46",
                                       "nodeType": "YulLiteral",
                                       "src": "5982:3:46",
                                       "type": "",
@@ -7137,24 +7274,29 @@
                                   ],
                                   "functionName": {
                                     "name": "gt",
+                                    "nativeSrc": "5976:2:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "5976:2:46"
                                   },
+                                  "nativeSrc": "5976:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "5976:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shl",
+                                "nativeSrc": "5969:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "5969:3:46"
                               },
+                              "nativeSrc": "5969:18:46",
                               "nodeType": "YulFunctionCall",
                               "src": "5969:18:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "5964:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "5964:1:46",
                                 "type": ""
@@ -7162,64 +7304,76 @@
                             ]
                           },
                           {
+                            "nativeSrc": "6004:17:46",
                             "nodeType": "YulAssignment",
                             "src": "6004:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "6014:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6014:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "6019:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6019:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "6011:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6011:2:46"
                               },
+                              "nativeSrc": "6011:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6011:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "6004:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6004:3:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6038:14:46",
                             "nodeType": "YulAssignment",
                             "src": "6038:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "6047:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6047:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6050:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6050:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6043:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6043:3:46"
                               },
+                              "nativeSrc": "6043:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6043:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6038:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6038:1:46"
                               }
@@ -7227,7 +7381,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -7271,21 +7425,25 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "6088:85:46",
                         "nodeType": "YulBlock",
                         "src": "6088:85:46",
                         "statements": [
                           {
+                            "nativeSrc": "6106:19:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "6106:19:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6118:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6118:1:46"
                                 },
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6121:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6121:3:46",
                                   "type": "",
@@ -7294,15 +7452,18 @@
                               ],
                               "functionName": {
                                 "name": "gt",
+                                "nativeSrc": "6115:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6115:2:46"
                               },
+                              "nativeSrc": "6115:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6115:10:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "6110:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "6110:1:46",
                                 "type": ""
@@ -7310,32 +7471,38 @@
                             ]
                           },
                           {
+                            "nativeSrc": "6142:17:46",
                             "nodeType": "YulAssignment",
                             "src": "6142:17:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "msb",
+                                  "nativeSrc": "6152:3:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6152:3:46"
                                 },
                                 {
                                   "name": "f",
+                                  "nativeSrc": "6157:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6157:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "6149:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6149:2:46"
                               },
+                              "nativeSrc": "6149:10:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6149:10:46"
                             },
                             "variableNames": [
                               {
                                 "name": "msb",
+                                "nativeSrc": "6142:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6142:3:46"
                               }
@@ -7343,7 +7510,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4397,
@@ -7848,16 +8015,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "6349:171:46",
                         "nodeType": "YulBlock",
                         "src": "6349:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "6367:24:46",
                             "nodeType": "YulAssignment",
                             "src": "6367:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6376:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6376:3:46",
                                   "type": "",
@@ -7867,47 +8037,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6385:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6385:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6388:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6388:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "6381:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6381:3:46"
                                   },
+                                  "nativeSrc": "6381:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6381:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6372:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6372:3:46"
                               },
+                              "nativeSrc": "6372:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6372:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6367:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6367:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6408:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "6408:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6421:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6421:3:46",
                                   "type": "",
@@ -7915,21 +8094,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6426:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6426:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6417:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6417:3:46"
                               },
+                              "nativeSrc": "6417:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6417:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "6412:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "6412:1:46",
                                 "type": ""
@@ -7937,12 +8120,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "6445:30:46",
                             "nodeType": "YulAssignment",
                             "src": "6445:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "6457:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6457:5:46"
                                 },
@@ -7950,6 +8135,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "6468:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "6468:2:46",
                                       "type": "",
@@ -7957,62 +8143,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "6472:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6472:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "6464:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6464:3:46"
                                   },
+                                  "nativeSrc": "6464:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6464:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "6454:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6454:2:46"
                               },
+                              "nativeSrc": "6454:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6454:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "6445:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6445:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6492:14:46",
                             "nodeType": "YulAssignment",
                             "src": "6492:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "6501:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6501:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6504:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6504:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6497:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6497:3:46"
                               },
+                              "nativeSrc": "6497:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6497:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6492:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6492:1:46"
                               }
@@ -8020,7 +8218,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -8085,16 +8283,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "6542:171:46",
                         "nodeType": "YulBlock",
                         "src": "6542:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "6560:24:46",
                             "nodeType": "YulAssignment",
                             "src": "6560:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6569:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6569:3:46",
                                   "type": "",
@@ -8104,47 +8305,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6578:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6578:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6581:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6581:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "6574:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6574:3:46"
                                   },
+                                  "nativeSrc": "6574:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6574:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6565:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6565:3:46"
                               },
+                              "nativeSrc": "6565:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6565:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6560:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6560:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6601:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "6601:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6614:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6614:3:46",
                                   "type": "",
@@ -8152,21 +8362,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6619:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6619:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6610:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6610:3:46"
                               },
+                              "nativeSrc": "6610:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6610:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "6605:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "6605:1:46",
                                 "type": ""
@@ -8174,12 +8388,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "6638:30:46",
                             "nodeType": "YulAssignment",
                             "src": "6638:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "6650:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6650:5:46"
                                 },
@@ -8187,6 +8403,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "6661:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "6661:2:46",
                                       "type": "",
@@ -8194,62 +8411,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "6665:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6665:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "6657:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6657:3:46"
                                   },
+                                  "nativeSrc": "6657:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6657:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "6647:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6647:2:46"
                               },
+                              "nativeSrc": "6647:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6647:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "6638:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6638:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6685:14:46",
                             "nodeType": "YulAssignment",
                             "src": "6685:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "6694:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6694:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6697:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6697:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6690:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6690:3:46"
                               },
+                              "nativeSrc": "6690:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6690:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6685:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6685:1:46"
                               }
@@ -8257,7 +8486,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -8322,16 +8551,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "6735:171:46",
                         "nodeType": "YulBlock",
                         "src": "6735:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "6753:24:46",
                             "nodeType": "YulAssignment",
                             "src": "6753:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6762:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6762:3:46",
                                   "type": "",
@@ -8341,47 +8573,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6771:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6771:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6774:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6774:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "6767:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6767:3:46"
                                   },
+                                  "nativeSrc": "6767:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6767:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6758:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6758:3:46"
                               },
+                              "nativeSrc": "6758:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6758:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6753:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6753:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6794:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "6794:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6807:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6807:3:46",
                                   "type": "",
@@ -8389,21 +8630,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6812:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6812:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6803:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6803:3:46"
                               },
+                              "nativeSrc": "6803:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6803:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "6798:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "6798:1:46",
                                 "type": ""
@@ -8411,12 +8656,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "6831:30:46",
                             "nodeType": "YulAssignment",
                             "src": "6831:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "6843:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6843:5:46"
                                 },
@@ -8424,6 +8671,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "6854:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "6854:2:46",
                                       "type": "",
@@ -8431,62 +8679,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "6858:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6858:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "6850:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6850:3:46"
                                   },
+                                  "nativeSrc": "6850:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6850:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "6840:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6840:2:46"
                               },
+                              "nativeSrc": "6840:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6840:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "6831:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6831:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6878:14:46",
                             "nodeType": "YulAssignment",
                             "src": "6878:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "6887:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6887:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "6890:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "6890:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6883:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6883:3:46"
                               },
+                              "nativeSrc": "6883:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6883:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6878:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6878:1:46"
                               }
@@ -8494,7 +8754,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -8559,16 +8819,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "6928:171:46",
                         "nodeType": "YulBlock",
                         "src": "6928:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "6946:24:46",
                             "nodeType": "YulAssignment",
                             "src": "6946:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "6955:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "6955:3:46",
                                   "type": "",
@@ -8578,47 +8841,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6964:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6964:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "6967:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "6967:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "6960:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "6960:3:46"
                                   },
+                                  "nativeSrc": "6960:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "6960:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6951:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6951:3:46"
                               },
+                              "nativeSrc": "6951:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6951:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "6946:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6946:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "6987:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "6987:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7000:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7000:3:46",
                                   "type": "",
@@ -8626,21 +8898,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7005:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7005:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "6996:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "6996:3:46"
                               },
+                              "nativeSrc": "6996:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "6996:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "6991:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "6991:1:46",
                                 "type": ""
@@ -8648,12 +8924,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "7024:30:46",
                             "nodeType": "YulAssignment",
                             "src": "7024:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "7036:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7036:5:46"
                                 },
@@ -8661,6 +8939,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "7047:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "7047:2:46",
                                       "type": "",
@@ -8668,62 +8947,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "7051:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7051:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "7043:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7043:3:46"
                                   },
+                                  "nativeSrc": "7043:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7043:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "7033:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7033:2:46"
                               },
+                              "nativeSrc": "7033:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7033:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "7024:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7024:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7071:14:46",
                             "nodeType": "YulAssignment",
                             "src": "7071:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "7080:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7080:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7083:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7083:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7076:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7076:3:46"
                               },
+                              "nativeSrc": "7076:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7076:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7071:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7071:1:46"
                               }
@@ -8731,7 +9022,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -8796,16 +9087,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "7121:171:46",
                         "nodeType": "YulBlock",
                         "src": "7121:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "7139:24:46",
                             "nodeType": "YulAssignment",
                             "src": "7139:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7148:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7148:3:46",
                                   "type": "",
@@ -8815,47 +9109,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7157:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7157:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7160:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7160:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "7153:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7153:3:46"
                                   },
+                                  "nativeSrc": "7153:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7153:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7144:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7144:3:46"
                               },
+                              "nativeSrc": "7144:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7144:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7139:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7139:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7180:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "7180:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7193:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7193:3:46",
                                   "type": "",
@@ -8863,21 +9166,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7198:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7198:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7189:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7189:3:46"
                               },
+                              "nativeSrc": "7189:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7189:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "7184:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "7184:1:46",
                                 "type": ""
@@ -8885,12 +9192,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "7217:30:46",
                             "nodeType": "YulAssignment",
                             "src": "7217:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "7229:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7229:5:46"
                                 },
@@ -8898,6 +9207,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "7240:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "7240:2:46",
                                       "type": "",
@@ -8905,62 +9215,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "7244:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7244:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "7236:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7236:3:46"
                                   },
+                                  "nativeSrc": "7236:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7236:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "7226:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7226:2:46"
                               },
+                              "nativeSrc": "7226:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7226:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "7217:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7217:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7264:14:46",
                             "nodeType": "YulAssignment",
                             "src": "7264:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "7273:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7273:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7276:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7276:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7269:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7269:3:46"
                               },
+                              "nativeSrc": "7269:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7269:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7264:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7264:1:46"
                               }
@@ -8968,7 +9290,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -9033,16 +9355,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "7314:171:46",
                         "nodeType": "YulBlock",
                         "src": "7314:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "7332:24:46",
                             "nodeType": "YulAssignment",
                             "src": "7332:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7341:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7341:3:46",
                                   "type": "",
@@ -9052,47 +9377,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7350:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7350:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7353:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7353:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "7346:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7346:3:46"
                                   },
+                                  "nativeSrc": "7346:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7346:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7337:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7337:3:46"
                               },
+                              "nativeSrc": "7337:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7337:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7332:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7332:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7373:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "7373:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7386:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7386:3:46",
                                   "type": "",
@@ -9100,21 +9434,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7391:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7391:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7382:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7382:3:46"
                               },
+                              "nativeSrc": "7382:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7382:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "7377:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "7377:1:46",
                                 "type": ""
@@ -9122,12 +9460,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "7410:30:46",
                             "nodeType": "YulAssignment",
                             "src": "7410:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "7422:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7422:5:46"
                                 },
@@ -9135,6 +9475,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "7433:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "7433:2:46",
                                       "type": "",
@@ -9142,62 +9483,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "7437:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7437:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "7429:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7429:3:46"
                                   },
+                                  "nativeSrc": "7429:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7429:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "7419:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7419:2:46"
                               },
+                              "nativeSrc": "7419:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7419:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "7410:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7410:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7457:14:46",
                             "nodeType": "YulAssignment",
                             "src": "7457:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "7466:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7466:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7469:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7469:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7462:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7462:3:46"
                               },
+                              "nativeSrc": "7462:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7462:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7457:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7457:1:46"
                               }
@@ -9205,7 +9558,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -9270,16 +9623,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "7507:171:46",
                         "nodeType": "YulBlock",
                         "src": "7507:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "7525:24:46",
                             "nodeType": "YulAssignment",
                             "src": "7525:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7534:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7534:3:46",
                                   "type": "",
@@ -9289,47 +9645,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7543:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7543:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7546:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7546:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "7539:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7539:3:46"
                                   },
+                                  "nativeSrc": "7539:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7539:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7530:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7530:3:46"
                               },
+                              "nativeSrc": "7530:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7530:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7525:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7525:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7566:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "7566:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7579:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7579:3:46",
                                   "type": "",
@@ -9337,21 +9702,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7584:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7584:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7575:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7575:3:46"
                               },
+                              "nativeSrc": "7575:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7575:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "7570:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "7570:1:46",
                                 "type": ""
@@ -9359,12 +9728,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "7603:30:46",
                             "nodeType": "YulAssignment",
                             "src": "7603:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "7615:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7615:5:46"
                                 },
@@ -9372,6 +9743,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "7626:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "7626:2:46",
                                       "type": "",
@@ -9379,62 +9751,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "7630:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7630:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "7622:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7622:3:46"
                                   },
+                                  "nativeSrc": "7622:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7622:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "7612:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7612:2:46"
                               },
+                              "nativeSrc": "7612:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7612:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "7603:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7603:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7650:14:46",
                             "nodeType": "YulAssignment",
                             "src": "7650:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "7659:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7659:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7662:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7662:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7655:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7655:3:46"
                               },
+                              "nativeSrc": "7655:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7655:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7650:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7650:1:46"
                               }
@@ -9442,7 +9826,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -9507,16 +9891,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "7700:171:46",
                         "nodeType": "YulBlock",
                         "src": "7700:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "7718:24:46",
                             "nodeType": "YulAssignment",
                             "src": "7718:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7727:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7727:3:46",
                                   "type": "",
@@ -9526,47 +9913,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7736:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7736:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7739:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7739:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "7732:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7732:3:46"
                                   },
+                                  "nativeSrc": "7732:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7732:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7723:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7723:3:46"
                               },
+                              "nativeSrc": "7723:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7723:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7718:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7718:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7759:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "7759:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7772:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7772:3:46",
                                   "type": "",
@@ -9574,21 +9970,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7777:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7777:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7768:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7768:3:46"
                               },
+                              "nativeSrc": "7768:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7768:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "7763:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "7763:1:46",
                                 "type": ""
@@ -9596,12 +9996,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "7796:30:46",
                             "nodeType": "YulAssignment",
                             "src": "7796:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "7808:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7808:5:46"
                                 },
@@ -9609,6 +10011,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "7819:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "7819:2:46",
                                       "type": "",
@@ -9616,62 +10019,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "7823:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7823:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "7815:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7815:3:46"
                                   },
+                                  "nativeSrc": "7815:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7815:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "7805:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7805:2:46"
                               },
+                              "nativeSrc": "7805:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7805:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "7796:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7796:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7843:14:46",
                             "nodeType": "YulAssignment",
                             "src": "7843:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "7852:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7852:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7855:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7855:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7848:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7848:3:46"
                               },
+                              "nativeSrc": "7848:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7848:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7843:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7843:1:46"
                               }
@@ -9679,7 +10094,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -9744,16 +10159,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "7893:171:46",
                         "nodeType": "YulBlock",
                         "src": "7893:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "7911:24:46",
                             "nodeType": "YulAssignment",
                             "src": "7911:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7920:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7920:3:46",
                                   "type": "",
@@ -9763,47 +10181,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7929:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7929:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "7932:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "7932:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "7925:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "7925:3:46"
                                   },
+                                  "nativeSrc": "7925:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "7925:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7916:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7916:3:46"
                               },
+                              "nativeSrc": "7916:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7916:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "7911:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7911:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "7952:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "7952:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "7965:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "7965:3:46",
                                   "type": "",
@@ -9811,21 +10238,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "7970:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "7970:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "7961:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7961:3:46"
                               },
+                              "nativeSrc": "7961:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7961:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "7956:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "7956:1:46",
                                 "type": ""
@@ -9833,12 +10264,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "7989:30:46",
                             "nodeType": "YulAssignment",
                             "src": "7989:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "8001:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8001:5:46"
                                 },
@@ -9846,6 +10279,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "8012:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "8012:2:46",
                                       "type": "",
@@ -9853,62 +10287,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "8016:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8016:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "8008:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8008:3:46"
                                   },
+                                  "nativeSrc": "8008:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8008:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "7998:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7998:2:46"
                               },
+                              "nativeSrc": "7998:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "7998:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "7989:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "7989:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8036:14:46",
                             "nodeType": "YulAssignment",
                             "src": "8036:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "8045:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8045:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8048:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8048:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8041:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8041:3:46"
                               },
+                              "nativeSrc": "8041:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8041:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8036:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8036:1:46"
                               }
@@ -9916,7 +10362,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -9981,16 +10427,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "8086:171:46",
                         "nodeType": "YulBlock",
                         "src": "8086:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "8104:24:46",
                             "nodeType": "YulAssignment",
                             "src": "8104:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8113:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8113:3:46",
                                   "type": "",
@@ -10000,47 +10449,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8122:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8122:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8125:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8125:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "8118:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8118:3:46"
                                   },
+                                  "nativeSrc": "8118:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8118:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8109:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8109:3:46"
                               },
+                              "nativeSrc": "8109:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8109:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8104:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8104:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8145:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "8145:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8158:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8158:3:46",
                                   "type": "",
@@ -10048,21 +10506,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8163:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8163:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8154:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8154:3:46"
                               },
+                              "nativeSrc": "8154:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8154:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "8149:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "8149:1:46",
                                 "type": ""
@@ -10070,12 +10532,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "8182:30:46",
                             "nodeType": "YulAssignment",
                             "src": "8182:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "8194:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8194:5:46"
                                 },
@@ -10083,6 +10547,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "8205:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "8205:2:46",
                                       "type": "",
@@ -10090,62 +10555,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "8209:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8209:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "8201:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8201:3:46"
                                   },
+                                  "nativeSrc": "8201:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8201:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "8191:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8191:2:46"
                               },
+                              "nativeSrc": "8191:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8191:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "8182:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8182:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8229:14:46",
                             "nodeType": "YulAssignment",
                             "src": "8229:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "8238:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8238:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8241:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8241:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8234:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8234:3:46"
                               },
+                              "nativeSrc": "8234:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8234:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8229:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8229:1:46"
                               }
@@ -10153,7 +10630,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -10218,16 +10695,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "8279:171:46",
                         "nodeType": "YulBlock",
                         "src": "8279:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "8297:24:46",
                             "nodeType": "YulAssignment",
                             "src": "8297:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8306:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8306:3:46",
                                   "type": "",
@@ -10237,47 +10717,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8315:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8315:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8318:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8318:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "8311:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8311:3:46"
                                   },
+                                  "nativeSrc": "8311:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8311:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8302:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8302:3:46"
                               },
+                              "nativeSrc": "8302:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8302:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8297:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8297:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8338:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "8338:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8351:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8351:3:46",
                                   "type": "",
@@ -10285,21 +10774,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8356:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8356:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8347:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8347:3:46"
                               },
+                              "nativeSrc": "8347:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8347:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "8342:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "8342:1:46",
                                 "type": ""
@@ -10307,12 +10800,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "8375:30:46",
                             "nodeType": "YulAssignment",
                             "src": "8375:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "8387:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8387:5:46"
                                 },
@@ -10320,6 +10815,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "8398:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "8398:2:46",
                                       "type": "",
@@ -10327,62 +10823,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "8402:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8402:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "8394:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8394:3:46"
                                   },
+                                  "nativeSrc": "8394:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8394:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "8384:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8384:2:46"
                               },
+                              "nativeSrc": "8384:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8384:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "8375:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8375:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8422:14:46",
                             "nodeType": "YulAssignment",
                             "src": "8422:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "8431:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8431:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8434:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8434:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8427:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8427:3:46"
                               },
+                              "nativeSrc": "8427:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8427:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8422:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8422:1:46"
                               }
@@ -10390,7 +10898,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -10455,16 +10963,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "8472:171:46",
                         "nodeType": "YulBlock",
                         "src": "8472:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "8490:24:46",
                             "nodeType": "YulAssignment",
                             "src": "8490:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8499:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8499:3:46",
                                   "type": "",
@@ -10474,47 +10985,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8508:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8508:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8511:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8511:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "8504:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8504:3:46"
                                   },
+                                  "nativeSrc": "8504:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8504:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8495:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8495:3:46"
                               },
+                              "nativeSrc": "8495:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8495:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8490:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8490:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8531:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "8531:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8544:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8544:3:46",
                                   "type": "",
@@ -10522,21 +11042,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8549:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8549:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8540:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8540:3:46"
                               },
+                              "nativeSrc": "8540:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8540:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "8535:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "8535:1:46",
                                 "type": ""
@@ -10544,12 +11068,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "8568:30:46",
                             "nodeType": "YulAssignment",
                             "src": "8568:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "8580:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8580:5:46"
                                 },
@@ -10557,6 +11083,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "8591:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "8591:2:46",
                                       "type": "",
@@ -10564,62 +11091,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "8595:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8595:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "8587:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8587:3:46"
                                   },
+                                  "nativeSrc": "8587:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8587:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "8577:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8577:2:46"
                               },
+                              "nativeSrc": "8577:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8577:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "8568:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8568:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8615:14:46",
                             "nodeType": "YulAssignment",
                             "src": "8615:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "8624:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8624:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8627:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8627:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8620:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8620:3:46"
                               },
+                              "nativeSrc": "8620:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8620:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8615:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8615:1:46"
                               }
@@ -10627,7 +11166,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -10692,16 +11231,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "8665:171:46",
                         "nodeType": "YulBlock",
                         "src": "8665:171:46",
                         "statements": [
                           {
+                            "nativeSrc": "8683:24:46",
                             "nodeType": "YulAssignment",
                             "src": "8683:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8692:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8692:3:46",
                                   "type": "",
@@ -10711,47 +11253,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8701:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8701:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8704:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8704:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "8697:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8697:3:46"
                                   },
+                                  "nativeSrc": "8697:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8697:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8688:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8688:3:46"
                               },
+                              "nativeSrc": "8688:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8688:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8683:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8683:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8724:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "8724:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8737:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8737:3:46",
                                   "type": "",
@@ -10759,21 +11310,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8742:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8742:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8733:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8733:3:46"
                               },
+                              "nativeSrc": "8733:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8733:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "8728:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "8728:1:46",
                                 "type": ""
@@ -10781,12 +11336,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "8761:30:46",
                             "nodeType": "YulAssignment",
                             "src": "8761:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "8773:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8773:5:46"
                                 },
@@ -10794,6 +11351,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "8784:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "8784:2:46",
                                       "type": "",
@@ -10801,62 +11359,74 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "8788:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8788:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "8780:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8780:3:46"
                                   },
+                                  "nativeSrc": "8780:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8780:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "8770:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8770:2:46"
                               },
+                              "nativeSrc": "8770:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8770:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "8761:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8761:5:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8808:14:46",
                             "nodeType": "YulAssignment",
                             "src": "8808:14:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "f",
+                                  "nativeSrc": "8817:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8817:1:46"
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8820:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8820:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8813:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8813:3:46"
                               },
+                              "nativeSrc": "8813:9:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8813:9:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8808:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8808:1:46"
                               }
@@ -10864,7 +11434,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -10929,16 +11499,19 @@
                     },
                     {
                       "AST": {
+                        "nativeSrc": "8858:140:46",
                         "nodeType": "YulBlock",
                         "src": "8858:140:46",
                         "statements": [
                           {
+                            "nativeSrc": "8876:24:46",
                             "nodeType": "YulAssignment",
                             "src": "8876:24:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8885:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8885:3:46",
                                   "type": "",
@@ -10948,47 +11521,56 @@
                                   "arguments": [
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8894:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8894:1:46"
                                     },
                                     {
                                       "name": "r",
+                                      "nativeSrc": "8897:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8897:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "mul",
+                                    "nativeSrc": "8890:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8890:3:46"
                                   },
+                                  "nativeSrc": "8890:9:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8890:9:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8881:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8881:3:46"
                               },
+                              "nativeSrc": "8881:19:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8881:19:46"
                             },
                             "variableNames": [
                               {
                                 "name": "r",
+                                "nativeSrc": "8876:1:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8876:1:46"
                               }
                             ]
                           },
                           {
+                            "nativeSrc": "8917:20:46",
                             "nodeType": "YulVariableDeclaration",
                             "src": "8917:20:46",
                             "value": {
                               "arguments": [
                                 {
                                   "kind": "number",
+                                  "nativeSrc": "8930:3:46",
                                   "nodeType": "YulLiteral",
                                   "src": "8930:3:46",
                                   "type": "",
@@ -10996,21 +11578,25 @@
                                 },
                                 {
                                   "name": "r",
+                                  "nativeSrc": "8935:1:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8935:1:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "shr",
+                                "nativeSrc": "8926:3:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8926:3:46"
                               },
+                              "nativeSrc": "8926:11:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8926:11:46"
                             },
                             "variables": [
                               {
                                 "name": "f",
+                                "nativeSrc": "8921:1:46",
                                 "nodeType": "YulTypedName",
                                 "src": "8921:1:46",
                                 "type": ""
@@ -11018,12 +11604,14 @@
                             ]
                           },
                           {
+                            "nativeSrc": "8954:30:46",
                             "nodeType": "YulAssignment",
                             "src": "8954:30:46",
                             "value": {
                               "arguments": [
                                 {
                                   "name": "log_2",
+                                  "nativeSrc": "8966:5:46",
                                   "nodeType": "YulIdentifier",
                                   "src": "8966:5:46"
                                 },
@@ -11031,6 +11619,7 @@
                                   "arguments": [
                                     {
                                       "kind": "number",
+                                      "nativeSrc": "8977:2:46",
                                       "nodeType": "YulLiteral",
                                       "src": "8977:2:46",
                                       "type": "",
@@ -11038,30 +11627,36 @@
                                     },
                                     {
                                       "name": "f",
+                                      "nativeSrc": "8981:1:46",
                                       "nodeType": "YulIdentifier",
                                       "src": "8981:1:46"
                                     }
                                   ],
                                   "functionName": {
                                     "name": "shl",
+                                    "nativeSrc": "8973:3:46",
                                     "nodeType": "YulIdentifier",
                                     "src": "8973:3:46"
                                   },
+                                  "nativeSrc": "8973:10:46",
                                   "nodeType": "YulFunctionCall",
                                   "src": "8973:10:46"
                                 }
                               ],
                               "functionName": {
                                 "name": "or",
+                                "nativeSrc": "8963:2:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8963:2:46"
                               },
+                              "nativeSrc": "8963:21:46",
                               "nodeType": "YulFunctionCall",
                               "src": "8963:21:46"
                             },
                             "variableNames": [
                               {
                                 "name": "log_2",
+                                "nativeSrc": "8954:5:46",
                                 "nodeType": "YulIdentifier",
                                 "src": "8954:5:46"
                               }
@@ -11069,7 +11664,7 @@
                           }
                         ]
                       },
-                      "evmVersion": "london",
+                      "evmVersion": "paris",
                       "externalReferences": [
                         {
                           "declaration": 4431,
@@ -11881,7 +12476,8 @@
         "usedErrors": [
           3964,
           3966
-        ]
+        ],
+        "usedEvents": []
       }
     ],
     "license": "GPL-2.0-or-later"

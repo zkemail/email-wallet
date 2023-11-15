@@ -275,17 +275,21 @@ export class RelayerAccount extends Entity {
     this.set("createdAt", Value.fromBigInt(value));
   }
 
-  get initializedAt(): BigInt {
+  get initializedAt(): BigInt | null {
     let value = this.get("initializedAt");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set initializedAt(value: BigInt) {
-    this.set("initializedAt", Value.fromBigInt(value));
+  set initializedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("initializedAt");
+    } else {
+      this.set("initializedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 
@@ -486,43 +490,55 @@ export class UnclaimedFund extends Entity {
     this.set("expiryTime", Value.fromBigInt(value));
   }
 
-  get commitmentRandomness(): BigInt {
+  get commitmentRandomness(): BigInt | null {
     let value = this.get("commitmentRandomness");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set commitmentRandomness(value: BigInt) {
-    this.set("commitmentRandomness", Value.fromBigInt(value));
+  set commitmentRandomness(value: BigInt | null) {
+    if (!value) {
+      this.unset("commitmentRandomness");
+    } else {
+      this.set("commitmentRandomness", Value.fromBigInt(<BigInt>value));
+    }
   }
 
-  get emailAddr(): string {
+  get emailAddr(): string | null {
     let value = this.get("emailAddr");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set emailAddr(value: string) {
-    this.set("emailAddr", Value.fromString(value));
+  set emailAddr(value: string | null) {
+    if (!value) {
+      this.unset("emailAddr");
+    } else {
+      this.set("emailAddr", Value.fromString(<string>value));
+    }
   }
 
-  get recipient(): Bytes {
+  get recipient(): Bytes | null {
     let value = this.get("recipient");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBytes();
     }
   }
 
-  set recipient(value: Bytes) {
-    this.set("recipient", Value.fromBytes(value));
+  set recipient(value: Bytes | null) {
+    if (!value) {
+      this.unset("recipient");
+    } else {
+      this.set("recipient", Value.fromBytes(<Bytes>value));
+    }
   }
 
   get createdAt(): BigInt {
@@ -538,30 +554,38 @@ export class UnclaimedFund extends Entity {
     this.set("createdAt", Value.fromBigInt(value));
   }
 
-  get claimedAt(): BigInt {
+  get claimedAt(): BigInt | null {
     let value = this.get("claimedAt");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set claimedAt(value: BigInt) {
-    this.set("claimedAt", Value.fromBigInt(value));
+  set claimedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("claimedAt");
+    } else {
+      this.set("claimedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 
-  get voidedAt(): BigInt {
+  get voidedAt(): BigInt | null {
     let value = this.get("voidedAt");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set voidedAt(value: BigInt) {
-    this.set("voidedAt", Value.fromBigInt(value));
+  set voidedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("voidedAt");
+    } else {
+      this.set("voidedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 
@@ -671,43 +695,55 @@ export class UnclaimedState extends Entity {
     this.set("state", Value.fromBytes(value));
   }
 
-  get commitmentRandomness(): BigInt {
+  get commitmentRandomness(): BigInt | null {
     let value = this.get("commitmentRandomness");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set commitmentRandomness(value: BigInt) {
-    this.set("commitmentRandomness", Value.fromBigInt(value));
+  set commitmentRandomness(value: BigInt | null) {
+    if (!value) {
+      this.unset("commitmentRandomness");
+    } else {
+      this.set("commitmentRandomness", Value.fromBigInt(<BigInt>value));
+    }
   }
 
-  get emailAddr(): string {
+  get emailAddr(): string | null {
     let value = this.get("emailAddr");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set emailAddr(value: string) {
-    this.set("emailAddr", Value.fromString(value));
+  set emailAddr(value: string | null) {
+    if (!value) {
+      this.unset("emailAddr");
+    } else {
+      this.set("emailAddr", Value.fromString(<string>value));
+    }
   }
 
-  get recipient(): Bytes {
+  get recipient(): Bytes | null {
     let value = this.get("recipient");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBytes();
     }
   }
 
-  set recipient(value: Bytes) {
-    this.set("recipient", Value.fromBytes(value));
+  set recipient(value: Bytes | null) {
+    if (!value) {
+      this.unset("recipient");
+    } else {
+      this.set("recipient", Value.fromBytes(<Bytes>value));
+    }
   }
 
   get createdAt(): BigInt {
@@ -723,30 +759,38 @@ export class UnclaimedState extends Entity {
     this.set("createdAt", Value.fromBigInt(value));
   }
 
-  get claimedAt(): BigInt {
+  get claimedAt(): BigInt | null {
     let value = this.get("claimedAt");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set claimedAt(value: BigInt) {
-    this.set("claimedAt", Value.fromBigInt(value));
+  set claimedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("claimedAt");
+    } else {
+      this.set("claimedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 
-  get voidedAt(): BigInt {
+  get voidedAt(): BigInt | null {
     let value = this.get("voidedAt");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigInt();
     }
   }
 
-  set voidedAt(value: BigInt) {
-    this.set("voidedAt", Value.fromBigInt(value));
+  set voidedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("voidedAt");
+    } else {
+      this.set("voidedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 

@@ -1,23 +1,23 @@
 {
   "arbitrum-one": {
     "EmailWalletCore": {
-      "address": "0x0F6519a54651DCeCD5da2EA3027F26516F23eB95",
+      "address": "0x3Ad9100E9B279C0051d54cD21603cD78bDE50F02",
       "startBlock": 150442274
     },
     "RelayerHandler": {
-      "address": "0x290D885215FcDa5c8C2F93421e95eA4BCDdAA51C",
+      "address": "0x92fAa640D8E4EedBeC265DD24D8d4C4b4BE2E43d",
       "startBlock": 150442274
     },
     "AccountHandler": {
-      "address": "0xd79b4f3684a597f12181862D1Eb20d08aD83aA4C",
+      "address": "0x58031A4c32FedEBaADe5F01A099eeFA36846AD05",
       "startBlock": 150442274
     },
     "UnclaimsHandler": {
-      "address": "0xc893e5a4ca2E16c52Db5FC5144C7a567f61A6fe1",
+      "address": "0x19D8D7038E44CfEd02F4Bf5fb7399c302d26907D",
       "startBlock": 150442274
     },
     "ExtensionHandler": {
-      "address": "0x8b3C35A97e623759ccaDeC571d3Ea5E56c9C0058",
+      "address": "0xA01766b882B1AcF31ea223AB4E334Dc9F5710497",
       "startBlock": 150442274
     }
   },

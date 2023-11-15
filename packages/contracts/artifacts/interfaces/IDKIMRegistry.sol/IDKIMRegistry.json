@@ -38,10 +38,10 @@
   "methodIdentifiers": {
     "isDKIMPublicKeyHashValid(string,bytes32)": "e7a7977a"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":\"IDKIMRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":\"IDKIMRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
-      "version": "0.8.17+commit.8df45f5f"
+      "version": "0.8.23+commit.f704f362"
     },
     "language": "Solidity",
     "output": {
@@ -272,7 +272,8 @@
         "name": "IDKIMRegistry",
         "nameLocation": "67:13:49",
         "scope": 4780,
-        "usedErrors": []
+        "usedErrors": [],
+        "usedEvents": []
       }
     ],
     "license": "MIT"
