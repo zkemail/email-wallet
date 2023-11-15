@@ -66,6 +66,7 @@ pub struct ChainClient {
     pub(crate) extension_handler: ExtensionHandler<SignerM>,
     pub(crate) relayer_handler: RelayerHandler<SignerM>,
     pub(crate) unclaims_handler: UnclaimsHandler<SignerM>,
+    pub(crate) ecdsa_owned_dkim_registry: ECDSAOwnedDKIMRegistry<SignerM>,
     pub(crate) test_erc20: TestERC20<SignerM>,
 }
 
@@ -86,13 +87,17 @@ impl ChainClient {
         let account_handler_addr = core.account_handler().call().await.unwrap();
         let account_handler = AccountHandler::new(account_handler_addr, client.clone());
         let extension_handler = ExtensionHandler::new(
-            core.extension_handler().call().await.unwrap(),
+            core.extension_handler().call().await?,
             client.clone(),
         );
         let relayer_handler =
             RelayerHandler::new(core.relayer_handler().call().await.unwrap(), client.clone());
         let unclaims_handler = UnclaimsHandler::new(
-            core.unclaims_handler().call().await.unwrap(),
+            core.unclaims_handler().call().await?,
+            client.clone(),
+        );
+        let ecdsa_owned_dkim_registry = ECDSAOwnedDKIMRegistry::new(
+            account_handler.default_dkim_registry().await?,
             client.clone(),
         );
         let test_erc20 = TestERC20::new(
@@ -107,6 +112,7 @@ impl ChainClient {
             extension_handler,
             relayer_handler,
             unclaims_handler,
+            ecdsa_owned_dkim_registry,
             test_erc20,
         })
     }
@@ -291,6 +297,20 @@ impl ChainClient {
         }
         Err(anyhow!("no EmailOpHandled event found in the receipt"))
     }
+
+    pub async fn set_dkim_public_key_hash(&self, selector: String, domain_name: String, public_key_hash: [u8;32], signature: Bytes) -> Result<String>{
+        let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(selector, domain_name, public_key_hash, signature);
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+    
 
     pub async fn free_mint_test_erc20(&self, wallet_addr: Address, amount: U256) -> Result<String> {
         let call = self.test_erc20.free_mint_with_to(wallet_addr, amount);
@@ -623,8 +643,18 @@ impl ChainClient {
         Ok(account_key_info.1)
     }
 
-    pub(crate) async fn get_relayers(&self) -> Result<Vec<String>> {
-        // TODO: iteration over relayers
-        Ok(vec![])
+    pub(crate) async fn check_if_dkim_public_key_hash_valid(
+        &self,
+        domain_name: ::std::string::String,
+        public_key_hash: [u8; 32],
+    ) -> Result<bool> {
+        let is_valid = self
+            .ecdsa_owned_dkim_registry
+            .is_dkim_public_key_hash_valid(domain_name, public_key_hash)
+            .call()
+            .await?;
+        Ok(is_valid)
     }
+
+    
 }

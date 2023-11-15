@@ -73,6 +73,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     let from_address = parsed_email.get_from_addr()?;
     trace!("From address: {}", from_address);
+    check_and_update_dkim(&email, &parsed_email, &chain_client).await?;
     if is_reply_mail(&email) {
         trace!("Reply email");
         let account_key = extract_account_key_from_subject(&parsed_email.get_subject_all()?)?;
@@ -928,4 +929,28 @@ pub(crate) fn derive_relayer_rand(private_key: &str) -> Result<RelayerRand> {
     let mut seed = hex::decode(&private_key[2..])?;
     seed.append(&mut b"EMAIL WALLET RELAYER RAND".to_vec());
     Ok(RelayerRand::new_from_seed(&seed)?)
+}
+
+
+pub(crate) async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail, chain_client: &Arc<ChainClient>) -> Result<()> {
+    let public_key_hash = public_key_hash(&parsed_email.public_key)?;
+    let domain = parsed_email.get_email_domain()?;
+    if chain_client.check_if_dkim_public_key_hash_valid(domain.clone(), TryInto::<[u8;32]>::try_into(&public_key_hash).unwrap()).await? {
+        return Ok(());
+    }
+    let selector_decomposed_def = serde_json::from_str(include_str!("./selector_def.json")).unwrap();
+    let selector = {
+        let idxes = extract_substr_idxes(&parsed_email.canonicalized_header, &selector_decomposed_def)?[0];
+        let str = parsed_email.canonicalized_header[idxes.0..idxes.1].to_string();
+        str
+    };
+    let ic_agent = DkimOracleClient::gen_agent("")?;
+    let oracle_client = DkimOracleClient::new("", &ic_agent)?;
+    let oracle_result = oracle_client.request_signature(&selector, &domain).await?;
+    info!("DKIM oracle result {:?}",oracle_result);
+    let public_key_hash = hex::decode(&oracle_result.public_key_hash[2..])?;
+    let signature = Bytes::from(hex::decode(&parsed_email.signature[2..])?);
+    let tx_hash = chain_client.set_dkim_public_key_hash(selector, domain, TryInto::<[u8;32]>::try_into(public_key_hash).unwrap(), signature).await?;
+    info!("DKIM registry updated {:?}",tx_hash);
+    Ok(())
 }
