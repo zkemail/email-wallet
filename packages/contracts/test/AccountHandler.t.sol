@@ -31,6 +31,23 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertTrue(!initialized);
     }
 
+    function testFail_CreateAccount() public {
+        vm.warp(1701388800);
+        vm.startPrank(relayer);
+        vm.expectEmit(true, true, true, true);
+        emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
+
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+        vm.stopPrank();
+
+        Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
+        assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
+
+        assertEq(accountHandler.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
+
+        accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
+    }
+
     function test_RevertWhen_CreateAccountRelayerIsNotRegistered() public {
         vm.expectRevert("relayer not registered");
         accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
@@ -113,6 +130,27 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         (, bool initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
         assertTrue(initialized);
+    }
+
+    function testFail_AccountInitailization() public {
+        vm.warp(1701388800);
+        vm.startPrank(relayer);
+        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+
+        vm.expectEmit(true, true, true, true);
+        emit EmailWalletEvents.AccountInitialized(emailAddrPointer, accountKeyCommit, walletSalt);
+
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
+        vm.stopPrank();
+
+        accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
     }
 
     function test_RevertIf_InitializingAccountNotRegistered() public {

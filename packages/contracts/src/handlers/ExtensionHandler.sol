@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 import "../interfaces/Commands.sol";
+import "./CommonHandler.sol";
 
-contract ExtensionHandler is Ownable {
+contract ExtensionHandler is CommonHandler, Ownable {
     bool _defaultExtensionsSet;
 
     // Mapping from extensio name to extension address, as published by the developer
@@ -59,7 +60,7 @@ contract ExtensionHandler is Ownable {
         address addr,
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
-    ) public {
+    ) public onlyBeforeLimit {
         require(addressOfExtensionName[name] == address(0), "extension name already used");
         require(addr != address(0), "invalid extension address");
         require(bytes(name).length > 0, "invalid extension name");
