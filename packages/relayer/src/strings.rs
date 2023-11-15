@@ -56,3 +56,7 @@ pub(crate) const INSTALL_COMMAND: &str = "Install";
 pub(crate) const UNINSTALL_COMMAND: &str = "Uninstall";
 pub(crate) const EXIT_COMMAND: &str = "Exit";
 pub(crate) const DKIM_COMMAND: &str = "DKIM";
+
+// DKIM ORACLE ARGS
+pub(crate) const CANISTER_ID_KEY: &str = "CANISTER_ID";
+pub(crate) const PEM_PATH_KEY: &str = "PEM_PATH";

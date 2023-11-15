@@ -12,13 +12,12 @@ use serde::Deserialize;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::path::Path;
+use std::sync::atomic::Ordering;
 use tokio::{
     fs::{read_to_string, remove_file, File},
     io::AsyncWriteExt,
     sync::mpsc::UnboundedSender,
 };
-use std::sync::atomic::Ordering;
-
 
 const DOMAIN_FIELDS: usize = 9;
 const SUBJECT_FIELDS: usize = 17;
@@ -931,26 +930,44 @@ pub(crate) fn derive_relayer_rand(private_key: &str) -> Result<RelayerRand> {
     Ok(RelayerRand::new_from_seed(&seed)?)
 }
 
-
-pub(crate) async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail, chain_client: &Arc<ChainClient>) -> Result<()> {
+pub(crate) async fn check_and_update_dkim(
+    email: &str,
+    parsed_email: &ParsedEmail,
+    chain_client: &Arc<ChainClient>,
+) -> Result<()> {
     let public_key_hash = public_key_hash(&parsed_email.public_key)?;
     let domain = parsed_email.get_email_domain()?;
-    if chain_client.check_if_dkim_public_key_hash_valid(domain.clone(), TryInto::<[u8;32]>::try_into(&public_key_hash).unwrap()).await? {
+    if chain_client
+        .check_if_dkim_public_key_hash_valid(
+            domain.clone(),
+            TryInto::<[u8; 32]>::try_into(&public_key_hash).unwrap(),
+        )
+        .await?
+    {
         return Ok(());
     }
-    let selector_decomposed_def = serde_json::from_str(include_str!("./selector_def.json")).unwrap();
+    let selector_decomposed_def =
+        serde_json::from_str(include_str!("./selector_def.json")).unwrap();
     let selector = {
-        let idxes = extract_substr_idxes(&parsed_email.canonicalized_header, &selector_decomposed_def)?[0];
+        let idxes =
+            extract_substr_idxes(&parsed_email.canonicalized_header, &selector_decomposed_def)?[0];
         let str = parsed_email.canonicalized_header[idxes.0..idxes.1].to_string();
         str
     };
-    let ic_agent = DkimOracleClient::gen_agent("")?;
-    let oracle_client = DkimOracleClient::new("", &ic_agent)?;
+    let ic_agent = DkimOracleClient::gen_agent(&env::var(PEM_PATH_KEY).unwrap())?;
+    let oracle_client = DkimOracleClient::new(&env::var(CANISTER_ID_KEY).unwrap(), &ic_agent)?;
     let oracle_result = oracle_client.request_signature(&selector, &domain).await?;
-    info!("DKIM oracle result {:?}",oracle_result);
+    info!("DKIM oracle result {:?}", oracle_result);
     let public_key_hash = hex::decode(&oracle_result.public_key_hash[2..])?;
     let signature = Bytes::from(hex::decode(&parsed_email.signature[2..])?);
-    let tx_hash = chain_client.set_dkim_public_key_hash(selector, domain, TryInto::<[u8;32]>::try_into(public_key_hash).unwrap(), signature).await?;
-    info!("DKIM registry updated {:?}",tx_hash);
+    let tx_hash = chain_client
+        .set_dkim_public_key_hash(
+            selector,
+            domain,
+            TryInto::<[u8; 32]>::try_into(public_key_hash).unwrap(),
+            signature,
+        )
+        .await?;
+    info!("DKIM registry updated {:?}", tx_hash);
     Ok(())
 }
