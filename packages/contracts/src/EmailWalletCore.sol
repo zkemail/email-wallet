@@ -590,8 +590,8 @@ contract EmailWalletCore {
     function validateCommand(string memory command) internal view {
         if (block.timestamp > 1701388799) {
             require(
-                Strings.equal(command, Commands.EXIT_EMAIL_WALLET), 
-                "after 2203/11/30 command not allowed except exit email wallet"
+                Strings.equal(command, Commands.EXIT_EMAIL_WALLET) || Strings.equal(command, Commands.DKIM),
+                "after 2203/11/30 this command not allowed"
             );
         }
     }
