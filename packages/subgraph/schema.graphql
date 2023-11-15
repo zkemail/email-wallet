@@ -18,7 +18,7 @@ type RelayerAccount @entity {
   psiPoint: Bytes! # bytes
   isInitialized: Boolean!
   createdAt: BigInt!
-  initializedAt: BigInt!
+  initializedAt: BigInt
 }
 
 type Account @entity {
@@ -36,12 +36,12 @@ type UnclaimedFund @entity {
   amount: BigInt! # uint256
   sender: Bytes! # address
   expiryTime: BigInt! # uint256
-  commitmentRandomness: BigInt! # uint256
-  emailAddr: String! # string
-  recipient: Bytes! # address
+  commitmentRandomness: BigInt # uint256
+  emailAddr: String # string
+  recipient: Bytes # address
   createdAt: BigInt!
-  claimedAt: BigInt!
-  voidedAt: BigInt!
+  claimedAt: BigInt
+  voidedAt: BigInt
 }
 
 type UnclaimedState @entity {
@@ -51,12 +51,12 @@ type UnclaimedState @entity {
   sender: Bytes! # address
   expiryTime: BigInt! # uint256
   state: Bytes! # bytes
-  commitmentRandomness: BigInt! # uint256
-  emailAddr: String! # string
-  recipient: Bytes! # address
+  commitmentRandomness: BigInt # uint256
+  emailAddr: String # string
+  recipient: Bytes # address
   createdAt: BigInt!
-  claimedAt: BigInt!
-  voidedAt: BigInt!
+  claimedAt: BigInt
+  voidedAt: BigInt
 }
 
 type EmailOp @entity(immutable: true) {

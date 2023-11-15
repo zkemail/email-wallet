@@ -24,6 +24,7 @@ export function handleAccountCreated(event: AccountCreatedEvent): void {
     relayerAccount.psiPoint = event.params.psiPoint;
     relayerAccount.account = account.id;
     relayerAccount.relayer = relayer.id;
+    relayerAccount.isInitialized = false;
     relayerAccount.createdAt = event.block.timestamp;
     relayerAccount.save();
 }
