@@ -17,8 +17,7 @@ RUN npm install -g yarn snarkjs
 RUN git clone https://github.com/zkemail/email-wallet.git
 WORKDIR /email-wallet/packages/prover
 RUN pip install -r requirements.txt
-RUN cp ./circom_proofgen.sh /root
-WORKDIR /root
+# RUN cp ./circom_proofgen.sh /root
 # RUN gdown "https://drive.google.com/uc?id=1pe07fwKbtjMLHoQSY8Bcr4rg9aN06mFP"
 # RUN unzip params.zip
 RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-creation/contributions/emailwallet-account-creation_00019.zkey --output ./params/account_creation.zkey
