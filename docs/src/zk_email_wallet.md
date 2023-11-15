@@ -8,10 +8,13 @@ The ZK-Email Wallet currently supports the following functions:
 
 - **ETH Transfers**: Users can transfer ETH from standard ETH addresses to email wallets, from email wallets to standard ETH addresses, and between email wallets.
 - **ERC20 Transfers**: The wallet also supports transfers of ERC20 tokens.
+- **Extensions**: The wallet now allows users to seamlessly integrate with any DeFi protocol, such as Uniswap, directly from their email wallet.
 
 Currently, the wallet uniquely provides the following features:
 - **Send money to people without accounts**: Because transfers are authorized by an email address, you can mass send money or assets to people who have never used email wallet before but do have an email address. If the email address does not claim the money in 1 year (or another preset time), it can be returned to the sender. This avoids problems with dead email addresses or transactions the recipient does not want to recieve.
 - **No user interaction with Ethereum**: By delegating control of their account to an account abstraction wallet under their email provider (which they already trust with their bank account recovery and social media password reset control), users can avoid ever having to think about private keys or the complexity of the crypto ecosystem.
+- **Extension Integration for DeFi Interactions**: Users can enhance their email wallet with extensions, enabling direct interaction with external contracts. This feature allows users to perform actions such as swapping tokens via Uniswap, minting NFTs directly from their email wallet, and adding any other desired extensions to their wallet.
+- **Custom DKIM Registry**: Users can now establish their own DKIM Registry. This feature allows users to have full control over their email wallet, making it more secure and personalized. By setting up their own DKIM Registry, users can ensure that their email wallet is only accessible and managed by them, providing an additional layer of security and privacy.
 
 ## How It Works (User Perspective)
 For each transaction, you send an email. This email can be formatted for you on https://sendeth.org, or you can simply email "relayer@sendeth.org" with a subject like "Send 2 DAI to friend@gmail.com". The relayer will automatically deploy a new wallet for you (if you don't have one) that can only be authorized via emails from you. If you want to test without any Goerli assets, you can start trying to send TEST token like "Send 2 TEST to friend@gmail.com", which will automatically spend from a free 10 token starting balance.
@@ -45,7 +48,6 @@ For a more detailed technical breakdown of the cryptographic technology used in 
 
 In the next month or two, we intend to prioritize:
 - **KYC-Free Onboarding and Offboarding**: We intend to build a native integration with [ZK P2P](https://zkp2p.xyz/), which uses the same base email proving technology to atomically swap off onto Venmo or Revolut.
-- **Native Swaps**: We also intend to natively build out a swapping integration, where i.e. Uniswap is integrated into the wallet for seamless token swaps between currencies.
 - **Bulk Sending**: We intend to include bulk-sending a list of amounts to a list of email addresses, in one email or transaction.
 
 The initial version of the ZK-Email Wallet does not support privacy features. However, we intend to build a full UTXO model by the end of 2023. The core components of the wallet will be redesigned and reimplemented to support these features, but the user flow will remain the same.

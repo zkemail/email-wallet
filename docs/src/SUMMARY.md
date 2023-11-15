@@ -6,6 +6,6 @@
     - [ZK-Email](./zk_email.md)
     - [Wallet](./wallet.md) -->
 <!-- - [Specification](./specification.md) -->
-- [Circuits](./circuits.md)
+<!-- - [Circuits](./circuits.md) -->
 <!-- - [Smart-contract](./smart_contract.md) -->
 <!-- - [UTXO & Privacy version](./utxo_and_privacy.md) -->
