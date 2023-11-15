@@ -67,8 +67,6 @@ contract UniswapExtension is Extension {
         require(templateIndex <= 3, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
-        
-        
         uint256 tokenInAmount;
         address tokenInAddr;
         address tokenOutAddr;
@@ -155,11 +153,7 @@ contract UniswapExtension is Extension {
                 deadline: block.timestamp,
                 amountIn: tokenInAmount,
                 amountOutMinimum: 0,
-                sqrtPriceLimitX96: getSqrtPriceLimitX96(
-                    tokenInAddr, 
-                    wethAddr, 
-                    slippagePoints, 
-                    sqrtPriceLimitX96)
+                sqrtPriceLimitX96: getSqrtPriceLimitX96(tokenInAddr, wethAddr, slippagePoints, sqrtPriceLimitX96)
             });
             uint wethAmount = router.exactInputSingle(swapParams1);
             require(

@@ -6,6 +6,7 @@ import "forge-std/Script.sol";
 
 contract TestERC20 is ERC20 {
     uint maxPerMint;
+
     constructor(string memory name, string memory tick, uint _maxPerMint) ERC20(name, tick) {
         maxPerMint = _maxPerMint;
     }

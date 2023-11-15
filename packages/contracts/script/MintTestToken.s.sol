@@ -19,7 +19,7 @@ contract Mint is Script {
             return;
         }
 
-         uint256 amount = vm.envUint("AMOUNT");
+        uint256 amount = vm.envUint("AMOUNT");
         if (amount == 0) {
             console.log("AMOUNT env var not set");
             return;
