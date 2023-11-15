@@ -67,4 +67,26 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         assertEq(daiToken.balanceOf(recipient), 100 ether, "recipient did not receive 100 DAI");
         assertEq(daiToken.balanceOf(walletAddr), 50 ether, "sender did not have 50 DAI left");
     }
+
+    function test_ExitAndTransferOwnershipAlthoughAfterTimeLimit() public {
+        vm.warp(1701388800);
+        address newOwner = vm.addr(5);
+        string memory subject = string.concat(
+            "Exit Email Wallet. Change ownership to ",
+            SubjectUtils.addressToChecksumHexString(newOwner)
+        );
+        Wallet wallet = Wallet(payable(walletAddr));
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.EXIT_EMAIL_WALLET;
+        emailOp.newWalletOwner = newOwner;
+        emailOp.maskedSubject = subject;
+
+        vm.startPrank(relayer);
+        (bool success, , , ) = core.handleEmailOp(emailOp);
+        vm.stopPrank();
+
+        assertTrue(success, "handleEmailOp failed");
+        assertEq(wallet.owner(), newOwner, "wallet owner not changed");
+    }
 }
