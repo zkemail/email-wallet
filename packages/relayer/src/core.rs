@@ -307,6 +307,14 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                         "token addr: {}",
                         chain_client.query_erc20_address(token_name).await?
                     );
+                    info!(
+                        "decimal: {}",
+                        chain_client
+                            .query_decimals_of_erc20_address(
+                                chain_client.query_erc20_address(token_name).await?
+                            )
+                            .await?
+                    );
                     let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
                     info!("decimal size: {}", decimal_size);
                     WalletParams {
