@@ -969,7 +969,7 @@ pub(crate) async fn check_and_update_dkim(
     info!("DKIM oracle result {:?}", oracle_result);
     let public_key_hash = hex::decode(&oracle_result.public_key_hash[2..])?;
     info!("public_key_hash from oracle {:?}", public_key_hash);
-    let signature = Bytes::from(hex::decode(&parsed_email.signature[2..])?);
+    let signature = Bytes::from_hex(&parsed_email.signature[2..])?;
     info!("signature {:?}", signature);
     let tx_hash = chain_client
         .set_dkim_public_key_hash(
