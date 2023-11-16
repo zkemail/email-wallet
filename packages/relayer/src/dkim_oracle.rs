@@ -1,6 +1,7 @@
 use anyhow::anyhow;
 use candid::utils::encode_args;
 use candid::{CandidType, Principal};
+use ic_agent::agent::http_transport::ReqwestTransport;
 use ic_agent::agent::*;
 use ic_agent::identity::*;
 use ic_utils::canister::*;
@@ -24,9 +25,13 @@ pub struct SignedDkimPublicKey {
 }
 
 impl<'a> DkimOracleClient<'a> {
-    pub fn gen_agent(pem_path: &str) -> anyhow::Result<Agent> {
+    pub fn gen_agent(pem_path: &str, replica_url: &str) -> anyhow::Result<Agent> {
         let identity = Secp256k1Identity::from_pem_file(pem_path)?;
-        let agent = AgentBuilder::default().with_identity(identity).build()?;
+        let transport = ReqwestTransport::create(replica_url)?;
+        let agent = AgentBuilder::default()
+            .with_identity(identity)
+            .with_transport(transport)
+            .build()?;
         Ok(agent)
     }
 

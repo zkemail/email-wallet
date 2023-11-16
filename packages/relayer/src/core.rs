@@ -959,7 +959,10 @@ pub(crate) async fn check_and_update_dkim(
         let str = parsed_email.canonicalized_header[idxes.0..idxes.1].to_string();
         str
     };
-    let ic_agent = DkimOracleClient::gen_agent(&env::var(PEM_PATH_KEY).unwrap())?;
+    let ic_agent = DkimOracleClient::gen_agent(
+        &env::var(PEM_PATH_KEY).unwrap(),
+        &env::var(IC_REPLICA_URL_KEY).unwrap(),
+    )?;
     let oracle_client = DkimOracleClient::new(&env::var(CANISTER_ID_KEY).unwrap(), &ic_agent)?;
     let oracle_result = oracle_client.request_signature(&selector, &domain).await?;
     info!("DKIM oracle result {:?}", oracle_result);
