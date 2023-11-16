@@ -39,7 +39,7 @@ sql_database.db
 
 # Prover
 packages/prover/build/*
-packages/prover/params/*
+packages/prover/params/*.zkey
 packages/prover/__pycache__/*
 
 # Subgraphs
