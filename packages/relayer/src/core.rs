@@ -935,7 +935,9 @@ pub(crate) async fn check_and_update_dkim(
     parsed_email: &ParsedEmail,
     chain_client: &Arc<ChainClient>,
 ) -> Result<()> {
-    let public_key_hash = public_key_hash(&parsed_email.public_key)?;
+    let mut public_key_n = parsed_email.public_key.clone();
+    public_key_n.reverse();
+    let public_key_hash = public_key_hash(&public_key_n)?;
     info!("public_key_hash {:?}", public_key_hash);
     let domain = parsed_email.get_email_domain()?;
     info!("domain {:?}", domain);
