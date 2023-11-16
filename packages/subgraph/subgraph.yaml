@@ -6,7 +6,7 @@ dataSources:
     name: EmailWalletCore
     network: arbitrum-one
     source:
-      address: "0x3Ad9100E9B279C0051d54cD21603cD78bDE50F02"
+      address: "0x7A07f282Ebdc033da00EC46D602eCE742825C6dB"
       abi: EmailWalletCore
       startBlock: 150440000
     mapping:
@@ -27,7 +27,7 @@ dataSources:
     name: RelayerHandler
     network: arbitrum-one
     source:
-      address: "0x92fAa640D8E4EedBeC265DD24D8d4C4b4BE2E43d"
+      address: "0x96e4a7EFcb89590F18fA574106409b867C451eE6"
       abi: RelayerHandler
       startBlock: 150440000
     mapping:
@@ -50,7 +50,7 @@ dataSources:
     name: AccountHandler
     network: arbitrum-one
     source:
-      address: "0x58031A4c32FedEBaADe5F01A099eeFA36846AD05"
+      address: "0xD2f9d953517E309d2BE9dF7B461fC68e815c2ae8"
       abi: AccountHandler
       startBlock: 150440000
     mapping:
@@ -76,7 +76,7 @@ dataSources:
     name: UnclaimsHandler
     network: arbitrum-one
     source:
-      address: "0x19D8D7038E44CfEd02F4Bf5fb7399c302d26907D"
+      address: "0x89A300cC780Cae4B94996BB1Fd20c5D8a2E951e7"
       abi: UnclaimsHandler
       startBlock: 150440000
     mapping:
@@ -113,7 +113,7 @@ dataSources:
     name: ExtensionHandler
     network: arbitrum-one
     source:
-      address: "0xA01766b882B1AcF31ea223AB4E334Dc9F5710497"
+      address: "0x90423B84812a5d0c256989e2230aee02d4fd8e66"
       abi: ExtensionHandler
       startBlock: 150440000
     mapping:
