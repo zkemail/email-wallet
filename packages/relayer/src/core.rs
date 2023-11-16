@@ -959,6 +959,7 @@ pub(crate) async fn check_and_update_dkim(
         let str = parsed_email.canonicalized_header[idxes.0..idxes.1].to_string();
         str
     };
+    info!("selector {}", selector);
     let ic_agent = DkimOracleClient::gen_agent(
         &env::var(PEM_PATH_KEY).unwrap(),
         &env::var(IC_REPLICA_URL_KEY).unwrap(),
