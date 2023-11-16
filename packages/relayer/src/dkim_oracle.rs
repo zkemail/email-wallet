@@ -51,7 +51,7 @@ impl<'a> DkimOracleClient<'a> {
         let request = self
             .canister
             .update("sign_dkim_public_key")
-            .with_arg(&encode_args((selector, domain))?)
+            .with_args((selector, domain))
             .build::<(Result<SignedDkimPublicKey, String>,)>();
         let response = request
             .call_and_wait_one::<Result<SignedDkimPublicKey, String>>()
