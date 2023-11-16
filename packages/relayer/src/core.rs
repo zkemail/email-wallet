@@ -114,13 +114,51 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 account_key_hex
             );
             let account_key = AccountKey(hex2field(&account_key_hex)?);
-            if !db.contains_user(&from_address).await? {
-                trace!("Account create");
-                tx_creator.send((from_address, Some(account_key)))?;
-                let email_hash = calculate_default_hash(&email);
-                emails_pool.insert_email(&email_hash, &email).await?;
-                return Ok(());
+            // if !db.contains_user(&from_address).await? {
+            //     trace!("Account create");
+            //     tx_creator.send((from_address, Some(account_key)))?;
+            //     let email_hash = calculate_default_hash(&email);
+            //     emails_pool.insert_email(&email_hash, &email).await?;
+            //     return Ok(());
+            // }
+            if db.contains_user(&from_address).await? {
+                bail!("Account is already created");
             }
+            let account_key_str = field2hex(&account_key.0);
+
+            trace!("Generated account_key {account_key_str}");
+
+            let input = generate_account_creation_input(
+                CIRCUITS_DIR_PATH.get().unwrap(),
+                &from_address,
+                RELAYER_RAND.get().unwrap(),
+                &account_key_str,
+            )
+            .await?;
+
+            let (proof, pub_signals) =
+                generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
+
+            let data = AccountCreationInput {
+                email_addr_pointer: u256_to_bytes32(&pub_signals[1]),
+                account_key_commit: u256_to_bytes32(&pub_signals[2]),
+                wallet_salt: u256_to_bytes32(&pub_signals[3]),
+                psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
+                proof,
+            };
+            info!("Account creation data {:?}", data);
+            let res = chain_client.create_account(data).await?;
+            info!("account creation tx hash: {}", res);
+            let wallet_salt = account_key.to_wallet_salt()?;
+            let wallet_addr = chain_client
+                .get_wallet_addr_from_salt(&wallet_salt.0)
+                .await?;
+            let token_transfered = chain_client
+                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+                .await?;
+
+            db.insert_user(&from_address, &account_key_str, &res, false)
+                .await?;
             trace!("Account init");
             handle_account_init(
                 email,
