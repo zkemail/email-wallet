@@ -141,9 +141,9 @@ impl ImapClient {
             }
         }
 
-        self = self.wait_new_email().await?;
-
-        Ok((self.get_unseen_emails().await?, self))
+        let mut new_client = self.wait_new_email().await?;
+        new_client.reconnect().await?;
+        Ok((new_client.get_unseen_emails().await?, new_client))
     }
 
     async fn get_unseen_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {

@@ -936,7 +936,9 @@ pub(crate) async fn check_and_update_dkim(
     chain_client: &Arc<ChainClient>,
 ) -> Result<()> {
     let public_key_hash = public_key_hash(&parsed_email.public_key)?;
+    info!("public_key_hash {:?}", public_key_hash);
     let domain = parsed_email.get_email_domain()?;
+    info!("domain {:?}", domain);
     if chain_client
         .check_if_dkim_public_key_hash_valid(
             domain.clone(),
@@ -944,6 +946,7 @@ pub(crate) async fn check_and_update_dkim(
         )
         .await?
     {
+        info!("public key registered");
         return Ok(());
     }
     let selector_decomposed_def =
