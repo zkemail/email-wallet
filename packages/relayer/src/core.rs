@@ -264,9 +264,13 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 }
 
                 if let TemplateValue::TokenAmount { token_name, amount } = &template_vals[0] {
-                    trace!("token name: {}", token_name);
+                    info!("token name: {}", token_name);
+                    info!(
+                        "token addr: {}",
+                        chain_client.query_erc20_address(token_name).await?
+                    );
                     let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
-                    trace!("decimal size: {}", decimal_size);
+                    info!("decimal size: {}", decimal_size);
                     WalletParams {
                         token_name: token_name.clone(),
                         amount: TemplateValue::amount_to_uint(amount, decimal_size),
