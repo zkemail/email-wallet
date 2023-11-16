@@ -7,7 +7,7 @@ FROM python:3.10
 RUN apt-get update && apt-get upgrade -y 
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
-    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm curl 
+    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm 
 
 # Node install
 RUN npm install -g n 
@@ -17,7 +17,14 @@ RUN npm install -g yarn snarkjs
 RUN git clone https://github.com/zkemail/email-wallet.git
 WORKDIR /email-wallet/packages/prover
 RUN pip install -r requirements.txt
-# RUN cp ./circom_proofgen.sh /root
+RUN cp ./circom_proofgen.sh /root
+WORKDIR /root
+RUN mkdir params
+RUN cp /email-wallet/packages/prover/params/account_creation.wasm /root/params
+RUN cp /email-wallet/packages/prover/params/account_init.wasm /root/params
+RUN cp /email-wallet/packages/prover/params/account_transport.wasm /root/params
+RUN cp /email-wallet/packages/prover/params/claim.wasm /root/params
+RUN cp /email-wallet/packages/prover/params/email_sender.wasm /root/params
 # RUN gdown "https://drive.google.com/uc?id=1pe07fwKbtjMLHoQSY8Bcr4rg9aN06mFP"
 # RUN unzip params.zip
 RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-creation/contributions/emailwallet-account-creation_00019.zkey --output ./params/account_creation.zkey
