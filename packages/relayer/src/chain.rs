@@ -86,16 +86,12 @@ impl ChainClient {
         let token_registry = TokenRegistry::new(token_registry_addr, client.clone());
         let account_handler_addr = core.account_handler().call().await.unwrap();
         let account_handler = AccountHandler::new(account_handler_addr, client.clone());
-        let extension_handler = ExtensionHandler::new(
-            core.extension_handler().call().await?,
-            client.clone(),
-        );
+        let extension_handler =
+            ExtensionHandler::new(core.extension_handler().call().await?, client.clone());
         let relayer_handler =
             RelayerHandler::new(core.relayer_handler().call().await.unwrap(), client.clone());
-        let unclaims_handler = UnclaimsHandler::new(
-            core.unclaims_handler().call().await?,
-            client.clone(),
-        );
+        let unclaims_handler =
+            UnclaimsHandler::new(core.unclaims_handler().call().await?, client.clone());
         let ecdsa_owned_dkim_registry = ECDSAOwnedDKIMRegistry::new(
             account_handler.default_dkim_registry().await?,
             client.clone(),
@@ -298,8 +294,19 @@ impl ChainClient {
         Err(anyhow!("no EmailOpHandled event found in the receipt"))
     }
 
-    pub async fn set_dkim_public_key_hash(&self, selector: String, domain_name: String, public_key_hash: [u8;32], signature: Bytes) -> Result<String>{
-        let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(selector, domain_name, public_key_hash, signature);
+    pub async fn set_dkim_public_key_hash(
+        &self,
+        selector: String,
+        domain_name: String,
+        public_key_hash: [u8; 32],
+        signature: Bytes,
+    ) -> Result<String> {
+        let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(
+            selector,
+            domain_name,
+            public_key_hash,
+            signature,
+        );
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -310,7 +317,6 @@ impl ChainClient {
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
-    
 
     pub async fn free_mint_test_erc20(&self, wallet_addr: Address, amount: U256) -> Result<String> {
         let call = self.test_erc20.free_mint_with_to(wallet_addr, amount);
@@ -650,11 +656,13 @@ impl ChainClient {
     ) -> Result<bool> {
         let is_valid = self
             .ecdsa_owned_dkim_registry
-            .is_dkim_public_key_hash_valid(domain_name, public_key_hash)
+            .is_dkim_public_key_hash_valid(domain_name.clone(), public_key_hash)
             .call()
             .await?;
+        info!(
+            "{:?} for {} is already registered: {}",
+            public_key_hash, domain_name, is_valid
+        );
         Ok(is_valid)
     }
-
-    
 }

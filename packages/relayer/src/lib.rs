@@ -178,6 +178,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     }
                 }
             }
+
             email_receiver = new_email_receiver;
         }
 

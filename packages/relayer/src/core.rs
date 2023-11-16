@@ -942,10 +942,7 @@ pub(crate) async fn check_and_update_dkim(
     let domain = parsed_email.get_email_domain()?;
     info!("domain {:?}", domain);
     if chain_client
-        .check_if_dkim_public_key_hash_valid(
-            domain.clone(),
-            TryInto::<[u8; 32]>::try_into(&public_key_hash).unwrap(),
-        )
+        .check_if_dkim_public_key_hash_valid(domain.clone(), fr_to_bytes32(&public_key_hash)?)
         .await?
     {
         info!("public key registered");

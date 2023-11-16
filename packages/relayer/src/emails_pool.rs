@@ -69,7 +69,6 @@ impl FileEmailsPool {
             .to_str()
             .unwrap()
             .to_string();
-        info!("dir_path {:?}", dir_path);
         fs::create_dir_all(&dir_path).unwrap();
         Self { dir_path }
     }
