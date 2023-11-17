@@ -247,10 +247,12 @@ impl SmtpClient {
                     }
                 );
                 let body_plaim = format!(
-                    "Hi {}!\n{}\nYour wallet address: https://arbiscan.io/address/{}.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
-                    user_email_addr, claim_msg, email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
+                    "Hi {}!\n{}\\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    user_email_addr,
+                    claim_msg,
+                    email.tx_hash.clone().expect("tx_hash must be set")
                 );
-                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "claimMsg": claim_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
+                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "claimMsg": claim_msg, "transactionHash": email.tx_hash});
                 let body_html = self.render_html("claim.html", render_data).await?;
                 self.send_inner(
                     email.to,
