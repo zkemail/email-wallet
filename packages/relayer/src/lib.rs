@@ -19,6 +19,8 @@ pub(crate) mod subgraph;
 pub(crate) mod subject_templates;
 pub(crate) mod voider;
 pub(crate) mod web_server;
+pub(crate) mod shared;
+
 
 pub(crate) use crate::core::*;
 pub(crate) use abis::*;
@@ -39,6 +41,7 @@ pub(crate) use subgraph::*;
 pub(crate) use subject_templates::*;
 pub(crate) use voider::*;
 pub(crate) use web_server::*;
+pub use shared::SHARED_DATA;
 
 use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
@@ -70,6 +73,10 @@ static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
 static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
 
 pub async fn setup() -> Result<()> {
+    // Mutex is used to prevent nonce conflicts.
+    let mut data = SHARED_DATA.lock().await;
+    *data += 1;
+
     dotenv().ok();
     PRIVATE_KEY.set(env::var(PRIVATE_KEY_KEY).unwrap()).unwrap();
     CHAIN_ID
@@ -98,6 +105,10 @@ pub async fn setup() -> Result<()> {
 }
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
+    // Mutex is used to prevent nonce conflicts.
+    let mut data = SHARED_DATA.lock().await;
+    *data += 1;
+
     simple_logger::init().unwrap();
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
