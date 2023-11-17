@@ -1,5 +1,7 @@
 use crate::*;
 
+use std::time::Duration;
+
 use anyhow::anyhow;
 use async_imap::{extensions::idle::IdleResponse::*, types::Fetch, Session};
 use async_native_tls::TlsStream;
@@ -173,7 +175,7 @@ impl ImapClient {
         loop {
             let mut idle = self.session.idle();
             idle.init().await?;
-            let result = idle.wait().0.await;
+            let result = idle.wait_with_timeout(Duration::from_secs(29 * 60)).0.await;
             let is_new_data = matches!(result, Ok(NewData(_)));
 
             let session_result = idle.done().await;
