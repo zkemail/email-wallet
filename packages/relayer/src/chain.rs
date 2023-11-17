@@ -1,5 +1,8 @@
 use std::str::FromStr;
 
+use crate::shared;
+use shared::SHARED_MUTEX;
+
 use crate::*;
 use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
@@ -123,6 +126,10 @@ impl ChainClient {
         email_addr: String,
         hostname: String,
     ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let call =
             self.relayer_handler
                 .register_relayer(fr_to_bytes32(&rand_hash)?, email_addr, hostname);
@@ -138,6 +145,10 @@ impl ChainClient {
     }
 
     pub async fn create_account(&self, data: AccountCreationInput) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let call = self.account_handler.create_account(
             data.email_addr_pointer,
             data.account_key_commit,
@@ -157,6 +168,10 @@ impl ChainClient {
     }
 
     pub async fn init_account(&self, data: AccountInitInput) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let call = self.account_handler.initialize_account(
             data.email_addr_pointer,
             data.email_domain,
@@ -177,6 +192,10 @@ impl ChainClient {
     }
 
     pub async fn transport_account(&self, data: AccountTransportInput) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let call = self.account_handler.transport_account(
             data.old_account_key_commit,
             data.new_email_addr_pointer,
@@ -197,6 +216,10 @@ impl ChainClient {
     }
 
     pub async fn claim(&self, data: ClaimInput) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         if data.is_fund {
             let call = self.unclaims_handler.claim_unclaimed_fund(
                 data.id,
@@ -231,6 +254,10 @@ impl ChainClient {
     }
 
     pub async fn void(&self, id: U256, is_fund: bool) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         if is_fund {
             let call = self.unclaims_handler.void_unclaimed_fund(id);
             let tx = call.send().await?;
@@ -257,6 +284,10 @@ impl ChainClient {
     }
 
     pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<(String, U256)> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let value = if !email_op.has_email_recipient {
             U256::zero()
         } else if email_op.command == SEND_COMMAND {
@@ -301,6 +332,10 @@ impl ChainClient {
         public_key_hash: [u8; 32],
         signature: Bytes,
     ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(
             selector,
             domain_name,
@@ -319,6 +354,10 @@ impl ChainClient {
     }
 
     pub async fn free_mint_test_erc20(&self, wallet_addr: Address, amount: U256) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let call = self.test_erc20.free_mint_with_to(wallet_addr, amount);
         let tx = call.send().await?;
         let receipt = tx
@@ -332,6 +371,10 @@ impl ChainClient {
     }
 
     pub(crate) async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let erc20 = ERC20::new(
             ONBOARDING_TOKEN_ADDR.get().unwrap().to_owned(),
             self.client.clone(),
