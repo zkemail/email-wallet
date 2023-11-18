@@ -133,25 +133,30 @@ impl ImapClient {
         Ok(Self { session, config })
     }
 
-    pub(crate) async fn retrieve_new_emails(mut self) -> Result<(Vec<Vec<Fetch>>, Self)> {
+    pub(crate) async fn retrieve_new_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
         if !self.config.initially_checked {
             self.config.initially_checked = true;
             let result =
                 tokio::time::timeout(Duration::from_secs(10), self.get_unseen_emails()).await;
             if let Ok(Ok(result)) = result {
-                return Ok((result, self));
+                return Ok(result);
             }
         }
 
-        let mut new_client = self.wait_new_email().await?;
-        new_client.reconnect().await?;
-        Ok((new_client.get_unseen_emails().await?, new_client))
+        // let mut new_client = self.wait_new_email().await?;
+        trace!("Reconnecting...");
+        self.reconnect().await?;
+        trace!("Reconnected!");
+        // Ok((new_client.get_unseen_emails().await?, new_client))
+        Ok(self.get_unseen_emails().await?)
     }
 
     async fn get_unseen_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
+        trace!("Getting unseen emails...");
         loop {
             match self.session.uid_search("UNSEEN").await {
                 Ok(uids) => {
+                    trace!("Got unseen emails: {:?}!", uids);
                     let mut results = vec![];
                     for uid in uids {
                         let res = self
@@ -161,6 +166,7 @@ impl ImapClient {
                         let res = res.try_collect::<Vec<_>>().await?;
                         results.push(res);
                     }
+                    trace!("Got unseen emails: {:?}!", results);
                     return Ok(results);
                 }
                 Err(e) => {
@@ -171,27 +177,27 @@ impl ImapClient {
         }
     }
 
-    async fn wait_new_email(mut self) -> Result<Self> {
-        loop {
-            let mut idle = self.session.idle();
-            idle.init().await?;
-            let result = idle.wait_with_timeout(Duration::from_secs(29 * 60)).0.await;
-            let is_new_data = matches!(result, Ok(NewData(_)));
+    // async fn wait_new_email(mut self) -> Result<Self> {
+    //     loop {
+    //         let mut idle = self.session.idle();
+    //         idle.init().await?;
+    //         let result = idle.wait_with_timeout(Duration::from_secs(29 * 60)).0.await;
+    //         let is_new_data = matches!(result, Ok(NewData(_)));
 
-            let session_result = idle.done().await;
+    //         let session_result = idle.done().await;
 
-            self = match session_result {
-                Ok(session) => Self { session, ..self },
-                Err(_) => Self::new(self.config).await.unwrap(),
-            };
+    //         self = match session_result {
+    //             Ok(session) => Self { session, ..self },
+    //             Err(_) => Self::new(self.config).await.unwrap(),
+    //         };
 
-            if is_new_data {
-                return Ok(self);
-            } else {
-                self.reconnect().await?;
-            }
-        }
-    }
+    //         if is_new_data {
+    //             return Ok(self);
+    //         } else {
+    //             self.reconnect().await?;
+    //         }
+    //     }
+    // }
 
     async fn reconnect(&mut self) -> Result<()> {
         const MAX_RETRIES: u32 = 5;
