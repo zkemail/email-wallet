@@ -13,13 +13,13 @@ pub(crate) mod dkim_oracle;
 pub(crate) mod emails_pool;
 pub(crate) mod imap_client;
 pub(crate) mod psi;
+pub(crate) mod shared;
 pub(crate) mod smtp_client;
 pub(crate) mod strings;
 pub(crate) mod subgraph;
 pub(crate) mod subject_templates;
 pub(crate) mod voider;
 pub(crate) mod web_server;
-pub(crate) mod shared;
 
 pub(crate) use crate::core::*;
 pub(crate) use abis::*;
@@ -342,7 +342,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         anyhow::Ok(())
     });
 
-    let tx_sender_for_voider_task = tx_sender.clone();
+    let tx_claimer_for_catcher_task = tx_claimer.clone();
+    let tx_sender_for_catcher_task = tx_sender.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let voider_task = tokio::task::spawn(async move {
@@ -362,10 +363,11 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             //     );
             // }
             // sleep(Duration::from_secs(120)).await;
-            match voider_fn(
+            match catch_claims_in_db_fn(
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                &tx_sender_for_voider_task,
+                &tx_claimer_for_catcher_task,
+                &tx_sender_for_catcher_task,
             )
             .await
             {
@@ -547,12 +549,18 @@ async fn event_listener_fn<
     Ok((last_block_f + 1, last_block_s + 1))
 }
 
-async fn voider_fn(
+async fn catch_claims_in_db_fn(
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
-    tx_sender_for_voider_task: &UnboundedSender<EmailMessage>,
+    tx_claimer_for_catcher_task: &UnboundedSender<Claim>,
+    tx_sender_for_catcher_task: &UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let now = now();
+    let claims = db_clone.get_claims_unexpired(now).await?;
+    for claim in claims {
+        info!("Claiming claim for : {}", claim.email_address);
+        tx_claimer_for_catcher_task.send(claim)?;
+    }
     let claims = db_clone.get_claims_expired(now).await?;
     for claim in claims {
         info!("Voiding claim for : {}", claim.email_address);
@@ -561,7 +569,7 @@ async fn voider_fn(
                 claim,
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                tx_sender_for_voider_task.clone(),
+                tx_sender_for_catcher_task.clone(),
             )
             .map_err(|err| error!("Error voider task: {}", err)),
         );
