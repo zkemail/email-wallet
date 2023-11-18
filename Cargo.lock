@@ -4309,6 +4309,7 @@ dependencies = [
  "hex",
  "ic-agent",
  "ic-utils",
+ "lazy_static",
  "lettre",
  "log",
  "num-bigint",
