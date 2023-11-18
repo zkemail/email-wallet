@@ -44,6 +44,7 @@ graphql_client = { version = "0.13.0", features = ["reqwest"] }
 ic-utils = { version = "0.30.0" }
 ic-agent = { version = "0.30.0", features = ["pem", "reqwest"] }
 candid = "0.9.11"
+lazy_static = "1.4"
 
 [build-dependencies]
 ethers = "2.0.10"
