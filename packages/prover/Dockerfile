@@ -44,3 +44,4 @@ RUN npx task createFieldSources
 RUN npx task buildPistache
 RUN npx task buildProver
 RUN chmod +x build/prover
+WORKDIR /root
