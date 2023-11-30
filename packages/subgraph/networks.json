@@ -37,5 +37,22 @@
     "ExtensionHandler": {
       "address": "0x078e99673a6fb4f82c3e9083e6fa32a1fad956b3"
     }
+  },
+  "sepolia": {
+    "EmailWalletCore": {
+      "address": "0xaBe0611c766DFa7d395BcA438E8EdFfeAfa5B712"
+    },
+    "RelayerHandler": {
+      "address": "0x01b40DD3e1B53C38d43556F6a00F7dc3872C9C9B",
+    },
+    "AccountHandler": {
+      "address": "0xDF92F56e0c7Ce30a95f068B0d421d56F2B0028f8"
+    },
+    "UnclaimsHandler": {
+      "address": "0x304827A7341dd9d5C0B5eCB65285b18dCb9B1E1E"
+    },
+    "ExtensionHandler": {
+      "address": "0x2cbf7dB623eBa043d655eD282ea56e555004772B"
+    }
   }
 }
