@@ -101,7 +101,7 @@ impl SmtpClient {
                 created.\nPlease reply to this email to start using Email
                     Wallet. You don't have to add any message in the reply 😄.\nYou already have 100 TEST tokens. Once you reply to this
                     email, you can send them to your friends by specifying the recpient's
-                    email address.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    email address.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "transactionHash": email.tx_hash});
@@ -139,7 +139,7 @@ impl SmtpClient {
                    emailwallet.relayer@gmail.com\".\nSimilarly,
                    you can send any currency we support directly to an email address by
                    sending an email with the amount, currency name, and recipient's
-                   email address replaced respectively in the subject line.\n{}\nYour wallet address: https://arbiscan.io/address/{}.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                   email address replaced respectively in the subject line.\n{}\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, relayer_email_addr, faucet_message.clone().unwrap_or(String::new()), email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "relayerEmailAddr": relayer_email_addr, "faucetMessage": faucet_message.unwrap_or(String::new()), "walletAddr": email.wallet_addr.expect("wallet_addr must be set"),  "transactionHash": email.tx_hash});
@@ -167,7 +167,7 @@ impl SmtpClient {
                 );
                 let body_plaim = format!(
                     "Hi {}!\nYour account is securely transported to us. Now you can make any Email
-                    Wallet transactions by sending an email to {}.\nYour wallet address: https://arbiscan.io/address/{}.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    Wallet transactions by sending an email to {}.\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, relayer_email_addr, email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "relayerEmailAddr": relayer_email_addr, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
@@ -197,7 +197,7 @@ impl SmtpClient {
                 );
                 let body_plaim = format!(
                     "Hi {}!\nYour transaction request {} is completed in
-                    this transaction https://arbiscan.io/tx/{}. Thank you for using Email Wallet!\nYour wallet address: https://arbiscan.io/address/{}.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    this transaction https://sepolia.etherscan.io/tx/{}. Thank you for using Email Wallet!\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, original_subject, email.tx_hash.clone().expect("tx_hash must be set"), email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
@@ -220,7 +220,7 @@ impl SmtpClient {
                 );
                 let body_plaim = format!(
                     "Hi {}!\nAn Email Wallet transaction is executed for you in
-                    this transaction https://arbiscan.io/tx/{}.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    this transaction https://sepolia.etherscan.io/tx/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, email.tx_hash.clone().expect("tx_hash must be set"), email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "transactionHash": email.tx_hash});
@@ -247,7 +247,7 @@ impl SmtpClient {
                     }
                 );
                 let body_plaim = format!(
-                    "Hi {}!\n{}\\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    "Hi {}!\n{}\\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr,
                     claim_msg,
                     email.tx_hash.clone().expect("tx_hash must be set")
@@ -281,7 +281,7 @@ impl SmtpClient {
                     }
                 );
                 let body_plaim = format!(
-                    "Hi {}!\n{}\nYour wallet address: https://arbiscan.io/address/{}.\nCheck the transaction on etherscan: https://arbiscan.io/tx/{}",
+                    "Hi {}!\n{}\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, void_msg,email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "voidMsg": void_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});

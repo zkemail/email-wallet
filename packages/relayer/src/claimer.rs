@@ -23,7 +23,17 @@ pub(crate) async fn claim_unclaims(
     tx_creator: UnboundedSender<(String, Option<AccountKey>)>,
     tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
-    db.insert_claim(&claim).await?;
+    if db
+        .get_claims_by_id(&claim.id)
+        .await?
+        .into_iter()
+        .filter(|c: &Claim| c.is_fund == claim.is_fund)
+        .collect::<Vec<_>>()
+        .len()
+        == 0
+    {
+        db.insert_claim(&claim).await?;
+    }
     if !db.contains_user(&claim.email_address).await.unwrap() {
         tx_creator.send((claim.email_address.clone(), None))?;
         return Ok(());

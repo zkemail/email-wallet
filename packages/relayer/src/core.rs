@@ -97,6 +97,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 db.clone(),
                 chain_client,
                 tx_sender,
+                false,
             )
             .await?;
         }
@@ -159,16 +160,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
 
             db.insert_user(&from_address, &account_key_str, &res, false)
                 .await?;
-            trace!("Account init");
-            handle_account_init(
-                email,
-                &parsed_email,
-                account_key,
-                db.clone(),
-                chain_client.clone(),
-                tx_sender,
-            )
-            .await?;
+
             let wallet_salt = account_key.to_wallet_salt()?;
             trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
             let wallet_addr = chain_client
@@ -178,7 +170,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
 
             // Distribute onboarding tokens
             let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
-            if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
+            let is_faucet = if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
                 match chain_client.transfer_onboarding_tokens(wallet_addr).await {
                     Ok(tx_hash) => {
                         info!("onboarding tokens sent {:?}", tx_hash);
@@ -188,10 +180,24 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                         info!("onboarding tokens transfer failed");
                     }
                 }
+                true
             } else {
                 ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
                 info!("onboarding token limit reached");
-            }
+                false
+            };
+
+            trace!("Account init");
+            handle_account_init(
+                email,
+                &parsed_email,
+                account_key,
+                db.clone(),
+                chain_client.clone(),
+                tx_sender,
+                is_faucet,
+            )
+            .await?;
 
             return Ok(());
         }
@@ -494,6 +500,7 @@ pub(crate) async fn handle_account_init(
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     tx_sender: UnboundedSender<EmailMessage>,
+    is_faucet: bool,
 ) -> Result<()> {
     let from_address = parsed_email.get_from_addr()?;
     if field2hex(&account_key.0) != db.get_account_key(&from_address).await?.unwrap() {
@@ -523,7 +530,7 @@ pub(crate) async fn handle_account_init(
     info!("account init data {:?}", data);
     let result = chain_client.init_account(data).await?;
     info!("account init tx hash: {}", result);
-    let is_onborded = db.is_user_onborded(&from_address).await?;
+    // let is_onborded = db.is_user_onborded(&from_address).await?;
     let wallet_salt = account_key.to_wallet_salt()?;
     trace!("Wallet salt: {}", field2hex(&wallet_salt.0));
     let wallet_addr = chain_client
@@ -541,7 +548,11 @@ pub(crate) async fn handle_account_init(
             email_args: EmailArgs::AccountInit {
                 user_email_addr: from_address,
                 relayer_email_addr: env::var(LOGIN_ID_KEY).unwrap(),
-                faucet_message: Some(ONBOARDING_REPLY_MSG.get().unwrap().clone()),
+                faucet_message: if is_faucet {
+                    Some(ONBOARDING_REPLY_MSG.get().unwrap().clone())
+                } else {
+                    None
+                },
                 reply_to: message_id,
             },
             account_key: Some(field2hex(&account_key.0)),
