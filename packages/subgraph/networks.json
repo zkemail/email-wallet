@@ -40,19 +40,24 @@
   },
   "sepolia": {
     "EmailWalletCore": {
-      "address": "0xaBe0611c766DFa7d395BcA438E8EdFfeAfa5B712"
+      "address": "0xaBe0611c766DFa7d395BcA438E8EdFfeAfa5B712",
+      "startBlock": 4796719
     },
     "RelayerHandler": {
       "address": "0x01b40DD3e1B53C38d43556F6a00F7dc3872C9C9B",
+      "startBlock": 4796719
     },
     "AccountHandler": {
-      "address": "0xDF92F56e0c7Ce30a95f068B0d421d56F2B0028f8"
+      "address": "0xDF92F56e0c7Ce30a95f068B0d421d56F2B0028f8",
+      "startBlock": 4796719
     },
     "UnclaimsHandler": {
-      "address": "0x304827A7341dd9d5C0B5eCB65285b18dCb9B1E1E"
+      "address": "0x304827A7341dd9d5C0B5eCB65285b18dCb9B1E1E",
+      "startBlock": 4796719
     },
     "ExtensionHandler": {
-      "address": "0x2cbf7dB623eBa043d655eD282ea56e555004772B"
+      "address": "0x2cbf7dB623eBa043d655eD282ea56e555004772B",
+      "startBlock": 4796719
     }
   }
 }
