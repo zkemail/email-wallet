@@ -588,7 +588,7 @@ contract EmailWalletCore {
     /// but there are some stack too deep problems, so we define it as a function.
     /// @param command Name of the command to execute
     function validateCommand(string memory command) internal view {
-        if (block.timestamp > 1701388799) {
+        if (block.timestamp > type(uint256).max) {
             require(
                 Strings.equal(command, Commands.EXIT_EMAIL_WALLET) || Strings.equal(command, Commands.DKIM),
                 "after 2203/11/30 this command not allowed"
