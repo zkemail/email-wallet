@@ -38,6 +38,12 @@ contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable 
         __Ownable_init();
     }
 
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
     /// Set default extensions for all users
     /// @param defaultExtensions Array of default extensions encoded as (string name, address addr, string[][] templates, uint256 maxGas)
     function setDefaultExtensions(bytes[] calldata defaultExtensions) public onlyOwner {
@@ -141,12 +147,6 @@ contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable 
     ) external onlyOwner {
         userExtensionOfCommand[walletAddr][command] = extensionAddr;
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
 
     /// @notice Return the extension address for a command and user
     /// @param walletAddr The user's wallet address

@@ -25,6 +25,12 @@ contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         __Ownable_init();
     }
 
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
     function getRandHash(address relayer) public view returns (bytes32) {
         return relayers[relayer].randHash;
     }
@@ -58,10 +64,4 @@ contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         emit EmailWalletEvents.RelayerConfigUpdated(msg.sender, hostname);
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
 }

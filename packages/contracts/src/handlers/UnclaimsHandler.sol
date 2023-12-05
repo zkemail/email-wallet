@@ -78,6 +78,12 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         maxFeePerGas = _maxFeePerGas;
     }
 
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
     // UnclaimHandler can receive ETH only from the core contract = owner
     receive() external payable {
         require(msg.sender == owner(), "only owner can send ETH");
@@ -489,12 +495,6 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
         emit EmailWalletEvents.UnclaimedStateVoided(id, us.emailAddrCommit, us.sender);
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
 
     function getUnclaimedFund(uint256 id) public view returns (UnclaimedFund memory) {
         return unclaimedFundOfId[id];

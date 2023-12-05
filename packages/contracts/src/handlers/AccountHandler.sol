@@ -64,6 +64,12 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         verifier = IVerifier(_verifier);
     }
 
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
     /// Create new account and wallet for a user
     /// @param emailAddrPointer hash(relayerRand, emailAddr)
     /// @param accountKeyCommit hash(accountKey, emailAddr, relayerHash)
@@ -285,13 +291,6 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function getWalletOfEmailAddrPointer(bytes32 emailAddrPointer) public view returns (address) {
         return getWalletOfSalt(infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailAddrPointer]].walletSalt);
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
-
 
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment

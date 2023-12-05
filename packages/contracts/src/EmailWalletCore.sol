@@ -118,6 +118,12 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
     }
 
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
     /// @notice Initialize contract with some defaults after deployment
     /// @param defaultExtensions List of default extensions to be set
     function initializeExtension(bytes[] calldata defaultExtensions) public {
@@ -363,12 +369,6 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         Wallet(payable(currContext.walletAddr)).execute(target, 0, data);
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
 
     /// @notice Execute an EmailOp
     /// @param emailOp EmailOp to be executed

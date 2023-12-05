@@ -112,7 +112,13 @@ abstract contract IntegrationTestHelper is Test {
         vm.startPrank(deployer);
 
         verifier = new AllVerifiers();
-        tokenRegistry = new TokenRegistry();
+
+        {
+            TokenRegistry tokenRegistryImpl = new TokenRegistry();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()));
+            tokenRegistry = TokenRegistry(payable(address(proxy)));
+        }
+
         dkimRegistry = new DKIMRegistry();
         priceOracle = new UniswapTWAPOracle(UNISWAP_V3_FACTORY, WETH_ADDR);
         // weth = new WETH9();
