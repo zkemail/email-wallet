@@ -58,9 +58,26 @@ contract Deploy is Script {
         // Deploy wallet implementation
         Wallet walletImp = new Wallet(address(weth));
 
-        // Deploy core contract as proxy
-        RelayerHandler relayerHandler = new RelayerHandler();
-        ExtensionHandler extensionHandler = new ExtensionHandler();
+        // Deploy handler contracts as proxy
+        RelayerHandler relayerHandler;
+        {
+            RelayerHandler relayerHandlerImpl = new RelayerHandler();
+            bytes memory data = abi.encodeWithSelector(
+                RelayerHandler(relayerHandlerImpl).initialize.selector
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(relayerHandlerImpl), data);
+            relayerHandler = RelayerHandler(payable(address(proxy)));
+        }
+        
+        ExtensionHandler extensionHandler;
+        {
+            ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
+            bytes memory data = abi.encodeWithSelector(
+                ExtensionHandler(extensionHandlerImpl).initialize.selector
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(extensionHandlerImpl), data);
+            extensionHandler = ExtensionHandler(payable(address(proxy)));            
+        }
 
         AccountHandler accountHandler;
         {
@@ -77,15 +94,22 @@ contract Deploy is Script {
             accountHandler = AccountHandler(payable(address(proxy)));
         }
 
-        UnclaimsHandler unclaimsHandler = new UnclaimsHandler(
-            address(relayerHandler),
-            address(accountHandler),
-            address(verifier),
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration,
-            maxFeePerGas
-        );
+        UnclaimsHandler unclaimsHandler;
+        {
+            UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
+            bytes memory data = abi.encodeWithSelector(
+                UnclaimsHandler(unclaimsHandlerImpl).initialize.selector,
+                    address(relayerHandler),
+                    address(accountHandler),
+                    address(verifier),
+                    unclaimedFundClaimGas,
+                    unclaimedStateClaimGas,
+                    unclaimsExpiryDuration,
+                    maxFeePerGas
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(unclaimsHandlerImpl), data);
+            unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
+        }
 
         // Deploy core contract as proxy
         EmailWalletCore core;

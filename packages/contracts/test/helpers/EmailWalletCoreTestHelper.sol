@@ -95,8 +95,17 @@ contract EmailWalletCoreTestHelper is Test {
         _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
         defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
 
-        relayerHandler = new RelayerHandler();
-        extensionHandler = new ExtensionHandler();
+        {
+            RelayerHandler relayerHandlerImpl = new RelayerHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(relayerHandlerImpl), abi.encodeCall(relayerHandlerImpl.initialize, ()));
+            relayerHandler = RelayerHandler(payable(address(proxy)));
+        }
+
+        {
+            ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(extensionHandlerImpl), abi.encodeCall(extensionHandlerImpl.initialize, ()));
+            extensionHandler = ExtensionHandler(payable(address(proxy)));
+        }
 
         {
             AccountHandler accountHandlerImpl = new AccountHandler();
@@ -110,15 +119,19 @@ contract EmailWalletCoreTestHelper is Test {
             accountHandler = AccountHandler(payable(address(proxy)));
         }
 
-        unclaimsHandler = new UnclaimsHandler(
-            address(relayerHandler),
-            address(accountHandler),
-            address(verifier),
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration,
-            maxFeePerGas
-        );
+        {
+            UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(unclaimsHandlerImpl), abi.encodeCall(unclaimsHandlerImpl.initialize, (
+                address(relayerHandler),
+                address(accountHandler),
+                address(verifier),
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas,
+                unclaimsExpiryDuration,
+                maxFeePerGas
+            )));
+            unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
+        }
 
         // Deploy core contract as proxy
         {

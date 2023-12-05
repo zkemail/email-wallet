@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 
-contract RelayerHandler is Ownable {
+contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
 
@@ -14,6 +16,14 @@ contract RelayerHandler is Ownable {
 
     // Mapping of relayer's email address to relayer's wallet address
     mapping(string => address) public relayerOfEmailAddr;
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize() initializer public {
+        __Ownable_init();
+    }
 
     function getRandHash(address relayer) public view returns (bytes32) {
         return relayers[relayer].randHash;
@@ -48,4 +58,10 @@ contract RelayerHandler is Ownable {
 
         emit EmailWalletEvents.RelayerConfigUpdated(msg.sender, hostname);
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
 }
