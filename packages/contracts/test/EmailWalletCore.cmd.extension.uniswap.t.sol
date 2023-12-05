@@ -423,4 +423,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
 
         assertTrue(success, "emailOp failed");
     }
+
+    function testUpgradeability() public {
+        UniswapExtension implV2 = new UniswapExtension();
+
+        uniExtension.upgradeTo(address(implV2));
+    }
 }
