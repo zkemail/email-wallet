@@ -3,6 +3,7 @@ src = "src"
 out = "artifacts"
 libs = ["../../node_modules"]
 optimizer = true
+via-ir = true
 optimizer-runs = 1
 fs_permissions = [
     { access = "read", path = "./artifacts/WETH9.sol/WETH9.json" },
