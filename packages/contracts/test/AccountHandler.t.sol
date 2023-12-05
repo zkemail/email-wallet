@@ -453,4 +453,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         assertEq(accountHandler.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
     }
+
+    function testUpgradeability() public {
+        AccountHandler implV2 = new AccountHandler();
+
+        vm.startPrank(deployer);
+        accountHandler.upgradeTo(address(implV2));
+        vm.stopPrank();
+    }
 }

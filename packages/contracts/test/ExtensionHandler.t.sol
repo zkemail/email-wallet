@@ -169,4 +169,12 @@ contract ExtensionTest is EmailWalletCoreTestHelper {
         extensionHandler.publishExtension(extensionName, testExtensionAddr, subjectTemplates, 1 ether);
         vm.stopPrank();
     }
+
+    function testUpgradeability() public {
+        ExtensionHandler implV2 = new ExtensionHandler();
+
+        vm.startPrank(deployer);
+        extensionHandler.upgradeTo(address(implV2));
+        vm.stopPrank();
+    }
 }

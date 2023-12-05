@@ -18,6 +18,9 @@ import "./AccountHandler.sol";
 contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
 
+    // Deployer
+    address private deployer;
+
     // Verifier contract
     IVerifier public verifier;
 
@@ -55,6 +58,11 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
     uint256 constant ETH_TRANSFER_GAS = 21000;
     uint256 constant WETH_DEPOSIT_GAS = 27938;
 
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "caller is not a deployer");
+        _;
+    }
+
     constructor() {
         _disableInitializers();
     }
@@ -69,6 +77,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         uint256 _maxFeePerGas
     ) initializer public {
         __Ownable_init();
+        deployer = _msgSender();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
         verifier = IVerifier(_verifier);
@@ -80,7 +89,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        onlyOwner
+        onlyDeployer
         override
     {}
 

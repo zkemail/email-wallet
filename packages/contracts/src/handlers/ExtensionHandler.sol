@@ -12,6 +12,9 @@ import "../interfaces/Commands.sol";
 contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     bool _defaultExtensionsSet;
 
+    // Deployer
+    address private deployer;
+
     // Mapping from extensio name to extension address, as published by the developer
     mapping(string => address) public addressOfExtensionName;
 
@@ -30,17 +33,23 @@ contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable 
     // User level mapping of command name to extension address (walletAddress -> (command -> extension))
     mapping(address => mapping(string => address)) public userExtensionOfCommand;
 
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "caller is not a deployer");
+        _;
+    }
+
     constructor() {
         _disableInitializers();
     }
 
     function initialize() initializer public {
         __Ownable_init();
+        deployer = _msgSender();
     }
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        onlyOwner
+        onlyDeployer
         override
     {}
 

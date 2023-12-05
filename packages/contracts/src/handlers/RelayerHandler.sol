@@ -8,6 +8,9 @@ import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 
 contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+    // Deployer
+    address private deployer;
+
     // Mapping of relayer's wallet address to relayer config
     mapping(address => RelayerConfig) public relayers;
 
@@ -17,17 +20,23 @@ contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Mapping of relayer's email address to relayer's wallet address
     mapping(string => address) public relayerOfEmailAddr;
 
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "caller is not a deployer");
+        _;
+    }
+
     constructor() {
         _disableInitializers();
     }
 
     function initialize() initializer public {
         __Ownable_init();
+        deployer = _msgSender();
     }
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        onlyOwner
+        onlyDeployer
         override
     {}
 
