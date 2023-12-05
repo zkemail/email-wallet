@@ -9,6 +9,7 @@ import "../src/verifier/Verifier.sol";
 import "../src/extensions/UniswapExtension.sol";
 import "../src/extensions/NFTExtension.sol";
 
+// DEPRECATION: DO NOT USE, PLEASE USE 01 - 07 scripts.
 contract Deploy is Script {
     uint256 constant maxFeePerGas = 2 gwei;
     uint256 constant emailValidityDuration = 1 hours;
@@ -112,27 +113,25 @@ contract Deploy is Script {
         }
 
         // Deploy core contract as proxy
-        EmailWalletCore core;
-        {
-            EmailWalletCore coreImpl = new EmailWalletCore();
-            bytes memory data = abi.encodeWithSelector(
-                EmailWalletCore(coreImpl).initialize.selector,
-                    address(relayerHandler),
-                    address(accountHandler),
-                    address(unclaimsHandler),
-                    address(extensionHandler),
-                    address(verifier),
-                    tokenRegistry,
-                    address(priceOracle),
-                    address(weth),
-                    maxFeePerGas,
-                    emailValidityDuration,
-                    unclaimedFundClaimGas,
-                    unclaimedStateClaimGas
-            );            
-            ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), data);
-            core = EmailWalletCore(payable(address(proxy)));
-        }
+        EmailWalletCore coreImpl = new EmailWalletCore();
+        bytes memory data = abi.encodeWithSelector(
+            EmailWalletCore(coreImpl).initialize.selector,
+                address(relayerHandler),
+                address(accountHandler),
+                address(unclaimsHandler),
+                address(extensionHandler),
+                address(verifier),
+                address(tokenRegistry),
+                address(priceOracle),
+                address(weth),
+                maxFeePerGas,
+                emailValidityDuration,
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas
+        );            
+        ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), data);
+        EmailWalletCore core = EmailWalletCore(payable(address(proxy)));
+
         relayerHandler.transferOwnership(address(core));
         accountHandler.transferOwnership(address(core));
         unclaimsHandler.transferOwnership(address(core));

@@ -18,5 +18,7 @@ contract Deploy is Script {
         vm.stopBroadcast();
 
         console.log("DKIMRegistry deployed at: %s", address(dkim));
+        console.log("Please add this address into .env");
+        console.log("---- DONE ----");
     }
 }

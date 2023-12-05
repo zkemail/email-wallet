@@ -26,5 +26,6 @@ contract Deploy is Script {
 
         console.log("TokenRegistry proxy deployed at: %s", address(tokenRegistry));
         console.log("TokenRegistry implementation deployed at: %s", address(tokenRegistryImpl));
+        console.log("---- DONE ----");
     }
 }
