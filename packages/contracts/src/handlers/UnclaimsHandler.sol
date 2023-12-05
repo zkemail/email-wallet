@@ -12,9 +12,8 @@ import "../Wallet.sol";
 import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
-import "./CommonHandler.sol";
 
-contract UnclaimsHandler is CommonHandler, ReentrancyGuard, Ownable {
+contract UnclaimsHandler is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
     // Verifier contract
@@ -130,7 +129,7 @@ contract UnclaimsHandler is CommonHandler, ReentrancyGuard, Ownable {
         uint256 expiryTime,
         uint256 announceCommitRandomness,
         string calldata announceEmailAddr
-    ) public payable onlyBeforeLimit returns (uint256) {
+    ) public payable returns (uint256) {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
         }
@@ -274,7 +273,7 @@ contract UnclaimsHandler is CommonHandler, ReentrancyGuard, Ownable {
         uint256 expiryTime,
         uint256 announceCommitRandomness,
         string calldata announceEmailAddr
-    ) public payable onlyBeforeLimit returns (uint256) {
+    ) public payable returns (uint256) {
         if (expiryTime == 0) {
             expiryTime = block.timestamp + unclaimsExpiryDuration;
         }

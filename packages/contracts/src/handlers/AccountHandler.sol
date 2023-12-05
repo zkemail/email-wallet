@@ -11,9 +11,8 @@ import {RelayerHandler} from "./RelayerHandler.sol";
 import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
-import "./CommonHandler.sol";
 
-contract AccountHandler is CommonHandler, Ownable {
+contract AccountHandler is Ownable {
     // Default DKIM public key hashes registry
     IDKIMRegistry public immutable defaultDkimRegistry;
 
@@ -69,7 +68,7 @@ contract AccountHandler is CommonHandler, Ownable {
         bytes32 walletSalt,
         bytes calldata psiPoint,
         bytes calldata proof
-    ) public onlyBeforeLimit returns (Wallet wallet) {
+    ) public returns (Wallet wallet) {
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
@@ -111,7 +110,7 @@ contract AccountHandler is CommonHandler, Ownable {
         bytes32 emailNullifier,
         bytes32 dkimPublicKeyHash,
         bytes calldata proof
-    ) public onlyBeforeLimit {        
+    ) public {        
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
 
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");

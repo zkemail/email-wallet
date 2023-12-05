@@ -39,22 +39,22 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         assertTrue(success, "handleEmailOp failed");
     }
 
-    function testFail_ExecuteCommandAfterTimeLimit() public {
-        vm.warp(1701388800);
-        bytes memory targetCalldata = abi.encodeWithSignature("process(uint256)", 90001);
-        bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
+    // function testFail_ExecuteCommandAfterTimeLimit() public {
+    //     vm.warp(1701388800);
+    //     bytes memory targetCalldata = abi.encodeWithSignature("process(uint256)", 90001);
+    //     bytes memory emailOpCalldata = abi.encode(testContractAddr, 0, targetCalldata);
 
-        string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
+    //     string memory subject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
-        EmailOp memory emailOp = _getBaseEmailOp();
-        emailOp.command = Commands.EXECUTE;
-        emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+    //     EmailOp memory emailOp = _getBaseEmailOp();
+    //     emailOp.command = Commands.EXECUTE;
+    //     emailOp.executeCallData = emailOpCalldata;
+    //     emailOp.maskedSubject = subject;
 
-        vm.startPrank(relayer);
-        core.handleEmailOp(emailOp);
-        vm.stopPrank();
-    }
+    //     vm.startPrank(relayer);
+    //     core.handleEmailOp(emailOp);
+    //     vm.stopPrank();
+    // }
 
 
     function test_ExecuteFailureShouldNotRevert() public {
