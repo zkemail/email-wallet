@@ -49,7 +49,7 @@ abstract contract IntegrationTestHelper is Test {
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
     WETH9 weth;
-    UniswapExtension uniswapExtension;
+    UniswapExtension uniExtension;
     NFTExtension nftExtension;
 
     RelayerHandler relayerHandler;
@@ -206,19 +206,31 @@ abstract contract IntegrationTestHelper is Test {
 
         address extensionDev = vm.addr(3);
         vm.startPrank(extensionDev);
-        uniswapExtension = new UniswapExtension(
-            address(core),
-            address(tokenRegistry),
-            UNISWAP_V3_ROUTER,
-            UNISWAP_V3_FACTORY
-        );
-        nftExtension = new NFTExtension(address(core));
-        DummyNFT apeNFT = new DummyNFT();
-        nftExtension.setNFTAddress("APE", address(apeNFT));
+        {
+            UniswapExtension uniExtensionImpl = new UniswapExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(uniExtensionImpl), abi.encodeCall(uniExtensionImpl.initialize, (
+                address(core),
+                address(tokenRegistry),
+                UNISWAP_V3_ROUTER,
+                UNISWAP_V3_FACTORY
+            )));
+            uniExtension = UniswapExtension(payable(address(proxy)));
+        }
+
+        {
+            NFTExtension nftExtensionImpl = new NFTExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtensionImpl), abi.encodeCall(nftExtensionImpl.initialize, (
+                address(core)
+            )));
+            nftExtension = NFTExtension(payable(address(proxy)));
+            
+            DummyNFT apeNFT = new DummyNFT();
+            nftExtension.setNFTAddress("APE", address(apeNFT));
+        }
 
         uint256 maxExecutionGas = 10 ** 6;
         string[][] memory templates = _getUniswapSubjectTemplates();
-        extensionHandler.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
+        extensionHandler.publishExtension("Uniswap", address(uniExtension), templates, maxExecutionGas);
         templates = _getNFTSubjectTemplates();
         extensionHandler.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
         vm.stopPrank();
