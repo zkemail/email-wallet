@@ -61,13 +61,22 @@ contract Deploy is Script {
         // Deploy core contract as proxy
         RelayerHandler relayerHandler = new RelayerHandler();
         ExtensionHandler extensionHandler = new ExtensionHandler();
-        AccountHandler accountHandler = new AccountHandler(
-            address(relayerHandler),
-            dkimRegistry,
-            address(verifier),
-            address(walletImp),
-            emailValidityDuration
-        );
+
+        AccountHandler accountHandler;
+        {
+            AccountHandler accountHandlerImpl = new AccountHandler();
+            bytes memory data = abi.encodeWithSelector(
+                AccountHandler(accountHandlerImpl).initialize.selector,
+                    address(relayerHandler),
+                    dkimRegistry,
+                    address(verifier),
+                    address(walletImp),
+                    emailValidityDuration
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(accountHandlerImpl), data);
+            accountHandler = AccountHandler(payable(address(proxy)));
+        }
+
         UnclaimsHandler unclaimsHandler = new UnclaimsHandler(
             address(relayerHandler),
             address(accountHandler),

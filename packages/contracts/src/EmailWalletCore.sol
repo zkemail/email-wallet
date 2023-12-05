@@ -103,6 +103,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas
     ) initializer public {
+        __Ownable_init();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
         unclaimsHandler = UnclaimsHandler(payable(_unclaimsHandler));
