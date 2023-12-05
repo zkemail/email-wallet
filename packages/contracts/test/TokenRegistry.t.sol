@@ -2,19 +2,18 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import "../src/MyToken.sol";
 import "../src/utils/TokenRegistry.sol";
 import "./helpers/TokenRegistryV2.sol";
 import "forge-std/console.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { Upgrades } from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
-contract TokenRegistry is Test {
+contract TokenRegistryTest is Test {
     TokenRegistry tokenRegistry;
     ERC1967Proxy proxy;
+    TokenRegistryV2 tokenRegistryV2;
 
     function setUp() public {
-        deployer = vm.addr(1);
+        address deployer = vm.addr(1);
         vm.startPrank(deployer);
 
         TokenRegistry tokenRegistryImpl = new TokenRegistry();
@@ -28,7 +27,12 @@ contract TokenRegistry is Test {
     }
 
     function testUpgradeability() public {
-        Upgrades.upgradeProxy(address(proxy), "TokenRegistryV2.sol:TokenRegistryV2", "");
+        TokenRegistryV2 tokenRegistryV2Impl = new TokenRegistryV2();
+        tokenRegistry.upgradeTo(address(tokenRegistryV2Impl));
+        
+        tokenRegistryV2 = TokenRegistryV2(address(proxy));
+        address usdc = tokenRegistry.getTokenAddress(0, "USDC");
+        assertEq(usdc, address(0));
     }
 }
 
