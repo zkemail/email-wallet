@@ -484,4 +484,10 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         core.executeAsExtension(randomAddress, "");
         vm.stopPrank();
     }
+
+    function testUpgradeability() public {
+        NFTExtension implV2 = new NFTExtension();
+
+        nftExtension.upgradeTo(address(implV2));
+    }
 }

@@ -27,6 +27,9 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // ZK proof verifier contract
     IVerifier public verifier;
 
+    // Deployer
+    address private deployer;
+
     // Mapping of emailAddrPointer to accountKeyCommit
     mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
 
@@ -45,6 +48,11 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Duration for which an email is valid
     uint public emailValidityDuration;
 
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "caller is not a deployer");
+        _;
+    }
+
     constructor() {
         _disableInitializers();
     }
@@ -57,6 +65,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint _emailValidityDuration
     ) initializer public {
         __Ownable_init();
+        deployer = _msgSender();
         emailValidityDuration = _emailValidityDuration;
         defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
         walletImplementation = _walletImplementation;
@@ -66,7 +75,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        onlyOwner
+        onlyDeployer
         override
     {}
 
