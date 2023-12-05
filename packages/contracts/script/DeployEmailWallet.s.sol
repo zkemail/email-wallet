@@ -141,20 +141,36 @@ contract Deploy is Script {
         // Set default extentions
         bytes[] memory defaultExtensions = new bytes[](2);
 
-        NFTExtension nftExt = new NFTExtension(address(core));
+        NFTExtension nftExt;
+        {
+            NFTExtension nftExtImpl = new NFTExtension();
+            bytes memory data = abi.encodeWithSelector(
+                NFTExtension(nftExtImpl).initialize.selector,
+                    address(core)
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtImpl), data);
+            nftExt = NFTExtension(payable(address(proxy)));
+        }
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
         nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        address uniswapV3Router = 0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD;
-        address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+        UniswapExtension uniExt;
+        {
+            address uniswapV3Router = 0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD;
+            address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
-        UniswapExtension uniExt = new UniswapExtension(
-            address(core),
-            tokenRegistry,
-            uniswapV3Router,
-            uniswapV3Factory
-        );
+            UniswapExtension uniExtImpl = new UniswapExtension();
+            bytes memory data = abi.encodeWithSelector(
+                UniswapExtension(uniExtImpl).initialize.selector,
+                    address(core),
+                    tokenRegistry,
+                    uniswapV3Router,
+                    uniswapV3Factory
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(uniExtImpl), data);
+            uniExt = UniswapExtension(payable(address(proxy)));
+        }
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniswapExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
         uniswapExtTemplates[2] = [
