@@ -37,6 +37,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
 
         vm.startPrank(relayer);
+        vm.assume(recipient != address(0));
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }

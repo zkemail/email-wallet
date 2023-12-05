@@ -6,9 +6,8 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-/// @title TokenRegistry
-/// @notice A registry of token name and their address on different chains
-contract TokenRegistry is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+// This contract is for testing upgradeability
+contract TokenRegistryV2 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     event ChainRegistered(string indexed chainName, uint256 indexed chainId);
     event TokenRegistered(uint256 indexed chainId, string indexed tokenName, address indexed addr);
 
@@ -95,7 +94,7 @@ contract TokenRegistry is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         if (Strings.equal(tokenName, "USDC")) {
-            if (chainId == 0) return 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+            if (chainId == 0) return address(0);
             if (chainId == 10) return 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
             if (chainId == 42161) return 0xaf88d065e77c8cC2239327C5EDb3A432268e5831; //0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
         }

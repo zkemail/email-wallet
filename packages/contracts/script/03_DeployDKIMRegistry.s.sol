@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import "../src/utils/TokenRegistry.sol";
+import "@zk-email/contracts/DKIMRegistry.sol";
 
 contract Deploy is Script {
     function run() external {
@@ -14,9 +14,11 @@ contract Deploy is Script {
         }
 
         vm.startBroadcast(deployerPrivateKey);
-        TokenRegistry tokenRegistry = new TokenRegistry();
+        DKIMRegistry dkim = new DKIMRegistry();
         vm.stopBroadcast();
 
-        console.log("TokenRegistry deployed at: %s", address(tokenRegistry));
+        console.log("DKIMRegistry deployed at: %s", address(dkim));
+        console.log("Please add this address into .env");
+        console.log("---- DONE ----");
     }
 }

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {Extension} from "../interfaces/Extension.sol";
@@ -10,7 +13,7 @@ import "../interfaces/Types.sol";
 
 import "./PoolFinder.sol";
 
-contract UniswapExtension is Extension {
+contract UniswapExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     EmailWalletCore public core;
     ISwapRouter public router;
     TokenRegistry public tokenRegistry;
@@ -23,17 +26,23 @@ contract UniswapExtension is Extension {
 
     mapping(string => address) public addressOfNFTName;
 
-    string[][] public templates = new string[][](4);
+    string[][] public templates;
 
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
         _;
     }
 
-    constructor(address coreAddr, address _tokenReg, address _router, address _factory) {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address coreAddr, address _tokenReg, address _router, address _factory) initializer public {
+        __Ownable_init();
         core = EmailWalletCore(payable(coreAddr));
         tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);
+        templates = new string[][](4);
         templates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         templates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
         templates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
@@ -53,6 +62,12 @@ contract UniswapExtension is Extension {
         ];
         poolFinder = new PoolFinder(IUniswapV3Factory(_factory));
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
 
     function execute(
         uint8 templateIndex,

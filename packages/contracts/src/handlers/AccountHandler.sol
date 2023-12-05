@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
@@ -12,18 +14,18 @@ import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 
-contract AccountHandler is Ownable {
+contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Default DKIM public key hashes registry
-    IDKIMRegistry public immutable defaultDkimRegistry;
+    IDKIMRegistry public defaultDkimRegistry;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
-    address public immutable walletImplementation;
+    address public walletImplementation;
 
     // Relayer handler contract
-    RelayerHandler public immutable relayerHandler;
+    RelayerHandler public relayerHandler;
 
     // ZK proof verifier contract
-    IVerifier public immutable verifier;
+    IVerifier public verifier;
 
     // Mapping of emailAddrPointer to accountKeyCommit
     mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
@@ -41,21 +43,32 @@ contract AccountHandler is Ownable {
     mapping(bytes32 => bool) public emailNullifiers;
 
     // Duration for which an email is valid
-    uint public immutable emailValidityDuration;
+    uint public emailValidityDuration;
 
-    constructor(
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _relayerHandler,
         address _defaultDkimRegistry,
         address _verifier,
         address _walletImplementation,
         uint _emailValidityDuration
-    ) {
+    ) initializer public {
+        __Ownable_init();
         emailValidityDuration = _emailValidityDuration;
         defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
         walletImplementation = _walletImplementation;
         relayerHandler = RelayerHandler(_relayerHandler);
         verifier = IVerifier(_verifier);
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
 
     /// Create new account and wallet for a user
     /// @param emailAddrPointer hash(relayerRand, emailAddr)

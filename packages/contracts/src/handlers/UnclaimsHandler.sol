@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -13,30 +15,30 @@ import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
 
-contract UnclaimsHandler is ReentrancyGuard, Ownable {
+contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
 
     // Verifier contract
-    IVerifier public immutable verifier;
+    IVerifier public verifier;
 
     // AccountHandler contract
-    AccountHandler public immutable accountHandler;
+    AccountHandler public accountHandler;
 
     // RelayerHandler contract
-    RelayerHandler public immutable relayerHandler;
+    RelayerHandler public relayerHandler;
 
     // Gas required to claim unclaimed funds. User (their relayer) who register unclaimed funds
     // need to lock this amount which is relesed to the relayer who claims it
-    uint256 public immutable unclaimedFundClaimGas;
+    uint256 public unclaimedFundClaimGas;
 
     // Gas required to claim unclaimed state
-    uint256 public immutable unclaimedStateClaimGas;
+    uint256 public unclaimedStateClaimGas;
 
     // Default expiry duration for unclaimed funds and states
-    uint256 public immutable unclaimsExpiryDuration;
+    uint256 public unclaimsExpiryDuration;
 
     // Max fee per gas in wei that relayer can set in a UserOp
-    uint256 public immutable maxFeePerGas;
+    uint256 public maxFeePerGas;
 
     /// The total number of registered unclaimed funds.
     uint256 public numUnclaimedFunds;
@@ -53,7 +55,11 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
     uint256 constant ETH_TRANSFER_GAS = 21000;
     uint256 constant WETH_DEPOSIT_GAS = 27938;
 
-    constructor(
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _relayerHandler,
         address _accountHandler,
         address _verifier,
@@ -61,7 +67,8 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         uint256 _unclaimedStateClaimGas,
         uint256 _unclaimsExpiryDuration,
         uint256 _maxFeePerGas
-    ) {
+    ) initializer public {
+        __Ownable_init();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
         verifier = IVerifier(_verifier);
@@ -70,6 +77,12 @@ contract UnclaimsHandler is ReentrancyGuard, Ownable {
         unclaimsExpiryDuration = _unclaimsExpiryDuration;
         maxFeePerGas = _maxFeePerGas;
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
 
     // UnclaimHandler can receive ETH only from the core contract = owner
     receive() external payable {

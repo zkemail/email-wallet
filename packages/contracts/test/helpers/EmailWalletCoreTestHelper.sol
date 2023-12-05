@@ -81,7 +81,13 @@ contract EmailWalletCoreTestHelper is Test {
         vm.startPrank(deployer);
 
         verifier = new TestVerifier();
-        tokenRegistry = new TokenRegistry();
+
+        {
+            TokenRegistry tokenRegistryImpl = new TokenRegistry();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()));
+            tokenRegistry = TokenRegistry(payable(address(proxy)));
+        }
+
         dkimRegistry = new DKIMRegistry();
         priceOracle = new TestOracle();
         weth = new WETH9();
@@ -95,47 +101,71 @@ contract EmailWalletCoreTestHelper is Test {
         _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
         defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
 
-        relayerHandler = new RelayerHandler();
-        extensionHandler = new ExtensionHandler();
-        accountHandler = new AccountHandler(
-            address(relayerHandler),
-            address(dkimRegistry),
-            address(verifier),
-            address(walletImp),
-            emailValidityDuration
-        );
-        unclaimsHandler = new UnclaimsHandler(
-            address(relayerHandler),
-            address(accountHandler),
-            address(verifier),
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration,
-            maxFeePerGas
-        );
+        {
+            RelayerHandler relayerHandlerImpl = new RelayerHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(relayerHandlerImpl), abi.encodeCall(relayerHandlerImpl.initialize, ()));
+            relayerHandler = RelayerHandler(payable(address(proxy)));
+        }
+
+        {
+            ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(extensionHandlerImpl), abi.encodeCall(extensionHandlerImpl.initialize, ()));
+            extensionHandler = ExtensionHandler(payable(address(proxy)));
+        }
+
+        {
+            AccountHandler accountHandlerImpl = new AccountHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(accountHandlerImpl), abi.encodeCall(accountHandlerImpl.initialize, (
+                address(relayerHandler),
+                address(dkimRegistry),
+                address(verifier),
+                address(walletImp),
+                emailValidityDuration
+            )));
+            accountHandler = AccountHandler(payable(address(proxy)));
+        }
+
+        {
+            UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(unclaimsHandlerImpl), abi.encodeCall(unclaimsHandlerImpl.initialize, (
+                address(relayerHandler),
+                address(accountHandler),
+                address(verifier),
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas,
+                unclaimsExpiryDuration,
+                maxFeePerGas
+            )));
+            unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
+        }
 
         // Deploy core contract as proxy
-        core = new EmailWalletCore(
-            address(relayerHandler),
-            address(accountHandler),
-            address(unclaimsHandler),
-            address(extensionHandler),
-            address(verifier),
-            address(tokenRegistry),
-            address(priceOracle),
-            address(weth),
-            maxFeePerGas,
-            emailValidityDuration,
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas
-        );
+        {
+            EmailWalletCore coreImpl = new EmailWalletCore();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), abi.encodeCall(coreImpl.initialize, (
+                address(relayerHandler),
+                address(accountHandler),
+                address(unclaimsHandler),
+                address(extensionHandler),
+                address(verifier),
+                address(tokenRegistry),
+                address(priceOracle),
+                address(weth),
+                maxFeePerGas,
+                emailValidityDuration,
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas
+            )));
+
+            core = EmailWalletCore(payable(address(proxy)));
+        }
 
         relayerHandler.transferOwnership(address(core));
         accountHandler.transferOwnership(address(core));
         unclaimsHandler.transferOwnership(address(core));
         extensionHandler.transferOwnership(address(core));
 
-        core.initialize(defaultExtensions);
+        core.initializeExtension(defaultExtensions);
 
         // Set test sender's wallet addr
         walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);

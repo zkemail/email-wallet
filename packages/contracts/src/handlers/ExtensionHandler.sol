@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 import "../interfaces/Commands.sol";
 
-contract ExtensionHandler is Ownable {
+contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     bool _defaultExtensionsSet;
 
     // Mapping from extensio name to extension address, as published by the developer
@@ -27,6 +29,20 @@ contract ExtensionHandler is Ownable {
 
     // User level mapping of command name to extension address (walletAddress -> (command -> extension))
     mapping(address => mapping(string => address)) public userExtensionOfCommand;
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize() initializer public {
+        __Ownable_init();
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
 
     /// Set default extensions for all users
     /// @param defaultExtensions Array of default extensions encoded as (string name, address addr, string[][] templates, uint256 maxGas)

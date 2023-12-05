@@ -1,31 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import {Extension} from "../interfaces/Extension.sol";
 import {EmailWalletCore} from "../EmailWalletCore.sol";
 import "../interfaces/Types.sol";
 
-contract NFTExtension is Extension, IERC721Receiver, Ownable {
+contract NFTExtension is Extension, IERC721Receiver, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     EmailWalletCore public core;
 
     // Mapping from NFT name to its address
     mapping(string => address) public addressOfNFTName;
 
-    string[][] public templates = new string[][](2);
+    string[][] public templates;
 
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
         _;
     }
 
-    constructor(address coreAddr) {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address coreAddr) initializer public {
+        __Ownable_init();
         core = EmailWalletCore(payable(coreAddr));
+        templates = new string[][](2);
         templates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
         templates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
 
     /// @inheritdoc IERC721Receiver
     function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {

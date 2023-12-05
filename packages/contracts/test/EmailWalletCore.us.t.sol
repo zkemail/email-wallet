@@ -19,12 +19,19 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
 
         // Publish and install two extension - we will use them to test unclaimed state
-        nftExtension = new NFTExtension(address(core));
-        dummyNFT = new DummyNFT();
-        nftExtension.setNFTAddress("APE", address(dummyNFT));
+        {
+            NFTExtension nftExtensionImpl = new NFTExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtensionImpl), abi.encodeCall(nftExtensionImpl.initialize, (
+                address(core)
+            )));
+            nftExtension = NFTExtension(payable(address(proxy)));
 
-        nftTempates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
-        extensionHandler.publishExtension("NFT Wallet", address(nftExtension), nftTempates, 0.1 ether);
+            dummyNFT = new DummyNFT();
+            nftExtension.setNFTAddress("APE", address(dummyNFT));
+
+            nftTempates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
+            extensionHandler.publishExtension("NFT Wallet", address(nftExtension), nftTempates, 0.1 ether);
+        }
 
         mockExtension = new TestExtension(address(core), address(daiToken), address(tokenRegistry));
         mockExtTemplates[0] = ["Test", "Register Unclaimed State"];
