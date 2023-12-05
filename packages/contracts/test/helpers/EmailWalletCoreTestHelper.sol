@@ -81,7 +81,13 @@ contract EmailWalletCoreTestHelper is Test {
         vm.startPrank(deployer);
 
         verifier = new TestVerifier();
-        tokenRegistry = new TokenRegistry();
+
+        {
+            TokenRegistry tokenRegistryImpl = new TokenRegistry();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()));
+            tokenRegistry = TokenRegistry(payable(address(proxy)));
+        }
+
         dkimRegistry = new DKIMRegistry();
         priceOracle = new TestOracle();
         weth = new WETH9();
