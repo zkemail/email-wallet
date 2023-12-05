@@ -43,6 +43,7 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 emailAddrPointer;
     }
 
+    ERC1967Proxy proxy;
     EmailWalletCore core;
     AllVerifiers verifier;
     TokenRegistry tokenRegistry;
@@ -144,7 +145,8 @@ abstract contract IntegrationTestHelper is Test {
             maxFeePerGas
         );
 
-        core = new EmailWalletCore(
+        EmailWalletCore coreImpl = new EmailWalletCore();
+        proxy = new ERC1967Proxy(address(coreImpl), abi.encodeCall(coreImpl.initialize, (
             address(relayerHandler),
             address(accountHandler),
             address(unclaimsHandler),
@@ -157,7 +159,8 @@ abstract contract IntegrationTestHelper is Test {
             emailValidityDuration,
             unclaimedFundClaimGas,
             unclaimedStateClaimGas
-        );
+        )));
+        core = EmailWalletCore(payable(address(proxy)));
 
         relayerHandler.transferOwnership(address(core));
         accountHandler.transferOwnership(address(core));

@@ -26,6 +26,7 @@ import "../../src/interfaces/Types.sol";
 import "../../src/interfaces/Commands.sol";
 
 contract EmailWalletCoreTestHelper is Test {
+    ERC1967Proxy proxy;
     EmailWalletCore core;
     TestVerifier verifier;
     TokenRegistry tokenRegistry;
@@ -115,7 +116,8 @@ contract EmailWalletCoreTestHelper is Test {
         );
 
         // Deploy core contract as proxy
-        core = new EmailWalletCore(
+        EmailWalletCore coreImpl = new EmailWalletCore();
+        proxy = new ERC1967Proxy(address(coreImpl), abi.encodeCall(coreImpl.initialize, (
             address(relayerHandler),
             address(accountHandler),
             address(unclaimsHandler),
@@ -128,14 +130,15 @@ contract EmailWalletCoreTestHelper is Test {
             emailValidityDuration,
             unclaimedFundClaimGas,
             unclaimedStateClaimGas
-        );
-
+        )));
+        
+        core = EmailWalletCore(payable(address(proxy)));
         relayerHandler.transferOwnership(address(core));
         accountHandler.transferOwnership(address(core));
         unclaimsHandler.transferOwnership(address(core));
         extensionHandler.transferOwnership(address(core));
 
-        core.initialize(defaultExtensions);
+        core.initializeExtension(defaultExtensions);
 
         // Set test sender's wallet addr
         walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
