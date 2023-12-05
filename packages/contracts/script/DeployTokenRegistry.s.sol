@@ -14,9 +14,16 @@ contract Deploy is Script {
         }
 
         vm.startBroadcast(deployerPrivateKey);
-        TokenRegistry tokenRegistry = new TokenRegistry();
+        TokenRegistry tokenRegistryImpl = new TokenRegistry();
+        bytes memory data = abi.encodeWithSelector(
+            TokenRegistry(tokenRegistryImpl).initialize.selector,
+        );            
+        ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), data);
+        tokenRegistry = TokenRegistry(payable(address(proxy)));
+
         vm.stopBroadcast();
 
-        console.log("TokenRegistry deployed at: %s", address(tokenRegistry));
+        console.log("TokenRegistry proxy deployed at: %s", address(tokenRegistry));
+        console.log("TokenRegistry implementation deployed at: %s", address(tokenRegistryImpl));
     }
 }
