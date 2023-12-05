@@ -63,7 +63,7 @@ contract Deploy is Script {
         ExtensionHandler extensionHandler = new ExtensionHandler();
         AccountHandler accountHandler = new AccountHandler(
             address(relayerHandler),
-            address(dkimRegistry),
+            dkimRegistry,
             address(verifier),
             address(walletImp),
             emailValidityDuration
@@ -79,26 +79,33 @@ contract Deploy is Script {
         );
 
         // Deploy core contract as proxy
-        EmailWalletCore core = new EmailWalletCore(
-            address(relayerHandler),
-            address(accountHandler),
-            address(unclaimsHandler),
-            address(extensionHandler),
-            address(verifier),
-            address(tokenRegistry),
-            address(priceOracle),
-            address(weth),
-            maxFeePerGas,
-            emailValidityDuration,
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas
-        );
-
+        EmailWalletCore core;
+        {
+            EmailWalletCore coreImpl = new EmailWalletCore();
+            bytes memory data = abi.encodeWithSelector(
+                EmailWalletCore(coreImpl).initialize.selector,
+                    address(relayerHandler),
+                    address(accountHandler),
+                    address(unclaimsHandler),
+                    address(extensionHandler),
+                    address(verifier),
+                    tokenRegistry,
+                    address(priceOracle),
+                    address(weth),
+                    maxFeePerGas,
+                    emailValidityDuration,
+                    unclaimedFundClaimGas,
+                    unclaimedStateClaimGas
+            );            
+            ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), data);
+            core = EmailWalletCore(payable(address(proxy)));
+        }
         relayerHandler.transferOwnership(address(core));
         accountHandler.transferOwnership(address(core));
         unclaimsHandler.transferOwnership(address(core));
         extensionHandler.transferOwnership(address(core));
-
+    
+        // Set default extentions
         bytes[] memory defaultExtensions = new bytes[](2);
 
         NFTExtension nftExt = new NFTExtension(address(core));
@@ -106,16 +113,14 @@ contract Deploy is Script {
         nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        // address uniswapV3Router = 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45;
-        // address uniswapV3Router = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
         address uniswapV3Router = 0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD;
-        // address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
-        // TODO: To avoid stack too deep, uniswapV3Factory variable is not used
+        address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+
         UniswapExtension uniExt = new UniswapExtension(
             address(core),
             tokenRegistry,
             uniswapV3Router,
-            0x1F98431c8aD98523631AE4a59f267346ea31F984
+            uniswapV3Factory
         );
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniswapExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
@@ -147,12 +152,18 @@ contract Deploy is Script {
 
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
-        core.initialize(defaultExtensions);
+        core.initializeExtension(defaultExtensions);
 
         vm.stopBroadcast();
 
         console.log("Verifier deployed at: %s", address(verifier));
         console.log("Wallet implementation deployed at: %s", address(walletImp));
+
+        console.log("RelayerHandler deployed at: %s", address(relayerHandler));
+        console.log("ExtensionHandler deployed at: %s", address(extensionHandler));
+        console.log("AccountHandler deployed at: %s", address(accountHandler));
+        console.log("UnclaimsHandler deployed at: %s", address(unclaimsHandler));
+
         console.log("EmailWalletCore deployed at: %s", address(core));
         console.log("NFT Extension deployed at: %s", address(nftExt));
         console.log("Uniswap Extension deployed at: %s", address(uniExt));
