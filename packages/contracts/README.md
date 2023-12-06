@@ -247,6 +247,7 @@ cp .env.sample .env
 
 ```sh
 # e.g.
+# First deployed proxy address
 TOKEN_REGISTRY=0xF1d24E5f7f0Ca617F0c1f3AA34A77EcFfaFedE8f
 PRIVATE_KEY=0x00
 ```
