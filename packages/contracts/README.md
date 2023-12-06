@@ -232,3 +232,33 @@ forge script script/DeployECDSAOwnedDKIMRegistry.s.sol:Deploy \
 ```
 
 Copy the address from log `ECDSAOwnedDKIMRegistry deployed at: 0xB50a02E2Da524feC1209542985b2ae2917aF7265`
+
+## Upgrade Contracts
+
+#### Upgrade Token Registry
+
+##### Create .env
+
+```sh
+cp .env.sample .env
+```
+
+##### Set environment variables
+
+```sh
+# e.g.
+TOKEN_REGISTRY=0xF1d24E5f7f0Ca617F0c1f3AA34A77EcFfaFedE8f
+PRIVATE_KEY=0x00
+```
+
+##### Run 
+
+```
+source .env
+
+forge script script/XX_UpgradeTokenRegistry.s.sol:Deploy \
+--rpc-url $RPC_URL \
+--chain-id 11155111 \
+--broadcast \
+-vvvv
+```
