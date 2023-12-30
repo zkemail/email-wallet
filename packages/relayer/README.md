@@ -111,3 +111,38 @@ Anyone would be able to run a relayer node. The steps to run a relayer node will
 We will be publishing more guides on how to deploy and run on cloud as well.
 
 <br />
+
+## ☞ Running Relayer as Docker container
+
+### Building Docker Image
+
+#### For local development
+```bash
+cd ../../
+docker buildx build -t email_wallet_v1_relayer:latest-arm -f Relayer.Dockerfile . \
+  --build-arg modal_token_id=${MODAL_TOKEN_ID} \
+  --build-arg modal_token_secret=${MODAL_TOKEN_SECRET}
+```
+
+#### For x86 compatibility(e.g. For production)
+```bash
+cd ../../
+docker buildx build -t email_wallet_v1_relayer:latest -f Relayer.Dockerfile . \
+  --build-arg modal_token_id=${MODAL_TOKEN_ID} \
+  --build-arg modal_token_secret=${MODAL_TOKEN_SECRET} \
+  --platform=linux/arm64
+```
+
+### Create .env
+
+Create `.env` in the execution directory with reference to `env_example`.
+
+
+### How to Run
+
+```bash
+docker run \
+-p 80:80 \
+-v $(pwd)/.env:/email-wallet/packages/relayer/.env \
+email_wallet_v1_relayer:latest
+```
