@@ -65,7 +65,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     emails_pool: P,
-    tx_sender: UnboundedSender<EmailMessage>,
+    tx_sender: Arc<UnboundedSender<EmailMessage>>,
     tx_claimer: UnboundedSender<Claim>,
     tx_creator: UnboundedSender<(String, Option<AccountKey>)>,
 ) -> Result<()> {
@@ -85,7 +85,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 account_key,
                 db.clone(),
                 chain_client,
-                tx_sender,
+                (*tx_sender).clone(),
             )
             .await?;
         } else {
@@ -96,7 +96,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 account_key,
                 db.clone(),
                 chain_client,
-                tx_sender,
+                (*tx_sender).clone(),
                 false,
             )
             .await?;
@@ -194,7 +194,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 account_key,
                 db.clone(),
                 chain_client.clone(),
-                tx_sender,
+                (*tx_sender).clone(),
                 is_faucet,
             )
             .await?;
@@ -465,7 +465,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             };
             tx_claimer.send(claim)?;
             trace!(LOG, "claim sent to tx_claimer"; "func" => function_name!());
-            tx_sender
+            (*tx_sender)
+                .clone()
                 .send(EmailMessage {
                     to: email_addr.to_string(),
                     email_args: EmailArgs::TxReceived {
@@ -478,7 +479,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 .unwrap();
         }
         let message_id = parsed_email.get_message_id()?;
-        tx_sender
+        (*tx_sender)
+            .clone()
             .send(EmailMessage {
                 to: from_address.clone(),
                 email_args: EmailArgs::TxComplete {

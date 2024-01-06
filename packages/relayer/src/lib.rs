@@ -48,7 +48,7 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
-use slog::{error, info, trace};
+use slog::{debug, error, info, trace};
 use std::env;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicU32;
@@ -98,7 +98,6 @@ pub async fn setup() -> Result<()> {
             env::var(RELAYER_HOSTNAME_KEY).unwrap(),
         )
         .await?;
-    println!("Register relayer in {}", tx_hash);
     Ok(())
 }
 
@@ -189,7 +188,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 &mut rx_handler,
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                &tx_sender_for_email_task,
+                tx_sender_for_email_task.clone().into(),
                 &tx_claimer_for_email_task,
                 &tx_creator_for_email_task,
             )
@@ -443,7 +442,7 @@ async fn email_handler_fn(
     rx_handler: &mut UnboundedReceiver<String>,
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
-    tx_sender_for_email_task: &UnboundedSender<EmailMessage>,
+    tx_sender_for_email_task: Arc<UnboundedSender<EmailMessage>>,
     tx_claimer_for_email_task: &UnboundedSender<Claim>,
     tx_creator_for_email_task: &UnboundedSender<(String, Option<AccountKey>)>,
 ) -> Result<()> {
@@ -459,15 +458,27 @@ async fn email_handler_fn(
     emails_pool.delete_email(&email_hash).await?;
     tokio::task::spawn(
         handle_email(
-            email,
+            email.clone(),
             Arc::clone(&db_clone),
             Arc::clone(&client_clone),
             emails_pool,
-            tx_sender_for_email_task.clone(),
+            Arc::clone(&tx_sender_for_email_task),
             tx_claimer_for_email_task.clone(),
             tx_creator_for_email_task.clone(),
         )
-        .map_err(|err: anyhow::Error| error!(LOG, "Error handling email: {}", err; "func" => function_name!())),
+        .map_err(|err: anyhow::Error| {
+            let err = err.to_string();
+            tokio::spawn(async move {
+                match error_email_if_needed(email, Arc::clone(&db_clone), Arc::clone(&client_clone), tx_sender_for_email_task.clone(), err.clone()).await {
+                    Ok(err_cleaned) => {
+                        error!(LOG, "Error handling email: {}", err_cleaned; "func" => function_name!());
+                    }
+                    Err(err_to_send) => {
+                        error!(LOG, "Error sending error email: {}", err_to_send; "func" => function_name!());
+                    }
+                }
+            });
+        }),
     );
 
     anyhow::Ok(())

@@ -51,6 +51,10 @@ def gen_email_sender_proof(nonce: str, is_local: bool, input: dict) -> dict:
 def store_input(circuit_name: str, nonce: str, json_data: dict):
     cur_dir = get_cur_dir()
     build_dir = os.path.join(cur_dir, "build")
+    # check if build_dir exists
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+
     json_file_path = os.path.join(
         build_dir, "input_" + circuit_name + "_" + nonce + ".json"
     )
