@@ -12,6 +12,7 @@ pub(crate) mod database;
 pub(crate) mod dkim_oracle;
 pub(crate) mod emails_pool;
 pub(crate) mod imap_client;
+pub(crate) mod logger;
 pub(crate) mod psi;
 pub(crate) mod shared;
 pub(crate) mod smtp_client;
@@ -32,6 +33,7 @@ pub(crate) use dkim_oracle::*;
 pub(crate) use emails_pool::*;
 use futures::TryFutureExt;
 pub(crate) use imap_client::*;
+pub(crate) use logger::*;
 pub(crate) use psi::*;
 use rand::rngs::OsRng;
 pub(crate) use smtp_client::*;
@@ -45,7 +47,7 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
-use log::{error, info};
+use slog::{error, info, trace};
 use std::env;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicU32;
@@ -100,7 +102,8 @@ pub async fn setup() -> Result<()> {
 }
 
 pub async fn run(config: RelayerConfig) -> Result<()> {
-    simple_logger::init().unwrap();
+    info!(LOG, "Starting relayer");
+
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
     PROVER_ADDRESS.set(config.prover_address).unwrap();
@@ -152,7 +155,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             match emails_pool_fetcher_fn(&tx_handler_for_fetcher_task).await {
                 Ok(()) => {}
                 Err(e) => {
-                    error!("Error at emails_pool_fetcher: {}", e);
+                    error!(LOG, "Error at emails_pool_fetcher: {}", e)
                 }
             }
         }
@@ -166,7 +169,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             match email_receiver_fn(&mut email_receiver, &tx_handler_for_receiver_task).await {
                 Ok(new_email_receiver) => {}
                 Err(e) => {
-                    error!("Error at email_receiver: {}", e)
+                    error!(LOG, "Error at email_receiver: {}", e)
                 }
             }
         }
@@ -192,7 +195,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!("Error at email_handler: {}", e)
+                    error!(LOG, "Error at email_handler: {}", e)
                 }
             }
         }
@@ -215,7 +218,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!("Error at account_creation: {}", e)
+                    error!(LOG, "Error at account_creation: {}", e)
                 }
             }
         }
@@ -240,7 +243,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!("Error at claimer: {}", e)
+                    error!(LOG, "Error at claimer: {}", e)
                 }
             }
         }
@@ -256,7 +259,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             Arc::clone(&client),
             tx_claimer_for_server_task,
         )
-        .map_err(|err| error!("Error api server: {}", err)),
+        .map_err(|err| error!(LOG, "Error running server: {}", err)),
     );
 
     let email_sender = SmtpClient::new(config.smtp_config)?;
@@ -265,7 +268,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             match email_sender_fn(&mut rx_sender, &email_sender).await {
                 Ok(()) => {}
                 Err(e) => {
-                    error!("Error at email_sender: {}", e)
+                    error!(LOG, "Error at email_sender: {}", e)
                 }
             }
         }
@@ -335,7 +338,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     from_block_state = last_block_s;
                 }
                 Err(e) => {
-                    error!("Error at event_listener: {}", e)
+                    error!(LOG, "Error at event_listener: {}", e)
                 }
             }
         }
@@ -351,7 +354,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             // let now = now();
             // let claims = db_clone.get_claims_expired(now).await?;
             // for claim in claims {
-            //     info!("Voiding claim for : {}", claim.email_address);
+            //     info!(LOG, "Voiding claim for : {}", claim.email_address);
             //     tokio::task::spawn(
             //         void_unclaims(
             //             claim,
@@ -359,7 +362,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             //             Arc::clone(&client_clone),
             //             tx_sender_for_voider_task.clone(),
             //         )
-            //         .map_err(|err| error!("Error voider task: {}", err)),
+            //         .map_err(|err| error!(LOG, "Error voider task: {}", err)),
             //     );
             // }
             // sleep(Duration::from_secs(120)).await;
@@ -373,7 +376,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!("Error at voider: {}", e)
+                    error!(LOG, "Error at voider: {}", e)
                 }
             }
         }
@@ -400,7 +403,7 @@ async fn emails_pool_fetcher_fn(
     let emails_pool = FileEmailsPool::new();
     let unhandled_emails = emails_pool.get_unhandled_emails().await?;
     for (email_hash, _) in unhandled_emails {
-        info!("unhandled email {}", email_hash);
+        info!(LOG, "unhandled email {}", email_hash);
         tx_handler_for_fetcher_task.send(email_hash)?;
     }
     sleep(Duration::from_secs(30)).await;
@@ -412,12 +415,12 @@ async fn email_receiver_fn(
     tx_handler_for_receiver_task: &UnboundedSender<String>,
 ) -> Result<()> {
     let fetches = email_receiver.retrieve_new_emails().await?;
-    info!("Fetched {} emails", fetches.len());
+    info!(LOG, "Fetched {} emails", fetches.len());
     for fetch in fetches {
         for email in fetch.iter() {
             if let Some(body) = email.body() {
                 let body = String::from_utf8(body.to_vec())?;
-                info!("Received email {}", body);
+                info!(LOG, "Received email {}", body);
                 let email_hash = calculate_default_hash(&body);
                 let emails_pool = FileEmailsPool::new();
                 if !emails_pool.contains_email(&email_hash).await? {
@@ -443,10 +446,10 @@ async fn email_handler_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!("Handling email hash {}", email_hash);
+    info!(LOG, "Handling email hash {}", email_hash);
     let emails_pool = FileEmailsPool::new();
     let email = emails_pool.get_email_by_hash(&email_hash).await?;
-    info!("Handled email {}", email);
+    info!(LOG, "Handled email {}", email);
     let emails_pool = FileEmailsPool::new();
     emails_pool.delete_email(&email_hash).await?;
     tokio::task::spawn(
@@ -459,7 +462,7 @@ async fn email_handler_fn(
             tx_claimer_for_email_task.clone(),
             tx_creator_for_email_task.clone(),
         )
-        .map_err(|err: anyhow::Error| error!("Error handling email: {}", err)),
+        .map_err(|err: anyhow::Error| error!(LOG, "Error handling email: {}", err)),
     );
 
     anyhow::Ok(())
@@ -475,7 +478,7 @@ async fn account_creation_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!("Creating account for email: {}", email_address);
+    info!(LOG, "Creating account for email: {}", email_address);
     tokio::task::spawn(
         create_account(
             email_address,
@@ -484,7 +487,7 @@ async fn account_creation_fn(
             Arc::clone(&client_clone),
             tx_sender_for_creator_task.clone(),
         )
-        .map_err(|err| error!("Error creating account: {}", err)),
+        .map_err(|err| error!(LOG, "Error creating account: {}", err)),
     );
     Ok(())
 }
@@ -500,7 +503,7 @@ async fn claimer_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!("Claiming unclaim for {:?}", claim.email_address);
+    info!(LOG, "Claiming unclaim for {:?}", claim.email_address);
     tokio::task::spawn(
         claim_unclaims(
             claim,
@@ -509,7 +512,7 @@ async fn claimer_fn(
             tx_creator_for_claimer_task.clone(),
             tx_sender_for_claimer_task.clone(),
         )
-        .map_err(|err| error!("Error claiming unclaim: {}", err)),
+        .map_err(|err| error!(LOG, "Error claiming unclaim: {}", err)),
     );
     Ok(())
 }
@@ -522,8 +525,8 @@ async fn email_sender_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!("Sending email to: {:?}", email.to);
-    info!("Email arg: {:?}", email.email_args);
+    info!(LOG, "Sending email to: {:?}", email.to);
+    info!(LOG, "Email arg: {:?}", email.email_args);
     email_sender.send_new_email(email).await?;
     Ok(())
 }
@@ -558,12 +561,12 @@ async fn catch_claims_in_db_fn(
     let now = now();
     let claims = db_clone.get_claims_unexpired(now).await?;
     for claim in claims {
-        info!("Claiming claim for : {}", claim.email_address);
+        info!(LOG, "Claiming claim for : {}", claim.email_address);
         tx_claimer_for_catcher_task.send(claim)?;
     }
     let claims = db_clone.get_claims_expired(now).await?;
     for claim in claims {
-        info!("Voiding claim for : {}", claim.email_address);
+        info!(LOG, "Voiding claim for : {}", claim.email_address);
         tokio::task::spawn(
             void_unclaims(
                 claim,
@@ -571,7 +574,7 @@ async fn catch_claims_in_db_fn(
                 Arc::clone(&client_clone),
                 tx_sender_for_catcher_task.clone(),
             )
-            .map_err(|err| error!("Error voider task: {}", err)),
+            .map_err(|err| error!(LOG, "Error voider task: {}", err)),
         );
     }
     sleep(Duration::from_secs(120)).await;

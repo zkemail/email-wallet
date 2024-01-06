@@ -4,7 +4,6 @@ use std::path::Path;
 
 use axum::Json;
 use ff::Field;
-use log::trace;
 use num_bigint::RandBigInt;
 use serde::{Deserialize, Serialize};
 use tokio::fs::{read_to_string, remove_file};

@@ -3,7 +3,6 @@ use crate::*;
 use std::sync::atomic::Ordering;
 
 use axum::Router;
-use log::trace;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
@@ -50,15 +49,16 @@ async fn unclaim(
 ) -> Result<String> {
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
     info!(
+        LOG,
         "padded email address fields: {:?}",
         padded_email_addr.to_email_addr_fields()
     );
     let commit = padded_email_addr.to_commitment(&hex2field(&payload.random)?)?;
-    info!("commit {:?}", commit);
+    info!(LOG, "commit {:?}", commit);
     let id = chain_client
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
         .await?;
-    info!("id {:?}", id);
+    info!(LOG, "id {:?}", id);
     let psi_client = PSIClient::new(
         Arc::clone(&chain_client),
         payload.email_address.clone(),
@@ -79,7 +79,7 @@ async fn unclaim(
         is_announced: false,
     };
     tx_claimer.send(claim)?;
-    trace!("claim sent to tx_claimer");
+    trace!(LOG, "claim sent to tx_claimer");
 
     Ok(format!(
         "Unclaimed {} for {} is accepted",
@@ -102,7 +102,7 @@ pub(crate) async fn run_server(
         .route(
             "/api/emailAddrCommit",
             axum::routing::post(move |payload: String| async move {
-                info!("/emailAddrCommit Received payload: {}", payload);
+                info!(LOG, "/emailAddrCommit Received payload: {}", payload);
                 let json = serde_json::from_str::<EmailAddrCommitRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())
                     .unwrap();
@@ -110,20 +110,20 @@ pub(crate) async fn run_server(
                 let commit = padded_email_addr
                     .to_commitment(&hex2field(&json.random).unwrap())
                     .unwrap();
-                info!("commit {:?}", commit);
+                info!(LOG, "commit {:?}", commit);
                 field2hex(&commit)
             }),
         )
         .route(
             "/api/unclaim",
             axum::routing::post(move |payload: String| async move {
-                info!("/unclaim Received payload: {}", payload);
+                info!(LOG, "/unclaim Received payload: {}", payload);
                 let json = serde_json::from_str::<UnclaimRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
                 unclaim(json, db, chain_client, tx_claimer)
                     .await
                     .map_err(|err| {
-                        error!("Failed to accept unclaim: {}", err);
+                        error!(LOG, "Failed to accept unclaim: {}", err);
                         err.to_string()
                     })
             }),
@@ -142,13 +142,13 @@ pub(crate) async fn run_server(
         .route(
             "/api/serveCheck/",
             axum::routing::post(move |payload: String| async move {
-                info!("/serveCheck Received payload: {}", payload);
+                info!(LOG, "/serveCheck Received payload: {}", payload);
                 let json = serde_json::from_str::<CheckRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
                 serve_check_request(json, chain_client_check_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed PSI check serve: {}", err);
+                        error!(LOG, "Failed PSI check serve: {}", err);
                         err.to_string()
                     })
             }),
@@ -156,13 +156,13 @@ pub(crate) async fn run_server(
         .route(
             "/api/serveReveal/",
             axum::routing::post(move |payload: String| async move {
-                info!("/serveCheck Received payload: {}", payload);
+                info!(LOG, "/serveCheck Received payload: {}", payload);
                 let json = serde_json::from_str::<RevealRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
                 serve_reveal_request(json, chain_client_reveal_clone, tx_claimer_reveal_clone)
                     .await
                     .map_err(|err| {
-                        error!("Failed PSI reveal serve: {}", err);
+                        error!(LOG, "Failed PSI reveal serve: {}", err);
                         err.to_string()
                     })
             }),
@@ -174,7 +174,7 @@ pub(crate) async fn run_server(
                 .allow_origin(Any),
         );
 
-    trace!("Listening API at {}", addr);
+    trace!(LOG, "Listening API at {}", addr);
     axum::Server::bind(&addr.parse()?)
         .serve(app.into_make_service())
         .await?;

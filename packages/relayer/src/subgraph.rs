@@ -54,7 +54,7 @@ impl SubgraphClient {
         };
         let response_body =
             post_graphql::<GetRelayers, _>(&self.web_client, &self.subgraph_api, variables).await?;
-        info!("{:?}", response_body);
+        info!(LOG, "{:?}", response_body);
         if response_body.data.is_none() {
             return Ok(vec![]);
         }
@@ -79,7 +79,7 @@ impl SubgraphClient {
         let response_body =
             post_graphql::<AllRelayersForPSI, _>(&self.web_client, &self.subgraph_api, variables)
                 .await?;
-        info!("{:?}", response_body);
+        info!(LOG, "{:?}", response_body);
         match response_body.data {
             Some(response_data) => {
                 let relayers = response_data.relayers.expect("no relayer found");

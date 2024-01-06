@@ -52,6 +52,10 @@ pub(crate) enum EmailArgs {
         is_fund: bool,
         void_msg: String,
     },
+    Error {
+        user_email_addr: String,
+        original_subject: String,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -95,7 +99,7 @@ impl SmtpClient {
                     "Email Wallet Notification. Your Email Wallet Account is created. CODE:{}",
                     &account_key
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Welcome to Email Wallet, {}!\nYour email
                 wallet account is
                 created.\nPlease reply to this email to start using Email
@@ -113,7 +117,7 @@ impl SmtpClient {
                     subject,
                     Some("CODE:".to_string() + &account_key),
                     None,
-                    body_plaim,
+                    body_plain,
                     body_html,
                 )
                 .await
@@ -130,7 +134,7 @@ impl SmtpClient {
                 let subject = format!(
                     "Email Wallet Notification. Your Email Wallet Account is initialized.",
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Awesome, {}!\nYour Email Wallet account is now
                    initialized. PLEASE DO NOT DELETE THIS EMAIL to keep your account
                    secure.\nYou
@@ -149,7 +153,7 @@ impl SmtpClient {
                     subject,
                     Some("CODE:".to_string() + &account_key),
                     Some(reply_to),
-                    body_plaim,
+                    body_plain,
                     body_html,
                 )
                 .await
@@ -165,7 +169,7 @@ impl SmtpClient {
                 let subject = format!(
                     "Email Wallet Notification. Your Email Wallet Account is transported.",
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Hi {}!\nYour account is securely transported to us. Now you can make any Email
                     Wallet transactions by sending an email to {}.\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, relayer_email_addr, email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
@@ -179,7 +183,7 @@ impl SmtpClient {
                     subject,
                     Some("CODE:".to_string() + &account_key),
                     Some(reply_to),
-                    body_plaim,
+                    body_plain,
                     body_html,
                 )
                 .await
@@ -195,7 +199,7 @@ impl SmtpClient {
                 let subject = format!(
                     "Email Wallet Notification. Your Email Wallet transaction is completed.",
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Hi {}!\nYour transaction request {} is completed in
                     this transaction https://sepolia.etherscan.io/tx/{}. Thank you for using Email Wallet!\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, original_subject, email.tx_hash.clone().expect("tx_hash must be set"), email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
@@ -209,7 +213,7 @@ impl SmtpClient {
                     subject,
                     Some("CODE:".to_string() + &account_key),
                     Some(reply_to),
-                    body_plaim,
+                    body_plain,
                     body_html,
                 )
                 .await
@@ -218,7 +222,7 @@ impl SmtpClient {
                 let subject = format!(
                     "Email Wallet Notification. There is an Email Wallet transaction for you.",
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Hi {}!\nAn Email Wallet transaction is executed for you in
                     this transaction https://sepolia.etherscan.io/tx/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, email.tx_hash.clone().expect("tx_hash must be set"), email.tx_hash.clone().expect("tx_hash must be set")
@@ -227,7 +231,7 @@ impl SmtpClient {
                 let body_html = self
                     .render_html("transaction_receiver.html", render_data)
                     .await?;
-                self.send_inner(email.to, subject, None, None, body_plaim, body_html)
+                self.send_inner(email.to, subject, None, None, body_plain, body_html)
                     .await
             }
             EmailArgs::Claim {
@@ -246,7 +250,7 @@ impl SmtpClient {
                         "You got some data of Email Wallet extensions"
                     }
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Hi {}!\n{}\\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr,
                     claim_msg,
@@ -259,7 +263,7 @@ impl SmtpClient {
                     subject,
                     Some("CODE:".to_string() + &account_key),
                     None,
-                    body_plaim,
+                    body_plain,
                     body_html,
                 )
                 .await
@@ -280,14 +284,38 @@ impl SmtpClient {
                         "Your data of Email Wallet extension is voided due to expiration."
                     }
                 );
-                let body_plaim = format!(
+                let body_plain = format!(
                     "Hi {}!\n{}\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                     user_email_addr, void_msg,email.wallet_addr.clone().expect("wallet_addr must be set"), email.tx_hash.clone().expect("tx_hash must be set")
                 );
                 let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "voidMsg": void_msg, "walletAddr":email.wallet_addr.clone().expect("wallet_addr must be set"), "transactionHash": email.tx_hash});
                 let body_html = self.render_html("void.html", render_data).await?;
-                self.send_inner(email.to, subject, None, None, body_plaim, body_html)
+                self.send_inner(email.to, subject, None, None, body_plain, body_html)
                     .await
+            }
+            EmailArgs::Error {
+                user_email_addr,
+                original_subject,
+            } => {
+                let account_key = email.account_key;
+                let subject = format!("Email Wallet Notification. Something went wrong.",);
+                let body_plain = format!(
+                    "Hi {}!\nSomething went wrong with your transaction request {}. Please contact share with us the error log.",
+                    user_email_addr, original_subject
+                );
+                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject});
+                let body_html = self.render_html("error.html", render_data).await?;
+                self.send_inner(
+                    email.to,
+                    subject,
+                    account_key
+                        .map(|value| "CODE:".to_string() + &value)
+                        .or(None),
+                    None,
+                    body_plain,
+                    body_html,
+                )
+                .await
             }
         }
     }

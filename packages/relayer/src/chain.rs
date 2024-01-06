@@ -313,7 +313,7 @@ impl ChainClient {
             if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
                 match decoded {
                     EmailWalletEventsEvents::EmailOpHandledFilter(event) => {
-                        info!("event {:?}", event);
+                        info!(LOG, "event {:?}", event);
                         return Ok((tx_hash, event.registered_unclaim_id));
                     }
                     _ => {
@@ -336,13 +336,19 @@ impl ChainClient {
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
+        // Print public key hash as hex string.
+        let public_key_hash_ = hex::encode(*&public_key_hash);
+        println!("public_key_hash {:?}", public_key_hash_);
+
         let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(
             selector,
             domain_name,
             public_key_hash,
             signature,
         );
+        println!("call {:?}", call);
         let tx = call.send().await?;
+        println!("tx {:?}", tx);
         let receipt = tx
             .log()
             .confirmations(CONFIRMATIONS)
@@ -350,6 +356,7 @@ impl ChainClient {
             .ok_or(anyhow!("No receipt"))?;
         let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        println!("tx_hash {:?}", tx_hash);
         Ok(tx_hash)
     }
 
@@ -462,7 +469,9 @@ impl ChainClient {
     }
 
     pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
+        println!("relayer handler: {:?}", self.relayer_handler);
         let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
+        println!("rand_hash: {:?}", rand_hash);
         bytes32_to_fr(&rand_hash)
     }
 
@@ -548,12 +557,12 @@ impl ChainClient {
             .get_transaction_receipt(H256::from_str(tx_hash)?)
             .await?
             .ok_or(anyhow!("No receipt"))?;
-        info!("receipt {:?}", receipt);
+        info!(LOG, "receipt {:?}", receipt);
 
         for log in receipt.logs.into_iter() {
-            info!("log {:?}", log);
+            info!(LOG, "log {:?}", log);
             if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
-                info!("decoded {:?}", decoded);
+                info!(LOG, "decoded {:?}", decoded);
                 match decoded {
                     EmailWalletEventsEvents::UnclaimedFundRegisteredFilter(event) => {
                         if !is_fund {
@@ -703,8 +712,8 @@ impl ChainClient {
             .call()
             .await?;
         info!(
-            "{:?} for {} is already registered: {}",
-            public_key_hash, domain_name, is_valid
+            LOG,
+            "{:?} for {} is already registered: {}", public_key_hash, domain_name, is_valid
         );
         Ok(is_valid)
     }
