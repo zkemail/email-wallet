@@ -338,7 +338,6 @@ impl ChainClient {
 
         // Print public key hash as hex string.
         let public_key_hash_ = hex::encode(*&public_key_hash);
-        println!("public_key_hash {:?}", public_key_hash_);
 
         let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(
             selector,
@@ -346,9 +345,7 @@ impl ChainClient {
             public_key_hash,
             signature,
         );
-        println!("call {:?}", call);
         let tx = call.send().await?;
-        println!("tx {:?}", tx);
         let receipt = tx
             .log()
             .confirmations(CONFIRMATIONS)
@@ -356,7 +353,6 @@ impl ChainClient {
             .ok_or(anyhow!("No receipt"))?;
         let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        println!("tx_hash {:?}", tx_hash);
         Ok(tx_hash)
     }
 
@@ -469,9 +465,7 @@ impl ChainClient {
     }
 
     pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
-        println!("relayer handler: {:?}", self.relayer_handler);
         let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        println!("rand_hash: {:?}", rand_hash);
         bytes32_to_fr(&rand_hash)
     }
 

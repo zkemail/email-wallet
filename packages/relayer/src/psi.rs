@@ -4,7 +4,7 @@ use std::path::Path;
 
 use axum::Json;
 use ff::Field;
-use num_bigint::RandBigInt;
+
 use serde::{Deserialize, Serialize};
 use tokio::fs::{read_to_string, remove_file};
 use tokio::sync::mpsc::UnboundedSender;
@@ -53,7 +53,7 @@ impl PSIClient {
         id: U256,
         is_fund: bool,
     ) -> Result<Self> {
-        let mut rng = rand::rngs::OsRng;
+        let rng = rand::rngs::OsRng;
         let random = Fr::random(OsRng);
         let random = field2hex(&random);
 

@@ -3,7 +3,7 @@ use crate::*;
 use std::time::Duration;
 
 use anyhow::anyhow;
-use async_imap::{extensions::idle::IdleResponse::*, types::Fetch, Session};
+use async_imap::{types::Fetch, Session};
 use async_native_tls::TlsStream;
 use futures::TryStreamExt;
 use oauth2::reqwest::async_http_client;
