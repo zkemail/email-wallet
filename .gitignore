@@ -35,8 +35,10 @@ packages/relayer/*.db
 packages/relayer/received_eml/*.eml
 packages/relayer/received_eml/*.json
 packages/relayer/proofs
+packages/relayer/logs
 sql_database.db
 .sqlx
+.ic.pem
 
 # Prover
 packages/prover/build/*

@@ -1,20 +1,13 @@
 use crate::*;
 
-use std::path::Path;
 use std::str::FromStr;
 
 use ::reqwest;
-use axum::Json;
-use ethers::utils::{parse_checksummed, to_checksum};
+
+use ethers::utils::to_checksum;
 use graphql_client::reqwest::post_graphql;
-use graphql_client::*;
-use graphql_client::{GraphQLQuery, Response};
-use hex::FromHex;
-use num_bigint::RandBigInt;
-use serde::{Deserialize, Serialize};
-use serde_json::from_str;
-use tokio::fs::{read_to_string, remove_file};
-use tokio::sync::mpsc::UnboundedSender;
+
+use graphql_client::GraphQLQuery;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -45,6 +38,7 @@ impl SubgraphClient {
         }
     }
 
+    #[named]
     pub(crate) async fn get_relayers_by_wallet_addr(
         &self,
         wallet_addr: &Address,
@@ -54,7 +48,7 @@ impl SubgraphClient {
         };
         let response_body =
             post_graphql::<GetRelayers, _>(&self.web_client, &self.subgraph_api, variables).await?;
-        info!("{:?}", response_body);
+        info!(LOG, "{:?}", response_body; "func" => function_name!());
         if response_body.data.is_none() {
             return Ok(vec![]);
         }
@@ -74,12 +68,13 @@ impl SubgraphClient {
         Ok(relayer_infos)
     }
 
+    #[named]
     pub(crate) async fn get_all_relayers_for_psi(&self) -> Result<Vec<(Address, String)>> {
         let variables = all_relayers_for_psi::Variables {};
         let response_body =
             post_graphql::<AllRelayersForPSI, _>(&self.web_client, &self.subgraph_api, variables)
                 .await?;
-        info!("{:?}", response_body);
+        info!(LOG, "{:?}", response_body; "func" => function_name!());
         match response_body.data {
             Some(response_data) => {
                 let relayers = response_data.relayers.expect("no relayer found");

@@ -32,6 +32,9 @@ pub const ONBOARDING_TOKEN_AMOUNT_KEY: &str = "ONBOARDING_TOKEN_AMOUNT";
 pub const ONBOARDING_TOKEN_DISTRIBUTION_LIMIT_KEY: &str = "ONBOARDING_TOKEN_DISTRIBUTION_LIMIT";
 pub const ONBOARDING_REPLY_KEY: &str = "ONBOARDING_REPLY";
 
+// Log strings
+pub const JSON_LOGGER_KEY: &str = "JSON_LOGGER";
+
 // Error strings
 pub const WRONG_AUTH_METHOD: &str = "Not supported auth type";
 pub const IMAP_RECONNECT_ERROR: &str = "Failed to reconnect";

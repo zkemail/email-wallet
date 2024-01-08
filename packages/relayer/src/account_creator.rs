@@ -2,9 +2,9 @@
 
 use crate::*;
 
-use log::trace;
 use tokio::sync::mpsc::UnboundedSender;
 
+#[named]
 pub(crate) async fn create_account(
     email_address: String,
     account_key: Option<AccountKey>,
@@ -23,7 +23,7 @@ pub(crate) async fn create_account(
     };
     let account_key_str = field2hex(&account_key.0);
 
-    trace!("Generated account_key {account_key_str}");
+    trace!(LOG, "Generated account_key {account_key_str}"; "func" => function_name!());
 
     let input = generate_account_creation_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
@@ -43,9 +43,9 @@ pub(crate) async fn create_account(
         psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
         proof,
     };
-    info!("Account creation data {:?}", data);
+    info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
     let res = chain_client.create_account(data).await?;
-    info!("account creation tx hash: {}", res);
+    info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
     let wallet_salt = account_key.to_wallet_salt()?;
     let wallet_addr = chain_client
         .get_wallet_addr_from_salt(&wallet_salt.0)

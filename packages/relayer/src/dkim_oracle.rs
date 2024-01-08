@@ -1,13 +1,12 @@
 use anyhow::anyhow;
-use candid::utils::encode_args;
-use candid::{CandidType, Principal};
+
+use candid::CandidType;
 use ic_agent::agent::http_transport::ReqwestTransport;
 use ic_agent::agent::*;
 use ic_agent::identity::*;
 use ic_utils::canister::*;
-use ic_utils::interfaces::wallet::*;
-use ic_utils::*;
-use serde::{Deserialize, Serialize};
+
+use serde::Deserialize;
 
 #[derive(Debug, Clone)]
 pub struct DkimOracleClient<'a> {

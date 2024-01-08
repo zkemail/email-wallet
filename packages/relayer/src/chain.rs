@@ -283,6 +283,7 @@ impl ChainClient {
         }
     }
 
+    #[named]
     pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<(String, U256)> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
@@ -313,7 +314,7 @@ impl ChainClient {
             if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
                 match decoded {
                     EmailWalletEventsEvents::EmailOpHandledFilter(event) => {
-                        info!("event {:?}", event);
+                        info!(LOG, "event {:?}", event; "func" => function_name!());
                         return Ok((tx_hash, event.registered_unclaim_id));
                     }
                     _ => {
@@ -542,18 +543,19 @@ impl ChainClient {
         Ok(unclaimed_state)
     }
 
+    #[named]
     pub async fn get_unclaim_id_from_tx_hash(&self, tx_hash: &str, is_fund: bool) -> Result<U256> {
         let receipt: TransactionReceipt = self
             .client
             .get_transaction_receipt(H256::from_str(tx_hash)?)
             .await?
             .ok_or(anyhow!("No receipt"))?;
-        info!("receipt {:?}", receipt);
+        info!(LOG, "receipt {:?}", receipt; "func" => function_name!());
 
         for log in receipt.logs.into_iter() {
-            info!("log {:?}", log);
+            info!(LOG, "log {:?}", log; "func" => function_name!());
             if let Ok(decoded) = EmailWalletEventsEvents::decode_log(&RawLog::from(log)) {
-                info!("decoded {:?}", decoded);
+                info!(LOG, "decoded {:?}", decoded; "func" => function_name!());
                 match decoded {
                     EmailWalletEventsEvents::UnclaimedFundRegisteredFilter(event) => {
                         if !is_fund {
@@ -692,6 +694,7 @@ impl ChainClient {
         Ok(account_key_info.1)
     }
 
+    #[named]
     pub(crate) async fn check_if_dkim_public_key_hash_valid(
         &self,
         domain_name: ::std::string::String,
@@ -703,8 +706,8 @@ impl ChainClient {
             .call()
             .await?;
         info!(
-            "{:?} for {} is already registered: {}",
-            public_key_hash, domain_name, is_valid
+            LOG,
+            "{:?} for {} is already registered: {}", public_key_hash, domain_name, is_valid; "func" => function_name!()
         );
         Ok(is_valid)
     }

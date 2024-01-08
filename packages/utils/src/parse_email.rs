@@ -13,7 +13,6 @@ use cfdkim::{canonicalize_signed_email, resolve_public_key};
 use neon::prelude::*;
 use rsa::PublicKeyParts;
 use serde::{Deserialize, Serialize};
-use slog;
 use zk_regex_apis::extract_substrs::*;
 // use trust_dns_resolver::config::{ResolverConfig, ResolverOpts};
 // use trust_dns_resolver::proto::rr::{RData, RecordType};
