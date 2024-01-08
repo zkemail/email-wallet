@@ -59,6 +59,7 @@ pub(crate) struct ImapClient {
 }
 
 impl ImapClient {
+    #[named]
     pub(crate) async fn new(config: ImapConfig) -> Result<Self> {
         let tcp_stream = TcpStream::connect((&*config.domain_name, config.port)).await?;
         let tls = async_native_tls::TlsConnector::new();
@@ -104,7 +105,7 @@ impl ImapClient {
                     tiny_http::Response::from_string("You can close this window now.".to_string());
                 request.respond(response).unwrap();
 
-                trace!(LOG, "Auth Code that I captured {}", auth_code);
+                trace!(LOG, "Auth Code that I captured {}", auth_code; "func" => function_name!());
 
                 let token_result = oauth_client
                     .exchange_code(AuthorizationCode::new(auth_code.to_string()))
@@ -127,11 +128,12 @@ impl ImapClient {
 
         session.select("INBOX").await?;
 
-        trace!(LOG, "ImapClient connected succesfully!");
+        trace!(LOG, "ImapClient connected succesfully!"; "func" => function_name!());
 
         Ok(Self { session, config })
     }
 
+    #[named]
     pub(crate) async fn retrieve_new_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
         if !self.config.initially_checked {
             self.config.initially_checked = true;
@@ -143,19 +145,20 @@ impl ImapClient {
         }
 
         // let mut new_client = self.wait_new_email().await?;
-        trace!(LOG, "Reconnecting...");
+        trace!(LOG, "Reconnecting..."; "func" => function_name!());
         self.reconnect().await?;
-        trace!(LOG, "Reconnected!");
+        trace!(LOG, "Reconnected!"; "func" => function_name!());
         // Ok((new_client.get_unseen_emails().await?, new_client))
         Ok(self.get_unseen_emails().await?)
     }
 
+    #[named]
     async fn get_unseen_emails(&mut self) -> Result<Vec<Vec<Fetch>>> {
-        trace!(LOG, "Getting unseen emails...");
+        trace!(LOG, "Getting unseen emails..."; "func" => function_name!());
         loop {
             match self.session.uid_search("UNSEEN").await {
                 Ok(uids) => {
-                    trace!(LOG, "Got unseen emails: {:?}!", uids);
+                    trace!(LOG, "Got unseen emails: {:?}!", uids; "func" => function_name!());
                     let mut results = vec![];
                     for uid in uids {
                         let res = self
@@ -165,11 +168,11 @@ impl ImapClient {
                         let res = res.try_collect::<Vec<_>>().await?;
                         results.push(res);
                     }
-                    trace!(LOG, "Got unseen emails: {:?}!", results);
+                    trace!(LOG, "Got unseen emails: {:?}!", results; "func" => function_name!());
                     return Ok(results);
                 }
                 Err(e) => {
-                    error!(LOG, "Connection reset, reconnecting...");
+                    error!(LOG, "Connection reset, reconnecting..."; "func" => function_name!());
                     self.reconnect().await?;
                 }
             }

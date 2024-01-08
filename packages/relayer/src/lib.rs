@@ -23,6 +23,7 @@ pub(crate) mod voider;
 pub(crate) mod web_server;
 
 pub(crate) use crate::core::*;
+use ::function_name::named;
 pub(crate) use abis::*;
 pub(crate) use account_creator::*;
 pub(crate) use chain::*;
@@ -101,8 +102,9 @@ pub async fn setup() -> Result<()> {
     Ok(())
 }
 
+#[named]
 pub async fn run(config: RelayerConfig) -> Result<()> {
-    info!(LOG, "Starting relayer");
+    info!(LOG, "Starting relayer"; "func" => function_name!());
 
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
     WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
@@ -155,7 +157,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             match emails_pool_fetcher_fn(&tx_handler_for_fetcher_task).await {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at emails_pool_fetcher: {}", e)
+                    error!(LOG, "Error at emails_pool_fetcher: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -169,7 +171,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             match email_receiver_fn(&mut email_receiver, &tx_handler_for_receiver_task).await {
                 Ok(new_email_receiver) => {}
                 Err(e) => {
-                    error!(LOG, "Error at email_receiver: {}", e)
+                    error!(LOG, "Error at email_receiver: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -195,7 +197,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at email_handler: {}", e)
+                    error!(LOG, "Error at email_handler: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -218,7 +220,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at account_creation: {}", e)
+                    error!(LOG, "Error at account_creation: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -243,7 +245,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at claimer: {}", e)
+                    error!(LOG, "Error at claimer: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -259,7 +261,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             Arc::clone(&client),
             tx_claimer_for_server_task,
         )
-        .map_err(|err| error!(LOG, "Error running server: {}", err)),
+        .map_err(|err| error!(LOG, "Error running server: {}", err; "func" => function_name!())),
     );
 
     let email_sender = SmtpClient::new(config.smtp_config)?;
@@ -268,7 +270,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             match email_sender_fn(&mut rx_sender, &email_sender).await {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at email_sender: {}", e)
+                    error!(LOG, "Error at email_sender: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -338,7 +340,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     from_block_state = last_block_s;
                 }
                 Err(e) => {
-                    error!(LOG, "Error at event_listener: {}", e)
+                    error!(LOG, "Error at event_listener: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -376,7 +378,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at voider: {}", e)
+                    error!(LOG, "Error at voider: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -397,30 +399,32 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     Ok(())
 }
 
+#[named]
 async fn emails_pool_fetcher_fn(
     tx_handler_for_fetcher_task: &UnboundedSender<String>,
 ) -> Result<()> {
     let emails_pool = FileEmailsPool::new();
     let unhandled_emails = emails_pool.get_unhandled_emails().await?;
     for (email_hash, _) in unhandled_emails {
-        info!(LOG, "unhandled email {}", email_hash);
+        info!(LOG, "unhandled email {}", email_hash; "func" => function_name!());
         tx_handler_for_fetcher_task.send(email_hash)?;
     }
     sleep(Duration::from_secs(30)).await;
     anyhow::Ok(())
 }
 
+#[named]
 async fn email_receiver_fn(
     email_receiver: &mut ImapClient,
     tx_handler_for_receiver_task: &UnboundedSender<String>,
 ) -> Result<()> {
     let fetches = email_receiver.retrieve_new_emails().await?;
-    info!(LOG, "Fetched {} emails", fetches.len());
+    info!(LOG, "Fetched {} emails", fetches.len(); "func" => function_name!());
     for fetch in fetches {
         for email in fetch.iter() {
             if let Some(body) = email.body() {
                 let body = String::from_utf8(body.to_vec())?;
-                info!(LOG, "Received email {}", body);
+                info!(LOG, "Received email {}", body; "func" => function_name!());
                 let email_hash = calculate_default_hash(&body);
                 let emails_pool = FileEmailsPool::new();
                 if !emails_pool.contains_email(&email_hash).await? {
@@ -434,6 +438,7 @@ async fn email_receiver_fn(
     Ok(())
 }
 
+#[named]
 async fn email_handler_fn(
     rx_handler: &mut UnboundedReceiver<String>,
     db_clone: Arc<Database>,
@@ -446,10 +451,10 @@ async fn email_handler_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Handling email hash {}", email_hash);
+    info!(LOG, "Handling email hash {}", email_hash; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     let email = emails_pool.get_email_by_hash(&email_hash).await?;
-    info!(LOG, "Handled email {}", email);
+    info!(LOG, "Handled email {}", email; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     emails_pool.delete_email(&email_hash).await?;
     tokio::task::spawn(
@@ -462,12 +467,13 @@ async fn email_handler_fn(
             tx_claimer_for_email_task.clone(),
             tx_creator_for_email_task.clone(),
         )
-        .map_err(|err: anyhow::Error| error!(LOG, "Error handling email: {}", err)),
+        .map_err(|err: anyhow::Error| error!(LOG, "Error handling email: {}", err; "func" => function_name!())),
     );
 
     anyhow::Ok(())
 }
 
+#[named]
 async fn account_creation_fn(
     rx_creator: &mut UnboundedReceiver<(String, Option<AccountKey>)>,
     db_clone: Arc<Database>,
@@ -478,7 +484,7 @@ async fn account_creation_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Creating account for email: {}", email_address);
+    info!(LOG, "Creating account for email: {}", email_address; "func" => function_name!());
     tokio::task::spawn(
         create_account(
             email_address,
@@ -487,11 +493,12 @@ async fn account_creation_fn(
             Arc::clone(&client_clone),
             tx_sender_for_creator_task.clone(),
         )
-        .map_err(|err| error!(LOG, "Error creating account: {}", err)),
+        .map_err(|err| error!(LOG, "Error creating account: {}", err; "func" => function_name!())),
     );
     Ok(())
 }
 
+#[named]
 async fn claimer_fn(
     rx_claimer: &mut UnboundedReceiver<Claim>,
     db_clone: Arc<Database>,
@@ -503,7 +510,7 @@ async fn claimer_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Claiming unclaim for {:?}", claim.email_address);
+    info!(LOG, "Claiming unclaim for {:?}", claim.email_address; "func" => function_name!());
     tokio::task::spawn(
         claim_unclaims(
             claim,
@@ -512,11 +519,12 @@ async fn claimer_fn(
             tx_creator_for_claimer_task.clone(),
             tx_sender_for_claimer_task.clone(),
         )
-        .map_err(|err| error!(LOG, "Error claiming unclaim: {}", err)),
+        .map_err(|err| error!(LOG, "Error claiming unclaim: {}", err; "func" => function_name!())),
     );
     Ok(())
 }
 
+#[named]
 async fn email_sender_fn(
     rx_sender: &mut UnboundedReceiver<EmailMessage>,
     email_sender: &SmtpClient,
@@ -525,8 +533,8 @@ async fn email_sender_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Sending email to: {:?}", email.to);
-    info!(LOG, "Email arg: {:?}", email.email_args);
+    info!(LOG, "Sending email to: {:?}", email.to; "func" => function_name!());
+    info!(LOG, "Email arg: {:?}", email.email_args; "func" => function_name!());
     email_sender.send_new_email(email).await?;
     Ok(())
 }
@@ -552,6 +560,7 @@ async fn event_listener_fn<
     Ok((last_block_f + 1, last_block_s + 1))
 }
 
+#[named]
 async fn catch_claims_in_db_fn(
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
@@ -561,12 +570,12 @@ async fn catch_claims_in_db_fn(
     let now = now();
     let claims = db_clone.get_claims_unexpired(now).await?;
     for claim in claims {
-        info!(LOG, "Claiming claim for : {}", claim.email_address);
+        info!(LOG, "Claiming claim for : {}", claim.email_address; "func" => function_name!());
         tx_claimer_for_catcher_task.send(claim)?;
     }
     let claims = db_clone.get_claims_expired(now).await?;
     for claim in claims {
-        info!(LOG, "Voiding claim for : {}", claim.email_address);
+        info!(LOG, "Voiding claim for : {}", claim.email_address; "func" => function_name!());
         tokio::task::spawn(
             void_unclaims(
                 claim,
@@ -574,7 +583,7 @@ async fn catch_claims_in_db_fn(
                 Arc::clone(&client_clone),
                 tx_sender_for_catcher_task.clone(),
             )
-            .map_err(|err| error!(LOG, "Error voider task: {}", err)),
+            .map_err(|err| error!(LOG, "Error voider task: {}", err; "func" => function_name!())),
         );
     }
     sleep(Duration::from_secs(120)).await;

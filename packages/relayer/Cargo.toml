@@ -47,6 +47,8 @@ slog = { version = "2.7.0", features = ["max_level_trace", "release_max_level_wa
 slog-async = "2.8.0"
 slog-term = "2.9.0"
 slog-json = "2.6.1"
+file-rotate = "0.7.5"
+function_name = "0.3.0"
 
 [build-dependencies]
 ethers = "2.0.10"

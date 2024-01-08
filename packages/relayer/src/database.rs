@@ -108,6 +108,7 @@ impl Database {
     //     Ok(result.is_some())
     // }
 
+    #[named]
     pub(crate) async fn insert_user(
         &self,
         email_address: &str,
@@ -127,7 +128,7 @@ impl Database {
         info!(
             LOG,
             "inserted row: {}",
-            row.get::<String, _>("email_address")
+            row.get::<String, _>("email_address"); "func" => function_name!()
         );
         Ok(())
     }
@@ -199,9 +200,10 @@ impl Database {
         Ok(vec)
     }
 
+    #[named]
     pub(crate) async fn get_claims_unexpired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-        info!(LOG, "now {}", now);
+        info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
             sqlx::query("SELECT * FROM claims WHERE expiry_time > $1 AND is_deleted = FALSE")
                 .bind(now)
@@ -229,9 +231,10 @@ impl Database {
         Ok(vec)
     }
 
+    #[named]
     pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-        info!(LOG, "now {}", now);
+        info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
             sqlx::query("SELECT * FROM claims WHERE expiry_time < $1 AND is_deleted = FALSE")
                 .bind(now)
@@ -259,8 +262,9 @@ impl Database {
         Ok(vec)
     }
 
+    #[named]
     pub(crate) async fn insert_claim(&self, claim: &Claim) -> Result<()> {
-        info!(LOG, "expiry_time {}", claim.expiry_time);
+        info!(LOG, "expiry_time {}", claim.expiry_time; "func" => function_name!());
         let row = sqlx::query(
             "INSERT INTO claims (id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
         )
@@ -276,7 +280,7 @@ impl Database {
         info!(
             LOG,
             "inserted row: {}",
-            row.get::<String, _>("email_addr_commit")
+            row.get::<String, _>("email_addr_commit"); "func" => function_name!()
         );
         Ok(())
     }
