@@ -261,7 +261,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             Arc::clone(&client),
             tx_claimer_for_server_task,
         )
-        .map_err(|err| error!(LOG, "Error running server: {}", err; "func" => function_name!())),
+        .map_err(|err| error!(LOG, "Error api server: {}", err; "func" => function_name!())),
     );
 
     let email_sender = SmtpClient::new(config.smtp_config)?;

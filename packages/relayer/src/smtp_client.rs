@@ -52,10 +52,6 @@ pub(crate) enum EmailArgs {
         is_fund: bool,
         void_msg: String,
     },
-    Error {
-        user_email_addr: String,
-        original_subject: String,
-    },
 }
 
 #[derive(Debug, Clone)]
@@ -292,30 +288,6 @@ impl SmtpClient {
                 let body_html = self.render_html("void.html", render_data).await?;
                 self.send_inner(email.to, subject, None, None, body_plain, body_html)
                     .await
-            }
-            EmailArgs::Error {
-                user_email_addr,
-                original_subject,
-            } => {
-                let account_key = email.account_key;
-                let subject = format!("Email Wallet Notification. Something went wrong.",);
-                let body_plain = format!(
-                    "Hi {}!\nSomething went wrong with your transaction request {}. Please contact share with us the error log.",
-                    user_email_addr, original_subject
-                );
-                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject});
-                let body_html = self.render_html("error.html", render_data).await?;
-                self.send_inner(
-                    email.to,
-                    subject,
-                    account_key
-                        .map(|value| "CODE:".to_string() + &value)
-                        .or(None),
-                    None,
-                    body_plain,
-                    body_html,
-                )
-                .await
             }
         }
     }

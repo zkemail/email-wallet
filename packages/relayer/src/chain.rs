@@ -337,9 +337,6 @@ impl ChainClient {
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
-        // Print public key hash as hex string.
-        let public_key_hash_ = hex::encode(*&public_key_hash);
-
         let call = self.ecdsa_owned_dkim_registry.set_dkim_public_key_hash(
             selector,
             domain_name,
