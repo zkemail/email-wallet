@@ -425,13 +425,26 @@ pub(crate) async fn error_email_if_needed(
 
     let error_email = match error.as_str() {
         "Account is already created" => {
-            debug!(LOG, "Sending error email");
             let email = EmailMessage {
                 to: from_address.clone(),
                 email_args: EmailArgs::Error {
                     user_email_addr: from_address,
                     original_subject: subject,
                     error_msg: "Account is already created".to_string(),
+                },
+                account_key: Some(field2hex(&account_key.0)),
+                wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
+                tx_hash: None,
+            };
+            Ok(email)
+        }
+        "insufficient balance" => {
+            let email = EmailMessage {
+                to: from_address.clone(),
+                email_args: EmailArgs::Error {
+                    user_email_addr: from_address,
+                    original_subject: subject,
+                    error_msg: "You don't have sufficient balance".to_string(),
                 },
                 account_key: Some(field2hex(&account_key.0)),
                 wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
