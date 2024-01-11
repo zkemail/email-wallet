@@ -17,11 +17,13 @@ fi
 cd ../
 
 if cd relayer; then
-    cargo run --release -- setup
+    if [ "$SETUP" = "true" ]; then
+        cargo run --release -- setup
 
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to run cargo run --release -- setup"
-        exit 1
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to run cargo run --release -- setup"
+            exit 1
+        fi
     fi
 
     cargo run --release >> output.log
