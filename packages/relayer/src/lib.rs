@@ -98,6 +98,7 @@ pub async fn setup() -> Result<()> {
             env::var(RELAYER_HOSTNAME_KEY).unwrap(),
         )
         .await?;
+    println!("Register relayer in {}", tx_hash);
     Ok(())
 }
 
