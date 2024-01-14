@@ -54,7 +54,7 @@ pub(crate) enum EmailArgs {
     },
     Error {
         user_email_addr: String,
-        original_subject: String,
+        original_subject: Option<String>,
         error_msg: String,
     },
 }
@@ -303,9 +303,9 @@ impl SmtpClient {
                 let subject = format!("Email Wallet Notification. Something went wrong.",);
                 let body_plain = format!(
                     "Hi {}!\nYour transaction request \"{}\" failed due to the following error: {}.",
-                    user_email_addr, original_subject, error_msg
+                    user_email_addr, original_subject.clone().unwrap(), error_msg
                 );
-                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject, "errorMsg": error_msg});
+                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject.unwrap(), "errorMsg": error_msg});
                 let body_html = self.render_html("error.html", render_data).await?;
                 self.send_inner(
                     email.to,
@@ -429,7 +429,7 @@ pub(crate) async fn error_email_if_needed(
                 to: from_address.clone(),
                 email_args: EmailArgs::Error {
                     user_email_addr: from_address,
-                    original_subject: subject,
+                    original_subject: Some(subject),
                     error_msg: "Account is already created".to_string(),
                 },
                 account_key: Some(field2hex(&account_key.0)),
@@ -443,7 +443,7 @@ pub(crate) async fn error_email_if_needed(
                 to: from_address.clone(),
                 email_args: EmailArgs::Error {
                     user_email_addr: from_address,
-                    original_subject: subject,
+                    original_subject: Some(subject),
                     error_msg: "You don't have sufficient balance".to_string(),
                 },
                 account_key: Some(field2hex(&account_key.0)),
