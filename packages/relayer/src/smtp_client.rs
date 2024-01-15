@@ -301,23 +301,48 @@ impl SmtpClient {
             } => {
                 let account_key = email.account_key;
                 let subject = format!("Email Wallet Notification. Something went wrong.",);
-                let body_plain = format!(
-                    "Hi {}!\nYour transaction request \"{}\" failed due to the following error: {}.",
-                    user_email_addr, original_subject.clone().unwrap(), error_msg
-                );
-                let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject.unwrap(), "errorMsg": error_msg});
-                let body_html = self.render_html("error.html", render_data).await?;
-                self.send_inner(
-                    email.to,
-                    subject,
-                    account_key
-                        .map(|value| "CODE:".to_string() + &value)
-                        .or(None),
-                    None,
-                    body_plain,
-                    body_html,
-                )
-                .await
+                match original_subject {
+                    Some(original_subject) => {
+                        let body_plain = format!(
+                            "Hi {}!\nYour request \"{}\" failed due to the following error: {}.",
+                            user_email_addr, original_subject, error_msg
+                        );
+                        let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject, "errorMsg": error_msg});
+                        let body_html = self.render_html("error.html", render_data).await?;
+                        self.send_inner(
+                            email.to,
+                            subject,
+                            account_key
+                                .map(|value| "CODE:".to_string() + &value)
+                                .or(None),
+                            None,
+                            body_plain,
+                            body_html,
+                        )
+                        .await
+                    }
+                    None => {
+                        let original_subject =
+                            "to initialize or transport your account".to_string();
+                        let body_plain = format!(
+                            "Hi {}!\nYour request \"{}\" failed due to the following error: {}.",
+                            user_email_addr, original_subject, error_msg
+                        );
+                        let render_data = serde_json::json!({"userEmailAddr": user_email_addr, "originalSubject": original_subject, "errorMsg": error_msg});
+                        let body_html = self.render_html("error.html", render_data).await?;
+                        self.send_inner(
+                            email.to,
+                            subject,
+                            account_key
+                                .map(|value| "CODE:".to_string() + &value)
+                                .or(None),
+                            None,
+                            body_plain,
+                            body_html,
+                        )
+                        .await
+                    }
+                }
             }
         }
     }
