@@ -1,7 +1,6 @@
 use crate::converters::*;
-use anyhow;
-use halo2curves::ff::{Field, PrimeField};
-use itertools::Itertools;
+
+use halo2curves::ff::Field;
 use neon::prelude::*;
 use poseidon_rs::*;
 use rand_core::{OsRng, RngCore};
