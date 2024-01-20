@@ -97,7 +97,7 @@ impl SmtpClient {
                     .account_key
                     .expect("account_key must be set for the account creation email.");
                 let subject = format!(
-                    "Email Wallet Notification. Your Email Wallet Account is created. CODE:{}",
+                    "Email Wallet Notification. Your Email Wallet Account is created. ACCOUNTKEY:{}",
                     &account_key
                 );
                 let body_plain = format!(
@@ -116,7 +116,7 @@ impl SmtpClient {
                 self.send_inner(
                     email.to,
                     subject,
-                    Some("CODE:".to_string() + &account_key),
+                    Some("ACCOUNTKEY:".to_string() + &account_key),
                     None,
                     body_plain,
                     body_html,
@@ -152,7 +152,7 @@ impl SmtpClient {
                 self.send_inner(
                     email.to,
                     subject,
-                    Some("CODE:".to_string() + &account_key),
+                    Some("ACCOUNTKEY:".to_string() + &account_key),
                     Some(reply_to),
                     body_plain,
                     body_html,
@@ -182,7 +182,7 @@ impl SmtpClient {
                 self.send_inner(
                     email.to,
                     subject,
-                    Some("CODE:".to_string() + &account_key),
+                    Some("ACCOUNTKEY:".to_string() + &account_key),
                     Some(reply_to),
                     body_plain,
                     body_html,
@@ -212,7 +212,7 @@ impl SmtpClient {
                 self.send_inner(
                     email.to,
                     subject,
-                    Some("CODE:".to_string() + &account_key),
+                    Some("ACCOUNTKEY:".to_string() + &account_key),
                     Some(reply_to),
                     body_plain,
                     body_html,
@@ -262,7 +262,7 @@ impl SmtpClient {
                 self.send_inner(
                     email.to,
                     subject,
-                    Some("CODE:".to_string() + &account_key),
+                    Some("ACCOUNTKEY:".to_string() + &account_key),
                     None,
                     body_plain,
                     body_html,
@@ -313,7 +313,7 @@ impl SmtpClient {
                             email.to,
                             subject,
                             account_key
-                                .map(|value| "CODE:".to_string() + &value)
+                                .map(|value| "ACCOUNTKEY:".to_string() + &value)
                                 .or(None),
                             None,
                             body_plain,
@@ -334,7 +334,7 @@ impl SmtpClient {
                             email.to,
                             subject,
                             account_key
-                                .map(|value| "CODE:".to_string() + &value)
+                                .map(|value| "ACCOUNTKEY:".to_string() + &value)
                                 .or(None),
                             None,
                             body_plain,

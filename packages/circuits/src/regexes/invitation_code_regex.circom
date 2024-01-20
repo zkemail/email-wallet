@@ -13,19 +13,19 @@ template InvitationCodeRegex(msg_bytes) {
 		in[i+1] <== msg[i];
 	}
 
-	component eq[22][num_bytes];
-	component and[9][num_bytes];
+	component eq[27][num_bytes];
+	component and[15][num_bytes];
 	component multi_or[2][num_bytes];
-	signal states[num_bytes+1][9];
+	signal states[num_bytes+1][15];
 	component state_changed[num_bytes];
 
 	states[0][0] <== 1;
-	for (var i = 1; i < 9; i++) {
+	for (var i = 1; i < 15; i++) {
 		states[0][i] <== 0;
 	}
 
 	for (var i = 0; i < num_bytes; i++) {
-		state_changed[i] = MultiOR(8);
+		state_changed[i] = MultiOR(14);
 		eq[0][i] = IsEqual();
 		eq[0][i].in[0] <== in[i];
 		eq[0][i].in[1] <== 48;
@@ -95,7 +95,7 @@ template InvitationCodeRegex(msg_bytes) {
 		multi_or[0][i].in[15] <== eq[15][i].out;
 		and[0][i].b <== multi_or[0][i].out;
 		and[1][i] = AND();
-		and[1][i].a <== states[i][8];
+		and[1][i].a <== states[i][14];
 		and[1][i].b <== multi_or[0][i].out;
 		multi_or[1][i] = MultiOR(2);
 		multi_or[1][i].in[0] <== and[0][i].out;
@@ -104,7 +104,7 @@ template InvitationCodeRegex(msg_bytes) {
 		state_changed[i].in[0] <== states[i+1][1];
 		eq[16][i] = IsEqual();
 		eq[16][i].in[0] <== in[i];
-		eq[16][i].in[1] <== 67;
+		eq[16][i].in[1] <== 65;
 		and[2][i] = AND();
 		and[2][i].a <== states[i][0];
 		and[2][i].b <== eq[16][i].out;
@@ -112,49 +112,94 @@ template InvitationCodeRegex(msg_bytes) {
 		state_changed[i].in[1] <== states[i+1][2];
 		eq[17][i] = IsEqual();
 		eq[17][i].in[0] <== in[i];
-		eq[17][i].in[1] <== 79;
+		eq[17][i].in[1] <== 67;
 		and[3][i] = AND();
 		and[3][i].a <== states[i][2];
 		and[3][i].b <== eq[17][i].out;
 		states[i+1][3] <== and[3][i].out;
 		state_changed[i].in[2] <== states[i+1][3];
-		eq[18][i] = IsEqual();
-		eq[18][i].in[0] <== in[i];
-		eq[18][i].in[1] <== 68;
 		and[4][i] = AND();
 		and[4][i].a <== states[i][3];
-		and[4][i].b <== eq[18][i].out;
+		and[4][i].b <== eq[17][i].out;
 		states[i+1][4] <== and[4][i].out;
 		state_changed[i].in[3] <== states[i+1][4];
-		eq[19][i] = IsEqual();
-		eq[19][i].in[0] <== in[i];
-		eq[19][i].in[1] <== 69;
+		eq[18][i] = IsEqual();
+		eq[18][i].in[0] <== in[i];
+		eq[18][i].in[1] <== 79;
 		and[5][i] = AND();
 		and[5][i].a <== states[i][4];
-		and[5][i].b <== eq[19][i].out;
+		and[5][i].b <== eq[18][i].out;
 		states[i+1][5] <== and[5][i].out;
 		state_changed[i].in[4] <== states[i+1][5];
-		eq[20][i] = IsEqual();
-		eq[20][i].in[0] <== in[i];
-		eq[20][i].in[1] <== 58;
+		eq[19][i] = IsEqual();
+		eq[19][i].in[0] <== in[i];
+		eq[19][i].in[1] <== 85;
 		and[6][i] = AND();
 		and[6][i].a <== states[i][5];
-		and[6][i].b <== eq[20][i].out;
+		and[6][i].b <== eq[19][i].out;
 		states[i+1][6] <== and[6][i].out;
 		state_changed[i].in[5] <== states[i+1][6];
+		eq[20][i] = IsEqual();
+		eq[20][i].in[0] <== in[i];
+		eq[20][i].in[1] <== 78;
 		and[7][i] = AND();
 		and[7][i].a <== states[i][6];
-		and[7][i].b <== eq[0][i].out;
+		and[7][i].b <== eq[20][i].out;
 		states[i+1][7] <== and[7][i].out;
 		state_changed[i].in[6] <== states[i+1][7];
 		eq[21][i] = IsEqual();
 		eq[21][i].in[0] <== in[i];
-		eq[21][i].in[1] <== 120;
+		eq[21][i].in[1] <== 84;
 		and[8][i] = AND();
 		and[8][i].a <== states[i][7];
 		and[8][i].b <== eq[21][i].out;
 		states[i+1][8] <== and[8][i].out;
 		state_changed[i].in[7] <== states[i+1][8];
+		eq[22][i] = IsEqual();
+		eq[22][i].in[0] <== in[i];
+		eq[22][i].in[1] <== 75;
+		and[9][i] = AND();
+		and[9][i].a <== states[i][8];
+		and[9][i].b <== eq[22][i].out;
+		states[i+1][9] <== and[9][i].out;
+		state_changed[i].in[8] <== states[i+1][9];
+		eq[23][i] = IsEqual();
+		eq[23][i].in[0] <== in[i];
+		eq[23][i].in[1] <== 69;
+		and[10][i] = AND();
+		and[10][i].a <== states[i][9];
+		and[10][i].b <== eq[23][i].out;
+		states[i+1][10] <== and[10][i].out;
+		state_changed[i].in[9] <== states[i+1][10];
+		eq[24][i] = IsEqual();
+		eq[24][i].in[0] <== in[i];
+		eq[24][i].in[1] <== 89;
+		and[11][i] = AND();
+		and[11][i].a <== states[i][10];
+		and[11][i].b <== eq[24][i].out;
+		states[i+1][11] <== and[11][i].out;
+		state_changed[i].in[10] <== states[i+1][11];
+		eq[25][i] = IsEqual();
+		eq[25][i].in[0] <== in[i];
+		eq[25][i].in[1] <== 46;
+		and[12][i] = AND();
+		and[12][i].a <== states[i][11];
+		and[12][i].b <== eq[25][i].out;
+		states[i+1][12] <== and[12][i].out;
+		state_changed[i].in[11] <== states[i+1][12];
+		and[13][i] = AND();
+		and[13][i].a <== states[i][12];
+		and[13][i].b <== eq[0][i].out;
+		states[i+1][13] <== and[13][i].out;
+		state_changed[i].in[12] <== states[i+1][13];
+		eq[26][i] = IsEqual();
+		eq[26][i].in[0] <== in[i];
+		eq[26][i].in[1] <== 120;
+		and[14][i] = AND();
+		and[14][i].a <== states[i][13];
+		and[14][i].b <== eq[26][i].out;
+		states[i+1][14] <== and[14][i].out;
+		state_changed[i].in[13] <== states[i+1][14];
 		states[i+1][0] <== 1 - state_changed[i].out;
 	}
 
@@ -176,7 +221,7 @@ template InvitationCodeRegex(msg_bytes) {
 	for (var i = 0; i < msg_bytes; i++) {
 		is_substr0[i][0] <== 0;
 		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][1] * states[i+2][1];
-		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][8] * states[i+2][1];
+		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][14] * states[i+2][1];
 		is_reveal0[i] <== is_substr0[i][2] * is_consecutive[i][1];
 		reveal0[i] <== in[i+1] * is_reveal0[i];
 	}
