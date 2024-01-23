@@ -657,13 +657,13 @@ pub(crate) async fn handle_account_transport(
     Ok(())
 }
 
-pub(crate) fn extract_account_key_from_email_address(subject: &str) -> Result<String> {
+pub(crate) fn extract_account_key_from_email_address(email_addr: &str) -> Result<String> {
     let regex_config = serde_json::from_str(include_str!(
         "../../circuits/src/regexes/invitation_code.json"
     ))
     .unwrap();
-    let substr_idxes = extract_substr_idxes(subject, &regex_config)?;
-    Ok("0x".to_string() + &subject[substr_idxes[0].0..substr_idxes[0].1])
+    let substr_idxes = extract_substr_idxes(email_addr, &regex_config)?;
+    Ok("0x".to_string() + &email_addr[substr_idxes[0].0..substr_idxes[0].1])
 }
 
 pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
