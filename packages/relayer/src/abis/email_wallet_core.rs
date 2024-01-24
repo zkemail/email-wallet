@@ -14,7 +14,94 @@ pub mod email_wallet_core {
     fn __abi() -> ::ethers::core::abi::Abi {
         ::ethers::core::abi::ethabi::Contract {
             constructor: ::core::option::Option::Some(::ethers::core::abi::ethabi::Constructor {
-                inputs: ::std::vec![],
+                inputs: ::std::vec![
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_relayerHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_accountHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_unclaimsHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_extensionHandler"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_verifier"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_tokenRegistry"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_priceOracle"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_wethContract"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("address"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_maxFeePerGas"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("uint256"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_emailValidityDuration"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("uint256"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned("_unclaimedFundClaimGas"),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("uint256"),
+                        ),
+                    },
+                    ::ethers::core::abi::ethabi::Param {
+                        name: ::std::borrow::ToOwned::to_owned(
+                            "_unclaimedStateClaimGas",
+                        ),
+                        kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
+                        internal_type: ::core::option::Option::Some(
+                            ::std::borrow::ToOwned::to_owned("uint256"),
+                        ),
+                    },
+                ],
             }),
             functions: ::core::convert::From::from([
                 (
@@ -270,119 +357,6 @@ pub mod email_wallet_core {
                             name: ::std::borrow::ToOwned::to_owned("initialize"),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_relayerHandler"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_accountHandler"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_unclaimsHandler"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_extensionHandler"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_verifier"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_tokenRegistry"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_priceOracle"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_wethContract"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("_maxFeePerGas"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned(
-                                        "_emailValidityDuration",
-                                    ),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned(
-                                        "_unclaimedFundClaimGas",
-                                    ),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned(
-                                        "_unclaimedStateClaimGas",
-                                    ),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("initializeExtension"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned(
-                                "initializeExtension",
-                            ),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
                                     name: ::std::borrow::ToOwned::to_owned("defaultExtensions"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::Array(
                                         ::std::boxed::Box::new(
@@ -423,26 +397,6 @@ pub mod email_wallet_core {
                     ],
                 ),
                 (
-                    ::std::borrow::ToOwned::to_owned("owner"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("owner"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
-                ),
-                (
                     ::std::borrow::ToOwned::to_owned("priceOracle"),
                     ::std::vec![
                         ::ethers::core::abi::ethabi::Function {
@@ -454,28 +408,6 @@ pub mod email_wallet_core {
                                     kind: ::ethers::core::abi::ethabi::ParamType::Address,
                                     internal_type: ::core::option::Option::Some(
                                         ::std::borrow::ToOwned::to_owned("contract IPriceOracle"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("proxiableUUID"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("proxiableUUID"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bytes32"),
                                     ),
                                 },
                             ],
@@ -536,18 +468,6 @@ pub mod email_wallet_core {
                     ],
                 ),
                 (
-                    ::std::borrow::ToOwned::to_owned("renounceOwnership"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("renounceOwnership"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
-                ),
-                (
                     ::std::borrow::ToOwned::to_owned("requestTokenAsExtension"),
                     ::std::vec![
                         ::ethers::core::abi::ethabi::Function {
@@ -595,26 +515,6 @@ pub mod email_wallet_core {
                             ],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("transferOwnership"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("transferOwnership"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("newOwner"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
                         },
                     ],
                 ),
@@ -683,53 +583,6 @@ pub mod email_wallet_core {
                             ],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("upgradeTo"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("upgradeTo"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("newImplementation"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("upgradeToAndCall"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("upgradeToAndCall"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("newImplementation"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("data"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bytes"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::Payable,
                         },
                     ],
                 ),
@@ -833,43 +686,6 @@ pub mod email_wallet_core {
             ]),
             events: ::core::convert::From::from([
                 (
-                    ::std::borrow::ToOwned::to_owned("AdminChanged"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("AdminChanged"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("previousAdmin"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: false,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("newAdmin"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: false,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("BeaconUpgraded"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("BeaconUpgraded"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("beacon"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
-                ),
-                (
                     ::std::borrow::ToOwned::to_owned("EmailOpHandled"),
                     ::std::vec![
                         ::ethers::core::abi::ethabi::Event {
@@ -921,61 +737,6 @@ pub mod email_wallet_core {
                                     name: ::std::borrow::ToOwned::to_owned("err"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
                                     indexed: false,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("Initialized"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("Initialized"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("version"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(8usize),
-                                    indexed: false,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("OwnershipTransferred"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned(
-                                "OwnershipTransferred",
-                            ),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("previousOwner"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("newOwner"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
-                ),
-                (
-                    ::std::borrow::ToOwned::to_owned("Upgraded"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("Upgraded"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("implementation"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
                                 },
                             ],
                             anonymous: false,
@@ -1107,49 +868,13 @@ pub mod email_wallet_core {
                 .method_hash([19, 119, 223, 68], (email_op,))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `initialize` (0x009d93ca) function
+        ///Calls the contract's `initialize` (0x6f2de70e) function
         pub fn initialize(
-            &self,
-            relayer_handler: ::ethers::core::types::Address,
-            account_handler: ::ethers::core::types::Address,
-            unclaims_handler: ::ethers::core::types::Address,
-            extension_handler: ::ethers::core::types::Address,
-            verifier: ::ethers::core::types::Address,
-            token_registry: ::ethers::core::types::Address,
-            price_oracle: ::ethers::core::types::Address,
-            weth_contract: ::ethers::core::types::Address,
-            max_fee_per_gas: ::ethers::core::types::U256,
-            email_validity_duration: ::ethers::core::types::U256,
-            unclaimed_fund_claim_gas: ::ethers::core::types::U256,
-            unclaimed_state_claim_gas: ::ethers::core::types::U256,
-        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
-            self.0
-                .method_hash(
-                    [0, 157, 147, 202],
-                    (
-                        relayer_handler,
-                        account_handler,
-                        unclaims_handler,
-                        extension_handler,
-                        verifier,
-                        token_registry,
-                        price_oracle,
-                        weth_contract,
-                        max_fee_per_gas,
-                        email_validity_duration,
-                        unclaimed_fund_claim_gas,
-                        unclaimed_state_claim_gas,
-                    ),
-                )
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `initializeExtension` (0xfea1c89b) function
-        pub fn initialize_extension(
             &self,
             default_extensions: ::std::vec::Vec<::ethers::core::types::Bytes>,
         ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
-                .method_hash([254, 161, 200, 155], default_extensions)
+                .method_hash([111, 45, 231, 14], default_extensions)
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `maxFeePerGas` (0x2728bf2c) function
@@ -1158,17 +883,6 @@ pub mod email_wallet_core {
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::U256> {
             self.0
                 .method_hash([39, 40, 191, 44], ())
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `owner` (0x8da5cb5b) function
-        pub fn owner(
-            &self,
-        ) -> ::ethers::contract::builders::ContractCall<
-            M,
-            ::ethers::core::types::Address,
-        > {
-            self.0
-                .method_hash([141, 165, 203, 91], ())
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `priceOracle` (0x2630c12f) function
@@ -1180,14 +894,6 @@ pub mod email_wallet_core {
         > {
             self.0
                 .method_hash([38, 48, 193, 47], ())
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `proxiableUUID` (0x52d1902d) function
-        pub fn proxiable_uuid(
-            &self,
-        ) -> ::ethers::contract::builders::ContractCall<M, [u8; 32]> {
-            self.0
-                .method_hash([82, 209, 144, 45], ())
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `registerUnclaimedStateAsExtension` (0xc9af3f1c) function
@@ -1211,14 +917,6 @@ pub mod email_wallet_core {
                 .method_hash([94, 95, 38, 16], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `renounceOwnership` (0x715018a6) function
-        pub fn renounce_ownership(
-            &self,
-        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
-            self.0
-                .method_hash([113, 80, 24, 166], ())
-                .expect("method not found (this should never happen)")
-        }
         ///Calls the contract's `requestTokenAsExtension` (0x65a345ac) function
         pub fn request_token_as_extension(
             &self,
@@ -1238,15 +936,6 @@ pub mod email_wallet_core {
         > {
             self.0
                 .method_hash([157, 35, 196, 199], ())
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `transferOwnership` (0xf2fde38b) function
-        pub fn transfer_ownership(
-            &self,
-            new_owner: ::ethers::core::types::Address,
-        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
-            self.0
-                .method_hash([242, 253, 227, 139], new_owner)
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `unclaimedFundClaimGas` (0x66221734) function
@@ -1274,25 +963,6 @@ pub mod email_wallet_core {
         > {
             self.0
                 .method_hash([213, 229, 193, 200], ())
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `upgradeTo` (0x3659cfe6) function
-        pub fn upgrade_to(
-            &self,
-            new_implementation: ::ethers::core::types::Address,
-        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
-            self.0
-                .method_hash([54, 89, 207, 230], new_implementation)
-                .expect("method not found (this should never happen)")
-        }
-        ///Calls the contract's `upgradeToAndCall` (0x4f1ef286) function
-        pub fn upgrade_to_and_call(
-            &self,
-            new_implementation: ::ethers::core::types::Address,
-            data: ::ethers::core::types::Bytes,
-        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
-            self.0
-                .method_hash([79, 30, 242, 134], (new_implementation, data))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `validateEmailOp` (0xa3964475) function
@@ -1326,26 +996,6 @@ pub mod email_wallet_core {
                 .method_hash([71, 128, 234, 193], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Gets the contract's `AdminChanged` event
-        pub fn admin_changed_filter(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            AdminChangedFilter,
-        > {
-            self.0.event()
-        }
-        ///Gets the contract's `BeaconUpgraded` event
-        pub fn beacon_upgraded_filter(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            BeaconUpgradedFilter,
-        > {
-            self.0.event()
-        }
         ///Gets the contract's `EmailOpHandled` event
         pub fn email_op_handled_filter(
             &self,
@@ -1356,43 +1006,13 @@ pub mod email_wallet_core {
         > {
             self.0.event()
         }
-        ///Gets the contract's `Initialized` event
-        pub fn initialized_filter(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            InitializedFilter,
-        > {
-            self.0.event()
-        }
-        ///Gets the contract's `OwnershipTransferred` event
-        pub fn ownership_transferred_filter(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            OwnershipTransferredFilter,
-        > {
-            self.0.event()
-        }
-        ///Gets the contract's `Upgraded` event
-        pub fn upgraded_filter(
-            &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            UpgradedFilter,
-        > {
-            self.0.event()
-        }
         /// Returns an `Event` builder for all the events of this contract.
         pub fn events(
             &self,
         ) -> ::ethers::contract::builders::Event<
             ::std::sync::Arc<M>,
             M,
-            EmailWalletCoreEvents,
+            EmailOpHandledFilter,
         > {
             self.0.event_with_filter(::core::default::Default::default())
         }
@@ -1402,36 +1022,6 @@ pub mod email_wallet_core {
         fn from(contract: ::ethers::contract::Contract<M>) -> Self {
             Self::new(contract.address(), contract.client())
         }
-    }
-    #[derive(
-        Clone,
-        ::ethers::contract::EthEvent,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethevent(name = "AdminChanged", abi = "AdminChanged(address,address)")]
-    pub struct AdminChangedFilter {
-        pub previous_admin: ::ethers::core::types::Address,
-        pub new_admin: ::ethers::core::types::Address,
-    }
-    #[derive(
-        Clone,
-        ::ethers::contract::EthEvent,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethevent(name = "BeaconUpgraded", abi = "BeaconUpgraded(address)")]
-    pub struct BeaconUpgradedFilter {
-        #[ethevent(indexed)]
-        pub beacon: ::ethers::core::types::Address,
     }
     #[derive(
         Clone,
@@ -1458,140 +1048,6 @@ pub mod email_wallet_core {
         pub recipient_email_addr_commit: [u8; 32],
         pub recipient_eth_addr: ::ethers::core::types::Address,
         pub err: ::ethers::core::types::Bytes,
-    }
-    #[derive(
-        Clone,
-        ::ethers::contract::EthEvent,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethevent(name = "Initialized", abi = "Initialized(uint8)")]
-    pub struct InitializedFilter {
-        pub version: u8,
-    }
-    #[derive(
-        Clone,
-        ::ethers::contract::EthEvent,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethevent(
-        name = "OwnershipTransferred",
-        abi = "OwnershipTransferred(address,address)"
-    )]
-    pub struct OwnershipTransferredFilter {
-        #[ethevent(indexed)]
-        pub previous_owner: ::ethers::core::types::Address,
-        #[ethevent(indexed)]
-        pub new_owner: ::ethers::core::types::Address,
-    }
-    #[derive(
-        Clone,
-        ::ethers::contract::EthEvent,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethevent(name = "Upgraded", abi = "Upgraded(address)")]
-    pub struct UpgradedFilter {
-        #[ethevent(indexed)]
-        pub implementation: ::ethers::core::types::Address,
-    }
-    ///Container type for all of the contract's events
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
-    pub enum EmailWalletCoreEvents {
-        AdminChangedFilter(AdminChangedFilter),
-        BeaconUpgradedFilter(BeaconUpgradedFilter),
-        EmailOpHandledFilter(EmailOpHandledFilter),
-        InitializedFilter(InitializedFilter),
-        OwnershipTransferredFilter(OwnershipTransferredFilter),
-        UpgradedFilter(UpgradedFilter),
-    }
-    impl ::ethers::contract::EthLogDecode for EmailWalletCoreEvents {
-        fn decode_log(
-            log: &::ethers::core::abi::RawLog,
-        ) -> ::core::result::Result<Self, ::ethers::core::abi::Error> {
-            if let Ok(decoded) = AdminChangedFilter::decode_log(log) {
-                return Ok(EmailWalletCoreEvents::AdminChangedFilter(decoded));
-            }
-            if let Ok(decoded) = BeaconUpgradedFilter::decode_log(log) {
-                return Ok(EmailWalletCoreEvents::BeaconUpgradedFilter(decoded));
-            }
-            if let Ok(decoded) = EmailOpHandledFilter::decode_log(log) {
-                return Ok(EmailWalletCoreEvents::EmailOpHandledFilter(decoded));
-            }
-            if let Ok(decoded) = InitializedFilter::decode_log(log) {
-                return Ok(EmailWalletCoreEvents::InitializedFilter(decoded));
-            }
-            if let Ok(decoded) = OwnershipTransferredFilter::decode_log(log) {
-                return Ok(EmailWalletCoreEvents::OwnershipTransferredFilter(decoded));
-            }
-            if let Ok(decoded) = UpgradedFilter::decode_log(log) {
-                return Ok(EmailWalletCoreEvents::UpgradedFilter(decoded));
-            }
-            Err(::ethers::core::abi::Error::InvalidData)
-        }
-    }
-    impl ::core::fmt::Display for EmailWalletCoreEvents {
-        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-            match self {
-                Self::AdminChangedFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::BeaconUpgradedFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::EmailOpHandledFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::InitializedFilter(element) => ::core::fmt::Display::fmt(element, f),
-                Self::OwnershipTransferredFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::UpgradedFilter(element) => ::core::fmt::Display::fmt(element, f),
-            }
-        }
-    }
-    impl ::core::convert::From<AdminChangedFilter> for EmailWalletCoreEvents {
-        fn from(value: AdminChangedFilter) -> Self {
-            Self::AdminChangedFilter(value)
-        }
-    }
-    impl ::core::convert::From<BeaconUpgradedFilter> for EmailWalletCoreEvents {
-        fn from(value: BeaconUpgradedFilter) -> Self {
-            Self::BeaconUpgradedFilter(value)
-        }
-    }
-    impl ::core::convert::From<EmailOpHandledFilter> for EmailWalletCoreEvents {
-        fn from(value: EmailOpHandledFilter) -> Self {
-            Self::EmailOpHandledFilter(value)
-        }
-    }
-    impl ::core::convert::From<InitializedFilter> for EmailWalletCoreEvents {
-        fn from(value: InitializedFilter) -> Self {
-            Self::InitializedFilter(value)
-        }
-    }
-    impl ::core::convert::From<OwnershipTransferredFilter> for EmailWalletCoreEvents {
-        fn from(value: OwnershipTransferredFilter) -> Self {
-            Self::OwnershipTransferredFilter(value)
-        }
-    }
-    impl ::core::convert::From<UpgradedFilter> for EmailWalletCoreEvents {
-        fn from(value: UpgradedFilter) -> Self {
-            Self::UpgradedFilter(value)
-        }
     }
     ///Container type for all input parameters for the `accountHandler` function with signature `accountHandler()` and selector `0x33ddfb9a`
     #[derive(
@@ -1689,7 +1145,7 @@ pub mod email_wallet_core {
     pub struct HandleEmailOpCall {
         pub email_op: EmailOp,
     }
-    ///Container type for all input parameters for the `initialize` function with signature `initialize(address,address,address,address,address,address,address,address,uint256,uint256,uint256,uint256)` and selector `0x009d93ca`
+    ///Container type for all input parameters for the `initialize` function with signature `initialize(bytes[])` and selector `0x6f2de70e`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1700,37 +1156,8 @@ pub mod email_wallet_core {
         Eq,
         Hash
     )]
-    #[ethcall(
-        name = "initialize",
-        abi = "initialize(address,address,address,address,address,address,address,address,uint256,uint256,uint256,uint256)"
-    )]
+    #[ethcall(name = "initialize", abi = "initialize(bytes[])")]
     pub struct InitializeCall {
-        pub relayer_handler: ::ethers::core::types::Address,
-        pub account_handler: ::ethers::core::types::Address,
-        pub unclaims_handler: ::ethers::core::types::Address,
-        pub extension_handler: ::ethers::core::types::Address,
-        pub verifier: ::ethers::core::types::Address,
-        pub token_registry: ::ethers::core::types::Address,
-        pub price_oracle: ::ethers::core::types::Address,
-        pub weth_contract: ::ethers::core::types::Address,
-        pub max_fee_per_gas: ::ethers::core::types::U256,
-        pub email_validity_duration: ::ethers::core::types::U256,
-        pub unclaimed_fund_claim_gas: ::ethers::core::types::U256,
-        pub unclaimed_state_claim_gas: ::ethers::core::types::U256,
-    }
-    ///Container type for all input parameters for the `initializeExtension` function with signature `initializeExtension(bytes[])` and selector `0xfea1c89b`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "initializeExtension", abi = "initializeExtension(bytes[])")]
-    pub struct InitializeExtensionCall {
         pub default_extensions: ::std::vec::Vec<::ethers::core::types::Bytes>,
     }
     ///Container type for all input parameters for the `maxFeePerGas` function with signature `maxFeePerGas()` and selector `0x2728bf2c`
@@ -1746,19 +1173,6 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "maxFeePerGas", abi = "maxFeePerGas()")]
     pub struct MaxFeePerGasCall;
-    ///Container type for all input parameters for the `owner` function with signature `owner()` and selector `0x8da5cb5b`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "owner", abi = "owner()")]
-    pub struct OwnerCall;
     ///Container type for all input parameters for the `priceOracle` function with signature `priceOracle()` and selector `0x2630c12f`
     #[derive(
         Clone,
@@ -1772,19 +1186,6 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "priceOracle", abi = "priceOracle()")]
     pub struct PriceOracleCall;
-    ///Container type for all input parameters for the `proxiableUUID` function with signature `proxiableUUID()` and selector `0x52d1902d`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "proxiableUUID", abi = "proxiableUUID()")]
-    pub struct ProxiableUUIDCall;
     ///Container type for all input parameters for the `registerUnclaimedStateAsExtension` function with signature `registerUnclaimedStateAsExtension(address,bytes)` and selector `0xc9af3f1c`
     #[derive(
         Clone,
@@ -1817,19 +1218,6 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "relayerHandler", abi = "relayerHandler()")]
     pub struct RelayerHandlerCall;
-    ///Container type for all input parameters for the `renounceOwnership` function with signature `renounceOwnership()` and selector `0x715018a6`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "renounceOwnership", abi = "renounceOwnership()")]
-    pub struct RenounceOwnershipCall;
     ///Container type for all input parameters for the `requestTokenAsExtension` function with signature `requestTokenAsExtension(address,uint256)` and selector `0x65a345ac`
     #[derive(
         Clone,
@@ -1862,21 +1250,6 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "tokenRegistry", abi = "tokenRegistry()")]
     pub struct TokenRegistryCall;
-    ///Container type for all input parameters for the `transferOwnership` function with signature `transferOwnership(address)` and selector `0xf2fde38b`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "transferOwnership", abi = "transferOwnership(address)")]
-    pub struct TransferOwnershipCall {
-        pub new_owner: ::ethers::core::types::Address,
-    }
     ///Container type for all input parameters for the `unclaimedFundClaimGas` function with signature `unclaimedFundClaimGas()` and selector `0x66221734`
     #[derive(
         Clone,
@@ -1916,37 +1289,6 @@ pub mod email_wallet_core {
     )]
     #[ethcall(name = "unclaimsHandler", abi = "unclaimsHandler()")]
     pub struct UnclaimsHandlerCall;
-    ///Container type for all input parameters for the `upgradeTo` function with signature `upgradeTo(address)` and selector `0x3659cfe6`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "upgradeTo", abi = "upgradeTo(address)")]
-    pub struct UpgradeToCall {
-        pub new_implementation: ::ethers::core::types::Address,
-    }
-    ///Container type for all input parameters for the `upgradeToAndCall` function with signature `upgradeToAndCall(address,bytes)` and selector `0x4f1ef286`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthCall,
-        ::ethers::contract::EthDisplay,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    #[ethcall(name = "upgradeToAndCall", abi = "upgradeToAndCall(address,bytes)")]
-    pub struct UpgradeToAndCallCall {
-        pub new_implementation: ::ethers::core::types::Address,
-        pub data: ::ethers::core::types::Bytes,
-    }
     ///Container type for all input parameters for the `validateEmailOp` function with signature `validateEmailOp((bytes32,bool,bytes32,uint256,address,string,bytes32,string,bytes32,uint256,string,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0xa3964475`
     #[derive(Clone, ::ethers::contract::EthCall, ::ethers::contract::EthDisplay)]
     #[ethcall(
@@ -1993,22 +1335,15 @@ pub mod email_wallet_core {
         ExtensionHandler(ExtensionHandlerCall),
         HandleEmailOp(HandleEmailOpCall),
         Initialize(InitializeCall),
-        InitializeExtension(InitializeExtensionCall),
         MaxFeePerGas(MaxFeePerGasCall),
-        Owner(OwnerCall),
         PriceOracle(PriceOracleCall),
-        ProxiableUUID(ProxiableUUIDCall),
         RegisterUnclaimedStateAsExtension(RegisterUnclaimedStateAsExtensionCall),
         RelayerHandler(RelayerHandlerCall),
-        RenounceOwnership(RenounceOwnershipCall),
         RequestTokenAsExtension(RequestTokenAsExtensionCall),
         TokenRegistry(TokenRegistryCall),
-        TransferOwnership(TransferOwnershipCall),
         UnclaimedFundClaimGas(UnclaimedFundClaimGasCall),
         UnclaimedStateClaimGas(UnclaimedStateClaimGasCall),
         UnclaimsHandler(UnclaimsHandlerCall),
-        UpgradeTo(UpgradeToCall),
-        UpgradeToAndCall(UpgradeToAndCallCall),
         ValidateEmailOp(ValidateEmailOpCall),
         Verifier(VerifierCall),
         WethContract(WethContractCall),
@@ -2058,30 +1393,15 @@ pub mod email_wallet_core {
             ) {
                 return Ok(Self::Initialize(decoded));
             }
-            if let Ok(decoded) = <InitializeExtensionCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::InitializeExtension(decoded));
-            }
             if let Ok(decoded) = <MaxFeePerGasCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
             ) {
                 return Ok(Self::MaxFeePerGas(decoded));
             }
-            if let Ok(decoded) = <OwnerCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::Owner(decoded));
-            }
             if let Ok(decoded) = <PriceOracleCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
             ) {
                 return Ok(Self::PriceOracle(decoded));
-            }
-            if let Ok(decoded) = <ProxiableUUIDCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::ProxiableUUID(decoded));
             }
             if let Ok(decoded) = <RegisterUnclaimedStateAsExtensionCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
@@ -2093,11 +1413,6 @@ pub mod email_wallet_core {
             ) {
                 return Ok(Self::RelayerHandler(decoded));
             }
-            if let Ok(decoded) = <RenounceOwnershipCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::RenounceOwnership(decoded));
-            }
             if let Ok(decoded) = <RequestTokenAsExtensionCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
             ) {
@@ -2107,11 +1422,6 @@ pub mod email_wallet_core {
                 data,
             ) {
                 return Ok(Self::TokenRegistry(decoded));
-            }
-            if let Ok(decoded) = <TransferOwnershipCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::TransferOwnership(decoded));
             }
             if let Ok(decoded) = <UnclaimedFundClaimGasCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
@@ -2127,16 +1437,6 @@ pub mod email_wallet_core {
                 data,
             ) {
                 return Ok(Self::UnclaimsHandler(decoded));
-            }
-            if let Ok(decoded) = <UpgradeToCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::UpgradeTo(decoded));
-            }
-            if let Ok(decoded) = <UpgradeToAndCallCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
-                return Ok(Self::UpgradeToAndCall(decoded));
             }
             if let Ok(decoded) = <ValidateEmailOpCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
@@ -2183,17 +1483,10 @@ pub mod email_wallet_core {
                 Self::Initialize(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::InitializeExtension(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
                 Self::MaxFeePerGas(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::Owner(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::PriceOracle(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::ProxiableUUID(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::RegisterUnclaimedStateAsExtension(element) => {
@@ -2202,16 +1495,10 @@ pub mod email_wallet_core {
                 Self::RelayerHandler(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::RenounceOwnership(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
                 Self::RequestTokenAsExtension(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::TokenRegistry(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::TransferOwnership(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::UnclaimedFundClaimGas(element) => {
@@ -2221,12 +1508,6 @@ pub mod email_wallet_core {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::UnclaimsHandler(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::UpgradeTo(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::UpgradeToAndCall(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::ValidateEmailOp(element) => {
@@ -2258,23 +1539,16 @@ pub mod email_wallet_core {
                 Self::ExtensionHandler(element) => ::core::fmt::Display::fmt(element, f),
                 Self::HandleEmailOp(element) => ::core::fmt::Display::fmt(element, f),
                 Self::Initialize(element) => ::core::fmt::Display::fmt(element, f),
-                Self::InitializeExtension(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
                 Self::MaxFeePerGas(element) => ::core::fmt::Display::fmt(element, f),
-                Self::Owner(element) => ::core::fmt::Display::fmt(element, f),
                 Self::PriceOracle(element) => ::core::fmt::Display::fmt(element, f),
-                Self::ProxiableUUID(element) => ::core::fmt::Display::fmt(element, f),
                 Self::RegisterUnclaimedStateAsExtension(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
                 Self::RelayerHandler(element) => ::core::fmt::Display::fmt(element, f),
-                Self::RenounceOwnership(element) => ::core::fmt::Display::fmt(element, f),
                 Self::RequestTokenAsExtension(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
                 Self::TokenRegistry(element) => ::core::fmt::Display::fmt(element, f),
-                Self::TransferOwnership(element) => ::core::fmt::Display::fmt(element, f),
                 Self::UnclaimedFundClaimGas(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
@@ -2282,8 +1556,6 @@ pub mod email_wallet_core {
                     ::core::fmt::Display::fmt(element, f)
                 }
                 Self::UnclaimsHandler(element) => ::core::fmt::Display::fmt(element, f),
-                Self::UpgradeTo(element) => ::core::fmt::Display::fmt(element, f),
-                Self::UpgradeToAndCall(element) => ::core::fmt::Display::fmt(element, f),
                 Self::ValidateEmailOp(element) => ::core::fmt::Display::fmt(element, f),
                 Self::Verifier(element) => ::core::fmt::Display::fmt(element, f),
                 Self::WethContract(element) => ::core::fmt::Display::fmt(element, f),
@@ -2330,29 +1602,14 @@ pub mod email_wallet_core {
             Self::Initialize(value)
         }
     }
-    impl ::core::convert::From<InitializeExtensionCall> for EmailWalletCoreCalls {
-        fn from(value: InitializeExtensionCall) -> Self {
-            Self::InitializeExtension(value)
-        }
-    }
     impl ::core::convert::From<MaxFeePerGasCall> for EmailWalletCoreCalls {
         fn from(value: MaxFeePerGasCall) -> Self {
             Self::MaxFeePerGas(value)
         }
     }
-    impl ::core::convert::From<OwnerCall> for EmailWalletCoreCalls {
-        fn from(value: OwnerCall) -> Self {
-            Self::Owner(value)
-        }
-    }
     impl ::core::convert::From<PriceOracleCall> for EmailWalletCoreCalls {
         fn from(value: PriceOracleCall) -> Self {
             Self::PriceOracle(value)
-        }
-    }
-    impl ::core::convert::From<ProxiableUUIDCall> for EmailWalletCoreCalls {
-        fn from(value: ProxiableUUIDCall) -> Self {
-            Self::ProxiableUUID(value)
         }
     }
     impl ::core::convert::From<RegisterUnclaimedStateAsExtensionCall>
@@ -2366,11 +1623,6 @@ pub mod email_wallet_core {
             Self::RelayerHandler(value)
         }
     }
-    impl ::core::convert::From<RenounceOwnershipCall> for EmailWalletCoreCalls {
-        fn from(value: RenounceOwnershipCall) -> Self {
-            Self::RenounceOwnership(value)
-        }
-    }
     impl ::core::convert::From<RequestTokenAsExtensionCall> for EmailWalletCoreCalls {
         fn from(value: RequestTokenAsExtensionCall) -> Self {
             Self::RequestTokenAsExtension(value)
@@ -2379,11 +1631,6 @@ pub mod email_wallet_core {
     impl ::core::convert::From<TokenRegistryCall> for EmailWalletCoreCalls {
         fn from(value: TokenRegistryCall) -> Self {
             Self::TokenRegistry(value)
-        }
-    }
-    impl ::core::convert::From<TransferOwnershipCall> for EmailWalletCoreCalls {
-        fn from(value: TransferOwnershipCall) -> Self {
-            Self::TransferOwnership(value)
         }
     }
     impl ::core::convert::From<UnclaimedFundClaimGasCall> for EmailWalletCoreCalls {
@@ -2399,16 +1646,6 @@ pub mod email_wallet_core {
     impl ::core::convert::From<UnclaimsHandlerCall> for EmailWalletCoreCalls {
         fn from(value: UnclaimsHandlerCall) -> Self {
             Self::UnclaimsHandler(value)
-        }
-    }
-    impl ::core::convert::From<UpgradeToCall> for EmailWalletCoreCalls {
-        fn from(value: UpgradeToCall) -> Self {
-            Self::UpgradeTo(value)
-        }
-    }
-    impl ::core::convert::From<UpgradeToAndCallCall> for EmailWalletCoreCalls {
-        fn from(value: UpgradeToAndCallCall) -> Self {
-            Self::UpgradeToAndCall(value)
         }
     }
     impl ::core::convert::From<ValidateEmailOpCall> for EmailWalletCoreCalls {
@@ -2494,18 +1731,6 @@ pub mod email_wallet_core {
         Hash
     )]
     pub struct MaxFeePerGasReturn(pub ::ethers::core::types::U256);
-    ///Container type for all return fields from the `owner` function with signature `owner()` and selector `0x8da5cb5b`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthAbiType,
-        ::ethers::contract::EthAbiCodec,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    pub struct OwnerReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `priceOracle` function with signature `priceOracle()` and selector `0x2630c12f`
     #[derive(
         Clone,
@@ -2518,18 +1743,6 @@ pub mod email_wallet_core {
         Hash
     )]
     pub struct PriceOracleReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `proxiableUUID` function with signature `proxiableUUID()` and selector `0x52d1902d`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthAbiType,
-        ::ethers::contract::EthAbiCodec,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    pub struct ProxiableUUIDReturn(pub [u8; 32]);
     ///Container type for all return fields from the `relayerHandler` function with signature `relayerHandler()` and selector `0x5e5f2610`
     #[derive(
         Clone,

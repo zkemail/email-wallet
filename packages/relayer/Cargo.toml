@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 tower-http = { version = "0.4", git = "https://github.com/tower-rs/tower-http.git", features = [
     "cors",
-] }
+], rev = "f33c3e038dc85b8d064541e915d501f9c9e6a6b4" }
 tokio = { version = "1.0", features = ["full"] }
 sled = "0.34.2"
 anyhow = "1.0.75"
@@ -19,11 +19,11 @@ async-native-tls = { version = "0.5.0", default-features = false, features = [
     "runtime-tokio",
 ] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.68"
 webbrowser = "0.8.11"
+serde_json = "1.0.68"
 tiny_http = "0.12.0"
 lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
-ethers = "2.0.10"
+ethers = { version = "2.0.10", features = ["abigen"] }
 email-wallet-utils = { path = "../utils" }
 futures = "0.3.28"
 sqlx = { version = "0.7", features = ["postgres", "runtime-tokio"] }
@@ -43,12 +43,19 @@ ic-utils = { version = "0.30.0" }
 ic-agent = { version = "0.30.0", features = ["pem", "reqwest"] }
 candid = "0.9.11"
 lazy_static = "1.4"
-slog = { version = "2.7.0", features = ["max_level_trace", "release_max_level_warn"] }
+slog = { version = "2.7.0", features = [
+    "max_level_trace",
+    "release_max_level_warn",
+] }
 slog-async = "2.8.0"
 slog-term = "2.9.0"
 slog-json = "2.6.1"
 file-rotate = "0.7.5"
 function_name = "0.3.0"
+# wasm-bindgen = { version = "0.2.90", default-features = false }
+
+# wasm-bindgen = { git = "https://github.com/rustwasm/wasm-bindgen.git", tag = "0.2.88", default-features = false }
+
 
 [build-dependencies]
 ethers = "2.0.10"
