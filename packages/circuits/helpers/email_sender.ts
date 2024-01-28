@@ -4,13 +4,13 @@ import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
 const emailWalletUtils = require("../../utils");
 
 
-export async function genEmailSenderInput(emailFilePath: string, relayerRand: string,):
+export async function genEmailSenderInput(emailFilePath: string, accountKey: string,):
   Promise<{
     in_padded: string[],
     pubkey: string[],
     signature: string[],
     in_padded_len: string,
-    sender_relayer_rand: string,
+    sender_account_key: string,
     sender_email_idx: number,
     subject_idx: number,
     recipient_email_idx: number,
@@ -48,7 +48,7 @@ export async function genEmailSenderInput(emailFilePath: string, relayerRand: st
     pubkey: emailCircuitInputs.pubkey,
     signature: emailCircuitInputs.signature,
     in_padded_len: emailCircuitInputs.in_len_padded_bytes,
-    sender_relayer_rand: relayerRand,
+    sender_account_key: accountKey,
     sender_email_idx: senderEmailIdxes[0],
     subject_idx: subjectEmailIdxes[0],
     recipient_email_idx: recipientEmailIdx,

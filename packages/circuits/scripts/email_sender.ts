@@ -18,8 +18,8 @@ program
     "Path to an email file"
   )
   .requiredOption(
-    "--relayer-rand <string>",
-    "Relayer's randomness"
+    "--account-key <string>",
+    "Sender's account key"
   )
   .requiredOption(
     "--input-file <string>",
@@ -44,7 +44,7 @@ async function generate() {
 
   log("Generating Inputs for:", args);
 
-  const circuitInputs = await genEmailSenderInput(args.emailFile, args.relayerRand);
+  const circuitInputs = await genEmailSenderInput(args.emailFile, args.accountKey);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
   await promisify(fs.writeFile)(args.inputFile, JSON.stringify(circuitInputs, null, 2));
