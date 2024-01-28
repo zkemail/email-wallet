@@ -75,7 +75,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     check_and_update_dkim(&email, &parsed_email, &chain_client).await?;
     if is_reply_mail(&email) {
         trace!(LOG, "Reply email"; "func" => function_name!());
-        let account_key = extract_account_key_from_subject(&parsed_email.get_subject_all()?)?;
+        let account_key = extract_account_key_from_email_address(&parsed_email.get_to_addr()?)?;
         let account_key = AccountKey(hex2field(&account_key)?);
         if !db.contains_user(&from_address).await? {
             trace!(LOG, "Account transport"; "func" => function_name!());
@@ -108,7 +108,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     } else {
         trace!(LOG, "Non-reply email"; "func" => function_name!());
         if let Ok(account_key_hex) =
-            extract_account_key_from_subject(&parsed_email.get_subject_all()?)
+            extract_account_key_from_email_address(&parsed_email.get_to_addr()?)
         {
             info!(
                 LOG,
@@ -657,13 +657,13 @@ pub(crate) async fn handle_account_transport(
     Ok(())
 }
 
-pub(crate) fn extract_account_key_from_subject(subject: &str) -> Result<String> {
+pub(crate) fn extract_account_key_from_email_address(email_addr: &str) -> Result<String> {
     let regex_config = serde_json::from_str(include_str!(
         "../../circuits/src/regexes/invitation_code.json"
     ))
     .unwrap();
-    let substr_idxes = extract_substr_idxes(subject, &regex_config)?;
-    Ok("0x".to_string() + &subject[substr_idxes[0].0..substr_idxes[0].1])
+    let substr_idxes = extract_substr_idxes(email_addr, &regex_config)?;
+    Ok("0x".to_string() + &email_addr[substr_idxes[0].0..substr_idxes[0].1])
 }
 
 pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
