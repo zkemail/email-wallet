@@ -152,7 +152,7 @@ contract EmailSenderVerifier {
 
     uint16 constant pLastMem = 896;
 
-    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[33] calldata _pubSignals) public view returns (bool) {
+    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[32] calldata _pubSignals) public view returns (bool) {
         assembly {
             function checkField(v) {
                 if iszero(lt(v, q)) {
@@ -380,8 +380,6 @@ contract EmailSenderVerifier {
             checkField(calldataload(add(_pubSignals, 992)))
             
             checkField(calldataload(add(_pubSignals, 1024)))
-            
-            checkField(calldataload(add(_pubSignals, 1056)))
             
 
             // Validate all evaluations

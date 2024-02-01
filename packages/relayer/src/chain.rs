@@ -30,15 +30,15 @@ pub struct AccountInitInput {
     pub(crate) proof: Bytes,
 }
 
-#[derive(Default, Debug)]
-pub struct AccountTransportInput {
-    pub(crate) old_account_key_commit: [u8; 32],
-    pub(crate) new_email_addr_pointer: [u8; 32],
-    pub(crate) new_account_key_commit: [u8; 32],
-    pub(crate) new_psi_point: Bytes,
-    pub(crate) transport_email_proof: EmailProof,
-    pub(crate) account_creation_proof: Bytes,
-}
+// #[derive(Default, Debug)]
+// pub struct AccountTransportInput {
+//     pub(crate) old_account_key_commit: [u8; 32],
+//     pub(crate) new_email_addr_pointer: [u8; 32],
+//     pub(crate) new_account_key_commit: [u8; 32],
+//     pub(crate) new_psi_point: Bytes,
+//     pub(crate) transport_email_proof: EmailProof,
+//     pub(crate) account_creation_proof: Bytes,
+// }
 
 #[derive(Default, Debug)]
 pub struct RegisterUnclaimedFundInput {
@@ -120,19 +120,12 @@ impl ChainClient {
         self.client.address()
     }
 
-    pub async fn register_relayer(
-        &self,
-        rand_hash: Fr,
-        email_addr: String,
-        hostname: String,
-    ) -> Result<String> {
+    pub async fn register_relayer(&self, email_addr: String, hostname: String) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
-        let call =
-            self.relayer_handler
-                .register_relayer(fr_to_bytes32(&rand_hash)?, email_addr, hostname);
+        let call = self.relayer_handler.register_relayer(email_addr, hostname);
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -191,29 +184,29 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
-    pub async fn transport_account(&self, data: AccountTransportInput) -> Result<String> {
-        // Mutex is used to prevent nonce conflicts.
-        let mut mutex = SHARED_MUTEX.lock().await;
-        *mutex += 1;
+    // pub async fn transport_account(&self, data: AccountTransportInput) -> Result<String> {
+    //     // Mutex is used to prevent nonce conflicts.
+    //     let mut mutex = SHARED_MUTEX.lock().await;
+    //     *mutex += 1;
 
-        let call = self.account_handler.transport_account(
-            data.old_account_key_commit,
-            data.new_email_addr_pointer,
-            data.new_account_key_commit,
-            data.new_psi_point,
-            data.transport_email_proof,
-            data.account_creation_proof,
-        );
-        let tx = call.send().await?;
-        let receipt = tx
-            .log()
-            .confirmations(CONFIRMATIONS)
-            .await?
-            .ok_or(anyhow!("No receipt"))?;
-        let tx_hash = receipt.transaction_hash;
-        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        Ok(tx_hash)
-    }
+    //     let call = self.account_handler.transport_account(
+    //         data.old_account_key_commit,
+    //         data.new_email_addr_pointer,
+    //         data.new_account_key_commit,
+    //         data.new_psi_point,
+    //         data.transport_email_proof,
+    //         data.account_creation_proof,
+    //     );
+    //     let tx = call.send().await?;
+    //     let receipt = tx
+    //         .log()
+    //         .confirmations(CONFIRMATIONS)
+    //         .await?
+    //         .ok_or(anyhow!("No receipt"))?;
+    //     let tx_hash = receipt.transaction_hash;
+    //     let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+    //     Ok(tx_hash)
+    // }
 
     pub async fn claim(&self, data: ClaimInput) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
@@ -462,11 +455,6 @@ impl ChainClient {
         Ok(name)
     }
 
-    pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
-        let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        bytes32_to_fr(&rand_hash)
-    }
-
     pub async fn query_user_extension_for_command(
         &self,
         wallet_salt: &WalletSalt,
@@ -500,11 +488,6 @@ impl ChainClient {
             .call()
             .await?;
         Ok(wallet_addr)
-    }
-
-    pub async fn query_rand_hash_of_relayer(&self, relayer: Address) -> Result<Fr> {
-        let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        bytes32_to_fr(&rand_hash)
     }
 
     // pub async fn query_ak_commit_and_relayer_of_wallet_salt(
@@ -657,16 +640,17 @@ impl ChainClient {
         let account_key = AccountKey(hex2field(account_key)?);
         let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
         let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-        let account_key_commitment =
-            account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
+        // let account_key_commitment =
+        //     account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
 
-        let account_key_info = self
-            .account_handler
-            .info_of_account_key_commit(Fr::to_bytes(&account_key_commitment))
-            .call()
-            .await?;
+        // let account_key_info = self
+        //     .account_handler
+        //     .info_of_account_key_commit(Fr::to_bytes(&account_key_commitment))
+        //     .call()
+        //     .await?;
 
-        Ok(account_key_info.1)
+        // Ok(account_key_info.1)
+        Ok(true)
     }
 
     pub(crate) async fn check_if_account_initialized_by_point(&self, point: Point) -> Result<bool> {

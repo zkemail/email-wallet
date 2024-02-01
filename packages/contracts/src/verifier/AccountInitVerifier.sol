@@ -98,7 +98,7 @@ contract AccountInitVerifier {
 
     uint16 constant pLastMem = 896;
 
-    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[15] calldata _pubSignals) public view returns (bool) {
+    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[14] calldata _pubSignals) public view returns (bool) {
         assembly {
             function checkField(v) {
                 if iszero(lt(v, q)) {
@@ -254,8 +254,6 @@ contract AccountInitVerifier {
             checkField(calldataload(add(_pubSignals, 416)))
             
             checkField(calldataload(add(_pubSignals, 448)))
-            
-            checkField(calldataload(add(_pubSignals, 480)))
             
 
             // Validate all evaluations

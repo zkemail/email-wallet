@@ -2,13 +2,12 @@
 pragma solidity ^0.8.12;
 
 library EmailWalletEvents {
-    event RelayerRegistered(address indexed addr, bytes32 randHash, string emailAddr, string hostname);
+    event RelayerRegistered(address indexed addr, string emailAddr, string hostname);
 
     event RelayerConfigUpdated(address indexed addr, string hostname);
 
     event AccountCreated(
         bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
         bytes32 indexed walletSalt,
         bytes psiPoint
     );

@@ -93,7 +93,6 @@ pub async fn setup() -> Result<()> {
     let client = ChainClient::setup().await?;
     let tx_hash = client
         .register_relayer(
-            relayer_rand.hash()?,
             env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
             env::var(RELAYER_HOSTNAME_KEY).unwrap(),
         )
@@ -143,13 +142,6 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
 
     let db = Arc::new(Database::open(&config.db_path).await?);
     let client = Arc::new(ChainClient::setup().await?);
-
-    let registered_rand_hash = client
-        .query_relayer_rand_hash(client.self_eth_addr())
-        .await?;
-    if registered_rand_hash != relayer_rand.hash()? {
-        panic!("Relayer randomness is not registered");
-    }
 
     let tx_handler_for_fetcher_task = tx_handler.clone();
     let emails_pool_fetcher_task = tokio::task::spawn(async move {

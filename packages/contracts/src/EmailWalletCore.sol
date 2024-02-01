@@ -151,7 +151,8 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(accountKeyInfo.initialized, "account not initialized");
         require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
@@ -189,7 +190,6 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
-                relayerHandler.getRandHash(msg.sender),
                 emailOp.emailAddrPointer,
                 emailOp.hasEmailRecipient,
                 emailOp.recipientEmailAddrCommit,

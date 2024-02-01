@@ -205,7 +205,8 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer);
 
         require(id < numUnclaimedFunds, "invalid id");
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "caller not relayer");
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "caller not relayer");
         require(
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).relayer == msg.sender,
             "invalid relayer for account"
@@ -224,7 +225,6 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
         require(
             verifier.verifyClaimFundProof(
-                relayerHandler.getRandHash(msg.sender),
                 recipientEmailAddrPointer,
                 fund.emailAddrCommit,
                 proof
@@ -409,7 +409,8 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         UnclaimedState memory us = unclaimedStateOfId[id];
         bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer);
 
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "caller not relayer");
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "caller not relayer");
         require(
             accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).relayer == msg.sender,
             "invalid relayer for account"
@@ -426,7 +427,6 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
         require(
             verifier.verifyClaimFundProof(
-                relayerHandler.getRandHash(msg.sender),
                 recipientEmailAddrPointer,
                 us.emailAddrCommit,
                 proof

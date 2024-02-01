@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 struct RelayerConfig {
-    bytes32 randHash; // Hash of the relayer's randomnes - the one used to create pointers and account key commitments
     string emailAddr; // relayer's email address
     string hostname; // hostname of relayer's server - used by other relayers for PSI communication
 }

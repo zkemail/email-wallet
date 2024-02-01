@@ -20,10 +20,6 @@ impl RelayerRand {
         let value = poseidon_bytes(seed)?;
         Ok(Self(value))
     }
-
-    pub fn hash(&self) -> Result<Fr, PoseidonError> {
-        poseidon_fields(&[self.0])
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -85,17 +81,6 @@ impl AccountKey {
         Self(elem)
     }
 
-    pub fn to_commitment(
-        &self,
-        email_addr: &PaddedEmailAddr,
-        relayer_rand_hash: &Fr,
-    ) -> Result<Fr, PoseidonError> {
-        let mut inputs = vec![self.0];
-        inputs.append(&mut email_addr.to_email_addr_fields());
-        inputs.push(*relayer_rand_hash);
-        poseidon_fields(&inputs)
-    }
-
     pub fn to_wallet_salt(&self) -> Result<WalletSalt, PoseidonError> {
         let field = poseidon_fields(&[self.0, Fr::zero()])?;
         Ok(WalletSalt(field))
@@ -131,17 +116,6 @@ pub fn gen_relayer_rand_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let relayer_rand = RelayerRand::new(&mut rng);
     let relayer_rand_str = field2hex(&relayer_rand.0);
     Ok(cx.string(relayer_rand_str))
-}
-
-pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
-    let relayer_rand = cx.argument::<JsString>(0)?.value(&mut cx);
-    let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
-    let relayer_rand_hash = match RelayerRand(relayer_rand).hash() {
-        Ok(fr) => fr,
-        Err(e) => return cx.throw_error(&format!("RelayerRand hash failed: {}", e)),
-    };
-    let relayer_rand_hash_str = field2hex(&relayer_rand_hash);
-    Ok(cx.string(relayer_rand_hash_str))
 }
 
 // pub fn pad_string_node(mut cx: FunctionContext) -> JsResult<JsArray> {
@@ -241,22 +215,6 @@ pub fn gen_account_key_node(mut cx: FunctionContext) -> JsResult<JsString> {
     let account_key = AccountKey::new(&mut rng);
     let account_key_str = field2hex(&account_key.0);
     Ok(cx.string(account_key_str))
-}
-
-pub fn account_key_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
-    let account_key = cx.argument::<JsString>(0)?.value(&mut cx);
-    let email_addr = cx.argument::<JsString>(1)?.value(&mut cx);
-    let relayer_rand_hash = cx.argument::<JsString>(2)?.value(&mut cx);
-    let account_key = hex2field_node(&mut cx, &account_key)?;
-    let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
-    let relayer_rand_hash = hex2field_node(&mut cx, &relayer_rand_hash)?;
-    let account_key_commit =
-        match AccountKey(account_key).to_commitment(&padded_email_addr, &relayer_rand_hash) {
-            Ok(fr) => fr,
-            Err(e) => return cx.throw_error(&format!("AccountKeyCommit failed: {}", e)),
-        };
-    let account_key_commit_str = field2hex(&account_key_commit);
-    Ok(cx.string(account_key_commit_str))
 }
 
 pub fn wallet_salt_node(mut cx: FunctionContext) -> JsResult<JsString> {
