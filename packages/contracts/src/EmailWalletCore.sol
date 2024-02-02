@@ -144,14 +144,13 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
+            accountHandler.walletSaltOfPointer(emailOp.emailAddrPointer)
         );
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
         require(accountKeyInfo.initialized, "account not initialized");
         require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
@@ -189,7 +188,6 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
-                relayerHandler.getRandHash(msg.sender),
                 emailOp.emailAddrPointer,
                 emailOp.hasEmailRecipient,
                 emailOp.recipientEmailAddrCommit,
@@ -482,9 +480,9 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer);
+            bytes32 walletSaltPointer = accountHandler.walletSaltOfPointer(emailOp.emailAddrPointer);
             accountHandler.updateDKIMRegistryOfWalletSalt(
-                accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt,
+                accountHandler.getInfoOfAccountKeyCommit(walletSaltPointer).walletSalt,
                 emailOp.newDkimRegistry
             );
             success = true;

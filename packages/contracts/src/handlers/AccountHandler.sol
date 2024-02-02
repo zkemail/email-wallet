@@ -30,14 +30,14 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Deployer
     address private deployer;
 
-    // Mapping of emailAddrPointer to accountKeyCommit
-    mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
+    // Mapping of emailAddrPointer to walletSalt
+    mapping(bytes32 => bytes32) public walletSaltOfPointer;
 
     // Mapping of PSI point to emailAddrPointer
     mapping(bytes => bytes32) public pointerOfPSIPoint;
 
-    // Mapping of accountKeyCommit to account key details
-    mapping(bytes32 => AccountKeyInfo) public infoOfAccountKeyCommit;
+    // Mapping of emailAddrPointer to account key details
+    mapping(bytes32 => AccountKeyInfo) public infoOfEmailAddrPointer;
 
     // Mapping of walletSalt to dkim registry address
     mapping(bytes32 => address) public dkimRegistryOfWalletSalt;
@@ -81,27 +81,22 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     /// Create new account and wallet for a user
     /// @param emailAddrPointer hash(relayerRand, emailAddr)
-    /// @param accountKeyCommit hash(accountKey, emailAddr, relayerHash)
     /// @param walletSalt hash(accountKey, 0)
     /// @param proof ZK proof as required by the verifier
     function createAccount(
         bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
+        // bytes32 accountKeyCommit,
         bytes32 walletSalt,
         bytes calldata psiPoint,
         bytes calldata proof
     ) public returns (Wallet wallet) {
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
-        require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
+        require(walletSaltOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
-        require(infoOfAccountKeyCommit[accountKeyCommit].walletSalt == bytes32(0), "walletSalt exists");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
 
         require(
             verifier.verifyAccountCreationProof(
-                relayerHandler.getRandHash(msg.sender),
                 emailAddrPointer,
-                accountKeyCommit,
                 walletSalt,
                 psiPoint,
                 proof
@@ -109,14 +104,14 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             "invalid account creation proof"
         );
 
-        accountKeyCommitOfPointer[emailAddrPointer] = accountKeyCommit;
-        infoOfAccountKeyCommit[accountKeyCommit].relayer = msg.sender;
-        infoOfAccountKeyCommit[accountKeyCommit].walletSalt = walletSalt;
+        walletSaltOfPointer[emailAddrPointer] = walletSalt;
+        infoOfEmailAddrPointer[emailAddrPointer].relayer = msg.sender;
+        infoOfEmailAddrPointer[emailAddrPointer].walletSalt = walletSalt;
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
         wallet = _deployWallet(walletSalt);
 
-        emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(emailAddrPointer, walletSalt, walletSalt, psiPoint);
     }
 
     /// Initialize the account when user reply to invitation email
@@ -133,17 +128,16 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         bytes32 dkimPublicKeyHash,
         bytes calldata proof
     ) public {        
-        bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
+        bytes32 walletSalt = walletSaltOfPointer[emailAddrPointer];
 
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
-        require(accountKeyCommit != bytes32(0), "account not registered");
-        require(infoOfAccountKeyCommit[accountKeyCommit].relayer == msg.sender, "invalid relayer");
-        require(infoOfAccountKeyCommit[accountKeyCommit].initialized == false, "account already initialized");
+        require(walletSalt != bytes32(0), "account not registered");
+        require(infoOfEmailAddrPointer[walletSalt].relayer == msg.sender, "invalid relayer");
+        require(infoOfEmailAddrPointer[walletSalt].initialized == false, "account already initialized");
         require(emailNullifiers[emailNullifier] == false, "email nullified");
         require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
         require(
             isDKIMPublicKeyHashValid(
-                infoOfAccountKeyCommit[accountKeyCommit].walletSalt,
+                infoOfEmailAddrPointer[walletSalt].walletSalt,
                 emailDomain,
                 dkimPublicKeyHash
             ),
@@ -155,100 +149,99 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 emailDomain,
                 dkimPublicKeyHash,
                 emailTimestamp,
-                relayerHandler.getRandHash(msg.sender),
                 emailAddrPointer,
-                accountKeyCommit,
+                walletSalt,
                 emailNullifier,
                 proof
             ),
             "invalid account initialization proof"
         );
 
-        infoOfAccountKeyCommit[accountKeyCommit].initialized = true;
+        infoOfEmailAddrPointer[walletSalt].initialized = true;
         emailNullifiers[emailNullifier] = true;
 
         emit EmailWalletEvents.AccountInitialized(
             emailAddrPointer,
-            accountKeyCommit,
-            infoOfAccountKeyCommit[accountKeyCommit].walletSalt
+            walletSalt,
+            infoOfEmailAddrPointer[walletSalt].walletSalt
         );
     }
 
-    /// @notice Transport an account to a new Relayer - to be called by the new relayer
-    /// @param oldAccountKeyCommit Account Key commitment of the account under old (current) relayer
-    /// @param newEmailAddrPointer Email Address pointer of the account under new relayer
-    /// @param newAccountKeyCommit Account Key commitment of the account under new relayer
-    /// @param newPSIPoint PSI point of the email address under new relayer
-    /// @param accountCreationProof Proof for new account creation under new relayer
-    /// @param transportEmailProof Proof of user's transport email
-    function transportAccount(
-        bytes32 oldAccountKeyCommit,
-        bytes32 newEmailAddrPointer,
-        bytes32 newAccountKeyCommit,
-        bytes memory newPSIPoint,
-        EmailProof memory transportEmailProof,
-        bytes memory accountCreationProof
-    ) public {
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
-        require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != address(0), "old relayer not registered");
-        require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != msg.sender, "new relayer cannot be same");
-        require(infoOfAccountKeyCommit[oldAccountKeyCommit].initialized, "account not initialized");
-        require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullified");
+    // /// @notice Transport an account to a new Relayer - to be called by the new relayer
+    // /// @param oldAccountKeyCommit Account Key commitment of the account under old (current) relayer
+    // /// @param newEmailAddrPointer Email Address pointer of the account under new relayer
+    // /// @param newAccountKeyCommit Account Key commitment of the account under new relayer
+    // /// @param newPSIPoint PSI point of the email address under new relayer
+    // /// @param accountCreationProof Proof for new account creation under new relayer
+    // /// @param transportEmailProof Proof of user's transport email
+    // function transportAccount(
+    //     bytes32 oldAccountKeyCommit,
+    //     bytes32 newEmailAddrPointer,
+    //     bytes32 newAccountKeyCommit,
+    //     bytes memory newPSIPoint,
+    //     EmailProof memory transportEmailProof,
+    //     bytes memory accountCreationProof
+    // ) public {
+    //     require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
+    //     require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != address(0), "old relayer not registered");
+    //     require(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer != msg.sender, "new relayer cannot be same");
+    //     require(infoOfAccountKeyCommit[oldAccountKeyCommit].initialized, "account not initialized");
+    //     require(transportEmailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
+    //     require(emailNullifiers[transportEmailProof.nullifier] == false, "email nullified");
 
-        // New relayer might have already created an account, but not initialized.
-        if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
-            require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
-        } else {
-            require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
-        }
+    //     // New relayer might have already created an account, but not initialized.
+    //     if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
+    //         require(!infoOfAccountKeyCommit[newAccountKeyCommit].initialized, "new account is already initialized");
+    //     } else {
+    //         require(pointerOfPSIPoint[newPSIPoint] == bytes32(0), "new PSI point already exists");
+    //     }
 
-        require(
-            verifier.verifyAccountCreationProof(
-                relayerHandler.getRandHash(msg.sender),
-                newEmailAddrPointer,
-                newAccountKeyCommit,
-                infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt,
-                newPSIPoint,
-                accountCreationProof
-            ),
-            "invalid account creation proof"
-        );
+    //     require(
+    //         verifier.verifyAccountCreationProof(
+    //             relayerHandler.getRandHash(msg.sender),
+    //             newEmailAddrPointer,
+    //             newAccountKeyCommit,
+    //             infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt,
+    //             newPSIPoint,
+    //             accountCreationProof
+    //         ),
+    //         "invalid account creation proof"
+    //     );
 
-        require(
-            verifier.verifyAccountTransportProof(
-                transportEmailProof.domain,
-                transportEmailProof.dkimPublicKeyHash,
-                transportEmailProof.timestamp,
-                transportEmailProof.nullifier,
-                relayerHandler.getRandHash(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer),
-                relayerHandler.getRandHash(msg.sender),
-                oldAccountKeyCommit,
-                newAccountKeyCommit,
-                transportEmailProof.proof
-            ),
-            "invalid account transport proof"
-        );
+    //     require(
+    //         verifier.verifyAccountTransportProof(
+    //             transportEmailProof.domain,
+    //             transportEmailProof.dkimPublicKeyHash,
+    //             transportEmailProof.timestamp,
+    //             transportEmailProof.nullifier,
+    //             relayerHandler.getRandHash(infoOfAccountKeyCommit[oldAccountKeyCommit].relayer),
+    //             relayerHandler.getRandHash(msg.sender),
+    //             oldAccountKeyCommit,
+    //             newAccountKeyCommit,
+    //             transportEmailProof.proof
+    //         ),
+    //         "invalid account transport proof"
+    //     );
 
-        emailNullifiers[transportEmailProof.nullifier] = true;
+    //     emailNullifiers[transportEmailProof.nullifier] = true;
 
-        if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
-            delete infoOfAccountKeyCommit[accountKeyCommitOfPointer[newEmailAddrPointer]];
-        }
+    //     if (accountKeyCommitOfPointer[newEmailAddrPointer] != bytes32(0)) {
+    //         delete infoOfAccountKeyCommit[accountKeyCommitOfPointer[newEmailAddrPointer]];
+    //     }
 
-        accountKeyCommitOfPointer[newEmailAddrPointer] = newAccountKeyCommit;
-        pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
-        infoOfAccountKeyCommit[newAccountKeyCommit].walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
-        infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
-        infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
+    //     accountKeyCommitOfPointer[newEmailAddrPointer] = newAccountKeyCommit;
+    //     pointerOfPSIPoint[newPSIPoint] = newEmailAddrPointer;
+    //     infoOfAccountKeyCommit[newAccountKeyCommit].walletSalt = infoOfAccountKeyCommit[oldAccountKeyCommit].walletSalt;
+    //     infoOfAccountKeyCommit[newAccountKeyCommit].relayer = msg.sender;
+    //     infoOfAccountKeyCommit[newAccountKeyCommit].initialized = true;
 
-        emit EmailWalletEvents.AccountTransported(
-            oldAccountKeyCommit,
-            newEmailAddrPointer,
-            newAccountKeyCommit,
-            newPSIPoint
-        );
-    }
+    //     emit EmailWalletEvents.AccountTransported(
+    //         oldAccountKeyCommit,
+    //         newEmailAddrPointer,
+    //         newAccountKeyCommit,
+    //         newPSIPoint
+    //     );
+    // }
 
     /// @notice Return the DKIM public key hash for a given email domain and walletSalt
     /// @param walletSalt Salt used to deploy the wallet
@@ -267,10 +260,11 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return IDKIMRegistry(dkimRegistry).isDKIMPublicKeyHashValid(emailDomain, publicKeyHash);
     }
 
+    // TODO RENAMEME
     /// @notice Return the info of an account key commitment
     /// @param accountKeyCommit Account key commitment for which the info is to be returned
     function getInfoOfAccountKeyCommit(bytes32 accountKeyCommit) public view returns (AccountKeyInfo memory) {
-        return infoOfAccountKeyCommit[accountKeyCommit];
+        return infoOfEmailAddrPointer[accountKeyCommit];
     }
 
     /// @notice Update teh DKIM registry address for a given wallet salt
@@ -298,7 +292,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Return the wallet address of the user given the email address pointer
     /// @param emailAddrPointer Email address pointer of the user
     function getWalletOfEmailAddrPointer(bytes32 emailAddrPointer) public view returns (address) {
-        return getWalletOfSalt(infoOfAccountKeyCommit[accountKeyCommitOfPointer[emailAddrPointer]].walletSalt);
+        return getWalletOfSalt(infoOfEmailAddrPointer[walletSaltOfPointer[emailAddrPointer]].walletSalt);
     }
 
     /// @notice Deploy a wallet contract with the given salt

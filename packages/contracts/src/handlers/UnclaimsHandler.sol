@@ -202,29 +202,27 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         bytes calldata proof
     ) public nonReentrant {
         UnclaimedFund memory fund = unclaimedFundOfId[id];
-        bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer);
+        bytes32 walletSalt = accountHandler.walletSaltOfPointer(recipientEmailAddrPointer);
 
         require(id < numUnclaimedFunds, "invalid id");
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "caller not relayer");
         require(
-            accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).relayer == msg.sender,
+            accountHandler.getInfoOfAccountKeyCommit(walletSalt).relayer == msg.sender,
             "invalid relayer for account"
         );
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
         require(
-            accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer) != bytes32(0),
+            accountHandler.walletSaltOfPointer(recipientEmailAddrPointer) != bytes32(0),
             "invalid account key commit."
         );
-        require(accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).initialized, "account not initialized");
+        require(accountHandler.getInfoOfAccountKeyCommit(walletSalt).initialized, "account not initialized");
         require(
-            accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt != bytes32(0),
+            accountHandler.getInfoOfAccountKeyCommit(walletSalt).walletSalt != bytes32(0),
             "invalid wallet salt"
         );
 
         require(
             verifier.verifyClaimFundProof(
-                relayerHandler.getRandHash(msg.sender),
                 recipientEmailAddrPointer,
                 fund.emailAddrCommit,
                 proof
@@ -233,7 +231,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         );
 
         address recipientAddr = accountHandler.getWalletOfSalt(
-            accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt
+            accountHandler.getInfoOfAccountKeyCommit(walletSalt).walletSalt
         );
 
         delete unclaimedFundOfId[id];
@@ -407,26 +405,24 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         require(id < numUnclaimedStates, "invalid id");
 
         UnclaimedState memory us = unclaimedStateOfId[id];
-        bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(recipientEmailAddrPointer);
+        bytes32 walletSalt = accountHandler.walletSaltOfPointer(recipientEmailAddrPointer);
 
-        require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "caller not relayer");
         require(
-            accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).relayer == msg.sender,
+            accountHandler.getInfoOfAccountKeyCommit(walletSalt).relayer == msg.sender,
             "invalid relayer for account"
         );
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.extensionAddr != address(0), "invalid extension address");
         require(us.expiryTime > block.timestamp, "unclaimed state expired");
-        require(accountKeyCommit != bytes32(0), "invalid account key commit.");
-        require(accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).initialized, "account not initialized");
+        require(walletSalt != bytes32(0), "invalid wallet salt.");
+        require(accountHandler.getInfoOfAccountKeyCommit(walletSalt).initialized, "account not initialized");
         require(
-            accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt != bytes32(0),
+            accountHandler.getInfoOfAccountKeyCommit(walletSalt).walletSalt != bytes32(0),
             "invalid wallet salt"
         );
 
         require(
             verifier.verifyClaimFundProof(
-                relayerHandler.getRandHash(msg.sender),
                 recipientEmailAddrPointer,
                 us.emailAddrCommit,
                 proof
@@ -435,7 +431,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         );
 
         address recipientAddr = accountHandler.getWalletOfSalt(
-            accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt
+            accountHandler.getInfoOfAccountKeyCommit(walletSalt).walletSalt
         );
 
         Extension extension = Extension(us.extensionAddr);

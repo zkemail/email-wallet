@@ -49,7 +49,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getTokenSendingEmailOp();
 
         vm.startPrank(vm.addr(5)); // Random addr
-        relayerHandler.registerRelayer(bytes32(uint256(123)), "r2@rel.com", "rel.com");
+        relayerHandler.registerRelayer("r2@rel.com", "rel.com");
         vm.expectRevert("invalid relayer");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
@@ -67,7 +67,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailAddrPointer = emailAddrPointer;
 
         vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
         vm.expectRevert("account not initialized");
         core.validateEmailOp(emailOp);
         vm.stopPrank();

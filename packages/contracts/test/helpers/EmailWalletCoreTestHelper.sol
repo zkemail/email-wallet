@@ -186,14 +186,14 @@ contract EmailWalletCoreTestHelper is Test {
     // Register the test relayer - when not testing relayer functionality
     function _registerRelayer() internal {
         vm.startPrank(relayer);
-        relayerHandler.registerRelayer(randHash, "relayer@relayer.xyz", "relayer.xyz");
+        relayerHandler.registerRelayer("relayer@relayer.xyz", "relayer.xyz");
         vm.stopPrank();
     }
 
     // Register test user account - for using as sender when not testing accoung functionality
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
         accountHandler.initializeAccount(
             emailAddrPointer,
             emailDomain,
