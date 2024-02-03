@@ -31,7 +31,7 @@ interface IVerifier {
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
         bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
+        bytes32 accountKeyCommit, // TODO: is it needed?
         bytes32 emailNullifier,
         bytes memory proof
     ) external view returns (bool);

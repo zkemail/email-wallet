@@ -116,7 +116,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
 
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountInitialized(emailAddrPointer, accountKeyCommit, walletSalt);
+        emit EmailWalletEvents.AccountInitialized(emailAddrPointer, walletSalt, walletSalt);
 
         accountHandler.initializeAccount(
             emailAddrPointer,
@@ -128,7 +128,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.stopPrank();
 
-        (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(accountKeyCommit);
+        (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(walletSalt);
         assertTrue(initialized);
     }
 

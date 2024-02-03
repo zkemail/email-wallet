@@ -105,8 +105,8 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         );
 
         walletSaltOfPointer[emailAddrPointer] = walletSalt;
-        infoOfEmailAddrPointer[emailAddrPointer].relayer = msg.sender;
-        infoOfEmailAddrPointer[emailAddrPointer].walletSalt = walletSalt;
+        infoOfEmailAddrPointer[walletSalt].relayer = msg.sender;
+        infoOfEmailAddrPointer[walletSalt].walletSalt = walletSalt;
         pointerOfPSIPoint[psiPoint] = emailAddrPointer;
 
         wallet = _deployWallet(walletSalt);
