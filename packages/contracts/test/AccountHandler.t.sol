@@ -54,7 +54,6 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertIf_PointerIsAlreadyRegistered() public {
-        bytes32 accountKeyCommit2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
         bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
 
@@ -67,7 +66,6 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     function test_RevertIf_PSIPointIsAlreadyRegistered() public {
         bytes32 emailAddrPointer2 = bytes32(uint256(2));
-        bytes32 accountKeyCommit2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
 
         vm.startPrank(relayer);
