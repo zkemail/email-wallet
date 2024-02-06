@@ -48,10 +48,11 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
     // }
 
-    function test_RevertWhen_CreateAccountRelayerIsNotRegistered() public {
-        vm.expectRevert("relayer not registered");
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-    }
+    // "relayer not registered" is not used anymore
+    // function test_RevertWhen_CreateAccountRelayerIsNotRegistered() public {
+    //     vm.expectRevert("relayer not registered");
+    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+    // }
 
     function test_RevertIf_PointerIsAlreadyRegistered() public {
         bytes32 walletSalt2 = bytes32(uint256(3));
@@ -75,17 +76,18 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_AccountKeyCommitAlreadyHasAnotherWalletSalt() public {
-        bytes32 emailAddrPointer2 = bytes32(uint256(2));
-        bytes32 walletSalt2 = bytes32(uint256(2));
-        bytes memory psiPoint2 = abi.encodePacked(uint256(4));
+    // account key commit is not used anymore
+    // function test_RevertIf_AccountKeyCommitAlreadyHasAnotherWalletSalt() public {
+    //     bytes32 emailAddrPointer2 = bytes32(uint256(2));
+    //     bytes32 walletSalt2 = bytes32(uint256(2));
+    //     bytes memory psiPoint2 = abi.encodePacked(uint256(4));
 
-        vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-        vm.expectRevert("walletSalt exists");
-        accountHandler.createAccount(emailAddrPointer2, walletSalt2, psiPoint2, mockProof);
-        vm.stopPrank();
-    }
+    //     vm.startPrank(relayer);
+    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+    //     vm.expectRevert("walletSalt exists");
+    //     accountHandler.createAccount(emailAddrPointer2, walletSalt2, psiPoint2, mockProof);
+    //     vm.stopPrank();
+    // }
 
     function test_CreateWalletWithPredeterministicAddress() public {
         address predictedAddr = accountHandler.getWalletOfSalt(walletSalt);
