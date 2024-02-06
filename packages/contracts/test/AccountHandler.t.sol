@@ -12,7 +12,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function test_CreateAccount() public {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(emailAddrPointer, walletSalt, walletSalt, psiPoint);
 
         accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
         vm.stopPrank();
@@ -20,10 +20,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
         Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
         assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
 
-        assertEq(accountHandler.walletSaltOfPointer(emailAddrPointer), accountKeyCommit);
+        assertEq(accountHandler.walletSaltOfPointer(emailAddrPointer), walletSalt);
 
         (address akRelayer, bool initialized, bytes32 akWalletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountKeyCommit
+            walletSalt
         );
         assertEq(akRelayer, relayer);
         assertEq(akWalletSalt, walletSalt);
