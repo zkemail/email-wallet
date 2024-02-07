@@ -14,7 +14,16 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.AccountCreated(emailAddrPointer, walletSalt, walletSalt, psiPoint);
 
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(
+            emailAddrPointer,
+            walletSalt, 
+            psiPoint, 
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
 
         Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
@@ -28,7 +37,28 @@ contract AccountTest is EmailWalletCoreTestHelper {
         assertEq(akRelayer, relayer);
         assertEq(akWalletSalt, walletSalt);
         assertEq(accountHandler.pointerOfPSIPoint(psiPoint), emailAddrPointer);
-        assertTrue(!initialized);
+        assertTrue(initialized);
+
+/**
+        vm.startPrank(relayer);
+        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+
+        vm.expectEmit(true, true, true, true);
+        emit EmailWalletEvents.AccountInitialized(emailAddrPointer, walletSalt, walletSalt);
+
+        accountHandler.initializeAccount(
+            emailAddrPointer,
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
+        vm.stopPrank();
+
+        (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(walletSalt);
+        assertTrue(initialized);
+ */
     }
 
     // function testFail_CreateAccount() public {
@@ -59,9 +89,27 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
 
         vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(
+            emailAddrPointer,
+            walletSalt, 
+            psiPoint, 
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.expectRevert("pointer exists");
-        accountHandler.createAccount(emailAddrPointer, walletSalt2, psiPoint2, mockProof);
+        accountHandler.createAccount(
+            emailAddrPointer, 
+            walletSalt2, 
+            psiPoint2, 
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
     }
 
@@ -70,9 +118,27 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 walletSalt2 = bytes32(uint256(3));
 
         vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+        accountHandler.createAccount(
+            emailAddrPointer,
+            walletSalt, 
+            psiPoint, 
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.expectRevert("PSI point exists");
-        accountHandler.createAccount(emailAddrPointer2, walletSalt2, psiPoint, mockProof);
+        accountHandler.createAccount(
+            emailAddrPointer2, 
+            walletSalt2, 
+            psiPoint, 
+            emailDomain,
+            block.timestamp,
+            emailNullifier,
+            mockDKIMHash,
+            mockProof
+        );
         vm.stopPrank();
     }
 
@@ -94,7 +160,16 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         address walletAddr = address(
-            accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof)
+            accountHandler.createAccount(
+                emailAddrPointer,
+                walletSalt, 
+                psiPoint, 
+                emailDomain,
+                block.timestamp,
+                emailNullifier,
+                mockDKIMHash,
+                mockProof
+            )
         );
         vm.stopPrank();
 
@@ -107,19 +182,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("wallet already deployed");
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-        vm.stopPrank();
-    }
-
-    function test_AccountInitailization() public {
-        vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-
-        vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountInitialized(emailAddrPointer, walletSalt, walletSalt);
-
-        accountHandler.initializeAccount(
+        accountHandler.createAccount(
             emailAddrPointer,
+            walletSalt, 
+            psiPoint, 
             emailDomain,
             block.timestamp,
             emailNullifier,
@@ -127,10 +193,33 @@ contract AccountTest is EmailWalletCoreTestHelper {
             mockProof
         );
         vm.stopPrank();
-
-        (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(walletSalt);
-        assertTrue(initialized);
     }
+
+    // function test_AccountInitailization() public {
+    //     vm.startPrank(relayer);
+    //     accountHandler.createAccount(
+    //         emailAddrPointer, 
+    //         walletSalt, 
+    //         psiPoint, 
+    //         mockProof
+    //     );
+
+    //     vm.expectEmit(true, true, true, true);
+    //     emit EmailWalletEvents.AccountInitialized(emailAddrPointer, walletSalt, walletSalt);
+
+    //     accountHandler.initializeAccount(
+    //         emailAddrPointer,
+    //         emailDomain,
+    //         block.timestamp,
+    //         emailNullifier,
+    //         mockDKIMHash,
+    //         mockProof
+    //     );
+    //     vm.stopPrank();
+
+    //     (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(walletSalt);
+    //     assertTrue(initialized);
+    // }
 
     // function testFail_AccountInitailization() public {
     //     vm.warp(1701388800);

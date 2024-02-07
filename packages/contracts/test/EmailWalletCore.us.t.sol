@@ -617,7 +617,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
+        // bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         address newWalletAddr = accountHandler.getWalletOfSalt(newWalletSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
@@ -640,9 +640,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
-        accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(
-            newEmailAddrPointer,
+        accountHandler.createAccount(
+            newEmailAddrPointer, 
+            newWalletSalt, 
+            newPSIPoint, 
             emailDomain,
             block.timestamp,
             emailNullifier2,
@@ -666,7 +667,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 recipientEmailAddrCommit2 = bytes32(uint256(34));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
+        // bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         address newWalletAddr = accountHandler.getWalletOfSalt(newWalletSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
@@ -693,9 +694,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
-        accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(
-            newEmailAddrPointer,
+        accountHandler.createAccount(
+            newEmailAddrPointer, 
+            newWalletSalt, 
+            newPSIPoint, 
             emailDomain,
             block.timestamp,
             emailNullifier2,
@@ -812,7 +814,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 newEmailAddrPointer = bytes32(uint256(32334));
-        bytes32 newAccountKeyCommit = bytes32(uint256(32335));
+        // bytes32 newAccountKeyCommit = bytes32(uint256(32335));
         bytes32 newWalletSalt = bytes32(uint256(32336));
         bytes memory newPSI = abi.encodePacked(uint256(32337));
         bytes memory state = abi.encode(address(dummyNFT), 23);
@@ -834,8 +836,18 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         // Relayer claim the unclaimed State to a newly created account, but not initialized
         vm.startPrank(relayer);
-        accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSI, mockProof);
-        vm.expectRevert("account not initialized");
+        accountHandler.createAccount(
+            newEmailAddrPointer, 
+            newWalletSalt, 
+            newPSI,
+            emailDomain,
+            block.timestamp,
+            emailNullifier2,
+            mockDKIMHash,
+            mockProof
+        );
+
+        // vm.expectRevert("account not initialized");
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();
     }

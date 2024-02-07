@@ -193,9 +193,10 @@ contract EmailWalletCoreTestHelper is Test {
     // Register test user account - for using as sender when not testing accoung functionality
     function _registerAndInitializeAccount() internal {
         vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(
-            emailAddrPointer,
+        accountHandler.createAccount(
+            emailAddrPointer, 
+            walletSalt, 
+            psiPoint, 
             emailDomain,
             block.timestamp,
             emailNullifier,

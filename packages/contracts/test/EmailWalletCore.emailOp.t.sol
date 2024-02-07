@@ -55,23 +55,23 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_AccountIsNotInitialized() public {
-        daiToken.freeMint(walletAddr, 1 ether);
+    // function test_RevertIf_AccountIsNotInitialized() public {
+    //     daiToken.freeMint(walletAddr, 1 ether);
 
-        bytes32 emailAddrPointer = bytes32(uint256(37465));
-        bytes32 accountKeyCommit = bytes32(uint256(3434));
-        bytes32 walletSalt = bytes32(uint256(3434));
-        bytes memory psiPoint = abi.encodePacked(uint256(3434));
+    //     bytes32 emailAddrPointer = bytes32(uint256(37465));
+    //     bytes32 accountKeyCommit = bytes32(uint256(3434));
+    //     bytes32 walletSalt = bytes32(uint256(3434));
+    //     bytes memory psiPoint = abi.encodePacked(uint256(3434));
 
-        EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.emailAddrPointer = emailAddrPointer;
+    //     EmailOp memory emailOp = _getTokenSendingEmailOp();
+    //     emailOp.emailAddrPointer = emailAddrPointer;
 
-        vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-        vm.expectRevert("account not initialized");
-        core.validateEmailOp(emailOp);
-        vm.stopPrank();
-    }
+    //     vm.startPrank(relayer);
+    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+    //     vm.expectRevert("account not initialized");
+    //     core.validateEmailOp(emailOp);
+    //     vm.stopPrank();
+    // }
 
     function test_RevertIf_NullifierIsUsed() public {
         daiToken.freeMint(walletAddr, 1 ether);

@@ -49,8 +49,8 @@ contract RelayerTest is EmailWalletCoreTestHelper {
 
     // Different relayer registering with same emailAddr
     function test_RevertWhen_RegisteringRelayerEmailAddrTwice() public {
-        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
-        bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
+        // bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+        // bytes32 randHash2 = keccak256(abi.encodePacked(uint(1002)));
 
         vm.startPrank(relayer);
         relayerHandler.registerRelayer("relayer@domain.com", "relayer.xyz");
@@ -64,7 +64,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
 
     // Update relayer hostname
     function test_UpdateRelayerHostname() public {
-        bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
+        // bytes32 randHash = keccak256(abi.encodePacked(uint(1001)));
         string memory newHostname = "newdomain.xyz";
 
         vm.startPrank(relayer);

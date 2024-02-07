@@ -389,9 +389,10 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
-        accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(
-            newEmailAddrPointer,
+        accountHandler.createAccount(
+            newEmailAddrPointer, 
+            newWalletSalt, 
+            newPSIPoint, 
             emailDomain,
             block.timestamp,
             emailNullifier2,
@@ -441,9 +442,10 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim both
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
-        accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(
-            newEmailAddrPointer,
+        accountHandler.createAccount(
+            newEmailAddrPointer, 
+            newWalletSalt, 
+            newPSIPoint, 
             emailDomain,
             block.timestamp,
             emailNullifier2,
@@ -554,31 +556,32 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_ClaimUnclaimedFund_ToUninitializedAccount() public {
-        address sender = vm.addr(7);
-        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newEmailAddrPointer = bytes32(uint256(32334));
-        bytes32 newAccountKeyCommit = bytes32(uint256(32335));
-        bytes32 newWalletSalt = bytes32(uint256(32336));
-        bytes memory newPSI = abi.encodePacked(uint256(32337));
+    // A createAccount function initializes the account internally
+    // function test_RevertIf_ClaimUnclaimedFund_ToUninitializedAccount() public {
+    //     address sender = vm.addr(7);
+    //     bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
+    //     bytes32 newEmailAddrPointer = bytes32(uint256(32334));
+    //     bytes32 newAccountKeyCommit = bytes32(uint256(32335));
+    //     bytes32 newWalletSalt = bytes32(uint256(32336));
+    //     bytes memory newPSI = abi.encodePacked(uint256(32337));
 
-        vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
-        daiToken.freeMint(sender, 100 ether);
+    //     vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
+    //     daiToken.freeMint(sender, 100 ether);
 
-        vm.startPrank(sender);
-        daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{
-            value: unclaimedFundClaimGas * maxFeePerGas
-        }(recipientEmailAddrCommit, address(daiToken), 100 ether, 0, 0, "");
-        vm.stopPrank();
+    //     vm.startPrank(sender);
+    //     daiToken.approve(address(core.unclaimsHandler()), 100 ether);
+    //     uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{
+    //         value: unclaimedFundClaimGas * maxFeePerGas
+    //     }(recipientEmailAddrCommit, address(daiToken), 100 ether, 0, 0, "");
+    //     vm.stopPrank();
 
-        // Relayer claim the unclaimed fund to a newly created account, but not initialized
-        vm.startPrank(relayer);
-        accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSI, mockProof);
-        vm.expectRevert("account not initialized");
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
-        vm.stopPrank();
-    }
+    //     // Relayer claim the unclaimed fund to a newly created account, but not initialized
+    //     vm.startPrank(relayer);
+    //     accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSI, mockProof);
+    //     vm.expectRevert("account not initialized");
+    //     unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
+    //     vm.stopPrank();
+    // }
 
     function test_VoidUnclaimedFund() public {
         address sender = vm.addr(7);
