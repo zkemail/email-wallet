@@ -11,15 +11,43 @@ To build the Relayer, you need to understand its three main components:
 
 - **SMTP Server**: The entry point for emails, which the Relayer monitors for incoming messages that trigger blockchain transactions.
 - **Relayer**: The core service that listens for emails from the SMTP server, communicates with the Prover to verify proofs, and then writes the validated transactions to the blockchain.
-- **Prover**: A separate service that the Relayer relies on to verify and create cryptographic proofs of the data extracted from emails.
+- **Prover**: A separate service that the Relayer relies on to verify and create zk proofs of the data extracted from emails.
+- **Database (DB)**: A PostgreSQL database to store account information, facilitating checks on whether an account already exists within the system.
 
-## Build the Relayer
+## Building the Relayer
 
 ### Running the Prover
 
-#### ☞  Using Modal
+#### ☞ Running locally 
+To run the prover locally, follow these steps:
 
-1. **Set Up Modal Tokens**: Follow the instructions in `Relayer.Dockerfile` to set up your Modal tokens.
+1. **Prepare the Environment**:
+Ensure your system has Node.js, npm, and Python 3 installed. The prover relies on specific npm packages and Python modules to function correctly.
+
+2. **Install Global npm Packages**:
+Install snarkjs globally using npm.
+```
+   npm install -g snarkjs@latest
+```
+3. **Install Python Requirements**:
+Navigate to the prover directory and install the required Python packages listed in requirements.txt.
+
+```
+ pip install -r requirements.txt
+```
+4. Run the curl commands and script in the `prover/local_setup.sh` file.
+
+5. **Start the prover**
+
+```
+python3 packages/prover/local.py
+```
+
+
+#### ☞  Using Modal
+The prover leverages Modal, a cost-effective, serverless computing platform activated as needed, for generating zk proofs. Visit site here: https://modal.com
+
+1. **Set Up Modal Tokens**: Follow the instructions in `/Relayer.Dockerfile` to set up your Modal tokens.
 
 2. **Start the Prover Service**: Run the following command to start the Prover service using Modal:
 
@@ -28,12 +56,29 @@ To build the Relayer, you need to understand its three main components:
 modal run python packages/prover/local.py
 ```
 
+## Setting up the DB
+**Database Setup Steps:**
+
+1. **Start PostgreSQL Database**:
+   ```
+   docker run --rm --name email-wallet-db -e POSTGRES_PASSWORD=p@ssw0rd -e POSTGRES_USER=emailwallet -e POSTGRES_DB=emailwallet -p 5432:5432 postgres
+   ```
+
+2. **Set Environment Variable**:
+   In `.env`:
+   ```
+   DATABASE_URL=postgresql://emailwallet:p@ssw0rd@localhost:5432/emailwallet
+   ```
+
+**Note**: The system triggers on emails with `accountKey` in the subject, for new account setups. Reply-email functionality for account transport will be deprecated.
+
+
 <!-- ```bash
 cd packages/relayer
 cargo build   # output binary is in target/debug/relayer
 ``` -->
 
-### Running the Relayer
+## Setting up the Relayer
 
  1. Create a `.env` file in `packages/relayer` by taking a copy from `.env.example`.
 
@@ -58,7 +103,7 @@ LOGIN_ID=                    # IMAP login id - usually your email address.
 LOGIN_PASSWORD=""         # IMAP password - usually your email password.
 
 PROVER_LOCATION=local         # Keep this local for running the prover locally.
-PROVER_ADDRESS="http://0.0.0.0:8080"
+PROVER_ADDRESS="http://0.0.0.0:8080" # local or modal URL
 
 FEE_PER_GAS=0        # Fee per gas in wei.
 DATABASE_URL= "postgres://test@localhost/emailwallet_test"
@@ -82,9 +127,9 @@ IC_REPLICA_URL="https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=i73e6-2qaaa-
 JSON_LOGGER=false
 ```
 
-### Building Docker Image
+### Buidling the Docker image
 
-#### For local development
+- #### For local development
 ```bash
 cd ../../
 docker buildx build -t email_wallet_v1_relayer:latest-arm -f Relayer.Dockerfile . \
@@ -92,19 +137,16 @@ docker buildx build -t email_wallet_v1_relayer:latest-arm -f Relayer.Dockerfile 
   --build-arg modal_token_secret=${MODAL_TOKEN_SECRET}
 ```
 
-#### For x86 compatibility(e.g. For production)
+- #### Production(x86 compatibility):
 ```bash
-cd ../../
 docker buildx build -t email_wallet_v1_relayer:latest -f Relayer.Dockerfile . \
   --build-arg modal_token_id=${MODAL_TOKEN_ID} \
   --build-arg modal_token_secret=${MODAL_TOKEN_SECRET} \
   --platform=linux/arm64
 ```
+#### **Running the Relayer**
 
-3. Ensure the contract ABIs are up to date in `packages/relayer/abi/` directory.
-
-4. Start the relayer:
-
+1. **Start the Docker Container**: Launch the Relayer service in a Docker container with the following command:
 ```bash
 docker run \
 -p 80:80 \
@@ -112,6 +154,22 @@ docker run \
 email_wallet_v1_relayer:latest
 ```
 
-10. You can test by sending an email to your relayer account with a subject like `Send 1 ETH to another@email.com`. Relayer will deploy wallet for you for the first time and you will need to fund it externally as the wallet have no balance.
+2. **Update Contract ABIs**: Ensure the contract ABIs are up to date in `packages/relayer/abi/` directory.
+
+4. **Register the relayer on chain by running**:
+```
+cargo run --release -- setup
+```
+This step registers the relayer's details on the blockchain, preparing it for operation.
+
+4. **Start the relayer**:
+```
+cargo run --release
+```
+
+
+
+5. You can test by sending an email to your relayer account with a subject like `Send 1 ETH to another@email.com`. Relayer will deploy wallet for you for the first time and you will need to fund it externally as the wallet have no balance.
+
 
 
