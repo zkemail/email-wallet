@@ -12,10 +12,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function test_CreateAccount() public {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountCreated(emailAddrPointer, walletSalt, walletSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(emailAddr, walletSalt, walletSalt, psiPoint);
 
         accountHandler.createAccount(
-            emailAddrPointer,
+            emailAddr,
             walletSalt, 
             psiPoint, 
             emailDomain,
@@ -29,14 +29,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
         Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
         assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
 
-        assertEq(accountHandler.walletSaltOfPointer(emailAddrPointer), walletSalt);
+        assertEq(accountHandler.walletSaltOfPointer(emailAddr), walletSalt);
 
         (address akRelayer, bool initialized, bytes32 akWalletSalt) = accountHandler.infoOfEmailAddrPointer(
             walletSalt
         );
         assertEq(akRelayer, relayer);
         assertEq(akWalletSalt, walletSalt);
-        assertEq(accountHandler.pointerOfPSIPoint(psiPoint), emailAddrPointer);
+        assertEq(accountHandler.pointerOfPSIPoint(psiPoint), emailAddr);
         assertTrue(initialized);
 
 /**
@@ -90,7 +90,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            emailAddrPointer,
+            emailAddr,
             walletSalt, 
             psiPoint, 
             emailDomain,
@@ -101,7 +101,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.expectRevert("pointer exists");
         accountHandler.createAccount(
-            emailAddrPointer, 
+            emailAddr,
             walletSalt2, 
             psiPoint2, 
             emailDomain,
@@ -119,7 +119,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            emailAddrPointer,
+            emailAddr,
             walletSalt, 
             psiPoint, 
             emailDomain,
@@ -161,7 +161,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         address walletAddr = address(
             accountHandler.createAccount(
-                emailAddrPointer,
+                emailAddr,
                 walletSalt, 
                 psiPoint, 
                 emailDomain,
@@ -183,7 +183,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         vm.expectRevert("wallet already deployed");
         accountHandler.createAccount(
-            emailAddrPointer,
+            emailAddr,
             walletSalt, 
             psiPoint, 
             emailDomain,
@@ -246,7 +246,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         vm.expectRevert("account not registered");
         accountHandler.initializeAccount(
-            emailAddrPointer,
+            emailAddr,
             emailDomain,
             block.timestamp,
             emailNullifier,

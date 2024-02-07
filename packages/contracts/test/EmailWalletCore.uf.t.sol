@@ -314,7 +314,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             walletAddr
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
@@ -356,7 +356,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             walletAddr
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
@@ -371,7 +371,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
+        // bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
@@ -416,7 +416,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 recipientEmailAddrCommit2 = bytes32(uint256(5345345));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
+        // bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address newRelayer = vm.addr(8);
@@ -528,7 +528,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         vm.expectRevert("invalid relayer for account");
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
 
@@ -552,7 +552,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("unclaimed fund expired");
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
 

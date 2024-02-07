@@ -562,7 +562,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(55), walletAddr, "NFT not transferred to account");
@@ -602,7 +602,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), walletAddr, "NFT not transferred to account");
@@ -780,7 +780,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         vm.expectRevert("invalid relayer for account");
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
 
@@ -806,7 +806,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("unclaimed state expired");
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
 
