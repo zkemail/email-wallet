@@ -3522,10 +3522,10 @@
     fast-url-parser "^1.1.3"
     tslib "^2.3.1"
 
-"@zk-email/circuits@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-3.2.0.tgz#3419e5a5d0e0d5559948d1108a0de5c08b04351e"
-  integrity sha512-cUHQDwpRIlPAvdgZx/zaRQ1zQNYsf2FmvALSw932kWAeoayYT4ZYXn5/SNWw3dHMRjuz43fTj8Dl4pEbf/0E9A==
+"@zk-email/circuits@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-3.2.3.tgz#24e16706bc1f46eab5b6e51185faf8d8afe28175"
+  integrity sha512-dAOaEul2iq86f69FFaXK/u3ec+Lk6B3vpbapyJ9oKGgWeINilWJQaEP1WSJyeVV52zPRVE5uDkIVhIguU7jk2g==
   dependencies:
     "@zk-email/zk-regex-circom" "^1.1.1"
 
