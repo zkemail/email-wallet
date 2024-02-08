@@ -16,6 +16,7 @@ pub(crate) struct Claim {
     pub is_announced: bool,
 }
 
+#[named]
 pub(crate) async fn claim_unclaims(
     claim: Claim,
     db: Arc<Database>,
@@ -23,7 +24,17 @@ pub(crate) async fn claim_unclaims(
     tx_creator: UnboundedSender<(String, Option<AccountKey>)>,
     tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
-    db.insert_claim(&claim).await?;
+    if db
+        .get_claims_by_id(&claim.id)
+        .await?
+        .into_iter()
+        .filter(|c: &Claim| c.is_fund == claim.is_fund)
+        .collect::<Vec<_>>()
+        .len()
+        == 0
+    {
+        db.insert_claim(&claim).await?;
+    }
     if !db.contains_user(&claim.email_address).await.unwrap() {
         tx_creator.send((claim.email_address.clone(), None))?;
         return Ok(());
@@ -92,9 +103,9 @@ pub(crate) async fn claim_unclaims(
     .await?;
     let (proof, pub_signals) =
         generate_proof(&input, "claim", PROVER_ADDRESS.get().unwrap()).await?;
-    info!("original commit {}", claim.commit);
-    info!("original randomness {}", claim.random);
-    info!("commit in pub signals: {}", pub_signals[2]);
+    info!(LOG, "original commit {}", claim.commit; "func" => function_name!());
+    info!(LOG, "original randomness {}", claim.random; "func" => function_name!());
+    info!(LOG, "commit in pub signals: {}", pub_signals[2]; "func" => function_name!());
     let data = ClaimInput {
         id: claim.id,
         email_addr_pointer: u256_to_bytes32(&pub_signals[1]),

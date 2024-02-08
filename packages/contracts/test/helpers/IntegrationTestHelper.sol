@@ -49,7 +49,7 @@ abstract contract IntegrationTestHelper is Test {
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
     WETH9 weth;
-    UniswapExtension uniswapExtension;
+    UniswapExtension uniExtension;
     NFTExtension nftExtension;
 
     RelayerHandler relayerHandler;
@@ -112,7 +112,13 @@ abstract contract IntegrationTestHelper is Test {
         vm.startPrank(deployer);
 
         verifier = new AllVerifiers();
-        tokenRegistry = new TokenRegistry();
+
+        {
+            TokenRegistry tokenRegistryImpl = new TokenRegistry();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()));
+            tokenRegistry = TokenRegistry(payable(address(proxy)));
+        }
+
         dkimRegistry = new DKIMRegistry();
         priceOracle = new UniswapTWAPOracle(UNISWAP_V3_FACTORY, WETH_ADDR);
         // weth = new WETH9();
@@ -125,39 +131,62 @@ abstract contract IntegrationTestHelper is Test {
             0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788
         );
 
-        relayerHandler = new RelayerHandler();
-        extensionHandler = new ExtensionHandler();
-        accountHandler = new AccountHandler(
-            address(relayerHandler),
-            address(dkimRegistry),
-            address(verifier),
-            address(walletImp),
-            emailValidityDuration
-        );
-        unclaimsHandler = new UnclaimsHandler(
-            address(relayerHandler),
-            address(accountHandler),
-            address(verifier),
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas,
-            unclaimsExpiryDuration,
-            maxFeePerGas
-        );
+        {
+            RelayerHandler relayerHandlerImpl = new RelayerHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(relayerHandlerImpl), abi.encodeCall(relayerHandlerImpl.initialize, ()));
+            relayerHandler = RelayerHandler(payable(address(proxy)));
+        }
+        
+        {
+            ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(extensionHandlerImpl), abi.encodeCall(extensionHandlerImpl.initialize, ()));
+            extensionHandler = ExtensionHandler(payable(address(proxy)));
+        }
 
-        core = new EmailWalletCore(
-            address(relayerHandler),
-            address(accountHandler),
-            address(unclaimsHandler),
-            address(extensionHandler),
-            address(verifier),
-            address(tokenRegistry),
-            address(priceOracle),
-            address(weth),
-            maxFeePerGas,
-            emailValidityDuration,
-            unclaimedFundClaimGas,
-            unclaimedStateClaimGas
-        );
+        {
+            AccountHandler accountHandlerImpl = new AccountHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(accountHandlerImpl), abi.encodeCall(accountHandlerImpl.initialize, (
+                address(relayerHandler),
+                address(dkimRegistry),
+                address(verifier),
+                address(walletImp),
+                emailValidityDuration
+            )));
+            accountHandler = AccountHandler(payable(address(proxy)));
+        }
+        
+        {
+            UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(unclaimsHandlerImpl), abi.encodeCall(unclaimsHandlerImpl.initialize, (
+                address(relayerHandler),
+                address(accountHandler),
+                address(verifier),
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas,
+                unclaimsExpiryDuration,
+                maxFeePerGas
+            )));
+            unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
+        }
+
+        {
+            EmailWalletCore coreImpl = new EmailWalletCore();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), abi.encodeCall(coreImpl.initialize, (
+                address(relayerHandler),
+                address(accountHandler),
+                address(unclaimsHandler),
+                address(extensionHandler),
+                address(verifier),
+                address(tokenRegistry),
+                address(priceOracle),
+                address(weth),
+                maxFeePerGas,
+                emailValidityDuration,
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas
+            )));
+            core = EmailWalletCore(payable(address(proxy)));
+        }
 
         relayerHandler.transferOwnership(address(core));
         accountHandler.transferOwnership(address(core));
@@ -183,19 +212,31 @@ abstract contract IntegrationTestHelper is Test {
 
         address extensionDev = vm.addr(3);
         vm.startPrank(extensionDev);
-        uniswapExtension = new UniswapExtension(
-            address(core),
-            address(tokenRegistry),
-            UNISWAP_V3_ROUTER,
-            UNISWAP_V3_FACTORY
-        );
-        nftExtension = new NFTExtension(address(core));
-        DummyNFT apeNFT = new DummyNFT();
-        nftExtension.setNFTAddress("APE", address(apeNFT));
+        {
+            UniswapExtension uniExtensionImpl = new UniswapExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(uniExtensionImpl), abi.encodeCall(uniExtensionImpl.initialize, (
+                address(core),
+                address(tokenRegistry),
+                UNISWAP_V3_ROUTER,
+                UNISWAP_V3_FACTORY
+            )));
+            uniExtension = UniswapExtension(payable(address(proxy)));
+        }
+
+        {
+            NFTExtension nftExtensionImpl = new NFTExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtensionImpl), abi.encodeCall(nftExtensionImpl.initialize, (
+                address(core)
+            )));
+            nftExtension = NFTExtension(payable(address(proxy)));
+            
+            DummyNFT apeNFT = new DummyNFT();
+            nftExtension.setNFTAddress("APE", address(apeNFT));
+        }
 
         uint256 maxExecutionGas = 10 ** 6;
         string[][] memory templates = _getUniswapSubjectTemplates();
-        extensionHandler.publishExtension("Uniswap", address(uniswapExtension), templates, maxExecutionGas);
+        extensionHandler.publishExtension("Uniswap", address(uniExtension), templates, maxExecutionGas);
         templates = _getNFTSubjectTemplates();
         extensionHandler.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
         vm.stopPrank();

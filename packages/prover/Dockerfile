@@ -35,7 +35,7 @@ RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu
 RUN chmod +x circom_proofgen.sh
 RUN mkdir build
 
-RUN git clone https://github.com/iden3/rapidsnark.git
+RUN git clone https://github.com/iden3/rapidsnark-old.git rapidsnark
 WORKDIR /root/rapidsnark
 RUN yarn
 RUN git submodule init
@@ -44,3 +44,4 @@ RUN npx task createFieldSources
 RUN npx task buildPistache
 RUN npx task buildProver
 RUN chmod +x build/prover
+WORKDIR /root

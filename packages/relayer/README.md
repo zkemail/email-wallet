@@ -80,6 +80,7 @@ cargo build   # output binary is in target/debug/relayer
 
 ## Setting up the Relayer
 
+
  1. Create a `.env` file in `packages/relayer` by taking a copy from `.env.example`.
 
 ```bash
@@ -172,4 +173,22 @@ cargo run --release
 5. You can test by sending an email to your relayer account with a subject like `Send 1 ETH to another@email.com`. Relayer will deploy wallet for you for the first time and you will need to fund it externally as the wallet have no balance.
 
 
+<br />
 
+## ☞ Relayer's Incentive 
+The Relayer's incentive is transaction fees collected from the sender.
+Specifically, the Relayer operator can set a fee per gas in wei to [the ENV file](https://github.com/zkemail/email-wallet/blob/main/packages/relayer/.env.example#L17).
+However, that value must be less `maxFeePerGas` parameter defined in our contract, which is 2 gwei now.
+
+When the Relayer posts the email-triggered transaction along with the ZK proof of email, our contract calculates the total amount of fee in wei as follows:
+1. If the transaction does not pass the validation function `validateEmailOp`, the fee is zero.
+2. The contract measures the consumed gas when executing the transaction. 
+3. The gas to refund ERC20 tokens, 55000 gas, is added to 2.
+4. If the transaction specifies a recipient's email address, 450000 and 500000 gas are added to 3 for ERC20 tokens transfer and the other use cases, respectively.
+5. The total amount of fee in wei is the multiplication between the fee per gas set by the relayer and the total gas in 4.
+
+Note that our contract catches any errors during the execution of the transaction in Step 2 instead of making the transaction fail because the Relayer cannot always simulate if the execution returns errors in general cases before posting it on-chain.
+Therefore, the Relayer can always collect the fee as long as the transaction passes the validation in Step 1.
+This design refers to the bundler's fee mechanism in [ERC-4337](https://eips.ethereum.org/EIPS/eip-4337).
+
+<br />

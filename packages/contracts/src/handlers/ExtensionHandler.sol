@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 import "../interfaces/Commands.sol";
-import "./CommonHandler.sol";
 
-contract ExtensionHandler is CommonHandler, Ownable {
+contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     bool _defaultExtensionsSet;
+
+    // Deployer
+    address private deployer;
 
     // Mapping from extensio name to extension address, as published by the developer
     mapping(string => address) public addressOfExtensionName;
@@ -28,6 +32,26 @@ contract ExtensionHandler is CommonHandler, Ownable {
 
     // User level mapping of command name to extension address (walletAddress -> (command -> extension))
     mapping(address => mapping(string => address)) public userExtensionOfCommand;
+
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "caller is not a deployer");
+        _;
+    }
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize() initializer public {
+        __Ownable_init();
+        deployer = _msgSender();
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyDeployer
+        override
+    {}
 
     /// Set default extensions for all users
     /// @param defaultExtensions Array of default extensions encoded as (string name, address addr, string[][] templates, uint256 maxGas)
@@ -60,7 +84,7 @@ contract ExtensionHandler is CommonHandler, Ownable {
         address addr,
         string[][] memory subjectTemplates,
         uint256 maxExecutionGas
-    ) public onlyBeforeLimit {
+    ) public {
         require(addressOfExtensionName[name] == address(0), "extension name already used");
         require(addr != address(0), "invalid extension address");
         require(bytes(name).length > 0, "invalid extension name");

@@ -25,7 +25,13 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
 
         // Publish and install extension
-        nftExtension = new NFTExtension(address(core));
+        {
+            NFTExtension nftExtensionImpl = new NFTExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtensionImpl), abi.encodeCall(nftExtensionImpl.initialize, 
+                address(core)
+            ));
+            nftExtension = NFTExtension(payable(address(proxy)));
+        }
         dummyNFT = new DummyNFT();
         nftExtension.setNFTAddress("APE", address(dummyNFT));
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
@@ -477,5 +483,11 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.expectRevert("caller not extension in context");
         core.executeAsExtension(randomAddress, "");
         vm.stopPrank();
+    }
+
+    function testUpgradeability() public {
+        NFTExtension implV2 = new NFTExtension();
+
+        nftExtension.upgradeTo(address(implV2));
     }
 }

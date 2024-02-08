@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -26,10 +27,10 @@ import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 import "./interfaces/Events.sol";
 
-contract EmailWalletCore {
+contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
     // ZK proof verifier
-    IVerifier public immutable verifier;
+    IVerifier public verifier;
 
     // Relayer handler - Methods to create and update relayer config
     RelayerHandler public relayerHandler;
@@ -44,32 +45,36 @@ contract EmailWalletCore {
     ExtensionHandler public extensionHandler;
 
     // Token registry
-    TokenRegistry public immutable tokenRegistry;
+    TokenRegistry public tokenRegistry;
 
     // Price oracle for feeToken conversion
-    IPriceOracle public immutable priceOracle;
+    IPriceOracle public priceOracle;
 
     // Address of WETH contract
-    address public immutable wethContract;
+    address public wethContract;
 
     // Max fee per gas in wei that relayer can set in a UserOp
-    uint256 public immutable maxFeePerGas;
+    uint256 public maxFeePerGas;
 
     // Time period until which a email is valid for EmailOp based on the timestamp of the email signature
-    uint256 public immutable emailValidityDuration;
+    uint256 public emailValidityDuration;
 
     // Gas required to claim unclaimed funds. User (their relayer) who register unclaimed funds
     // need to lock this amount which is relesed to the relayer who claims it
-    uint256 public immutable unclaimedFundClaimGas;
+    uint256 public unclaimedFundClaimGas;
 
     // Gas required to claim unclaimed state
-    uint256 public immutable unclaimedStateClaimGas;
+    uint256 public unclaimedStateClaimGas;
 
     // Mapping to store email nullifiers
     mapping(bytes32 => bool) public emailNullifiers;
 
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
+
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @notice Constructor
     /// @param _relayerHandler Address of the relayer handler contract
@@ -84,7 +89,7 @@ contract EmailWalletCore {
     /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
     /// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
     /// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
-    constructor(
+    function initialize(
         address _relayerHandler,
         address _accountHandler,
         address _unclaimsHandler,
@@ -97,7 +102,8 @@ contract EmailWalletCore {
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas
-    ) {
+    ) initializer public {
+        __Ownable_init();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
         unclaimsHandler = UnclaimsHandler(payable(_unclaimsHandler));
@@ -112,9 +118,15 @@ contract EmailWalletCore {
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
     }
 
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
     /// @notice Initialize contract with some defaults after deployment
     /// @param defaultExtensions List of default extensions to be set
-    function initialize(bytes[] calldata defaultExtensions) public {
+    function initializeExtension(bytes[] calldata defaultExtensions) public {
         extensionHandler.setDefaultExtensions(defaultExtensions);
     }
 
@@ -131,7 +143,6 @@ contract EmailWalletCore {
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
-        validateCommand(emailOp.command);
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
             accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
         );
@@ -199,7 +210,6 @@ contract EmailWalletCore {
     function handleEmailOp(
         EmailOp calldata emailOp
     ) public payable returns (bool success, bytes memory err, uint256 totalFeeInETH, uint256 registeredUnclaimId) {
-        validateCommand(emailOp.command);
         require(currContext.walletAddr == address(0), "context already set");
 
         uint256 initialGas = gasleft();
@@ -582,18 +592,4 @@ contract EmailWalletCore {
 
         return priceOracle.getRecentPriceInETH(tokenAddr);
     }
-
-    /// @notice Check the command, we can accept only EXIT command after 2203/11/30 23:59:59 GMT. 
-    /// This function should be defined as modifier,
-    /// but there are some stack too deep problems, so we define it as a function.
-    /// @param command Name of the command to execute
-    function validateCommand(string memory command) internal view {
-        if (block.timestamp > 1701388799) {
-            require(
-                Strings.equal(command, Commands.EXIT_EMAIL_WALLET) || Strings.equal(command, Commands.DKIM),
-                "after 2203/11/30 this command not allowed"
-            );
-        }
-    }
-
 }

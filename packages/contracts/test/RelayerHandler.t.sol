@@ -78,4 +78,12 @@ contract RelayerTest is EmailWalletCoreTestHelper {
 
         assertTrue(Strings.equal(hostname, newHostname));
     }
+
+    function testUpgradeability() public {
+        RelayerHandler implV2 = new RelayerHandler();
+
+        vm.startPrank(deployer);
+        relayerHandler.upgradeTo(address(implV2));
+        vm.stopPrank();
+    }
 }

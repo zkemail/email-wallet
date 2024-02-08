@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
 import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
@@ -11,20 +13,22 @@ import {RelayerHandler} from "./RelayerHandler.sol";
 import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
-import "./CommonHandler.sol";
 
-contract AccountHandler is CommonHandler, Ownable {
+contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Default DKIM public key hashes registry
-    IDKIMRegistry public immutable defaultDkimRegistry;
+    IDKIMRegistry public defaultDkimRegistry;
 
     // Address of wallet implementation contract - used for deploying wallets for users via proxy
-    address public immutable walletImplementation;
+    address public walletImplementation;
 
     // Relayer handler contract
-    RelayerHandler public immutable relayerHandler;
+    RelayerHandler public relayerHandler;
 
     // ZK proof verifier contract
-    IVerifier public immutable verifier;
+    IVerifier public verifier;
+
+    // Deployer
+    address private deployer;
 
     // Mapping of emailAddrPointer to accountKeyCommit
     mapping(bytes32 => bytes32) public accountKeyCommitOfPointer;
@@ -42,21 +46,38 @@ contract AccountHandler is CommonHandler, Ownable {
     mapping(bytes32 => bool) public emailNullifiers;
 
     // Duration for which an email is valid
-    uint public immutable emailValidityDuration;
+    uint public emailValidityDuration;
 
-    constructor(
+    modifier onlyDeployer() {
+        require(msg.sender == deployer, "caller is not a deployer");
+        _;
+    }
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _relayerHandler,
         address _defaultDkimRegistry,
         address _verifier,
         address _walletImplementation,
         uint _emailValidityDuration
-    ) {
+    ) initializer public {
+        __Ownable_init();
+        deployer = _msgSender();
         emailValidityDuration = _emailValidityDuration;
         defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
         walletImplementation = _walletImplementation;
         relayerHandler = RelayerHandler(_relayerHandler);
         verifier = IVerifier(_verifier);
     }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyDeployer
+        override
+    {}
 
     /// Create new account and wallet for a user
     /// @param emailAddrPointer hash(relayerRand, emailAddr)
@@ -69,7 +90,7 @@ contract AccountHandler is CommonHandler, Ownable {
         bytes32 walletSalt,
         bytes calldata psiPoint,
         bytes calldata proof
-    ) public onlyBeforeLimit returns (Wallet wallet) {
+    ) public returns (Wallet wallet) {
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");
         require(accountKeyCommitOfPointer[emailAddrPointer] == bytes32(0), "pointer exists");
         require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
@@ -111,7 +132,7 @@ contract AccountHandler is CommonHandler, Ownable {
         bytes32 emailNullifier,
         bytes32 dkimPublicKeyHash,
         bytes calldata proof
-    ) public onlyBeforeLimit {        
+    ) public {        
         bytes32 accountKeyCommit = accountKeyCommitOfPointer[emailAddrPointer];
 
         require(relayerHandler.getRandHash(msg.sender) != bytes32(0), "relayer not registered");

@@ -26,25 +26,35 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         _registerAndInitializeAccount();
 
         // Publish and install extension
-        uniExtension = new UniswapExtension(address(core), address(tokenRegistry), address(0), address(0));
-        uniExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
-        uniExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
-        uniExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
-        uniExtTemplates[3] = [
-            "Swap",
-            "{tokenAmount}",
-            "to",
-            "{string}",
-            "with",
-            "{amount}",
-            "slippage",
-            "under",
-            "{uint}",
-            "sqrt",
-            "price",
-            "limit"
-        ];
-        extensionHandler.publishExtension("Uniswap", address(uniExtension), uniExtTemplates, 0.1 ether);
+        {
+            UniswapExtension uniExtensionImpl = new UniswapExtension();
+            ERC1967Proxy proxy = new ERC1967Proxy(address(uniExtensionImpl), abi.encodeCall(uniExtensionImpl.initialize, (
+                address(core), 
+                address(tokenRegistry), 
+                address(0), 
+                address(0)
+            )));
+            uniExtension = UniswapExtension(payable(address(proxy)));
+
+            uniExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
+            uniExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
+            uniExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+            uniExtTemplates[3] = [
+                "Swap",
+                "{tokenAmount}",
+                "to",
+                "{string}",
+                "with",
+                "{amount}",
+                "slippage",
+                "under",
+                "{uint}",
+                "sqrt",
+                "price",
+                "limit"
+            ];
+            extensionHandler.publishExtension("Uniswap", address(uniExtension), uniExtTemplates, 0.1 ether);
+        }
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
@@ -412,5 +422,11 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
+    }
+
+    function testUpgradeability() public {
+        UniswapExtension implV2 = new UniswapExtension();
+
+        uniExtension.upgradeTo(address(implV2));
     }
 }
