@@ -144,7 +144,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
-            accountHandler.walletSaltOfPointer(emailOp.emailAddrPointer)
+            emailOp.emailAddrPointer
         );
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
@@ -214,7 +214,11 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
-        currContext.walletAddr = accountHandler.getWalletOfEmailAddrPointer(emailOp.emailAddrPointer);
+
+        currContext.walletAddr = accountHandler.getWalletOfSalt(
+            accountHandler.getInfoOfAccountKeyCommit(emailOp.emailAddrPointer).walletSalt
+        );
+
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -480,9 +484,10 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            bytes32 walletSaltPointer = accountHandler.walletSaltOfPointer(emailOp.emailAddrPointer);
+            bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(emailOp.emailAddrPointer).walletSalt;
+
             accountHandler.updateDKIMRegistryOfWalletSalt(
-                accountHandler.getInfoOfAccountKeyCommit(walletSaltPointer).walletSalt,
+                walletSalt,
                 emailOp.newDkimRegistry
             );
             success = true;

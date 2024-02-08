@@ -111,10 +111,13 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
+
         vm.stopPrank();
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.15 ether);
@@ -157,9 +160,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
-        );
+        walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+        // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+        // );
         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
         claimFund(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
@@ -185,9 +189,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
@@ -231,9 +236,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         (/*relayerHash, */emailAddrPointer) = accountCreation(
             user2.emailAddr,
@@ -249,9 +255,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
-        );
+        walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+        // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+        // );
         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         // address recipient = vm.addr(4);
         vm.stopPrank();
@@ -343,9 +350,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         // address recipient = vm.addr(4);
         vm.stopPrank();
@@ -541,9 +549,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimFund(registeredUnclaimId, user1.emailAddr, relayer1Rand, rand1);
         require(
@@ -612,9 +621,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
@@ -680,9 +690,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
@@ -741,9 +752,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
-        );
+        walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+        // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+        // );
         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimState(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
         require(ape.ownerOf(1) == user2Wallet, "User2 wallet does not own APE");
@@ -766,9 +778,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
@@ -863,9 +876,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimState(registeredUnclaimId, user1.emailAddr, relayer1Rand, rand1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
@@ -889,9 +903,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
@@ -967,9 +982,10 @@ contract IntegrationTest is IntegrationTestHelper {
         // );
         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-            accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);

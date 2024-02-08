@@ -29,10 +29,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
         Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
         assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
 
-        assertEq(accountHandler.walletSaltOfPointer(emailAddr), walletSalt);
+        assertEq(accountHandler.getInfoOfAccountKeyCommit(emailAddr).walletSalt, walletSalt);
 
-        (address akRelayer, bool initialized, bytes32 akWalletSalt) = accountHandler.infoOfEmailAddrPointer(
-            walletSalt
+        (address akRelayer, bool initialized, bytes32 akWalletSalt) = accountHandler.infoOfEmailAddr(
+            emailAddr
         );
         assertEq(akRelayer, relayer);
         assertEq(akWalletSalt, walletSalt);
@@ -78,40 +78,43 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
     // }
 
+    // We dont't use a pointer anymore.
+    // TODO: Remove this commented function later.
     // "relayer not registered" is not used anymore
     // function test_RevertWhen_CreateAccountRelayerIsNotRegistered() public {
     //     vm.expectRevert("relayer not registered");
     //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
     // }
 
-    function test_RevertIf_PointerIsAlreadyRegistered() public {
-        bytes32 walletSalt2 = bytes32(uint256(3));
-        bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
-
-        vm.startPrank(relayer);
-        accountHandler.createAccount(
-            emailAddr,
-            walletSalt, 
-            psiPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
-        );
-        vm.expectRevert("pointer exists");
-        accountHandler.createAccount(
-            emailAddr,
-            walletSalt2, 
-            psiPoint2, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
-        );
-        vm.stopPrank();
-    }
+    // We dont't use a pointer anymore.
+    // TODO: Remove this commented function later.
+    // function test_RevertIf_PointerIsAlreadyRegistered() public {
+    //     bytes32 walletSalt2 = bytes32(uint256(3));
+    //     bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
+    //     vm.startPrank(relayer);
+    //     accountHandler.createAccount(
+    //         emailAddr,
+    //         walletSalt, 
+    //         psiPoint, 
+    //         emailDomain,
+    //         block.timestamp,
+    //         emailNullifier,
+    //         mockDKIMHash,
+    //         mockProof
+    //     );
+    //     vm.expectRevert("pointer exists");
+    //     accountHandler.createAccount(
+    //         emailAddr,
+    //         walletSalt2, 
+    //         psiPoint2, 
+    //         emailDomain,
+    //         block.timestamp,
+    //         emailNullifier,
+    //         mockDKIMHash,
+    //         mockProof
+    //     );
+    //     vm.stopPrank();
+    // }
 
     function test_RevertIf_PSIPointIsAlreadyRegistered() public {
         bytes32 emailAddrPointer2 = bytes32(uint256(2));
@@ -242,19 +245,21 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
     // }
 
-    function test_RevertIf_InitializingAccountNotRegistered() public {
-        vm.startPrank(relayer);
-        vm.expectRevert("account not registered");
-        accountHandler.initializeAccount(
-            emailAddr,
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
-        );
-        vm.stopPrank();
-    }
+    // initializeAccount function is not called from outside anymore
+    // TODO: Remove this commented function later.
+    // function test_RevertIf_InitializingAccountNotRegistered() public {
+    //     vm.startPrank(relayer);
+    //     vm.expectRevert("account not registered");
+    //     accountHandler.initializeAccount(
+    //         emailAddr,
+    //         emailDomain,
+    //         block.timestamp,
+    //         emailNullifier,
+    //         mockDKIMHash,
+    //         mockProof
+    //     );
+    //     vm.stopPrank();
+    // }
 
     // function test_AccountTransport() public {
     //     bytes32 newEmailAddrPointer = bytes32(uint256(2001));

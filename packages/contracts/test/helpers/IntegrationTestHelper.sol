@@ -287,39 +287,39 @@ abstract contract IntegrationTestHelper is Test {
         }
     }
 
-    function accountInit(
-        string memory emailFile,
-        bytes32 relayerRand,
-        string memory emailDomain
-    ) internal returns (bytes32 relayerHash, bytes32 emailAddrPointer) {
-        string memory projectRoot = vm.projectRoot();
-        string[] memory inputGenerationInput = new string[](3);
-        inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_init.sh");
-        inputGenerationInput[1] = emailFile;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
-        vm.ffi(inputGenerationInput);
+    // function accountInit(
+    //     string memory emailFile,
+    //     bytes32 relayerRand,
+    //     string memory emailDomain
+    // ) internal returns (bytes32 relayerHash, bytes32 emailAddrPointer) {
+    //     string memory projectRoot = vm.projectRoot();
+    //     string[] memory inputGenerationInput = new string[](3);
+    //     inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_init.sh");
+    //     inputGenerationInput[1] = emailFile;
+    //     inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+    //     vm.ffi(inputGenerationInput);
 
-        string memory publicInputFile = vm.readFile(
-            string.concat(projectRoot, "/test/build_integration/account_init_public.json")
-        );
-        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        relayerHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 1]));
-        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 2]));
-        emailAddrPointer = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 3]));
-        uint emailTimestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
-        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 0]));
-        bytes memory proof = proofToBytes(
-            string.concat(projectRoot, "/test/build_integration/account_init_proof.json")
-        );
-        accountHandler.initializeAccount(
-            emailAddrPointer,
-            emailDomain,
-            emailTimestamp,
-            emailNullifier,
-            publicKeyHash,
-            proof
-        );
-    }
+    //     string memory publicInputFile = vm.readFile(
+    //         string.concat(projectRoot, "/test/build_integration/account_init_public.json")
+    //     );
+    //     string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+    //     relayerHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 1]));
+    //     bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 2]));
+    //     emailAddrPointer = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 3]));
+    //     uint emailTimestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
+    //     bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 0]));
+    //     bytes memory proof = proofToBytes(
+    //         string.concat(projectRoot, "/test/build_integration/account_init_proof.json")
+    //     );
+    //     accountHandler.initializeAccount(
+    //         emailAddrPointer,
+    //         emailDomain,
+    //         emailTimestamp,
+    //         emailNullifier,
+    //         publicKeyHash,
+    //         proof
+    //     );
+    // }
 
     // function accountTransport(
     //     bytes32 oldRelayerRandHash,
