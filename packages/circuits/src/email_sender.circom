@@ -8,6 +8,7 @@ include "@zk-email/circuits/email-verifier.circom";
 include "@zk-email/circuits/helpers/extract.circom";
 include "./utils/constants.circom";
 include "./utils/wallet_salt.circom";
+include "./utils/email_addr_commit.circom";
 include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
 include "./utils/bytes2ints.circom";
@@ -130,20 +131,20 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     // signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
     // sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
 
-    // // Email address commitment
-    // signal cm_rand_input[k2_chunked_size+1];
-    // for(var i=0; i<k2_chunked_size;i++){
-    //     cm_rand_input[i] <== sign_ints[i];
-    // }
-    // cm_rand_input[k2_chunked_size] <== 1;
-    // signal cm_rand <== Poseidon(k2_chunked_size+1)(cm_rand_input);
-    // signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
-    // signal recipient_email_addr_commit_raw;
-    // recipient_email_addr_commit_raw <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
-    // recipient_email_addr_commit <== has_email_recipient * recipient_email_addr_commit_raw;
+    // Email address commitment
+    signal cm_rand_input[k2_chunked_size+1];
+    for(var i=0; i<k2_chunked_size;i++){
+        cm_rand_input[i] <== sign_ints[i];
+    }
+    cm_rand_input[k2_chunked_size] <== 1;
+    signal cm_rand <== Poseidon(k2_chunked_size+1)(cm_rand_input);
+    var num_email_addr_ints = compute_ints_size(email_max_bytes);
+    signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
+    signal recipient_email_addr_commit_raw;
+    recipient_email_addr_commit_raw <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
+    recipient_email_addr_commit <== has_email_recipient * recipient_email_addr_commit_raw;
     
     // Wallet salt
-    var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
     sender_wallet_salt <== WalletSalt(num_email_addr_ints)(sender_email_addr_ints, sender_account_key);
 

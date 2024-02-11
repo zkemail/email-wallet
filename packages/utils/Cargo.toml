@@ -36,12 +36,11 @@ halo2curves = { version = "0.4.0", git = "https://github.com/privacy-scaling-exp
 rand_core = { version = "0.6", default-features = false }
 num-bigint = "0.4.4"
 base64 = "0.21.4"
-rsa = { version = "0.6.1", features = ["serde"] }
+rsa = { version = "0.9.6", features = ["serde"] }
 num-traits = "0.2.15"
 cfdkim = { version = "0.3.0", git = "https://github.com/SoraSuegami/dkim.git" }
 slog = "2.7.0"
 # wasm-bindgen = { version = "0.2.90", default-features = false }
-
 
 [dependencies.neon]
 version = "0.10"
