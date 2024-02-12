@@ -73,6 +73,30 @@ Eg: forge test --match-test 'testIntegration_Swap_Tokens' -vvv --ffi
 
 ## Deploy Contracts
 
+You can either deploy all contracts at once or deploy each contract separately.
+
+### Deploy all contracts at once
+
+##### Create .env
+
+```sh
+cp .env.sample .env
+```
+
+##### Run 
+
+```
+source .env
+
+forge script script/DefaultSetupScript.s.sol:Deploy \
+--rpc-url $RPC_URL \
+--chain-id $CHAIN_ID \
+--broadcast \
+-vvvv
+```
+
+### Deploy each contract separately
+
 Run the below commands to deploy each contracts. Ensure address of WETH and Uniswap Price oracle on the target chain.
 
 #### Deploy Token Registry
@@ -237,28 +261,13 @@ Copy the address from log `ECDSAOwnedDKIMRegistry deployed at: 0xB50a02E2Da524fe
 
 #### Upgrade Token Registry
 
-##### Create .env
-
-```sh
-cp .env.sample .env
-```
-
-##### Set environment variables
-
-```sh
-# e.g.
-# First deployed proxy address
-TOKEN_REGISTRY=0xF1d24E5f7f0Ca617F0c1f3AA34A77EcFfaFedE8f
-PRIVATE_KEY=0x00
-```
-
 ##### Run 
 
 ```
-source .env
-
+TOKEN_REGISTRY=0xF1d24E5f7f0Ca617F0c1f3AA34A77EcFfaFedE8f \
+PRIVATE_KEY=0x00 \
 forge script script/XX_UpgradeTokenRegistry.s.sol:Deploy \
---rpc-url $RPC_URL \
+--rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
 -vvvv
