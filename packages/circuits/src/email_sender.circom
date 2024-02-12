@@ -13,6 +13,7 @@ include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
 include "./utils/bytes2ints.circom";
 include "./utils/digit2int.circom";
+include "./regexes/invitation_code_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_addr_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
@@ -95,9 +96,20 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     for(var i=0; i<email_max_bytes; i++) {
         recipient_email_addr[i] <== shifted_email_addr[i] * has_email_recipient;
     }
+    
+    signal code_regex_out, code_regex_reveal[max_subject_bytes];
+    (code_regex_out, code_regex_reveal) <== InvitationCodeRegex(max_subject_bytes)(subject_all);
+    signal has_code <== IsZero()(code_regex_out-1);
+
+    signal removed_email_recipient[max_subject_bytes];
+    signal removed_code[max_subject_bytes];
     signal masked_subject_bytes[max_subject_bytes];
     for(var i = 0; i < max_subject_bytes; i++) {
-        masked_subject_bytes[i] <== subject_all[i] - has_email_recipient * recipient_email_regex_reveal[i];
+        removed_email_recipient[i] <== has_email_recipient * recipient_email_regex_reveal[i];
+        removed_code[i] <== has_code * code_regex_reveal[i];
+        // recipient_email and code should not be overlapped.
+        removed_email_recipient[i]  * removed_code[i] === 0;
+        masked_subject_bytes[i] <== subject_all[i] - removed_email_recipient[i] - removed_code[i];
     }
     masked_subject_str <== Bytes2Ints(max_subject_bytes)(masked_subject_bytes);
 
@@ -154,5 +166,5 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
 // * max_header_bytes = 1024 is the max number of bytes in the header
-// * max_subject_bytes = 512 is the max number of bytes in the body after precomputed slice
+// * max_subject_bytes = 590 = 512 + 78 is the max number of bytes in the body after precomputed slice. The last 78 bytes can be used for the invitation code.
 component main  = EmailSender(121, 17, 1024, 512);
