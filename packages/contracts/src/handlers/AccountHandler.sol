@@ -83,7 +83,10 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
         require(emailNullifiers[emailProof.nullifier] == false, "email already nullified");
         require(isDKIMPublicKeyHashValid(walletSalt, emailProof.domain, emailProof.dkimPublicKeyHash), "invalid DKIM public key hash");
-        require(emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
+
+        if (emailProof.timestamp != 0) {
+            require(emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
+        }
 
         require(
             verifier.verifyAccountCreationProof(

@@ -141,9 +141,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function validateEmailOp(EmailOp memory emailOp) public view {
         (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
-
         require(emailOp.walletSalt != bytes32(0), "wallet salt not set");
-        require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
@@ -153,6 +151,10 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             accountHandler.isDKIMPublicKeyHashValid(emailOp.walletSalt, emailOp.emailDomain, emailOp.dkimPublicKeyHash),
             "invalid DKIM public key"
         );
+
+        if (emailOp.timestamp != 0) {
+            require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
+        }
 
         if (emailOp.hasEmailRecipient) {
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
