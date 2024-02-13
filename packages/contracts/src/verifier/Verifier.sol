@@ -3,14 +3,12 @@ pragma solidity ^0.8.9;
 
 import "../interfaces/IVerifier.sol";
 import "./AccountCreationVerifier.sol";
-import "./AccountInitVerifier.sol";
 import "./ClaimVerifier.sol";
 import "./EmailSenderVerifier.sol";
 import "./AnnouncementVerifier.sol";
 
 contract AllVerifiers is IVerifier {
     AccountCreationVerifier public immutable accountCreationVerifier;
-    AccountInitVerifier public immutable accountInitVerifier;
     ClaimVerifier public immutable claimVerifier;
     EmailSenderVerifier public immutable emailSenderVerifier;
     AnnouncementVerifier public immutable announcementVerifier;
@@ -24,7 +22,6 @@ contract AllVerifiers is IVerifier {
 
     constructor() {
         accountCreationVerifier = new AccountCreationVerifier();
-        accountInitVerifier = new AccountInitVerifier();
         claimVerifier = new ClaimVerifier();
         emailSenderVerifier = new EmailSenderVerifier();
         announcementVerifier = new AnnouncementVerifier();
