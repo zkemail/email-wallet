@@ -72,42 +72,34 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// Create new account and wallet for a user
     /// @param walletSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
     /// @param psiPoint PSI point of the user under the relayer
-    /// @param emailTimestamp Timestamp when the email was sent
-    /// @param emailNullifier Nullifier of the email to prevent replay attacks
-    /// @param emailDomain Domain name of the user's email
-    /// @param dkimPublicKeyHash DKIM public key hash of the email domain used in the proof generation
-    /// @param proof ZK proof as required by the verifier
+    /// @param emailProof Proof and instances of the email proof
     function createAccount(
         bytes32 walletSalt,
         bytes calldata psiPoint,
-        uint256 emailTimestamp,
-        bytes32 emailNullifier,
-        string calldata emailDomain,
-        bytes32 dkimPublicKeyHash,
-        bytes calldata proof
+        EmailProof calldata emailProof
     ) public returns (Wallet wallet) {
         require(walletSalt != bytes32(0), "invalid wallet salt");
         require(walletSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
-        require(emailNullifiers[emailNullifier] == false, "email already nullified");
-        require(isDKIMPublicKeyHashValid(walletSalt, emailDomain, dkimPublicKeyHash), "invalid DKIM public key hash");
-        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
+        require(emailNullifiers[emailProof.nullifier] == false, "email already nullified");
+        require(isDKIMPublicKeyHashValid(walletSalt, emailProof.domain, emailProof.dkimPublicKeyHash), "invalid DKIM public key hash");
+        require(emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
 
         require(
             verifier.verifyAccountCreationProof(
-                emailDomain,
-                dkimPublicKeyHash,
-                emailNullifier,
-                emailTimestamp,
+                emailProof.domain,
+                emailProof.dkimPublicKeyHash,
+                emailProof.nullifier,
+                emailProof.timestamp,
                 walletSalt,
                 psiPoint,
-                proof
+                emailProof.proof
             ),
             "invalid account creation proof"
         );
 
         walletSaltOfPSIPoint[psiPoint] = walletSalt;
-        emailNullifiers[emailNullifier] = true;
+        emailNullifiers[emailProof.nullifier] = true;
 
         wallet = _deployWallet(walletSalt);
 
