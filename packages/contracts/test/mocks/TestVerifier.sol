@@ -8,9 +8,7 @@ import "../../src/interfaces/IVerifier.sol";
  */
 contract TestVerifier is IVerifier {
     function verifyAccountCreationProof(
-        bytes32 /* relayerHash */,
         bytes32 /* emailAddrPointer */,
-        bytes32 /* accountKeyCommit */,
         bytes32 /* walletSalt */,
         bytes memory /* psiPoint */,
         bytes memory proof
@@ -26,7 +24,6 @@ contract TestVerifier is IVerifier {
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
         uint256 /* timestamp */,
-        bytes32 /* relayerHash */,
         bytes32 /* emailAddrPointer */,
         bytes32 /* accountKeyCommit */,
         bytes32 /* emailNullifier */,
@@ -45,7 +42,6 @@ contract TestVerifier is IVerifier {
         uint256 /* timestamp */,
         string memory /* maskedSubject */,
         bytes32 /* emailNullifier */,
-        bytes32 /* relayerHash */,
         bytes32 /* emailAddrPointer */,
         bool /* hasEmailRecipient */,
         bytes32 /* recipientEmailAddrCommit */,
@@ -59,7 +55,6 @@ contract TestVerifier is IVerifier {
     }
 
     function verifyClaimFundProof(
-        bytes32 /* recipientRelayerHash */,
         bytes32 /* recipientEmailAddrPointer */,
         bytes32 /* recipientEmailAddrCommit */,
         bytes memory proof
@@ -71,21 +66,21 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
-    function verifyAccountTransportProof(
-        string memory /* emailDomain */,
-        bytes32 /* dkimPublicKeyHash */,
-        uint256 /* timestamp */,
-        bytes32 /* emailNullifier */,
-        bytes32 /* oldRelayerRandHash */,
-        bytes32 /* newRelayerRandHash */,
-        bytes32 /* oldAccountKeyCommit */,
-        bytes32 /* newAccountKeyCommit */,
-        bytes memory proof
-    ) external pure returns (bool) {
-        if (proof[0] == 0x01) {
-            return true;
-        }
+    // function verifyAccountTransportProof(
+    //     string memory /* emailDomain */,
+    //     bytes32 /* dkimPublicKeyHash */,
+    //     uint256 /* timestamp */,
+    //     bytes32 /* emailNullifier */,
+    //     bytes32 /* oldRelayerRandHash */,
+    //     bytes32 /* newRelayerRandHash */,
+    //     bytes32 /* oldAccountKeyCommit */,
+    //     bytes32 /* newAccountKeyCommit */,
+    //     bytes memory proof
+    // ) external pure returns (bool) {
+    //     if (proof[0] == 0x01) {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 }

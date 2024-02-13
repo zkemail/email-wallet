@@ -31,7 +31,7 @@ interface IVerifier {
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
         bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
+        bytes32 accountKeyCommit, // TODO: is it needed?
         bytes32 emailNullifier,
         bytes memory proof
     ) external view returns (bool);
@@ -51,7 +51,7 @@ interface IVerifier {
     /// @param emailAddrPointer The hash of the relayer randomness and users's email address
     /// @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
-    /// @dev `relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
+    /// @dev `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
     function verifyEmailOpProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
@@ -74,4 +74,27 @@ interface IVerifier {
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
     ) external view returns (bool);
+
+    // /// @notice Verify the proof to transport account from one relayer to another
+    // /// @notice This will verify that relayer received an email from user with their account key somewhere in header
+    // ///         and the email is DKIM signed by the public key of `emailDomain` whose hash is `dkimPublicKeyHash`.
+    // ///         Also proved that the accountKeyCommit of old relayer with hash `oldRelayerRandHash` is same as `oldAccountKeyCommit`
+    // /// @param emailDomain The domain of the user's email address
+    // /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
+    // /// @param timestamp The timestamp of the email
+    // /// @param emailNullifier The nullifier computed for the email
+    // /// @param oldRelayerRandHash The hash of the old relayer randomness
+    // /// @param oldAccountKeyCommit The hash of the account key, email address and old relayer randomness
+    // /// @param proof Proof of email with above constraints
+    // function verifyAccountTransportProof(
+    //     string memory emailDomain,
+    //     bytes32 dkimPublicKeyHash,
+    //     uint256 timestamp,
+    //     bytes32 emailNullifier,
+    //     bytes32 oldRelayerRandHash,
+    //     bytes32 newRelayerRandHash,
+    //     bytes32 oldAccountKeyCommit,
+    //     bytes32 newAccountKeyCommit,
+    //     bytes memory proof
+    // ) external view returns (bool);
 }

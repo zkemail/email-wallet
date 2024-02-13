@@ -379,8 +379,7 @@ contract EmailSenderVerifier {
             
             checkField(calldataload(add(_pubSignals, 992)))
             
-            checkField(calldataload(add(_pubSignals, 1024)))
-            
+            checkField(calldataload(add(_pubSignals, 1024)))            
 
             // Validate all evaluations
             let isValid := checkPairing(_pA, _pB, _pC, _pubSignals, pMem)

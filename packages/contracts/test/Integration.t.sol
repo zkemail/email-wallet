@@ -31,90 +31,93 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Account_Creation() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
+            user1.accountKey,
+            "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user1.emailAddrPointer = emailAddrPointer;
         vm.stopPrank();
     }
 
     function testIntegration_Account_Init() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        // string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
         vm.stopPrank();
     }
 
-    function testIntegration_Account_Transport() public {
-        vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
-            user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_transport_test1.eml"),
-            relayer1Rand,
-            "gmail.com"
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        vm.stopPrank();
-        vm.startPrank(relayer2);
-        (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(
-            relayer1RandHash,
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer),
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            "gmail.com",
-            "suegamisora@gmail.com",
-            relayer2Rand,
-            user1.accountKey
-        );
-        user1.emailAddrPointer = newEmailAddrPointer;
-        require(newRelayerHash == relayer2RandHash, "Relayer hash mismatch");
-        vm.stopPrank();
-    }
+    // function testIntegration_Account_Transport() public {
+    //     vm.startPrank(relayer1);
+    //     (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+    //         user1.emailAddr,
+    //         relayer1Rand,
+    //         user1.accountKey
+    //     );
+    //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     user1.emailAddrPointer = emailAddrPointer;
+    //     string memory projectRoot = vm.projectRoot();
+    //     (relayerHash, emailAddrPointer) = accountInit(
+    //         string.concat(projectRoot, "/test/emails/account_transport_test1.eml"),
+    //         relayer1Rand,
+    //         "gmail.com"
+    //     );
+    //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+    //     vm.stopPrank();
+    //     vm.startPrank(relayer2);
+    //     (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(
+    //         relayer1RandHash,
+    //         accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer),
+    //         string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+    //         "gmail.com",
+    //         "suegamisora@gmail.com",
+    //         relayer2Rand,
+    //         user1.accountKey
+    //     );
+    //     user1.emailAddrPointer = newEmailAddrPointer;
+    //     require(newRelayerHash == relayer2RandHash, "Relayer hash mismatch");
+    //     vm.stopPrank();
+    // }
 
     function testIntegration_Transfer_ETH_To_Internal() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
+
         vm.stopPrank();
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.15 ether);
@@ -143,19 +146,24 @@ contract IntegrationTest is IntegrationTestHelper {
             address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
             "Core contract eth balance mismatch"
         );
-        (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user2.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test2.eml"),
-            relayer1Rand,
+        (/*relayerHash, */emailAddrPointer) = accountCreation(
+            user2.emailAddr, 
+            user2.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user2.emailAddrPointer = emailAddrPointer;
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test2.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user2.emailAddrPointer)
-        );
+        walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+        // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+        // );
         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
         claimFund(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
@@ -166,24 +174,25 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Transfer_ETH_To_External() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
@@ -213,37 +222,43 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Transfers_Random() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
+            user1.accountKey,
+            "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         user1.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
-            "gmail.com"
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
-        (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user2.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(vm.projectRoot(), "/test/emails/account_init_test2.eml"),
-            relayer1Rand,
+        (/*relayerHash, */emailAddrPointer) = accountCreation(
+            user2.emailAddr,
+            user2.accountKey,
             "gmail.com"
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+            );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user2.emailAddrPointer = emailAddrPointer;
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(vm.projectRoot(), "/test/emails/account_init_test2.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user2.emailAddrPointer)
-        );
+        walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+        // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+        // );
         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         // address recipient = vm.addr(4);
         vm.stopPrank();
@@ -321,23 +336,24 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Swap_Tokens() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         // address recipient = vm.addr(4);
         vm.stopPrank();
@@ -519,23 +535,24 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimFund(registeredUnclaimId, user1.emailAddr, relayer1Rand, rand1);
         require(
@@ -589,24 +606,25 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Void_Transfer_Tokens() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         vm.stopPrank();
         vm.startPrank(user1Wallet);
@@ -657,24 +675,25 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Transfer_NFT_To_Internal() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
@@ -719,19 +738,24 @@ contract IntegrationTest is IntegrationTestHelper {
         require(success, string(reason));
         require(ape.ownerOf(1) == address(nftExtension), "Extension contract does not own APE");
 
-        (relayerHash, emailAddrPointer) = accountCreation(user2.emailAddr, relayer1Rand, user2.accountKey);
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user2.emailAddrPointer = emailAddrPointer;
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test2.eml"),
-            relayer1Rand,
+        (/*relayerHash, */emailAddrPointer) = accountCreation(
+            user2.emailAddr,
+            user2.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user2.emailAddrPointer = emailAddrPointer;
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test2.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-        (, , walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user2.emailAddrPointer)
-        );
+        walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+        // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+        // );
         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimState(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
         require(ape.ownerOf(1) == user2Wallet, "User2 wallet does not own APE");
@@ -739,24 +763,25 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Transfer_NFT_To_External() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
@@ -836,24 +861,25 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */ bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        // string memory projectRoot = vm.projectRoot();
+        // (bytes32 relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         claimState(registeredUnclaimId, user1.emailAddr, relayer1Rand, rand1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
@@ -862,24 +888,25 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Void_Transfer_NFT() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);
@@ -940,24 +967,25 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Approve_NFT() public {
         vm.startPrank(relayer1);
-        (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
+        (/*bytes32 relayerHash, */ bytes32 emailAddrPointer) = accountCreation(
             user1.emailAddr,
-            relayer1Rand,
-            user1.accountKey
-        );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-        user1.emailAddrPointer = emailAddrPointer;
-        string memory projectRoot = vm.projectRoot();
-        (relayerHash, emailAddrPointer) = accountInit(
-            string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-            relayer1Rand,
+            user1.accountKey,
             "gmail.com"
         );
-        require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+        user1.emailAddrPointer = emailAddrPointer;
+        string memory projectRoot = vm.projectRoot();
+        // (relayerHash, emailAddrPointer) = accountInit(
+        //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-        (, , bytes32 walletSalt) = accountHandler.infoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer)
-        );
+        bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+        // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+        //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+        // );
         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
         ape.freeMint(user1Wallet, 1);

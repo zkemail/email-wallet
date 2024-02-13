@@ -144,7 +144,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
         AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
-            accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer)
+            emailOp.emailAddrPointer
         );
 
         require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
@@ -216,7 +216,11 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
-        currContext.walletAddr = accountHandler.getWalletOfEmailAddrPointer(emailOp.emailAddrPointer);
+
+        currContext.walletAddr = accountHandler.getWalletOfSalt(
+            accountHandler.getInfoOfAccountKeyCommit(emailOp.emailAddrPointer).walletSalt
+        );
+
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
@@ -482,10 +486,28 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            bytes32 accountKeyCommit = accountHandler.accountKeyCommitOfPointer(emailOp.emailAddrPointer);
+            bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(emailOp.emailAddrPointer).walletSalt;
+
             accountHandler.updateDKIMRegistryOfWalletSalt(
-                accountHandler.getInfoOfAccountKeyCommit(accountKeyCommit).walletSalt,
+                walletSalt,
                 emailOp.newDkimRegistry
+            );
+            success = true;
+        }
+        // Set guarding wallet for a guardian
+        else if (Strings.equal(emailOp.command, Commands.Gurard)) {
+            Wallet(payable(currContext.walletAddr)).setGuard(emailOp.recipientETHAddr, currContext.walletAddr);
+            success = true;
+        }
+        // If command is empty, it is account recovery operation
+        // It assumes that currContext.walletAddr is the guardian address
+        // and emailOp.recipientETHAddr is the target address to recover
+        else if (Strings.equal(emailOp.command, "")){
+            Wallet(payable(emailOp.recipientETHAddr)).recover(
+                emailOp.extensionParams.subjectTemplateIndex,
+                emailOp.extensionParams.subjectParams,
+                currContext.walletAddr,
+                emailOp.emailNullifier
             );
             success = true;
         }

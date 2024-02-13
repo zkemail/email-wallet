@@ -43,7 +43,6 @@ contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function registerRelayer(string calldata emailAddr, string calldata hostname) public {
         require(bytes(emailAddr).length != 0, "emailAddr cannot be empty");
         require(bytes(hostname).length != 0, "hostname cannot be empty");
-        require(bytes(relayers[msg.sender].emailAddr).length == 0, "relayer already registered");
         require(relayerOfEmailAddr[emailAddr] == address(0), "emailAddr already registered");
 
         relayers[msg.sender] = RelayerConfig({emailAddr: emailAddr, hostname: hostname});
@@ -57,7 +56,6 @@ contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function updateRelayerConfig(string calldata hostname) public {
         require(bytes(hostname).length != 0, "hostname cannot be empty");
         require(bytes(relayers[msg.sender].emailAddr).length != 0, "relayer not registered");
-
         relayers[msg.sender].hostname = hostname;
 
         emit EmailWalletEvents.RelayerConfigUpdated(msg.sender, hostname);

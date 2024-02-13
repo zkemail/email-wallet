@@ -254,8 +254,8 @@ contract AccountInitVerifier {
             checkField(calldataload(add(_pubSignals, 416)))
             
             checkField(calldataload(add(_pubSignals, 448)))
-            
 
+            
             // Validate all evaluations
             let isValid := checkPairing(_pA, _pB, _pC, _pubSignals, pMem)
 
