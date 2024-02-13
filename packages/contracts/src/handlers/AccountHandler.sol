@@ -95,12 +95,12 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         require(
             verifier.verifyAccountCreationProof(
-                walletSalt,
-                psiPoint,
                 emailDomain,
                 dkimPublicKeyHash,
-                emailTimestamp,
                 emailNullifier,
+                emailTimestamp,
+                walletSalt,
+                psiPoint,
                 proof
             ),
             "invalid account creation proof"

@@ -32,32 +32,12 @@ contract AllVerifiers is IVerifier {
 
     /// @inheritdoc IVerifier
     function verifyAccountCreationProof(
-        bytes32 emailAddrPointer,
-        bytes32 walletSalt,
-        bytes memory psiPoint,
-        bytes memory proof
-    ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
-            proof,
-            (uint256[2], uint256[2][2], uint256[2])
-        );
-        uint256[4] memory pubSignals;
-        pubSignals[0] = uint256(emailAddrPointer);
-        pubSignals[1] = uint256(walletSalt);
-        (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
-        pubSignals[2] = x;
-        pubSignals[3] = y;
-        return accountCreationVerifier.verifyProof(pA, pB, pC, pubSignals);
-    }
-
-    /// @inheritdoc IVerifier
-    function verifyAccountInitializaionProof(
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
-        uint256 timestamp,
-        bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
         bytes32 emailNullifier,
+        uint256 emailTimestamp,
+        bytes32 walletSalt,
+        bytes memory psiPoint,
         bytes memory proof
     ) external view returns (bool) {
         (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
@@ -69,12 +49,16 @@ contract AllVerifiers is IVerifier {
         for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
             pubSignals[i] = domainFields[i];
         }
+
         pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
         pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
-        pubSignals[DOMAIN_FIELDS + 2] = uint256(emailAddrPointer);
-        pubSignals[DOMAIN_FIELDS + 3] = uint256(accountKeyCommit);
-        pubSignals[DOMAIN_FIELDS + 4] = uint256(timestamp);
-        return accountInitVerifier.verifyProof(pA, pB, pC, pubSignals);
+        pubSignals[DOMAIN_FIELDS + 2] = uint256(emailTimestamp);
+        pubSignals[DOMAIN_FIELDS + 3] = uint256(walletSalt);
+
+        (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
+        pubSignals[4] = x;
+        pubSignals[5] = y;
+        return accountCreationVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     /// @inheritdoc IVerifier
@@ -82,9 +66,9 @@ contract AllVerifiers is IVerifier {
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
-        string memory maskedSubject,
         bytes32 emailNullifier,
-        bytes32 emailAddrPointer,
+        string memory maskedSubject,
+        bytes32 walletSalt,
         bool hasEmailRecipient,
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
@@ -93,53 +77,36 @@ contract AllVerifiers is IVerifier {
             proof,
             (uint256[2], uint256[2][2], uint256[2])
         );
-        uint256[32] memory pubSignals = genPubSignalsOfEmailProof(
-            emailDomain,
-            dkimPublicKeyHash,
-            timestamp,
-            maskedSubject,
-            emailNullifier,
-            emailAddrPointer,
-            hasEmailRecipient,
-            recipientEmailAddrCommit
-        );
-        return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
-    }
 
-    function genPubSignalsOfEmailProof(
-        string memory emailDomain,
-        bytes32 dkimPublicKeyHash,
-        uint256 timestamp,
-        string memory maskedSubject,
-        bytes32 emailNullifier,
-        bytes32 emailAddrPointer,
-        bool hasEmailRecipient,
-        bytes32 recipientEmailAddrCommit
-    ) internal pure returns (uint256[32] memory) {
         uint256[32] memory pubSignals;
+
         uint256[] memory stringFields;
-        stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
-        for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
+        stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
+        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
             pubSignals[i] = stringFields[i];
         }
         delete stringFields;
-        stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
-            pubSignals[SUBJECT_FIELDS + i] = stringFields[i];
+
+        pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
+        pubSignals[DOMAIN_FIELDS + 1] = timestamp;
+        pubSignals[DOMAIN_FIELDS + 2] = uint256(emailNullifier);
+        
+        stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
+        for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
+            pubSignals[DOMAIN_FIELDS + 3 + i] = stringFields[i];
         }
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2] = uint256(emailNullifier);
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3] = uint256(emailAddrPointer);
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] = hasEmailRecipient ? 1 : 0;
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5] = uint256(recipientEmailAddrCommit);
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6] = timestamp;
-        return pubSignals;
+
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS] = uint256(walletSalt);
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 1] = hasEmailRecipient ? 1 : 0;
+        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2] = uint256(recipientEmailAddrCommit);
+
+        return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     /// @inheritdoc IVerifier
     function verifyClaimFundProof(
-        bytes32 recipientEmailAddrPointer,
         bytes32 recipientEmailAddrCommit,
+        bytes32 recipientWalletSalt,
         bytes memory proof
     ) external view returns (bool) {
         (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
@@ -147,41 +114,10 @@ contract AllVerifiers is IVerifier {
             (uint256[2], uint256[2][2], uint256[2])
         );
         uint256[2] memory pubSignals;
-        pubSignals[0] = uint256(recipientEmailAddrPointer);
-        pubSignals[1] = uint256(recipientEmailAddrCommit);
+        pubSignals[0] = uint256(recipientEmailAddrCommit);
+        pubSignals[1] = uint256(recipientWalletSalt);
         return claimVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
-
-    // /// @inheritdoc IVerifier
-    // function verifyAccountTransportProof(
-    //     string memory emailDomain,
-    //     bytes32 dkimPublicKeyHash,
-    //     uint256 timestamp,
-    //     bytes32 emailNullifier,
-    //     bytes32 oldRelayerRandHash,
-    //     bytes32 newRelayerRandHash,
-    //     bytes32 oldAccountKeyCommit,
-    //     bytes32 newAccountKeyCommit,
-    //     bytes memory proof
-    // ) external view returns (bool) {
-    //     (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
-    //         proof,
-    //         (uint256[2], uint256[2][2], uint256[2])
-    //     );
-    //     uint256[16] memory pubSignals;
-    //     uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-    //     for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
-    //         pubSignals[i] = domainFields[i];
-    //     }
-    //     pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
-    //     pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
-    //     pubSignals[DOMAIN_FIELDS + 2] = uint256(oldAccountKeyCommit);
-    //     pubSignals[DOMAIN_FIELDS + 3] = uint256(newAccountKeyCommit);
-    //     pubSignals[DOMAIN_FIELDS + 4] = uint256(newRelayerRandHash);
-    //     pubSignals[DOMAIN_FIELDS + 5] = uint256(timestamp);
-    //     pubSignals[DOMAIN_FIELDS + 6] = uint256(oldRelayerRandHash);
-    //     return accountTransportVerifier.verifyProof(pA, pB, pC, pubSignals);
-    // }
 
     function verifyAnnouncementProof(
         string memory emailAddr,
