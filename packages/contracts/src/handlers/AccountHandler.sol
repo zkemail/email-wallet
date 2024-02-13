@@ -114,53 +114,6 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
     }
 
-    /// Initialize the account when user reply to invitation email
-    /// @param emailAddr hash(emailAddr)
-    /// @param emailDomain domain name of the sender's email
-    /// @param emailNullifier nullifier of the email used for proof generation
-    /// @param dkimPublicKeyHash DKIM public key hash of the email domain used in the proof generation
-    /// @param walletSalt hash(accountKey, 0)
-    function initializeAccount(
-        bytes32 emailAddr,
-        string calldata emailDomain,
-        uint256 emailTimestamp,
-        bytes32 emailNullifier,
-        bytes32 dkimPublicKeyHash,
-        bytes32 walletSalt
-    ) public {
-        // bytes32 walletSalt = walletSaltOfPointer[emailAddrPointer];
-
-        require(walletSalt != bytes32(0), "account not registered");
-        require(infoOfEmailAddr[emailAddr].relayer == msg.sender, "invalid relayer");
-        require(infoOfEmailAddr[emailAddr].initialized == false, "account already initialized");
-        require(emailNullifiers[emailNullifier] == false, "email nullified");
-        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(
-            isDKIMPublicKeyHashValid(infoOfEmailAddr[emailAddr].walletSalt, emailDomain, dkimPublicKeyHash),
-            "invalid DKIM public key hash"
-        );
-
-        // It's not necessary because account initialization function is included in account creation.
-        // TODO: Remove this commented function later.
-        // require(
-        //     verifier.verifyAccountInitializaionProof(
-        //         emailDomain,
-        //         dkimPublicKeyHash,
-        //         emailTimestamp,
-        //         emailAddrPointer,
-        //         walletSalt,
-        //         emailNullifier,
-        //         proof
-        //     ),
-        //     "invalid account initialization proof"
-        // );
-
-        infoOfEmailAddr[emailAddr].initialized = true;
-        emailNullifiers[emailNullifier] = true;
-
-        emit EmailWalletEvents.AccountInitialized(emailAddr, walletSalt, infoOfEmailAddr[emailAddr].walletSalt);
-    }
-
     /// @notice Return the DKIM public key hash for a given email domain and walletSalt
     /// @param walletSalt Salt used to deploy the wallet
     /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
