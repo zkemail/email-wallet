@@ -7,18 +7,8 @@ library EmailWalletEvents {
     event RelayerConfigUpdated(address indexed addr, string hostname);
 
     event AccountCreated(
-        bytes32 emailAddrPointer,
         bytes32 indexed walletSalt,
         bytes psiPoint
-    );
-
-    event AccountInitialized(bytes32 emailAddrPointer, bytes32 accountKeyCommit, bytes32 indexed walletSalt);
-
-    event AccountTransported(
-        bytes32 oldAccountKeyCommit,
-        bytes32 newEmailAddrPointer,
-        bytes32 newAccountKeyCommit,
-        bytes newPSIPoint
     );
 
     event UnclaimedFundRegistered(
