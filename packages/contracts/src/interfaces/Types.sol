@@ -60,12 +60,6 @@ struct UnclaimedState {
     uint256 expiryTime;
 }
 
-struct AccountKeyInfo {
-    address relayer;
-    bool initialized;
-    bytes32 walletSalt;
-}
-
 // A struct to represent commong args in a proof of email
 // Useful for methods thats need fewer inputs to avoid stack too deep error
 struct EmailProof {

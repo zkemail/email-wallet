@@ -9,7 +9,7 @@ interface IVerifier {
     /// @param psiPoint PSI point of the user for the relayer
     /// @param emailDomain The domain of the user's email address
     /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
-    /// @param timestamp The timestamp of the email
+    /// @param emailTimestamp The timestamp of the email
     /// @param emailNullifier The nullifier computed for the email
     /// @param proof Proof of email with above constraints
     function verifyAccountCreationProof(
@@ -17,7 +17,7 @@ interface IVerifier {
         bytes memory psiPoint,
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
-        uint256 timestamp,
+        uint256 emailTimestamp,
         bytes32 emailNullifier,
         bytes memory proof
     ) external view returns (bool);

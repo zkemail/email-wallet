@@ -31,10 +31,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     address private deployer;
 
     // Mapping of PSI point to emailAddrPointer
-    mapping(bytes => bytes32) public pointerOfPSIPoint;
-
-    // Mapping of emailAddrPointer to account key details
-    mapping(bytes32 => AccountKeyInfo) public infoOfEmailAddr;
+    mapping(bytes => bytes32) public walletSaltOfPSIPoint;
 
     // Mapping of walletSalt to dkim registry address
     mapping(bytes32 => address) public dkimRegistryOfWalletSalt;
@@ -60,7 +57,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         address _verifier,
         address _walletImplementation,
         uint _emailValidityDuration
-    ) initializer public {
+    ) public initializer {
         __Ownable_init();
         deployer = _msgSender();
         emailValidityDuration = _emailValidityDuration;
@@ -70,74 +67,51 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         verifier = IVerifier(_verifier);
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyDeployer
-        override
-    {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyDeployer {}
 
     /// Create new account and wallet for a user
-    /// @param emailAddr hash(emailAddr)
-    /// @param walletSalt hash(accountKey, 0)
-    /// @param emailDomain domain name of the sender's email
-    /// @param emailTimestamp timestamp of the current block
-    /// @param emailNullifier nullifier of the email used for proof generation
+    /// @param walletSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
+    /// @param psiPoint PSI point of the user under the relayer
+    /// @param emailTimestamp Timestamp when the email was sent
+    /// @param emailNullifier Nullifier of the email to prevent replay attacks
+    /// @param emailDomain Domain name of the user's email
     /// @param dkimPublicKeyHash DKIM public key hash of the email domain used in the proof generation
     /// @param proof ZK proof as required by the verifier
     function createAccount(
-        bytes32 emailAddr,
         bytes32 walletSalt,
         bytes calldata psiPoint,
-        string calldata emailDomain,
         uint256 emailTimestamp,
         bytes32 emailNullifier,
+        string calldata emailDomain,
         bytes32 dkimPublicKeyHash,
         bytes calldata proof
     ) public returns (Wallet wallet) {
-        require(pointerOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
+        require(walletSalt != bytes32(0), "wallet salt cannot be 0");
+        require(walletSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
+        require(emailNullifiers[emailNullifier] == false, "email already nullified");
+        require(isDKIMPublicKeyHashValid(walletSalt, emailDomain, dkimPublicKeyHash), "invalid DKIM public key hash");
+        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
 
         require(
             verifier.verifyAccountCreationProof(
-                emailAddr,
                 walletSalt,
                 psiPoint,
+                emailDomain,
+                dkimPublicKeyHash,
+                emailTimestamp,
+                emailNullifier,
                 proof
             ),
             "invalid account creation proof"
         );
 
-        infoOfEmailAddr[emailAddr].relayer = msg.sender;
-        infoOfEmailAddr[emailAddr].walletSalt = walletSalt;
         pointerOfPSIPoint[psiPoint] = emailAddr;
+        emailNullifiers[emailNullifier] = true;
 
         wallet = _deployWallet(walletSalt);
 
-        emit EmailWalletEvents.AccountCreated(emailAddr, walletSalt, walletSalt, psiPoint);
-
-
-        // initialize account
-        require(walletSalt != bytes32(0), "account not registered");
-        require(infoOfEmailAddr[emailAddr].relayer == msg.sender, "invalid relayer");
-        require(infoOfEmailAddr[emailAddr].initialized == false, "account already initialized");
-        require(emailNullifiers[emailNullifier] == false, "email nullified");
-        require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
-        require(
-            isDKIMPublicKeyHashValid(
-                infoOfEmailAddr[emailAddr].walletSalt,
-                emailDomain,
-                dkimPublicKeyHash
-            ),
-            "invalid DKIM public key hash"
-        );
-        infoOfEmailAddr[emailAddr].initialized = true;
-        emailNullifiers[emailNullifier] = true;
-
-        emit EmailWalletEvents.AccountInitialized(
-            emailAddr,
-            walletSalt,
-            infoOfEmailAddr[emailAddr].walletSalt
-        );
+        emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
     }
 
     /// Initialize the account when user reply to invitation email
@@ -153,7 +127,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         bytes32 emailNullifier,
         bytes32 dkimPublicKeyHash,
         bytes32 walletSalt
-    ) public {        
+    ) public {
         // bytes32 walletSalt = walletSaltOfPointer[emailAddrPointer];
 
         require(walletSalt != bytes32(0), "account not registered");
@@ -162,11 +136,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(emailNullifiers[emailNullifier] == false, "email nullified");
         require(emailTimestamp + emailValidityDuration > block.timestamp, "email expired");
         require(
-            isDKIMPublicKeyHashValid(
-                infoOfEmailAddr[emailAddr].walletSalt,
-                emailDomain,
-                dkimPublicKeyHash
-            ),
+            isDKIMPublicKeyHashValid(infoOfEmailAddr[emailAddr].walletSalt, emailDomain, dkimPublicKeyHash),
             "invalid DKIM public key hash"
         );
 
@@ -188,11 +158,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         infoOfEmailAddr[emailAddr].initialized = true;
         emailNullifiers[emailNullifier] = true;
 
-        emit EmailWalletEvents.AccountInitialized(
-            emailAddr,
-            walletSalt,
-            infoOfEmailAddr[emailAddr].walletSalt
-        );
+        emit EmailWalletEvents.AccountInitialized(emailAddr, walletSalt, infoOfEmailAddr[emailAddr].walletSalt);
     }
 
     /// @notice Return the DKIM public key hash for a given email domain and walletSalt
@@ -240,13 +206,6 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 )
             );
     }
-
-    // TODO: Remove this commented function later.
-    // /// @notice Return the wallet address of the user given the email address pointer
-    // /// @param emailAddrPointer Email address pointer of the user
-    // function getWalletOfEmailAddrPointer(bytes32 emailAddrPointer) public view returns (address) {
-    //     return getWalletOfSalt(infoOfEmailAddrPointer[walletSaltOfPointer[emailAddrPointer]].walletSalt);
-    // }
 
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
