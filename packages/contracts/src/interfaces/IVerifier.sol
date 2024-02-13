@@ -22,7 +22,6 @@ interface IVerifier {
         bytes memory proof
     ) external view returns (bool);
 
-
     /// @notice Verify the proof of email from user - used to verify EmailOp
     /// @notice Verify that relayer received an email where:
     ///         sender's email address domain is `emailDomain`,
@@ -30,22 +29,22 @@ interface IVerifier {
     ///         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,
     ///         the subject is same as `maskedSubject` with email address masked (if any),
     ///         and email address in subject is used to derive `recipientEmailAddrCommit`
-    /// @param walletSalt The walletSalt used to derive user's account address - hash(emailAddress, accountSalt)
     /// @param emailDomain The domain of the user's email address
     /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
     /// @param timestamp The timestamp of the email
     /// @param maskedSubject The subject of the email with (any) email address masked
     /// @param emailNullifier The nullifier computed for the email
+    /// @param walletSalt The walletSalt used to derive user's account address - hash(emailAddress, accountSalt)
     /// @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness
     /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
     /// @dev `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
     function verifyEmailOpProof(
-        bytes32 walletSalt,
         string memory emailDomain,
         bytes32 dkimPublicKeyHash,
         uint256 timestamp,
         string memory maskedSubject,
         bytes32 emailNullifier,
+        bytes32 walletSalt,
         bool hasEmailRecipient,
         bytes32 recipientEmailAddrCommit,
         bytes memory proof

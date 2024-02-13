@@ -102,7 +102,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas
-    ) initializer public {
+    ) public initializer {
         __Ownable_init();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
@@ -118,11 +118,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     /// @notice Initialize contract with some defaults after deployment
     /// @param defaultExtensions List of default extensions to be set
@@ -143,21 +139,18 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
+        (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
+
         require(emailOp.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
-        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
-        require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
         require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
         require(
-            accountHandler.isDKIMPublicKeyHashValid(
-                accountKeyInfo.walletSalt,
-                emailOp.emailDomain,
-                emailOp.dkimPublicKeyHash
-            ),
+            accountHandler.isDKIMPublicKeyHashValid(emailOp.walletSalt, emailOp.emailDomain, emailOp.dkimPublicKeyHash),
             "invalid DKIM public key"
         );
 
@@ -169,12 +162,12 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         // Validate computed subject = passed subject
-        (string memory maskedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
+        (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
             emailOp,
-            accountHandler.getWalletOfSalt(accountKeyInfo.walletSalt),
+            accountHandler.getWalletOfSalt(emailOp.walletSalt),
             this // Core contract to read some states
         );
-        require(Strings.equal(maskedSubject, emailOp.maskedSubject), string.concat("subject != ", maskedSubject));
+        require(Strings.equal(computedSubject, emailOp.maskedSubject), string.concat("subject != ", computedSubject));
 
         // Verify proof
         require(
@@ -210,7 +203,6 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
-
         currContext.walletAddr = emailOp.walletSalt;
 
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
@@ -478,12 +470,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(emailOp.walletSalt).walletSalt;
-
-            accountHandler.updateDKIMRegistryOfWalletSalt(
-                walletSalt,
-                emailOp.newDkimRegistry
-            );
+            accountHandler.updateDKIMRegistryOfWalletSalt(emailOp.walletSalt, emailOp.newDkimRegistry);
             success = true;
         }
         // Set guarding wallet for a guardian
@@ -494,7 +481,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         // If command is empty, it is account recovery operation
         // It assumes that currContext.walletAddr is the guardian address
         // and emailOp.recipientETHAddr is the target address to recover
-        else if (Strings.equal(emailOp.command, "")){
+        else if (Strings.equal(emailOp.command, "")) {
             Wallet(payable(emailOp.recipientETHAddr)).recover(
                 emailOp.extensionParams.subjectTemplateIndex,
                 emailOp.extensionParams.subjectParams,
