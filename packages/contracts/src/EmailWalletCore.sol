@@ -143,13 +143,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Validate an EmailOp, including proof verification
     /// @param emailOp EmailOp to be validated
     function validateEmailOp(EmailOp memory emailOp) public view {
-        AccountKeyInfo memory accountKeyInfo = accountHandler.getInfoOfAccountKeyCommit(
-            emailOp.emailAddrPointer
-        );
-
-        require(accountKeyInfo.relayer == msg.sender, "invalid relayer");
-        require(accountKeyInfo.initialized, "account not initialized");
-        require(accountKeyInfo.walletSalt != bytes32(0), "wallet salt not set");
+        require(emailOp.walletSalt != bytes32(0), "wallet salt not set");
         require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
         (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
@@ -190,7 +184,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 emailOp.timestamp,
                 emailOp.maskedSubject,
                 emailOp.emailNullifier,
-                emailOp.emailAddrPointer,
+                emailOp.walletSalt,
                 emailOp.hasEmailRecipient,
                 emailOp.recipientEmailAddrCommit,
                 emailOp.emailProof
@@ -217,9 +211,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
 
-        currContext.walletAddr = accountHandler.getWalletOfSalt(
-            accountHandler.getInfoOfAccountKeyCommit(emailOp.emailAddrPointer).walletSalt
-        );
+        currContext.walletAddr = emailOp.walletSalt;
 
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
@@ -288,7 +280,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             success,
             registeredUnclaimId,
             emailOp.emailNullifier,
-            emailOp.emailAddrPointer,
+            emailOp.walletSalt,
             emailOp.recipientEmailAddrCommit,
             emailOp.recipientETHAddr,
             err
@@ -486,7 +478,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(emailOp.emailAddrPointer).walletSalt;
+            bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(emailOp.walletSalt).walletSalt;
 
             accountHandler.updateDKIMRegistryOfWalletSalt(
                 walletSalt,

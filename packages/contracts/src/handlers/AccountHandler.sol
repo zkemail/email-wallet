@@ -30,7 +30,6 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Deployer
     address private deployer;
 
-
     // Mapping of PSI point to emailAddrPointer
     mapping(bytes => bytes32) public pointerOfPSIPoint;
 

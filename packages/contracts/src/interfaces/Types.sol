@@ -8,17 +8,17 @@ struct RelayerConfig {
 
 // Struct to represent an operation from the user
 struct EmailOp {
-    bytes32 emailAddrPointer; // emailAddrPointer of sender's account
-    bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
-    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
-    uint256 numRecipientEmailAddrBytes; // Number of bytes of recipient's email address if `hasEmailRecipient` is true
-    address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
+    bytes32 walletSalt; // emailAddrPointer of sender's account
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email
     bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
-    uint256 timestamp; // Timestamp of the email
     string maskedSubject; // Subject string with email address masked
+    uint256 timestamp; // Timestamp of the email
+    bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
+    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
+    uint256 numRecipientEmailAddrBytes; // Number of bytes of recipient's email address if `hasEmailRecipient` is true
+    address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of wei to be charged per gas
     bytes executeCallData; // Encoded (target+calldata) hex if the the command is "Execute"

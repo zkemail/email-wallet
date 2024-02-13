@@ -430,7 +430,7 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.emailProof = proofToBytes(
             string.concat(vm.projectRoot(), "/test/build_integration/email_sender_proof.json")
         );
-        emailOp.emailAddrPointer = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]));
+        // emailOp.emailAddrPointer = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]));
         emailOp.hasEmailRecipient = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4]) == 1;
         emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]));
         emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]));
