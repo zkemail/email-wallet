@@ -75,7 +75,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         uint256 _unclaimedStateClaimGas,
         uint256 _unclaimsExpiryDuration,
         uint256 _maxFeePerGas
-    ) initializer public {
+    ) public initializer {
         __Ownable_init();
         deployer = _msgSender();
         relayerHandler = RelayerHandler(_relayerHandler);
@@ -87,11 +87,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         maxFeePerGas = _maxFeePerGas;
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyDeployer
-        override
-    {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyDeployer {}
 
     // UnclaimHandler can receive ETH only from the core contract = owner
     receive() external payable {
@@ -193,40 +189,20 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
     /// Claim an unclaimed fund to the recipient's (initialized) wallet.
     /// @param id The id of the unclaimed fund to claim.
-    /// @param recipientEmailAddr The recipient's email address.
+    /// @param recipientWalletSalt The recipient's wallet salt.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
     /// @dev Relayer should dry run this call, as they will only get claim fee (gas reimbursement) if this succeeds.
-    function claimUnclaimedFund(
-        uint256 id,
-        bytes32 recipientEmailAddr,
-        bytes calldata proof
-    ) public nonReentrant {
+    function claimUnclaimedFund(uint256 id, bytes32 recipientWalletSalt, bytes calldata proof) public nonReentrant {
         UnclaimedFund memory fund = unclaimedFundOfId[id];
 
         require(id < numUnclaimedFunds, "invalid id");
-        require(
-            accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).relayer == msg.sender,
-            "invalid relayer for account"
-        );
         require(fund.amount > 0, "unclaimed fund not registered");
         require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
-        require(
-            accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).walletSalt != bytes32(0),
-            "invalid wallet salt"
-        );
+        require(recipientWalletSalt != bytes32(0), "invalid wallet salt");
 
-        require(
-            verifier.verifyClaimFundProof(
-                recipientEmailAddr,
-                fund.emailAddrCommit,
-                proof
-            ),
-            "invalid proof"
-        );
+        require(verifier.verifyClaimFundProof(recipientWalletSalt, fund.emailAddrCommit, proof), "invalid proof");
 
-        address recipientAddr = accountHandler.getWalletOfSalt(
-            accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).walletSalt
-        );
+        address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
 
         delete unclaimedFundOfId[id];
 
@@ -388,11 +364,11 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
     /// Claim unclaimed state to the recipient's (initialized) wallet.
     /// @param id The id of the unclaimed state to claim.
-    /// @param recipientEmailAddr The recipient's email address.
+    /// @param recipientWalletSalt The recipient's wallet salt.
     /// @param proof Proof as required by verifier - prove `pointer` and `commitment` are of the same email address.
     function claimUnclaimedState(
         uint256 id,
-        bytes32 recipientEmailAddr,
+        bytes32 recipientWalletSalt,
         bytes calldata proof
     ) public nonReentrant returns (bool success, bytes memory returnData) {
         uint256 initialGas = gasleft();
@@ -400,31 +376,14 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
         UnclaimedState memory us = unclaimedStateOfId[id];
 
-        require(
-            accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).relayer == msg.sender,
-            "invalid relayer for account"
-        );
         require(us.sender != address(0), "unclaimed state not registered");
         require(us.extensionAddr != address(0), "invalid extension address");
         require(us.expiryTime > block.timestamp, "unclaimed state expired");
-        require(accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).initialized, "account not initialized");
-        require(
-            accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).walletSalt != bytes32(0),
-            "invalid wallet salt"
-        );
+        require(recipientWalletSalt != bytes32(0), "invalid wallet salt");
 
-        require(
-            verifier.verifyClaimFundProof(
-                recipientEmailAddr,
-                us.emailAddrCommit,
-                proof
-            ),
-            "invalid proof"
-        );
+        require(verifier.verifyClaimFundProof(recipientWalletSalt, us.emailAddrCommit, proof), "invalid proof");
 
-        address recipientAddr = accountHandler.getWalletOfSalt(
-            accountHandler.getInfoOfAccountKeyCommit(recipientEmailAddr).walletSalt
-        );
+        address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
 
         Extension extension = Extension(us.extensionAddr);
 

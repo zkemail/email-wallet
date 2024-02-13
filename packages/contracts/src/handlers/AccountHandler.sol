@@ -86,7 +86,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         bytes32 dkimPublicKeyHash,
         bytes calldata proof
     ) public returns (Wallet wallet) {
-        require(walletSalt != bytes32(0), "wallet salt cannot be 0");
+        require(walletSalt != bytes32(0), "invalid wallet salt");
         require(walletSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
         require(emailNullifiers[emailNullifier] == false, "email already nullified");
@@ -106,7 +106,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             "invalid account creation proof"
         );
 
-        pointerOfPSIPoint[psiPoint] = emailAddr;
+        walletSaltOfPSIPoint[psiPoint] = walletSalt;
         emailNullifiers[emailNullifier] = true;
 
         wallet = _deployWallet(walletSalt);
@@ -129,13 +129,6 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         return IDKIMRegistry(dkimRegistry).isDKIMPublicKeyHashValid(emailDomain, publicKeyHash);
-    }
-
-    // TODO RENAMEME
-    /// @notice Return the info of an account key commitment
-    /// @param accountKeyCommit Account key commitment for which the info is to be returned
-    function getInfoOfAccountKeyCommit(bytes32 accountKeyCommit) public view returns (AccountKeyInfo memory) {
-        return infoOfEmailAddr[accountKeyCommit];
     }
 
     /// @notice Update teh DKIM registry address for a given wallet salt
