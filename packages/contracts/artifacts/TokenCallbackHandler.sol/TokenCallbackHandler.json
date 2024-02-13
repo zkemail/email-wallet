@@ -1,1 +1,2030 @@
-{"abi":[{"type":"function","name":"onERC1155BatchReceived","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"},{"name":"","type":"uint256[]","internalType":"uint256[]"},{"name":"","type":"uint256[]","internalType":"uint256[]"},{"name":"","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bytes4","internalType":"bytes4"}],"stateMutability":"pure"},{"type":"function","name":"onERC1155Received","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bytes4","internalType":"bytes4"}],"stateMutability":"pure"},{"type":"function","name":"onERC721Received","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bytes4","internalType":"bytes4"}],"stateMutability":"pure"},{"type":"function","name":"supportsInterface","inputs":[{"name":"interfaceId","type":"bytes4","internalType":"bytes4"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"tokensReceived","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"bytes","internalType":"bytes"},{"name":"","type":"bytes","internalType":"bytes"}],"outputs":[],"stateMutability":"pure"}],"bytecode":{"object":"0x608060405234801561001057600080fd5b506105d1806100206000396000f3fe608060405234801561001057600080fd5b50600436106100665760003560e01c8063150b7a0211610050578063150b7a02146100ad578063bc197c8114610116578063f23a6e611461015157600080fd5b806223de291461006b57806301ffc9a714610085575b600080fd5b6100836100793660046102e1565b5050505050505050565b005b61009861009336600461038c565b61018a565b60405190151581526020015b60405180910390f35b6100e56100bb3660046103d5565b7f150b7a020000000000000000000000000000000000000000000000000000000095945050505050565b6040517fffffffff0000000000000000000000000000000000000000000000000000000090911681526020016100a4565b6100e5610124366004610489565b7fbc197c810000000000000000000000000000000000000000000000000000000098975050505050505050565b6100e561015f366004610523565b7ff23a6e61000000000000000000000000000000000000000000000000000000009695505050505050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082167f150b7a0200000000000000000000000000000000000000000000000000000000148061021d57507fffffffff0000000000000000000000000000000000000000000000000000000082167f4e2312e000000000000000000000000000000000000000000000000000000000145b8061026957507fffffffff0000000000000000000000000000000000000000000000000000000082167f01ffc9a700000000000000000000000000000000000000000000000000000000145b92915050565b803573ffffffffffffffffffffffffffffffffffffffff8116811461029357600080fd5b919050565b60008083601f8401126102aa57600080fd5b50813567ffffffffffffffff8111156102c257600080fd5b6020830191508360208285010111156102da57600080fd5b9250929050565b60008060008060008060008060c0898b0312156102fd57600080fd5b6103068961026f565b975061031460208a0161026f565b965061032260408a0161026f565b955060608901359450608089013567ffffffffffffffff8082111561034657600080fd5b6103528c838d01610298565b909650945060a08b013591508082111561036b57600080fd5b506103788b828c01610298565b999c989b5096995094979396929594505050565b60006020828403121561039e57600080fd5b81357fffffffff00000000000000000000000000000000000000000000000000000000811681146103ce57600080fd5b9392505050565b6000806000806000608086880312156103ed57600080fd5b6103f68661026f565b94506104046020870161026f565b935060408601359250606086013567ffffffffffffffff81111561042757600080fd5b61043388828901610298565b969995985093965092949392505050565b60008083601f84011261045657600080fd5b50813567ffffffffffffffff81111561046e57600080fd5b6020830191508360208260051b85010111156102da57600080fd5b60008060008060008060008060a0898b0312156104a557600080fd5b6104ae8961026f565b97506104bc60208a0161026f565b9650604089013567ffffffffffffffff808211156104d957600080fd5b6104e58c838d01610444565b909850965060608b01359150808211156104fe57600080fd5b61050a8c838d01610444565b909650945060808b013591508082111561036b57600080fd5b60008060008060008060a0878903121561053c57600080fd5b6105458761026f565b95506105536020880161026f565b94506040870135935060608701359250608087013567ffffffffffffffff81111561057d57600080fd5b61058989828a01610298565b979a969950949750929593949250505056fea2646970667358221220c459910279957f8f29cf73c78f19daeea1ed18cb850e78c58a906ec346bb593a64736f6c63430008170033","sourceMap":"490:1299:47:-:0;;;;;;;;;;;;;;;;;;;","linkReferences":{}},"deployedBytecode":{"object":"0x608060405234801561001057600080fd5b50600436106100665760003560e01c8063150b7a0211610050578063150b7a02146100ad578063bc197c8114610116578063f23a6e611461015157600080fd5b806223de291461006b57806301ffc9a714610085575b600080fd5b6100836100793660046102e1565b5050505050505050565b005b61009861009336600461038c565b61018a565b60405190151581526020015b60405180910390f35b6100e56100bb3660046103d5565b7f150b7a020000000000000000000000000000000000000000000000000000000095945050505050565b6040517fffffffff0000000000000000000000000000000000000000000000000000000090911681526020016100a4565b6100e5610124366004610489565b7fbc197c810000000000000000000000000000000000000000000000000000000098975050505050505050565b6100e561015f366004610523565b7ff23a6e61000000000000000000000000000000000000000000000000000000009695505050505050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082167f150b7a0200000000000000000000000000000000000000000000000000000000148061021d57507fffffffff0000000000000000000000000000000000000000000000000000000082167f4e2312e000000000000000000000000000000000000000000000000000000000145b8061026957507fffffffff0000000000000000000000000000000000000000000000000000000082167f01ffc9a700000000000000000000000000000000000000000000000000000000145b92915050565b803573ffffffffffffffffffffffffffffffffffffffff8116811461029357600080fd5b919050565b60008083601f8401126102aa57600080fd5b50813567ffffffffffffffff8111156102c257600080fd5b6020830191508360208285010111156102da57600080fd5b9250929050565b60008060008060008060008060c0898b0312156102fd57600080fd5b6103068961026f565b975061031460208a0161026f565b965061032260408a0161026f565b955060608901359450608089013567ffffffffffffffff8082111561034657600080fd5b6103528c838d01610298565b909650945060a08b013591508082111561036b57600080fd5b506103788b828c01610298565b999c989b5096995094979396929594505050565b60006020828403121561039e57600080fd5b81357fffffffff00000000000000000000000000000000000000000000000000000000811681146103ce57600080fd5b9392505050565b6000806000806000608086880312156103ed57600080fd5b6103f68661026f565b94506104046020870161026f565b935060408601359250606086013567ffffffffffffffff81111561042757600080fd5b61043388828901610298565b969995985093965092949392505050565b60008083601f84011261045657600080fd5b50813567ffffffffffffffff81111561046e57600080fd5b6020830191508360208260051b85010111156102da57600080fd5b60008060008060008060008060a0898b0312156104a557600080fd5b6104ae8961026f565b97506104bc60208a0161026f565b9650604089013567ffffffffffffffff808211156104d957600080fd5b6104e58c838d01610444565b909850965060608b01359150808211156104fe57600080fd5b61050a8c838d01610444565b909650945060808b013591508082111561036b57600080fd5b60008060008060008060a0878903121561053c57600080fd5b6105458761026f565b95506105536020880161026f565b94506040870135935060608701359250608087013567ffffffffffffffff81111561057d57600080fd5b61058989828a01610298565b979a969950949750929593949250505056fea2646970667358221220c459910279957f8f29cf73c78f19daeea1ed18cb850e78c58a906ec346bb593a64736f6c63430008170033","sourceMap":"490:1299:47:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;581:176;;;;;;:::i;:::-;;;;;;;;;;;;1489:298;;;;;;:::i;:::-;;:::i;:::-;;;2084:14:144;;2077:22;2059:41;;2047:2;2032:18;1489:298:47;;;;;;;;763:212;;;;;;:::i;:::-;927:41;763:212;;;;;;;;;;;2916:66:144;2904:79;;;2886:98;;2874:2;2859:18;763:212:47;2742:248:144;1219:264:47;;;;;;:::i;:::-;1428:48;1219:264;;;;;;;;;;;981:232;;;;;;:::i;:::-;1163:43;981:232;;;;;;;;;1489:298;1576:4;1611:48;;;1626:33;1611:48;;:113;;-1:-1:-1;1675:49:47;;;1690:34;1675:49;1611:113;:169;;;-1:-1:-1;1740:40:47;;;1755:25;1740:40;1611:169;1592:188;1489:298;-1:-1:-1;;1489:298:47:o;14:196:144:-;82:20;;142:42;131:54;;121:65;;111:93;;200:1;197;190:12;111:93;14:196;;;:::o;215:347::-;266:8;276:6;330:3;323:4;315:6;311:17;307:27;297:55;;348:1;345;338:12;297:55;-1:-1:-1;371:20:144;;414:18;403:30;;400:50;;;446:1;443;436:12;400:50;483:4;475:6;471:17;459:29;;535:3;528:4;519:6;511;507:19;503:30;500:39;497:59;;;552:1;549;542:12;497:59;215:347;;;;;:::o;567:1010::-;693:6;701;709;717;725;733;741;749;802:3;790:9;781:7;777:23;773:33;770:53;;;819:1;816;809:12;770:53;842:29;861:9;842:29;:::i;:::-;832:39;;890:38;924:2;913:9;909:18;890:38;:::i;:::-;880:48;;947:38;981:2;970:9;966:18;947:38;:::i;:::-;937:48;;1032:2;1021:9;1017:18;1004:32;994:42;;1087:3;1076:9;1072:19;1059:33;1111:18;1152:2;1144:6;1141:14;1138:34;;;1168:1;1165;1158:12;1138:34;1207:58;1257:7;1248:6;1237:9;1233:22;1207:58;:::i;:::-;1284:8;;-1:-1:-1;1181:84:144;-1:-1:-1;1372:3:144;1357:19;;1344:33;;-1:-1:-1;1389:16:144;;;1386:36;;;1418:1;1415;1408:12;1386:36;;1457:60;1509:7;1498:8;1487:9;1483:24;1457:60;:::i;:::-;567:1010;;;;-1:-1:-1;567:1010:144;;-1:-1:-1;567:1010:144;;;;;;1536:8;-1:-1:-1;;;567:1010:144:o;1582:332::-;1640:6;1693:2;1681:9;1672:7;1668:23;1664:32;1661:52;;;1709:1;1706;1699:12;1661:52;1748:9;1735:23;1798:66;1791:5;1787:78;1780:5;1777:89;1767:117;;1880:1;1877;1870:12;1767:117;1903:5;1582:332;-1:-1:-1;;;1582:332:144:o;2111:626::-;2208:6;2216;2224;2232;2240;2293:3;2281:9;2272:7;2268:23;2264:33;2261:53;;;2310:1;2307;2300:12;2261:53;2333:29;2352:9;2333:29;:::i;:::-;2323:39;;2381:38;2415:2;2404:9;2400:18;2381:38;:::i;:::-;2371:48;;2466:2;2455:9;2451:18;2438:32;2428:42;;2521:2;2510:9;2506:18;2493:32;2548:18;2540:6;2537:30;2534:50;;;2580:1;2577;2570:12;2534:50;2619:58;2669:7;2660:6;2649:9;2645:22;2619:58;:::i;:::-;2111:626;;;;-1:-1:-1;2111:626:144;;-1:-1:-1;2696:8:144;;2593:84;2111:626;-1:-1:-1;;;2111:626:144:o;2995:367::-;3058:8;3068:6;3122:3;3115:4;3107:6;3103:17;3099:27;3089:55;;3140:1;3137;3130:12;3089:55;-1:-1:-1;3163:20:144;;3206:18;3195:30;;3192:50;;;3238:1;3235;3228:12;3192:50;3275:4;3267:6;3263:17;3251:29;;3335:3;3328:4;3318:6;3315:1;3311:14;3303:6;3299:27;3295:38;3292:47;3289:67;;;3352:1;3349;3342:12;3367:1210;3527:6;3535;3543;3551;3559;3567;3575;3583;3636:3;3624:9;3615:7;3611:23;3607:33;3604:53;;;3653:1;3650;3643:12;3604:53;3676:29;3695:9;3676:29;:::i;:::-;3666:39;;3724:38;3758:2;3747:9;3743:18;3724:38;:::i;:::-;3714:48;;3813:2;3802:9;3798:18;3785:32;3836:18;3877:2;3869:6;3866:14;3863:34;;;3893:1;3890;3883:12;3863:34;3932:70;3994:7;3985:6;3974:9;3970:22;3932:70;:::i;:::-;4021:8;;-1:-1:-1;3906:96:144;-1:-1:-1;4109:2:144;4094:18;;4081:32;;-1:-1:-1;4125:16:144;;;4122:36;;;4154:1;4151;4144:12;4122:36;4193:72;4257:7;4246:8;4235:9;4231:24;4193:72;:::i;:::-;4284:8;;-1:-1:-1;4167:98:144;-1:-1:-1;4372:3:144;4357:19;;4344:33;;-1:-1:-1;4389:16:144;;;4386:36;;;4418:1;4415;4408:12;4582:695;4688:6;4696;4704;4712;4720;4728;4781:3;4769:9;4760:7;4756:23;4752:33;4749:53;;;4798:1;4795;4788:12;4749:53;4821:29;4840:9;4821:29;:::i;:::-;4811:39;;4869:38;4903:2;4892:9;4888:18;4869:38;:::i;:::-;4859:48;;4954:2;4943:9;4939:18;4926:32;4916:42;;5005:2;4994:9;4990:18;4977:32;4967:42;;5060:3;5049:9;5045:19;5032:33;5088:18;5080:6;5077:30;5074:50;;;5120:1;5117;5110:12;5074:50;5159:58;5209:7;5200:6;5189:9;5185:22;5159:58;:::i;:::-;4582:695;;;;-1:-1:-1;4582:695:144;;-1:-1:-1;4582:695:144;;5236:8;;4582:695;-1:-1:-1;;;4582:695:144:o","linkReferences":{}},"methodIdentifiers":{"onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)":"bc197c81","onERC1155Received(address,address,uint256,uint256,bytes)":"f23a6e61","onERC721Received(address,address,uint256,bytes)":"150b7a02","supportsInterface(bytes4)":"01ffc9a7","tokensReceived(address,address,address,uint256,bytes,bytes)":"0023de29"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC721Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"tokensReceived\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"supportsInterface(bytes4)\":{\"details\":\"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section] to learn more about how these ids are created. This function call must use less than 30 000 gas.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Token callback handler.   Handles supported tokens' callbacks, allowing account receiving these tokens.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol\":\"TokenCallbackHandler\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol\":{\"keccak256\":\"0xeb373f1fdc7b755c6a750123a9b9e3a8a02c1470042fd6505d875000a80bde0b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0e28648f994abf1d6bc345644a361cc0b7efa544f8bc0c8ec26011fed85a91ec\",\"dweb:/ipfs/QmVVE7AiRjKaQYYji7TkjmTeVzGpNmms5eoxqTCfvvpj6D\"]},\"../../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708\",\"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV\"]},\"../../node_modules/@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol\":{\"keccak256\":\"0x1a5d61db2733202ba361e6d6741cd2e662380e22b80e987eacfc91973f2267dc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04c0cd697050a6516b7779aa2343ad2d0e5217d8915ac2382681dfdf4e445be3\",\"dweb:/ipfs/QmPCBCZgm7pHBwwogE2F9NCN3UfTdLNhqc8UDEvw8kDzyA\"]},\"../../node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol\":{\"keccak256\":\"0xfff3df5f5211d71158bb017ff791dc4fa85db53890f7bd72bac3a43d89e83752\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://8f91c2d9845513fc88bf73efecd4907d9895b6f9fbe1d6fca09c4d3ad2d787f3\",\"dweb:/ipfs/QmQAFiKpqjVjWrm538tVEYuZvML6iNxNkQAy4UzchJEcpB\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.23+commit.f704f362"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"uint256[]","name":"","type":"uint256[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"},{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"pure","type":"function","name":"onERC1155BatchReceived","outputs":[{"internalType":"bytes4","name":"","type":"bytes4"}]},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"pure","type":"function","name":"onERC1155Received","outputs":[{"internalType":"bytes4","name":"","type":"bytes4"}]},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"pure","type":"function","name":"onERC721Received","outputs":[{"internalType":"bytes4","name":"","type":"bytes4"}]},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"stateMutability":"view","type":"function","name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bytes","name":"","type":"bytes"},{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"pure","type":"function","name":"tokensReceived"}],"devdoc":{"kind":"dev","methods":{"supportsInterface(bytes4)":{"details":"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section] to learn more about how these ids are created. This function call must use less than 30 000 gas."}},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"remappings":["@gnosis.pm/=../../node_modules/@gnosis.pm/","@openzeppelin/=../../node_modules/@openzeppelin/","@uniswap/=../../node_modules/@uniswap/","@zk-email/=../../node_modules/@zk-email/","accountabstraction/=../../node_modules/accountabstraction/","base64-sol/=../../node_modules/base64-sol/","ds-test/=../../node_modules/ds-test/src/","forge-std/=../../node_modules/forge-std/src/","hardhat-deploy/=../../node_modules/hardhat-deploy/","snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/","solady/=../../node_modules/solady/src/"],"optimizer":{"enabled":true,"runs":20000},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol":"TokenCallbackHandler"},"libraries":{}},"sources":{"../../node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol":{"keccak256":"0xeb373f1fdc7b755c6a750123a9b9e3a8a02c1470042fd6505d875000a80bde0b","urls":["bzz-raw://0e28648f994abf1d6bc345644a361cc0b7efa544f8bc0c8ec26011fed85a91ec","dweb:/ipfs/QmVVE7AiRjKaQYYji7TkjmTeVzGpNmms5eoxqTCfvvpj6D"],"license":"MIT"},"../../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol":{"keccak256":"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da","urls":["bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708","dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV"],"license":"MIT"},"../../node_modules/@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol":{"keccak256":"0x1a5d61db2733202ba361e6d6741cd2e662380e22b80e987eacfc91973f2267dc","urls":["bzz-raw://04c0cd697050a6516b7779aa2343ad2d0e5217d8915ac2382681dfdf4e445be3","dweb:/ipfs/QmPCBCZgm7pHBwwogE2F9NCN3UfTdLNhqc8UDEvw8kDzyA"],"license":"MIT"},"../../node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol":{"keccak256":"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1","urls":["bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f","dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"],"license":"MIT"},"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol":{"keccak256":"0xfff3df5f5211d71158bb017ff791dc4fa85db53890f7bd72bac3a43d89e83752","urls":["bzz-raw://8f91c2d9845513fc88bf73efecd4907d9895b6f9fbe1d6fca09c4d3ad2d787f3","dweb:/ipfs/QmQAFiKpqjVjWrm538tVEYuZvML6iNxNkQAy4UzchJEcpB"],"license":"GPL-3.0"}},"version":1},"storageLayout":{"storage":[],"types":{}},"ast":{"absolutePath":"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol","id":4146,"exportedSymbols":{"IERC1155Receiver":[753],"IERC165":[2885],"IERC721Receiver":[1928],"IERC777Recipient":[1948],"TokenCallbackHandler":[4145]},"nodeType":"SourceUnit","src":"36:1754:47","nodes":[{"id":4023,"nodeType":"PragmaDirective","src":"36:24:47","nodes":[],"literals":["solidity","^","0.8",".12"]},{"id":4024,"nodeType":"ImportDirective","src":"101:65:47","nodes":[],"absolutePath":"../../node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol","file":"@openzeppelin/contracts/utils/introspection/IERC165.sol","nameLocation":"-1:-1:-1","scope":4146,"sourceUnit":2886,"symbolAliases":[],"unitAlias":""},{"id":4025,"nodeType":"ImportDirective","src":"167:67:47","nodes":[],"absolutePath":"../../node_modules/@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol","file":"@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol","nameLocation":"-1:-1:-1","scope":4146,"sourceUnit":1949,"symbolAliases":[],"unitAlias":""},{"id":4026,"nodeType":"ImportDirective","src":"235:66:47","nodes":[],"absolutePath":"../../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol","file":"@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol","nameLocation":"-1:-1:-1","scope":4146,"sourceUnit":1929,"symbolAliases":[],"unitAlias":""},{"id":4027,"nodeType":"ImportDirective","src":"302:68:47","nodes":[],"absolutePath":"../../node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol","file":"@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol","nameLocation":"-1:-1:-1","scope":4146,"sourceUnit":754,"symbolAliases":[],"unitAlias":""},{"id":4145,"nodeType":"ContractDefinition","src":"490:1299:47","nodes":[{"id":4051,"nodeType":"FunctionDefinition","src":"581:176:47","nodes":[],"body":{"id":4050,"nodeType":"Block","src":"750:7:47","nodes":[],"statements":[]},"baseFunctions":[1947],"functionSelector":"0023de29","implemented":true,"kind":"function","modifiers":[],"name":"tokensReceived","nameLocation":"590:14:47","overrides":{"id":4048,"nodeType":"OverrideSpecifier","overrides":[],"src":"741:8:47"},"parameters":{"id":4047,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4036,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4051,"src":"614:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4035,"name":"address","nodeType":"ElementaryTypeName","src":"614:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4038,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4051,"src":"631:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4037,"name":"address","nodeType":"ElementaryTypeName","src":"631:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4040,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4051,"src":"648:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4039,"name":"address","nodeType":"ElementaryTypeName","src":"648:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4042,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4051,"src":"665:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":4041,"name":"uint256","nodeType":"ElementaryTypeName","src":"665:7:47","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"},{"constant":false,"id":4044,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4051,"src":"682:14:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_bytes_calldata_ptr","typeString":"bytes"},"typeName":{"id":4043,"name":"bytes","nodeType":"ElementaryTypeName","src":"682:5:47","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"},{"constant":false,"id":4046,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4051,"src":"706:14:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_bytes_calldata_ptr","typeString":"bytes"},"typeName":{"id":4045,"name":"bytes","nodeType":"ElementaryTypeName","src":"706:5:47","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"604:122:47"},"returnParameters":{"id":4049,"nodeType":"ParameterList","parameters":[],"src":"750:0:47"},"scope":4145,"stateMutability":"pure","virtual":false,"visibility":"external"},{"id":4070,"nodeType":"FunctionDefinition","src":"763:212:47","nodes":[],"body":{"id":4069,"nodeType":"Block","src":"910:65:47","nodes":[],"statements":[{"expression":{"expression":{"expression":{"id":4065,"name":"IERC721Receiver","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":1928,"src":"927:15:47","typeDescriptions":{"typeIdentifier":"t_type$_t_contract$_IERC721Receiver_$1928_$","typeString":"type(contract IERC721Receiver)"}},"id":4066,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"943:16:47","memberName":"onERC721Received","nodeType":"MemberAccess","referencedDeclaration":1927,"src":"927:32:47","typeDescriptions":{"typeIdentifier":"t_function_declaration_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$","typeString":"function IERC721Receiver.onERC721Received(address,address,uint256,bytes calldata) returns (bytes4)"}},"id":4067,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"960:8:47","memberName":"selector","nodeType":"MemberAccess","src":"927:41:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"functionReturnParameters":4064,"id":4068,"nodeType":"Return","src":"920:48:47"}]},"baseFunctions":[1927],"functionSelector":"150b7a02","implemented":true,"kind":"function","modifiers":[],"name":"onERC721Received","nameLocation":"772:16:47","overrides":{"id":4061,"nodeType":"OverrideSpecifier","overrides":[],"src":"884:8:47"},"parameters":{"id":4060,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4053,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4070,"src":"798:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4052,"name":"address","nodeType":"ElementaryTypeName","src":"798:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4055,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4070,"src":"815:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4054,"name":"address","nodeType":"ElementaryTypeName","src":"815:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4057,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4070,"src":"832:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":4056,"name":"uint256","nodeType":"ElementaryTypeName","src":"832:7:47","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"},{"constant":false,"id":4059,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4070,"src":"849:14:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_bytes_calldata_ptr","typeString":"bytes"},"typeName":{"id":4058,"name":"bytes","nodeType":"ElementaryTypeName","src":"849:5:47","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"788:81:47"},"returnParameters":{"id":4064,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4063,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4070,"src":"902:6:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"typeName":{"id":4062,"name":"bytes4","nodeType":"ElementaryTypeName","src":"902:6:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"visibility":"internal"}],"src":"901:8:47"},"scope":4145,"stateMutability":"pure","virtual":false,"visibility":"external"},{"id":4091,"nodeType":"FunctionDefinition","src":"981:232:47","nodes":[],"body":{"id":4090,"nodeType":"Block","src":"1146:67:47","nodes":[],"statements":[{"expression":{"expression":{"expression":{"id":4086,"name":"IERC1155Receiver","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":753,"src":"1163:16:47","typeDescriptions":{"typeIdentifier":"t_type$_t_contract$_IERC1155Receiver_$753_$","typeString":"type(contract IERC1155Receiver)"}},"id":4087,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1180:17:47","memberName":"onERC1155Received","nodeType":"MemberAccess","referencedDeclaration":734,"src":"1163:34:47","typeDescriptions":{"typeIdentifier":"t_function_declaration_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_uint256_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$","typeString":"function IERC1155Receiver.onERC1155Received(address,address,uint256,uint256,bytes calldata) returns (bytes4)"}},"id":4088,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1198:8:47","memberName":"selector","nodeType":"MemberAccess","src":"1163:43:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"functionReturnParameters":4085,"id":4089,"nodeType":"Return","src":"1156:50:47"}]},"baseFunctions":[734],"functionSelector":"f23a6e61","implemented":true,"kind":"function","modifiers":[],"name":"onERC1155Received","nameLocation":"990:17:47","overrides":{"id":4082,"nodeType":"OverrideSpecifier","overrides":[],"src":"1120:8:47"},"parameters":{"id":4081,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4072,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4091,"src":"1017:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4071,"name":"address","nodeType":"ElementaryTypeName","src":"1017:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4074,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4091,"src":"1034:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4073,"name":"address","nodeType":"ElementaryTypeName","src":"1034:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4076,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4091,"src":"1051:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":4075,"name":"uint256","nodeType":"ElementaryTypeName","src":"1051:7:47","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"},{"constant":false,"id":4078,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4091,"src":"1068:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":4077,"name":"uint256","nodeType":"ElementaryTypeName","src":"1068:7:47","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"},{"constant":false,"id":4080,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4091,"src":"1085:14:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_bytes_calldata_ptr","typeString":"bytes"},"typeName":{"id":4079,"name":"bytes","nodeType":"ElementaryTypeName","src":"1085:5:47","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"1007:98:47"},"returnParameters":{"id":4085,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4084,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4091,"src":"1138:6:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"typeName":{"id":4083,"name":"bytes4","nodeType":"ElementaryTypeName","src":"1138:6:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"visibility":"internal"}],"src":"1137:8:47"},"scope":4145,"stateMutability":"pure","virtual":false,"visibility":"external"},{"id":4114,"nodeType":"FunctionDefinition","src":"1219:264:47","nodes":[],"body":{"id":4113,"nodeType":"Block","src":"1411:72:47","nodes":[],"statements":[{"expression":{"expression":{"expression":{"id":4109,"name":"IERC1155Receiver","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":753,"src":"1428:16:47","typeDescriptions":{"typeIdentifier":"t_type$_t_contract$_IERC1155Receiver_$753_$","typeString":"type(contract IERC1155Receiver)"}},"id":4110,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1445:22:47","memberName":"onERC1155BatchReceived","nodeType":"MemberAccess","referencedDeclaration":752,"src":"1428:39:47","typeDescriptions":{"typeIdentifier":"t_function_declaration_nonpayable$_t_address_$_t_address_$_t_array$_t_uint256_$dyn_calldata_ptr_$_t_array$_t_uint256_$dyn_calldata_ptr_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$","typeString":"function IERC1155Receiver.onERC1155BatchReceived(address,address,uint256[] calldata,uint256[] calldata,bytes calldata) returns (bytes4)"}},"id":4111,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1468:8:47","memberName":"selector","nodeType":"MemberAccess","src":"1428:48:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"functionReturnParameters":4108,"id":4112,"nodeType":"Return","src":"1421:55:47"}]},"baseFunctions":[752],"functionSelector":"bc197c81","implemented":true,"kind":"function","modifiers":[],"name":"onERC1155BatchReceived","nameLocation":"1228:22:47","overrides":{"id":4105,"nodeType":"OverrideSpecifier","overrides":[],"src":"1385:8:47"},"parameters":{"id":4104,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4093,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4114,"src":"1260:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4092,"name":"address","nodeType":"ElementaryTypeName","src":"1260:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4095,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4114,"src":"1277:7:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":4094,"name":"address","nodeType":"ElementaryTypeName","src":"1277:7:47","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"},{"constant":false,"id":4098,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4114,"src":"1294:18:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_array$_t_uint256_$dyn_calldata_ptr","typeString":"uint256[]"},"typeName":{"baseType":{"id":4096,"name":"uint256","nodeType":"ElementaryTypeName","src":"1294:7:47","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":4097,"nodeType":"ArrayTypeName","src":"1294:9:47","typeDescriptions":{"typeIdentifier":"t_array$_t_uint256_$dyn_storage_ptr","typeString":"uint256[]"}},"visibility":"internal"},{"constant":false,"id":4101,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4114,"src":"1322:18:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_array$_t_uint256_$dyn_calldata_ptr","typeString":"uint256[]"},"typeName":{"baseType":{"id":4099,"name":"uint256","nodeType":"ElementaryTypeName","src":"1322:7:47","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":4100,"nodeType":"ArrayTypeName","src":"1322:9:47","typeDescriptions":{"typeIdentifier":"t_array$_t_uint256_$dyn_storage_ptr","typeString":"uint256[]"}},"visibility":"internal"},{"constant":false,"id":4103,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4114,"src":"1350:14:47","stateVariable":false,"storageLocation":"calldata","typeDescriptions":{"typeIdentifier":"t_bytes_calldata_ptr","typeString":"bytes"},"typeName":{"id":4102,"name":"bytes","nodeType":"ElementaryTypeName","src":"1350:5:47","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"1250:120:47"},"returnParameters":{"id":4108,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4107,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4114,"src":"1403:6:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"typeName":{"id":4106,"name":"bytes4","nodeType":"ElementaryTypeName","src":"1403:6:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"visibility":"internal"}],"src":"1402:8:47"},"scope":4145,"stateMutability":"pure","virtual":false,"visibility":"external"},{"id":4144,"nodeType":"FunctionDefinition","src":"1489:298:47","nodes":[],"body":{"id":4143,"nodeType":"Block","src":"1582:205:47","nodes":[],"statements":[{"expression":{"commonType":{"typeIdentifier":"t_bool","typeString":"bool"},"id":4141,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"commonType":{"typeIdentifier":"t_bool","typeString":"bool"},"id":4134,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"commonType":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"id":4127,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"id":4122,"name":"interfaceId","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":4116,"src":"1611:11:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"expression":{"arguments":[{"id":4124,"name":"IERC721Receiver","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":1928,"src":"1631:15:47","typeDescriptions":{"typeIdentifier":"t_type$_t_contract$_IERC721Receiver_$1928_$","typeString":"type(contract IERC721Receiver)"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_type$_t_contract$_IERC721Receiver_$1928_$","typeString":"type(contract IERC721Receiver)"}],"id":4123,"name":"type","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":-27,"src":"1626:4:47","typeDescriptions":{"typeIdentifier":"t_function_metatype_pure$__$returns$__$","typeString":"function () pure"}},"id":4125,"isConstant":false,"isLValue":false,"isPure":true,"kind":"functionCall","lValueRequested":false,"nameLocations":[],"names":[],"nodeType":"FunctionCall","src":"1626:21:47","tryCall":false,"typeDescriptions":{"typeIdentifier":"t_magic_meta_type_t_contract$_IERC721Receiver_$1928","typeString":"type(contract IERC721Receiver)"}},"id":4126,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1648:11:47","memberName":"interfaceId","nodeType":"MemberAccess","src":"1626:33:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"src":"1611:48:47","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"nodeType":"BinaryOperation","operator":"||","rightExpression":{"commonType":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"id":4133,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"id":4128,"name":"interfaceId","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":4116,"src":"1675:11:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"expression":{"arguments":[{"id":4130,"name":"IERC1155Receiver","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":753,"src":"1695:16:47","typeDescriptions":{"typeIdentifier":"t_type$_t_contract$_IERC1155Receiver_$753_$","typeString":"type(contract IERC1155Receiver)"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_type$_t_contract$_IERC1155Receiver_$753_$","typeString":"type(contract IERC1155Receiver)"}],"id":4129,"name":"type","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":-27,"src":"1690:4:47","typeDescriptions":{"typeIdentifier":"t_function_metatype_pure$__$returns$__$","typeString":"function () pure"}},"id":4131,"isConstant":false,"isLValue":false,"isPure":true,"kind":"functionCall","lValueRequested":false,"nameLocations":[],"names":[],"nodeType":"FunctionCall","src":"1690:22:47","tryCall":false,"typeDescriptions":{"typeIdentifier":"t_magic_meta_type_t_contract$_IERC1155Receiver_$753","typeString":"type(contract IERC1155Receiver)"}},"id":4132,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1713:11:47","memberName":"interfaceId","nodeType":"MemberAccess","src":"1690:34:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"src":"1675:49:47","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"src":"1611:113:47","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"nodeType":"BinaryOperation","operator":"||","rightExpression":{"commonType":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"id":4140,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"id":4135,"name":"interfaceId","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":4116,"src":"1740:11:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"expression":{"arguments":[{"id":4137,"name":"IERC165","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":2885,"src":"1760:7:47","typeDescriptions":{"typeIdentifier":"t_type$_t_contract$_IERC165_$2885_$","typeString":"type(contract IERC165)"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_type$_t_contract$_IERC165_$2885_$","typeString":"type(contract IERC165)"}],"id":4136,"name":"type","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":-27,"src":"1755:4:47","typeDescriptions":{"typeIdentifier":"t_function_metatype_pure$__$returns$__$","typeString":"function () pure"}},"id":4138,"isConstant":false,"isLValue":false,"isPure":true,"kind":"functionCall","lValueRequested":false,"nameLocations":[],"names":[],"nodeType":"FunctionCall","src":"1755:13:47","tryCall":false,"typeDescriptions":{"typeIdentifier":"t_magic_meta_type_t_contract$_IERC165_$2885","typeString":"type(contract IERC165)"}},"id":4139,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"memberLocation":"1769:11:47","memberName":"interfaceId","nodeType":"MemberAccess","src":"1755:25:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"src":"1740:40:47","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"src":"1611:169:47","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"functionReturnParameters":4121,"id":4142,"nodeType":"Return","src":"1592:188:47"}]},"baseFunctions":[2884],"functionSelector":"01ffc9a7","implemented":true,"kind":"function","modifiers":[],"name":"supportsInterface","nameLocation":"1498:17:47","overrides":{"id":4118,"nodeType":"OverrideSpecifier","overrides":[],"src":"1558:8:47"},"parameters":{"id":4117,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4116,"mutability":"mutable","name":"interfaceId","nameLocation":"1523:11:47","nodeType":"VariableDeclaration","scope":4144,"src":"1516:18:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"},"typeName":{"id":4115,"name":"bytes4","nodeType":"ElementaryTypeName","src":"1516:6:47","typeDescriptions":{"typeIdentifier":"t_bytes4","typeString":"bytes4"}},"visibility":"internal"}],"src":"1515:20:47"},"returnParameters":{"id":4121,"nodeType":"ParameterList","parameters":[{"constant":false,"id":4120,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":4144,"src":"1576:4:47","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":4119,"name":"bool","nodeType":"ElementaryTypeName","src":"1576:4:47","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"}],"src":"1575:6:47"},"scope":4145,"stateMutability":"view","virtual":true,"visibility":"external"}],"abstract":false,"baseContracts":[{"baseName":{"id":4029,"name":"IERC777Recipient","nameLocations":["523:16:47"],"nodeType":"IdentifierPath","referencedDeclaration":1948,"src":"523:16:47"},"id":4030,"nodeType":"InheritanceSpecifier","src":"523:16:47"},{"baseName":{"id":4031,"name":"IERC721Receiver","nameLocations":["541:15:47"],"nodeType":"IdentifierPath","referencedDeclaration":1928,"src":"541:15:47"},"id":4032,"nodeType":"InheritanceSpecifier","src":"541:15:47"},{"baseName":{"id":4033,"name":"IERC1155Receiver","nameLocations":["558:16:47"],"nodeType":"IdentifierPath","referencedDeclaration":753,"src":"558:16:47"},"id":4034,"nodeType":"InheritanceSpecifier","src":"558:16:47"}],"canonicalName":"TokenCallbackHandler","contractDependencies":[],"contractKind":"contract","documentation":{"id":4028,"nodeType":"StructuredDocumentation","src":"372:117:47","text":" Token callback handler.\n   Handles supported tokens' callbacks, allowing account receiving these tokens."},"fullyImplemented":true,"linearizedBaseContracts":[4145,753,2885,1928,1948],"name":"TokenCallbackHandler","nameLocation":"499:20:47","scope":4146,"usedErrors":[],"usedEvents":[]}],"license":"GPL-3.0"},"id":47}
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onERC1155BatchReceived",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onERC1155Received",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onERC721Received",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "tokensReceived",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b506105d1806100206000396000f3fe608060405234801561001057600080fd5b50600436106100665760003560e01c8063150b7a0211610050578063150b7a02146100ad578063bc197c8114610116578063f23a6e611461015157600080fd5b806223de291461006b57806301ffc9a714610085575b600080fd5b6100836100793660046102e1565b5050505050505050565b005b61009861009336600461038c565b61018a565b60405190151581526020015b60405180910390f35b6100e56100bb3660046103d5565b7f150b7a020000000000000000000000000000000000000000000000000000000095945050505050565b6040517fffffffff0000000000000000000000000000000000000000000000000000000090911681526020016100a4565b6100e5610124366004610489565b7fbc197c810000000000000000000000000000000000000000000000000000000098975050505050505050565b6100e561015f366004610523565b7ff23a6e61000000000000000000000000000000000000000000000000000000009695505050505050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082167f150b7a0200000000000000000000000000000000000000000000000000000000148061021d57507fffffffff0000000000000000000000000000000000000000000000000000000082167f4e2312e000000000000000000000000000000000000000000000000000000000145b8061026957507fffffffff0000000000000000000000000000000000000000000000000000000082167f01ffc9a700000000000000000000000000000000000000000000000000000000145b92915050565b803573ffffffffffffffffffffffffffffffffffffffff8116811461029357600080fd5b919050565b60008083601f8401126102aa57600080fd5b50813567ffffffffffffffff8111156102c257600080fd5b6020830191508360208285010111156102da57600080fd5b9250929050565b60008060008060008060008060c0898b0312156102fd57600080fd5b6103068961026f565b975061031460208a0161026f565b965061032260408a0161026f565b955060608901359450608089013567ffffffffffffffff8082111561034657600080fd5b6103528c838d01610298565b909650945060a08b013591508082111561036b57600080fd5b506103788b828c01610298565b999c989b5096995094979396929594505050565b60006020828403121561039e57600080fd5b81357fffffffff00000000000000000000000000000000000000000000000000000000811681146103ce57600080fd5b9392505050565b6000806000806000608086880312156103ed57600080fd5b6103f68661026f565b94506104046020870161026f565b935060408601359250606086013567ffffffffffffffff81111561042757600080fd5b61043388828901610298565b969995985093965092949392505050565b60008083601f84011261045657600080fd5b50813567ffffffffffffffff81111561046e57600080fd5b6020830191508360208260051b85010111156102da57600080fd5b60008060008060008060008060a0898b0312156104a557600080fd5b6104ae8961026f565b97506104bc60208a0161026f565b9650604089013567ffffffffffffffff808211156104d957600080fd5b6104e58c838d01610444565b909850965060608b01359150808211156104fe57600080fd5b61050a8c838d01610444565b909650945060808b013591508082111561036b57600080fd5b60008060008060008060a0878903121561053c57600080fd5b6105458761026f565b95506105536020880161026f565b94506040870135935060608701359250608087013567ffffffffffffffff81111561057d57600080fd5b61058989828a01610298565b979a969950949750929593949250505056fea2646970667358221220c8c42020532b17130f5cb1373d46252c2d84842e6336ab9c3504dd52f090816864736f6c63430008150033",
+    "sourceMap": "490:1299:47:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x608060405234801561001057600080fd5b50600436106100665760003560e01c8063150b7a0211610050578063150b7a02146100ad578063bc197c8114610116578063f23a6e611461015157600080fd5b806223de291461006b57806301ffc9a714610085575b600080fd5b6100836100793660046102e1565b5050505050505050565b005b61009861009336600461038c565b61018a565b60405190151581526020015b60405180910390f35b6100e56100bb3660046103d5565b7f150b7a020000000000000000000000000000000000000000000000000000000095945050505050565b6040517fffffffff0000000000000000000000000000000000000000000000000000000090911681526020016100a4565b6100e5610124366004610489565b7fbc197c810000000000000000000000000000000000000000000000000000000098975050505050505050565b6100e561015f366004610523565b7ff23a6e61000000000000000000000000000000000000000000000000000000009695505050505050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082167f150b7a0200000000000000000000000000000000000000000000000000000000148061021d57507fffffffff0000000000000000000000000000000000000000000000000000000082167f4e2312e000000000000000000000000000000000000000000000000000000000145b8061026957507fffffffff0000000000000000000000000000000000000000000000000000000082167f01ffc9a700000000000000000000000000000000000000000000000000000000145b92915050565b803573ffffffffffffffffffffffffffffffffffffffff8116811461029357600080fd5b919050565b60008083601f8401126102aa57600080fd5b50813567ffffffffffffffff8111156102c257600080fd5b6020830191508360208285010111156102da57600080fd5b9250929050565b60008060008060008060008060c0898b0312156102fd57600080fd5b6103068961026f565b975061031460208a0161026f565b965061032260408a0161026f565b955060608901359450608089013567ffffffffffffffff8082111561034657600080fd5b6103528c838d01610298565b909650945060a08b013591508082111561036b57600080fd5b506103788b828c01610298565b999c989b5096995094979396929594505050565b60006020828403121561039e57600080fd5b81357fffffffff00000000000000000000000000000000000000000000000000000000811681146103ce57600080fd5b9392505050565b6000806000806000608086880312156103ed57600080fd5b6103f68661026f565b94506104046020870161026f565b935060408601359250606086013567ffffffffffffffff81111561042757600080fd5b61043388828901610298565b969995985093965092949392505050565b60008083601f84011261045657600080fd5b50813567ffffffffffffffff81111561046e57600080fd5b6020830191508360208260051b85010111156102da57600080fd5b60008060008060008060008060a0898b0312156104a557600080fd5b6104ae8961026f565b97506104bc60208a0161026f565b9650604089013567ffffffffffffffff808211156104d957600080fd5b6104e58c838d01610444565b909850965060608b01359150808211156104fe57600080fd5b61050a8c838d01610444565b909650945060808b013591508082111561036b57600080fd5b60008060008060008060a0878903121561053c57600080fd5b6105458761026f565b95506105536020880161026f565b94506040870135935060608701359250608087013567ffffffffffffffff81111561057d57600080fd5b61058989828a01610298565b979a969950949750929593949250505056fea2646970667358221220c8c42020532b17130f5cb1373d46252c2d84842e6336ab9c3504dd52f090816864736f6c63430008150033",
+    "sourceMap": "490:1299:47:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;581:176;;;;;;:::i;:::-;;;;;;;;;;;;1489:298;;;;;;:::i;:::-;;:::i;:::-;;;2084:14:143;;2077:22;2059:41;;2047:2;2032:18;1489:298:47;;;;;;;;763:212;;;;;;:::i;:::-;927:41;763:212;;;;;;;;;;;2916:66:143;2904:79;;;2886:98;;2874:2;2859:18;763:212:47;2742:248:143;1219:264:47;;;;;;:::i;:::-;1428:48;1219:264;;;;;;;;;;;981:232;;;;;;:::i;:::-;1163:43;981:232;;;;;;;;;1489:298;1576:4;1611:48;;;1626:33;1611:48;;:113;;-1:-1:-1;1675:49:47;;;1690:34;1675:49;1611:113;:169;;;-1:-1:-1;1740:40:47;;;1755:25;1740:40;1611:169;1592:188;1489:298;-1:-1:-1;;1489:298:47:o;14:196:143:-;82:20;;142:42;131:54;;121:65;;111:93;;200:1;197;190:12;111:93;14:196;;;:::o;215:347::-;266:8;276:6;330:3;323:4;315:6;311:17;307:27;297:55;;348:1;345;338:12;297:55;-1:-1:-1;371:20:143;;414:18;403:30;;400:50;;;446:1;443;436:12;400:50;483:4;475:6;471:17;459:29;;535:3;528:4;519:6;511;507:19;503:30;500:39;497:59;;;552:1;549;542:12;497:59;215:347;;;;;:::o;567:1010::-;693:6;701;709;717;725;733;741;749;802:3;790:9;781:7;777:23;773:33;770:53;;;819:1;816;809:12;770:53;842:29;861:9;842:29;:::i;:::-;832:39;;890:38;924:2;913:9;909:18;890:38;:::i;:::-;880:48;;947:38;981:2;970:9;966:18;947:38;:::i;:::-;937:48;;1032:2;1021:9;1017:18;1004:32;994:42;;1087:3;1076:9;1072:19;1059:33;1111:18;1152:2;1144:6;1141:14;1138:34;;;1168:1;1165;1158:12;1138:34;1207:58;1257:7;1248:6;1237:9;1233:22;1207:58;:::i;:::-;1284:8;;-1:-1:-1;1181:84:143;-1:-1:-1;1372:3:143;1357:19;;1344:33;;-1:-1:-1;1389:16:143;;;1386:36;;;1418:1;1415;1408:12;1386:36;;1457:60;1509:7;1498:8;1487:9;1483:24;1457:60;:::i;:::-;567:1010;;;;-1:-1:-1;567:1010:143;;-1:-1:-1;567:1010:143;;;;;;1536:8;-1:-1:-1;;;567:1010:143:o;1582:332::-;1640:6;1693:2;1681:9;1672:7;1668:23;1664:32;1661:52;;;1709:1;1706;1699:12;1661:52;1748:9;1735:23;1798:66;1791:5;1787:78;1780:5;1777:89;1767:117;;1880:1;1877;1870:12;1767:117;1903:5;1582:332;-1:-1:-1;;;1582:332:143:o;2111:626::-;2208:6;2216;2224;2232;2240;2293:3;2281:9;2272:7;2268:23;2264:33;2261:53;;;2310:1;2307;2300:12;2261:53;2333:29;2352:9;2333:29;:::i;:::-;2323:39;;2381:38;2415:2;2404:9;2400:18;2381:38;:::i;:::-;2371:48;;2466:2;2455:9;2451:18;2438:32;2428:42;;2521:2;2510:9;2506:18;2493:32;2548:18;2540:6;2537:30;2534:50;;;2580:1;2577;2570:12;2534:50;2619:58;2669:7;2660:6;2649:9;2645:22;2619:58;:::i;:::-;2111:626;;;;-1:-1:-1;2111:626:143;;-1:-1:-1;2696:8:143;;2593:84;2111:626;-1:-1:-1;;;2111:626:143:o;2995:367::-;3058:8;3068:6;3122:3;3115:4;3107:6;3103:17;3099:27;3089:55;;3140:1;3137;3130:12;3089:55;-1:-1:-1;3163:20:143;;3206:18;3195:30;;3192:50;;;3238:1;3235;3228:12;3192:50;3275:4;3267:6;3263:17;3251:29;;3335:3;3328:4;3318:6;3315:1;3311:14;3303:6;3299:27;3295:38;3292:47;3289:67;;;3352:1;3349;3342:12;3367:1210;3527:6;3535;3543;3551;3559;3567;3575;3583;3636:3;3624:9;3615:7;3611:23;3607:33;3604:53;;;3653:1;3650;3643:12;3604:53;3676:29;3695:9;3676:29;:::i;:::-;3666:39;;3724:38;3758:2;3747:9;3743:18;3724:38;:::i;:::-;3714:48;;3813:2;3802:9;3798:18;3785:32;3836:18;3877:2;3869:6;3866:14;3863:34;;;3893:1;3890;3883:12;3863:34;3932:70;3994:7;3985:6;3974:9;3970:22;3932:70;:::i;:::-;4021:8;;-1:-1:-1;3906:96:143;-1:-1:-1;4109:2:143;4094:18;;4081:32;;-1:-1:-1;4125:16:143;;;4122:36;;;4154:1;4151;4144:12;4122:36;4193:72;4257:7;4246:8;4235:9;4231:24;4193:72;:::i;:::-;4284:8;;-1:-1:-1;4167:98:143;-1:-1:-1;4372:3:143;4357:19;;4344:33;;-1:-1:-1;4389:16:143;;;4386:36;;;4418:1;4415;4408:12;4582:695;4688:6;4696;4704;4712;4720;4728;4781:3;4769:9;4760:7;4756:23;4752:33;4749:53;;;4798:1;4795;4788:12;4749:53;4821:29;4840:9;4821:29;:::i;:::-;4811:39;;4869:38;4903:2;4892:9;4888:18;4869:38;:::i;:::-;4859:48;;4954:2;4943:9;4939:18;4926:32;4916:42;;5005:2;4994:9;4990:18;4977:32;4967:42;;5060:3;5049:9;5045:19;5032:33;5088:18;5080:6;5077:30;5074:50;;;5120:1;5117;5110:12;5074:50;5159:58;5209:7;5200:6;5189:9;5185:22;5159:58;:::i;:::-;4582:695;;;;-1:-1:-1;4582:695:143;;-1:-1:-1;4582:695:143;;5236:8;;4582:695;-1:-1:-1;;;4582:695:143:o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)": "bc197c81",
+    "onERC1155Received(address,address,uint256,uint256,bytes)": "f23a6e61",
+    "onERC721Received(address,address,uint256,bytes)": "150b7a02",
+    "supportsInterface(bytes4)": "01ffc9a7",
+    "tokensReceived(address,address,address,uint256,bytes,bytes)": "0023de29"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC721Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"tokensReceived\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"supportsInterface(bytes4)\":{\"details\":\"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section] to learn more about how these ids are created. This function call must use less than 30 000 gas.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Token callback handler.   Handles supported tokens' callbacks, allowing account receiving these tokens.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol\":\"TokenCallbackHandler\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol\":{\"keccak256\":\"0xeb373f1fdc7b755c6a750123a9b9e3a8a02c1470042fd6505d875000a80bde0b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0e28648f994abf1d6bc345644a361cc0b7efa544f8bc0c8ec26011fed85a91ec\",\"dweb:/ipfs/QmVVE7AiRjKaQYYji7TkjmTeVzGpNmms5eoxqTCfvvpj6D\"]},\"../../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708\",\"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV\"]},\"../../node_modules/@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol\":{\"keccak256\":\"0x1a5d61db2733202ba361e6d6741cd2e662380e22b80e987eacfc91973f2267dc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04c0cd697050a6516b7779aa2343ad2d0e5217d8915ac2382681dfdf4e445be3\",\"dweb:/ipfs/QmPCBCZgm7pHBwwogE2F9NCN3UfTdLNhqc8UDEvw8kDzyA\"]},\"../../node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol\":{\"keccak256\":\"0xfff3df5f5211d71158bb017ff791dc4fa85db53890f7bd72bac3a43d89e83752\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://8f91c2d9845513fc88bf73efecd4907d9895b6f9fbe1d6fca09c4d3ad2d787f3\",\"dweb:/ipfs/QmQAFiKpqjVjWrm538tVEYuZvML6iNxNkQAy4UzchJEcpB\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "onERC1155BatchReceived",
+          "outputs": [
+            {
+              "internalType": "bytes4",
+              "name": "",
+              "type": "bytes4"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "onERC1155Received",
+          "outputs": [
+            {
+              "internalType": "bytes4",
+              "name": "",
+              "type": "bytes4"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "onERC721Received",
+          "outputs": [
+            {
+              "internalType": "bytes4",
+              "name": "",
+              "type": "bytes4"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "tokensReceived"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 20000
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol": "TokenCallbackHandler"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "../../node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol": {
+        "keccak256": "0xeb373f1fdc7b755c6a750123a9b9e3a8a02c1470042fd6505d875000a80bde0b",
+        "urls": [
+          "bzz-raw://0e28648f994abf1d6bc345644a361cc0b7efa544f8bc0c8ec26011fed85a91ec",
+          "dweb:/ipfs/QmVVE7AiRjKaQYYji7TkjmTeVzGpNmms5eoxqTCfvvpj6D"
+        ],
+        "license": "MIT"
+      },
+      "../../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
+        "keccak256": "0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da",
+        "urls": [
+          "bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708",
+          "dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV"
+        ],
+        "license": "MIT"
+      },
+      "../../node_modules/@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol": {
+        "keccak256": "0x1a5d61db2733202ba361e6d6741cd2e662380e22b80e987eacfc91973f2267dc",
+        "urls": [
+          "bzz-raw://04c0cd697050a6516b7779aa2343ad2d0e5217d8915ac2382681dfdf4e445be3",
+          "dweb:/ipfs/QmPCBCZgm7pHBwwogE2F9NCN3UfTdLNhqc8UDEvw8kDzyA"
+        ],
+        "license": "MIT"
+      },
+      "../../node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+        "urls": [
+          "bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f",
+          "dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
+        ],
+        "license": "MIT"
+      },
+      "../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol": {
+        "keccak256": "0xfff3df5f5211d71158bb017ff791dc4fa85db53890f7bd72bac3a43d89e83752",
+        "urls": [
+          "bzz-raw://8f91c2d9845513fc88bf73efecd4907d9895b6f9fbe1d6fca09c4d3ad2d787f3",
+          "dweb:/ipfs/QmQAFiKpqjVjWrm538tVEYuZvML6iNxNkQAy4UzchJEcpB"
+        ],
+        "license": "GPL-3.0"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": {}
+  },
+  "ast": {
+    "absolutePath": "../../node_modules/accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol",
+    "id": 4146,
+    "exportedSymbols": {
+      "IERC1155Receiver": [
+        753
+      ],
+      "IERC165": [
+        2885
+      ],
+      "IERC721Receiver": [
+        1928
+      ],
+      "IERC777Recipient": [
+        1948
+      ],
+      "TokenCallbackHandler": [
+        4145
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "36:1754:47",
+    "nodes": [
+      {
+        "id": 4023,
+        "nodeType": "PragmaDirective",
+        "src": "36:24:47",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".12"
+        ]
+      },
+      {
+        "id": 4024,
+        "nodeType": "ImportDirective",
+        "src": "101:65:47",
+        "nodes": [],
+        "absolutePath": "../../node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol",
+        "file": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 4146,
+        "sourceUnit": 2886,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 4025,
+        "nodeType": "ImportDirective",
+        "src": "167:67:47",
+        "nodes": [],
+        "absolutePath": "../../node_modules/@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol",
+        "file": "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 4146,
+        "sourceUnit": 1949,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 4026,
+        "nodeType": "ImportDirective",
+        "src": "235:66:47",
+        "nodes": [],
+        "absolutePath": "../../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "file": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 4146,
+        "sourceUnit": 1929,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 4027,
+        "nodeType": "ImportDirective",
+        "src": "302:68:47",
+        "nodes": [],
+        "absolutePath": "../../node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol",
+        "file": "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 4146,
+        "sourceUnit": 754,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 4145,
+        "nodeType": "ContractDefinition",
+        "src": "490:1299:47",
+        "nodes": [
+          {
+            "id": 4051,
+            "nodeType": "FunctionDefinition",
+            "src": "581:176:47",
+            "nodes": [],
+            "body": {
+              "id": 4050,
+              "nodeType": "Block",
+              "src": "750:7:47",
+              "nodes": [],
+              "statements": []
+            },
+            "baseFunctions": [
+              1947
+            ],
+            "functionSelector": "0023de29",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "tokensReceived",
+            "nameLocation": "590:14:47",
+            "overrides": {
+              "id": 4048,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "741:8:47"
+            },
+            "parameters": {
+              "id": 4047,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4036,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4051,
+                  "src": "614:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4035,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "614:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4038,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4051,
+                  "src": "631:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4037,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "631:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4040,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4051,
+                  "src": "648:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4039,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "648:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4042,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4051,
+                  "src": "665:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 4041,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "665:7:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4044,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4051,
+                  "src": "682:14:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 4043,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "682:5:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4046,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4051,
+                  "src": "706:14:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 4045,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "706:5:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "604:122:47"
+            },
+            "returnParameters": {
+              "id": 4049,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "750:0:47"
+            },
+            "scope": 4145,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4070,
+            "nodeType": "FunctionDefinition",
+            "src": "763:212:47",
+            "nodes": [],
+            "body": {
+              "id": 4069,
+              "nodeType": "Block",
+              "src": "910:65:47",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "expression": {
+                      "expression": {
+                        "id": 4065,
+                        "name": "IERC721Receiver",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1928,
+                        "src": "927:15:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_IERC721Receiver_$1928_$",
+                          "typeString": "type(contract IERC721Receiver)"
+                        }
+                      },
+                      "id": 4066,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberLocation": "943:16:47",
+                      "memberName": "onERC721Received",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 1927,
+                      "src": "927:32:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_declaration_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$",
+                        "typeString": "function IERC721Receiver.onERC721Received(address,address,uint256,bytes calldata) returns (bytes4)"
+                      }
+                    },
+                    "id": 4067,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "lValueRequested": false,
+                    "memberLocation": "960:8:47",
+                    "memberName": "selector",
+                    "nodeType": "MemberAccess",
+                    "src": "927:41:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "functionReturnParameters": 4064,
+                  "id": 4068,
+                  "nodeType": "Return",
+                  "src": "920:48:47"
+                }
+              ]
+            },
+            "baseFunctions": [
+              1927
+            ],
+            "functionSelector": "150b7a02",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "onERC721Received",
+            "nameLocation": "772:16:47",
+            "overrides": {
+              "id": 4061,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "884:8:47"
+            },
+            "parameters": {
+              "id": 4060,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4053,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4070,
+                  "src": "798:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4052,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "798:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4055,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4070,
+                  "src": "815:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4054,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "815:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4057,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4070,
+                  "src": "832:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 4056,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "832:7:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4059,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4070,
+                  "src": "849:14:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 4058,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "849:5:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "788:81:47"
+            },
+            "returnParameters": {
+              "id": 4064,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4063,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4070,
+                  "src": "902:6:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 4062,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "902:6:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "901:8:47"
+            },
+            "scope": 4145,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4091,
+            "nodeType": "FunctionDefinition",
+            "src": "981:232:47",
+            "nodes": [],
+            "body": {
+              "id": 4090,
+              "nodeType": "Block",
+              "src": "1146:67:47",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "expression": {
+                      "expression": {
+                        "id": 4086,
+                        "name": "IERC1155Receiver",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 753,
+                        "src": "1163:16:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_IERC1155Receiver_$753_$",
+                          "typeString": "type(contract IERC1155Receiver)"
+                        }
+                      },
+                      "id": 4087,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberLocation": "1180:17:47",
+                      "memberName": "onERC1155Received",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 734,
+                      "src": "1163:34:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_declaration_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_uint256_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$",
+                        "typeString": "function IERC1155Receiver.onERC1155Received(address,address,uint256,uint256,bytes calldata) returns (bytes4)"
+                      }
+                    },
+                    "id": 4088,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "lValueRequested": false,
+                    "memberLocation": "1198:8:47",
+                    "memberName": "selector",
+                    "nodeType": "MemberAccess",
+                    "src": "1163:43:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "functionReturnParameters": 4085,
+                  "id": 4089,
+                  "nodeType": "Return",
+                  "src": "1156:50:47"
+                }
+              ]
+            },
+            "baseFunctions": [
+              734
+            ],
+            "functionSelector": "f23a6e61",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "onERC1155Received",
+            "nameLocation": "990:17:47",
+            "overrides": {
+              "id": 4082,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1120:8:47"
+            },
+            "parameters": {
+              "id": 4081,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4072,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4091,
+                  "src": "1017:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4071,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1017:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4074,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4091,
+                  "src": "1034:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4073,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1034:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4076,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4091,
+                  "src": "1051:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 4075,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1051:7:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4078,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4091,
+                  "src": "1068:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 4077,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1068:7:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4080,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4091,
+                  "src": "1085:14:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 4079,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1085:5:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1007:98:47"
+            },
+            "returnParameters": {
+              "id": 4085,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4084,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4091,
+                  "src": "1138:6:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 4083,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1138:6:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1137:8:47"
+            },
+            "scope": 4145,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4114,
+            "nodeType": "FunctionDefinition",
+            "src": "1219:264:47",
+            "nodes": [],
+            "body": {
+              "id": 4113,
+              "nodeType": "Block",
+              "src": "1411:72:47",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "expression": {
+                      "expression": {
+                        "id": 4109,
+                        "name": "IERC1155Receiver",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 753,
+                        "src": "1428:16:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_IERC1155Receiver_$753_$",
+                          "typeString": "type(contract IERC1155Receiver)"
+                        }
+                      },
+                      "id": 4110,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberLocation": "1445:22:47",
+                      "memberName": "onERC1155BatchReceived",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 752,
+                      "src": "1428:39:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_declaration_nonpayable$_t_address_$_t_address_$_t_array$_t_uint256_$dyn_calldata_ptr_$_t_array$_t_uint256_$dyn_calldata_ptr_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$",
+                        "typeString": "function IERC1155Receiver.onERC1155BatchReceived(address,address,uint256[] calldata,uint256[] calldata,bytes calldata) returns (bytes4)"
+                      }
+                    },
+                    "id": 4111,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "lValueRequested": false,
+                    "memberLocation": "1468:8:47",
+                    "memberName": "selector",
+                    "nodeType": "MemberAccess",
+                    "src": "1428:48:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "functionReturnParameters": 4108,
+                  "id": 4112,
+                  "nodeType": "Return",
+                  "src": "1421:55:47"
+                }
+              ]
+            },
+            "baseFunctions": [
+              752
+            ],
+            "functionSelector": "bc197c81",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "onERC1155BatchReceived",
+            "nameLocation": "1228:22:47",
+            "overrides": {
+              "id": 4105,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1385:8:47"
+            },
+            "parameters": {
+              "id": 4104,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4093,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4114,
+                  "src": "1260:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4092,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1260:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4095,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4114,
+                  "src": "1277:7:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4094,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1277:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4098,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4114,
+                  "src": "1294:18:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_calldata_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 4096,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1294:7:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 4097,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1294:9:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4101,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4114,
+                  "src": "1322:18:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_calldata_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 4099,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1322:7:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 4100,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1322:9:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 4103,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4114,
+                  "src": "1350:14:47",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 4102,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1350:5:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1250:120:47"
+            },
+            "returnParameters": {
+              "id": 4108,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4107,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4114,
+                  "src": "1403:6:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 4106,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1403:6:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1402:8:47"
+            },
+            "scope": 4145,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4144,
+            "nodeType": "FunctionDefinition",
+            "src": "1489:298:47",
+            "nodes": [],
+            "body": {
+              "id": 4143,
+              "nodeType": "Block",
+              "src": "1582:205:47",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 4141,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "id": 4134,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "commonType": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        },
+                        "id": 4127,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "id": 4122,
+                          "name": "interfaceId",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4116,
+                          "src": "1611:11:47",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "==",
+                        "rightExpression": {
+                          "expression": {
+                            "arguments": [
+                              {
+                                "id": 4124,
+                                "name": "IERC721Receiver",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 1928,
+                                "src": "1631:15:47",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IERC721Receiver_$1928_$",
+                                  "typeString": "type(contract IERC721Receiver)"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_type$_t_contract$_IERC721Receiver_$1928_$",
+                                  "typeString": "type(contract IERC721Receiver)"
+                                }
+                              ],
+                              "id": 4123,
+                              "name": "type",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": -27,
+                              "src": "1626:4:47",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_metatype_pure$__$returns$__$",
+                                "typeString": "function () pure"
+                              }
+                            },
+                            "id": 4125,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "nameLocations": [],
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "1626:21:47",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_magic_meta_type_t_contract$_IERC721Receiver_$1928",
+                              "typeString": "type(contract IERC721Receiver)"
+                            }
+                          },
+                          "id": 4126,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "memberLocation": "1648:11:47",
+                          "memberName": "interfaceId",
+                          "nodeType": "MemberAccess",
+                          "src": "1626:33:47",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        },
+                        "src": "1611:48:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "||",
+                      "rightExpression": {
+                        "commonType": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        },
+                        "id": 4133,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "id": 4128,
+                          "name": "interfaceId",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4116,
+                          "src": "1675:11:47",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "==",
+                        "rightExpression": {
+                          "expression": {
+                            "arguments": [
+                              {
+                                "id": 4130,
+                                "name": "IERC1155Receiver",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 753,
+                                "src": "1695:16:47",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IERC1155Receiver_$753_$",
+                                  "typeString": "type(contract IERC1155Receiver)"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_type$_t_contract$_IERC1155Receiver_$753_$",
+                                  "typeString": "type(contract IERC1155Receiver)"
+                                }
+                              ],
+                              "id": 4129,
+                              "name": "type",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": -27,
+                              "src": "1690:4:47",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_metatype_pure$__$returns$__$",
+                                "typeString": "function () pure"
+                              }
+                            },
+                            "id": 4131,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "nameLocations": [],
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "1690:22:47",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_magic_meta_type_t_contract$_IERC1155Receiver_$753",
+                              "typeString": "type(contract IERC1155Receiver)"
+                            }
+                          },
+                          "id": 4132,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "memberLocation": "1713:11:47",
+                          "memberName": "interfaceId",
+                          "nodeType": "MemberAccess",
+                          "src": "1690:34:47",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        },
+                        "src": "1675:49:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "src": "1611:113:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "||",
+                    "rightExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_bytes4",
+                        "typeString": "bytes4"
+                      },
+                      "id": 4140,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 4135,
+                        "name": "interfaceId",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 4116,
+                        "src": "1740:11:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "==",
+                      "rightExpression": {
+                        "expression": {
+                          "arguments": [
+                            {
+                              "id": 4137,
+                              "name": "IERC165",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 2885,
+                              "src": "1760:7:47",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_IERC165_$2885_$",
+                                "typeString": "type(contract IERC165)"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_type$_t_contract$_IERC165_$2885_$",
+                                "typeString": "type(contract IERC165)"
+                              }
+                            ],
+                            "id": 4136,
+                            "name": "type",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": -27,
+                            "src": "1755:4:47",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_metatype_pure$__$returns$__$",
+                              "typeString": "function () pure"
+                            }
+                          },
+                          "id": 4138,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1755:13:47",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_meta_type_t_contract$_IERC165_$2885",
+                            "typeString": "type(contract IERC165)"
+                          }
+                        },
+                        "id": 4139,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "memberLocation": "1769:11:47",
+                        "memberName": "interfaceId",
+                        "nodeType": "MemberAccess",
+                        "src": "1755:25:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        }
+                      },
+                      "src": "1740:40:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "1611:169:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 4121,
+                  "id": 4142,
+                  "nodeType": "Return",
+                  "src": "1592:188:47"
+                }
+              ]
+            },
+            "baseFunctions": [
+              2884
+            ],
+            "functionSelector": "01ffc9a7",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "supportsInterface",
+            "nameLocation": "1498:17:47",
+            "overrides": {
+              "id": 4118,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1558:8:47"
+            },
+            "parameters": {
+              "id": 4117,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4116,
+                  "mutability": "mutable",
+                  "name": "interfaceId",
+                  "nameLocation": "1523:11:47",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4144,
+                  "src": "1516:18:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 4115,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1516:6:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1515:20:47"
+            },
+            "returnParameters": {
+              "id": 4121,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4120,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4144,
+                  "src": "1576:4:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 4119,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1576:4:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1575:6:47"
+            },
+            "scope": 4145,
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 4029,
+              "name": "IERC777Recipient",
+              "nameLocations": [
+                "523:16:47"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 1948,
+              "src": "523:16:47"
+            },
+            "id": 4030,
+            "nodeType": "InheritanceSpecifier",
+            "src": "523:16:47"
+          },
+          {
+            "baseName": {
+              "id": 4031,
+              "name": "IERC721Receiver",
+              "nameLocations": [
+                "541:15:47"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 1928,
+              "src": "541:15:47"
+            },
+            "id": 4032,
+            "nodeType": "InheritanceSpecifier",
+            "src": "541:15:47"
+          },
+          {
+            "baseName": {
+              "id": 4033,
+              "name": "IERC1155Receiver",
+              "nameLocations": [
+                "558:16:47"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 753,
+              "src": "558:16:47"
+            },
+            "id": 4034,
+            "nodeType": "InheritanceSpecifier",
+            "src": "558:16:47"
+          }
+        ],
+        "canonicalName": "TokenCallbackHandler",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 4028,
+          "nodeType": "StructuredDocumentation",
+          "src": "372:117:47",
+          "text": " Token callback handler.\n   Handles supported tokens' callbacks, allowing account receiving these tokens."
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          4145,
+          753,
+          2885,
+          1928,
+          1948
+        ],
+        "name": "TokenCallbackHandler",
+        "nameLocation": "499:20:47",
+        "scope": 4146,
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "license": "GPL-3.0"
+  },
+  "id": 47
+}

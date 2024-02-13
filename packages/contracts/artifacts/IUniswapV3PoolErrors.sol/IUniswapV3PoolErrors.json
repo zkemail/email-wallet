@@ -1,1 +1,444 @@
-{"abi":[{"type":"error","name":"AI","inputs":[]},{"type":"error","name":"AS","inputs":[]},{"type":"error","name":"F0","inputs":[]},{"type":"error","name":"F1","inputs":[]},{"type":"error","name":"IIA","inputs":[]},{"type":"error","name":"L","inputs":[]},{"type":"error","name":"LOK","inputs":[]},{"type":"error","name":"M0","inputs":[]},{"type":"error","name":"M1","inputs":[]},{"type":"error","name":"TLM","inputs":[]},{"type":"error","name":"TLU","inputs":[]},{"type":"error","name":"TUM","inputs":[]}],"bytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"deployedBytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"methodIdentifiers":{},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AI\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IIA\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LOK\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLM\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLU\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TUM\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Errors emitted by a pool\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contains all events emitted by the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":\"IUniswapV3PoolErrors\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":{\"keccak256\":\"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa\",\"dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.23+commit.f704f362"},"language":"Solidity","output":{"abi":[{"inputs":[],"type":"error","name":"AI"},{"inputs":[],"type":"error","name":"AS"},{"inputs":[],"type":"error","name":"F0"},{"inputs":[],"type":"error","name":"F1"},{"inputs":[],"type":"error","name":"IIA"},{"inputs":[],"type":"error","name":"L"},{"inputs":[],"type":"error","name":"LOK"},{"inputs":[],"type":"error","name":"M0"},{"inputs":[],"type":"error","name":"M1"},{"inputs":[],"type":"error","name":"TLM"},{"inputs":[],"type":"error","name":"TLU"},{"inputs":[],"type":"error","name":"TUM"}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"remappings":["@gnosis.pm/=../../node_modules/@gnosis.pm/","@openzeppelin/=../../node_modules/@openzeppelin/","@uniswap/=../../node_modules/@uniswap/","@zk-email/=../../node_modules/@zk-email/","accountabstraction/=../../node_modules/accountabstraction/","base64-sol/=../../node_modules/base64-sol/","ds-test/=../../node_modules/ds-test/src/","forge-std/=../../node_modules/forge-std/src/","hardhat-deploy/=../../node_modules/hardhat-deploy/","snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/","solady/=../../node_modules/solady/src/"],"optimizer":{"enabled":true,"runs":20000},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol":"IUniswapV3PoolErrors"},"libraries":{}},"sources":{"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol":{"keccak256":"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b","urls":["bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa","dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco"],"license":"GPL-2.0-or-later"}},"version":1},"storageLayout":{"storage":[],"types":{}},"ast":{"absolutePath":"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol","id":70082,"exportedSymbols":{"IUniswapV3PoolErrors":[70081]},"nodeType":"SourceUnit","src":"45:345:36","nodes":[{"id":70055,"nodeType":"PragmaDirective","src":"45:24:36","nodes":[],"literals":["solidity",">=","0.5",".0"]},{"id":70081,"nodeType":"ContractDefinition","src":"159:230:36","nodes":[{"id":70058,"nodeType":"ErrorDefinition","src":"196:12:36","nodes":[],"errorSelector":"a1bf7886","name":"LOK","nameLocation":"202:3:36","parameters":{"id":70057,"nodeType":"ParameterList","parameters":[],"src":"205:2:36"}},{"id":70060,"nodeType":"ErrorDefinition","src":"213:12:36","nodes":[],"errorSelector":"2fe0284f","name":"TLU","nameLocation":"219:3:36","parameters":{"id":70059,"nodeType":"ParameterList","parameters":[],"src":"222:2:36"}},{"id":70062,"nodeType":"ErrorDefinition","src":"230:12:36","nodes":[],"errorSelector":"9ad612e8","name":"TLM","nameLocation":"236:3:36","parameters":{"id":70061,"nodeType":"ParameterList","parameters":[],"src":"239:2:36"}},{"id":70064,"nodeType":"ErrorDefinition","src":"247:12:36","nodes":[],"errorSelector":"d7b54ab1","name":"TUM","nameLocation":"253:3:36","parameters":{"id":70063,"nodeType":"ParameterList","parameters":[],"src":"256:2:36"}},{"id":70066,"nodeType":"ErrorDefinition","src":"264:11:36","nodes":[],"errorSelector":"9cc0b7f8","name":"AI","nameLocation":"270:2:36","parameters":{"id":70065,"nodeType":"ParameterList","parameters":[],"src":"272:2:36"}},{"id":70068,"nodeType":"ErrorDefinition","src":"280:11:36","nodes":[],"errorSelector":"748800af","name":"M0","nameLocation":"286:2:36","parameters":{"id":70067,"nodeType":"ParameterList","parameters":[],"src":"288:2:36"}},{"id":70070,"nodeType":"ErrorDefinition","src":"296:11:36","nodes":[],"errorSelector":"20e5672e","name":"M1","nameLocation":"302:2:36","parameters":{"id":70069,"nodeType":"ParameterList","parameters":[],"src":"304:2:36"}},{"id":70072,"nodeType":"ErrorDefinition","src":"312:11:36","nodes":[],"errorSelector":"03fff018","name":"AS","nameLocation":"318:2:36","parameters":{"id":70071,"nodeType":"ParameterList","parameters":[],"src":"320:2:36"}},{"id":70074,"nodeType":"ErrorDefinition","src":"328:12:36","nodes":[],"errorSelector":"ba0b951e","name":"IIA","nameLocation":"334:3:36","parameters":{"id":70073,"nodeType":"ParameterList","parameters":[],"src":"337:2:36"}},{"id":70076,"nodeType":"ErrorDefinition","src":"345:10:36","nodes":[],"errorSelector":"9f13f76d","name":"L","nameLocation":"351:1:36","parameters":{"id":70075,"nodeType":"ParameterList","parameters":[],"src":"352:2:36"}},{"id":70078,"nodeType":"ErrorDefinition","src":"360:11:36","nodes":[],"errorSelector":"f704e899","name":"F0","nameLocation":"366:2:36","parameters":{"id":70077,"nodeType":"ParameterList","parameters":[],"src":"368:2:36"}},{"id":70080,"nodeType":"ErrorDefinition","src":"376:11:36","nodes":[],"errorSelector":"e90c3493","name":"F1","nameLocation":"382:2:36","parameters":{"id":70079,"nodeType":"ParameterList","parameters":[],"src":"384:2:36"}}],"abstract":false,"baseContracts":[],"canonicalName":"IUniswapV3PoolErrors","contractDependencies":[],"contractKind":"interface","documentation":{"id":70056,"nodeType":"StructuredDocumentation","src":"71:88:36","text":"@title Errors emitted by a pool\n @notice Contains all events emitted by the pool"},"fullyImplemented":true,"linearizedBaseContracts":[70081],"name":"IUniswapV3PoolErrors","nameLocation":"169:20:36","scope":70082,"usedErrors":[70058,70060,70062,70064,70066,70068,70070,70072,70074,70076,70078,70080],"usedEvents":[]}],"license":"GPL-2.0-or-later"},"id":36}
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "AI",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AS",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "F0",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "F1",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "IIA",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "L",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LOK",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "M0",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "M1",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TLM",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TLU",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TUM",
+      "type": "error"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AI\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AS\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"F1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IIA\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LOK\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M0\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"M1\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLM\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TLU\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TUM\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Errors emitted by a pool\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contains all events emitted by the pool\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":\"IUniswapV3PoolErrors\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol\":{\"keccak256\":\"0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa\",\"dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AI"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AS"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "F0"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "F1"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "IIA"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "L"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "LOK"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "M0"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "M1"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TLM"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TLU"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TUM"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 20000
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": "IUniswapV3PoolErrors"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol": {
+        "keccak256": "0xf80abf13fb1fafc127ba4e792f240dd8ea7c8c893978cdfd8439c27fae9a037b",
+        "urls": [
+          "bzz-raw://b04fc72a656bbf3631e9c2e67b9870a2d9d235185e833fe050e9606e6816a9aa",
+          "dweb:/ipfs/QmUcz4bkEkJ9pwzFu1C3n97hBQ3st9U6qTAqCdyFwddKco"
+        ],
+        "license": "GPL-2.0-or-later"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+    "id": 15205,
+    "exportedSymbols": {
+      "IUniswapV3PoolErrors": [
+        15204
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "45:345:83",
+    "nodes": [
+      {
+        "id": 15178,
+        "nodeType": "PragmaDirective",
+        "src": "45:24:83",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ]
+      },
+      {
+        "id": 15204,
+        "nodeType": "ContractDefinition",
+        "src": "159:230:83",
+        "nodes": [
+          {
+            "id": 15181,
+            "nodeType": "ErrorDefinition",
+            "src": "196:12:83",
+            "nodes": [],
+            "errorSelector": "a1bf7886",
+            "name": "LOK",
+            "nameLocation": "202:3:83",
+            "parameters": {
+              "id": 15180,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "205:2:83"
+            }
+          },
+          {
+            "id": 15183,
+            "nodeType": "ErrorDefinition",
+            "src": "213:12:83",
+            "nodes": [],
+            "errorSelector": "2fe0284f",
+            "name": "TLU",
+            "nameLocation": "219:3:83",
+            "parameters": {
+              "id": 15182,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "222:2:83"
+            }
+          },
+          {
+            "id": 15185,
+            "nodeType": "ErrorDefinition",
+            "src": "230:12:83",
+            "nodes": [],
+            "errorSelector": "9ad612e8",
+            "name": "TLM",
+            "nameLocation": "236:3:83",
+            "parameters": {
+              "id": 15184,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "239:2:83"
+            }
+          },
+          {
+            "id": 15187,
+            "nodeType": "ErrorDefinition",
+            "src": "247:12:83",
+            "nodes": [],
+            "errorSelector": "d7b54ab1",
+            "name": "TUM",
+            "nameLocation": "253:3:83",
+            "parameters": {
+              "id": 15186,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "256:2:83"
+            }
+          },
+          {
+            "id": 15189,
+            "nodeType": "ErrorDefinition",
+            "src": "264:11:83",
+            "nodes": [],
+            "errorSelector": "9cc0b7f8",
+            "name": "AI",
+            "nameLocation": "270:2:83",
+            "parameters": {
+              "id": 15188,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "272:2:83"
+            }
+          },
+          {
+            "id": 15191,
+            "nodeType": "ErrorDefinition",
+            "src": "280:11:83",
+            "nodes": [],
+            "errorSelector": "748800af",
+            "name": "M0",
+            "nameLocation": "286:2:83",
+            "parameters": {
+              "id": 15190,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "288:2:83"
+            }
+          },
+          {
+            "id": 15193,
+            "nodeType": "ErrorDefinition",
+            "src": "296:11:83",
+            "nodes": [],
+            "errorSelector": "20e5672e",
+            "name": "M1",
+            "nameLocation": "302:2:83",
+            "parameters": {
+              "id": 15192,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "304:2:83"
+            }
+          },
+          {
+            "id": 15195,
+            "nodeType": "ErrorDefinition",
+            "src": "312:11:83",
+            "nodes": [],
+            "errorSelector": "03fff018",
+            "name": "AS",
+            "nameLocation": "318:2:83",
+            "parameters": {
+              "id": 15194,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "320:2:83"
+            }
+          },
+          {
+            "id": 15197,
+            "nodeType": "ErrorDefinition",
+            "src": "328:12:83",
+            "nodes": [],
+            "errorSelector": "ba0b951e",
+            "name": "IIA",
+            "nameLocation": "334:3:83",
+            "parameters": {
+              "id": 15196,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "337:2:83"
+            }
+          },
+          {
+            "id": 15199,
+            "nodeType": "ErrorDefinition",
+            "src": "345:10:83",
+            "nodes": [],
+            "errorSelector": "9f13f76d",
+            "name": "L",
+            "nameLocation": "351:1:83",
+            "parameters": {
+              "id": 15198,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "352:2:83"
+            }
+          },
+          {
+            "id": 15201,
+            "nodeType": "ErrorDefinition",
+            "src": "360:11:83",
+            "nodes": [],
+            "errorSelector": "f704e899",
+            "name": "F0",
+            "nameLocation": "366:2:83",
+            "parameters": {
+              "id": 15200,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "368:2:83"
+            }
+          },
+          {
+            "id": 15203,
+            "nodeType": "ErrorDefinition",
+            "src": "376:11:83",
+            "nodes": [],
+            "errorSelector": "e90c3493",
+            "name": "F1",
+            "nameLocation": "382:2:83",
+            "parameters": {
+              "id": 15202,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "384:2:83"
+            }
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IUniswapV3PoolErrors",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 15179,
+          "nodeType": "StructuredDocumentation",
+          "src": "71:88:83",
+          "text": "@title Errors emitted by a pool\n @notice Contains all events emitted by the pool"
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          15204
+        ],
+        "name": "IUniswapV3PoolErrors",
+        "nameLocation": "169:20:83",
+        "scope": 15205,
+        "usedErrors": [
+          15181,
+          15183,
+          15185,
+          15187,
+          15189,
+          15191,
+          15193,
+          15195,
+          15197,
+          15199,
+          15201,
+          15203
+        ],
+        "usedEvents": []
+      }
+    ],
+    "license": "GPL-2.0-or-later"
+  },
+  "id": 83
+}

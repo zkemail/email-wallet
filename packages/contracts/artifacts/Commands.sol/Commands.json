@@ -1,1 +1,1134 @@
-{"abi":[{"type":"function","name":"ADDRESS_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"AMOUNT_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"DKIM","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"EXECUTE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"EXIT_EMAIL_WALLET","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"INSTALL_EXTENSION","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"INT_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"RECIPIENT_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"SEND","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"STRING_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"TOKEN_AMOUNT_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"UINT_TEMPLATE","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"UNINSTALL_EXTENSION","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"}],"bytecode":{"object":"0x6104b361003a600b82828239805160001a60731461002d57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600436106100e95760003560e01c806335c8b1ec116100965780638c215036116100705780638c21503614610320578063a14b1f851461035c578063d95dcc3514610398578063e30f17cd146103d457600080fd5b806335c8b1ec1461026c57806382a576cb146102a857806386eae84b146102e457600080fd5b80631f5e1334116100c75780631f5e1334146101b85780632564f64a146101f4578063328b77701461023057600080fd5b806307e6fcd0146100ee5780630e6db37b146101405780630ec074491461017c575b600080fd5b61012a6040518060400160405280600681526020017f7b75696e747d000000000000000000000000000000000000000000000000000081525081565b6040516101379190610410565b60405180910390f35b61012a6040518060400160405280600881526020017f7b616d6f756e747d00000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600b81526020017f7b726563697069656e747d00000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600481526020017f53656e640000000000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600981526020017f556e696e7374616c6c000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600781526020017f457865637574650000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600881526020017f7b737472696e677d00000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600481526020017f457869740000000000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600781526020017f496e7374616c6c0000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600d81526020017f7b746f6b656e416d6f756e747d0000000000000000000000000000000000000081525081565b61012a6040518060400160405280600481526020017f444b494d0000000000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600981526020017f7b616464726573737d000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600581526020017f7b696e747d00000000000000000000000000000000000000000000000000000081525081565b60006020808352835180602085015260005b8181101561043e57858101830151858201604001528201610422565b5060006040828601015260407fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0601f830116850101925050509291505056fea2646970667358221220537395f620377477238647a534a0b29eeaa43cd9978f83befba119fdd73733f364736f6c63430008170033","sourceMap":"557:736:127:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;557:736:127;;;;;;;;;;;;;;;;;","linkReferences":{}},"deployedBytecode":{"object":"0x73000000000000000000000000000000000000000030146080604052600436106100e95760003560e01c806335c8b1ec116100965780638c215036116100705780638c21503614610320578063a14b1f851461035c578063d95dcc3514610398578063e30f17cd146103d457600080fd5b806335c8b1ec1461026c57806382a576cb146102a857806386eae84b146102e457600080fd5b80631f5e1334116100c75780631f5e1334146101b85780632564f64a146101f4578063328b77701461023057600080fd5b806307e6fcd0146100ee5780630e6db37b146101405780630ec074491461017c575b600080fd5b61012a6040518060400160405280600681526020017f7b75696e747d000000000000000000000000000000000000000000000000000081525081565b6040516101379190610410565b60405180910390f35b61012a6040518060400160405280600881526020017f7b616d6f756e747d00000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600b81526020017f7b726563697069656e747d00000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600481526020017f53656e640000000000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600981526020017f556e696e7374616c6c000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600781526020017f457865637574650000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600881526020017f7b737472696e677d00000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600481526020017f457869740000000000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600781526020017f496e7374616c6c0000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600d81526020017f7b746f6b656e416d6f756e747d0000000000000000000000000000000000000081525081565b61012a6040518060400160405280600481526020017f444b494d0000000000000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600981526020017f7b616464726573737d000000000000000000000000000000000000000000000081525081565b61012a6040518060400160405280600581526020017f7b696e747d00000000000000000000000000000000000000000000000000000081525081565b60006020808352835180602085015260005b8181101561043e57858101830151858201604001528201610422565b5060006040828601015260407fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0601f830116850101925050509291505056fea2646970667358221220537395f620377477238647a534a0b29eeaa43cd9978f83befba119fdd73733f364736f6c63430008170033","sourceMap":"557:736:127:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1070:47;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;956:51;;;;;;;;;;;;;;;;;;;;;1233:57;;;;;;;;;;;;;;;;;;;;;580:36;;;;;;;;;;;;;;;;;;;;;770:56;;;;;;;;;;;;;;;;;;;;;622:42;;;;;;;;;;;;;;;;;;;;;1013:51;;;;;;;;;;;;;;;;;;;;;832:49;;;;;;;;;;;;;;;;;;;;;712:52;;;;;;;;;;;;;;;;;;;;;888:62;;;;;;;;;;;;;;;;;;;;;670:36;;;;;;;;;;;;;;;;;;;;;1174:53;;;;;;;;;;;;;;;;;;;;;1123:45;;;;;;;;;;;;;;;;;;;;;14:615:144;134:4;163:2;192;181:9;174:21;224:6;218:13;267:6;262:2;251:9;247:18;240:34;292:1;302:140;316:6;313:1;310:13;302:140;;;411:14;;;407:23;;401:30;377:17;;;396:2;373:26;366:66;331:10;;302:140;;;306:3;491:1;486:2;477:6;466:9;462:22;458:31;451:42;620:2;550:66;545:2;537:6;533:15;529:88;518:9;514:104;510:113;502:121;;;;14:615;;;;:::o","linkReferences":{}},"methodIdentifiers":{"ADDRESS_TEMPLATE()":"d95dcc35","AMOUNT_TEMPLATE()":"0e6db37b","DKIM()":"a14b1f85","EXECUTE()":"328b7770","EXIT_EMAIL_WALLET()":"82a576cb","INSTALL_EXTENSION()":"86eae84b","INT_TEMPLATE()":"e30f17cd","RECIPIENT_TEMPLATE()":"0ec07449","SEND()":"1f5e1334","STRING_TEMPLATE()":"35c8b1ec","TOKEN_AMOUNT_TEMPLATE()":"8c215036","UINT_TEMPLATE()":"07e6fcd0","UNINSTALL_EXTENSION()":"2564f64a"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"ADDRESS_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"AMOUNT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DKIM\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"EXECUTE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"EXIT_EMAIL_WALLET\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"INSTALL_EXTENSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"INT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"RECIPIENT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SEND\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"STRING_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TOKEN_AMOUNT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"UINT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"UNINSTALL_EXTENSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/Commands.sol\":\"Commands\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/Commands.sol\":{\"keccak256\":\"0x51c231cbf0add6f1be7c06183e22a5825f3a8f8d42704bfbec90e27de58fb529\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e69728eb260a8a91f0ba5da04d7f360ce28bc39fd3ec9b440a742c60c412de03\",\"dweb:/ipfs/QmQYzasGzc5uHhaENkPJCyBdE4LuN4KaZwn8aR9FKw2KWi\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.23+commit.f704f362"},"language":"Solidity","output":{"abi":[{"inputs":[],"stateMutability":"view","type":"function","name":"ADDRESS_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"AMOUNT_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"DKIM","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"EXECUTE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"EXIT_EMAIL_WALLET","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"INSTALL_EXTENSION","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"INT_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"RECIPIENT_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"SEND","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"STRING_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"TOKEN_AMOUNT_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"UINT_TEMPLATE","outputs":[{"internalType":"string","name":"","type":"string"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"UNINSTALL_EXTENSION","outputs":[{"internalType":"string","name":"","type":"string"}]}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"remappings":["@gnosis.pm/=../../node_modules/@gnosis.pm/","@openzeppelin/=../../node_modules/@openzeppelin/","@uniswap/=../../node_modules/@uniswap/","@zk-email/=../../node_modules/@zk-email/","accountabstraction/=../../node_modules/accountabstraction/","base64-sol/=../../node_modules/base64-sol/","ds-test/=../../node_modules/ds-test/src/","forge-std/=../../node_modules/forge-std/src/","hardhat-deploy/=../../node_modules/hardhat-deploy/","snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/","solady/=../../node_modules/solady/src/"],"optimizer":{"enabled":true,"runs":20000},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"src/interfaces/Commands.sol":"Commands"},"libraries":{}},"sources":{"src/interfaces/Commands.sol":{"keccak256":"0x51c231cbf0add6f1be7c06183e22a5825f3a8f8d42704bfbec90e27de58fb529","urls":["bzz-raw://e69728eb260a8a91f0ba5da04d7f360ce28bc39fd3ec9b440a742c60c412de03","dweb:/ipfs/QmQYzasGzc5uHhaENkPJCyBdE4LuN4KaZwn8aR9FKw2KWi"],"license":"MIT"}},"version":1},"storageLayout":{"storage":[],"types":{}},"ast":{"absolutePath":"src/interfaces/Commands.sol","id":63605,"exportedSymbols":{"Commands":[63604]},"nodeType":"SourceUnit","src":"32:1262:127","nodes":[{"id":63564,"nodeType":"PragmaDirective","src":"32:23:127","nodes":[],"literals":["solidity","^","0.8",".0"]},{"id":63604,"nodeType":"ContractDefinition","src":"557:736:127","nodes":[{"id":63567,"nodeType":"VariableDeclaration","src":"580:36:127","nodes":[],"constant":true,"functionSelector":"1f5e1334","mutability":"constant","name":"SEND","nameLocation":"603:4:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63565,"name":"string","nodeType":"ElementaryTypeName","src":"580:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"53656e64","id":63566,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"610:6:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_a886dd9bf74a23521a7b7ff5d419d5a1c9e53e4b8c030012967fabd9be778219","typeString":"literal_string \"Send\""},"value":"Send"},"visibility":"public"},{"id":63570,"nodeType":"VariableDeclaration","src":"622:42:127","nodes":[],"constant":true,"functionSelector":"328b7770","mutability":"constant","name":"EXECUTE","nameLocation":"645:7:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63568,"name":"string","nodeType":"ElementaryTypeName","src":"622:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"45786563757465","id":63569,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"655:9:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_28d668beb286a0839c52825618abb539cbe274853731db4004ca7bcf1049a4ca","typeString":"literal_string \"Execute\""},"value":"Execute"},"visibility":"public"},{"id":63573,"nodeType":"VariableDeclaration","src":"670:36:127","nodes":[],"constant":true,"functionSelector":"a14b1f85","mutability":"constant","name":"DKIM","nameLocation":"693:4:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63571,"name":"string","nodeType":"ElementaryTypeName","src":"670:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"444b494d","id":63572,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"700:6:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_63caed16123396ddfbcc1e893ad0c18ec46a2548dbeb5118752368356439f0af","typeString":"literal_string \"DKIM\""},"value":"DKIM"},"visibility":"public"},{"id":63576,"nodeType":"VariableDeclaration","src":"712:52:127","nodes":[],"constant":true,"functionSelector":"86eae84b","mutability":"constant","name":"INSTALL_EXTENSION","nameLocation":"735:17:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63574,"name":"string","nodeType":"ElementaryTypeName","src":"712:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"496e7374616c6c","id":63575,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"755:9:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_6697c63a74fcc5c464f3dcb6b3a4e49cb1d1003da99048d44c6d2b12fe00ff3a","typeString":"literal_string \"Install\""},"value":"Install"},"visibility":"public"},{"id":63579,"nodeType":"VariableDeclaration","src":"770:56:127","nodes":[],"constant":true,"functionSelector":"2564f64a","mutability":"constant","name":"UNINSTALL_EXTENSION","nameLocation":"793:19:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63577,"name":"string","nodeType":"ElementaryTypeName","src":"770:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"556e696e7374616c6c","id":63578,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"815:11:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_cf0fb4af6fa71203bf8ca49a15d730b9e9a0385a52961e75ded30718d69a944e","typeString":"literal_string \"Uninstall\""},"value":"Uninstall"},"visibility":"public"},{"id":63582,"nodeType":"VariableDeclaration","src":"832:49:127","nodes":[],"constant":true,"functionSelector":"82a576cb","mutability":"constant","name":"EXIT_EMAIL_WALLET","nameLocation":"855:17:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63580,"name":"string","nodeType":"ElementaryTypeName","src":"832:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"45786974","id":63581,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"875:6:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_24f73f4b0982cea5408e76088d1820dcfce3fd3fb65e923dcb9879c1e7e91141","typeString":"literal_string \"Exit\""},"value":"Exit"},"visibility":"public"},{"id":63585,"nodeType":"VariableDeclaration","src":"888:62:127","nodes":[],"constant":true,"functionSelector":"8c215036","mutability":"constant","name":"TOKEN_AMOUNT_TEMPLATE","nameLocation":"911:21:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63583,"name":"string","nodeType":"ElementaryTypeName","src":"888:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b746f6b656e416d6f756e747d","id":63584,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"935:15:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_815ff003ec3cd903b6b66ff0f95b542fd3a93d2d90693c0d0c6beaa33ccaaf2b","typeString":"literal_string \"{tokenAmount}\""},"value":"{tokenAmount}"},"visibility":"public"},{"id":63588,"nodeType":"VariableDeclaration","src":"956:51:127","nodes":[],"constant":true,"functionSelector":"0e6db37b","mutability":"constant","name":"AMOUNT_TEMPLATE","nameLocation":"979:15:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63586,"name":"string","nodeType":"ElementaryTypeName","src":"956:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b616d6f756e747d","id":63587,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"997:10:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_6f8367b1d9d8a7b82dd8c3fea75362c06146bca071119cf59a3cb58501076bf0","typeString":"literal_string \"{amount}\""},"value":"{amount}"},"visibility":"public"},{"id":63591,"nodeType":"VariableDeclaration","src":"1013:51:127","nodes":[],"constant":true,"functionSelector":"35c8b1ec","mutability":"constant","name":"STRING_TEMPLATE","nameLocation":"1036:15:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63589,"name":"string","nodeType":"ElementaryTypeName","src":"1013:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b737472696e677d","id":63590,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"1054:10:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_b0dd9c5dfd6b1348089539c8cd8146a59f1fd23ff2de9c6052e54da8d2a6c0fb","typeString":"literal_string \"{string}\""},"value":"{string}"},"visibility":"public"},{"id":63594,"nodeType":"VariableDeclaration","src":"1070:47:127","nodes":[],"constant":true,"functionSelector":"07e6fcd0","mutability":"constant","name":"UINT_TEMPLATE","nameLocation":"1093:13:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63592,"name":"string","nodeType":"ElementaryTypeName","src":"1070:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b75696e747d","id":63593,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"1109:8:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_6f5ea6f405f661d5066b9e0ff07a25fd2e0d206057a7fc2dfef33ff65ad22a23","typeString":"literal_string \"{uint}\""},"value":"{uint}"},"visibility":"public"},{"id":63597,"nodeType":"VariableDeclaration","src":"1123:45:127","nodes":[],"constant":true,"functionSelector":"e30f17cd","mutability":"constant","name":"INT_TEMPLATE","nameLocation":"1146:12:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63595,"name":"string","nodeType":"ElementaryTypeName","src":"1123:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b696e747d","id":63596,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"1161:7:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_96115c52281705004db3ca7f604112b6bc76ae505ed268b2dbee29feb8e7899d","typeString":"literal_string \"{int}\""},"value":"{int}"},"visibility":"public"},{"id":63600,"nodeType":"VariableDeclaration","src":"1174:53:127","nodes":[],"constant":true,"functionSelector":"d95dcc35","mutability":"constant","name":"ADDRESS_TEMPLATE","nameLocation":"1197:16:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63598,"name":"string","nodeType":"ElementaryTypeName","src":"1174:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b616464726573737d","id":63599,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"1216:11:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_9a3de9fca46f2420947f2d1d4744c5febedebc77b9a3fcbfcf16ed02cbe48f73","typeString":"literal_string \"{address}\""},"value":"{address}"},"visibility":"public"},{"id":63603,"nodeType":"VariableDeclaration","src":"1233:57:127","nodes":[],"constant":true,"functionSelector":"0ec07449","mutability":"constant","name":"RECIPIENT_TEMPLATE","nameLocation":"1256:18:127","scope":63604,"stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63601,"name":"string","nodeType":"ElementaryTypeName","src":"1233:6:127","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"value":{"hexValue":"7b726563697069656e747d","id":63602,"isConstant":false,"isLValue":false,"isPure":true,"kind":"string","lValueRequested":false,"nodeType":"Literal","src":"1277:13:127","typeDescriptions":{"typeIdentifier":"t_stringliteral_8aaf32fcbd174399cb3669036e8da3c3578002bcce064a4a8f29f7b5674bbcaf","typeString":"literal_string \"{recipient}\""},"value":"{recipient}"},"visibility":"public"}],"abstract":false,"baseContracts":[],"canonicalName":"Commands","contractDependencies":[],"contractKind":"library","fullyImplemented":true,"linearizedBaseContracts":[63604],"name":"Commands","nameLocation":"565:8:127","scope":63605,"usedErrors":[],"usedEvents":[]}],"license":"MIT"},"id":127}
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "ADDRESS_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "AMOUNT_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DKIM",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "EXECUTE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "EXIT_EMAIL_WALLET",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Gurard",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "INSTALL_EXTENSION",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "INT_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RECIPIENT_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SEND",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "STRING_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TOKEN_AMOUNT_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "UINT_TEMPLATE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "UNINSTALL_EXTENSION",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x6104f961003a600b82828239805160001a60731461002d57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600436106100f45760003560e01c806382a576cb11610096578063a14b1f8511610070578063a14b1f8514610367578063d95dcc35146103a3578063e30f17cd146103df578063feeb63a11461041b57600080fd5b806382a576cb146102b357806386eae84b146102ef5780638c2150361461032b57600080fd5b80631f5e1334116100d25780631f5e1334146101c35780632564f64a146101ff578063328b77701461023b57806335c8b1ec1461027757600080fd5b806307e6fcd0146100f95780630e6db37b1461014b5780630ec0744914610187575b600080fd5b6101356040518060400160405280600681526020017f7b75696e747d000000000000000000000000000000000000000000000000000081525081565b6040516101429190610457565b60405180910390f35b6101356040518060400160405280600881526020017f7b616d6f756e747d00000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600b81526020017f7b726563697069656e747d00000000000000000000000000000000000000000081525081565b6101356040518060400160405280600481526020017f53656e640000000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600981526020017f556e696e7374616c6c000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600781526020017f457865637574650000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600881526020017f7b737472696e677d00000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600481526020017f457869740000000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600781526020017f496e7374616c6c0000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600d81526020017f7b746f6b656e416d6f756e747d0000000000000000000000000000000000000081525081565b6101356040518060400160405280600481526020017f444b494d0000000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600981526020017f7b616464726573737d000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600581526020017f7b696e747d00000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600581526020017f477561726400000000000000000000000000000000000000000000000000000081525081565b600060208083528351808285015260005b8181101561048457858101830151858201604001528201610468565b5060006040828601015260407fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0601f830116850101925050509291505056fea2646970667358221220dbf94321cf8653dca28565c261c12e8be6044574b57b9b85422b3ea8dd21bba864736f6c63430008150033",
+    "sourceMap": "557:785:127:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;557:785:127;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x73000000000000000000000000000000000000000030146080604052600436106100f45760003560e01c806382a576cb11610096578063a14b1f8511610070578063a14b1f8514610367578063d95dcc35146103a3578063e30f17cd146103df578063feeb63a11461041b57600080fd5b806382a576cb146102b357806386eae84b146102ef5780638c2150361461032b57600080fd5b80631f5e1334116100d25780631f5e1334146101c35780632564f64a146101ff578063328b77701461023b57806335c8b1ec1461027757600080fd5b806307e6fcd0146100f95780630e6db37b1461014b5780630ec0744914610187575b600080fd5b6101356040518060400160405280600681526020017f7b75696e747d000000000000000000000000000000000000000000000000000081525081565b6040516101429190610457565b60405180910390f35b6101356040518060400160405280600881526020017f7b616d6f756e747d00000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600b81526020017f7b726563697069656e747d00000000000000000000000000000000000000000081525081565b6101356040518060400160405280600481526020017f53656e640000000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600981526020017f556e696e7374616c6c000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600781526020017f457865637574650000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600881526020017f7b737472696e677d00000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600481526020017f457869740000000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600781526020017f496e7374616c6c0000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600d81526020017f7b746f6b656e416d6f756e747d0000000000000000000000000000000000000081525081565b6101356040518060400160405280600481526020017f444b494d0000000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600981526020017f7b616464726573737d000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600581526020017f7b696e747d00000000000000000000000000000000000000000000000000000081525081565b6101356040518060400160405280600581526020017f477561726400000000000000000000000000000000000000000000000000000081525081565b600060208083528351808285015260005b8181101561048457858101830151858201604001528201610468565b5060006040828601015260407fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0601f830116850101925050509291505056fea2646970667358221220dbf94321cf8653dca28565c261c12e8be6044574b57b9b85422b3ea8dd21bba864736f6c63430008150033",
+    "sourceMap": "557:785:127:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1119:47;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;1005:51;;;;;;;;;;;;;;;;;;;;;1282:57;;;;;;;;;;;;;;;;;;;;;580:36;;;;;;;;;;;;;;;;;;;;;770:56;;;;;;;;;;;;;;;;;;;;;622:42;;;;;;;;;;;;;;;;;;;;;1062:51;;;;;;;;;;;;;;;;;;;;;832:49;;;;;;;;;;;;;;;;;;;;;712:52;;;;;;;;;;;;;;;;;;;;;937:62;;;;;;;;;;;;;;;;;;;;;670:36;;;;;;;;;;;;;;;;;;;;;1223:53;;;;;;;;;;;;;;;;;;;;;1172:45;;;;;;;;;;;;;;;;;;;;;887:39;;;;;;;;;;;;;;;;;;;;;14:615:143;134:4;163:2;192;181:9;174:21;224:6;218:13;267:6;262:2;251:9;247:18;240:34;292:1;302:140;316:6;313:1;310:13;302:140;;;411:14;;;407:23;;401:30;377:17;;;396:2;373:26;366:66;331:10;;302:140;;;306:3;491:1;486:2;477:6;466:9;462:22;458:31;451:42;620:2;550:66;545:2;537:6;533:15;529:88;518:9;514:104;510:113;502:121;;;;14:615;;;;:::o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "ADDRESS_TEMPLATE()": "d95dcc35",
+    "AMOUNT_TEMPLATE()": "0e6db37b",
+    "DKIM()": "a14b1f85",
+    "EXECUTE()": "328b7770",
+    "EXIT_EMAIL_WALLET()": "82a576cb",
+    "Gurard()": "feeb63a1",
+    "INSTALL_EXTENSION()": "86eae84b",
+    "INT_TEMPLATE()": "e30f17cd",
+    "RECIPIENT_TEMPLATE()": "0ec07449",
+    "SEND()": "1f5e1334",
+    "STRING_TEMPLATE()": "35c8b1ec",
+    "TOKEN_AMOUNT_TEMPLATE()": "8c215036",
+    "UINT_TEMPLATE()": "07e6fcd0",
+    "UNINSTALL_EXTENSION()": "2564f64a"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"ADDRESS_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"AMOUNT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DKIM\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"EXECUTE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"EXIT_EMAIL_WALLET\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"Gurard\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"INSTALL_EXTENSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"INT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"RECIPIENT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SEND\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"STRING_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TOKEN_AMOUNT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"UINT_TEMPLATE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"UNINSTALL_EXTENSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/Commands.sol\":\"Commands\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/Commands.sol\":{\"keccak256\":\"0xa2d021d9020b0665ab099f910ae1dd5a14fcd088368d2d010b9231a899324a04\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://41af92a1fe614f296f0677e4d69c379088988078cef0fa71a7b0dc57cb3ea641\",\"dweb:/ipfs/Qmbu7m9Vjf8kKPGnBN6UCr3xMvSe9yqR8txBNUQnPneWXB\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "ADDRESS_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "AMOUNT_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "DKIM",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "EXECUTE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "EXIT_EMAIL_WALLET",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "Gurard",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "INSTALL_EXTENSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "INT_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "RECIPIENT_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "SEND",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "STRING_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "TOKEN_AMOUNT_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "UINT_TEMPLATE",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "UNINSTALL_EXTENSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 20000
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interfaces/Commands.sol": "Commands"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/interfaces/Commands.sol": {
+        "keccak256": "0xa2d021d9020b0665ab099f910ae1dd5a14fcd088368d2d010b9231a899324a04",
+        "urls": [
+          "bzz-raw://41af92a1fe614f296f0677e4d69c379088988078cef0fa71a7b0dc57cb3ea641",
+          "dweb:/ipfs/Qmbu7m9Vjf8kKPGnBN6UCr3xMvSe9yqR8txBNUQnPneWXB"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": {}
+  },
+  "ast": {
+    "absolutePath": "src/interfaces/Commands.sol",
+    "id": 63444,
+    "exportedSymbols": {
+      "Commands": [
+        63443
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:1311:127",
+    "nodes": [
+      {
+        "id": 63400,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:127",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 63443,
+        "nodeType": "ContractDefinition",
+        "src": "557:785:127",
+        "nodes": [
+          {
+            "id": 63403,
+            "nodeType": "VariableDeclaration",
+            "src": "580:36:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "1f5e1334",
+            "mutability": "constant",
+            "name": "SEND",
+            "nameLocation": "603:4:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63401,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "580:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "53656e64",
+              "id": 63402,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "610:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_a886dd9bf74a23521a7b7ff5d419d5a1c9e53e4b8c030012967fabd9be778219",
+                "typeString": "literal_string \"Send\""
+              },
+              "value": "Send"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63406,
+            "nodeType": "VariableDeclaration",
+            "src": "622:42:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "328b7770",
+            "mutability": "constant",
+            "name": "EXECUTE",
+            "nameLocation": "645:7:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63404,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "622:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "45786563757465",
+              "id": 63405,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "655:9:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_28d668beb286a0839c52825618abb539cbe274853731db4004ca7bcf1049a4ca",
+                "typeString": "literal_string \"Execute\""
+              },
+              "value": "Execute"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63409,
+            "nodeType": "VariableDeclaration",
+            "src": "670:36:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "a14b1f85",
+            "mutability": "constant",
+            "name": "DKIM",
+            "nameLocation": "693:4:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63407,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "670:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "444b494d",
+              "id": 63408,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "700:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_63caed16123396ddfbcc1e893ad0c18ec46a2548dbeb5118752368356439f0af",
+                "typeString": "literal_string \"DKIM\""
+              },
+              "value": "DKIM"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63412,
+            "nodeType": "VariableDeclaration",
+            "src": "712:52:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "86eae84b",
+            "mutability": "constant",
+            "name": "INSTALL_EXTENSION",
+            "nameLocation": "735:17:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63410,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "712:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "496e7374616c6c",
+              "id": 63411,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "755:9:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_6697c63a74fcc5c464f3dcb6b3a4e49cb1d1003da99048d44c6d2b12fe00ff3a",
+                "typeString": "literal_string \"Install\""
+              },
+              "value": "Install"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63415,
+            "nodeType": "VariableDeclaration",
+            "src": "770:56:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "2564f64a",
+            "mutability": "constant",
+            "name": "UNINSTALL_EXTENSION",
+            "nameLocation": "793:19:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63413,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "770:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "556e696e7374616c6c",
+              "id": 63414,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "815:11:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_cf0fb4af6fa71203bf8ca49a15d730b9e9a0385a52961e75ded30718d69a944e",
+                "typeString": "literal_string \"Uninstall\""
+              },
+              "value": "Uninstall"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63418,
+            "nodeType": "VariableDeclaration",
+            "src": "832:49:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "82a576cb",
+            "mutability": "constant",
+            "name": "EXIT_EMAIL_WALLET",
+            "nameLocation": "855:17:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63416,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "832:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "45786974",
+              "id": 63417,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "875:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_24f73f4b0982cea5408e76088d1820dcfce3fd3fb65e923dcb9879c1e7e91141",
+                "typeString": "literal_string \"Exit\""
+              },
+              "value": "Exit"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63421,
+            "nodeType": "VariableDeclaration",
+            "src": "887:39:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "feeb63a1",
+            "mutability": "constant",
+            "name": "Gurard",
+            "nameLocation": "910:6:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63419,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "887:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "4775617264",
+              "id": 63420,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "919:7:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_cb74da97c6525e1bd6add53166ccfb788f5cbc7e6fc34c15b270ef70349db640",
+                "typeString": "literal_string \"Guard\""
+              },
+              "value": "Guard"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63424,
+            "nodeType": "VariableDeclaration",
+            "src": "937:62:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "8c215036",
+            "mutability": "constant",
+            "name": "TOKEN_AMOUNT_TEMPLATE",
+            "nameLocation": "960:21:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63422,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "937:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b746f6b656e416d6f756e747d",
+              "id": 63423,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "984:15:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_815ff003ec3cd903b6b66ff0f95b542fd3a93d2d90693c0d0c6beaa33ccaaf2b",
+                "typeString": "literal_string \"{tokenAmount}\""
+              },
+              "value": "{tokenAmount}"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63427,
+            "nodeType": "VariableDeclaration",
+            "src": "1005:51:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "0e6db37b",
+            "mutability": "constant",
+            "name": "AMOUNT_TEMPLATE",
+            "nameLocation": "1028:15:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63425,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "1005:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b616d6f756e747d",
+              "id": 63426,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "1046:10:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_6f8367b1d9d8a7b82dd8c3fea75362c06146bca071119cf59a3cb58501076bf0",
+                "typeString": "literal_string \"{amount}\""
+              },
+              "value": "{amount}"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63430,
+            "nodeType": "VariableDeclaration",
+            "src": "1062:51:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "35c8b1ec",
+            "mutability": "constant",
+            "name": "STRING_TEMPLATE",
+            "nameLocation": "1085:15:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63428,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "1062:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b737472696e677d",
+              "id": 63429,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "1103:10:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_b0dd9c5dfd6b1348089539c8cd8146a59f1fd23ff2de9c6052e54da8d2a6c0fb",
+                "typeString": "literal_string \"{string}\""
+              },
+              "value": "{string}"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63433,
+            "nodeType": "VariableDeclaration",
+            "src": "1119:47:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "07e6fcd0",
+            "mutability": "constant",
+            "name": "UINT_TEMPLATE",
+            "nameLocation": "1142:13:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63431,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "1119:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b75696e747d",
+              "id": 63432,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "1158:8:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_6f5ea6f405f661d5066b9e0ff07a25fd2e0d206057a7fc2dfef33ff65ad22a23",
+                "typeString": "literal_string \"{uint}\""
+              },
+              "value": "{uint}"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63436,
+            "nodeType": "VariableDeclaration",
+            "src": "1172:45:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "e30f17cd",
+            "mutability": "constant",
+            "name": "INT_TEMPLATE",
+            "nameLocation": "1195:12:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63434,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "1172:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b696e747d",
+              "id": 63435,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "1210:7:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_96115c52281705004db3ca7f604112b6bc76ae505ed268b2dbee29feb8e7899d",
+                "typeString": "literal_string \"{int}\""
+              },
+              "value": "{int}"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63439,
+            "nodeType": "VariableDeclaration",
+            "src": "1223:53:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "d95dcc35",
+            "mutability": "constant",
+            "name": "ADDRESS_TEMPLATE",
+            "nameLocation": "1246:16:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63437,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "1223:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b616464726573737d",
+              "id": 63438,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "1265:11:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_9a3de9fca46f2420947f2d1d4744c5febedebc77b9a3fcbfcf16ed02cbe48f73",
+                "typeString": "literal_string \"{address}\""
+              },
+              "value": "{address}"
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 63442,
+            "nodeType": "VariableDeclaration",
+            "src": "1282:57:127",
+            "nodes": [],
+            "constant": true,
+            "functionSelector": "0ec07449",
+            "mutability": "constant",
+            "name": "RECIPIENT_TEMPLATE",
+            "nameLocation": "1305:18:127",
+            "scope": 63443,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_string_memory_ptr",
+              "typeString": "string"
+            },
+            "typeName": {
+              "id": 63440,
+              "name": "string",
+              "nodeType": "ElementaryTypeName",
+              "src": "1282:6:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_string_storage_ptr",
+                "typeString": "string"
+              }
+            },
+            "value": {
+              "hexValue": "7b726563697069656e747d",
+              "id": 63441,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "string",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "1326:13:127",
+              "typeDescriptions": {
+                "typeIdentifier": "t_stringliteral_8aaf32fcbd174399cb3669036e8da3c3578002bcce064a4a8f29f7b5674bbcaf",
+                "typeString": "literal_string \"{recipient}\""
+              },
+              "value": "{recipient}"
+            },
+            "visibility": "public"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Commands",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          63443
+        ],
+        "name": "Commands",
+        "nameLocation": "565:8:127",
+        "scope": 63444,
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 127
+}

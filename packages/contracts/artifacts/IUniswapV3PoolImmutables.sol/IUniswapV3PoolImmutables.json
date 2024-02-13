@@ -1,1 +1,721 @@
-{"abi":[{"type":"function","name":"factory","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"fee","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"type":"function","name":"maxLiquidityPerTick","inputs":[],"outputs":[{"name":"","type":"uint128","internalType":"uint128"}],"stateMutability":"view"},{"type":"function","name":"tickSpacing","inputs":[],"outputs":[{"name":"","type":"int24","internalType":"int24"}],"stateMutability":"view"},{"type":"function","name":"token0","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"token1","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"}],"bytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"deployedBytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"methodIdentifiers":{"factory()":"c45a0155","fee()":"ddca3f43","maxLiquidityPerTick()":"70cf754a","tickSpacing()":"d0c93a7c","token0()":"0dfe1681","token1()":"d21220a7"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"factory\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fee\",\"outputs\":[{\"internalType\":\"uint24\",\"name\":\"\",\"type\":\"uint24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxLiquidityPerTick\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tickSpacing\",\"outputs\":[{\"internalType\":\"int24\",\"name\":\"\",\"type\":\"int24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token0\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token1\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"factory()\":{\"returns\":{\"_0\":\"The contract address\"}},\"fee()\":{\"returns\":{\"_0\":\"The fee\"}},\"maxLiquidityPerTick()\":{\"details\":\"This parameter is enforced per tick to prevent liquidity from overflowing a uint128 at any point, and also prevents out-of-range liquidity from being used to prevent adding in-range liquidity to a pool\",\"returns\":{\"_0\":\"The max amount of liquidity per tick\"}},\"tickSpacing()\":{\"details\":\"Ticks can only be used at multiples of this value, minimum of 1 and always positive e.g.: a tickSpacing of 3 means ticks can be initialized every 3rd tick, i.e., ..., -6, -3, 0, 3, 6, ... This value is an int24 to avoid casting even though it is always positive.\",\"returns\":{\"_0\":\"The tick spacing\"}},\"token0()\":{\"returns\":{\"_0\":\"The token contract address\"}},\"token1()\":{\"returns\":{\"_0\":\"The token contract address\"}}},\"title\":\"Pool state that never changes\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"factory()\":{\"notice\":\"The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface\"},\"fee()\":{\"notice\":\"The pool's fee in hundredths of a bip, i.e. 1e-6\"},\"maxLiquidityPerTick()\":{\"notice\":\"The maximum amount of position liquidity that can use any tick in the range\"},\"tickSpacing()\":{\"notice\":\"The pool tick spacing\"},\"token0()\":{\"notice\":\"The first of the two tokens of the pool, sorted by address\"},\"token1()\":{\"notice\":\"The second of the two tokens of the pool, sorted by address\"}},\"notice\":\"These parameters are fixed for a pool forever, i.e., the methods will always return the same values\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol\":\"IUniswapV3PoolImmutables\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol\":{\"keccak256\":\"0xf6e5d2cd1139c4c276bdbc8e1d2b256e456c866a91f1b868da265c6d2685c3f7\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b99c8c9ae8e27ee6559e5866bea82cbc9ffc8247f8d15b7422a4deb287d4d047\",\"dweb:/ipfs/QmfL8gaqt3ffAnm6nVj5ksuNpLygXuL3xq5VBqrkwC2JJ3\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.23+commit.f704f362"},"language":"Solidity","output":{"abi":[{"inputs":[],"stateMutability":"view","type":"function","name":"factory","outputs":[{"internalType":"address","name":"","type":"address"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"fee","outputs":[{"internalType":"uint24","name":"","type":"uint24"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"maxLiquidityPerTick","outputs":[{"internalType":"uint128","name":"","type":"uint128"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"tickSpacing","outputs":[{"internalType":"int24","name":"","type":"int24"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"token0","outputs":[{"internalType":"address","name":"","type":"address"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"token1","outputs":[{"internalType":"address","name":"","type":"address"}]}],"devdoc":{"kind":"dev","methods":{"factory()":{"returns":{"_0":"The contract address"}},"fee()":{"returns":{"_0":"The fee"}},"maxLiquidityPerTick()":{"details":"This parameter is enforced per tick to prevent liquidity from overflowing a uint128 at any point, and also prevents out-of-range liquidity from being used to prevent adding in-range liquidity to a pool","returns":{"_0":"The max amount of liquidity per tick"}},"tickSpacing()":{"details":"Ticks can only be used at multiples of this value, minimum of 1 and always positive e.g.: a tickSpacing of 3 means ticks can be initialized every 3rd tick, i.e., ..., -6, -3, 0, 3, 6, ... This value is an int24 to avoid casting even though it is always positive.","returns":{"_0":"The tick spacing"}},"token0()":{"returns":{"_0":"The token contract address"}},"token1()":{"returns":{"_0":"The token contract address"}}},"version":1},"userdoc":{"kind":"user","methods":{"factory()":{"notice":"The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface"},"fee()":{"notice":"The pool's fee in hundredths of a bip, i.e. 1e-6"},"maxLiquidityPerTick()":{"notice":"The maximum amount of position liquidity that can use any tick in the range"},"tickSpacing()":{"notice":"The pool tick spacing"},"token0()":{"notice":"The first of the two tokens of the pool, sorted by address"},"token1()":{"notice":"The second of the two tokens of the pool, sorted by address"}},"version":1}},"settings":{"remappings":["@gnosis.pm/=../../node_modules/@gnosis.pm/","@openzeppelin/=../../node_modules/@openzeppelin/","@uniswap/=../../node_modules/@uniswap/","@zk-email/=../../node_modules/@zk-email/","accountabstraction/=../../node_modules/accountabstraction/","base64-sol/=../../node_modules/base64-sol/","ds-test/=../../node_modules/ds-test/src/","forge-std/=../../node_modules/forge-std/src/","hardhat-deploy/=../../node_modules/hardhat-deploy/","snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/","solady/=../../node_modules/solady/src/"],"optimizer":{"enabled":true,"runs":20000},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol":"IUniswapV3PoolImmutables"},"libraries":{}},"sources":{"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol":{"keccak256":"0xf6e5d2cd1139c4c276bdbc8e1d2b256e456c866a91f1b868da265c6d2685c3f7","urls":["bzz-raw://b99c8c9ae8e27ee6559e5866bea82cbc9ffc8247f8d15b7422a4deb287d4d047","dweb:/ipfs/QmfL8gaqt3ffAnm6nVj5ksuNpLygXuL3xq5VBqrkwC2JJ3"],"license":"GPL-2.0-or-later"}},"version":1},"storageLayout":{"storage":[],"types":{}},"ast":{"absolutePath":"../../node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol","id":70241,"exportedSymbols":{"IUniswapV3PoolImmutables":[70240]},"nodeType":"SourceUnit","src":"45:1766:38","nodes":[{"id":70202,"nodeType":"PragmaDirective","src":"45:24:38","nodes":[],"literals":["solidity",">=","0.5",".0"]},{"id":70240,"nodeType":"ContractDefinition","src":"224:1586:38","nodes":[{"id":70209,"nodeType":"FunctionDefinition","src":"408:51:38","nodes":[],"documentation":{"id":70204,"nodeType":"StructuredDocumentation","src":"265:138:38","text":"@notice The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface\n @return The contract address"},"functionSelector":"c45a0155","implemented":false,"kind":"function","modifiers":[],"name":"factory","nameLocation":"417:7:38","parameters":{"id":70205,"nodeType":"ParameterList","parameters":[],"src":"424:2:38"},"returnParameters":{"id":70208,"nodeType":"ParameterList","parameters":[{"constant":false,"id":70207,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":70209,"src":"450:7:38","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":70206,"name":"address","nodeType":"ElementaryTypeName","src":"450:7:38","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"}],"src":"449:9:38"},"scope":70240,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":70215,"nodeType":"FunctionDefinition","src":"583:50:38","nodes":[],"documentation":{"id":70210,"nodeType":"StructuredDocumentation","src":"465:113:38","text":"@notice The first of the two tokens of the pool, sorted by address\n @return The token contract address"},"functionSelector":"0dfe1681","implemented":false,"kind":"function","modifiers":[],"name":"token0","nameLocation":"592:6:38","parameters":{"id":70211,"nodeType":"ParameterList","parameters":[],"src":"598:2:38"},"returnParameters":{"id":70214,"nodeType":"ParameterList","parameters":[{"constant":false,"id":70213,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":70215,"src":"624:7:38","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":70212,"name":"address","nodeType":"ElementaryTypeName","src":"624:7:38","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"}],"src":"623:9:38"},"scope":70240,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":70221,"nodeType":"FunctionDefinition","src":"758:50:38","nodes":[],"documentation":{"id":70216,"nodeType":"StructuredDocumentation","src":"639:114:38","text":"@notice The second of the two tokens of the pool, sorted by address\n @return The token contract address"},"functionSelector":"d21220a7","implemented":false,"kind":"function","modifiers":[],"name":"token1","nameLocation":"767:6:38","parameters":{"id":70217,"nodeType":"ParameterList","parameters":[],"src":"773:2:38"},"returnParameters":{"id":70220,"nodeType":"ParameterList","parameters":[{"constant":false,"id":70219,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":70221,"src":"799:7:38","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":70218,"name":"address","nodeType":"ElementaryTypeName","src":"799:7:38","stateMutability":"nonpayable","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"visibility":"internal"}],"src":"798:9:38"},"scope":70240,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":70227,"nodeType":"FunctionDefinition","src":"903:46:38","nodes":[],"documentation":{"id":70222,"nodeType":"StructuredDocumentation","src":"814:84:38","text":"@notice The pool's fee in hundredths of a bip, i.e. 1e-6\n @return The fee"},"functionSelector":"ddca3f43","implemented":false,"kind":"function","modifiers":[],"name":"fee","nameLocation":"912:3:38","parameters":{"id":70223,"nodeType":"ParameterList","parameters":[],"src":"915:2:38"},"returnParameters":{"id":70226,"nodeType":"ParameterList","parameters":[{"constant":false,"id":70225,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":70227,"src":"941:6:38","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint24","typeString":"uint24"},"typeName":{"id":70224,"name":"uint24","nodeType":"ElementaryTypeName","src":"941:6:38","typeDescriptions":{"typeIdentifier":"t_uint24","typeString":"uint24"}},"visibility":"internal"}],"src":"940:8:38"},"scope":70240,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":70233,"nodeType":"FunctionDefinition","src":"1318:53:38","nodes":[],"documentation":{"id":70228,"nodeType":"StructuredDocumentation","src":"955:358:38","text":"@notice The pool tick spacing\n @dev Ticks can only be used at multiples of this value, minimum of 1 and always positive\n e.g.: a tickSpacing of 3 means ticks can be initialized every 3rd tick, i.e., ..., -6, -3, 0, 3, 6, ...\n This value is an int24 to avoid casting even though it is always positive.\n @return The tick spacing"},"functionSelector":"d0c93a7c","implemented":false,"kind":"function","modifiers":[],"name":"tickSpacing","nameLocation":"1327:11:38","parameters":{"id":70229,"nodeType":"ParameterList","parameters":[],"src":"1338:2:38"},"returnParameters":{"id":70232,"nodeType":"ParameterList","parameters":[{"constant":false,"id":70231,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":70233,"src":"1364:5:38","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_int24","typeString":"int24"},"typeName":{"id":70230,"name":"int24","nodeType":"ElementaryTypeName","src":"1364:5:38","typeDescriptions":{"typeIdentifier":"t_int24","typeString":"int24"}},"visibility":"internal"}],"src":"1363:7:38"},"scope":70240,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":70239,"nodeType":"FunctionDefinition","src":"1745:63:38","nodes":[],"documentation":{"id":70234,"nodeType":"StructuredDocumentation","src":"1377:363:38","text":"@notice The maximum amount of position liquidity that can use any tick in the range\n @dev This parameter is enforced per tick to prevent liquidity from overflowing a uint128 at any point, and\n also prevents out-of-range liquidity from being used to prevent adding in-range liquidity to a pool\n @return The max amount of liquidity per tick"},"functionSelector":"70cf754a","implemented":false,"kind":"function","modifiers":[],"name":"maxLiquidityPerTick","nameLocation":"1754:19:38","parameters":{"id":70235,"nodeType":"ParameterList","parameters":[],"src":"1773:2:38"},"returnParameters":{"id":70238,"nodeType":"ParameterList","parameters":[{"constant":false,"id":70237,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":70239,"src":"1799:7:38","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint128","typeString":"uint128"},"typeName":{"id":70236,"name":"uint128","nodeType":"ElementaryTypeName","src":"1799:7:38","typeDescriptions":{"typeIdentifier":"t_uint128","typeString":"uint128"}},"visibility":"internal"}],"src":"1798:9:38"},"scope":70240,"stateMutability":"view","virtual":false,"visibility":"external"}],"abstract":false,"baseContracts":[],"canonicalName":"IUniswapV3PoolImmutables","contractDependencies":[],"contractKind":"interface","documentation":{"id":70203,"nodeType":"StructuredDocumentation","src":"71:153:38","text":"@title Pool state that never changes\n @notice These parameters are fixed for a pool forever, i.e., the methods will always return the same values"},"fullyImplemented":false,"linearizedBaseContracts":[70240],"name":"IUniswapV3PoolImmutables","nameLocation":"234:24:38","scope":70241,"usedErrors":[],"usedEvents":[]}],"license":"GPL-2.0-or-later"},"id":38}
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "factory",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fee",
+      "outputs": [
+        {
+          "internalType": "uint24",
+          "name": "",
+          "type": "uint24"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxLiquidityPerTick",
+      "outputs": [
+        {
+          "internalType": "uint128",
+          "name": "",
+          "type": "uint128"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tickSpacing",
+      "outputs": [
+        {
+          "internalType": "int24",
+          "name": "",
+          "type": "int24"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token0",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token1",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "factory()": "c45a0155",
+    "fee()": "ddca3f43",
+    "maxLiquidityPerTick()": "70cf754a",
+    "tickSpacing()": "d0c93a7c",
+    "token0()": "0dfe1681",
+    "token1()": "d21220a7"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"factory\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fee\",\"outputs\":[{\"internalType\":\"uint24\",\"name\":\"\",\"type\":\"uint24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxLiquidityPerTick\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tickSpacing\",\"outputs\":[{\"internalType\":\"int24\",\"name\":\"\",\"type\":\"int24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token0\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token1\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"factory()\":{\"returns\":{\"_0\":\"The contract address\"}},\"fee()\":{\"returns\":{\"_0\":\"The fee\"}},\"maxLiquidityPerTick()\":{\"details\":\"This parameter is enforced per tick to prevent liquidity from overflowing a uint128 at any point, and also prevents out-of-range liquidity from being used to prevent adding in-range liquidity to a pool\",\"returns\":{\"_0\":\"The max amount of liquidity per tick\"}},\"tickSpacing()\":{\"details\":\"Ticks can only be used at multiples of this value, minimum of 1 and always positive e.g.: a tickSpacing of 3 means ticks can be initialized every 3rd tick, i.e., ..., -6, -3, 0, 3, 6, ... This value is an int24 to avoid casting even though it is always positive.\",\"returns\":{\"_0\":\"The tick spacing\"}},\"token0()\":{\"returns\":{\"_0\":\"The token contract address\"}},\"token1()\":{\"returns\":{\"_0\":\"The token contract address\"}}},\"title\":\"Pool state that never changes\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"factory()\":{\"notice\":\"The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface\"},\"fee()\":{\"notice\":\"The pool's fee in hundredths of a bip, i.e. 1e-6\"},\"maxLiquidityPerTick()\":{\"notice\":\"The maximum amount of position liquidity that can use any tick in the range\"},\"tickSpacing()\":{\"notice\":\"The pool tick spacing\"},\"token0()\":{\"notice\":\"The first of the two tokens of the pool, sorted by address\"},\"token1()\":{\"notice\":\"The second of the two tokens of the pool, sorted by address\"}},\"notice\":\"These parameters are fixed for a pool forever, i.e., the methods will always return the same values\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol\":\"IUniswapV3PoolImmutables\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol\":{\"keccak256\":\"0xf6e5d2cd1139c4c276bdbc8e1d2b256e456c866a91f1b868da265c6d2685c3f7\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://b99c8c9ae8e27ee6559e5866bea82cbc9ffc8247f8d15b7422a4deb287d4d047\",\"dweb:/ipfs/QmfL8gaqt3ffAnm6nVj5ksuNpLygXuL3xq5VBqrkwC2JJ3\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "factory",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "fee",
+          "outputs": [
+            {
+              "internalType": "uint24",
+              "name": "",
+              "type": "uint24"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "maxLiquidityPerTick",
+          "outputs": [
+            {
+              "internalType": "uint128",
+              "name": "",
+              "type": "uint128"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "tickSpacing",
+          "outputs": [
+            {
+              "internalType": "int24",
+              "name": "",
+              "type": "int24"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "token0",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "token1",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "factory()": {
+            "returns": {
+              "_0": "The contract address"
+            }
+          },
+          "fee()": {
+            "returns": {
+              "_0": "The fee"
+            }
+          },
+          "maxLiquidityPerTick()": {
+            "details": "This parameter is enforced per tick to prevent liquidity from overflowing a uint128 at any point, and also prevents out-of-range liquidity from being used to prevent adding in-range liquidity to a pool",
+            "returns": {
+              "_0": "The max amount of liquidity per tick"
+            }
+          },
+          "tickSpacing()": {
+            "details": "Ticks can only be used at multiples of this value, minimum of 1 and always positive e.g.: a tickSpacing of 3 means ticks can be initialized every 3rd tick, i.e., ..., -6, -3, 0, 3, 6, ... This value is an int24 to avoid casting even though it is always positive.",
+            "returns": {
+              "_0": "The tick spacing"
+            }
+          },
+          "token0()": {
+            "returns": {
+              "_0": "The token contract address"
+            }
+          },
+          "token1()": {
+            "returns": {
+              "_0": "The token contract address"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "factory()": {
+            "notice": "The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface"
+          },
+          "fee()": {
+            "notice": "The pool's fee in hundredths of a bip, i.e. 1e-6"
+          },
+          "maxLiquidityPerTick()": {
+            "notice": "The maximum amount of position liquidity that can use any tick in the range"
+          },
+          "tickSpacing()": {
+            "notice": "The pool tick spacing"
+          },
+          "token0()": {
+            "notice": "The first of the two tokens of the pool, sorted by address"
+          },
+          "token1()": {
+            "notice": "The second of the two tokens of the pool, sorted by address"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 20000
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol": "IUniswapV3PoolImmutables"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol": {
+        "keccak256": "0xf6e5d2cd1139c4c276bdbc8e1d2b256e456c866a91f1b868da265c6d2685c3f7",
+        "urls": [
+          "bzz-raw://b99c8c9ae8e27ee6559e5866bea82cbc9ffc8247f8d15b7422a4deb287d4d047",
+          "dweb:/ipfs/QmfL8gaqt3ffAnm6nVj5ksuNpLygXuL3xq5VBqrkwC2JJ3"
+        ],
+        "license": "GPL-2.0-or-later"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
+    "id": 15364,
+    "exportedSymbols": {
+      "IUniswapV3PoolImmutables": [
+        15363
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "45:1766:85",
+    "nodes": [
+      {
+        "id": 15325,
+        "nodeType": "PragmaDirective",
+        "src": "45:24:85",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ]
+      },
+      {
+        "id": 15363,
+        "nodeType": "ContractDefinition",
+        "src": "224:1586:85",
+        "nodes": [
+          {
+            "id": 15332,
+            "nodeType": "FunctionDefinition",
+            "src": "408:51:85",
+            "nodes": [],
+            "documentation": {
+              "id": 15327,
+              "nodeType": "StructuredDocumentation",
+              "src": "265:138:85",
+              "text": "@notice The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface\n @return The contract address"
+            },
+            "functionSelector": "c45a0155",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "factory",
+            "nameLocation": "417:7:85",
+            "parameters": {
+              "id": 15328,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "424:2:85"
+            },
+            "returnParameters": {
+              "id": 15331,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15330,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15332,
+                  "src": "450:7:85",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 15329,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "450:7:85",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "449:9:85"
+            },
+            "scope": 15363,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 15338,
+            "nodeType": "FunctionDefinition",
+            "src": "583:50:85",
+            "nodes": [],
+            "documentation": {
+              "id": 15333,
+              "nodeType": "StructuredDocumentation",
+              "src": "465:113:85",
+              "text": "@notice The first of the two tokens of the pool, sorted by address\n @return The token contract address"
+            },
+            "functionSelector": "0dfe1681",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "token0",
+            "nameLocation": "592:6:85",
+            "parameters": {
+              "id": 15334,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "598:2:85"
+            },
+            "returnParameters": {
+              "id": 15337,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15336,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15338,
+                  "src": "624:7:85",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 15335,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "624:7:85",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "623:9:85"
+            },
+            "scope": 15363,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 15344,
+            "nodeType": "FunctionDefinition",
+            "src": "758:50:85",
+            "nodes": [],
+            "documentation": {
+              "id": 15339,
+              "nodeType": "StructuredDocumentation",
+              "src": "639:114:85",
+              "text": "@notice The second of the two tokens of the pool, sorted by address\n @return The token contract address"
+            },
+            "functionSelector": "d21220a7",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "token1",
+            "nameLocation": "767:6:85",
+            "parameters": {
+              "id": 15340,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "773:2:85"
+            },
+            "returnParameters": {
+              "id": 15343,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15342,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15344,
+                  "src": "799:7:85",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 15341,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "799:7:85",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "798:9:85"
+            },
+            "scope": 15363,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 15350,
+            "nodeType": "FunctionDefinition",
+            "src": "903:46:85",
+            "nodes": [],
+            "documentation": {
+              "id": 15345,
+              "nodeType": "StructuredDocumentation",
+              "src": "814:84:85",
+              "text": "@notice The pool's fee in hundredths of a bip, i.e. 1e-6\n @return The fee"
+            },
+            "functionSelector": "ddca3f43",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "fee",
+            "nameLocation": "912:3:85",
+            "parameters": {
+              "id": 15346,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "915:2:85"
+            },
+            "returnParameters": {
+              "id": 15349,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15348,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15350,
+                  "src": "941:6:85",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint24",
+                    "typeString": "uint24"
+                  },
+                  "typeName": {
+                    "id": 15347,
+                    "name": "uint24",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "941:6:85",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint24",
+                      "typeString": "uint24"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "940:8:85"
+            },
+            "scope": 15363,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 15356,
+            "nodeType": "FunctionDefinition",
+            "src": "1318:53:85",
+            "nodes": [],
+            "documentation": {
+              "id": 15351,
+              "nodeType": "StructuredDocumentation",
+              "src": "955:358:85",
+              "text": "@notice The pool tick spacing\n @dev Ticks can only be used at multiples of this value, minimum of 1 and always positive\n e.g.: a tickSpacing of 3 means ticks can be initialized every 3rd tick, i.e., ..., -6, -3, 0, 3, 6, ...\n This value is an int24 to avoid casting even though it is always positive.\n @return The tick spacing"
+            },
+            "functionSelector": "d0c93a7c",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "tickSpacing",
+            "nameLocation": "1327:11:85",
+            "parameters": {
+              "id": 15352,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1338:2:85"
+            },
+            "returnParameters": {
+              "id": 15355,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15354,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15356,
+                  "src": "1364:5:85",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int24",
+                    "typeString": "int24"
+                  },
+                  "typeName": {
+                    "id": 15353,
+                    "name": "int24",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1364:5:85",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int24",
+                      "typeString": "int24"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1363:7:85"
+            },
+            "scope": 15363,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 15362,
+            "nodeType": "FunctionDefinition",
+            "src": "1745:63:85",
+            "nodes": [],
+            "documentation": {
+              "id": 15357,
+              "nodeType": "StructuredDocumentation",
+              "src": "1377:363:85",
+              "text": "@notice The maximum amount of position liquidity that can use any tick in the range\n @dev This parameter is enforced per tick to prevent liquidity from overflowing a uint128 at any point, and\n also prevents out-of-range liquidity from being used to prevent adding in-range liquidity to a pool\n @return The max amount of liquidity per tick"
+            },
+            "functionSelector": "70cf754a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "maxLiquidityPerTick",
+            "nameLocation": "1754:19:85",
+            "parameters": {
+              "id": 15358,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1773:2:85"
+            },
+            "returnParameters": {
+              "id": 15361,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15360,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15362,
+                  "src": "1799:7:85",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint128",
+                    "typeString": "uint128"
+                  },
+                  "typeName": {
+                    "id": 15359,
+                    "name": "uint128",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1799:7:85",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint128",
+                      "typeString": "uint128"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1798:9:85"
+            },
+            "scope": 15363,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IUniswapV3PoolImmutables",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 15326,
+          "nodeType": "StructuredDocumentation",
+          "src": "71:153:85",
+          "text": "@title Pool state that never changes\n @notice These parameters are fixed for a pool forever, i.e., the methods will always return the same values"
+        },
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          15363
+        ],
+        "name": "IUniswapV3PoolImmutables",
+        "nameLocation": "234:24:85",
+        "scope": 15364,
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "license": "GPL-2.0-or-later"
+  },
+  "id": 85
+}

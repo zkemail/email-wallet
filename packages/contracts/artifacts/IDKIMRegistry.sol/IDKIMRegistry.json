@@ -1,1 +1,286 @@
-{"abi":[{"type":"function","name":"isDKIMPublicKeyHashValid","inputs":[{"name":"domainName","type":"string","internalType":"string"},{"name":"publicKeyHash","type":"bytes32","internalType":"bytes32"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"}],"bytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"deployedBytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"methodIdentifiers":{"isDKIMPublicKeyHashValid(string,bytes32)":"e7a7977a"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/paradox/Desktop/projects/zkemail/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":\"IDKIMRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/paradox/Desktop/projects/zkemail/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.23+commit.f704f362"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"string","name":"domainName","type":"string"},{"internalType":"bytes32","name":"publicKeyHash","type":"bytes32"}],"stateMutability":"view","type":"function","name":"isDKIMPublicKeyHashValid","outputs":[{"internalType":"bool","name":"","type":"bool"}]}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"remappings":["@gnosis.pm/=../../node_modules/@gnosis.pm/","@openzeppelin/=../../node_modules/@openzeppelin/","@uniswap/=../../node_modules/@uniswap/","@zk-email/=../../node_modules/@zk-email/","accountabstraction/=../../node_modules/accountabstraction/","base64-sol/=../../node_modules/base64-sol/","ds-test/=../../node_modules/ds-test/src/","forge-std/=../../node_modules/forge-std/src/","hardhat-deploy/=../../node_modules/hardhat-deploy/","snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/","solady/=../../node_modules/solady/src/"],"optimizer":{"enabled":true,"runs":20000},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"/Users/paradox/Desktop/projects/zkemail/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol":"IDKIMRegistry"},"libraries":{}},"sources":{"/Users/paradox/Desktop/projects/zkemail/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol":{"keccak256":"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d","urls":["bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6","dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V"],"license":"MIT"}},"version":1},"storageLayout":{"storage":[],"types":{}},"ast":{"absolutePath":"/Users/paradox/Desktop/projects/zkemail/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol","id":15510,"exportedSymbols":{"IDKIMRegistry":[15509]},"nodeType":"SourceUnit","src":"32:192:88","nodes":[{"id":15499,"nodeType":"PragmaDirective","src":"32:23:88","nodes":[],"literals":["solidity","^","0.8",".0"]},{"id":15509,"nodeType":"ContractDefinition","src":"57:166:88","nodes":[{"id":15508,"nodeType":"FunctionDefinition","src":"87:134:88","nodes":[],"functionSelector":"e7a7977a","implemented":false,"kind":"function","modifiers":[],"name":"isDKIMPublicKeyHashValid","nameLocation":"96:24:88","parameters":{"id":15504,"nodeType":"ParameterList","parameters":[{"constant":false,"id":15501,"mutability":"mutable","name":"domainName","nameLocation":"144:10:88","nodeType":"VariableDeclaration","scope":15508,"src":"130:24:88","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":15500,"name":"string","nodeType":"ElementaryTypeName","src":"130:6:88","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"visibility":"internal"},{"constant":false,"id":15503,"mutability":"mutable","name":"publicKeyHash","nameLocation":"172:13:88","nodeType":"VariableDeclaration","scope":15508,"src":"164:21:88","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":15502,"name":"bytes32","nodeType":"ElementaryTypeName","src":"164:7:88","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"}],"src":"120:71:88"},"returnParameters":{"id":15507,"nodeType":"ParameterList","parameters":[{"constant":false,"id":15506,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":15508,"src":"215:4:88","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":15505,"name":"bool","nodeType":"ElementaryTypeName","src":"215:4:88","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"}],"src":"214:6:88"},"scope":15509,"stateMutability":"view","virtual":false,"visibility":"external"}],"abstract":false,"baseContracts":[],"canonicalName":"IDKIMRegistry","contractDependencies":[],"contractKind":"interface","fullyImplemented":false,"linearizedBaseContracts":[15509],"name":"IDKIMRegistry","nameLocation":"67:13:88","scope":15510,"usedErrors":[],"usedEvents":[]}],"license":"MIT"},"id":88}
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "domainName",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "publicKeyHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "isDKIMPublicKeyHashValid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "isDKIMPublicKeyHashValid(string,bytes32)": "e7a7977a"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"domainName\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"publicKeyHash\",\"type\":\"bytes32\"}],\"name\":\"isDKIMPublicKeyHashValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/saleel/EF/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":\"IDKIMRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"/Users/saleel/EF/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol\":{\"keccak256\":\"0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6\",\"dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "domainName",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "publicKeyHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isDKIMPublicKeyHashValid",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 20000
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "/Users/saleel/EF/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol": "IDKIMRegistry"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "/Users/saleel/EF/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol": {
+        "keccak256": "0x85ee536632227f79e208f364bb0fa8fdf6c046baa048e158d0817b8d1fce615d",
+        "urls": [
+          "bzz-raw://4a64d541d2d914ce7e6a13605fbdfb64abfa43dc9f7e2e1865948e2e0ed0f4b6",
+          "dweb:/ipfs/Qmc1yJHdkXMdR2nbkFhgCruuYnA76zV6784qbiFaN7xU5V"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol",
+    "id": 15510,
+    "exportedSymbols": {
+      "IDKIMRegistry": [
+        15509
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:192:88",
+    "nodes": [
+      {
+        "id": 15499,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:88",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 15509,
+        "nodeType": "ContractDefinition",
+        "src": "57:166:88",
+        "nodes": [
+          {
+            "id": 15508,
+            "nodeType": "FunctionDefinition",
+            "src": "87:134:88",
+            "nodes": [],
+            "functionSelector": "e7a7977a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isDKIMPublicKeyHashValid",
+            "nameLocation": "96:24:88",
+            "parameters": {
+              "id": 15504,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15501,
+                  "mutability": "mutable",
+                  "name": "domainName",
+                  "nameLocation": "144:10:88",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15508,
+                  "src": "130:24:88",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 15500,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "130:6:88",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 15503,
+                  "mutability": "mutable",
+                  "name": "publicKeyHash",
+                  "nameLocation": "172:13:88",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15508,
+                  "src": "164:21:88",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 15502,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "164:7:88",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "120:71:88"
+            },
+            "returnParameters": {
+              "id": 15507,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 15506,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 15508,
+                  "src": "215:4:88",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 15505,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "215:4:88",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "214:6:88"
+            },
+            "scope": 15509,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IDKIMRegistry",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          15509
+        ],
+        "name": "IDKIMRegistry",
+        "nameLocation": "67:13:88",
+        "scope": 15510,
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 88
+}

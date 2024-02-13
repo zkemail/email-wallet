@@ -1,1 +1,1398 @@
-{"abi":[{"type":"function","name":"verifyAccountCreationProof","inputs":[{"name":"emailAddrPointer","type":"bytes32","internalType":"bytes32"},{"name":"accountKeyCommit","type":"bytes32","internalType":"bytes32"},{"name":"walletSalt","type":"bytes32","internalType":"bytes32"},{"name":"psiPoint","type":"bytes","internalType":"bytes"},{"name":"proof","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"verifyAccountInitializaionProof","inputs":[{"name":"emailDomain","type":"string","internalType":"string"},{"name":"dkimPublicKeyHash","type":"bytes32","internalType":"bytes32"},{"name":"timestamp","type":"uint256","internalType":"uint256"},{"name":"emailAddrPointer","type":"bytes32","internalType":"bytes32"},{"name":"accountKeyCommit","type":"bytes32","internalType":"bytes32"},{"name":"emailNullifier","type":"bytes32","internalType":"bytes32"},{"name":"proof","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"verifyClaimFundProof","inputs":[{"name":"recipientEmailAddrPointer","type":"bytes32","internalType":"bytes32"},{"name":"recipientEmailAddrCommit","type":"bytes32","internalType":"bytes32"},{"name":"proof","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"verifyEmailOpProof","inputs":[{"name":"emailDomain","type":"string","internalType":"string"},{"name":"dkimPublicKeyHash","type":"bytes32","internalType":"bytes32"},{"name":"timestamp","type":"uint256","internalType":"uint256"},{"name":"maskedSubject","type":"string","internalType":"string"},{"name":"emailNullifier","type":"bytes32","internalType":"bytes32"},{"name":"emailAddrPointer","type":"bytes32","internalType":"bytes32"},{"name":"hasEmailRecipient","type":"bool","internalType":"bool"},{"name":"recipientEmailAddrCommit","type":"bytes32","internalType":"bytes32"},{"name":"proof","type":"bytes","internalType":"bytes"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"}],"bytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"deployedBytecode":{"object":"0x","sourceMap":"","linkReferences":{}},"methodIdentifiers":{"verifyAccountCreationProof(bytes32,bytes32,bytes32,bytes,bytes)":"3529e46d","verifyAccountInitializaionProof(string,bytes32,uint256,bytes32,bytes32,bytes32,bytes)":"4471241c","verifyClaimFundProof(bytes32,bytes32,bytes)":"c03a5c18","verifyEmailOpProof(string,bytes32,uint256,string,bytes32,bytes32,bool,bytes32,bytes)":"67f6bc6f"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"emailAddrPointer\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountKeyCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"walletSalt\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"psiPoint\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyAccountCreationProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"emailDomain\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"dkimPublicKeyHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"emailAddrPointer\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountKeyCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"emailNullifier\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyAccountInitializaionProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"recipientEmailAddrPointer\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"recipientEmailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyClaimFundProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"emailDomain\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"dkimPublicKeyHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"maskedSubject\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"emailNullifier\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"emailAddrPointer\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"hasEmailRecipient\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"recipientEmailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyEmailOpProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"verifyAccountCreationProof(bytes32,bytes32,bytes32,bytes,bytes)\":{\"params\":{\"accountKeyCommit\":\"The hash of the account key, email address and relayer randomness\",\"emailAddrPointer\":\"The hash of the relayer randomness and email address\",\"psiPoint\":\"The psi point of the email address\",\"walletSalt\":\"The hash of the account key and 01\"}},\"verifyAccountInitializaionProof(string,bytes32,uint256,bytes32,bytes32,bytes32,bytes)\":{\"details\":\"`accountKeyCommit`, `dkimPublicKeyHash` should be the values previously stored in the contract\",\"params\":{\"accountKeyCommit\":\"The hash of the account key, email address and relayer randomness\",\"dkimPublicKeyHash\":\"The hash of the DKIM public key of `emailDomain`\",\"emailAddrPointer\":\"The hash of the relayer randomness and email address\",\"emailDomain\":\"The domain of the user's email address\",\"emailNullifier\":\"The nullifier computed for the reply email\",\"proof\":\"Proof of email with above constraints\",\"timestamp\":\"The timestamp of the email\"}},\"verifyClaimFundProof(bytes32,bytes32,bytes)\":{\"params\":{\"proof\":\"ZK proof of the circuit\",\"recipientEmailAddrCommit\":\"The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer\",\"recipientEmailAddrPointer\":\"The hash of the relayer randomness and recipient email address\"}},\"verifyEmailOpProof(string,bytes32,uint256,string,bytes32,bytes32,bool,bytes32,bytes)\":{\"details\":\"`relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract\",\"params\":{\"dkimPublicKeyHash\":\"The hash of the DKIM public key of `emailDomain`\",\"emailAddrPointer\":\"The hash of the relayer randomness and users's email address\",\"emailDomain\":\"The domain of the user's email address\",\"emailNullifier\":\"The nullifier computed for the email\",\"hasEmailRecipient\":\"Whether the email subject has a recipient (email address)\",\"maskedSubject\":\"The subject of the email with (any) email address masked\",\"recipientEmailAddrCommit\":\"The hash of recipeint's email address (from subject) and a randomness\",\"timestamp\":\"The timestamp of the email\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"verifyAccountCreationProof(bytes32,bytes32,bytes32,bytes,bytes)\":{\"notice\":\"Verify the proof to create an accountVerify `emailAddrPointer`, `accountKeyCommit` and `walletSalt`         are calculated from the same `emailAddress`, `accountKey` and `relayerRandomness`\"},\"verifyAccountInitializaionProof(string,bytes32,uint256,bytes32,bytes32,bytes32,bytes)\":{\"notice\":\"Verify the proof to initialize an account (reply to the invitation email)This verify the relayer received an email from the user (with corresponding `emailAddrPointer`)         where `accountKey` (of corresponding `accountKeyCommit`) was used in `x-reply-to` header\"},\"verifyClaimFundProof(bytes32,bytes32,bytes)\":{\"notice\":\"Verify the proof to claim and unclaimed to a recipient accountThis verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`\"},\"verifyEmailOpProof(string,bytes32,uint256,string,bytes32,bytes32,bool,bytes32,bytes)\":{\"notice\":\"Verify the proof of email from user - used to verify EmailOpVerify that relayer received an email where:         sender's email address domain is `emailDomain`,         sender's email address and relayer randmness derives `emailAddrPointer`,         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,         the subject is same as `maskedSubject` with email address masked (if any),         and email address in subject is used to derive `recipientEmailAddrCommit`\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IVerifier.sol\":\"IVerifier\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/IVerifier.sol\":{\"keccak256\":\"0x8d4e7ec38d43a28c25feb17d3751a1b47b2128acc75c4a8e2f6fe4fa4eccea33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://eaeaef7f6b59ba8782568ed53605d8ac4e9870be6502ed1171e5e4dca21e4efa\",\"dweb:/ipfs/QmYWzxYPk9DEFcsgDVxUf23bQMfkusSsFeTac1VDUCC3Uq\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.23+commit.f704f362"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"bytes32","name":"emailAddrPointer","type":"bytes32"},{"internalType":"bytes32","name":"accountKeyCommit","type":"bytes32"},{"internalType":"bytes32","name":"walletSalt","type":"bytes32"},{"internalType":"bytes","name":"psiPoint","type":"bytes"},{"internalType":"bytes","name":"proof","type":"bytes"}],"stateMutability":"view","type":"function","name":"verifyAccountCreationProof","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"string","name":"emailDomain","type":"string"},{"internalType":"bytes32","name":"dkimPublicKeyHash","type":"bytes32"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"bytes32","name":"emailAddrPointer","type":"bytes32"},{"internalType":"bytes32","name":"accountKeyCommit","type":"bytes32"},{"internalType":"bytes32","name":"emailNullifier","type":"bytes32"},{"internalType":"bytes","name":"proof","type":"bytes"}],"stateMutability":"view","type":"function","name":"verifyAccountInitializaionProof","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"bytes32","name":"recipientEmailAddrPointer","type":"bytes32"},{"internalType":"bytes32","name":"recipientEmailAddrCommit","type":"bytes32"},{"internalType":"bytes","name":"proof","type":"bytes"}],"stateMutability":"view","type":"function","name":"verifyClaimFundProof","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"string","name":"emailDomain","type":"string"},{"internalType":"bytes32","name":"dkimPublicKeyHash","type":"bytes32"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"string","name":"maskedSubject","type":"string"},{"internalType":"bytes32","name":"emailNullifier","type":"bytes32"},{"internalType":"bytes32","name":"emailAddrPointer","type":"bytes32"},{"internalType":"bool","name":"hasEmailRecipient","type":"bool"},{"internalType":"bytes32","name":"recipientEmailAddrCommit","type":"bytes32"},{"internalType":"bytes","name":"proof","type":"bytes"}],"stateMutability":"view","type":"function","name":"verifyEmailOpProof","outputs":[{"internalType":"bool","name":"","type":"bool"}]}],"devdoc":{"kind":"dev","methods":{"verifyAccountCreationProof(bytes32,bytes32,bytes32,bytes,bytes)":{"params":{"accountKeyCommit":"The hash of the account key, email address and relayer randomness","emailAddrPointer":"The hash of the relayer randomness and email address","psiPoint":"The psi point of the email address","walletSalt":"The hash of the account key and 01"}},"verifyAccountInitializaionProof(string,bytes32,uint256,bytes32,bytes32,bytes32,bytes)":{"details":"`accountKeyCommit`, `dkimPublicKeyHash` should be the values previously stored in the contract","params":{"accountKeyCommit":"The hash of the account key, email address and relayer randomness","dkimPublicKeyHash":"The hash of the DKIM public key of `emailDomain`","emailAddrPointer":"The hash of the relayer randomness and email address","emailDomain":"The domain of the user's email address","emailNullifier":"The nullifier computed for the reply email","proof":"Proof of email with above constraints","timestamp":"The timestamp of the email"}},"verifyClaimFundProof(bytes32,bytes32,bytes)":{"params":{"proof":"ZK proof of the circuit","recipientEmailAddrCommit":"The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer","recipientEmailAddrPointer":"The hash of the relayer randomness and recipient email address"}},"verifyEmailOpProof(string,bytes32,uint256,string,bytes32,bytes32,bool,bytes32,bytes)":{"details":"`relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract","params":{"dkimPublicKeyHash":"The hash of the DKIM public key of `emailDomain`","emailAddrPointer":"The hash of the relayer randomness and users's email address","emailDomain":"The domain of the user's email address","emailNullifier":"The nullifier computed for the email","hasEmailRecipient":"Whether the email subject has a recipient (email address)","maskedSubject":"The subject of the email with (any) email address masked","recipientEmailAddrCommit":"The hash of recipeint's email address (from subject) and a randomness","timestamp":"The timestamp of the email"}}},"version":1},"userdoc":{"kind":"user","methods":{"verifyAccountCreationProof(bytes32,bytes32,bytes32,bytes,bytes)":{"notice":"Verify the proof to create an accountVerify `emailAddrPointer`, `accountKeyCommit` and `walletSalt`         are calculated from the same `emailAddress`, `accountKey` and `relayerRandomness`"},"verifyAccountInitializaionProof(string,bytes32,uint256,bytes32,bytes32,bytes32,bytes)":{"notice":"Verify the proof to initialize an account (reply to the invitation email)This verify the relayer received an email from the user (with corresponding `emailAddrPointer`)         where `accountKey` (of corresponding `accountKeyCommit`) was used in `x-reply-to` header"},"verifyClaimFundProof(bytes32,bytes32,bytes)":{"notice":"Verify the proof to claim and unclaimed to a recipient accountThis verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`"},"verifyEmailOpProof(string,bytes32,uint256,string,bytes32,bytes32,bool,bytes32,bytes)":{"notice":"Verify the proof of email from user - used to verify EmailOpVerify that relayer received an email where:         sender's email address domain is `emailDomain`,         sender's email address and relayer randmness derives `emailAddrPointer`,         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,         the subject is same as `maskedSubject` with email address masked (if any),         and email address in subject is used to derive `recipientEmailAddrCommit`"}},"version":1}},"settings":{"remappings":["@gnosis.pm/=../../node_modules/@gnosis.pm/","@openzeppelin/=../../node_modules/@openzeppelin/","@uniswap/=../../node_modules/@uniswap/","@zk-email/=../../node_modules/@zk-email/","accountabstraction/=../../node_modules/accountabstraction/","base64-sol/=../../node_modules/base64-sol/","ds-test/=../../node_modules/ds-test/src/","forge-std/=../../node_modules/forge-std/src/","hardhat-deploy/=../../node_modules/hardhat-deploy/","snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/","solady/=../../node_modules/solady/src/"],"optimizer":{"enabled":true,"runs":20000},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"src/interfaces/IVerifier.sol":"IVerifier"},"libraries":{}},"sources":{"src/interfaces/IVerifier.sol":{"keccak256":"0x8d4e7ec38d43a28c25feb17d3751a1b47b2128acc75c4a8e2f6fe4fa4eccea33","urls":["bzz-raw://eaeaef7f6b59ba8782568ed53605d8ac4e9870be6502ed1171e5e4dca21e4efa","dweb:/ipfs/QmYWzxYPk9DEFcsgDVxUf23bQMfkusSsFeTac1VDUCC3Uq"],"license":"MIT"}},"version":1},"storageLayout":{"storage":[],"types":{}},"ast":{"absolutePath":"src/interfaces/IVerifier.sol","id":63907,"exportedSymbols":{"IVerifier":[63906]},"nodeType":"SourceUnit","src":"32:4420:131","nodes":[{"id":63833,"nodeType":"PragmaDirective","src":"32:23:131","nodes":[],"literals":["solidity","^","0.8",".9"]},{"id":63906,"nodeType":"ContractDefinition","src":"57:4394:131","nodes":[{"id":63849,"nodeType":"FunctionDefinition","src":"617:226:131","nodes":[],"documentation":{"id":63834,"nodeType":"StructuredDocumentation","src":"83:529:131","text":"@notice Verify the proof to create an account\n @notice Verify `emailAddrPointer`, `accountKeyCommit` and `walletSalt`\n         are calculated from the same `emailAddress`, `accountKey` and `relayerRandomness`\n @param emailAddrPointer The hash of the relayer randomness and email address\n @param accountKeyCommit The hash of the account key, email address and relayer randomness\n @param walletSalt The hash of the account key and 01\n @param psiPoint The psi point of the email address"},"functionSelector":"3529e46d","implemented":false,"kind":"function","modifiers":[],"name":"verifyAccountCreationProof","nameLocation":"626:26:131","parameters":{"id":63845,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63836,"mutability":"mutable","name":"emailAddrPointer","nameLocation":"670:16:131","nodeType":"VariableDeclaration","scope":63849,"src":"662:24:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63835,"name":"bytes32","nodeType":"ElementaryTypeName","src":"662:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63838,"mutability":"mutable","name":"accountKeyCommit","nameLocation":"704:16:131","nodeType":"VariableDeclaration","scope":63849,"src":"696:24:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63837,"name":"bytes32","nodeType":"ElementaryTypeName","src":"696:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63840,"mutability":"mutable","name":"walletSalt","nameLocation":"738:10:131","nodeType":"VariableDeclaration","scope":63849,"src":"730:18:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63839,"name":"bytes32","nodeType":"ElementaryTypeName","src":"730:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63842,"mutability":"mutable","name":"psiPoint","nameLocation":"771:8:131","nodeType":"VariableDeclaration","scope":63849,"src":"758:21:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_bytes_memory_ptr","typeString":"bytes"},"typeName":{"id":63841,"name":"bytes","nodeType":"ElementaryTypeName","src":"758:5:131","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"},{"constant":false,"id":63844,"mutability":"mutable","name":"proof","nameLocation":"802:5:131","nodeType":"VariableDeclaration","scope":63849,"src":"789:18:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_bytes_memory_ptr","typeString":"bytes"},"typeName":{"id":63843,"name":"bytes","nodeType":"ElementaryTypeName","src":"789:5:131","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"652:161:131"},"returnParameters":{"id":63848,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63847,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":63849,"src":"837:4:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":63846,"name":"bool","nodeType":"ElementaryTypeName","src":"837:4:131","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"}],"src":"836:6:131"},"scope":63906,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":63869,"nodeType":"FunctionDefinition","src":"1779:301:131","nodes":[],"documentation":{"id":63850,"nodeType":"StructuredDocumentation","src":"849:925:131","text":"@notice Verify the proof to initialize an account (reply to the invitation email)\n @notice This verify the relayer received an email from the user (with corresponding `emailAddrPointer`)\n         where `accountKey` (of corresponding `accountKeyCommit`) was used in `x-reply-to` header\n @param emailDomain The domain of the user's email address\n @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`\n @param timestamp The timestamp of the email\n @param emailAddrPointer The hash of the relayer randomness and email address\n @param accountKeyCommit The hash of the account key, email address and relayer randomness\n @param emailNullifier The nullifier computed for the reply email\n @param proof Proof of email with above constraints\n @dev `accountKeyCommit`, `dkimPublicKeyHash` should be the values previously stored in the contract"},"functionSelector":"4471241c","implemented":false,"kind":"function","modifiers":[],"name":"verifyAccountInitializaionProof","nameLocation":"1788:31:131","parameters":{"id":63865,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63852,"mutability":"mutable","name":"emailDomain","nameLocation":"1843:11:131","nodeType":"VariableDeclaration","scope":63869,"src":"1829:25:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63851,"name":"string","nodeType":"ElementaryTypeName","src":"1829:6:131","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"visibility":"internal"},{"constant":false,"id":63854,"mutability":"mutable","name":"dkimPublicKeyHash","nameLocation":"1872:17:131","nodeType":"VariableDeclaration","scope":63869,"src":"1864:25:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63853,"name":"bytes32","nodeType":"ElementaryTypeName","src":"1864:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63856,"mutability":"mutable","name":"timestamp","nameLocation":"1907:9:131","nodeType":"VariableDeclaration","scope":63869,"src":"1899:17:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":63855,"name":"uint256","nodeType":"ElementaryTypeName","src":"1899:7:131","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"},{"constant":false,"id":63858,"mutability":"mutable","name":"emailAddrPointer","nameLocation":"1934:16:131","nodeType":"VariableDeclaration","scope":63869,"src":"1926:24:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63857,"name":"bytes32","nodeType":"ElementaryTypeName","src":"1926:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63860,"mutability":"mutable","name":"accountKeyCommit","nameLocation":"1968:16:131","nodeType":"VariableDeclaration","scope":63869,"src":"1960:24:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63859,"name":"bytes32","nodeType":"ElementaryTypeName","src":"1960:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63862,"mutability":"mutable","name":"emailNullifier","nameLocation":"2002:14:131","nodeType":"VariableDeclaration","scope":63869,"src":"1994:22:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63861,"name":"bytes32","nodeType":"ElementaryTypeName","src":"1994:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63864,"mutability":"mutable","name":"proof","nameLocation":"2039:5:131","nodeType":"VariableDeclaration","scope":63869,"src":"2026:18:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_bytes_memory_ptr","typeString":"bytes"},"typeName":{"id":63863,"name":"bytes","nodeType":"ElementaryTypeName","src":"2026:5:131","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"1819:231:131"},"returnParameters":{"id":63868,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63867,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":63869,"src":"2074:4:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":63866,"name":"bool","nodeType":"ElementaryTypeName","src":"2074:4:131","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"}],"src":"2073:6:131"},"scope":63906,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":63893,"nodeType":"FunctionDefinition","src":"3408:365:131","nodes":[],"documentation":{"id":63870,"nodeType":"StructuredDocumentation","src":"2086:1317:131","text":"@notice Verify the proof of email from user - used to verify EmailOp\n @notice Verify that relayer received an email where:\n         sender's email address domain is `emailDomain`,\n         sender's email address and relayer randmness derives `emailAddrPointer`,\n         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,\n         the subject is same as `maskedSubject` with email address masked (if any),\n         and email address in subject is used to derive `recipientEmailAddrCommit`\n @param emailDomain The domain of the user's email address\n @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`\n @param timestamp The timestamp of the email\n @param maskedSubject The subject of the email with (any) email address masked\n @param emailNullifier The nullifier computed for the email\n @param emailAddrPointer The hash of the relayer randomness and users's email address\n @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness\n @param hasEmailRecipient Whether the email subject has a recipient (email address)\n @dev `relayerHash`, `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract"},"functionSelector":"67f6bc6f","implemented":false,"kind":"function","modifiers":[],"name":"verifyEmailOpProof","nameLocation":"3417:18:131","parameters":{"id":63889,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63872,"mutability":"mutable","name":"emailDomain","nameLocation":"3459:11:131","nodeType":"VariableDeclaration","scope":63893,"src":"3445:25:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63871,"name":"string","nodeType":"ElementaryTypeName","src":"3445:6:131","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"visibility":"internal"},{"constant":false,"id":63874,"mutability":"mutable","name":"dkimPublicKeyHash","nameLocation":"3488:17:131","nodeType":"VariableDeclaration","scope":63893,"src":"3480:25:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63873,"name":"bytes32","nodeType":"ElementaryTypeName","src":"3480:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63876,"mutability":"mutable","name":"timestamp","nameLocation":"3523:9:131","nodeType":"VariableDeclaration","scope":63893,"src":"3515:17:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":63875,"name":"uint256","nodeType":"ElementaryTypeName","src":"3515:7:131","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"},{"constant":false,"id":63878,"mutability":"mutable","name":"maskedSubject","nameLocation":"3556:13:131","nodeType":"VariableDeclaration","scope":63893,"src":"3542:27:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_string_memory_ptr","typeString":"string"},"typeName":{"id":63877,"name":"string","nodeType":"ElementaryTypeName","src":"3542:6:131","typeDescriptions":{"typeIdentifier":"t_string_storage_ptr","typeString":"string"}},"visibility":"internal"},{"constant":false,"id":63880,"mutability":"mutable","name":"emailNullifier","nameLocation":"3587:14:131","nodeType":"VariableDeclaration","scope":63893,"src":"3579:22:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63879,"name":"bytes32","nodeType":"ElementaryTypeName","src":"3579:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63882,"mutability":"mutable","name":"emailAddrPointer","nameLocation":"3619:16:131","nodeType":"VariableDeclaration","scope":63893,"src":"3611:24:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63881,"name":"bytes32","nodeType":"ElementaryTypeName","src":"3611:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63884,"mutability":"mutable","name":"hasEmailRecipient","nameLocation":"3650:17:131","nodeType":"VariableDeclaration","scope":63893,"src":"3645:22:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":63883,"name":"bool","nodeType":"ElementaryTypeName","src":"3645:4:131","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"},{"constant":false,"id":63886,"mutability":"mutable","name":"recipientEmailAddrCommit","nameLocation":"3685:24:131","nodeType":"VariableDeclaration","scope":63893,"src":"3677:32:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63885,"name":"bytes32","nodeType":"ElementaryTypeName","src":"3677:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63888,"mutability":"mutable","name":"proof","nameLocation":"3732:5:131","nodeType":"VariableDeclaration","scope":63893,"src":"3719:18:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_bytes_memory_ptr","typeString":"bytes"},"typeName":{"id":63887,"name":"bytes","nodeType":"ElementaryTypeName","src":"3719:5:131","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"3435:308:131"},"returnParameters":{"id":63892,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63891,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":63893,"src":"3767:4:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":63890,"name":"bool","nodeType":"ElementaryTypeName","src":"3767:4:131","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"}],"src":"3766:6:131"},"scope":63906,"stateMutability":"view","virtual":false,"visibility":"external"},{"id":63905,"nodeType":"FunctionDefinition","src":"4271:178:131","nodes":[],"documentation":{"id":63894,"nodeType":"StructuredDocumentation","src":"3779:487:131","text":"@notice Verify the proof to claim and unclaimed to a recipient account\n @notice This verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`\n @param recipientEmailAddrPointer The hash of the relayer randomness and recipient email address\n @param recipientEmailAddrCommit The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer\n @param proof ZK proof of the circuit"},"functionSelector":"c03a5c18","implemented":false,"kind":"function","modifiers":[],"name":"verifyClaimFundProof","nameLocation":"4280:20:131","parameters":{"id":63901,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63896,"mutability":"mutable","name":"recipientEmailAddrPointer","nameLocation":"4318:25:131","nodeType":"VariableDeclaration","scope":63905,"src":"4310:33:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63895,"name":"bytes32","nodeType":"ElementaryTypeName","src":"4310:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63898,"mutability":"mutable","name":"recipientEmailAddrCommit","nameLocation":"4361:24:131","nodeType":"VariableDeclaration","scope":63905,"src":"4353:32:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"},"typeName":{"id":63897,"name":"bytes32","nodeType":"ElementaryTypeName","src":"4353:7:131","typeDescriptions":{"typeIdentifier":"t_bytes32","typeString":"bytes32"}},"visibility":"internal"},{"constant":false,"id":63900,"mutability":"mutable","name":"proof","nameLocation":"4408:5:131","nodeType":"VariableDeclaration","scope":63905,"src":"4395:18:131","stateVariable":false,"storageLocation":"memory","typeDescriptions":{"typeIdentifier":"t_bytes_memory_ptr","typeString":"bytes"},"typeName":{"id":63899,"name":"bytes","nodeType":"ElementaryTypeName","src":"4395:5:131","typeDescriptions":{"typeIdentifier":"t_bytes_storage_ptr","typeString":"bytes"}},"visibility":"internal"}],"src":"4300:119:131"},"returnParameters":{"id":63904,"nodeType":"ParameterList","parameters":[{"constant":false,"id":63903,"mutability":"mutable","name":"","nameLocation":"-1:-1:-1","nodeType":"VariableDeclaration","scope":63905,"src":"4443:4:131","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"},"typeName":{"id":63902,"name":"bool","nodeType":"ElementaryTypeName","src":"4443:4:131","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"visibility":"internal"}],"src":"4442:6:131"},"scope":63906,"stateMutability":"view","virtual":false,"visibility":"external"}],"abstract":false,"baseContracts":[],"canonicalName":"IVerifier","contractDependencies":[],"contractKind":"interface","fullyImplemented":false,"linearizedBaseContracts":[63906],"name":"IVerifier","nameLocation":"67:9:131","scope":63907,"usedErrors":[],"usedEvents":[]}],"license":"MIT"},"id":131}
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "emailDomain",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "dkimPublicKeyHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "emailNullifier",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "emailTimestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "walletSalt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "psiPoint",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyAccountCreationProof",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "emailAddr",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "rand",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "emailAddrCommit",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyAnnouncementProof",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "recipientEmailAddrCommit",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "recipientWalletSalt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyClaimFundProof",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "emailDomain",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "dkimPublicKeyHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "emailNullifier",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "maskedSubject",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "walletSalt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bool",
+          "name": "hasEmailRecipient",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "recipientEmailAddrCommit",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyEmailOpProof",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "verifyAccountCreationProof(string,bytes32,bytes32,uint256,bytes32,bytes,bytes)": "ac4b1afe",
+    "verifyAnnouncementProof(string,bytes32,bytes32,bytes)": "be65c064",
+    "verifyClaimFundProof(bytes32,bytes32,bytes)": "c03a5c18",
+    "verifyEmailOpProof(string,bytes32,uint256,bytes32,string,bytes32,bool,bytes32,bytes)": "d649c200"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"emailDomain\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"dkimPublicKeyHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"emailNullifier\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"emailTimestamp\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"walletSalt\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"psiPoint\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyAccountCreationProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"emailAddr\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"rand\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"emailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyAnnouncementProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"recipientEmailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"recipientWalletSalt\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyClaimFundProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"emailDomain\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"dkimPublicKeyHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"emailNullifier\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"maskedSubject\",\"type\":\"string\"},{\"internalType\":\"bytes32\",\"name\":\"walletSalt\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"hasEmailRecipient\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"recipientEmailAddrCommit\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"proof\",\"type\":\"bytes\"}],\"name\":\"verifyEmailOpProof\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"verifyAccountCreationProof(string,bytes32,bytes32,uint256,bytes32,bytes,bytes)\":{\"params\":{\"dkimPublicKeyHash\":\"The hash of the DKIM public key of `emailDomain`\",\"emailDomain\":\"The domain of the user's email address\",\"emailNullifier\":\"The nullifier computed for the email\",\"emailTimestamp\":\"The timestamp of the email\",\"proof\":\"Proof of email with above constraints\",\"psiPoint\":\"PSI point of the user for the relayer\",\"walletSalt\":\"Wallet used to create the account (hash of emailAddr and accountSalt)\"}},\"verifyAnnouncementProof(string,bytes32,bytes32,bytes)\":{\"params\":{\"emailAddr\":\"Email address of the recipient\",\"emailAddrCommit\":\"The commitment to the recipient email address\",\"proof\":\"Proof generated by the circuit\",\"rand\":\"Randomness used to create the email address commitment\"}},\"verifyClaimFundProof(bytes32,bytes32,bytes)\":{\"params\":{\"proof\":\"ZK proof of the circuit\",\"recipientEmailAddrCommit\":\"The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer\",\"recipientWalletSalt\":\"Wallet salt for the recipient (claimer)\"}},\"verifyEmailOpProof(string,bytes32,uint256,bytes32,string,bytes32,bool,bytes32,bytes)\":{\"details\":\"`emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract\",\"params\":{\"dkimPublicKeyHash\":\"The hash of the DKIM public key of `emailDomain`\",\"emailDomain\":\"The domain of the user's email address\",\"emailNullifier\":\"The nullifier computed for the email\",\"hasEmailRecipient\":\"Whether the email subject has a recipient (email address)\",\"maskedSubject\":\"The subject of the email with (any) email address masked\",\"recipientEmailAddrCommit\":\"The hash of recipeint's email address (from subject) and a randomness\",\"timestamp\":\"The timestamp of the email\",\"walletSalt\":\"The walletSalt used to derive user's account address - hash(emailAddress, accountSalt)\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"verifyAccountCreationProof(string,bytes32,bytes32,uint256,bytes32,bytes,bytes)\":{\"notice\":\"Verify the proof to create an accountVerifies email from a user that contains `accountSalt` in the email header         where `walletSalt = `hash(fromAddress, accountSalt)`\"},\"verifyAnnouncementProof(string,bytes32,bytes32,bytes)\":{\"notice\":\"Verify the proof to announce the email address during Unclaim registration \"},\"verifyClaimFundProof(bytes32,bytes32,bytes)\":{\"notice\":\"Verify the proof to claim and unclaimed to a recipient accountThis verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`\"},\"verifyEmailOpProof(string,bytes32,uint256,bytes32,string,bytes32,bool,bytes32,bytes)\":{\"notice\":\"Verify the proof of email from user - used to verify EmailOpVerify that relayer received an email where:         sender's email address domain is `emailDomain`,         sender's email address and relayer randmness derives `emailAddrPointer`,         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,         the subject is same as `maskedSubject` with email address masked (if any),         and email address in subject is used to derive `recipientEmailAddrCommit`\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IVerifier.sol\":\"IVerifier\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":20000},\"remappings\":[\":@gnosis.pm/=../../node_modules/@gnosis.pm/\",\":@openzeppelin/=../../node_modules/@openzeppelin/\",\":@uniswap/=../../node_modules/@uniswap/\",\":@zk-email/=../../node_modules/@zk-email/\",\":accountabstraction/=../../node_modules/accountabstraction/\",\":base64-sol/=../../node_modules/base64-sol/\",\":ds-test/=../../node_modules/ds-test/src/\",\":forge-std/=../../node_modules/forge-std/src/\",\":hardhat-deploy/=../../node_modules/hardhat-deploy/\",\":snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/\",\":solady/=../../node_modules/solady/src/\"]},\"sources\":{\"src/interfaces/IVerifier.sol\":{\"keccak256\":\"0x9ece2933148bb54755b3498a493e669002789f0a53c32238e80320b2e5d0f25b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://10a60c8c9587fea1af29a5335860ba6c780af637d562b1b119ae1a7b7af05868\",\"dweb:/ipfs/Qmcyb7ofsoQAaQSan3B4ud1ZiF5aKVwsrNbMqYLzku4BRU\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "emailDomain",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "dkimPublicKeyHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "emailNullifier",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "emailTimestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "walletSalt",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "psiPoint",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "proof",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "verifyAccountCreationProof",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "emailAddr",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "rand",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "emailAddrCommit",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "proof",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "verifyAnnouncementProof",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "recipientEmailAddrCommit",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "recipientWalletSalt",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "proof",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "verifyClaimFundProof",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "emailDomain",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "dkimPublicKeyHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "emailNullifier",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "maskedSubject",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "walletSalt",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bool",
+              "name": "hasEmailRecipient",
+              "type": "bool"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "recipientEmailAddrCommit",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "proof",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "verifyEmailOpProof",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "verifyAccountCreationProof(string,bytes32,bytes32,uint256,bytes32,bytes,bytes)": {
+            "params": {
+              "dkimPublicKeyHash": "The hash of the DKIM public key of `emailDomain`",
+              "emailDomain": "The domain of the user's email address",
+              "emailNullifier": "The nullifier computed for the email",
+              "emailTimestamp": "The timestamp of the email",
+              "proof": "Proof of email with above constraints",
+              "psiPoint": "PSI point of the user for the relayer",
+              "walletSalt": "Wallet used to create the account (hash of emailAddr and accountSalt)"
+            }
+          },
+          "verifyAnnouncementProof(string,bytes32,bytes32,bytes)": {
+            "params": {
+              "emailAddr": "Email address of the recipient",
+              "emailAddrCommit": "The commitment to the recipient email address",
+              "proof": "Proof generated by the circuit",
+              "rand": "Randomness used to create the email address commitment"
+            }
+          },
+          "verifyClaimFundProof(bytes32,bytes32,bytes)": {
+            "params": {
+              "proof": "ZK proof of the circuit",
+              "recipientEmailAddrCommit": "The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer",
+              "recipientWalletSalt": "Wallet salt for the recipient (claimer)"
+            }
+          },
+          "verifyEmailOpProof(string,bytes32,uint256,bytes32,string,bytes32,bool,bytes32,bytes)": {
+            "details": "`emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract",
+            "params": {
+              "dkimPublicKeyHash": "The hash of the DKIM public key of `emailDomain`",
+              "emailDomain": "The domain of the user's email address",
+              "emailNullifier": "The nullifier computed for the email",
+              "hasEmailRecipient": "Whether the email subject has a recipient (email address)",
+              "maskedSubject": "The subject of the email with (any) email address masked",
+              "recipientEmailAddrCommit": "The hash of recipeint's email address (from subject) and a randomness",
+              "timestamp": "The timestamp of the email",
+              "walletSalt": "The walletSalt used to derive user's account address - hash(emailAddress, accountSalt)"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "verifyAccountCreationProof(string,bytes32,bytes32,uint256,bytes32,bytes,bytes)": {
+            "notice": "Verify the proof to create an accountVerifies email from a user that contains `accountSalt` in the email header         where `walletSalt = `hash(fromAddress, accountSalt)`"
+          },
+          "verifyAnnouncementProof(string,bytes32,bytes32,bytes)": {
+            "notice": "Verify the proof to announce the email address during Unclaim registration "
+          },
+          "verifyClaimFundProof(bytes32,bytes32,bytes)": {
+            "notice": "Verify the proof to claim and unclaimed to a recipient accountThis verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`"
+          },
+          "verifyEmailOpProof(string,bytes32,uint256,bytes32,string,bytes32,bool,bytes32,bytes)": {
+            "notice": "Verify the proof of email from user - used to verify EmailOpVerify that relayer received an email where:         sender's email address domain is `emailDomain`,         sender's email address and relayer randmness derives `emailAddrPointer`,         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,         the subject is same as `maskedSubject` with email address masked (if any),         and email address in subject is used to derive `recipientEmailAddrCommit`"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "@gnosis.pm/=../../node_modules/@gnosis.pm/",
+        "@openzeppelin/=../../node_modules/@openzeppelin/",
+        "@uniswap/=../../node_modules/@uniswap/",
+        "@zk-email/=../../node_modules/@zk-email/",
+        "accountabstraction/=../../node_modules/accountabstraction/",
+        "base64-sol/=../../node_modules/base64-sol/",
+        "ds-test/=../../node_modules/ds-test/src/",
+        "forge-std/=../../node_modules/forge-std/src/",
+        "hardhat-deploy/=../../node_modules/hardhat-deploy/",
+        "snarkjs/=../../node_modules/circom-helper/node_modules/snarkjs/",
+        "solady/=../../node_modules/solady/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 20000
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interfaces/IVerifier.sol": "IVerifier"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/interfaces/IVerifier.sol": {
+        "keccak256": "0x9ece2933148bb54755b3498a493e669002789f0a53c32238e80320b2e5d0f25b",
+        "urls": [
+          "bzz-raw://10a60c8c9587fea1af29a5335860ba6c780af637d562b1b119ae1a7b7af05868",
+          "dweb:/ipfs/Qmcyb7ofsoQAaQSan3B4ud1ZiF5aKVwsrNbMqYLzku4BRU"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": {}
+  },
+  "ast": {
+    "absolutePath": "src/interfaces/IVerifier.sol",
+    "id": 63722,
+    "exportedSymbols": {
+      "IVerifier": [
+        63721
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:3932:131",
+    "nodes": [
+      {
+        "id": 63650,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:131",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".9"
+        ]
+      },
+      {
+        "id": 63721,
+        "nodeType": "ContractDefinition",
+        "src": "57:3906:131",
+        "nodes": [
+          {
+            "id": 63670,
+            "nodeType": "FunctionDefinition",
+            "src": "786:292:131",
+            "nodes": [],
+            "documentation": {
+              "id": 63651,
+              "nodeType": "StructuredDocumentation",
+              "src": "83:698:131",
+              "text": "@notice Verify the proof to create an account\n @notice Verifies email from a user that contains `accountSalt` in the email header\n         where `walletSalt = `hash(fromAddress, accountSalt)`\n @param emailDomain The domain of the user's email address\n @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`\n @param emailNullifier The nullifier computed for the email\n @param emailTimestamp The timestamp of the email\n @param walletSalt Wallet used to create the account (hash of emailAddr and accountSalt)\n @param psiPoint PSI point of the user for the relayer\n @param proof Proof of email with above constraints"
+            },
+            "functionSelector": "ac4b1afe",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "verifyAccountCreationProof",
+            "nameLocation": "795:26:131",
+            "parameters": {
+              "id": 63666,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63653,
+                  "mutability": "mutable",
+                  "name": "emailDomain",
+                  "nameLocation": "845:11:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "831:25:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 63652,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "831:6:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63655,
+                  "mutability": "mutable",
+                  "name": "dkimPublicKeyHash",
+                  "nameLocation": "874:17:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "866:25:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63654,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "866:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63657,
+                  "mutability": "mutable",
+                  "name": "emailNullifier",
+                  "nameLocation": "909:14:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "901:22:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63656,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "901:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63659,
+                  "mutability": "mutable",
+                  "name": "emailTimestamp",
+                  "nameLocation": "941:14:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "933:22:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 63658,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "933:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63661,
+                  "mutability": "mutable",
+                  "name": "walletSalt",
+                  "nameLocation": "973:10:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "965:18:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63660,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "965:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63663,
+                  "mutability": "mutable",
+                  "name": "psiPoint",
+                  "nameLocation": "1006:8:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "993:21:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 63662,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "993:5:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63665,
+                  "mutability": "mutable",
+                  "name": "proof",
+                  "nameLocation": "1037:5:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "1024:18:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 63664,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1024:5:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "821:227:131"
+            },
+            "returnParameters": {
+              "id": 63669,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63668,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63670,
+                  "src": "1072:4:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 63667,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1072:4:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1071:6:131"
+            },
+            "scope": 63721,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 63694,
+            "nodeType": "FunctionDefinition",
+            "src": "2411:359:131",
+            "nodes": [],
+            "documentation": {
+              "id": 63671,
+              "nodeType": "StructuredDocumentation",
+              "src": "1084:1322:131",
+              "text": "@notice Verify the proof of email from user - used to verify EmailOp\n @notice Verify that relayer received an email where:\n         sender's email address domain is `emailDomain`,\n         sender's email address and relayer randmness derives `emailAddrPointer`,\n         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,\n         the subject is same as `maskedSubject` with email address masked (if any),\n         and email address in subject is used to derive `recipientEmailAddrCommit`\n @param emailDomain The domain of the user's email address\n @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`\n @param emailNullifier The nullifier computed for the email\n @param timestamp The timestamp of the email\n @param maskedSubject The subject of the email with (any) email address masked\n @param walletSalt The walletSalt used to derive user's account address - hash(emailAddress, accountSalt)\n @param hasEmailRecipient Whether the email subject has a recipient (email address)\n @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness\n @dev `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract"
+            },
+            "functionSelector": "d649c200",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "verifyEmailOpProof",
+            "nameLocation": "2420:18:131",
+            "parameters": {
+              "id": 63690,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63673,
+                  "mutability": "mutable",
+                  "name": "emailDomain",
+                  "nameLocation": "2462:11:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2448:25:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 63672,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2448:6:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63675,
+                  "mutability": "mutable",
+                  "name": "dkimPublicKeyHash",
+                  "nameLocation": "2491:17:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2483:25:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63674,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2483:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63677,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nameLocation": "2526:9:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2518:17:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 63676,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2518:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63679,
+                  "mutability": "mutable",
+                  "name": "emailNullifier",
+                  "nameLocation": "2553:14:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2545:22:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63678,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2545:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63681,
+                  "mutability": "mutable",
+                  "name": "maskedSubject",
+                  "nameLocation": "2591:13:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2577:27:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 63680,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2577:6:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63683,
+                  "mutability": "mutable",
+                  "name": "walletSalt",
+                  "nameLocation": "2622:10:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2614:18:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63682,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2614:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63685,
+                  "mutability": "mutable",
+                  "name": "hasEmailRecipient",
+                  "nameLocation": "2647:17:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2642:22:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 63684,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2642:4:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63687,
+                  "mutability": "mutable",
+                  "name": "recipientEmailAddrCommit",
+                  "nameLocation": "2682:24:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2674:32:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63686,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2674:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63689,
+                  "mutability": "mutable",
+                  "name": "proof",
+                  "nameLocation": "2729:5:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2716:18:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 63688,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2716:5:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2438:302:131"
+            },
+            "returnParameters": {
+              "id": 63693,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63692,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63694,
+                  "src": "2764:4:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 63691,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2764:4:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2763:6:131"
+            },
+            "scope": 63721,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 63706,
+            "nodeType": "FunctionDefinition",
+            "src": "3239:172:131",
+            "nodes": [],
+            "documentation": {
+              "id": 63695,
+              "nodeType": "StructuredDocumentation",
+              "src": "2776:458:131",
+              "text": "@notice Verify the proof to claim and unclaimed to a recipient account\n @notice This verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`\n @param recipientEmailAddrCommit The hash(emailAddress, randomness) where randomness was set by sender and passed to recipient relayer\n @param recipientWalletSalt Wallet salt for the recipient (claimer)\n @param proof ZK proof of the circuit"
+            },
+            "functionSelector": "c03a5c18",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "verifyClaimFundProof",
+            "nameLocation": "3248:20:131",
+            "parameters": {
+              "id": 63702,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63697,
+                  "mutability": "mutable",
+                  "name": "recipientEmailAddrCommit",
+                  "nameLocation": "3286:24:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63706,
+                  "src": "3278:32:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63696,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3278:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63699,
+                  "mutability": "mutable",
+                  "name": "recipientWalletSalt",
+                  "nameLocation": "3328:19:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63706,
+                  "src": "3320:27:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63698,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3320:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63701,
+                  "mutability": "mutable",
+                  "name": "proof",
+                  "nameLocation": "3370:5:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63706,
+                  "src": "3357:18:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 63700,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3357:5:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3268:113:131"
+            },
+            "returnParameters": {
+              "id": 63705,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63704,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63706,
+                  "src": "3405:4:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 63703,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3405:4:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3404:6:131"
+            },
+            "scope": 63721,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 63720,
+            "nodeType": "FunctionDefinition",
+            "src": "3777:184:131",
+            "nodes": [],
+            "documentation": {
+              "id": 63707,
+              "nodeType": "StructuredDocumentation",
+              "src": "3417:355:131",
+              "text": "@notice Verify the proof to announce the email address during Unclaim registration\n \n @param emailAddr Email address of the recipient\n @param rand Randomness used to create the email address commitment\n @param emailAddrCommit The commitment to the recipient email address\n @param proof Proof generated by the circuit"
+            },
+            "functionSelector": "be65c064",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "verifyAnnouncementProof",
+            "nameLocation": "3786:23:131",
+            "parameters": {
+              "id": 63716,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63709,
+                  "mutability": "mutable",
+                  "name": "emailAddr",
+                  "nameLocation": "3833:9:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63720,
+                  "src": "3819:23:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 63708,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3819:6:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63711,
+                  "mutability": "mutable",
+                  "name": "rand",
+                  "nameLocation": "3860:4:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63720,
+                  "src": "3852:12:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63710,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3852:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63713,
+                  "mutability": "mutable",
+                  "name": "emailAddrCommit",
+                  "nameLocation": "3882:15:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63720,
+                  "src": "3874:23:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 63712,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3874:7:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 63715,
+                  "mutability": "mutable",
+                  "name": "proof",
+                  "nameLocation": "3920:5:131",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63720,
+                  "src": "3907:18:131",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 63714,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3907:5:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3809:122:131"
+            },
+            "returnParameters": {
+              "id": 63719,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 63718,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 63720,
+                  "src": "3955:4:131",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 63717,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3955:4:131",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3954:6:131"
+            },
+            "scope": 63721,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IVerifier",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          63721
+        ],
+        "name": "IVerifier",
+        "nameLocation": "67:9:131",
+        "scope": 63722,
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 131
+}
