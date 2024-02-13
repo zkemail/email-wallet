@@ -11,7 +11,8 @@ use hex;
 
 use cfdkim::{canonicalize_signed_email, resolve_public_key};
 use neon::prelude::*;
-use rsa::PublicKeyParts;
+use rsa::traits::PublicKeyParts;
+use rsa::RsaPublicKey;
 use serde::{Deserialize, Serialize};
 use zk_regex_apis::extract_substrs::*;
 // use trust_dns_resolver::config::{ResolverConfig, ResolverOpts};
@@ -57,6 +58,12 @@ impl ParsedEmail {
 
     pub fn get_from_addr(&self) -> Result<String> {
         let idxes = extract_from_addr_idxes(&self.canonicalized_header)?[0];
+        let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
+        Ok(str)
+    }
+
+    pub fn get_to_addr(&self) -> Result<String> {
+        let idxes = extract_to_addr_idxes(&self.canonicalized_header)?[0];
         let str = self.canonicalized_header[idxes.0..idxes.1].to_string();
         Ok(str)
     }
@@ -193,6 +200,8 @@ mod test {
         let parsed_email = ParsedEmail::new_from_raw_email(raw_email).await.unwrap();
         let from_addr = parsed_email.get_from_addr().unwrap();
         assert_eq!(from_addr, "suegamisora@gmail.com");
+        let to_addr = parsed_email.get_to_addr().unwrap();
+        assert_eq!(to_addr, "emailwallet.relayer@gmail.com");
         let email_domain = parsed_email.get_email_domain().unwrap();
         assert_eq!(email_domain, "gmail.com");
         let subject_all = parsed_email.get_subject_all().unwrap();
@@ -208,7 +217,28 @@ mod test {
         let raw_email = include_str!("../../circuits/tests/emails/account_init_test1.eml");
         let parsed_email = ParsedEmail::new_from_raw_email(raw_email).await.unwrap();
         let from_addr = parsed_email.get_from_addr().unwrap();
+        assert_eq!(from_addr, "adityabisht64@gmail.com");
+        let to_addr = parsed_email.get_to_addr().unwrap();
+        assert_eq!(to_addr, "zkemail.relayer.test+ACCOUNTKEY.0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76@gmail.com");
+        let email_domain = parsed_email.get_email_domain().unwrap();
+        assert_eq!(email_domain, "gmail.com");
+        let timestamp = parsed_email.get_timestamp().unwrap();
+        assert_eq!(timestamp, 1705737222);
+        let invitation_code = parsed_email.get_invitation_code().unwrap();
+        assert_eq!(
+            invitation_code,
+            "01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_extractions_from_email3() {
+        let raw_email = include_str!("../../circuits/tests/emails/account_init_test2.eml");
+        let parsed_email = ParsedEmail::new_from_raw_email(raw_email).await.unwrap();
+        let from_addr = parsed_email.get_from_addr().unwrap();
         assert_eq!(from_addr, "suegamisora@gmail.com");
+        let to_addr = parsed_email.get_to_addr().unwrap();
+        assert_eq!(to_addr, "emailwallet.relayer@gmail.com");
         let email_domain = parsed_email.get_email_domain().unwrap();
         assert_eq!(email_domain, "gmail.com");
         let subject_all = parsed_email.get_subject_all().unwrap();
@@ -217,11 +247,6 @@ mod test {
             "This is a test. CODE:0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76"
         );
         let timestamp = parsed_email.get_timestamp().unwrap();
-        assert_eq!(timestamp, 1697222111);
-        let invitation_code = parsed_email.get_invitation_code().unwrap();
-        assert_eq!(
-            invitation_code,
-            "01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76"
-        );
+        assert_eq!(timestamp, 1697224006);
     }
 }

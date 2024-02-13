@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account creation circuit.
+ * This script is for generating input for the account inititalization circuit.
  * 
  */
 
@@ -14,16 +14,12 @@ const snarkjs = require("snarkjs");
 
 program
   .requiredOption(
-    "--email-addr <string>",
-    "User's email address"
+    "--email-file <string>",
+    "Path to an email file"
   )
   .requiredOption(
     "--relayer-rand <string>",
     "Relayer's randomness"
-  )
-  .requiredOption(
-    "--account-key <string>",
-    "User's account key"
   )
   .requiredOption(
     "--input-file <string>",
@@ -43,13 +39,12 @@ function log(...message: any) {
 
 async function generate() {
   if (!args.inputFile.endsWith(".json")) {
-    throw new Error("--input-file path arg must end with .json");
+    throw new Error("--input file path arg must end with .json");
   }
 
   log("Generating Inputs for:", args);
 
-  const circuitInputs = await genAccountCreationInput(args.emailAddr, args.relayerRand, args.accountKey);
-
+  const circuitInputs = await genAccountCreationInput(args.emailFile, args.relayerRand);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
   await promisify(fs.writeFile)(args.inputFile, JSON.stringify(circuitInputs, null, 2));
@@ -58,10 +53,10 @@ async function generate() {
 
   if (args.prove) {
     const dir = path.dirname(args.inputFile);
-    const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInputs, path.join(dir, "account_creation.wasm"), path.join(dir, "account_creation.zkey"), console);
-    await promisify(fs.writeFile)(path.join(dir, "account_creation_proof.json"), JSON.stringify(proof, null, 2));
-    await promisify(fs.writeFile)(path.join(dir, "account_creation_public.json"), JSON.stringify(publicSignals, null, 2));
-    log("✓ Proof for account creation circuit generated");
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInputs, path.join(dir, "account_init.wasm"), path.join(dir, "account_init.zkey"), console);
+    await promisify(fs.writeFile)(path.join(dir, "account_init_proof.json"), JSON.stringify(proof, null, 2));
+    await promisify(fs.writeFile)(path.join(dir, "account_init_public.json"), JSON.stringify(publicSignals, null, 2));
+    log("✓ Proof for account init circuit generated");
   }
   process.exit(0);
 }

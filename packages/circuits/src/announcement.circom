@@ -2,7 +2,6 @@ pragma circom 2.1.5;
 
 include "circomlib/circuits/poseidon.circom";
 include "./utils/constants.circom";
-include "./utils/email_addr_pointer.circom";
 include "./utils/email_addr_commit.circom";
 include "./utils/bytes2ints.circom";
 
