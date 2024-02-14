@@ -3,7 +3,7 @@ pragma circom 2.1.5;
 include "@zk-email/zk-regex-circom/circuits/regex_helpers.circom";
 
 // regex: ( )?(c|C)ode( )?(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f)+
-template InvitationCodeRegex(msg_bytes) {
+template InvitationCodeWithPrefixRegex(msg_bytes) {
 	signal input msg[msg_bytes];
 	signal output out;
 
@@ -170,16 +170,23 @@ template InvitationCodeRegex(msg_bytes) {
 		is_consecutive[msg_bytes-1-i][0] <== states[num_bytes-i][1] * (1 - is_consecutive[msg_bytes-i][1]) + is_consecutive[msg_bytes-i][1];
 		is_consecutive[msg_bytes-1-i][1] <== state_changed[msg_bytes-i].out * is_consecutive[msg_bytes-1-i][0];
 	}
-	signal is_substr0[msg_bytes][4];
+	signal is_substr0[msg_bytes][11];
 	signal is_reveal0[msg_bytes];
 	signal output reveal0[msg_bytes];
 	for (var i = 0; i < msg_bytes; i++) {
 		is_substr0[i][0] <== 0;
-		 // the 0-th substring transitions: [(1, 1), (6, 1), (7, 1)]
-		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][1] * states[i+2][1];
-		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][6] * states[i+2][1];
-		is_substr0[i][3] <== is_substr0[i][2] + states[i+1][7] * states[i+2][1];
-		is_reveal0[i] <== is_substr0[i][3] * is_consecutive[i][1];
+		 // the 0-th substring transitions: [(0, 2), (0, 3), (1, 1), (2, 3), (3, 4), (4, 5), (5, 6), (6, 1), (6, 7), (7, 1)]
+		is_substr0[i][1] <== is_substr0[i][0] + states[i+1][0] * states[i+2][2];
+		is_substr0[i][2] <== is_substr0[i][1] + states[i+1][0] * states[i+2][3];
+		is_substr0[i][3] <== is_substr0[i][2] + states[i+1][1] * states[i+2][1];
+		is_substr0[i][4] <== is_substr0[i][3] + states[i+1][2] * states[i+2][3];
+		is_substr0[i][5] <== is_substr0[i][4] + states[i+1][3] * states[i+2][4];
+		is_substr0[i][6] <== is_substr0[i][5] + states[i+1][4] * states[i+2][5];
+		is_substr0[i][7] <== is_substr0[i][6] + states[i+1][5] * states[i+2][6];
+		is_substr0[i][8] <== is_substr0[i][7] + states[i+1][6] * states[i+2][1];
+		is_substr0[i][9] <== is_substr0[i][8] + states[i+1][6] * states[i+2][7];
+		is_substr0[i][10] <== is_substr0[i][9] + states[i+1][7] * states[i+2][1];
+		is_reveal0[i] <== is_substr0[i][10] * is_consecutive[i][1];
 		reveal0[i] <== in[i+1] * is_reveal0[i];
 	}
 }

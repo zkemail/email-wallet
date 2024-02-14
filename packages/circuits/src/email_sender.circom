@@ -13,7 +13,7 @@ include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
 include "./utils/bytes2ints.circom";
 include "./utils/digit2int.circom";
-include "./regexes/invitation_code_regex.circom";
+include "./regexes/invitation_code_with_prefix_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_addr_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/email_domain_regex.circom";
@@ -98,7 +98,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     }
     
     signal code_regex_out, code_regex_reveal[max_subject_bytes];
-    (code_regex_out, code_regex_reveal) <== InvitationCodeRegex(max_subject_bytes)(subject_all);
+    (code_regex_out, code_regex_reveal) <== InvitationCodeWithPrefixRegex(max_subject_bytes)(subject_all);
     signal has_code <== IsZero()(code_regex_out-1);
 
     signal removed_email_recipient[max_subject_bytes];
@@ -166,5 +166,5 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
 // * n = 121 is the number of bits in each chunk of the modulus (RSA parameter)
 // * k = 17 is the number of chunks in the modulus (RSA parameter)
 // * max_header_bytes = 1024 is the max number of bytes in the header
-// * max_subject_bytes = 590 = 512 + 78 is the max number of bytes in the body after precomputed slice. The last 78 bytes can be used for the invitation code.
-component main  = EmailSender(121, 17, 1024, 512);
+// * max_subject_bytes = 605 = 512 + 31*3 is the max number of bytes in the body after precomputed slice. The last 31*3 bytes can be used for the invitation code.
+component main  = EmailSender(121, 17, 1024, 605);

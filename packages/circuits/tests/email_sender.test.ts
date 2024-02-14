@@ -26,7 +26,7 @@ describe("Email Sender", () => {
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
         const maskedSubject = "Send 0.1 ETH to ";
-        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
+        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 605);
         const maskedSubjectFields = emailWalletUtils.bytes2Fields(paddedMaskedSubject);
         for (let idx = 0; idx < maskedSubjectFields.length; ++idx) {
             expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + idx]);
@@ -35,21 +35,21 @@ describe("Email Sender", () => {
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
         const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
         for (let idx = 0; idx < domainFields.length; ++idx) {
-            expect(BigInt(domainFields[idx])).toEqual(witness[18 + idx]);
+            expect(BigInt(domainFields[idx])).toEqual(witness[21 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
-        expect(BigInt(expectedPubKeyHash)).toEqual(witness[27]);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[30]);
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
-        expect(BigInt(expectedEmailNullifier)).toEqual(witness[28]);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[31]);
         const timestamp = 1694989812n;
-        expect(timestamp).toEqual(witness[29]);
+        expect(timestamp).toEqual(witness[32]);
         const senderEmailAddr = "suegamisora@gmail.com";
         const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-        expect(BigInt(walletSalt)).toEqual(witness[30]);
-        expect(1n).toEqual(witness[31]);
+        expect(BigInt(walletSalt)).toEqual(witness[33]);
+        expect(1n).toEqual(witness[34]);
         const recipientEmailAddr = "alice@gmail.com"
         const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
-        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[32]);
+        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[35]);
     });
 
     it("Verify a sent email whose subject does not have an email address", async () => {
@@ -63,7 +63,7 @@ describe("Email Sender", () => {
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
         const maskedSubject = "Swap 1 ETH to DAI";
-        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
+        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 605);
         const maskedSubjectFields = emailWalletUtils.bytes2Fields(paddedMaskedSubject);
         for (let idx = 0; idx < maskedSubjectFields.length; ++idx) {
             expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + idx]);
@@ -72,19 +72,19 @@ describe("Email Sender", () => {
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
         const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
         for (let idx = 0; idx < domainFields.length; ++idx) {
-            expect(BigInt(domainFields[idx])).toEqual(witness[18 + idx]);
+            expect(BigInt(domainFields[idx])).toEqual(witness[21 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
-        expect(BigInt(expectedPubKeyHash)).toEqual(witness[27]);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[30]);
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
-        expect(BigInt(expectedEmailNullifier)).toEqual(witness[28]);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[31]);
         const timestamp = 1696964295n;
-        expect(timestamp).toEqual(witness[29]);
+        expect(timestamp).toEqual(witness[32]);
         const senderEmailAddr = "suegamisora@gmail.com";
         const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-        expect(BigInt(walletSalt)).toEqual(witness[30]);
-        expect(0n).toEqual(witness[31]);
-        expect(0n).toEqual(witness[32]);
+        expect(BigInt(walletSalt)).toEqual(witness[33]);
+        expect(0n).toEqual(witness[34]);
+        expect(0n).toEqual(witness[35]);
     });
 
     it("Verify a sent email whose from field has a dummy email address name", async () => {
@@ -98,7 +98,7 @@ describe("Email Sender", () => {
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
         const maskedSubject = "Send 1 ETH to ";
-        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
+        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 605);
         const maskedSubjectFields = emailWalletUtils.bytes2Fields(paddedMaskedSubject);
         for (let idx = 0; idx < maskedSubjectFields.length; ++idx) {
             expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + idx]);
@@ -107,21 +107,21 @@ describe("Email Sender", () => {
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
         const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
         for (let idx = 0; idx < domainFields.length; ++idx) {
-            expect(BigInt(domainFields[idx])).toEqual(witness[18 + idx]);
+            expect(BigInt(domainFields[idx])).toEqual(witness[21 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
-        expect(BigInt(expectedPubKeyHash)).toEqual(witness[27]);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[30]);
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
-        expect(BigInt(expectedEmailNullifier)).toEqual(witness[28]);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[31]);
         const timestamp = 1696965932n;
-        expect(timestamp).toEqual(witness[29]);
+        expect(timestamp).toEqual(witness[32]);
         const senderEmailAddr = "suegamisora@gmail.com";
         const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-        expect(BigInt(walletSalt)).toEqual(witness[30]);
-        expect(1n).toEqual(witness[31]);
+        expect(BigInt(walletSalt)).toEqual(witness[33]);
+        expect(1n).toEqual(witness[34]);
         const recipientEmailAddr = "bob@example.com"
         const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
-        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[32]);
+        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[35]);
     });
 
     it("Verify a sent email whose from field has a non-English name", async () => {
@@ -135,7 +135,7 @@ describe("Email Sender", () => {
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
         const maskedSubject = "Send 1 ETH to ";
-        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 512);
+        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 605);
         const maskedSubjectFields = emailWalletUtils.bytes2Fields(paddedMaskedSubject);
         for (let idx = 0; idx < maskedSubjectFields.length; ++idx) {
             expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + idx]);
@@ -144,21 +144,58 @@ describe("Email Sender", () => {
         const paddedDomain = emailWalletUtils.padString(domainName, 255);
         const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
         for (let idx = 0; idx < domainFields.length; ++idx) {
-            expect(BigInt(domainFields[idx])).toEqual(witness[18 + idx]);
+            expect(BigInt(domainFields[idx])).toEqual(witness[21 + idx]);
         }
         const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
-        expect(BigInt(expectedPubKeyHash)).toEqual(witness[27]);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[30]);
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
-        expect(BigInt(expectedEmailNullifier)).toEqual(witness[28]);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[31]);
         const timestamp = 1696967028n;
-        expect(timestamp).toEqual(witness[29]);
+        expect(timestamp).toEqual(witness[32]);
         const senderEmailAddr = "suegamisora@gmail.com";
         const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-        expect(BigInt(walletSalt)).toEqual(witness[30]);
-        expect(1n).toEqual(witness[31]);
+        expect(BigInt(walletSalt)).toEqual(witness[33]);
+        expect(1n).toEqual(witness[34]);
         const recipientEmailAddr = "bob@example.com"
         const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
-        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[32]);
+        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[35]);
+    });
+
+    it("Verify a sent email whose subject has an email address and an invitation code", async () => {
+        const emailFilePath = path.join(__dirname, "./emails/email_sender_test5.eml");
+        const emailRaw = readFileSync(emailFilePath, "utf8");
+        const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
+        console.log(parsedEmail.canonicalizedHeader);
+        const accountKey = await emailWalletUtils.genAccountKey();
+        const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+        const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
+        const witness = await circuit.calculateWitness(circuitInputs);
+        await circuit.checkConstraints(witness);
+        const maskedSubject = "Send 1.23 ETH to ";
+        const paddedMaskedSubject = emailWalletUtils.padString(maskedSubject, 605);
+        const maskedSubjectFields = emailWalletUtils.bytes2Fields(paddedMaskedSubject);
+        for (let idx = 0; idx < maskedSubjectFields.length; ++idx) {
+            expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + idx]);
+        }
+        const domainName = "gmail.com";
+        const paddedDomain = emailWalletUtils.padString(domainName, 255);
+        const domainFields = emailWalletUtils.bytes2Fields(paddedDomain);
+        for (let idx = 0; idx < domainFields.length; ++idx) {
+            expect(BigInt(domainFields[idx])).toEqual(witness[21 + idx]);
+        }
+        const expectedPubKeyHash = emailWalletUtils.publicKeyHash(parsedEmail.publicKey);
+        expect(BigInt(expectedPubKeyHash)).toEqual(witness[30]);
+        const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
+        expect(BigInt(expectedEmailNullifier)).toEqual(witness[31]);
+        const timestamp = 1707866856n;
+        expect(timestamp).toEqual(witness[32]);
+        const senderEmailAddr = "suegamisora@gmail.com";
+        const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
+        expect(BigInt(walletSalt)).toEqual(witness[33]);
+        expect(1n).toEqual(witness[34]);
+        const recipientEmailAddr = "alice@gmail.com"
+        const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
+        expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(witness[35]);
     });
 
     // it("Verify an email 1 failed in v0", async () => {
