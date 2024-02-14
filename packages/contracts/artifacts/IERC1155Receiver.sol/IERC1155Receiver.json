@@ -318,7 +318,7 @@
         753
       ],
       "IERC165": [
-        2885
+        3812
       ]
     },
     "nodeType": "SourceUnit",
@@ -345,7 +345,7 @@
         "file": "../../utils/introspection/IERC165.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 754,
-        "sourceUnit": 2886,
+        "sourceUnit": 3813,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -783,7 +783,7 @@
                 "262:7:14"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 2885,
+              "referencedDeclaration": 3812,
               "src": "262:7:14"
             },
             "id": 718,
@@ -803,7 +803,7 @@
         "fullyImplemented": false,
         "linearizedBaseContracts": [
           753,
-          2885
+          3812
         ],
         "name": "IERC1155Receiver",
         "nameLocation": "242:16:14",
