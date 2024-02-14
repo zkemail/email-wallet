@@ -49,8 +49,8 @@ pub(crate) async fn claim_unclaims(
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-    let account_key_commit =
-        account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
+    // let account_key_commit =
+    //     account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
     let info = chain_client
         .query_account_info(&account_key_commit)
         .await

@@ -48,11 +48,11 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     }
     var timestamp_len = timestamp_len_const();
 
-    signal output masked_subject_str[subject_field_len];
     signal output domain_name[domain_filed_len];
     signal output pubkey_hash;
     signal output email_nullifier;
     signal output timestamp;
+    signal output masked_subject_str[subject_field_len];
     signal output sender_wallet_salt;
     signal output has_email_recipient;
     signal output recipient_email_addr_commit;

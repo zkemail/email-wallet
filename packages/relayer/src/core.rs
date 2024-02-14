@@ -78,16 +78,16 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         let account_key = extract_account_key_from_email_address(&parsed_email.get_to_addr()?)?;
         let account_key = AccountKey(hex2field(&account_key)?);
         if !db.contains_user(&from_address).await? {
-            trace!(LOG, "Account transport"; "func" => function_name!());
-            handle_account_transport(
-                email,
-                &parsed_email,
-                account_key,
-                db.clone(),
-                chain_client,
-                (*tx_sender).clone(),
-            )
-            .await?;
+            // trace!(LOG, "Account transport"; "func" => function_name!());
+            // handle_account_transport(
+            //     email,
+            //     &parsed_email,
+            //     account_key,
+            //     db.clone(),
+            //     chain_client,
+            //     (*tx_sender).clone(),
+            // )
+            // .await?;
         } else {
             trace!(LOG, "Account init"; "func" => function_name!());
             handle_account_init(
@@ -570,92 +570,92 @@ pub(crate) async fn handle_account_init(
     Ok(())
 }
 
-pub(crate) async fn handle_account_transport(
-    email: String,
-    parsed_email: &ParsedEmail,
-    account_key: AccountKey,
-    db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
-    tx_sender: UnboundedSender<EmailMessage>,
-) -> Result<()> {
-    let from_address = parsed_email.get_from_addr()?;
-    let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
-    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-    let email_addr_pointer = fr_to_bytes32(&padded_from_address.to_pointer(&relayer_rand)?)?;
-    let new_account_key_commit =
-        account_key.to_commitment(&padded_from_address, &relayer_rand.0)?;
-    let wallet_salt = account_key.to_wallet_salt()?;
-    let wallet_addr = chain_client
-        .get_wallet_addr_from_salt(&wallet_salt.0)
-        .await?;
-    let subgraph_client = SubgraphClient::new();
-    let relayers = subgraph_client
-        .get_relayers_by_wallet_addr(&wallet_addr)
-        .await?;
-    if relayers.len() == 0 {
-        return Err(anyhow!(
-            "No relayer found for wallet address {}",
-            wallet_addr
-        ));
-    }
-    let (old_relayer, old_relayer_rand_hash, _) = relayers[0];
-    let old_relayer_rand_hash = chain_client.query_rand_hash_of_relayer(old_relayer).await?;
+// pub(crate) async fn handle_account_transport(
+//     email: String,
+//     parsed_email: &ParsedEmail,
+//     account_key: AccountKey,
+//     db: Arc<Database>,
+//     chain_client: Arc<ChainClient>,
+//     tx_sender: UnboundedSender<EmailMessage>,
+// ) -> Result<()> {
+//     let from_address = parsed_email.get_from_addr()?;
+//     let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
+//     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+//     let email_addr_pointer = fr_to_bytes32(&padded_from_address.to_pointer(&relayer_rand)?)?;
+//     let new_account_key_commit =
+//         account_key.to_commitment(&padded_from_address, &relayer_rand.0)?;
+//     let wallet_salt = account_key.to_wallet_salt()?;
+//     let wallet_addr = chain_client
+//         .get_wallet_addr_from_salt(&wallet_salt.0)
+//         .await?;
+//     let subgraph_client = SubgraphClient::new();
+//     let relayers = subgraph_client
+//         .get_relayers_by_wallet_addr(&wallet_addr)
+//         .await?;
+//     if relayers.len() == 0 {
+//         return Err(anyhow!(
+//             "No relayer found for wallet address {}",
+//             wallet_addr
+//         ));
+//     }
+//     let (old_relayer, old_relayer_rand_hash, _) = relayers[0];
+//     let old_relayer_rand_hash = chain_client.query_rand_hash_of_relayer(old_relayer).await?;
 
-    let input = generate_account_transport_input(
-        CIRCUITS_DIR_PATH.get().unwrap(),
-        &email,
-        &field2hex(&old_relayer_rand_hash),
-        RELAYER_RAND.get().unwrap(),
-    )
-    .await?;
-    let (transport_proof, pub_signals) =
-        generate_proof(&input, "account_transport", PROVER_ADDRESS.get().unwrap()).await?;
+//     let input = generate_account_transport_input(
+//         CIRCUITS_DIR_PATH.get().unwrap(),
+//         &email,
+//         &field2hex(&old_relayer_rand_hash),
+//         RELAYER_RAND.get().unwrap(),
+//     )
+//     .await?;
+//     let (transport_proof, pub_signals) =
+//         generate_proof(&input, "account_transport", PROVER_ADDRESS.get().unwrap()).await?;
 
-    let email_proof = EmailProof {
-        domain: parsed_email.get_email_domain()?,
-        timestamp: parsed_email.get_timestamp()?.into(),
-        dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
-        nullifier: fr_to_bytes32(&email_nullifier(&parsed_email.signature)?)?,
-        proof: transport_proof,
-    };
+//     let email_proof = EmailProof {
+//         domain: parsed_email.get_email_domain()?,
+//         timestamp: parsed_email.get_timestamp()?.into(),
+//         dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
+//         nullifier: fr_to_bytes32(&email_nullifier(&parsed_email.signature)?)?,
+//         proof: transport_proof,
+//     };
 
-    let input = generate_account_creation_input(
-        CIRCUITS_DIR_PATH.get().unwrap(),
-        &from_address,
-        RELAYER_RAND.get().unwrap(),
-        &field2hex(&account_key.0),
-    )
-    .await?;
-    let (creation_proof, pub_signals) =
-        generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
-    let new_psi_point = get_psi_point_bytes(pub_signals[4], pub_signals[5]);
-    let data = AccountTransportInput {
-        old_account_key_commit: u256_to_bytes32(&pub_signals[11]),
-        new_email_addr_pointer: email_addr_pointer,
-        new_account_key_commit: fr_to_bytes32(&new_account_key_commit)?,
-        new_psi_point,
-        transport_email_proof: email_proof,
-        account_creation_proof: creation_proof,
-    };
+//     let input = generate_account_creation_input(
+//         CIRCUITS_DIR_PATH.get().unwrap(),
+//         &from_address,
+//         RELAYER_RAND.get().unwrap(),
+//         &field2hex(&account_key.0),
+//     )
+//     .await?;
+//     let (creation_proof, pub_signals) =
+//         generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
+//     let new_psi_point = get_psi_point_bytes(pub_signals[4], pub_signals[5]);
+//     let data = AccountTransportInput {
+//         old_account_key_commit: u256_to_bytes32(&pub_signals[11]),
+//         new_email_addr_pointer: email_addr_pointer,
+//         new_account_key_commit: fr_to_bytes32(&new_account_key_commit)?,
+//         new_psi_point,
+//         transport_email_proof: email_proof,
+//         account_creation_proof: creation_proof,
+//     };
 
-    let result = chain_client.transport_account(data).await?;
-    let message_id = parsed_email.get_message_id()?;
+//     let result = chain_client.transport_account(data).await?;
+//     let message_id = parsed_email.get_message_id()?;
 
-    tx_sender
-        .send(EmailMessage {
-            to: from_address.clone(),
-            email_args: EmailArgs::AccountTransport {
-                user_email_addr: from_address,
-                relayer_email_addr: env::var(LOGIN_ID_KEY).unwrap(),
-                reply_to: message_id,
-            },
-            account_key: Some(field2hex(&account_key.0)),
-            wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-            tx_hash: Some(result),
-        })
-        .unwrap();
-    Ok(())
-}
+//     tx_sender
+//         .send(EmailMessage {
+//             to: from_address.clone(),
+//             email_args: EmailArgs::AccountTransport {
+//                 user_email_addr: from_address,
+//                 relayer_email_addr: env::var(LOGIN_ID_KEY).unwrap(),
+//                 reply_to: message_id,
+//             },
+//             account_key: Some(field2hex(&account_key.0)),
+//             wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
+//             tx_hash: Some(result),
+//         })
+//         .unwrap();
+//     Ok(())
+// }
 
 pub(crate) fn extract_account_key_from_email_address(email_addr: &str) -> Result<String> {
     let regex_config = serde_json::from_str(include_str!(

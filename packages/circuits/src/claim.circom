@@ -14,6 +14,7 @@ template Claim() {
     signal input email_addr[email_max_bytes];
     signal input cm_rand;
     signal input account_key;
+
     signal output email_addr_commit;
     signal output wallet_salt;
 

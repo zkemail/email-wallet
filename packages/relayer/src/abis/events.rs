@@ -262,13 +262,6 @@ pub mod email_wallet_events {
                                     indexed: true,
                                 },
                                 ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("randHash"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    indexed: false,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
                                     name: ::std::borrow::ToOwned::to_owned("emailAddr"),
                                     kind: ::ethers::core::abi::ethabi::ParamType::String,
                                     indexed: false,
@@ -574,13 +567,13 @@ pub mod email_wallet_events {
         ::ethers::core::abi::Abi,
     > = ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
-    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xB2=\xCB7\xCC\xF75(d\xAC\xF2i\xB3\x06\xAB\xDE\xFF\xF8\x10X\xA4\xA9[|U\x82\xF0\xB2O(\x89GdsolcC\0\x08\x17\x003";
+    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \x90\x9B\t\xF2\x9E\x9F\x1B\x1CG\xC5?\xBE\xC3\x12c\x84\x83.\t\xA6\xC0D6\xF5\xDF\x9B\x8Cr<]\xCF\x13dsolcC\0\x08\x17\x003";
     /// The bytecode of the contract.
     pub static EMAILWALLETEVENTS_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __BYTECODE,
     );
     #[rustfmt::skip]
-    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \xB2=\xCB7\xCC\xF75(d\xAC\xF2i\xB3\x06\xAB\xDE\xFF\xF8\x10X\xA4\xA9[|U\x82\xF0\xB2O(\x89GdsolcC\0\x08\x17\x003";
+    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \x90\x9B\t\xF2\x9E\x9F\x1B\x1CG\xC5?\xBE\xC3\x12c\x84\x83.\t\xA6\xC0D6\xF5\xDF\x9B\x8Cr<]\xCF\x13dsolcC\0\x08\x17\x003";
     /// The deployed bytecode of the contract.
     pub static EMAILWALLETEVENTS_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __DEPLOYED_BYTECODE,
@@ -950,12 +943,11 @@ pub mod email_wallet_events {
     )]
     #[ethevent(
         name = "RelayerRegistered",
-        abi = "RelayerRegistered(address,bytes32,string,string)"
+        abi = "RelayerRegistered(address,string,string)"
     )]
     pub struct RelayerRegisteredFilter {
         #[ethevent(indexed)]
         pub addr: ::ethers::core::types::Address,
-        pub rand_hash: [u8; 32],
         pub email_addr: ::std::string::String,
         pub hostname: ::std::string::String,
     }
