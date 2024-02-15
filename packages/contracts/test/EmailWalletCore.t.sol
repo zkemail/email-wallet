@@ -8,7 +8,7 @@ contract EmailWalletCoreTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
     }
 
     function testUpgradeability() public {

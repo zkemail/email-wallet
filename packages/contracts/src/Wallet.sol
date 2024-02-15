@@ -14,13 +14,6 @@ import "accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol";
 contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
 
-    // Templates for subject patterns and parameters
-    string[][] public subjectTemplates;
-
-    address public dkimRegistry;
-
-    mapping(address => address) public guardingWallet;
-
     /// @notice Fallback function to receive ETH
     /// @notice For convenience, this contract will convert ETH to WETH always
     /// @notice Conversion is not done if the sender is WETH (i.e when user call `weth.withdraw()`)
@@ -48,10 +41,6 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     /// @param wethAddress Address of the WETH contract
     constructor(address wethAddress) {
         weth = wethAddress;
-        // FIXME: It's example, you can customize it
-        subjectTemplates = new string[][](2);
-        subjectTemplates[0] = [""];
-        subjectTemplates[1] = ["{uint256}", "{uint256}"];
     }
 
     /// @notice Initialize the contract
@@ -83,32 +72,4 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     /// @notice Upgrade the implementation of the proxy
     /// @param newImplementation Address of the new implementation
     function _authorizeUpgrade(address newImplementation) internal override ownerOrSelf {}
-
-    /// @notice Set guarding wallet for a guardian
-    function setGuard(address guardianAddr, address walletAddr) public {
-        guardingWallet[guardianAddr] = walletAddr;
-    }
-
-    /// @notice account recovery
-    function recover(
-        uint8 templateIndex, 
-        bytes[] memory subjectParams, 
-        address guardianAddr, 
-        bytes32 emailNullifier) public view
-    {
-        emailNullifier;
-        require(templateIndex <= 1, "invalid template index");
-        require(guardingWallet[guardianAddr] != address(0), "invalid guardian");
-        if(templateIndex == 0) {
-            require(subjectParams.length == 0, "invalid subject params");
-            // TODO: write logic code for account recovery
-        } else if(templateIndex == 1) {
-            require(subjectParams.length == 2, "invalid subject params");
-            // TODO: write logic code for account recovery
-        }
-    }
-
-    function updateDKIMRegistry(address newDKIMRegistry) public ownerOrSelf {
-        dkimRegistry = newDKIMRegistry;
-    }
 }

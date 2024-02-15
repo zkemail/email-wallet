@@ -475,23 +475,6 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             accountHandler.updateDKIMRegistryOfWalletSalt(emailOp.walletSalt, emailOp.newDkimRegistry);
             success = true;
         }
-        // Set guarding wallet for a guardian
-        else if (Strings.equal(emailOp.command, Commands.Gurard)) {
-            Wallet(payable(currContext.walletAddr)).setGuard(emailOp.recipientETHAddr, currContext.walletAddr);
-            success = true;
-        }
-        // If command is empty, it is account recovery operation
-        // It assumes that currContext.walletAddr is the guardian address
-        // and emailOp.recipientETHAddr is the target address to recover
-        else if (Strings.equal(emailOp.command, "")) {
-            Wallet(payable(emailOp.recipientETHAddr)).recover(
-                emailOp.extensionParams.subjectTemplateIndex,
-                emailOp.extensionParams.subjectParams,
-                currContext.walletAddr,
-                emailOp.emailNullifier
-            );
-            success = true;
-        }
         // The command is for an extension
         else {
             address extAddress = extensionHandler.getExtensionForCommand(currContext.walletAddr, emailOp.command);

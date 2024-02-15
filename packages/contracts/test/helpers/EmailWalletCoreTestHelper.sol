@@ -191,17 +191,20 @@ contract EmailWalletCoreTestHelper is Test {
     }
 
     // Register test user account - for using as sender when not testing accoung functionality
-    function _registerAndInitializeAccount() internal {
+    function _createTestAccount() internal {
         vm.startPrank(relayer);
+        EmailProof memory emailProof = EmailProof({
+            proof: mockProof,
+            domain: emailDomain,
+            dkimPublicKeyHash: mockDKIMHash,
+            nullifier: emailNullifier,
+            timestamp: block.timestamp
+        });
+
         accountHandler.createAccount(
-            emailAddr,
             walletSalt, 
             psiPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
+            emailProof
         );
         vm.stopPrank();
     }
@@ -210,7 +213,7 @@ contract EmailWalletCoreTestHelper is Test {
     function _getBaseEmailOp() internal view returns (EmailOp memory) {
         return
             EmailOp({
-                emailAddrPointer: emailAddr,
+                walletSalt: walletSalt,
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(0),
                 numRecipientEmailAddrBytes: 0,

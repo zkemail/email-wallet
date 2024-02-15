@@ -7,7 +7,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
     }
 
     // Internally means that the unclaimed fund is registered by handleEmailOp (send tokent to email)
@@ -390,14 +390,15 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newEmailAddrPointer, 
             newWalletSalt, 
-            newPSIPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+            newPSIPoint,
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            })
         );
 
         unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
@@ -443,14 +444,15 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newEmailAddrPointer, 
             newWalletSalt, 
             newPSIPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            })
         );
 
         unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newEmailAddrPointer, mockProof);

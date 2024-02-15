@@ -7,7 +7,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
     }
 
     function test_ValidateSendingToEthAddress() public {

@@ -16,7 +16,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
 
         // Publish and install two extension - we will use them to test unclaimed state
         {
@@ -641,14 +641,15 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newEmailAddrPointer, 
             newWalletSalt, 
             newPSIPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+            EmailProof({
+                nullifier: emailNullifier2,
+                proof: mockProof,
+                dkimPublicKeyHash: mockDKIMHash,
+                domain: emailDomain,
+                timestamp: block.timestamp
+            })
         );
 
         vm.expectEmit(true, true, true, true);
@@ -695,14 +696,15 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newEmailAddrPointer, 
             newWalletSalt, 
             newPSIPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+            EmailProof({
+                nullifier: emailNullifier2,
+                proof: mockProof,
+                dkimPublicKeyHash: mockDKIMHash,
+                domain: emailDomain,
+                timestamp: block.timestamp
+            })
         );
 
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newEmailAddrPointer, mockProof);
@@ -837,14 +839,15 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed State to a newly created account, but not initialized
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            newEmailAddrPointer, 
             newWalletSalt, 
             newPSI,
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+            EmailProof({
+                nullifier: emailNullifier2,
+                proof: mockProof,
+                dkimPublicKeyHash: mockDKIMHash,
+                domain: emailDomain,
+                timestamp: block.timestamp
+            })
         );
 
         // vm.expectRevert("account not initialized");

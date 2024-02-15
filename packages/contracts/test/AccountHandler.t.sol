@@ -12,53 +12,27 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function test_CreateAccount() public {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountCreated(emailAddr, walletSalt, walletSalt, psiPoint);
+        
+        EmailProof memory emailProof = EmailProof({
+            proof: mockProof,
+            domain: emailDomain,
+            dkimPublicKeyHash: mockDKIMHash,
+            nullifier: emailNullifier,
+            timestamp: block.timestamp
+        });
+
+        emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
 
         accountHandler.createAccount(
-            emailAddr,
             walletSalt, 
             psiPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
+            emailProof
         );
         vm.stopPrank();
 
         Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
         assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
-
-        assertEq(accountHandler.getInfoOfAccountKeyCommit(emailAddr).walletSalt, walletSalt);
-
-        (address akRelayer, bool initialized, bytes32 akWalletSalt) = accountHandler.infoOfEmailAddr(
-            emailAddr
-        );
-        assertEq(akRelayer, relayer);
-        assertEq(akWalletSalt, walletSalt);
-        assertEq(accountHandler.pointerOfPSIPoint(psiPoint), emailAddr);
-        assertTrue(initialized);
-
-/**
-        vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-
-        vm.expectEmit(true, true, true, true);
-        emit EmailWalletEvents.AccountInitialized(emailAddrPointer, walletSalt, walletSalt);
-
-        accountHandler.initializeAccount(
-            emailAddrPointer,
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
-        );
-        vm.stopPrank();
-
-        (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(walletSalt);
-        assertTrue(initialized);
- */
+        assertEq(accountHandler.walletSaltOfPSIPoint(psiPoint), walletSalt);
     }
 
     // function testFail_CreateAccount() public {
@@ -117,30 +91,31 @@ contract AccountTest is EmailWalletCoreTestHelper {
     // }
 
     function test_RevertIf_PSIPointIsAlreadyRegistered() public {
-        bytes32 emailAddrPointer2 = bytes32(uint256(2));
         bytes32 walletSalt2 = bytes32(uint256(3));
 
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            emailAddr,
             walletSalt, 
             psiPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
+            EmailProof({
+                proof: mockProof,
+                domain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier,
+                timestamp: block.timestamp
+            })
         );
         vm.expectRevert("PSI point exists");
         accountHandler.createAccount(
-            emailAddrPointer2, 
             walletSalt2, 
             psiPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
+            EmailProof({
+                proof: mockProof,
+                domain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier,
+                timestamp: block.timestamp
+            })
         );
         vm.stopPrank();
     }
@@ -164,14 +139,15 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         address walletAddr = address(
             accountHandler.createAccount(
-                emailAddr,
                 walletSalt, 
                 psiPoint, 
-                emailDomain,
-                block.timestamp,
-                emailNullifier,
-                mockDKIMHash,
-                mockProof
+                EmailProof({
+                    proof: mockProof,
+                    domain: emailDomain,
+                    dkimPublicKeyHash: mockDKIMHash,
+                    nullifier: emailNullifier,
+                    timestamp: block.timestamp
+                })
             )
         );
         vm.stopPrank();
@@ -186,14 +162,15 @@ contract AccountTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         vm.expectRevert("wallet already deployed");
         accountHandler.createAccount(
-            emailAddr,
             walletSalt, 
-            psiPoint, 
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
+            psiPoint,
+            EmailProof({
+                proof: mockProof,
+                domain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier,
+                timestamp: block.timestamp
+            })
         );
         vm.stopPrank();
     }

@@ -22,8 +22,7 @@ library Commands {
     string public constant INSTALL_EXTENSION = "Install";
     string public constant UNINSTALL_EXTENSION = "Uninstall";
     string public constant EXIT_EMAIL_WALLET = "Exit";
-    string public constant Gurard = "Guard";
-    
+
     string public constant TOKEN_AMOUNT_TEMPLATE = "{tokenAmount}";
     string public constant AMOUNT_TEMPLATE = "{amount}";
     string public constant STRING_TEMPLATE = "{string}";

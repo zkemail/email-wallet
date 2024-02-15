@@ -126,19 +126,19 @@
   },
   "ast": {
     "absolutePath": "/Users/saleel/EF/email-wallet/node_modules/@zk-email/contracts/interfaces/IDKIMRegistry.sol",
-    "id": 15510,
+    "id": 20636,
     "exportedSymbols": {
       "IDKIMRegistry": [
-        15509
+        20635
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:192:88",
+    "src": "32:192:100",
     "nodes": [
       {
-        "id": 15499,
+        "id": 20625,
         "nodeType": "PragmaDirective",
-        "src": "32:23:88",
+        "src": "32:23:100",
         "nodes": [],
         "literals": [
           "solidity",
@@ -148,34 +148,34 @@
         ]
       },
       {
-        "id": 15509,
+        "id": 20635,
         "nodeType": "ContractDefinition",
-        "src": "57:166:88",
+        "src": "57:166:100",
         "nodes": [
           {
-            "id": 15508,
+            "id": 20634,
             "nodeType": "FunctionDefinition",
-            "src": "87:134:88",
+            "src": "87:134:100",
             "nodes": [],
             "functionSelector": "e7a7977a",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "isDKIMPublicKeyHashValid",
-            "nameLocation": "96:24:88",
+            "nameLocation": "96:24:100",
             "parameters": {
-              "id": 15504,
+              "id": 20630,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 15501,
+                  "id": 20627,
                   "mutability": "mutable",
                   "name": "domainName",
-                  "nameLocation": "144:10:88",
+                  "nameLocation": "144:10:100",
                   "nodeType": "VariableDeclaration",
-                  "scope": 15508,
-                  "src": "130:24:88",
+                  "scope": 20634,
+                  "src": "130:24:100",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -183,10 +183,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 15500,
+                    "id": 20626,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "130:6:88",
+                    "src": "130:6:100",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -196,13 +196,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 15503,
+                  "id": 20629,
                   "mutability": "mutable",
                   "name": "publicKeyHash",
-                  "nameLocation": "172:13:88",
+                  "nameLocation": "172:13:100",
                   "nodeType": "VariableDeclaration",
-                  "scope": 15508,
-                  "src": "164:21:88",
+                  "scope": 20634,
+                  "src": "164:21:100",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -210,10 +210,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 15502,
+                    "id": 20628,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "164:7:88",
+                    "src": "164:7:100",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -222,21 +222,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "120:71:88"
+              "src": "120:71:100"
             },
             "returnParameters": {
-              "id": 15507,
+              "id": 20633,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 15506,
+                  "id": 20632,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 15508,
-                  "src": "215:4:88",
+                  "scope": 20634,
+                  "src": "215:4:100",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -244,10 +244,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 15505,
+                    "id": 20631,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "215:4:88",
+                    "src": "215:4:100",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -256,9 +256,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "214:6:88"
+              "src": "214:6:100"
             },
-            "scope": 15509,
+            "scope": 20635,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -271,16 +271,16 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          15509
+          20635
         ],
         "name": "IDKIMRegistry",
-        "nameLocation": "67:13:88",
-        "scope": 15510,
+        "nameLocation": "67:13:100",
+        "scope": 20636,
         "usedErrors": [],
         "usedEvents": []
       }
     ],
     "license": "MIT"
   },
-  "id": 88
+  "id": 100
 }

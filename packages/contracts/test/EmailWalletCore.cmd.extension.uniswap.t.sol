@@ -23,7 +23,7 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
 
         // Publish and install extension
         {
