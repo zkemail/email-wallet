@@ -78,22 +78,24 @@ contract AllVerifiers is IVerifier {
         uint256[SUBJECT_FIELDS + DOMAIN_FIELDS + 6] memory pubSignals;
 
         uint256[] memory stringFields;
-        stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
-        for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
-            pubSignals[i] = stringFields[i];
-        }
         stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
         for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
-            pubSignals[SUBJECT_FIELDS+i] = stringFields[i];
+            pubSignals[i] = stringFields[i];
         }
         delete stringFields;
 
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS + 1] = uint256(emailNullifier);
-        pubSignals[SUBJECT_FIELDS+DOMAIN_FIELDS + 2] = timestamp;
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3] = uint256(walletSalt);
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] = hasEmailRecipient ? 1 : 0;
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5] = uint256(recipientEmailAddrCommit);
+        pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
+        pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
+        pubSignals[DOMAIN_FIELDS + 2] = timestamp;
+        
+        stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
+        for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
+            pubSignals[DOMAIN_FIELDS + 3 + i] = stringFields[i];
+        }
+
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS] = uint256(walletSalt);
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1] = hasEmailRecipient ? 1 : 0;
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2] = uint256(recipientEmailAddrCommit);
 
         return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
