@@ -200,6 +200,9 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         require(fund.expiryTime > block.timestamp, "unclaimed fund expired");
         require(recipientWalletSalt != bytes32(0), "invalid wallet salt");
 
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
+
         require(verifier.verifyClaimFundProof(recipientWalletSalt, fund.emailAddrCommit, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
@@ -380,6 +383,9 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         require(us.extensionAddr != address(0), "invalid extension address");
         require(us.expiryTime > block.timestamp, "unclaimed state expired");
         require(recipientWalletSalt != bytes32(0), "invalid wallet salt");
+
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
 
         require(verifier.verifyClaimFundProof(recipientWalletSalt, us.emailAddrCommit, proof), "invalid proof");
 

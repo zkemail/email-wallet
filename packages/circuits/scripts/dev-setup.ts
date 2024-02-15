@@ -105,6 +105,7 @@ async function generateKeys(
   vKeyPath: string,
   solidityVerifierPath: string
 ) {
+  log(`✓ Generating ZKey for ${r1cPath}`);
   await zKey.newZKey(r1cPath, phase1Path, zKeyPath + ".step1", console);
   log("✓ Partial ZKey generated");
 
@@ -146,19 +147,19 @@ async function exec() {
   await generateKeys(phase1Path, accountCreationR1csPath, path.join(buildDir, "account_creation.zkey"), path.join(buildDir, "account_creation.vkey"), path.join(buildDir, "AccountCreationVerifier.sol"));
   log("✓ Keys for account creation circuit generated");
 
-  const accountInitR1csPath = path.join(buildDir, "account_init/account_init.r1cs");
-  if (!fs.existsSync(accountInitR1csPath)) {
-    throw new Error(`${accountInitR1csPath} does not exist.`);
-  }
-  await generateKeys(phase1Path, accountInitR1csPath, path.join(buildDir, "account_init.zkey"), path.join(buildDir, "account_init.vkey"), path.join(buildDir, "AccountInitVerifier.sol"));
-  log("✓ Keys for account init circuit generated");
+  // const accountInitR1csPath = path.join(buildDir, "account_init/account_init.r1cs");
+  // if (!fs.existsSync(accountInitR1csPath)) {
+  //   throw new Error(`${accountInitR1csPath} does not exist.`);
+  // }
+  // await generateKeys(phase1Path, accountInitR1csPath, path.join(buildDir, "account_init.zkey"), path.join(buildDir, "account_init.vkey"), path.join(buildDir, "AccountInitVerifier.sol"));
+  // log("✓ Keys for account init circuit generated");
 
-  const accountTransportR1csPath = path.join(buildDir, "account_transport/account_transport.r1cs");
-  if (!fs.existsSync(accountTransportR1csPath)) {
-    throw new Error(`${accountTransportR1csPath} does not exist.`);
-  }
-  await generateKeys(phase1Path, accountTransportR1csPath, path.join(buildDir, "account_transport.zkey"), path.join(buildDir, "account_transport.vkey"), path.join(buildDir, "AccountTransportVerifier.sol"));
-  log("✓ Keys for account transport circuit generated");
+  // const accountTransportR1csPath = path.join(buildDir, "account_transport/account_transport.r1cs");
+  // if (!fs.existsSync(accountTransportR1csPath)) {
+  //   throw new Error(`${accountTransportR1csPath} does not exist.`);
+  // }
+  // await generateKeys(phase1Path, accountTransportR1csPath, path.join(buildDir, "account_transport.zkey"), path.join(buildDir, "account_transport.vkey"), path.join(buildDir, "AccountTransportVerifier.sol"));
+  // log("✓ Keys for account transport circuit generated");
 
   const claimR1csPath = path.join(buildDir, "claim/claim.r1cs");
   if (!fs.existsSync(claimR1csPath)) {

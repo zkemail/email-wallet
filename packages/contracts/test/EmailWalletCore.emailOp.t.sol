@@ -43,14 +43,14 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    function test_RevertIf_SenderIsNotAccountRelayer() public {
+    function test_RevertIf_SenderIsNotRelayer() public {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
 
         vm.startPrank(vm.addr(5)); // Random addr
-        relayerHandler.registerRelayer("r2@rel.com", "rel.com");
-        vm.expectRevert("invalid relayer");
+        // relayerHandler.registerRelayer("r2@rel.com", "rel.com");
+        vm.expectRevert("relayer not registered");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }

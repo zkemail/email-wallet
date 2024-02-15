@@ -15,8 +15,8 @@ contract AllVerifiers is IVerifier {
 
     uint256 public constant DOMAIN_BYTES = 255;
     uint256 public constant DOMAIN_FIELDS = 9;
-    uint256 public constant SUBJECT_BYTES = 512;
-    uint256 public constant SUBJECT_FIELDS = 17;
+    uint256 public constant SUBJECT_BYTES = 605;
+    uint256 public constant SUBJECT_FIELDS = 20;
     uint256 public constant EMAIL_ADDR_BYTES = 256;
     uint256 public constant EMAIL_ADDR_FIELDS = 9;
 
@@ -41,7 +41,7 @@ contract AllVerifiers is IVerifier {
             proof,
             (uint256[2], uint256[2][2], uint256[2])
         );
-        uint256[14] memory pubSignals;
+        uint256[DOMAIN_FIELDS+6] memory pubSignals;
         uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
         for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
             pubSignals[i] = domainFields[i];
@@ -53,8 +53,8 @@ contract AllVerifiers is IVerifier {
         pubSignals[DOMAIN_FIELDS + 3] = uint256(walletSalt);
 
         (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
-        pubSignals[4] = x;
-        pubSignals[5] = y;
+        pubSignals[DOMAIN_FIELDS + 4] = x;
+        pubSignals[DOMAIN_FIELDS + 5] = y;
         return accountCreationVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
@@ -75,7 +75,7 @@ contract AllVerifiers is IVerifier {
             (uint256[2], uint256[2][2], uint256[2])
         );
 
-        uint256[32] memory pubSignals;
+        uint256[SUBJECT_FIELDS + DOMAIN_FIELDS + 6] memory pubSignals;
 
         uint256[] memory stringFields;
         stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
@@ -93,9 +93,9 @@ contract AllVerifiers is IVerifier {
             pubSignals[DOMAIN_FIELDS + 3 + i] = stringFields[i];
         }
 
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS] = uint256(walletSalt);
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 1] = hasEmailRecipient ? 1 : 0;
-        pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2] = uint256(recipientEmailAddrCommit);
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS] = uint256(walletSalt);
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1] = hasEmailRecipient ? 1 : 0;
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2] = uint256(recipientEmailAddrCommit);
 
         return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }

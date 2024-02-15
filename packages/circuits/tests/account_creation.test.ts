@@ -17,7 +17,7 @@ import { hash_to_curve, point_scalar_mul } from "circom-grumpkin";
 jest.setTimeout(1080000);
 describe("Account Initialization", () => {
     it("init an account", async () => {
-        const emailFilePath = path.join(__dirname, "./emails/account_init_test1.eml");
+        const emailFilePath = path.join(__dirname, "./emails/account_creation_test1.eml");
         const emailRaw = readFileSync(emailFilePath, "utf8");
         const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
         const relayerRand = emailWalletUtils.genRelayerRand();
@@ -35,9 +35,9 @@ describe("Account Initialization", () => {
         expect(BigInt(expectedPubKeyHash)).toEqual(witness[10]);
         const expectedEmailNullifier = emailWalletUtils.emailNullifier(parsedEmail.signature);
         expect(BigInt(expectedEmailNullifier)).toEqual(witness[11]);
-        const timestamp = 1705737222n;
+        const timestamp = 1707866192n;
         expect(timestamp).toEqual(witness[12]);
-        const emailAddr = "adityabisht64@gmail.com";
+        const emailAddr = "suegamisora@gmail.com";
         const accountKey = "0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76";
         const expectedWalletSalt = emailWalletUtils.walletSalt(emailAddr, accountKey);
         expect(BigInt(expectedWalletSalt)).toEqual(witness[13]);

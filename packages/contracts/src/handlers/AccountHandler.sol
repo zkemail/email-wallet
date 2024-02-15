@@ -84,6 +84,9 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(emailNullifiers[emailProof.nullifier] == false, "email already nullified");
         require(isDKIMPublicKeyHashValid(walletSalt, emailProof.domain, emailProof.dkimPublicKeyHash), "invalid DKIM public key hash");
 
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
+
         if (emailProof.timestamp != 0) {
             require(emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         }
