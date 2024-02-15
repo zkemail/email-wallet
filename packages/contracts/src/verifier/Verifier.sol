@@ -85,8 +85,8 @@ contract AllVerifiers is IVerifier {
         delete stringFields;
 
         pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
-        pubSignals[DOMAIN_FIELDS + 1] = timestamp;
-        pubSignals[DOMAIN_FIELDS + 2] = uint256(emailNullifier);
+        pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
+        pubSignals[DOMAIN_FIELDS + 2] = timestamp;
         
         stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
         for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
