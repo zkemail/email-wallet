@@ -322,19 +322,19 @@
         3205
       ],
       "ERC1967Upgrade": [
-        96277
+        97162
       ],
       "IBeacon": [
-        129035
+        129920
       ],
       "IERC1822Proxiable": [
-        96339
+        97224
       ],
       "IERC1967": [
-        129025
+        129910
       ],
       "StorageSlot": [
-        129145
+        130030
       ],
       "UUPSUpgradeable": [
         647
@@ -364,7 +364,7 @@
         "file": "../../interfaces/draft-IERC1822.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 648,
-        "sourceUnit": 96340,
+        "sourceUnit": 97225,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -377,7 +377,7 @@
         "file": "../ERC1967/ERC1967Upgrade.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 648,
-        "sourceUnit": 96278,
+        "sourceUnit": 97163,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -662,7 +662,7 @@
                             "name": "_getImplementation",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 96003,
+                            "referencedDeclaration": 96888,
                             "src": "1727:18:12",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
@@ -995,7 +995,7 @@
                     "name": "_IMPLEMENTATION_SLOT",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 95990,
+                    "referencedDeclaration": 96875,
                     "src": "2866:20:12",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
@@ -1010,7 +1010,7 @@
               ]
             },
             "baseFunctions": [
-              96338
+              97223
             ],
             "documentation": {
               "id": 586,
@@ -1272,7 +1272,7 @@
                       "name": "_upgradeToAndCallUUPS",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 96125,
+                      "referencedDeclaration": 97010,
                       "src": "3270:21:12",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -1504,7 +1504,7 @@
                       "name": "_upgradeToAndCallUUPS",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 96125,
+                      "referencedDeclaration": 97010,
                       "src": "3818:21:12",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bool_$returns$__$",
@@ -1708,7 +1708,7 @@
                 "913:17:12"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 96339,
+              "referencedDeclaration": 97224,
               "src": "913:17:12"
             },
             "id": 538,
@@ -1723,7 +1723,7 @@
                 "932:14:12"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 96277,
+              "referencedDeclaration": 97162,
               "src": "932:14:12"
             },
             "id": 540,
@@ -1743,18 +1743,18 @@
         "fullyImplemented": false,
         "linearizedBaseContracts": [
           647,
-          96277,
-          129025,
-          96339
+          97162,
+          129910,
+          97224
         ],
         "name": "UUPSUpgradeable",
         "nameLocation": "894:15:12",
         "scope": 648,
         "usedErrors": [],
         "usedEvents": [
-          129012,
-          129019,
-          129024
+          129897,
+          129904,
+          129909
         ]
       }
     ],

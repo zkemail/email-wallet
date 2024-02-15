@@ -129,19 +129,19 @@
   },
   "ast": {
     "absolutePath": "src/interfaces/IPriceOracle.sol",
-    "id": 70346,
+    "id": 71231,
     "exportedSymbols": {
       "IPriceOracle": [
-        70345
+        71230
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:295:145",
+    "src": "32:295:146",
     "nodes": [
       {
-        "id": 70336,
+        "id": 71221,
         "nodeType": "PragmaDirective",
-        "src": "32:24:145",
+        "src": "32:24:146",
         "nodes": [],
         "literals": [
           "solidity",
@@ -151,19 +151,19 @@
         ]
       },
       {
-        "id": 70345,
+        "id": 71230,
         "nodeType": "ContractDefinition",
-        "src": "58:268:145",
+        "src": "58:268:146",
         "nodes": [
           {
-            "id": 70344,
+            "id": 71229,
             "nodeType": "FunctionDefinition",
-            "src": "248:76:145",
+            "src": "248:76:146",
             "nodes": [],
             "documentation": {
-              "id": 70337,
+              "id": 71222,
               "nodeType": "StructuredDocumentation",
-              "src": "87:156:145",
+              "src": "87:156:146",
               "text": "@notice Get the recent price of a token against ETH/WETH\n @param token Address of the ERC20 token\n @return price Price of the token in wei"
             },
             "functionSelector": "01857da8",
@@ -171,20 +171,20 @@
             "kind": "function",
             "modifiers": [],
             "name": "getRecentPriceInETH",
-            "nameLocation": "257:19:145",
+            "nameLocation": "257:19:146",
             "parameters": {
-              "id": 70340,
+              "id": 71225,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 70339,
+                  "id": 71224,
                   "mutability": "mutable",
                   "name": "token",
-                  "nameLocation": "285:5:145",
+                  "nameLocation": "285:5:146",
                   "nodeType": "VariableDeclaration",
-                  "scope": 70344,
-                  "src": "277:13:145",
+                  "scope": 71229,
+                  "src": "277:13:146",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -192,10 +192,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 70338,
+                    "id": 71223,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "277:7:145",
+                    "src": "277:7:146",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -205,21 +205,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "276:15:145"
+              "src": "276:15:146"
             },
             "returnParameters": {
-              "id": 70343,
+              "id": 71228,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 70342,
+                  "id": 71227,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 70344,
-                  "src": "315:7:145",
+                  "scope": 71229,
+                  "src": "315:7:146",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -227,10 +227,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 70341,
+                    "id": 71226,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "315:7:145",
+                    "src": "315:7:146",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -239,9 +239,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "314:9:145"
+              "src": "314:9:146"
             },
-            "scope": 70345,
+            "scope": 71230,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -254,16 +254,16 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          70345
+          71230
         ],
         "name": "IPriceOracle",
-        "nameLocation": "68:12:145",
-        "scope": 70346,
+        "nameLocation": "68:12:146",
+        "scope": 71231,
         "usedErrors": [],
         "usedEvents": []
       }
     ],
     "license": "MIT"
   },
-  "id": 145
+  "id": 146
 }

@@ -193,18 +193,17 @@ contract EmailWalletCoreTestHelper is Test {
     // Register test user account - for using as sender when not testing accoung functionality
     function _createTestAccount() internal {
         vm.startPrank(relayer);
-        EmailProof memory emailProof = EmailProof({
-            proof: mockProof,
-            domain: emailDomain,
-            dkimPublicKeyHash: mockDKIMHash,
-            nullifier: emailNullifier,
-            timestamp: block.timestamp
-        });
 
         accountHandler.createAccount(
             walletSalt, 
             psiPoint, 
-            emailProof
+            EmailProof({
+                proof: mockProof,
+                domain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier,
+                timestamp: block.timestamp
+            })
         );
         vm.stopPrank();
     }

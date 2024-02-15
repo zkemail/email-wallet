@@ -562,7 +562,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, walletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(55), walletAddr, "NFT not transferred to account");
@@ -602,7 +602,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, walletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), walletAddr, "NFT not transferred to account");
@@ -616,8 +616,6 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
     function test_ClaimUnclaimedState_ToNewlyCreatedAccount() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        // bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         address newWalletAddr = accountHandler.getWalletOfSalt(newWalletSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
@@ -655,7 +653,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, newWalletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newWalletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), newWalletAddr, "NFT not transferred to account");
@@ -667,8 +665,6 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 recipientEmailAddrCommit2 = bytes32(uint256(34));
-        bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        // bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         address newWalletAddr = accountHandler.getWalletOfSalt(newWalletSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
@@ -707,8 +703,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             })
         );
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newEmailAddrPointer, mockProof);
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newWalletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newWalletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), newWalletAddr, "NFT 23 didnt transfer to account");

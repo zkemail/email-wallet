@@ -93,10 +93,10 @@
     "id": 3435,
     "exportedSymbols": {
       "Math": [
-        97317
+        98202
       ],
       "SignedMath": [
-        97422
+        98307
       ],
       "Strings": [
         3434
@@ -126,7 +126,7 @@
         "file": "./math/Math.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3435,
-        "sourceUnit": 97318,
+        "sourceUnit": 98203,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -139,7 +139,7 @@
         "file": "./math/SignedMath.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 3435,
-        "sourceUnit": 97423,
+        "sourceUnit": 98308,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -323,10 +323,10 @@
                               "name": "Math",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 97317,
+                              "referencedDeclaration": 98202,
                               "src": "569:4:28",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_type$_t_contract$_Math_$97317_$",
+                                "typeIdentifier": "t_type$_t_contract$_Math_$98202_$",
                                 "typeString": "type(library Math)"
                               }
                             },
@@ -338,7 +338,7 @@
                             "memberLocation": "574:5:28",
                             "memberName": "log10",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 97154,
+                            "referencedDeclaration": 98039,
                             "src": "569:10:28",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint256_$",
@@ -1130,10 +1130,10 @@
                                     "name": "SignedMath",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 97422,
+                                    "referencedDeclaration": 98307,
                                     "src": "1385:10:28",
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_type$_t_contract$_SignedMath_$97422_$",
+                                      "typeIdentifier": "t_type$_t_contract$_SignedMath_$98307_$",
                                       "typeString": "type(library SignedMath)"
                                     }
                                   },
@@ -1145,7 +1145,7 @@
                                   "memberLocation": "1396:3:28",
                                   "memberName": "abs",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 97421,
+                                  "referencedDeclaration": 98306,
                                   "src": "1385:14:28",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_internal_pure$_t_int256_$returns$_t_uint256_$",
@@ -1462,10 +1462,10 @@
                                   "name": "Math",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 97317,
+                                  "referencedDeclaration": 98202,
                                   "src": "1655:4:28",
                                   "typeDescriptions": {
-                                    "typeIdentifier": "t_type$_t_contract$_Math_$97317_$",
+                                    "typeIdentifier": "t_type$_t_contract$_Math_$98202_$",
                                     "typeString": "type(library Math)"
                                   }
                                 },
@@ -1477,7 +1477,7 @@
                                 "memberLocation": "1660:6:28",
                                 "memberName": "log256",
                                 "nodeType": "MemberAccess",
-                                "referencedDeclaration": 97277,
+                                "referencedDeclaration": 98162,
                                 "src": "1655:11:28",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint256_$",
