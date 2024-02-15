@@ -12,7 +12,7 @@ import "../src/utils/UniswapTWAPOracle.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./helpers/WETH9.sol";
 import "../src/verifier/AccountCreationVerifier.sol";
-import "../src/verifier/AccountInitVerifier.sol";
+// import "../src/verifier/AccountInitVerifier.sol";
 // import "../src/verifier/AccountTransportVerifier.sol";
 import "../src/verifier/ClaimVerifier.sol";
 import "../src/verifier/EmailSenderVerifier.sol";
