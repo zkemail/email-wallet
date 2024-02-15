@@ -1,0 +1,7 @@
+root: ./
+structure:
+  readme: README.md
+ignore:
+  - docs/
+  - packages/
+

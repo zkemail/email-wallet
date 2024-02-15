@@ -15,6 +15,7 @@ RUN yarn
 
 WORKDIR /email-wallet/packages/relayer
 COPY packages/relayer/.env ./.env
+# COPY packages/relayer/scripts/ ./scripts # FIXME: It's for testing
 RUN cargo build --release
 
 WORKDIR /email-wallet/packages/prover
@@ -26,7 +27,7 @@ RUN modal token set --token-id ${modal_token_id} --token-secret ${modal_token_se
 RUN nohup modal serve modal_server.py &
 
 WORKDIR /email-wallet/packages/relayer
-CMD [ "cargo run --release -- setup; cargo run --release >> output.log" ]
+CMD [ "/bin/bash", "-c", "/email-wallet/packages/relayer/scripts/startup.sh"]
 
 
 # # ------------------ Chef stage -------------------
