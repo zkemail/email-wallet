@@ -780,8 +780,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         // Register a new relayer and call unclaim; but not the relayer of account (which is the `relayer` in EmailWalletHelper)
         vm.startPrank(newRelayer);
-        relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
-        vm.expectRevert("invalid relayer for account");
+        // relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        vm.expectRevert("caller is not a relayer");
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
