@@ -75,6 +75,13 @@ impl PSIClient {
         email_addr: &str,
     ) -> Result<()> {
         if let Some(account_key) = db.get_account_key(email_addr).await? {
+            if self
+                .chain_client
+                .check_if_account_created_by_account_key(email_addr, &account_key)
+                .await?
+            {
+                return Ok(());
+            }
             // let subgraph_client = SubgraphClient::new();
             // let account_key = AccountKey::from(hex2field(&account_key)?);
             // let wallet_salt = account_key.to_wallet_salt()?;
@@ -114,7 +121,7 @@ impl PSIClient {
             //     .await?;
             //     return Ok(());
             // }
-            return Ok(());
+            // return Ok(());
         }
         let (created_relayers, inited_relayers) = self.find().await?;
         if inited_relayers.len() > 0 {
@@ -147,16 +154,16 @@ impl PSIClient {
         )
         .await?;
 
-        let is_created = self
+        let is_point_registered = self
             .chain_client
             .check_if_point_registered(result_point.clone())
             .await?;
-        let is_init = self
+        let is_account_created = self
             .chain_client
-            .check_if_account_initialized_by_point(result_point)
+            .check_if_account_created_by_point(result_point)
             .await?;
 
-        Ok((is_created, is_init))
+        Ok((is_point_registered, is_account_created))
     }
 
     pub(crate) async fn find<'a>(&self) -> Result<(Vec<String>, Vec<String>)> {
@@ -166,10 +173,10 @@ impl PSIClient {
         let mut inited_hosts = vec![];
 
         for relayer in relayers {
-            let (is_created, is_inited) = self.check(&relayer.1).await?;
-            if is_inited {
+            let (is_point_registered, is_account_created) = self.check(&relayer.1).await?;
+            if is_account_created {
                 inited_hosts.push(relayer.1.to_string());
-            } else if is_created {
+            } else if is_point_registered {
                 created_hosts.push(relayer.1.to_string());
             }
         }
@@ -283,31 +290,7 @@ pub(crate) async fn psi_step1(
     email_addr: &str,
     client_rand: &str,
 ) -> Result<Point> {
-    let input_file_name = PathBuf::new()
-        .join(INPUT_FILES_DIR.get().unwrap())
-        .join(email_addr.to_string() + "psi" + ".json");
-
-    let command_str = format!(
-        "--cwd {} psi-step1 --email-addr {} --client-rand {} --output {}",
-        circuits_dir_path.to_str().unwrap(),
-        email_addr,
-        client_rand,
-        input_file_name.to_str().unwrap()
-    );
-
-    let mut proc = tokio::process::Command::new("yarn")
-        .args(command_str.split_whitespace())
-        .spawn()?;
-
-    let status = proc.wait().await?;
-    assert!(status.success());
-
-    let result = read_to_string(&input_file_name).await?;
-    remove_file(input_file_name).await?;
-
-    let point: Point = serde_json::from_str(&result)?;
-
-    Ok(point)
+    compute_psi_point(circuits_dir_path, email_addr, client_rand).await
 }
 
 pub(crate) async fn psi_step2(

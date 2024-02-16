@@ -25,31 +25,45 @@ pub(crate) async fn create_account(
 
     trace!(LOG, "Generated account_key {account_key_str}"; "func" => function_name!());
 
-    let input = generate_account_creation_input(
+    let psi_point = compute_psi_point(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email_address,
-        RELAYER_RAND.get().unwrap(),
         &account_key_str,
     )
     .await?;
+    // let input = generate_account_creation_input(
+    //     CIRCUITS_DIR_PATH.get().unwrap(),
+    //     &email_address,
+    //     RELAYER_RAND.get().unwrap(),
+    //     &account_key_str,
+    // )
+    // .await?;
 
-    let (proof, pub_signals) =
-        generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
+    // let (proof, pub_signals) =
+    //     generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
 
-    let data = AccountCreationInput {
-        email_addr_pointer: u256_to_bytes32(&pub_signals[1]),
-        account_key_commit: u256_to_bytes32(&pub_signals[2]),
-        wallet_salt: u256_to_bytes32(&pub_signals[3]),
-        psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
-        proof,
-    };
-    info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
-    let res = chain_client.create_account(data).await?;
-    info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
-    let wallet_salt = account_key.to_wallet_salt()?;
+    // let data = AccountCreationInput {
+    //     email_addr_pointer: u256_to_bytes32(&pub_signals[1]),
+    //     account_key_commit: u256_to_bytes32(&pub_signals[2]),
+    //     wallet_salt: u256_to_bytes32(&pub_signals[3]),
+    //     psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
+    //     proof,
+    // };
+    // info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
+    // let res = chain_client.create_account(data).await?;
+    // info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
+    let wallet_salt = WalletSalt::new(
+        &PaddedEmailAddr::from_email_addr(&email_address),
+        account_key,
+    )?;
+    let res = chain_client
+        .register_psi_point(&psi_point, &wallet_salt)
+        .await?;
+    info!(LOG, "register psi point tx hash: {}", res; "func" => function_name!());
     let wallet_addr = chain_client
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
+
     let token_transfered = chain_client
         .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
         .await?;

@@ -135,6 +135,30 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
+    pub async fn register_psi_point(
+        &self,
+        point: &Point,
+        wallet_salt: &WalletSalt,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let call = self.account_handler.register_psi_point(
+            get_psi_point_bytes(hex_to_u256(&point.x)?, hex_to_u256(&point.y)?),
+            fr_to_bytes32(&wallet_salt.0)?,
+        );
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
     pub async fn create_account(&self, data: AccountCreationInput) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
@@ -617,13 +641,32 @@ impl ChainClient {
         let y = hex2field(&y)?;
         let x = U256::from_little_endian(&x.to_bytes());
         let y = U256::from_little_endian(&y.to_bytes());
-        let res = self
+        let wallet_salt = self
             .account_handler
             .wallet_salt_of_psi_point(get_psi_point_bytes(x, y))
             .call()
             .await?;
-        let res = U256::from_little_endian(&res);
-        Ok(res == U256::zero())
+        let wallet_salt = U256::from_little_endian(&wallet_salt);
+        Ok(wallet_salt != U256::zero())
+    }
+
+    pub(crate) async fn check_if_account_created_by_point(&self, point: Point) -> Result<bool> {
+        let Point { x, y } = point;
+        let x = hex2field(&x)?;
+        let y = hex2field(&y)?;
+        let x = U256::from_little_endian(&x.to_bytes());
+        let y = U256::from_little_endian(&y.to_bytes());
+        let wallet_salt = self
+            .account_handler
+            .wallet_salt_of_psi_point(get_psi_point_bytes(x, y))
+            .call()
+            .await?;
+        let is_deployed = self
+            .account_handler
+            .is_wallet_salt_deployed(wallet_salt)
+            .call()
+            .await?;
+        Ok(is_deployed)
     }
 
     pub(crate) async fn check_if_account_created_by_account_key(
@@ -634,7 +677,11 @@ impl ChainClient {
         let account_key = AccountKey(hex2field(account_key)?);
         let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
         let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;
-        todo!();
+        let is_deployed = self
+            .account_handler
+            .is_wallet_salt_deployed(fr_to_bytes32(&wallet_salt.0)?)
+            .call()
+            .await?;
         // let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
         // let account_key_commitment =
         //     account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
@@ -646,7 +693,7 @@ impl ChainClient {
         //     .await?;
 
         // Ok(account_key_info.1)
-        Ok(true)
+        Ok(is_deployed)
     }
 
     // pub(crate) async fn check_if_account_initialized_by_point(&self, point: Point) -> Result<bool> {

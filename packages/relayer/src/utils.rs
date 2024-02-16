@@ -241,6 +241,38 @@ pub(crate) async fn generate_claim_input(
     Ok(result)
 }
 
+pub(crate) async fn compute_psi_point(
+    circuits_dir_path: &Path,
+    email_addr: &str,
+    rand: &str,
+) -> Result<Point> {
+    let input_file_name = PathBuf::new()
+        .join(INPUT_FILES_DIR.get().unwrap())
+        .join(email_addr.to_string() + "psi" + ".json");
+
+    let command_str = format!(
+        "--cwd {} psi-step1 --email-addr {} --client-rand {} --output {}",
+        circuits_dir_path.to_str().unwrap(),
+        email_addr,
+        rand,
+        input_file_name.to_str().unwrap()
+    );
+
+    let mut proc = tokio::process::Command::new("yarn")
+        .args(command_str.split_whitespace())
+        .spawn()?;
+
+    let status = proc.wait().await?;
+    assert!(status.success());
+
+    let result = read_to_string(&input_file_name).await?;
+    remove_file(input_file_name).await?;
+
+    let point: Point = serde_json::from_str(&result)?;
+
+    Ok(point)
+}
+
 // pub(crate) fn calculate_addr_pointer(email_address: &str) -> Fr {
 //     let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
 //     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap()).unwrap());
