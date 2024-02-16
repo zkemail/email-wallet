@@ -21,17 +21,17 @@ RUN cp ./circom_proofgen.sh /root
 WORKDIR /root
 RUN mkdir params
 RUN cp /email-wallet/packages/prover/params/account_creation.wasm /root/params
-RUN cp /email-wallet/packages/prover/params/account_init.wasm /root/params
-RUN cp /email-wallet/packages/prover/params/account_transport.wasm /root/params
+# RUN cp /email-wallet/packages/prover/params/account_init.wasm /root/params
+# RUN cp /email-wallet/packages/prover/params/account_transport.wasm /root/params
 RUN cp /email-wallet/packages/prover/params/claim.wasm /root/params
 RUN cp /email-wallet/packages/prover/params/email_sender.wasm /root/params
-# RUN gdown "https://drive.google.com/uc?id=1pe07fwKbtjMLHoQSY8Bcr4rg9aN06mFP"
-# RUN unzip params.zip
-RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-creation/contributions/emailwallet-account-creation_00019.zkey --output ./params/account_creation.zkey
-RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-init/contributions/emailwallet-account-init_00007.zkey --output ./params/account_init.zkey
-RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-transport/contributions/emailwallet-account-transport_00005.zkey --output ./params/account_transport.zkey
-RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-claim/contributions/emailwallet-claim_00006.zkey --output ./params/claim.zkey
-RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-email-sender/contributions/emailwallet-email-sender_00006.zkey --output ./params/email_sender.zkey
+RUN gdown "https://drive.google.com/uc?id=1sYlhq4tU7ZZGN1r9HM0pJcA4q6pHErXb"
+RUN unzip params.zip
+# RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-creation/contributions/emailwallet-account-creation_00019.zkey --output ./params/account_creation.zkey
+# RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-init/contributions/emailwallet-account-init_00007.zkey --output ./params/account_init.zkey
+# RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-transport/contributions/emailwallet-account-transport_00005.zkey --output ./params/account_transport.zkey
+# RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-claim/contributions/emailwallet-claim_00006.zkey --output ./params/claim.zkey
+# RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-email-sender/contributions/emailwallet-email-sender_00006.zkey --output ./params/email_sender.zkey
 RUN chmod +x circom_proofgen.sh
 RUN mkdir build
 

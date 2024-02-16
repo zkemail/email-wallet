@@ -12,22 +12,22 @@ def gen_account_creation_proof(nonce: str, is_local: bool, input: dict) -> dict:
     return {"proof": proof, "pub_signals": pub_signals}
 
 
-def gen_account_init_proof(nonce: str, is_local: bool, input: dict) -> dict:
-    circuit_name = "account_init"
-    store_input(circuit_name, nonce, input)
-    gen_proof(circuit_name, nonce, is_local)
-    proof = load_proof(circuit_name, nonce)
-    pub_signals = load_pub_signals(circuit_name, nonce)
-    return {"proof": proof, "pub_signals": pub_signals}
+# def gen_account_init_proof(nonce: str, is_local: bool, input: dict) -> dict:
+#     circuit_name = "account_init"
+#     store_input(circuit_name, nonce, input)
+#     gen_proof(circuit_name, nonce, is_local)
+#     proof = load_proof(circuit_name, nonce)
+#     pub_signals = load_pub_signals(circuit_name, nonce)
+#     return {"proof": proof, "pub_signals": pub_signals}
 
 
-def gen_account_transport_proof(nonce: str, is_local: bool, input: dict) -> dict:
-    circuit_name = "account_transport"
-    store_input(circuit_name, nonce, input)
-    gen_proof(circuit_name, nonce, is_local)
-    proof = load_proof(circuit_name, nonce)
-    pub_signals = load_pub_signals(circuit_name, nonce)
-    return {"proof": proof, "pub_signals": pub_signals}
+# def gen_account_transport_proof(nonce: str, is_local: bool, input: dict) -> dict:
+#     circuit_name = "account_transport"
+#     store_input(circuit_name, nonce, input)
+#     gen_proof(circuit_name, nonce, is_local)
+#     proof = load_proof(circuit_name, nonce)
+#     pub_signals = load_pub_signals(circuit_name, nonce)
+#     return {"proof": proof, "pub_signals": pub_signals}
 
 
 def gen_claim_proof(nonce: str, is_local: bool, input: dict) -> dict:
