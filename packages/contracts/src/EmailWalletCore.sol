@@ -10,7 +10,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {LibZip} from "solady/utils/LibZip.sol";
+import {LibZip} from "./solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {SubjectUtils} from "./libraries/SubjectUtils.sol";
 import {TokenRegistry} from "./utils/TokenRegistry.sol";
