@@ -48,15 +48,16 @@ pub(crate) async fn claim_unclaims(
         ))?;
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
-    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+    let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;
+    // let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     // let account_key_commit =
     //     account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
-    let info = chain_client
-        .query_account_info(&account_key_commit)
-        .await
-        .unwrap();
+    // let info = chain_client
+    //     .query_account_info(&account_key_commit)
+    //     .await
+    //     .unwrap();
     let now = now();
-    let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
+    // let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
     let reply_msg = if claim.is_fund {
         let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
         if unclaimed_fund.expiry_time.as_u64() < u64::try_from(now).unwrap() {
@@ -97,8 +98,8 @@ pub(crate) async fn claim_unclaims(
     let input = generate_claim_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &claim.email_address,
-        field2hex(&relayer_rand.0).as_str(),
         &claim.random,
+        &field2hex(&account_key.0),
     )
     .await?;
     let (proof, pub_signals) =
@@ -108,7 +109,7 @@ pub(crate) async fn claim_unclaims(
     info!(LOG, "commit in pub signals: {}", pub_signals[2]; "func" => function_name!());
     let data = ClaimInput {
         id: claim.id,
-        email_addr_pointer: u256_to_bytes32(&pub_signals[1]),
+        recipient_wallet_salt: u256_to_bytes32(&pub_signals[1]),
         is_fund: claim.is_fund,
         proof,
     };

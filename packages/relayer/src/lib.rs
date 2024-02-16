@@ -19,6 +19,7 @@ pub(crate) mod smtp_client;
 pub(crate) mod strings;
 pub(crate) mod subgraph;
 pub(crate) mod subject_templates;
+pub(crate) mod utils;
 pub(crate) mod voider;
 pub(crate) mod web_server;
 
@@ -41,6 +42,7 @@ pub(crate) use smtp_client::*;
 pub(crate) use strings::*;
 pub(crate) use subgraph::*;
 pub(crate) use subject_templates::*;
+pub(crate) use utils::*;
 pub(crate) use voider::*;
 pub(crate) use web_server::*;
 

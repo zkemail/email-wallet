@@ -428,7 +428,8 @@ pub(crate) async fn error_email_if_needed(
         .await?
         .ok_or(anyhow!("Account key not found"))?;
     let account_key = AccountKey::from(hex2field(&account_key)?);
-    let wallet_salt = account_key.to_wallet_salt()?;
+    let padded_from_address = PaddedEmailAddr::from_email_addr(&from_address);
+    let wallet_salt = WalletSalt::new(&padded_from_address, account_key)?;
     let wallet_addr = chain_client
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
