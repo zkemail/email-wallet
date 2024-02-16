@@ -31,7 +31,7 @@ pub(crate) struct RevealRequest {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Point {
+pub struct Point {
     pub(crate) x: String,
     pub(crate) y: String,
 }
@@ -73,14 +73,14 @@ impl PSIClient {
         db: Arc<Database>,
         chain_client: Arc<ChainClient>,
         email_addr: &str,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         if let Some(account_key) = db.get_account_key(email_addr).await? {
             if self
                 .chain_client
                 .check_if_account_created_by_account_key(email_addr, &account_key)
                 .await?
             {
-                return Ok(());
+                return Ok(false);
             }
             // let subgraph_client = SubgraphClient::new();
             // let account_key = AccountKey::from(hex2field(&account_key)?);
@@ -126,10 +126,11 @@ impl PSIClient {
         let (created_relayers, inited_relayers) = self.find().await?;
         if inited_relayers.len() > 0 {
             self.reveal(inited_relayers).await?;
+            Ok(false)
         } else {
             self.reveal(created_relayers).await?;
+            Ok(true)
         }
-        Ok(())
     }
 
     pub(crate) async fn check(&self, address: &str) -> Result<(bool, bool)> {
