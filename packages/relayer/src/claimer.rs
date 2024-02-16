@@ -21,7 +21,7 @@ pub(crate) async fn claim_unclaims(
     claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    tx_creator: UnboundedSender<(String, Option<AccountKey>)>,
+    // tx_creator: UnboundedSender<String>,
     tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     if db
@@ -36,7 +36,44 @@ pub(crate) async fn claim_unclaims(
         db.insert_claim(&claim).await?;
     }
     if !db.contains_user(&claim.email_address).await.unwrap() {
-        tx_creator.send((claim.email_address.clone(), None))?;
+        // tx_creator.send(claim.email_address.clone())?;
+        let account_key = AccountKey::new(rand::thread_rng());
+        let account_key_str = field2hex(&account_key.0);
+        let psi_point = compute_psi_point(
+            CIRCUITS_DIR_PATH.get().unwrap(),
+            &claim.email_address,
+            &account_key_str,
+        )
+        .await?;
+        let wallet_salt = WalletSalt::new(
+            &PaddedEmailAddr::from_email_addr(&claim.email_address),
+            account_key,
+        )?;
+        let res = chain_client
+            .register_psi_point(&psi_point, &wallet_salt)
+            .await?;
+        info!(LOG, "register psi point tx hash: {}", res; "func" => function_name!());
+        let wallet_addr = chain_client
+            .get_wallet_addr_from_salt(&wallet_salt.0)
+            .await?;
+
+        let token_transfered = chain_client
+            .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+            .await?;
+
+        db.insert_user(&claim.email_address, &account_key_str, &res, false)
+            .await?;
+        tx_sender
+            .send(EmailMessage {
+                to: claim.email_address.to_string(),
+                email_args: EmailArgs::AccountCreation {
+                    user_email_addr: claim.email_address,
+                },
+                account_key: Some(account_key_str),
+                wallet_addr: None,
+                tx_hash: Some(res),
+            })
+            .unwrap();
         return Ok(());
     }
     let account_key_str = db
@@ -46,6 +83,12 @@ pub(crate) async fn claim_unclaims(
             "Account key not found for email address: {}",
             claim.email_address
         ))?;
+    if !chain_client
+        .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
+        .await?
+    {
+        return Err(anyhow!("Account not created"));
+    }
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
     let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;

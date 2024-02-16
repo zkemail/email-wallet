@@ -3,7 +3,7 @@
 #![allow(unreachable_code)]
 
 pub(crate) mod abis;
-// pub(crate) mod account_creator;
+pub(crate) mod account_creator;
 pub(crate) mod chain;
 pub(crate) mod claimer;
 pub(crate) mod config;
@@ -26,7 +26,7 @@ pub(crate) mod web_server;
 pub(crate) use crate::core::*;
 use ::function_name::named;
 pub(crate) use abis::*;
-// pub(crate) use account_creator::*;
+pub(crate) use account_creator::*;
 pub(crate) use chain::*;
 pub(crate) use claimer::*;
 pub use config::*;
@@ -223,7 +223,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     // });
 
     let tx_sender_for_claimer_task = tx_sender.clone();
-    let tx_creator_for_claimer_task = tx_creator.clone();
+    // let tx_creator_for_claimer_task = tx_creator.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let claimer_task = tokio::task::spawn(async move {
@@ -232,7 +232,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 &mut rx_claimer,
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                &tx_creator_for_claimer_task,
+                // &tx_creator_for_claimer_task,
                 &tx_sender_for_claimer_task,
             )
             .await
@@ -509,7 +509,7 @@ async fn claimer_fn(
     rx_claimer: &mut UnboundedReceiver<Claim>,
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
-    tx_creator_for_claimer_task: &UnboundedSender<(String, Option<AccountKey>)>,
+    // tx_creator_for_claimer_task: &UnboundedSender<(String, Option<AccountKey>)>,
     tx_sender_for_claimer_task: &UnboundedSender<EmailMessage>,
 ) -> Result<()> {
     let claim = rx_claimer
@@ -522,7 +522,7 @@ async fn claimer_fn(
             claim,
             Arc::clone(&db_clone),
             Arc::clone(&client_clone),
-            tx_creator_for_claimer_task.clone(),
+            // tx_creator_for_claimer_task.clone(),
             tx_sender_for_claimer_task.clone(),
         )
         .map_err(|err| error!(LOG, "Error claiming unclaim: {}", err; "func" => function_name!())),

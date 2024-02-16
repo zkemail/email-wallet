@@ -30,6 +30,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     emails_pool: P,
     tx_sender: Arc<UnboundedSender<EmailMessage>>,
     tx_claimer: UnboundedSender<Claim>,
+    // tx_creator: UnboundedSender<String>,
 ) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     trace!(LOG, "email: {}", email; "func" => function_name!());
@@ -342,44 +343,45 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             is_fund,
         )
         .await?;
-        let need_creation = psi_client
+        psi_client
             .check_and_reveal(db.clone(), chain_client.clone(), &email_addr)
             .await?;
-        if need_creation && !db.contains_user(&email_addr).await.unwrap() {
-            let psi_point = compute_psi_point(
-                CIRCUITS_DIR_PATH.get().unwrap(),
-                &email_addr,
-                &RELAYER_RAND.get().unwrap(),
-            )
-            .await?;
-            let account_key = AccountKey::new(rand::thread_rng());
-            let wallet_salt =
-                WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-            let res = chain_client
-                .register_psi_point(&psi_point, &wallet_salt)
-                .await?;
-            info!(LOG, "register psi point tx hash: {}", res; "func" => function_name!());
-            let wallet_addr = chain_client
-                .get_wallet_addr_from_salt(&wallet_salt.0)
-                .await?;
+        // if need_creation && !db.contains_user(&email_addr).await.unwrap() {
+        // let psi_point = compute_psi_point(
+        //     CIRCUITS_DIR_PATH.get().unwrap(),
+        //     &email_addr,
+        //     &RELAYER_RAND.get().unwrap(),
+        // )
+        // .await?;
+        // let account_key = AccountKey::new(rand::thread_rng());
+        // let wallet_salt =
+        //     WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
+        // let res = chain_client
+        //     .register_psi_point(&psi_point, &wallet_salt)
+        //     .await?;
+        // info!(LOG, "register psi point tx hash: {}", res; "func" => function_name!());
+        // let wallet_addr = chain_client
+        //     .get_wallet_addr_from_salt(&wallet_salt.0)
+        //     .await?;
 
-            let token_transfered = chain_client
-                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-                .await?;
-            db.insert_user(&email_addr, &field2hex(&account_key.0), &res, false)
-                .await?;
-            tx_sender
-                .send(EmailMessage {
-                    to: email_addr.to_string(),
-                    email_args: EmailArgs::AccountCreation {
-                        user_email_addr: email_addr.clone(),
-                    },
-                    account_key: Some(field2hex(&account_key.0)),
-                    wallet_addr: None,
-                    tx_hash: Some(res),
-                })
-                .unwrap();
-        }
+        // let token_transfered = chain_client
+        //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+        //     .await?;
+        // db.insert_user(&email_addr, &field2hex(&account_key.0), &res, false)
+        //     .await?;
+        // tx_sender
+        //     .send(EmailMessage {
+        //         to: email_addr.to_string(),
+        //         email_args: EmailArgs::AccountCreation {
+        //             user_email_addr: email_addr.clone(),
+        //         },
+        //         account_key: Some(field2hex(&account_key.0)),
+        //         wallet_addr: None,
+        //         tx_hash: Some(res),
+        //     })
+        //     .unwrap();
+
+        // }
         let claim = Claim {
             id: registered_unclaim_id,
             email_address: email_addr.clone(),
