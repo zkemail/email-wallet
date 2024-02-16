@@ -105,7 +105,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
                 timestamp: block.timestamp
             })
         );
-        vm.expectRevert("PSI point exists");
+        vm.expectRevert("PSI point exists for another wallet salt");
         accountHandler.createAccount(
             walletSalt2, 
             psiPoint, 

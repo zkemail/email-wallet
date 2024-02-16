@@ -69,7 +69,18 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     function _authorizeUpgrade(address newImplementation) internal override onlyDeployer {}
 
-    /// Create new account and wallet for a user
+    /// @notice Register a PSI point before deploying the wallet in `createAccount`.
+    /// @param psiPoint PSI point of the user
+    /// @param walletSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
+    function registerPSIPoint(bytes memory psiPoint, bytes32 walletSalt) public {
+        require(walletSalt != bytes32(0), "invalid wallet salt");
+        require(walletSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
+        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
+        walletSaltOfPSIPoint[psiPoint] = walletSalt;
+    }
+
+    /// @notice Create new account and wallet for a user
     /// @param walletSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
     /// @param psiPoint PSI point of the user under the relayer
     /// @param emailProof Proof and instances of the email proof
@@ -79,7 +90,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         EmailProof calldata emailProof
     ) public returns (Wallet wallet) {
         require(walletSalt != bytes32(0), "invalid wallet salt");
-        require(walletSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
+        require(walletSaltOfPSIPoint[psiPoint] == bytes32(0) || walletSaltOfPSIPoint[psiPoint] == walletSalt, "PSI point exists for another wallet salt");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
         require(emailNullifiers[emailProof.nullifier] == false, "email already nullified");
         require(isDKIMPublicKeyHashValid(walletSalt, emailProof.domain, emailProof.dkimPublicKeyHash), "invalid DKIM public key hash");
@@ -110,6 +121,12 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         wallet = _deployWallet(walletSalt);
 
         emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
+    }
+
+    /// @notice Return true iff the wallet is deployed for the given wallet salt
+    /// @param walletSalt Salt used to deploy the wallet
+    function isWalletSaltDeployed(bytes32 walletSalt) public view returns (bool) {
+        return Address.isContract(getWalletOfSalt(walletSalt));
     }
 
     /// @notice Return the DKIM public key hash for a given email domain and walletSalt
