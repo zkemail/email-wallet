@@ -86,18 +86,21 @@ contract TokenRegistry is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             if (chainId == 0) return 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
             if (chainId == 10) return 0x4200000000000000000000000000000000000006;
             if (chainId == 42161) return 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+            if (chainId == 11155111) return 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
         }
 
         if (Strings.equal(tokenName, "DAI")) {
             if (chainId == 0) return 0x6B175474E89094C44Da98b954EedeAC495271d0F;
             if (chainId == 10) return 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
             if (chainId == 42161) return 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
+            if (chainId == 11155111) return 0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357;
         }
 
         if (Strings.equal(tokenName, "USDC")) {
             if (chainId == 0) return 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
             if (chainId == 10) return 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
             if (chainId == 42161) return 0xaf88d065e77c8cC2239327C5EDb3A432268e5831; //0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
+            if (chainId == 11155111) return 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238;
         }
 
         return addressOfTokenName[chainId][tokenName];
