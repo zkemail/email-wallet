@@ -87,7 +87,7 @@ export const deployContract = async (contractArtifactName: string, constructorAr
       throw error;
     }
   });
-
+  
   // Estimate contract deployment fee
   const deploymentFee = await deployer.estimateDeployFee(artifact, constructorArguments || []);
   log(`Estimated deployment cost: ${ethers.formatEther(deploymentFee)} ETH`);

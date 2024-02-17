@@ -1,5 +1,4 @@
 import { HardhatUserConfig } from "hardhat/config";
-
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
@@ -40,13 +39,14 @@ networks: {
     version: "latest",
     // compilerSource: "binary",
     settings: {
-      // find all available options in the official documentation
-      // https://era.zksync.io/docs/tools/hardhat/hardhat-zksync-solc.html#configuration
-    //   libraries: {
-    //     "src/libraries/DecimalUtils.sol": {
-    //       "DecimalUtils": "0x23b13d016E973C9915c6252271fF06cCA2098885"
-    //     },
-    //   }
+        libraries: {
+              "src/libraries/DecimalUtils.sol": {
+                "DecimalUtils": "0x51eF809FFd89cf8056D4C17F0aFF1b6F8257EB60"
+              },
+              "src/libraries/SubjectUtils.sol": {
+                "SubjectUtils": "0x775f1fbfc46720025ACC2FFE652e578de642e6a2"
+              }
+            }
     },
   },
   solidity: {
