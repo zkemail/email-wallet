@@ -88,6 +88,10 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             let token_transfered = chain_client
                 .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
                 .await?;
+            let claims = db.get_claims_by_email_addr(&from_addr).await?;
+            for claim in claims {
+                tx_claimer.send(claim)?;
+            }
             let email_hash = calculate_default_hash(&email);
             emails_pool.insert_email(&email_hash, &email).await?;
             return Ok(());
