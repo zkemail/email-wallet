@@ -29,7 +29,6 @@ pub(crate) async fn create_account(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &email_address,
         RELAYER_RAND.get().unwrap(),
-        &account_key_str,
     )
     .await?;
 
@@ -53,7 +52,7 @@ pub(crate) async fn create_account(
     let data = AccountCreationInput {
         wallet_salt: u256_to_bytes32(&pub_signals[12]),
         psi_point: get_psi_point_bytes(pub_signals[13], pub_signals[14]),
-        email_proof,
+        proof: email_proof,
     };
     info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
     let res = chain_client.create_account(data).await?;
