@@ -3,11 +3,13 @@
 cd ../
 
 if cd prover; then
-    nohup modal serve modal_server.py &
+    if [ "$MODAL" = "true" ]; then
+        nohup modal serve modal_server.py &
 
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to start the modal_server"
-        exit 1
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to start the modal_server"
+            exit 1
+        fi
     fi
 else
     echo "Error: Directory ../prover/ does not exist"
@@ -26,7 +28,7 @@ if cd relayer; then
         fi
     fi
 
-    cargo run --release >> output.log
+    cargo run --release
 
     if [ $? -ne 0 ]; then
         echo "Error: Failed to run cargo run --release >> output.log"
