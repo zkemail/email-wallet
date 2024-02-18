@@ -14,6 +14,7 @@ struct EmailOp {
     string emailDomain; // Domain name of the sender's email
     bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
     string maskedSubject; // Subject string with email address masked
+    uint256 skipSubjectPrefix; // Number of bytes to skip in the subject
     uint256 timestamp; // Timestamp of the email
     bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
     bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true

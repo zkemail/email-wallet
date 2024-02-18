@@ -223,6 +223,7 @@ contract EmailWalletCoreTestHelper is Test {
                 dkimPublicKeyHash: mockDKIMHash,
                 timestamp: block.timestamp,
                 maskedSubject: "",
+                skipSubjectPrefix: 0,
                 feeTokenName: "ETH",
                 feePerGas: 0,
                 executeCallData: abi.encodePacked(""),

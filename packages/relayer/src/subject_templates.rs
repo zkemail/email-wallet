@@ -80,13 +80,36 @@ impl TemplateValue {
     }
 }
 
-pub fn extract_command_from_subject(subject: &str) -> Result<String> {
-    let command = subject
-        .split(' ')
-        .next()
-        .ok_or(anyhow!("No command found"))?
-        .to_string();
-    Ok(command)
+pub async fn extract_command_from_subject(
+    subject: &str,
+    chain_client: &Arc<ChainClient>,
+    wallet_salt: &WalletSalt,
+) -> Result<(String, usize)> {
+    for word in subject.split_whitespace() {
+        let position = subject.find(word).unwrap();
+        if word == SEND_COMMAND
+            || word == EXECUTE_COMMAND
+            || word == INSTALL_COMMAND
+            || word == UNINSTALL_COMMAND
+            || word == EXIT_COMMAND
+            || word == DKIM_COMMAND
+        {
+            return Ok((word.to_string(), position));
+        } else if chain_client
+            .query_user_extension_for_command(wallet_salt, word)
+            .await?
+            != Address::zero()
+        {
+            return Ok((word.to_string(), position));
+        }
+    }
+    Err(anyhow!("No command found"))
+    // let command = subject
+    //     .split(' ')
+    //     .next()
+    //     .ok_or(anyhow!("No command found"))?
+    //     .to_string();
+    // Ok(command)
 }
 
 pub fn extract_template_vals_send(input: &str) -> Result<Vec<TemplateValue>> {

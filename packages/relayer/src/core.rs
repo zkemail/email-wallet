@@ -104,16 +104,21 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     ))?;
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-    let subject = parsed_email.get_subject_all()?;
-    trace!(LOG, "Subject: {}", subject; "func" => function_name!());
-    let command = subject_templates::extract_command_from_subject(&subject)?;
-    trace!(LOG, "Command: {}", command; "func" => function_name!());
     let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
     trace!(LOG, "Wallet salt: {}", field2hex(&wallet_salt.0); "func" => function_name!());
     let wallet_addr = chain_client
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
+    let mut subject = parsed_email.get_subject_all()?;
+    trace!(LOG, "Subject: {}", subject; "func" => function_name!());
+    let (command, skip_subject_prefix) =
+        subject_templates::extract_command_from_subject(&subject, &chain_client, &wallet_salt)
+            .await?;
+    subject = subject[skip_subject_prefix..].to_string();
+    trace!(LOG, "Command: {}", command; "func" => function_name!());
+    trace!(LOG, "Skip Subject Prefix: {}", skip_subject_prefix; "func" => function_name!());
+    trace!(LOG, "Prefix Skipped Subject: {}", subject; "func" => function_name!());
     let fee_token_name = select_fee_token(&wallet_salt, &chain_client).await?;
     trace!(LOG, "Fee token name: {}", fee_token_name; "func" => function_name!());
     let (template_idx, template_vals) = match command.as_str() {
@@ -309,6 +314,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
         timestamp,
         masked_subject,
+        skip_subject_prefix: U256::from(skip_subject_prefix),
         fee_token_name,
         fee_per_gas: *FEE_PER_GAS.get().unwrap(),
         execute_call_data,

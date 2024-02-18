@@ -169,7 +169,13 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             accountHandler.getWalletOfSalt(emailOp.walletSalt),
             this // Core contract to read some states
         );
-        require(Strings.equal(computedSubject, emailOp.maskedSubject), string.concat("subject != ", computedSubject));
+        bytes memory maskedSubjectBytes = bytes(emailOp.maskedSubject);
+        require(emailOp.skipSubjectPrefix < maskedSubjectBytes.length, "skipSubjectPrefix too high");
+        bytes memory skippedSubjectBytes = new bytes(maskedSubjectBytes.length - emailOp.skipSubjectPrefix);
+        for (uint i=0; i<skippedSubjectBytes.length; i++) {
+            skippedSubjectBytes[i] = maskedSubjectBytes[emailOp.skipSubjectPrefix + i];
+        }
+        require(Strings.equal(computedSubject, string(skippedSubjectBytes)), string.concat("subject != ", computedSubject));
 
         // Verify proof
         require(
