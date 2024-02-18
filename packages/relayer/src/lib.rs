@@ -220,8 +220,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             }
         }
 
-        anyhow::Ok(())
-    });
+    //     anyhow::Ok(())
+    // });
 
     let tx_claimer_for_server_task = tx_claimer.clone();
     let api_server_task = tokio::task::spawn(
