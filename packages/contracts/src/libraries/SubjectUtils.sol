@@ -9,7 +9,7 @@ import "../interfaces/Types.sol";
 import "../interfaces/Commands.sol";
 import "../utils/TokenRegistry.sol";
 import "../handlers/ExtensionHandler.sol";
-import "../EmailWalletCore.sol";
+import "../interfaces/IEmailWalletCore.sol";
 
 library SubjectUtils {
     bytes16 private constant LOWER_HEX_DIGITS = "0123456789abcdef";
@@ -73,11 +73,11 @@ library SubjectUtils {
     ///         This also do sanity checks of certain parameters used in the subject
     /// @param emailOp EmailOp to compute masked subject for
     /// @param walletAddr Address of the user's wallet
-    /// @param core EmailWalletCore contract to read some states for validation
+    /// @param core IEmailWalletCore contract interface to read some states for validation
     function computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp,
         address walletAddr,
-        EmailWalletCore core
+        IEmailWalletCore core
     ) public view returns (string memory maskedSubject, bool isExtension) {
         ExtensionHandler extensionHandler = ExtensionHandler(core.extensionHandler());
 
