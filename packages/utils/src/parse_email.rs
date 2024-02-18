@@ -214,16 +214,16 @@ mod test {
 
     #[tokio::test]
     async fn test_extractions_from_email2() {
-        let raw_email = include_str!("../../circuits/tests/emails/account_init_test1.eml");
+        let raw_email = include_str!("../../circuits/tests/emails/account_creation_test1.eml");
         let parsed_email = ParsedEmail::new_from_raw_email(raw_email).await.unwrap();
         let from_addr = parsed_email.get_from_addr().unwrap();
-        assert_eq!(from_addr, "adityabisht64@gmail.com");
+        assert_eq!(from_addr, "suegamisora@gmail.com");
         let to_addr = parsed_email.get_to_addr().unwrap();
-        assert_eq!(to_addr, "zkemail.relayer.test+ACCOUNTKEY.0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76@gmail.com");
+        assert_eq!(to_addr, "emailwallet.relayer@gmail.com");
         let email_domain = parsed_email.get_email_domain().unwrap();
         assert_eq!(email_domain, "gmail.com");
         let timestamp = parsed_email.get_timestamp().unwrap();
-        assert_eq!(timestamp, 1705737222);
+        assert_eq!(timestamp, 1707866192);
         let invitation_code = parsed_email.get_invitation_code().unwrap();
         assert_eq!(
             invitation_code,
