@@ -5,15 +5,15 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ zkemail/email-wallet-v1-arbitrum-one",
-    "create-local": "graph create --node http://localhost:8020/ zkemail/email-wallet-v1-arbitrum-one",
-    "remove-local": "graph remove --node http://localhost:8020/ zkemail/email-wallet-v1-arbitrum-one",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 zkemail/email-wallet-v1-arbitrum-one",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ zkemail/email-wallet-v1-zksync-sepolia",
+    "create-local": "graph create --node http://localhost:8020/ zkemail/email-wallet-v1-zksync-sepolia",
+    "remove-local": "graph remove --node http://localhost:8020/ zkemail/email-wallet-v1-zksync-sepolia",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 zkemail/email-wallet-v1-zksync-sepolia",
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.60.0",
-    "@graphprotocol/graph-ts": "0.30.0"
+    "@graphprotocol/graph-cli": "0.68.0",
+    "@graphprotocol/graph-ts": "0.33.0"
   },
   "devDependencies": {
     "matchstick-as": "0.5.0"
