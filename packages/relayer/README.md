@@ -204,10 +204,11 @@ Create `.env` in the execution directory with reference to `env_example`.
 ### How to Run
 
 ```bash
-docker run \
+sudo docker run \
 -p 80:80 \
 -v $(pwd)/.env:/email-wallet/packages/relayer/.env \
--e SETUP=false
+-e SETUP=false \
+-e MODAL=false \
 email_wallet_v1_relayer:latest
 ```
 

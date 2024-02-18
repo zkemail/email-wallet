@@ -4,11 +4,10 @@ schema:
 dataSources:
   - kind: ethereum
     name: EmailWalletCore
-    network: sepolia
+    network: zksync-era-sepolia
     source:
-      address: "0xBaBE00020e40F75BaF97DAB202228FbC4b9F9214"
+      address: "0xD51782B549cF2f5B7fd7A5ea0ee3Fd6D6093dc57"
       abi: EmailWalletCore
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -25,11 +24,10 @@ dataSources:
       file: ./src/email-wallet-core.ts
   - kind: ethereum
     name: RelayerHandler
-    network: sepolia
+    network: zksync-era-sepolia
     source:
-      address: "0x34246a80f161D6471357270914D8a7C37224902a"
+      address: "0x0EEb604cFCF5B117667BE621cAb1647b3fA55A71"
       abi: RelayerHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -48,11 +46,10 @@ dataSources:
       file: ./src/relayer-handler.ts
   - kind: ethereum
     name: AccountHandler
-    network: sepolia
+    network: zksync-era-sepolia
     source:
-      address: "0x50ea0748316e3d6823cc27CE3A8ceA5EE3b1B792"
+      address: "0xDa4c99f9f094e5E24648909D4AA62DfC88D6189A"
       abi: AccountHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -74,11 +71,10 @@ dataSources:
       file: ./src/account-handler.ts
   - kind: ethereum
     name: UnclaimsHandler
-    network: sepolia
+    network: zksync-era-sepolia
     source:
-      address: "0x8f38E289Dd734C1533Ea0acBD63ad490bA906384"
+      address: "0x154E5cEC717959bFfca16DE75D9710511dc51b38"
       abi: UnclaimsHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -111,11 +107,10 @@ dataSources:
       file: ./src/unclaims-handler.ts
   - kind: ethereum
     name: ExtensionHandler
-    network: sepolia
+    network: zksync-era-sepolia
     source:
-      address: "0xcCcfE37B8c02B4cCFea9fD5645f72eAc52570Eaf"
+      address: "0x782c5BDd25933CccC86AA8a9c52a13654e0Da723"
       abi: ExtensionHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

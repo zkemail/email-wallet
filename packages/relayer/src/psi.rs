@@ -160,19 +160,19 @@ impl PSIClient {
     }
 
     pub(crate) async fn find<'a>(&self) -> Result<(Vec<String>, Vec<String>)> {
-        let subgraph_client = SubgraphClient::new();
-        let relayers = subgraph_client.get_all_relayers_for_psi().await?;
+        // let subgraph_client = SubgraphClient::new();
+        // let relayers = subgraph_client.get_all_relayers_for_psi().await?;
         let mut created_hosts = vec![];
         let mut inited_hosts = vec![];
 
-        for relayer in relayers {
-            let (is_created, is_inited) = self.check(&relayer.1).await?;
-            if is_inited {
-                inited_hosts.push(relayer.1.to_string());
-            } else if is_created {
-                created_hosts.push(relayer.1.to_string());
-            }
-        }
+        // for relayer in relayers {
+        //     let (is_created, is_inited) = self.check(&relayer.1).await?;
+        //     if is_inited {
+        //         inited_hosts.push(relayer.1.to_string());
+        //     } else if is_created {
+        //         created_hosts.push(relayer.1.to_string());
+        //     }
+        // }
 
         Ok((created_hosts, inited_hosts))
     }
