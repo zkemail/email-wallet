@@ -18,26 +18,6 @@ pub struct AccountCreationInput {
     pub(crate) proof: EmailProof,
 }
 
-// #[derive(Default, Debug)]
-// pub struct AccountInitInput {
-//     pub(crate) email_addr_pointer: [u8; 32],
-//     pub(crate) email_domain: String,
-//     pub(crate) email_timestamp: U256,
-//     pub(crate) email_nullifier: [u8; 32],
-//     pub(crate) dkim_public_key_hash: [u8; 32],
-//     pub(crate) proof: Bytes,
-// }
-
-// #[derive(Default, Debug)]
-// pub struct AccountTransportInput {
-//     pub(crate) old_account_key_commit: [u8; 32],
-//     pub(crate) new_email_addr_pointer: [u8; 32],
-//     pub(crate) new_account_key_commit: [u8; 32],
-//     pub(crate) new_psi_point: Bytes,
-//     pub(crate) transport_email_proof: EmailProof,
-//     pub(crate) account_creation_proof: Bytes,
-// }
-
 #[derive(Default, Debug)]
 pub struct RegisterUnclaimedFundInput {
     pub(crate) email_addr_commit: [u8; 32],
@@ -177,54 +157,6 @@ impl ChainClient {
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
         Ok(tx_hash)
     }
-
-    // pub async fn init_account(&self, data: AccountInitInput) -> Result<String> {
-    //     // Mutex is used to prevent nonce conflicts.
-    //     let mut mutex = SHARED_MUTEX.lock().await;
-    //     *mutex += 1;
-
-    //     let call = self.account_handler.initialize_account(
-    //         data.email_addr_pointer,
-    //         data.email_domain,
-    //         data.email_timestamp,
-    //         data.email_nullifier,
-    //         data.dkim_public_key_hash,
-    //         data.proof,
-    //     );
-    //     let tx = call.send().await?;
-    //     let receipt = tx
-    //         .log()
-    //         .confirmations(CONFIRMATIONS)
-    //         .await?
-    //         .ok_or(anyhow!("No receipt"))?;
-    //     let tx_hash = receipt.transaction_hash;
-    //     let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-    //     Ok(tx_hash)
-    // }
-
-    // pub async fn transport_account(&self, data: AccountTransportInput) -> Result<String> {
-    //     // Mutex is used to prevent nonce conflicts.
-    //     let mut mutex = SHARED_MUTEX.lock().await;
-    //     *mutex += 1;
-
-    //     let call = self.account_handler.transport_account(
-    //         data.old_account_key_commit,
-    //         data.new_email_addr_pointer,
-    //         data.new_account_key_commit,
-    //         data.new_psi_point,
-    //         data.transport_email_proof,
-    //         data.account_creation_proof,
-    //     );
-    //     let tx = call.send().await?;
-    //     let receipt = tx
-    //         .log()
-    //         .confirmations(CONFIRMATIONS)
-    //         .await?
-    //         .ok_or(anyhow!("No receipt"))?;
-    //     let tx_hash = receipt.transaction_hash;
-    //     let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-    //     Ok(tx_hash)
-    // }
 
     pub async fn claim(&self, data: ClaimInput) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
@@ -408,22 +340,6 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
-    // pub async fn query_account_key_commit(&self, pointer: &Fr) -> Result<Fr> {
-    //     let account_key_commit = self
-    //         .account_handler
-    //         .account_key_commit_of_pointer(fr_to_bytes32(pointer)?)
-    //         .await?;
-    //     bytes32_to_fr(&account_key_commit)
-    // }
-
-    // pub async fn query_account_info(&self, account_key_commit: &Fr) -> Result<AccountKeyInfo> {
-    //     let info = self
-    //         .account_handler
-    //         .get_info_of_account_key_commit(fr_to_bytes32(account_key_commit)?)
-    //         .await?;
-    //     Ok(info)
-    // }
-
     pub async fn query_user_erc20_balance(
         &self,
         wallet_salt: &WalletSalt,
@@ -507,32 +423,6 @@ impl ChainClient {
             .await?;
         Ok(wallet_addr)
     }
-
-    // pub async fn query_ak_commit_and_relayer_of_wallet_salt(
-    //     &self,
-    //     wallet_salt: &WalletSalt,
-    // ) -> Result<(Vec<Fr>, Vec<Address>)> {
-    //     let events: Vec<(email_wallet_events::AccountCreatedFilter, LogMeta)> = self
-    //         .account_handler
-    //         .event_for_name::<email_wallet_events::AccountCreatedFilter>("AccountCreated")?
-    //         .from_block(0)
-    //         .topic2(H256::from(fr_to_bytes32(&wallet_salt.0)?))
-    //         .query_with_meta()
-    //         .await?;
-    //     let mut account_key_commits = vec![];
-    //     let mut relayers = vec![];
-    //     for (created, log_meta) in events {
-    //         let account_key_commit = bytes32_to_fr(&created.account_key_commit)?;
-    //         account_key_commits.push(account_key_commit);
-    //         let tx_hash = log_meta.transaction_hash;
-    //         let tx = self.client.get_transaction(tx_hash).await?;
-    //         if let Some(tx) = tx {
-    //             let relayer = tx.from;
-    //             relayers.push(relayer);
-    //         }
-    //     }
-    //     Ok((account_key_commits, relayers))
-    // }
 
     pub async fn query_unclaimed_fund(&self, id: U256) -> Result<UnclaimedFund> {
         let unclaimed_fund = self.unclaims_handler.get_unclaimed_fund(id).await?;
@@ -682,44 +572,8 @@ impl ChainClient {
             .is_wallet_salt_deployed(fr_to_bytes32(&wallet_salt.0)?)
             .call()
             .await?;
-        // let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-        // let account_key_commitment =
-        //     account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
-
-        // let account_key_info = self
-        //     .account_handler
-        //     .info_of_account_key_commit(Fr::to_bytes(&account_key_commitment))
-        //     .call()
-        //     .await?;
-
-        // Ok(account_key_info.1)
         Ok(is_deployed)
     }
-
-    // pub(crate) async fn check_if_account_initialized_by_point(&self, point: Point) -> Result<bool> {
-    //     let Point { x, y } = point;
-    //     let x = hex2field(&x)?;
-    //     let y = hex2field(&y)?;
-    //     let x = U256::from_little_endian(&x.to_bytes());
-    //     let y = U256::from_little_endian(&y.to_bytes());
-    //     let pointer = self
-    //         .account_handler
-    //         .pointer_of_psi_point(get_psi_point_bytes(x, y))
-    //         .call()
-    //         .await?;
-    //     let account_key_commitment = self
-    //         .account_handler
-    //         .account_key_commit_of_pointer(pointer)
-    //         .call()
-    //         .await?;
-    //     let account_key_info = self
-    //         .account_handler
-    //         .info_of_account_key_commit(account_key_commitment)
-    //         .call()
-    //         .await?;
-
-    //     Ok(account_key_info.1)
-    // }
 
     #[named]
     pub(crate) async fn check_if_dkim_public_key_hash_valid(

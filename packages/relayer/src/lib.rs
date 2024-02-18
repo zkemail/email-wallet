@@ -3,7 +3,7 @@
 #![allow(unreachable_code)]
 
 pub(crate) mod abis;
-pub(crate) mod account_creator;
+// pub(crate) mod account_creator;
 pub(crate) mod chain;
 pub(crate) mod claimer;
 pub(crate) mod config;
@@ -26,7 +26,7 @@ pub(crate) mod web_server;
 pub(crate) use crate::core::*;
 use ::function_name::named;
 pub(crate) use abis::*;
-pub(crate) use account_creator::*;
+// pub(crate) use account_creator::*;
 pub(crate) use chain::*;
 pub(crate) use claimer::*;
 pub use config::*;
@@ -199,31 +199,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         anyhow::Ok(())
     });
 
-    // let tx_sender_for_creator_task = tx_sender.clone();
-    // let db_clone = Arc::clone(&db);
-    // let client_clone = Arc::clone(&client);
-    // let account_creation_task = tokio::task::spawn(async move {
-    //     loop {
-    //         match account_creation_fn(
-    //             &mut rx_creator,
-    //             Arc::clone(&db_clone),
-    //             Arc::clone(&client_clone),
-    //             &tx_sender_for_creator_task,
-    //         )
-    //         .await
-    //         {
-    //             Ok(()) => {}
-    //             Err(e) => {
-    //                 error!(LOG, "Error at account_creation: {}", e; "func" => function_name!())
-    //             }
-    //         }
-    //     }
-
-    //     anyhow::Ok(())
-    // });
-
     let tx_sender_for_claimer_task = tx_sender.clone();
-    // let tx_creator_for_claimer_task = tx_creator.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let claimer_task = tokio::task::spawn(async move {
@@ -478,31 +454,6 @@ async fn email_handler_fn(
 
     anyhow::Ok(())
 }
-
-// #[named]
-// async fn account_creation_fn(
-//     rx_creator: &mut UnboundedReceiver<(String, Option<AccountKey>)>,
-//     db_clone: Arc<Database>,
-//     client_clone: Arc<ChainClient>,
-//     tx_sender_for_creator_task: &UnboundedSender<EmailMessage>,
-// ) -> Result<()> {
-//     let (email_address, account_key) = rx_creator
-//         .recv()
-//         .await
-//         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-//     info!(LOG, "Creating account for email: {}", email_address; "func" => function_name!());
-//     tokio::task::spawn(
-//         create_account(
-//             email_address,
-//             account_key,
-//             Arc::clone(&db_clone),
-//             Arc::clone(&client_clone),
-//             tx_sender_for_creator_task.clone(),
-//         )
-//         .map_err(|err| error!(LOG, "Error creating account: {}", err; "func" => function_name!())),
-//     );
-//     Ok(())
-// }
 
 #[named]
 async fn claimer_fn(
