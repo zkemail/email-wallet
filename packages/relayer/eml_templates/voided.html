@@ -373,14 +373,13 @@
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td>
-                                            <p align="center">Welcome to Email Wallet, {{userEmailAddr}}! Your email
-                                                wallet account is
-                                                created. <strong>Please reply to this email to start using Email
-                                                    Wallet.</strong> You don't have to add any message in the reply 😄.
+                                            <p>Hi {{userEmailAddr}}!</p>
+                                            <!-- <p align="center">
+                                                {{voidMsg}}.
+                                            </p> -->
+                                            <p align="center">Your wallet address: <a
+                                                    href="https://sepolia.etherscan.io/address/{{walletAddr}}">{{walletAddr}}</a>
                                             </p>
-                                            <p align="center">You already have 100 TEST tokens. Once you reply to this
-                                                email, you can send them to your friends by specifying the recpient's
-                                                email address.</p>
                                             <p align="center">Check the transaction on etherscan: <a
                                                     href="https://sepolia.etherscan.io/tx/{{transactionHash}}">{{transactionHash}}</a>
                                             </p>

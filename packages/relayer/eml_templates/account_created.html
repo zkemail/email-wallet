@@ -373,9 +373,32 @@
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td>
-                                            <p>Hi {{userEmailAddr}}!</p>
                                             <p align="center">
-                                                {{claimMsg}}.
+                                                Awesome, {{userEmailAddr}}! Your Email Wallet account is now
+                                                created.
+                                                <strong>PLEASE DO NOT DELETE THIS EMAIL</strong> to keep your account
+                                                secure.
+                                            </p>
+
+                                            <p align="center">
+                                                <a
+                                                    href="mailto:{{relayerEmailAddr}}?subject=Send%2010%20TEST%20to%20emailwallet.relayer@gmail.com">You
+                                                    can send 10 TEST tokens directly to emailwallet.relayer@gmail.com by
+                                                    sending us
+                                                    ({{relayerEmailAddr}}) an email with the subject "Send 10 TEST to
+                                                    emailwallet.relayer@gmail.com".</a>
+                                                <!--[TODO] Add a link to show the supported currency-->
+                                                Similarly,
+                                                you can send any currency we support directly to an email address by
+                                                sending an email with the amount, currency name, and recipient's
+                                                email address replaced respectively in the subject line.
+                                            </p>
+
+                                            <p align="center">
+                                                {{faucetMessage}}
+                                            </p>
+                                            <p align="center">Your wallet address: <a
+                                                    href="https://sepolia.etherscan.io/address/{{walletAddr}}">{{walletAddr}}</a>
                                             </p>
                                             <p align="center">Check the transaction on etherscan: <a
                                                     href="https://sepolia.etherscan.io/tx/{{transactionHash}}">{{transactionHash}}</a>

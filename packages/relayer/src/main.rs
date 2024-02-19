@@ -73,9 +73,8 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\n{}\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), wallet_addr, tx_hash
                         );
-            let render_data =
-                serde_json::json!({"userEmailAddr": email_addr, "transactionHash": tx_hash});
-            let body_html = render_html("account_creation.html", render_data).await?;
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
                 subject,
@@ -108,7 +107,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             sender_email_addr, original_subject, &tx_hash, wallet_addr, &tx_hash
                         );
             let render_data = serde_json::json!({"userEmailAddr": sender_email_addr, "originalSubject": original_subject, "walletAddr":wallet_addr, "transactionHash": tx_hash});
-            let body_html = render_html("transaction_complete.html", render_data).await?;
+            let body_html = render_html("email_handled.html", render_data).await?;
             let email = EmailMessage {
                 to: sender_email_addr,
                 subject,
@@ -134,8 +133,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.",
                             email_addr, wallet_addr,
                         );
-            let render_data =
-                serde_json::json!({"userEmailAddr": email_addr, "walletAddr": wallet_addr,});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr": wallet_addr, "transactionHash": tx_hash});
             let body_html = render_html("psi_registered.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -170,7 +168,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             claim.email_address, &tx_hash, wallet_addr
                         );
             let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
-            let body_html = render_html("transaction_complete.html", render_data).await?;
+            let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
                 to: claim.email_address,
                 subject,
@@ -205,7 +203,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             claim.email_address, &tx_hash, wallet_addr
                         );
             let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
-            let body_html = render_html("transaction_complete.html", render_data).await?;
+            let body_html = render_html("voided.html", render_data).await?;
             let email = EmailMessage {
                 to: claim.email_address,
                 subject,
@@ -221,11 +219,14 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             if let Some(error) = error {
                 let subject = format!("Email Wallet Notification. Error occurred.");
                 let body_plain = format!("Hi {}!\nError occurred: {}", email_addr, error);
+                let render_data =
+                    serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error});
+                let body_html = render_html("error.html", render_data).await?;
                 let email = EmailMessage {
                     to: email_addr,
                     subject,
                     body_plain,
-                    body_html: String::new(),
+                    body_html,
                     reference: None,
                     reply_to: None,
                 };
