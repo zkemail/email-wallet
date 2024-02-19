@@ -58,7 +58,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         {
             let input = generate_account_creation_input(
                 CIRCUITS_DIR_PATH.get().unwrap(),
-                &from_addr,
+                &email,
                 RELAYER_RAND.get().unwrap(),
             )
             .await?;
