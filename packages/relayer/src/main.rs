@@ -9,7 +9,21 @@ async fn main() -> Result<()> {
     if args.len() == 2 && args[1] == "setup" {
         return setup().await;
     } else {
-        run(RelayerConfig::new()).await?;
+        let (_, rx) = EmailForwardSender::new();
+        let event_consumer_fn = |event: EmailWalletEvent| {
+            match event {
+                EmailWalletEvent::PsiRegistered {
+                    email_addr,
+                    account_key,
+                    tx_hash,
+                } => {}
+                _ => {}
+            }
+            Ok(())
+        };
+        let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
+        let routes = vec![];
+        run(RelayerConfig::new(), event_consumer, rx, routes).await?;
     }
     Ok(())
 }

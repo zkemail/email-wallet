@@ -6,7 +6,8 @@ use ethers::types::Address;
 use ethers::utils::format_units;
 use tokio::sync::mpsc::UnboundedSender;
 
-pub(crate) struct Claim {
+#[derive(Debug, Clone)]
+pub struct Claim {
     pub id: U256,
     pub email_address: String,
     pub random: String,
@@ -22,8 +23,9 @@ pub(crate) async fn claim_unclaims(
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     // tx_creator: UnboundedSender<String>,
-    tx_sender: UnboundedSender<EmailMessage>,
-) -> Result<()> {
+    // tx_sender: UnboundedSender<EmailMessage>,
+) -> Result<EmailWalletEvent> {
+    let mut need_creation = false;
     if db
         .get_claims_by_id(&claim.id)
         .await?
@@ -34,8 +36,17 @@ pub(crate) async fn claim_unclaims(
         == 0
     {
         db.insert_claim(&claim).await?;
+        let psi_client = PSIClient::new(
+            db.clone(),
+            chain_client.clone(),
+            claim.email_address.to_string(),
+            claim.id,
+            claim.is_fund,
+        )
+        .await?;
+        need_creation = psi_client.check_and_reveal().await?;
     }
-    if !db.contains_user(&claim.email_address).await.unwrap() {
+    if need_creation && !db.contains_user(&claim.email_address).await.unwrap() {
         // tx_creator.send(claim.email_address.clone())?;
         let account_key = AccountKey::new(rand::thread_rng());
         let account_key_str = field2hex(&account_key.0);
@@ -49,32 +60,36 @@ pub(crate) async fn claim_unclaims(
             &PaddedEmailAddr::from_email_addr(&claim.email_address),
             account_key,
         )?;
-        let res = chain_client
+        let tx_hash = chain_client
             .register_psi_point(&psi_point, &wallet_salt)
             .await?;
-        info!(LOG, "register psi point tx hash: {}", res; "func" => function_name!());
+        info!(LOG, "register psi point tx hash: {}", tx_hash; "func" => function_name!());
         let wallet_addr = chain_client
             .get_wallet_addr_from_salt(&wallet_salt.0)
             .await?;
 
-        let token_transfered = chain_client
-            .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-            .await?;
+        // let token_transfered = chain_client
+        //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+        //     .await?;
 
-        db.insert_user(&claim.email_address, &account_key_str, &res, false)
+        db.insert_user(&claim.email_address, &account_key_str, &tx_hash, false)
             .await?;
-        tx_sender
-            .send(EmailMessage {
-                to: claim.email_address.to_string(),
-                email_args: EmailArgs::AccountCreation {
-                    user_email_addr: claim.email_address,
-                },
-                account_key: Some(account_key_str),
-                wallet_addr: None,
-                tx_hash: Some(res),
-            })
-            .unwrap();
-        return Ok(());
+        // tx_sender
+        //     .send(EmailMessage {
+        //         to: claim.email_address.to_string(),
+        //         email_args: EmailArgs::AccountCreation {
+        //             user_email_addr: claim.email_address,
+        //         },
+        //         account_key: Some(account_key_str),
+        //         wallet_addr: None,
+        //         tx_hash: Some(res),
+        //     })
+        //     .unwrap();
+        return Ok(EmailWalletEvent::PsiRegistered {
+            email_addr: claim.email_address,
+            account_key,
+            tx_hash,
+        });
     }
     let account_key_str = db
         .get_account_key(&claim.email_address)
@@ -156,25 +171,29 @@ pub(crate) async fn claim_unclaims(
         is_fund: claim.is_fund,
         proof,
     };
-    let result = chain_client.claim(data).await?;
+    let tx_hash = chain_client.claim(data).await?;
     db.delete_claim(&claim.id, claim.is_fund).await?;
     let wallet_addr = chain_client
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
-    tx_sender
-        .send(EmailMessage {
-            to: claim.email_address.to_string(),
-            email_args: EmailArgs::Claim {
-                user_email_addr: claim.email_address.to_string(),
-                is_fund: claim.is_fund,
-                claim_msg: reply_msg,
-            },
-            account_key: Some(field2hex(&account_key.0)),
-            wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-            tx_hash: Some(result),
-        })
-        .unwrap();
-    Ok(())
+    // tx_sender
+    //     .send(EmailMessage {
+    //         to: claim.email_address.to_string(),
+    //         email_args: EmailArgs::Claim {
+    //             user_email_addr: claim.email_address.to_string(),
+    //             is_fund: claim.is_fund,
+    //             claim_msg: reply_msg,
+    //         },
+    //         account_key: Some(field2hex(&account_key.0)),
+    //         wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
+    //         tx_hash: Some(result),
+    //     })
+    //     .unwrap();
+    Ok(EmailWalletEvent::Claimed {
+        claim,
+        recipient_account_key: account_key,
+        tx_hash,
+    })
 }
 
 async fn is_installed_extension(

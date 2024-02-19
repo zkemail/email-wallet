@@ -2,7 +2,7 @@ use crate::*;
 
 use std::sync::atomic::Ordering;
 
-use axum::Router;
+use axum::{routing::MethodRouter, Router};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
@@ -60,16 +60,16 @@ async fn unclaim(
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
         .await?;
     info!(LOG, "id {:?}", id; "func" => function_name!());
-    let psi_client = PSIClient::new(
-        Arc::clone(&chain_client),
-        payload.email_address.clone(),
-        id,
-        payload.is_fund,
-    )
-    .await?;
-    psi_client
-        .check_and_reveal(db.clone(), chain_client.clone(), &payload.email_address)
-        .await?;
+    // let psi_client = PSIClient::new(
+    //     Arc::clone(&chain_client),
+    //     payload.email_address.clone(),
+    //     id,
+    //     payload.is_fund,
+    // )
+    // .await?;
+    // psi_client
+    //     .check_and_reveal(db.clone(), chain_client.clone(), &payload.email_address)
+    //     .await?;
     let claim = Claim {
         id,
         email_address: payload.email_address.clone(),
@@ -92,6 +92,7 @@ async fn unclaim(
 #[named]
 pub(crate) async fn run_server(
     addr: &str,
+    routes: Vec<(String, MethodRouter)>,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     tx_claimer: UnboundedSender<Claim>,
@@ -100,7 +101,7 @@ pub(crate) async fn run_server(
     let chain_client_reveal_clone = Arc::clone(&chain_client);
     let tx_claimer_reveal_clone = tx_claimer.clone();
 
-    let app = Router::new()
+    let mut app = Router::new()
         .route(
             "/api/emailAddrCommit",
             axum::routing::post(move |payload: String| async move {
@@ -168,13 +169,16 @@ pub(crate) async fn run_server(
                         err.to_string()
                     })
             }),
-        )
-        .layer(
-            CorsLayer::new()
-                .allow_methods(AllowMethods::any())
-                .allow_headers(AllowHeaders::any())
-                .allow_origin(Any),
         );
+    for (path, router) in routes {
+        app = app.route(&path, router);
+    }
+    app = app.layer(
+        CorsLayer::new()
+            .allow_methods(AllowMethods::any())
+            .allow_headers(AllowHeaders::any())
+            .allow_origin(Any),
+    );
 
     trace!(LOG, "Listening API at {}", addr; "func" => function_name!());
     axum::Server::bind(&addr.parse()?)

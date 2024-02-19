@@ -42,11 +42,13 @@ pub(crate) struct PSIClient {
     pub(crate) email_addr: String,
     pub(crate) id: U256,
     pub(crate) is_fund: bool,
+    pub(crate) db: Arc<Database>,
     pub(crate) chain_client: Arc<ChainClient>,
 }
 
 impl PSIClient {
     pub(crate) async fn new(
+        db: Arc<Database>,
         chain_client: Arc<ChainClient>,
         email_addr: String,
         id: U256,
@@ -64,20 +66,19 @@ impl PSIClient {
             is_fund,
             random,
             point,
+            db,
             chain_client,
         })
     }
 
     pub(crate) async fn check_and_reveal(
         &self,
-        db: Arc<Database>,
-        chain_client: Arc<ChainClient>,
-        email_addr: &str,
+        // email_addr: &str,
     ) -> Result<bool> {
-        if let Some(account_key) = db.get_account_key(email_addr).await? {
+        if let Some(account_key) = self.db.get_account_key(&self.email_addr).await? {
             if self
                 .chain_client
-                .check_if_account_created_by_account_key(email_addr, &account_key)
+                .check_if_account_created_by_account_key(&self.email_addr, &account_key)
                 .await?
             {
                 return Ok(false);
