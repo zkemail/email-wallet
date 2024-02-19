@@ -314,7 +314,7 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
-    pub(crate) async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<String> {
+    pub async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;

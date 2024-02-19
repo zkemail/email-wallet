@@ -411,20 +411,20 @@ impl SmtpClient {
 
         Err(anyhow!("{SMTP_RECONNECT_ERROR}"))
     }
+}
 
-    async fn render_html(&self, template_name: &str, render_data: Value) -> Result<String> {
-        let email_template_filename = PathBuf::new()
-            .join(EMAIL_TEMPLATES.get().unwrap())
-            .join(template_name);
-        let email_template = read_to_string(&email_template_filename).await?;
+pub async fn render_html(template_name: &str, render_data: Value) -> Result<String> {
+    let email_template_filename = PathBuf::new()
+        .join(EMAIL_TEMPLATES.get().unwrap())
+        .join(template_name);
+    let email_template = read_to_string(&email_template_filename).await?;
 
-        let reg = Handlebars::new();
+    let reg = Handlebars::new();
 
-        // let data =
-        //     serde_json::json!({"messageText": message_text, "transactionHash": transaction_hash});
+    // let data =
+    //     serde_json::json!({"messageText": message_text, "transactionHash": transaction_hash});
 
-        Ok(reg.render_template(&email_template, &render_data)?)
-    }
+    Ok(reg.render_template(&email_template, &render_data)?)
 }
 
 // pub(crate) async fn error_email_if_needed(

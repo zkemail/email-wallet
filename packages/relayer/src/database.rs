@@ -2,7 +2,7 @@ use crate::*;
 
 use sqlx::{postgres::PgPool, Row};
 
-pub(crate) struct Database {
+pub struct Database {
     db: PgPool,
 }
 

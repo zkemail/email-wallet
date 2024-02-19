@@ -40,6 +40,7 @@ pub(crate) use logger::*;
 pub(crate) use psi::*;
 use rand::rngs::OsRng;
 pub(crate) use smtp_client::*;
+pub use smtp_client::{render_html, EmailMessage};
 pub(crate) use strings::*;
 pub(crate) use subgraph::*;
 pub(crate) use subject_templates::*;
@@ -60,23 +61,24 @@ use std::sync::{Arc, OnceLock};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::time::{sleep, Duration};
 
-static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
-static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
-static RELAYER_RAND: OnceLock<String> = OnceLock::new();
-static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
-static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
-static CHAIN_ID: OnceLock<u32> = OnceLock::new();
-static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
-static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
-static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
-static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
-static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
-static SUBGRAPH_URL: OnceLock<String> = OnceLock::new();
-static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
-static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
-static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
-static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
-static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
+pub static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
+pub static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static RELAYER_RAND: OnceLock<String> = OnceLock::new();
+pub static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
+pub static CHAIN_ID: OnceLock<u32> = OnceLock::new();
+pub static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
+pub static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
+pub static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
+pub static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
+pub static SUBGRAPH_URL: OnceLock<String> = OnceLock::new();
+pub static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
+pub static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
+pub static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
+pub static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
+pub static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
+pub static RELAYER_EMAIL_ADDRESS: OnceLock<String> = OnceLock::new();
 
 #[derive(Debug, Clone)]
 pub enum EmailWalletEvent {
@@ -115,7 +117,7 @@ pub enum EmailWalletEvent {
 }
 
 lazy_static! {
-    static ref DB: Arc<Database> = {
+    pub static ref DB: Arc<Database> = {
         dotenv().ok();
         let db = tokio::runtime::Runtime::new()
             .unwrap()
@@ -123,7 +125,7 @@ lazy_static! {
             .unwrap();
         Arc::new(db)
     };
-    static ref CLIENT: Arc<ChainClient> = {
+    pub static ref CLIENT: Arc<ChainClient> = {
         dotenv().ok();
         let client = tokio::runtime::Runtime::new()
             .unwrap()
@@ -221,6 +223,9 @@ pub async fn run(
         .unwrap();
     ONBOARDING_REPLY_MSG
         .set(config.onboarding_reply_msg)
+        .unwrap();
+    RELAYER_EMAIL_ADDRESS
+        .set(config.smtp_config.id.clone())
         .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
