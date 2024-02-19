@@ -95,7 +95,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             let email_hash = calculate_default_hash(&email);
             emails_pool.insert_email(&email_hash, &email).await?;
             return Ok(EmailWalletEvent::AccountCreated {
-                user_email_addr: from_addr,
+                email_addr: from_addr,
                 account_key: account_key,
                 tx_hash: res,
             });

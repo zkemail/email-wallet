@@ -83,7 +83,7 @@ pub static RELAYER_EMAIL_ADDRESS: OnceLock<String> = OnceLock::new();
 #[derive(Debug, Clone)]
 pub enum EmailWalletEvent {
     AccountCreated {
-        user_email_addr: String,
+        email_addr: String,
         account_key: AccountKey,
         // is_faucet: bool,
         tx_hash: String,
@@ -112,6 +112,7 @@ pub enum EmailWalletEvent {
         tx_hash: String,
     },
     Error {
+        email_addr: String,
         error: String,
     },
 }
@@ -539,6 +540,8 @@ async fn email_handler_fn(
     info!(LOG, "Handled email {}", email; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     emails_pool.delete_email(&email_hash).await?;
+    let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
+    let email_addr = parsed_email.get_from_addr().unwrap();
     tokio::task::spawn(
         async move {
             let event = handle_email(
@@ -550,7 +553,8 @@ async fn email_handler_fn(
             )
             .map_err(|err: anyhow::Error| {
                 let error = err.to_string();
-                EmailWalletEvent::Error { error }
+                error!(LOG, "Error handling email: {}", error; "func" => function_name!());
+                EmailWalletEvent::Error { email_addr, error }
             })
             .await
             .unwrap();
@@ -630,7 +634,8 @@ async fn claimer_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Claiming unclaim for {:?}", claim.email_address; "func" => function_name!());
+    let email_addr = claim.email_address.clone();
+    info!(LOG, "Claiming unclaim for {:?}", email_addr.clone(); "func" => function_name!());
     tokio::task::spawn(async move {
         let event = claim_unclaims(
             claim,
@@ -639,7 +644,13 @@ async fn claimer_fn(
             // tx_creator_for_claimer_task.clone(),
             // tx_sender_for_claimer_task.clone(),
         )
-        .map_err(|err| error!(LOG, "Error claiming unclaim: {}", err; "func" => function_name!()))
+        .map_err(|err| {
+            error!(LOG, "Error claiming unclaim: {}", err.to_string(); "func" => function_name!());
+            EmailWalletEvent::Error {
+                email_addr,
+                error: err.to_string(),
+            }
+        })
         .await
         .unwrap();
         tx_event_consumer.send(event)?;
@@ -700,7 +711,8 @@ async fn catch_claims_in_db_fn(
     }
     let claims = db_clone.get_claims_expired(now).await?;
     for claim in claims {
-        info!(LOG, "Voiding claim for : {}", claim.email_address; "func" => function_name!());
+        let email_addr = claim.email_address.clone();
+        info!(LOG, "Voiding claim for : {}", email_addr.clone(); "func" => function_name!());
         let db_clone = Arc::clone(&db_clone);
         let client_clone = Arc::clone(&client_clone);
         let tx_event_consumer = tx_event_consumer.clone();
@@ -711,7 +723,13 @@ async fn catch_claims_in_db_fn(
                 Arc::clone(&client_clone),
                 // tx_sender_for_catcher_task.clone(),
             )
-            .map_err(|err| error!(LOG, "Error voider task: {}", err; "func" => function_name!()))
+            .map_err(|err| {
+                error!(LOG, "Error voider task: {}", err; "func" => function_name!());
+                EmailWalletEvent::Error {
+                    email_addr,
+                    error: err.to_string(),
+                }
+            })
             .await
             .unwrap();
             tx_event_consumer.send(event)?;

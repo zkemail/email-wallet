@@ -142,7 +142,7 @@ impl Database {
     //     Ok(())
     // }
 
-    pub(crate) async fn get_claims_by_id(&self, id: &U256) -> Result<Vec<Claim>> {
+    pub async fn get_claims_by_id(&self, id: &U256) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
         let rows = sqlx::query("SELECT * FROM claims WHERE id = $1 AND is_deleted = FALSE")
@@ -170,7 +170,7 @@ impl Database {
         Ok(vec)
     }
 
-    pub(crate) async fn get_claims_by_email_addr(&self, email_addr: &str) -> Result<Vec<Claim>> {
+    pub async fn get_claims_by_email_addr(&self, email_addr: &str) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
 
         let rows =
@@ -201,7 +201,7 @@ impl Database {
     }
 
     #[named]
-    pub(crate) async fn get_claims_unexpired(&self, now: i64) -> Result<Vec<Claim>> {
+    pub async fn get_claims_unexpired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
         info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
@@ -232,7 +232,7 @@ impl Database {
     }
 
     #[named]
-    pub(crate) async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
+    pub async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
         info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
@@ -299,7 +299,7 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn contains_user(&self, email_address: &str) -> Result<bool> {
+    pub async fn contains_user(&self, email_address: &str) -> Result<bool> {
         let result = sqlx::query("SELECT 1 FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_optional(&self.db)
@@ -308,7 +308,7 @@ impl Database {
         Ok(result.is_some())
     }
 
-    pub(crate) async fn is_user_onborded(&self, email_address: &str) -> Result<bool> {
+    pub async fn is_user_onborded(&self, email_address: &str) -> Result<bool> {
         let result = sqlx::query("SELECT is_onborded FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_one(&self.db)
@@ -316,7 +316,7 @@ impl Database {
         Ok(result.get("is_onborded"))
     }
 
-    pub(crate) async fn get_account_key(&self, email_address: &str) -> Result<Option<String>> {
+    pub async fn get_account_key(&self, email_address: &str) -> Result<Option<String>> {
         let row_result = sqlx::query("SELECT account_key FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_one(&self.db)
@@ -332,7 +332,7 @@ impl Database {
         }
     }
 
-    pub(crate) async fn get_creation_tx_hash(&self, email_address: &str) -> Result<Option<String>> {
+    pub async fn get_creation_tx_hash(&self, email_address: &str) -> Result<Option<String>> {
         let row_result = sqlx::query("SELECT tx_hash FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_one(&self.db)
