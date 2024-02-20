@@ -2,21 +2,16 @@
 #![allow(clippy::identity_op)]
 
 use crate::*;
-use chrono::{DateTime, Local};
+
 use email_wallet_utils::*;
-use ethers::abi::Token;
+
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
-use serde::Deserialize;
+
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
-use std::path::Path;
-use std::sync::atomic::Ordering;
-use tokio::{
-    fs::{read_to_string, remove_file, File},
-    io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
-};
+
+use tokio::sync::mpsc::UnboundedSender;
 
 const DOMAIN_FIELDS: usize = 9;
 const SUBJECT_FIELDS: usize = 17;
@@ -58,7 +53,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         {
             let input = generate_account_creation_input(
                 CIRCUITS_DIR_PATH.get().unwrap(),
-                &from_addr,
+                &email,
                 RELAYER_RAND.get().unwrap(),
             )
             .await?;
@@ -72,8 +67,11 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 proof: proof,
             };
             let data = AccountCreationInput {
-                wallet_salt: u256_to_bytes32(&pub_signals[3]),
-                psi_point: get_psi_point_bytes(pub_signals[4], pub_signals[5]),
+                wallet_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
+                psi_point: get_psi_point_bytes(
+                    pub_signals[DOMAIN_FIELDS + 4],
+                    pub_signals[DOMAIN_FIELDS + 5],
+                ),
                 proof: email_proof,
             };
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
@@ -92,8 +90,20 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             for claim in claims {
                 tx_claimer.send(claim)?;
             }
-            let email_hash = calculate_default_hash(&email);
-            emails_pool.insert_email(&email_hash, &email).await?;
+            // let email_hash = calculate_default_hash(&email);
+            // emails_pool.insert_email(&email_hash, &email).await?;
+            (*tx_sender)
+                .clone()
+                .send(EmailMessage {
+                    to: from_addr.clone(),
+                    email_args: EmailArgs::AccountCreation {
+                        user_email_addr: from_addr,
+                    },
+                    account_key: Some(field2hex(&account_key.0)),
+                    wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
+                    tx_hash: Some(res),
+                })
+                .unwrap();
             return Ok(());
         }
     }

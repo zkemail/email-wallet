@@ -423,6 +423,8 @@ pub(crate) async fn error_email_if_needed(
     let from_address = parsed_email.get_from_addr()?;
     let subject = parsed_email.get_subject_all()?;
 
+    error!(&LOG, "error: {}", error);
+
     let account_key = db
         .get_account_key(&from_address)
         .await?

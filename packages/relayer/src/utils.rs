@@ -5,17 +5,15 @@ use crate::*;
 use chrono::{DateTime, Local};
 use email_wallet_utils::*;
 use ethers::abi::Token;
-use ethers::types::{Address, Bytes, U256};
-use ethers::utils::hex::FromHex;
+use ethers::types::{Bytes, U256};
+
 use serde::Deserialize;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
+
 use std::path::Path;
-use std::sync::atomic::Ordering;
+
 use tokio::{
     fs::{read_to_string, remove_file, File},
     io::AsyncWriteExt,
-    sync::mpsc::UnboundedSender,
 };
 
 const DOMAIN_FIELDS: usize = 9;
@@ -148,7 +146,7 @@ pub(crate) async fn generate_account_creation_input(
     // let current_dir = std::env::current_dir()?;
 
     let command_str = format!(
-        "--cwd {} gen-account-init-input --email-file {} --relayer-rand {} --input-file {}",
+        "--cwd {} gen-account-creation-input --email-file {} --relayer-rand {} --input-file {}",
         circuits_dir_path.to_str().unwrap(),
         email_file_name.to_str().unwrap(),
         relayer_rand,
