@@ -539,10 +539,8 @@ async fn email_handler_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Handling email hash {}", email_hash; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     let email = emails_pool.get_email_by_hash(&email_hash).await?;
-    info!(LOG, "Handled email {}", email; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     emails_pool.delete_email(&email_hash).await?;
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;

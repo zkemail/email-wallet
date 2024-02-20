@@ -1,4 +1,5 @@
 use itertools::Itertools;
+
 // use cfdkim::*;
 // use mail_auth::common::verify::VerifySignature;
 // use mail_auth::trust_dns_resolver::proto::rr::dnssec::public_key;
@@ -12,7 +13,7 @@ use hex;
 use cfdkim::{canonicalize_signed_email, resolve_public_key};
 use neon::prelude::*;
 use rsa::traits::PublicKeyParts;
-use rsa::RsaPublicKey;
+
 use serde::{Deserialize, Serialize};
 use zk_regex_apis::extract_substrs::*;
 // use trust_dns_resolver::config::{ResolverConfig, ResolverOpts};

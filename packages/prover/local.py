@@ -6,8 +6,8 @@ import random
 import sys
 from core import (
     gen_account_creation_proof,
-    gen_account_init_proof,
-    gen_account_transport_proof,
+    # gen_account_init_proof,
+    # gen_account_transport_proof,
     gen_claim_proof,
     gen_email_sender_proof,
 )
