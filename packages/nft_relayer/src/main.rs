@@ -1,14 +1,21 @@
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{anyhow, Result};
 use email_wallet_utils::{
-    converters::hex2field,
+    converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
+use ethers::abi::{self, ParamType, Token};
+use ethers::types::{Address, Bytes, I256, U256};
 use handlebars::Handlebars;
 use relayer::*;
 use serde_json::Value;
-use slog::info;
+use slog::{error, info};
+use std::sync::{Arc, OnceLock};
 use std::{env, path::PathBuf, sync::atomic::Ordering};
 use tokio::fs::read_to_string;
+mod rest_api;
+use rest_api::*;
+
+pub static DEMO_NFT_ADDR: OnceLock<Address> = OnceLock::new();
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -16,14 +23,40 @@ async fn main() -> Result<()> {
     if args.len() == 2 && args[1] == "setup" {
         return setup().await;
     } else {
+        dotenv::dotenv().ok();
+        DEMO_NFT_ADDR
+            .set(
+                env::var("DEMO_NFT_ADDR")
+                    .map(|s| s.parse().unwrap())
+                    .unwrap(),
+            )
+            .unwrap();
         let (sender, rx) = EmailForwardSender::new();
+        let sender_for_event = sender.clone();
         let event_consumer_fn = move |event: EmailWalletEvent| {
             tokio::runtime::Runtime::new()
                 .unwrap()
-                .block_on(event_consumer_fn(event, sender.clone()))
+                .block_on(event_consumer_fn(event, sender_for_event.clone()))
         };
         let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
-        let routes = vec![];
+        let sender_for_api = sender.clone();
+        let nft_transfer_fn =
+            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+                info!(LOG, "NFT transfer payload: {}", payload);
+                match nft_transfer_api_fn(payload).await {
+                    Ok((request_id, email)) => {
+                        sender_for_api.send(email).unwrap();
+                        request_id.to_string()
+                    }
+                    Err(err) => {
+                        error!(relayer::LOG, "Failed to accept nft transfer: {}", err);
+                        err.to_string()
+                    }
+                }
+            });
+
+        let routes = vec![("/api/nftTransfer".to_string(), nft_transfer_fn)];
+
         run(RelayerConfig::new(), event_consumer, rx, routes).await?;
     }
     Ok(())
@@ -41,26 +74,26 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-            CLIENT
-                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-                .await?;
-            // Distribute onboarding tokens
-            let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
-            if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
-                if CLIENT
-                    .transfer_onboarding_tokens(wallet_addr)
-                    .await
-                    .is_err()
-                {
-                    ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
-                    // info!(LOG, "onboarding tokens transfer failed"; "func" => function_name!());
-                }
-                true
-            } else {
-                ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
-                // info!(LOG, "onboarding token limit reached"; "func" => function_name!());
-                false
-            };
+            // CLIENT
+            //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+            //     .await?;
+            // // Distribute onboarding tokens
+            // let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
+            // if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
+            //     if CLIENT
+            //         .transfer_onboarding_tokens(wallet_addr)
+            //         .await
+            //         .is_err()
+            //     {
+            //         ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+            //         // info!(LOG, "onboarding tokens transfer failed"; "func" => function_name!());
+            //     }
+            //     true
+            // } else {
+            //     ONBOARDING_COUNTER.fetch_sub(1, Ordering::SeqCst);
+            //     // info!(LOG, "onboarding token limit reached"; "func" => function_name!());
+            //     false
+            // };
             let body_plain = format!(
                             "Awesome, {}!\nYour Email Wallet account is now
                            created. PLEASE DO NOT DELETE THIS EMAIL to keep your account
@@ -121,31 +154,10 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
         EmailWalletEvent::AccountNotCreated {
             email_addr,
             account_key,
-            // claim,
             is_first,
-            tx_hash,
+            tx_hash: _,
         } => {
-            // let email_addr = &claim.email_address;
-            let subject = format!(
-                "Email Wallet Notification. Your Email Wallet account is ready to be deployed.",
-            );
-            let wallet_salt =
-                WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-            let body_plain = format!(
-                            "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.",
-                            email_addr, wallet_addr,
-                        );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr": wallet_addr, "transactionHash": tx_hash});
-            let body_html = render_html("account_not_created.html", render_data).await?;
-            let email = EmailMessage {
-                to: email_addr.to_string(),
-                subject,
-                body_plain,
-                body_html,
-                reference: None,
-                reply_to: None,
-            };
+            let email = generate_invitation_email(&email_addr, account_key, is_first).await?;
             sender.send(email)?;
         }
         EmailWalletEvent::Claimed {
@@ -241,6 +253,113 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
     Ok(())
 }
 
+pub(crate) async fn generate_invitation_email(
+    email_addr: &str,
+    account_key: AccountKey,
+    is_first: bool,
+) -> Result<EmailMessage> {
+    let wallet_salt = WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let claims = DB.get_claims_by_email_addr(email_addr).await?;
+    let mut is_for_nft_demo = false;
+    let mut assets_msgs = vec!["ERC20: 100 TEST".to_string()];
+    for claim in claims {
+        if claim.is_fund {
+            let unclaim_fund = CLIENT.query_unclaimed_fund(claim.id).await?;
+            let token_decimal = CLIENT
+                .query_decimals_of_erc20_address(unclaim_fund.token_addr)
+                .await?;
+            let amount =
+                uint_to_decimal_string(unclaim_fund.amount.as_u128(), token_decimal as usize);
+            let name = CLIENT.query_token_name(unclaim_fund.token_addr).await?;
+            assets_msgs.push(format!("ERC20: {} {}", amount, name));
+            continue;
+        }
+        let unclaimed_state = CLIENT.query_unclaimed_state(claim.id).await?;
+        if unclaimed_state.extension_addr
+            != CLIENT.query_default_extension_for_command("NFT").await?
+        {
+            continue;
+        }
+        let decoded = abi::decode(
+            &[ParamType::Address, ParamType::Uint(256)],
+            &unclaimed_state.state,
+        )?;
+        let nft_addr = decoded[0].clone().into_address().unwrap();
+        let nft_id = decoded[1].clone().into_uint().unwrap();
+        is_for_nft_demo = nft_addr == *DEMO_NFT_ADDR.get().unwrap();
+        let nft_name = CLIENT.query_nft_name_of_address(nft_addr).await?;
+        assets_msgs.push(format!("NFT: ID {} of {}", nft_id, nft_name));
+    }
+    let invitation_code_hex = &field2hex(&account_key.0)[2..];
+    let subject = if is_for_nft_demo {
+        format!(
+            "Email Wallet Notification. You can claim ETH Denver NFT. Code {}",
+            invitation_code_hex
+        )
+    } else {
+        format!(
+            "Email Wallet Notification. Your Email Wallet Account is ready to be deployed. Code {}",
+            invitation_code_hex
+        )
+    };
+    let mut assets_list_plain = String::new();
+    for asset_msg in assets_msgs.iter() {
+        assets_list_plain.push_str(&format!("{}\n", asset_msg));
+    }
+    let body_plain = if is_for_nft_demo {
+        format!(
+            "Hi {}!\nYou can claim ETH Denver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can recive the following assets!\n{}",
+            email_addr, wallet_addr, assets_list_plain,
+        )
+    } else {
+        format!(
+            "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can recive the following assets!\n{}",
+            email_addr, wallet_addr, assets_list_plain
+        )
+    };
+    let mut assets_list_html = String::new();
+    assets_list_html.push_str("<ul>\n");
+    for asset_msg in assets_msgs.iter() {
+        assets_list_html.push_str(&format!("<li>{}</li>\n", asset_msg));
+    }
+    assets_list_html.push_str("</ul>\n");
+    let body_html = if is_for_nft_demo {
+        render_html(
+            "invitation_nft.html",
+            serde_json::json!({
+                "userEmailAddr": email_addr,
+                "walletAddr": wallet_addr,
+                "assetsList": assets_list_html,
+            }),
+        )
+        .await?
+    } else {
+        render_html(
+            "invitation.html",
+            serde_json::json!({
+                "userEmailAddr": email_addr,
+                "walletAddr": wallet_addr,
+                "assetsList": assets_list_html,
+            }),
+        )
+        .await?
+    };
+    if is_first {
+        CLIENT
+            .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+            .await?;
+    }
+    Ok(EmailMessage {
+        to: email_addr.to_string(),
+        subject,
+        body_plain,
+        body_html,
+        reference: None,
+        reply_to: None,
+    })
+}
+
 pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
     let mut error = error;
     if error.contains("Contract call reverted with data: ") {
@@ -258,41 +377,8 @@ pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
     }
 
     match error.as_str() {
-        "Account is already created" => {
-            // let email = EmailMessage {
-            //     to: from_address.clone(),
-            //     email_args: EmailArgs::Error {
-            //         user_email_addr: from_address,
-            //         original_subject: Some(subject),
-            //         error_msg: "Account is already created".to_string(),
-            //     },
-            //     account_key: Some(field2hex(&account_key.0)),
-            //     wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-            //     tx_hash: None,
-            // };
-            Ok(Some(error))
-        }
-        "insufficient balance" => {
-            // let email = EmailMessage {
-            //     to: from_address.clone(),
-            //     email_args: EmailArgs::Error {
-            //         user_email_addr: from_address,
-            //         original_subject: Some(subject),
-            //         error_msg: "You don't have sufficient balance".to_string(),
-            //     },
-            //     account_key: Some(field2hex(&account_key.0)),
-            //     wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-            //     tx_hash: None,
-            // };
-            Ok(Some("You don't have sufficient balance".to_string()))
-        }
+        "Account is already created" => Ok(Some(error)),
+        "insufficient balance" => Ok(Some("You don't have sufficient balance".to_string())),
         _ => Ok(None),
     }
-    // match error_email {
-    //     Ok(email) => {
-    //         tx_sender.send(email).unwrap();
-    //         Ok(error)
-    //     }
-    //     Err(_) => Ok(error),
-    // }
 }

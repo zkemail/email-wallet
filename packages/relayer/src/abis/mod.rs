@@ -1,21 +1,23 @@
 pub(crate) mod account_handler;
+pub(crate) mod ecdsa_owned_dkim_registry;
 pub(crate) mod email_wallet_core;
 pub(crate) mod erc20;
 pub(crate) mod events;
 pub(crate) mod extension_handler;
+pub(crate) mod nft_extension;
 pub(crate) mod relayer_handler;
 pub(crate) mod test_erc20;
 pub(crate) mod token_registry;
 pub(crate) mod unclaims_handler;
-pub(crate) mod ecdsa_owned_dkim_registry;
 
 pub(crate) use account_handler::*;
+pub(crate) use ecdsa_owned_dkim_registry::*;
 pub(crate) use email_wallet_core::*;
 pub(crate) use erc20::*;
 pub(crate) use events::*;
 pub(crate) use extension_handler::*;
+pub(crate) use nft_extension::NFTExtension;
 pub(crate) use relayer_handler::*;
 pub(crate) use test_erc20::*;
 pub(crate) use token_registry::*;
 pub(crate) use unclaims_handler::*;
-pub(crate) use ecdsa_owned_dkim_registry::*;

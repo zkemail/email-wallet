@@ -29,6 +29,7 @@ pub(crate) use abis::*;
 pub use axum::routing::MethodRouter;
 // pub(crate) use account_creator::*;
 pub(crate) use chain::*;
+pub use claimer::Claim;
 pub(crate) use claimer::*;
 pub use config::*;
 pub(crate) use database::*;
@@ -36,6 +37,7 @@ pub(crate) use dkim_oracle::*;
 pub(crate) use emails_pool::*;
 use futures::TryFutureExt;
 pub(crate) use imap_client::*;
+pub use logger::LOG;
 pub(crate) use logger::*;
 pub(crate) use psi::*;
 use rand::rngs::OsRng;
@@ -44,6 +46,7 @@ pub use smtp_client::{render_html, EmailMessage};
 pub(crate) use strings::*;
 pub(crate) use subgraph::*;
 pub(crate) use subject_templates::*;
+pub use subject_templates::*;
 pub(crate) use utils::*;
 pub(crate) use voider::*;
 pub(crate) use web_server::*;
@@ -97,9 +100,11 @@ pub enum EmailWalletEvent {
         email_op: EmailOp,
         tx_hash: String,
     },
-    PsiRegistered {
+    AccountNotCreated {
         email_addr: String,
         account_key: AccountKey,
+        // claim: Claim,
+        is_first: bool,
         tx_hash: String,
     },
     Claimed {

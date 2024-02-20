@@ -41,14 +41,15 @@ type SignerM = SignerMiddleware<Provider<Http>, LocalWallet>;
 #[derive(Debug, Clone)]
 pub struct ChainClient {
     pub client: Arc<SignerM>,
-    pub(crate) core: EmailWalletCore<SignerM>,
-    pub(crate) token_registry: TokenRegistry<SignerM>,
-    pub(crate) account_handler: AccountHandler<SignerM>,
-    pub(crate) extension_handler: ExtensionHandler<SignerM>,
-    pub(crate) relayer_handler: RelayerHandler<SignerM>,
-    pub(crate) unclaims_handler: UnclaimsHandler<SignerM>,
-    pub(crate) ecdsa_owned_dkim_registry: ECDSAOwnedDKIMRegistry<SignerM>,
-    pub(crate) test_erc20: TestERC20<SignerM>,
+    pub core: EmailWalletCore<SignerM>,
+    pub token_registry: TokenRegistry<SignerM>,
+    pub account_handler: AccountHandler<SignerM>,
+    pub extension_handler: ExtensionHandler<SignerM>,
+    pub relayer_handler: RelayerHandler<SignerM>,
+    pub unclaims_handler: UnclaimsHandler<SignerM>,
+    pub ecdsa_owned_dkim_registry: ECDSAOwnedDKIMRegistry<SignerM>,
+    pub test_erc20: TestERC20<SignerM>,
+    pub nft_extension: NFTExtension<SignerM>,
 }
 
 impl ChainClient {
@@ -81,6 +82,13 @@ impl ChainClient {
             token_registry.get_token_address("TEST".to_string()).await?,
             client.clone(),
         );
+        let nft_extension = NFTExtension::new(
+            extension_handler
+                .default_extension_of_command("NFT".to_string())
+                .call()
+                .await?,
+            client.clone(),
+        );
         Ok(Self {
             client,
             core,
@@ -91,6 +99,7 @@ impl ChainClient {
             unclaims_handler,
             ecdsa_owned_dkim_registry,
             test_erc20,
+            nft_extension,
         })
     }
 
@@ -389,6 +398,15 @@ impl ChainClient {
         Ok(name)
     }
 
+    pub async fn query_default_extension_for_command(&self, command: &str) -> Result<Address> {
+        let extension_addr = self
+            .extension_handler
+            .default_extension_of_command(command.to_string())
+            .call()
+            .await?;
+        Ok(extension_addr)
+    }
+
     pub async fn query_user_extension_for_command(
         &self,
         wallet_salt: &WalletSalt,
@@ -473,6 +491,15 @@ impl ChainClient {
         Err(anyhow!(
             "the transaction registers neither an unclaim fund nor state"
         ))
+    }
+
+    pub async fn query_nft_name_of_address(&self, nft_addr: Address) -> Result<String> {
+        let name = self
+            .nft_extension
+            .name_of_nft_address(nft_addr)
+            .call()
+            .await?;
+        Ok(name)
     }
 
     pub async fn validate_email_op(&self, email_op: EmailOp) -> Result<()> {

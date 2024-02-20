@@ -85,9 +85,11 @@ pub(crate) async fn claim_unclaims(
         //         tx_hash: Some(res),
         //     })
         //     .unwrap();
-        return Ok(EmailWalletEvent::PsiRegistered {
+        return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,
             account_key,
+            is_first: true,
+            // claim: claim.clone(),
             tx_hash,
         });
     }
@@ -102,7 +104,13 @@ pub(crate) async fn claim_unclaims(
         .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
         .await?
     {
-        return Err(anyhow!("Account not created"));
+        return Ok(EmailWalletEvent::AccountNotCreated {
+            email_addr: claim.email_address,
+            account_key: AccountKey(hex2field(&account_key_str)?),
+            is_first: false,
+            tx_hash: "".to_string(),
+        });
+        // return Err(anyhow!("Account not created"));
     }
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
