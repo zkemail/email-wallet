@@ -60,7 +60,7 @@ impl ProofJson {
 pub(crate) async fn generate_email_sender_input(
     circuits_dir_path: &Path,
     email: &str,
-    relayer_rand: &str,
+    account_key: &str,
 ) -> Result<String> {
     let email_hash = calculate_default_hash(email);
     let email_file_name = PathBuf::new()
@@ -74,10 +74,10 @@ pub(crate) async fn generate_email_sender_input(
     email_file.write_all(email.as_bytes()).await?;
 
     let command_str = format!(
-        "--cwd {} gen-email-sender-input --email-file {} --relayer-rand {} --input-file {}",
+        "--cwd {} gen-email-sender-input --email-file {} --account-key {} --input-file {}",
         circuits_dir_path.to_str().unwrap(),
         email_file_name.to_str().unwrap(),
-        relayer_rand,
+        account_key,
         input_file_name.to_str().unwrap()
     );
 

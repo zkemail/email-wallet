@@ -106,8 +106,6 @@ contract Deploy is Script {
             );
             ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), data);
             tokenRegistry = TokenRegistry(payable(address(proxy)));
-            tokenRegistry.setChainId(chainName, chainId);
-            tokenRegistry.setTokenAddress(chainId, tokenName, address(testToken));
        }
 
         verifierImpl = new AllVerifiers();
@@ -166,7 +164,9 @@ contract Deploy is Script {
 
         oracle = new UniswapTWAPOracle(uniswapFactory, weth);
 
-        testToken = new TestERC20("EmailWalletV1Test", "EWV1TEST", maxAmount);
+        testToken = new TestERC20("EmailWalletV1Test", "TEST", maxAmount);
+        tokenRegistry.setChainId(chainName, chainId);
+        tokenRegistry.setTokenAddress(chainId, tokenName, address(testToken));
 
         {
             coreImpl = new EmailWalletCore();

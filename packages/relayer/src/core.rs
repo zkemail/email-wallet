@@ -285,12 +285,9 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         }
     };
     trace!(LOG, "parameter constructed"; "func" => function_name!());
-    let input = generate_email_sender_input(
-        CIRCUITS_DIR_PATH.get().unwrap(),
-        &email,
-        RELAYER_RAND.get().unwrap(),
-    )
-    .await?;
+    let input =
+        generate_email_sender_input(CIRCUITS_DIR_PATH.get().unwrap(), &email, &account_key_str)
+            .await?;
     trace!(LOG, "input generated"; "func" => function_name!());
     let (email_proof, pub_signals) =
         generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
