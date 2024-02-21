@@ -3096,6 +3096,7 @@ dependencies = [
  "async-native-tls",
  "async-trait",
  "axum",
+ "base64 0.21.7",
  "candid",
  "chrono",
  "dotenv",

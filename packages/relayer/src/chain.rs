@@ -502,6 +502,26 @@ impl ChainClient {
         Ok(name)
     }
 
+    pub async fn query_erc721_owner_of_token(
+        &self,
+        nft_addr: Address,
+        token_id: U256,
+    ) -> Result<Address> {
+        let erc721 = ERC721::new(nft_addr, self.client.clone());
+        let owner = erc721.owner_of(token_id).call().await?;
+        Ok(owner)
+    }
+
+    pub async fn query_erc721_token_uri_of_token(
+        &self,
+        nft_addr: Address,
+        token_id: U256,
+    ) -> Result<String> {
+        let erc721 = ERC721::new(nft_addr, self.client.clone());
+        let uri = erc721.token_uri(token_id).call().await?;
+        Ok(uri)
+    }
+
     pub async fn validate_email_op(&self, email_op: EmailOp) -> Result<()> {
         let call = self.core.validate_email_op(email_op);
         call.call().await?;

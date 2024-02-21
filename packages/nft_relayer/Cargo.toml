@@ -53,6 +53,7 @@ slog-json = "2.6.1"
 file-rotate = "0.7.5"
 function_name = "0.3.0"
 relayer = { path = "../relayer" }
+base64 = "0.21.7"
 # wasm-bindgen = { version = "0.2.90", default-features = false }
 
 # wasm-bindgen = { git = "https://github.com/rustwasm/wasm-bindgen.git", tag = "0.2.88", default-features = false }

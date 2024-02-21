@@ -14,6 +14,8 @@ use std::{env, path::PathBuf, sync::atomic::Ordering};
 use tokio::fs::read_to_string;
 mod rest_api;
 use rest_api::*;
+mod utils;
+use utils::*;
 
 pub static DEMO_NFT_ADDR: OnceLock<Address> = OnceLock::new();
 
@@ -260,36 +262,20 @@ pub(crate) async fn generate_invitation_email(
 ) -> Result<EmailMessage> {
     let wallet_salt = WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-    let claims = DB.get_claims_by_email_addr(email_addr).await?;
     let mut is_for_nft_demo = false;
-    let mut assets_msgs = vec!["ERC20: 100 TEST".to_string()];
-    for claim in claims {
-        if claim.is_fund {
-            let unclaim_fund = CLIENT.query_unclaimed_fund(claim.id).await?;
-            let token_decimal = CLIENT
-                .query_decimals_of_erc20_address(unclaim_fund.token_addr)
-                .await?;
-            let amount =
-                uint_to_decimal_string(unclaim_fund.amount.as_u128(), token_decimal as usize);
-            let name = CLIENT.query_token_name(unclaim_fund.token_addr).await?;
-            assets_msgs.push(format!("ERC20: {} {}", amount, name));
-            continue;
-        }
-        let unclaimed_state = CLIENT.query_unclaimed_state(claim.id).await?;
-        if unclaimed_state.extension_addr
-            != CLIENT.query_default_extension_for_command("NFT").await?
+    let assets_msgs = vec!["ERC20: 100 TEST".to_string()];
+    // let mut images = vec![];
+    let assets = search_user_assets(email_addr).await?;
+    for asset in assets.iter() {
+        if let Asset::ERC721 {
+            token_addr,
+            token_name: _,
+            token_id: _,
+            token_uri: _,
+        } = asset
         {
-            continue;
+            is_for_nft_demo = token_addr == DEMO_NFT_ADDR.get().unwrap();
         }
-        let decoded = abi::decode(
-            &[ParamType::Address, ParamType::Uint(256)],
-            &unclaimed_state.state,
-        )?;
-        let nft_addr = decoded[0].clone().into_address().unwrap();
-        let nft_id = decoded[1].clone().into_uint().unwrap();
-        is_for_nft_demo = nft_addr == *DEMO_NFT_ADDR.get().unwrap();
-        let nft_name = CLIENT.query_nft_name_of_address(nft_addr).await?;
-        assets_msgs.push(format!("NFT: ID {} of {}", nft_id, nft_name));
     }
     let invitation_code_hex = &field2hex(&account_key.0)[2..];
     let subject = if is_for_nft_demo {
@@ -303,10 +289,8 @@ pub(crate) async fn generate_invitation_email(
             invitation_code_hex
         )
     };
-    let mut assets_list_plain = String::new();
-    for asset_msg in assets_msgs.iter() {
-        assets_list_plain.push_str(&format!("{}\n", asset_msg));
-    }
+    let (assets_list_plain, assets_list_html) =
+        generate_asset_list_body(&assets, assets_msgs).await?;
     let body_plain = if is_for_nft_demo {
         format!(
             "Hi {}!\nYou can claim ETH Denver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can recive the following assets!\n{}",
@@ -318,12 +302,6 @@ pub(crate) async fn generate_invitation_email(
             email_addr, wallet_addr, assets_list_plain
         )
     };
-    let mut assets_list_html = String::new();
-    assets_list_html.push_str("<ul>\n");
-    for asset_msg in assets_msgs.iter() {
-        assets_list_html.push_str(&format!("<li>{}</li>\n", asset_msg));
-    }
-    assets_list_html.push_str("</ul>\n");
     let body_html = if is_for_nft_demo {
         render_html(
             "invitation_nft.html",
