@@ -235,6 +235,70 @@ impl ChainClient {
         }
     }
 
+    pub async fn register_unclaimed_fund(
+        &self,
+        email_addr_commit: Fr,
+        token_addr: Address,
+        amount: U256,
+        expiry_time: U256,
+        announce_commit_randomness: Option<U256>,
+        announce_email_addr: Option<String>,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let call = self.unclaims_handler.register_unclaimed_fund(
+            fr_to_bytes32(&email_addr_commit)?,
+            token_addr,
+            amount,
+            expiry_time,
+            announce_commit_randomness.unwrap_or(U256::zero()),
+            announce_email_addr.unwrap_or(String::new()),
+        );
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
+    pub async fn register_unclaimed_state(
+        &self,
+        email_addr_commit: Fr,
+        extension_addr: Address,
+        state: Bytes,
+        expiry_time: U256,
+        announce_commit_randomness: Option<U256>,
+        announce_email_addr: Option<String>,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let call = self.unclaims_handler.register_unclaimed_state(
+            fr_to_bytes32(&email_addr_commit)?,
+            extension_addr,
+            state,
+            expiry_time,
+            announce_commit_randomness.unwrap_or(U256::zero()),
+            announce_email_addr.unwrap_or(String::new()),
+        );
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
     #[named]
     pub async fn handle_email_op(&self, email_op: EmailOp) -> Result<(String, U256)> {
         // Mutex is used to prevent nonce conflicts.

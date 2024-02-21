@@ -360,3 +360,66 @@ pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
         _ => Ok(None),
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use chrono::{Duration, Utc};
+    use email_wallet_utils::*;
+    use ethers::{
+        abi::Token,
+        types::{Bytes, U256},
+    };
+    use ff::Field;
+    use rand::rngs::OsRng;
+    use std::str::FromStr;
+    use tokio;
+
+    #[tokio::test]
+    async fn test_nft_transfer() {
+        let email_addr = "suegamisora@gmail.com";
+        let token_name = "APE";
+        let token_addr = Address::from_str("0x1234567890123456789012345678901234567890").unwrap();
+        let token_id = U256::from(1);
+        let recipient_addr = "alice@gmail.com";
+        let relayer_url = "http://localhost:3000";
+
+        let padded_recipient_addr = PaddedEmailAddr::from_email_addr(recipient_addr);
+        let rand = Fr::random(OsRng);
+        let email_addr_commit = padded_recipient_addr.to_commitment(&rand).unwrap();
+        let extension_addr = CLIENT
+            .query_default_extension_for_command("NFT")
+            .await
+            .unwrap();
+        let state = abi::encode(&[Token::Address(token_addr)]);
+        let now = Utc::now();
+        let one_day_later = now + Duration::days(1);
+        let timestamp = one_day_later.timestamp();
+        let tx_hash = CLIENT
+            .register_unclaimed_state(
+                email_addr_commit,
+                extension_addr,
+                Bytes::from_iter(state),
+                U256::from(timestamp),
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        let request = NFTTransferRequest {
+            email_addr: email_addr.to_string(),
+            nft_id: token_id.as_u64(),
+            nft_addr: token_addr.to_string(),
+            recipient_addr: recipient_addr.to_string(),
+            is_recipient_email: true,
+        };
+        let payload = serde_json::to_string(&request).unwrap();
+        // call api
+        reqwest::Client::new()
+            .post(format!("{}/api/nftTransfer", relayer_url))
+            .body(payload)
+            .send()
+            .await
+            .unwrap();
+    }
+}

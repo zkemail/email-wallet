@@ -4,21 +4,21 @@ use email_wallet_utils::{
     converters::hex2field,
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-use ethers::types::{Address};
+use ethers::types::Address;
 
 use rand::Rng;
 use relayer::CLIENT;
 use relayer::*;
-use serde::{Deserialize};
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct NFTTransferRequest {
-    email_addr: String,
-    nft_id: u64,
-    nft_addr: String,
-    recipient_addr: String,
-    is_recipient_email: bool,
+    pub email_addr: String,
+    pub nft_id: u64,
+    pub nft_addr: String,
+    pub recipient_addr: String,
+    pub is_recipient_email: bool,
 }
 
 pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
