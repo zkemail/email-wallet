@@ -4,7 +4,7 @@ use crate::*;
 
 use ethers::types::Address;
 use ethers::utils::format_units;
-use tokio::sync::mpsc::UnboundedSender;
+
 
 #[derive(Debug, Clone)]
 pub struct Claim {
