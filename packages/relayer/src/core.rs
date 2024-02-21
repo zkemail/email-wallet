@@ -90,8 +90,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             for claim in claims {
                 tx_claimer.send(claim)?;
             }
-            // let email_hash = calculate_default_hash(&email);
-            // emails_pool.insert_email(&email_hash, &email).await?;
+            let email_hash = calculate_default_hash(&email);
+            emails_pool.insert_email(&email_hash, &email).await?;
             (*tx_sender)
                 .clone()
                 .send(EmailMessage {
