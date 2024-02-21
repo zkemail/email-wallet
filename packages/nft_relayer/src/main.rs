@@ -3,15 +3,15 @@ use email_wallet_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-use ethers::abi::{self, ParamType, Token};
-use ethers::types::{Address, Bytes, I256, U256};
-use handlebars::Handlebars;
+use ethers::abi::{self, ParamType};
+use ethers::types::Address;
+
 use relayer::*;
-use serde_json::Value;
+
 use slog::{error, info};
-use std::sync::{Arc, OnceLock};
-use std::{env, path::PathBuf, sync::atomic::Ordering};
-use tokio::fs::read_to_string;
+use std::env;
+use std::sync::OnceLock;
+
 mod rest_api;
 use rest_api::*;
 
@@ -121,10 +121,10 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
         EmailWalletEvent::EmailHandled {
             sender_email_addr,
             account_key,
-            recipient_email_addr,
+            recipient_email_addr: _,
             original_subject,
             message_id,
-            email_op,
+            email_op: _,
             tx_hash,
         } => {
             let subject =

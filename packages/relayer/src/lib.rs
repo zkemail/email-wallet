@@ -38,7 +38,7 @@ pub(crate) use emails_pool::*;
 use futures::TryFutureExt;
 pub(crate) use imap_client::*;
 pub use logger::LOG;
-pub(crate) use logger::*;
+
 pub(crate) use psi::*;
 use rand::rngs::OsRng;
 pub(crate) use smtp_client::*;
@@ -56,11 +56,11 @@ use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
 use lazy_static::lazy_static;
-use slog::{debug, error, info, trace};
-use std::env;
+use slog::{error, info, trace};
 use std::path::PathBuf;
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
+use std::{env, thread};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::time::{sleep, Duration};
 
@@ -125,18 +125,22 @@ pub enum EmailWalletEvent {
 lazy_static! {
     pub static ref DB: Arc<Database> = {
         dotenv().ok();
-        let db = tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(Database::open(&env::var(DATABASE_PATH_KEY).unwrap()))
-            .unwrap();
+        let db = tokio::task::block_in_place(|| {
+            tokio::runtime::Runtime::new()
+                .unwrap()
+                .block_on(Database::open(&env::var(DATABASE_PATH_KEY).unwrap()))
+        })
+        .unwrap();
         Arc::new(db)
     };
     pub static ref CLIENT: Arc<ChainClient> = {
         dotenv().ok();
-        let client = tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(ChainClient::setup())
-            .unwrap();
+        let client = tokio::task::block_in_place(|| {
+            tokio::runtime::Runtime::new()
+                .unwrap()
+                .block_on(ChainClient::setup())
+        })
+        .unwrap();
         Arc::new(client)
     };
 }

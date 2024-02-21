@@ -1,15 +1,15 @@
 use anyhow::{anyhow, Result};
-use axum::{routing::MethodRouter, Router};
+
 use email_wallet_utils::{
     converters::hex2field,
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-use ethers::types::{spoof::Account, Address};
-use rand::rngs::OsRng;
+use ethers::types::{Address};
+
 use rand::Rng;
 use relayer::CLIENT;
 use relayer::*;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
 use std::str::FromStr;
 
 #[derive(Deserialize)]
@@ -27,7 +27,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
     let nft_addr = Address::from_str(&request.nft_addr)?;
     let nft_name = CLIENT.query_nft_name_of_address(nft_addr).await?;
-    let mut subject = format!(
+    let subject = format!(
         "NFT Send {} of {} to {}",
         request.nft_id, nft_name, request.recipient_addr
     );
