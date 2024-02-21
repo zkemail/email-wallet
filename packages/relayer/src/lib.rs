@@ -58,10 +58,10 @@ use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr
 use ethers::prelude::*;
 use lazy_static::lazy_static;
 use slog::{error, info, trace};
+use std::env;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
-use std::{env, thread};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::time::{sleep, Duration};
 
@@ -388,8 +388,9 @@ pub async fn run(
     let tx_claimer_for_listener_task = tx_claimer.clone();
     let client_clone = Arc::clone(&client);
     let event_listener_task = tokio::task::spawn(async move {
-        let mut from_block_fund = U64::from(0);
-        let mut from_block_state = U64::from(0);
+        // Get latest block
+        let mut from_block_fund = client_clone.get_latest_block_number().await;
+        let mut from_block_state = client_clone.get_latest_block_number().await;
         let fund_f = |event: email_wallet_events::UnclaimedFundRegisteredFilter, meta: LogMeta| {
             if event.email_addr.is_empty() {
                 return Ok(());

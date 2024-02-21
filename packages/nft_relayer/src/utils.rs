@@ -1,21 +1,18 @@
 use anyhow::{anyhow, Result};
-use axum::{routing::MethodRouter, Router};
+
 use base64::prelude::*;
-use email_wallet_utils::{
-    converters::hex2field,
-    cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
-};
+
 use ethers::{
     abi::{self, ParamType},
-    types::{spoof::Account, Address, U256},
+    types::{Address, U256},
 };
-use rand::rngs::OsRng;
-use rand::Rng;
+
+
 use relayer::CLIENT;
 use relayer::*;
 use reqwest;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+
+
 
 pub enum Asset {
     ERC20 {
@@ -34,7 +31,7 @@ pub enum Asset {
 
 pub async fn search_user_assets(email_addr: &str) -> Result<Vec<Asset>> {
     let claims = DB.get_claims_by_email_addr(email_addr).await?;
-    let mut is_for_nft_demo = false;
+    let _is_for_nft_demo = false;
     let mut assets = vec![];
     for claim in claims {
         if claim.is_fund {
@@ -93,16 +90,16 @@ pub async fn generate_asset_list_body(
     for asset in assets {
         match asset {
             Asset::ERC20 {
-                token_addr,
+                token_addr: _,
                 token_name,
-                amount,
+                amount: _,
                 amount_str,
             } => {
                 assets_msgs.push(format!("ERC20: {} {}", amount_str, token_name));
                 images.push(None);
             }
             Asset::ERC721 {
-                token_addr,
+                token_addr: _,
                 token_name,
                 token_id,
                 token_uri,

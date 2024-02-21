@@ -703,4 +703,8 @@ impl ChainClient {
         );
         Ok(is_valid)
     }
+
+    pub async fn get_latest_block_number(&self) -> U64 {
+        self.client.get_block_number().await.unwrap()
+    }
 }

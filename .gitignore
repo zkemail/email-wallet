@@ -27,6 +27,19 @@ packages/contracts/test/build_integration/*.zkey
 packages/contracts/test/build_integration/*.wasm
 packages/contracts/test/build_integration/*.txt
 
+# NFT Relayer
+packages/nft_relayer/sendgrid.env
+target
+packages/nft_relayer/db/*
+packages/nft_relayer/*.db
+packages/nft_relayer/received_eml/*.eml
+packages/nft_relayer/received_eml/*.json
+packages/nft_relayer/proofs
+packages/nft_relayer/logs
+sql_database.db
+.sqlx
+.ic.pem
+
 # Relayer
 packages/relayer/sendgrid.env
 target

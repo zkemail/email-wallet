@@ -3,7 +3,7 @@ use email_wallet_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-use ethers::abi::{self, ParamType};
+
 use ethers::types::Address;
 
 use relayer::*;

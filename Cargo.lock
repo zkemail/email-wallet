@@ -3089,49 +3089,23 @@ checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
 
 [[package]]
 name = "nft_relayer"
-version = "0.1.0"
+version = "1.1.0"
 dependencies = [
  "anyhow",
- "async-imap",
- "async-native-tls",
- "async-trait",
  "axum",
  "base64 0.21.7",
- "candid",
- "chrono",
  "dotenv",
  "email-wallet-utils",
  "ethers",
- "ff 0.13.0",
- "file-rotate",
- "function_name",
- "futures",
- "graphql_client",
- "handlebars",
  "hex",
- "ic-agent",
- "ic-utils",
- "lazy_static",
- "lettre",
- "num-bigint",
- "num-traits",
- "oauth2",
  "rand",
- "regex",
  "relayer",
  "reqwest",
  "serde",
  "serde_json",
  "sled",
  "slog",
- "slog-async",
- "slog-json",
- "slog-term",
- "sqlx",
- "tiny_http",
  "tokio",
- "tower-http",
- "webbrowser",
 ]
 
 [[package]]
