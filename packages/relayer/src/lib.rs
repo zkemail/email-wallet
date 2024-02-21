@@ -50,6 +50,7 @@ pub use subject_templates::*;
 pub(crate) use utils::*;
 pub(crate) use voider::*;
 pub(crate) use web_server::*;
+pub use web_server::*;
 
 use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;

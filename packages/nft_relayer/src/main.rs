@@ -367,7 +367,7 @@ mod test {
     use chrono::{Duration, Utc};
     use email_wallet_utils::*;
     use ethers::{
-        abi::Token,
+        abi::{Token, Uint},
         types::{Bytes, U256},
     };
     use ff::Field;
@@ -376,9 +376,9 @@ mod test {
     use tokio;
 
     #[tokio::test]
-    async fn test_nft_transfer() {
+    async fn test_nft_mint() {
         let email_addr = "suegamisora@gmail.com";
-        let token_name = "APE";
+        // let token_name = "APE";
         let token_addr = Address::from_str("0x1234567890123456789012345678901234567890").unwrap();
         let token_id = U256::from(1);
         let recipient_addr = "alice@gmail.com";
@@ -386,12 +386,13 @@ mod test {
 
         let padded_recipient_addr = PaddedEmailAddr::from_email_addr(recipient_addr);
         let rand = Fr::random(OsRng);
+        println!("rand {}", field2hex(&rand));
         let email_addr_commit = padded_recipient_addr.to_commitment(&rand).unwrap();
         let extension_addr = CLIENT
             .query_default_extension_for_command("NFT")
             .await
             .unwrap();
-        let state = abi::encode(&[Token::Address(token_addr)]);
+        let state = abi::encode(&[Token::Address(token_addr), Token::Uint(token_id)]);
         let now = Utc::now();
         let one_day_later = now + Duration::days(1);
         let timestamp = one_day_later.timestamp();
@@ -406,20 +407,33 @@ mod test {
             )
             .await
             .unwrap();
-        let request = NFTTransferRequest {
-            email_addr: email_addr.to_string(),
-            nft_id: token_id.as_u64(),
-            nft_addr: token_addr.to_string(),
-            recipient_addr: recipient_addr.to_string(),
-            is_recipient_email: true,
+        let request = UnclaimRequest {
+            email_address: email_addr.to_string(),
+            random: field2hex(&rand),
+            expiry_time: timestamp,
+            is_fund: false,
+            tx_hash: tx_hash.to_string(),
         };
         let payload = serde_json::to_string(&request).unwrap();
-        // call api
         reqwest::Client::new()
-            .post(format!("{}/api/nftTransfer", relayer_url))
+            .post(format!("{}/api/unclaim", relayer_url))
             .body(payload)
             .send()
             .await
             .unwrap();
+        // let request = NFTTransferRequest {
+        //     email_addr: email_addr.to_string(),
+        //     nft_id: token_id.as_u64(),
+        //     nft_addr: token_addr.to_string(),
+        //     recipient_addr: recipient_addr.to_string(),
+        //     is_recipient_email: true,
+        // };
+        // let payload = serde_json::to_string(&request).unwrap();
+        // reqwest::Client::new()
+        //     .post(format!("{}/api/nftTransfer", relayer_url))
+        //     .body(payload)
+        //     .send()
+        //     .await
+        //     .unwrap();
     }
 }

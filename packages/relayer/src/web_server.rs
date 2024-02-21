@@ -7,38 +7,38 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
-#[derive(Deserialize)]
-struct EmailAddrCommitRequest {
-    email_address: String,
-    random: String,
+#[derive(Serialize, Deserialize)]
+pub struct EmailAddrCommitRequest {
+    pub email_address: String,
+    pub random: String,
 }
 
-#[derive(Deserialize)]
-struct UnclaimRequest {
-    email_address: String,
-    random: String,
-    expiry_time: i64,
-    is_fund: bool,
-    tx_hash: String,
+#[derive(Serialize, Deserialize)]
+pub struct UnclaimRequest {
+    pub email_address: String,
+    pub random: String,
+    pub expiry_time: i64,
+    pub is_fund: bool,
+    pub tx_hash: String,
 }
 
-#[derive(Deserialize)]
-struct AccountRegistrationRequest {
-    email_address: String,
-    account_key: String,
+#[derive(Serialize, Deserialize)]
+pub struct AccountRegistrationRequest {
+    pub email_address: String,
+    pub account_key: String,
 }
 
-#[derive(Serialize)]
-struct AccountRegistrationResponse {
-    account_key: String,
-    wallet_addr: String,
-    tx_hash: String,
+#[derive(Serialize, Deserialize)]
+pub struct AccountRegistrationResponse {
+    pub account_key: String,
+    pub wallet_addr: String,
+    pub tx_hash: String,
 }
 
-#[derive(Serialize)]
-struct StatResponse {
-    onboarding_tokens_distributed: u32,
-    onboarding_tokens_left: u32,
+#[derive(Serialize, Deserialize)]
+pub struct StatResponse {
+    pub onboarding_tokens_distributed: u32,
+    pub onboarding_tokens_left: u32,
 }
 
 #[named]
