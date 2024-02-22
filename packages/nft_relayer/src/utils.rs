@@ -7,12 +7,10 @@ use ethers::{
     types::{Address, U256},
 };
 
-
 use relayer::CLIENT;
 use relayer::*;
 use reqwest;
-
-
+use slog::info;
 
 pub enum Asset {
     ERC20 {
@@ -105,6 +103,7 @@ pub async fn generate_asset_list_body(
                 token_uri,
             } => {
                 let img = download_img_from_uri(&token_uri).await?;
+                info!(LOG, "img bytes {:?}", img);
                 images.push(Some(img));
                 assets_msgs.push(format!("NFT: ID {} of {}", token_id, token_name));
             }

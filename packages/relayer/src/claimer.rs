@@ -174,7 +174,7 @@ pub(crate) async fn claim_unclaims(
         generate_proof(&input, "claim", PROVER_ADDRESS.get().unwrap()).await?;
     info!(LOG, "original commit {}", claim.commit; "func" => function_name!());
     info!(LOG, "original randomness {}", claim.random; "func" => function_name!());
-    info!(LOG, "commit in pub signals: {}", pub_signals[2]; "func" => function_name!());
+    info!(LOG, "commit in pub signals: {}", pub_signals[0]; "func" => function_name!());
     let data = ClaimInput {
         id: claim.id,
         recipient_wallet_salt: u256_to_bytes32(&pub_signals[1]),

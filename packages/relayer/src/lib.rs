@@ -565,49 +565,64 @@ async fn email_handler_fn(
     emails_pool.delete_email(&email_hash).await?;
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     let email_addr = parsed_email.get_from_addr().unwrap();
-    tokio::task::spawn(
-        async move {
-            let event = handle_email(
-                email.clone(),
-                Arc::clone(&db_clone),
-                Arc::clone(&client_clone),
-                emails_pool,
-                tx_claimer,
-            )
-            .map_err(|err: anyhow::Error| {
-                let error = err.to_string();
-                error!(LOG, "Error handling email: {}", error; "func" => function_name!());
-                EmailWalletEvent::Error { email_addr, error }
-            })
-            .await
-            .unwrap();
-            tx_event_consumer.send(event)?;
-            Ok::<(), anyhow::Error>(())
-        }, // let event = handle_email(
-           //     email.clone(),
-           //     Arc::clone(&db_clone),
-           //     Arc::clone(&client_clone),
-           //     emails_pool,
-           //     // Arc::clone(&tx_sender_for_email_task),
-           //     tx_claimer_for_email_task.clone(),
-           //     // tx_creator_for_email_task.clone(),
-           // )
-           // .map_err(|err: anyhow::Error| {
-           //     let error = err.to_string();
-           //     // tokio::spawn(async move {
-           //     //     match error_email_if_needed(email, Arc::clone(&db_clone), Arc::clone(&client_clone), tx_sender_for_email_task.clone(), err.clone()).await {
-           //     //         Ok(err_cleaned) => {
-           //     //             error!(LOG, "Error handling email: {}", err_cleaned; "func" => function_name!());
-           //     //         }
-           //     //         Err(err_to_send) => {
-           //     //             error!(LOG, "Error sending error email: {}", err_to_send; "func" => function_name!());
-           //     //         }
-           //     //     }
-           //     // });
-           //     EmailWalletEvent::Error { error }
-           // }).await:
-    );
-
+    // tokio::task::spawn(
+    //     async move {
+    //         let event = handle_email(
+    //             email.clone(),
+    //             Arc::clone(&db_clone),
+    //             Arc::clone(&client_clone),
+    //             emails_pool,
+    //             tx_claimer,
+    //         )
+    //         .map_err(|err: anyhow::Error| {
+    //             let error = err.to_string();
+    //             error!(LOG, "Error handling email: {}", error; "func" => function_name!());
+    //             EmailWalletEvent::Error { email_addr, error }
+    //         })
+    //         .await
+    //         .unwrap();
+    //         tx_event_consumer.send(event)?;
+    //         Ok::<(), anyhow::Error>(())
+    //     },
+    // let event = handle_email(
+    //     email.clone(),
+    //     Arc::clone(&db_clone),
+    //     Arc::clone(&client_clone),
+    //     emails_pool,
+    //     // Arc::clone(&tx_sender_for_email_task),
+    //     tx_claimer_for_email_task.clone(),
+    //     // tx_creator_for_email_task.clone(),
+    // )
+    // .map_err(|err: anyhow::Error| {
+    //     let error = err.to_string();
+    //     // tokio::spawn(async move {
+    //     //     match error_email_if_needed(email, Arc::clone(&db_clone), Arc::clone(&client_clone), tx_sender_for_email_task.clone(), err.clone()).await {
+    //     //         Ok(err_cleaned) => {
+    //     //             error!(LOG, "Error handling email: {}", err_cleaned; "func" => function_name!());
+    //     //         }
+    //     //         Err(err_to_send) => {
+    //     //             error!(LOG, "Error sending error email: {}", err_to_send; "func" => function_name!());
+    //     //         }
+    //     //     }
+    //     // });
+    //     EmailWalletEvent::Error { error }
+    // }).await:
+    // );
+    let event = handle_email(
+        email.clone(),
+        Arc::clone(&db_clone),
+        Arc::clone(&client_clone),
+        emails_pool,
+        tx_claimer,
+    )
+    .map_err(|err: anyhow::Error| {
+        let error = err.to_string();
+        error!(LOG, "Error handling email: {}", error; "func" => function_name!());
+        EmailWalletEvent::Error { email_addr, error }
+    })
+    .await
+    .unwrap();
+    tx_event_consumer.send(event)?;
     anyhow::Ok(())
 }
 
@@ -663,14 +678,27 @@ async fn claimer_fn(
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
     let email_addr = claim.email_address.clone();
     info!(LOG, "Claiming unclaim for {:?}", email_addr.clone(); "func" => function_name!());
-    tokio::task::spawn(async move {
-        let event = claim_unclaims(
-            claim,
-            Arc::clone(&db_clone),
-            Arc::clone(&client_clone),
-            // tx_creator_for_claimer_task.clone(),
-            // tx_sender_for_claimer_task.clone(),
-        )
+    // tokio::task::spawn(async move {
+    //     let event = claim_unclaims(
+    //         claim,
+    //         Arc::clone(&db_clone),
+    //         Arc::clone(&client_clone),
+    //         // tx_creator_for_claimer_task.clone(),
+    //         // tx_sender_for_claimer_task.clone(),
+    //     )
+    //     .map_err(|err| {
+    //         error!(LOG, "Error claiming unclaim: {}", err.to_string(); "func" => function_name!());
+    //         EmailWalletEvent::Error {
+    //             email_addr,
+    //             error: err.to_string(),
+    //         }
+    //     })
+    //     .await
+    //     .unwrap();
+    //     tx_event_consumer.send(event)?;
+    //     Ok::<_, anyhow::Error>(())
+    // });
+    let event = claim_unclaims(claim, Arc::clone(&db_clone), Arc::clone(&client_clone))
         .map_err(|err| {
             error!(LOG, "Error claiming unclaim: {}", err.to_string(); "func" => function_name!());
             EmailWalletEvent::Error {
@@ -680,9 +708,7 @@ async fn claimer_fn(
         })
         .await
         .unwrap();
-        tx_event_consumer.send(event)?;
-        Ok::<_, anyhow::Error>(())
-    });
+    tx_event_consumer.send(event)?;
     Ok(())
 }
 
@@ -743,25 +769,41 @@ async fn catch_claims_in_db_fn(
         let db_clone = Arc::clone(&db_clone);
         let client_clone = Arc::clone(&client_clone);
         let tx_event_consumer = tx_event_consumer.clone();
-        tokio::task::spawn(async move {
-            let event = void_unclaims(
-                claim,
-                Arc::clone(&db_clone),
-                Arc::clone(&client_clone),
-                // tx_sender_for_catcher_task.clone(),
-            )
-            .map_err(|err| {
-                error!(LOG, "Error voider task: {}", err; "func" => function_name!());
-                EmailWalletEvent::Error {
-                    email_addr,
-                    error: err.to_string(),
-                }
-            })
-            .await
-            .unwrap();
-            tx_event_consumer.send(event)?;
-            Ok::<_, anyhow::Error>(())
-        });
+        // tokio::task::spawn(async move {
+        //     let event = void_unclaims(
+        //         claim,
+        //         Arc::clone(&db_clone),
+        //         Arc::clone(&client_clone),
+        //         // tx_sender_for_catcher_task.clone(),
+        //     )
+        //     .map_err(|err| {
+        //         error!(LOG, "Error voider task: {}", err; "func" => function_name!());
+        //         EmailWalletEvent::Error {
+        //             email_addr,
+        //             error: err.to_string(),
+        //         }
+        //     })
+        //     .await
+        //     .unwrap();
+        //     tx_event_consumer.send(event)?;
+        //     Ok::<_, anyhow::Error>(())
+        // });
+        let event = void_unclaims(
+            claim,
+            Arc::clone(&db_clone),
+            Arc::clone(&client_clone),
+            // tx_sender_for_catcher_task.clone(),
+        )
+        .map_err(|err| {
+            error!(LOG, "Error voider task: {}", err; "func" => function_name!());
+            EmailWalletEvent::Error {
+                email_addr,
+                error: err.to_string(),
+            }
+        })
+        .await
+        .unwrap();
+        tx_event_consumer.send(event)?;
     }
     sleep(Duration::from_secs(120)).await;
     Ok(())
