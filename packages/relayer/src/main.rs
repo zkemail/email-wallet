@@ -3,12 +3,12 @@ use email_wallet_utils::{
     converters::hex2field,
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-use handlebars::Handlebars;
+
 use relayer::*;
-use serde_json::Value;
-use slog::info;
-use std::{env, path::PathBuf, sync::atomic::Ordering};
-use tokio::fs::read_to_string;
+
+
+use std::{env, sync::atomic::Ordering};
+
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -88,10 +88,10 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
         EmailWalletEvent::EmailHandled {
             sender_email_addr,
             account_key,
-            recipient_email_addr,
+            recipient_email_addr: _,
             original_subject,
             message_id,
-            email_op,
+            email_op: _,
             tx_hash,
         } => {
             let subject =
@@ -122,7 +122,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             email_addr,
             account_key,
             // claim,
-            is_first,
+            is_first: _,
             tx_hash,
         } => {
             // let email_addr = &claim.email_address;

@@ -22,8 +22,10 @@ slog = { version = "2.7.0", features = [
 ] }
 relayer = { path = "../relayer" }
 base64 = "0.21.7"
-# wasm-bindgen = { version = "0.2.90", default-features = false }
+chrono = "0.4.31"
+ff = { version = "0.13.0", default-features = false, features = ["std"] }
 
+# wasm-bindgen = { version = "0.2.90", default-features = false }
 # wasm-bindgen = { git = "https://github.com/rustwasm/wasm-bindgen.git", tag = "0.2.88", default-features = false }
 
 

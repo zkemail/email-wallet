@@ -4,7 +4,7 @@ use email_wallet_utils::{
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
 
-use ethers::types::Address;
+use ethers::{abi, types::Address};
 
 use relayer::*;
 
@@ -367,10 +367,10 @@ mod test {
     use chrono::{Duration, Utc};
     use email_wallet_utils::*;
     use ethers::{
-        abi::{Token, Uint},
+        abi::Token,
+        core::k256::elliptic_curve::Field,
         types::{Bytes, U256},
     };
-    use ff::Field;
     use rand::rngs::OsRng;
     use std::str::FromStr;
     use tokio;
