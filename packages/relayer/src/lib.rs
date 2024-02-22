@@ -608,20 +608,22 @@ async fn email_handler_fn(
     //     EmailWalletEvent::Error { error }
     // }).await:
     // );
-    let event = handle_email(
+    let event = match handle_email(
         email.clone(),
         Arc::clone(&db_clone),
         Arc::clone(&client_clone),
         emails_pool,
         tx_claimer,
     )
-    .map_err(|err: anyhow::Error| {
-        let error = err.to_string();
-        error!(LOG, "Error handling email: {}", error; "func" => function_name!());
-        EmailWalletEvent::Error { email_addr, error }
-    })
     .await
-    .unwrap();
+    {
+        Ok(event) => event,
+        Err(err) => {
+            let error = err.to_string();
+            error!(LOG, "Error handling email: {}", error; "func" => function_name!());
+            EmailWalletEvent::Error { email_addr, error }
+        }
+    };
     tx_event_consumer.send(event)?;
     anyhow::Ok(())
 }
@@ -698,16 +700,17 @@ async fn claimer_fn(
     //     tx_event_consumer.send(event)?;
     //     Ok::<_, anyhow::Error>(())
     // });
-    let event = claim_unclaims(claim, Arc::clone(&db_clone), Arc::clone(&client_clone))
-        .map_err(|err| {
+    let event = match claim_unclaims(claim, Arc::clone(&db_clone), Arc::clone(&client_clone)).await
+    {
+        Ok(event) => event,
+        Err(err) => {
             error!(LOG, "Error claiming unclaim: {}", err.to_string(); "func" => function_name!());
             EmailWalletEvent::Error {
                 email_addr,
                 error: err.to_string(),
             }
-        })
-        .await
-        .unwrap();
+        }
+    };
     tx_event_consumer.send(event)?;
     Ok(())
 }
@@ -788,21 +791,23 @@ async fn catch_claims_in_db_fn(
         //     tx_event_consumer.send(event)?;
         //     Ok::<_, anyhow::Error>(())
         // });
-        let event = void_unclaims(
+        let event = match void_unclaims(
             claim,
             Arc::clone(&db_clone),
             Arc::clone(&client_clone),
             // tx_sender_for_catcher_task.clone(),
         )
-        .map_err(|err| {
-            error!(LOG, "Error voider task: {}", err; "func" => function_name!());
-            EmailWalletEvent::Error {
-                email_addr,
-                error: err.to_string(),
-            }
-        })
         .await
-        .unwrap();
+        {
+            Ok(event) => event,
+            Err(err) => {
+                error!(LOG, "Error voider task: {}", err; "func" => function_name!());
+                EmailWalletEvent::Error {
+                    email_addr,
+                    error: err.to_string(),
+                }
+            }
+        };
         tx_event_consumer.send(event)?;
     }
     sleep(Duration::from_secs(120)).await;
