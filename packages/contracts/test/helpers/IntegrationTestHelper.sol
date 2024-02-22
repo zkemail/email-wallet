@@ -22,6 +22,8 @@ import "../../src/extensions/UniswapExtension.sol";
 import "../../src/extensions/NFTExtension.sol";
 import "../mocks/DummyNFT.sol";
 
+import "forge-std/console.sol";
+
 abstract contract IntegrationTestHelper is Test {
     using Strings for *;
     using console for *;
@@ -285,6 +287,11 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
 
         // bytes32 domain = bytes32(vm.parseUint(pubSignals[0]));
+
+        // bytes32 domain = bytes32(vm.parseUint("2018721414038404820327"));
+        // console.logBytes32(domain);
+        // console.logString(string(abi.encode(domain))); //  -> moc.liamg
+
         bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
         bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
         uint emailTimestamp = vm.parseUint(pubSignals[11]);
