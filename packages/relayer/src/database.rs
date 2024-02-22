@@ -50,6 +50,7 @@ impl Database {
                 is_fund BOOLEAN NOT NULL,
                 is_announced BOOLEAN NOT NULL,
                 is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+                is_seen BOOLEAN NOT NULL DEFAULT FALSE
             );",
         )
         .execute(&self.db)
@@ -157,6 +158,7 @@ impl Database {
             let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
+            let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
                 id: *id,
                 email_address,
@@ -165,6 +167,7 @@ impl Database {
                 expiry_time,
                 is_fund,
                 is_announced,
+                is_seen,
             })
         }
         Ok(vec)
@@ -187,6 +190,7 @@ impl Database {
             let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
+            let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
                 id: hex_to_u256(&id)?,
                 email_address,
@@ -195,6 +199,7 @@ impl Database {
                 expiry_time,
                 is_fund,
                 is_announced,
+                is_seen,
             })
         }
         Ok(vec)
@@ -218,6 +223,7 @@ impl Database {
             let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
+            let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
                 id: hex_to_u256(&id)?,
                 email_address,
@@ -226,6 +232,7 @@ impl Database {
                 expiry_time,
                 is_fund,
                 is_announced,
+                is_seen,
             })
         }
         Ok(vec)
@@ -249,6 +256,7 @@ impl Database {
             let expiry_time: i64 = row.get("expiry_time");
             let is_fund: bool = row.get("is_fund");
             let is_announced: bool = row.get("is_announced");
+            let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
                 id: hex_to_u256(&id)?,
                 email_address,
@@ -257,6 +265,7 @@ impl Database {
                 expiry_time,
                 is_fund,
                 is_announced,
+                is_seen,
             })
         }
         Ok(vec)
@@ -266,7 +275,7 @@ impl Database {
     pub(crate) async fn insert_claim(&self, claim: &Claim) -> Result<()> {
         info!(LOG, "expiry_time {}", claim.expiry_time; "func" => function_name!());
         let row = sqlx::query(
-            "INSERT INTO claims (id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+            "INSERT INTO claims (id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced, is_seen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
         )
         .bind(u256_to_hex(&claim.id))
         .bind(claim.email_address.clone())
@@ -275,6 +284,7 @@ impl Database {
         .bind(claim.expiry_time)
         .bind(claim.is_fund)
         .bind(claim.is_announced)
+        .bind(claim.is_seen)
         .fetch_one(&self.db)
         .await?;
         info!(

@@ -238,6 +238,7 @@ pub(crate) async fn serve_reveal_request(
                 expiry_time: unclaimed_fund.expiry_time.as_u64() as i64,
                 is_fund: true,
                 is_announced: false,
+                is_seen: false,
             })?;
             Ok(format!(
                 "Unclaimed fund for {} is accepted",
@@ -254,6 +255,7 @@ pub(crate) async fn serve_reveal_request(
                 expiry_time: unclaimed_state.expiry_time.as_u64() as i64,
                 is_fund: false,
                 is_announced: false,
+                is_seen: false,
             })?;
             Ok(format!(
                 "Unclaimed state for {} is accepted",

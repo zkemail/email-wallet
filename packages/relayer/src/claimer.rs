@@ -5,7 +5,6 @@ use crate::*;
 use ethers::types::Address;
 use ethers::utils::format_units;
 
-
 #[derive(Debug, Clone)]
 pub struct Claim {
     pub id: U256,
@@ -15,11 +14,12 @@ pub struct Claim {
     pub expiry_time: i64,
     pub is_fund: bool,
     pub is_announced: bool,
+    pub is_seen: bool,
 }
 
 #[named]
 pub(crate) async fn claim_unclaims(
-    claim: Claim,
+    mut claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     // tx_creator: UnboundedSender<String>,
@@ -35,6 +35,7 @@ pub(crate) async fn claim_unclaims(
         .len()
         == 0
     {
+        claim.is_seen = true;
         db.insert_claim(&claim).await?;
         let psi_client = PSIClient::new(
             db.clone(),
@@ -100,9 +101,10 @@ pub(crate) async fn claim_unclaims(
             "Account key not found for email address: {}",
             claim.email_address
         ))?;
-    if !chain_client
-        .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
-        .await?
+    if !claim.is_seen
+        && !chain_client
+            .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
+            .await?
     {
         return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,

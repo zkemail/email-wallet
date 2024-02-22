@@ -419,6 +419,7 @@ pub async fn run(
                 expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: true,
                 is_announced: true,
+                is_seen: false,
             };
             tx_claimer_for_listener_task.send(claim)?;
             Ok(())
@@ -440,6 +441,7 @@ pub async fn run(
                 expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: false,
                 is_announced: true,
+                is_seen: false,
             };
             tx_claimer_for_listener_task.send(claim)?;
             Ok(())

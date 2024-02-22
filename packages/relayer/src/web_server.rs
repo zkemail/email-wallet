@@ -78,6 +78,7 @@ async fn unclaim(
         expiry_time: payload.expiry_time,
         is_fund: payload.is_fund,
         is_announced: false,
+        is_seen: false,
     };
     tx_claimer.send(claim)?;
     trace!(LOG, "claim sent to tx_claimer"; "func" => function_name!());
