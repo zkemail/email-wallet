@@ -27,6 +27,7 @@ RUN cp /email-wallet/packages/prover/params/claim.wasm /root/params
 RUN cp /email-wallet/packages/prover/params/email_sender.wasm /root/params
 RUN gdown "https://drive.google.com/uc?id=1sYlhq4tU7ZZGN1r9HM0pJcA4q6pHErXb"
 RUN unzip params.zip
+RUN mv build params
 # RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-creation/contributions/emailwallet-account-creation_00019.zkey --output ./params/account_creation.zkey
 # RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-init/contributions/emailwallet-account-init_00007.zkey --output ./params/account_init.zkey
 # RUN curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-transport/contributions/emailwallet-account-transport_00005.zkey --output ./params/account_transport.zkey

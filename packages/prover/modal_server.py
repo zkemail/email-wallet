@@ -9,7 +9,7 @@ from core import (
 )
 
 
-stub = modal.Stub("email-wallet-relayer-v1")
+stub = modal.Stub("email-wallet-relayer-v1.1")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 
