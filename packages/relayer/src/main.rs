@@ -1,14 +1,12 @@
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{anyhow, Result};
 use email_wallet_utils::{
     converters::hex2field,
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-
 use relayer::*;
-
-
-use std::{env, sync::atomic::Ordering};
-
+use slog::error;
+use std::future::Future;
+use std::{env, pin::Pin, sync::atomic::Ordering};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -17,16 +15,30 @@ async fn main() -> Result<()> {
         return setup().await;
     } else {
         let (sender, rx) = EmailForwardSender::new();
-        let event_consumer_fn = move |event: EmailWalletEvent| {
-            tokio::runtime::Runtime::new()
-                .unwrap()
-                .block_on(event_consumer_fn(event, sender.clone()))
-        };
-        let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
+        // let event_consumer_fn = move |event: EmailWalletEvent| {
+        //     tokio::runtime::Runtime::new()
+        //         .unwrap()
+        //         .block_on(event_consumer_fn(event, sender.clone()))
+        // };
+        // let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
         let routes = vec![];
-        run(RelayerConfig::new(), event_consumer, rx, routes).await?;
+        run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     }
     Ok(())
+}
+
+fn event_consumer(
+    event: EmailWalletEvent,
+    sender: EmailForwardSender,
+) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+    Box::pin(async {
+        match event_consumer_fn(event, sender).await {
+            Ok(_) => {}
+            Err(err) => {
+                error!(LOG, "Failed to accept event: {}", err);
+            }
+        }
+    })
 }
 
 async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) -> Result<()> {

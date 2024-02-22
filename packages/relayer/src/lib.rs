@@ -59,7 +59,9 @@ use ethers::prelude::*;
 use lazy_static::lazy_static;
 use slog::{error, info, trace};
 use std::env;
+use std::future::Future;
 use std::path::PathBuf;
+use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
@@ -161,18 +163,21 @@ impl EmailForwardSender {
     }
 }
 
-pub struct EventConsumer {
-    tx: UnboundedSender<EmailWalletEvent>,
-    rx: UnboundedReceiver<EmailWalletEvent>,
-    fn_to_call: Box<dyn Fn(EmailWalletEvent) -> Result<()> + Send>,
-}
+pub type EventConsumer =
+    fn(EmailWalletEvent, EmailForwardSender) -> Pin<Box<dyn Future<Output = ()> + Send>>;
+// dyn Fn(EmailWalletEvent) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send;
+// pub struct EventConsumer {
+//     tx: UnboundedSender<EmailWalletEvent>,
+//     rx: UnboundedReceiver<EmailWalletEvent>,
+//     fn_to_call: Box<dyn Fn(EmailWalletEvent) -> Result<()> + Send>,
+// }
 
-impl EventConsumer {
-    pub fn new(fn_to_call: Box<dyn Fn(EmailWalletEvent) -> Result<()> + Send>) -> Self {
-        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-        Self { tx, rx, fn_to_call }
-    }
-}
+// impl EventConsumer {
+//     pub fn new(fn_to_call: Box<dyn Fn(EmailWalletEvent) -> Result<()> + Send>) -> Self {
+//         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+//         Self { tx, rx, fn_to_call }
+//     }
+// }
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -205,6 +210,7 @@ pub async fn setup() -> Result<()> {
 pub async fn run(
     config: RelayerConfig,
     mut event_consumer: EventConsumer,
+    email_foward_sender: EmailForwardSender,
     mut email_forward_rx: UnboundedReceiver<EmailMessage>,
     routes: Vec<(String, MethodRouter)>,
 ) -> Result<()> {
@@ -247,16 +253,22 @@ pub async fn run(
     // let (tx_creator, mut rx_creator) =
     //     tokio::sync::mpsc::unbounded_channel::<(String, Option<AccountKey>)>();
     let (tx_claimer, mut rx_claimer) = tokio::sync::mpsc::unbounded_channel::<Claim>();
-
+    let (tx_event_consumer, mut rx_event_consumer) = tokio::sync::mpsc::unbounded_channel();
     // let db = Arc::new(Database::open(&config.db_path).await?);
     // let client = Arc::new(ChainClient::setup().await?);
     let db = DB.clone();
     let client = CLIENT.clone();
 
-    let event_consumer_tx = event_consumer.tx.clone();
+    // let event_consumer_tx = event_consumer.tx.clone();
     let event_consumer_task = tokio::task::spawn(async move {
         loop {
-            match event_consumer_fn(&mut event_consumer).await {
+            match event_consumer_fn(
+                &mut event_consumer,
+                &mut rx_event_consumer,
+                email_foward_sender.clone(),
+            )
+            .await
+            {
                 Ok(()) => {}
                 Err(e) => {
                     error!(LOG, "Error at event_consumer: {}", e; "func" => function_name!())
@@ -294,7 +306,7 @@ pub async fn run(
     });
 
     // let tx_sender_for_email_task = tx_sender.clone();
-    let tx_event_consumer_for_email_task = event_consumer_tx.clone();
+    let tx_event_consumer_for_email_task = tx_event_consumer.clone();
     let tx_claimer_for_email_task = tx_claimer.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
@@ -321,7 +333,7 @@ pub async fn run(
     });
 
     // let tx_sender_for_claimer_task = tx_sender.clone();
-    let tx_event_consumer_for_claimer_task = event_consumer_tx.clone();
+    let tx_event_consumer_for_claimer_task = tx_event_consumer.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let claimer_task = tokio::task::spawn(async move {
@@ -456,7 +468,7 @@ pub async fn run(
     });
 
     let tx_claimer_for_catcher_task = tx_claimer.clone();
-    let tx_event_consumer_for_catcher_task = event_consumer_tx.clone();
+    let tx_event_consumer_for_catcher_task = tx_event_consumer.clone();
     // let tx_sender_for_catcher_task = tx_sender.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
@@ -623,10 +635,14 @@ async fn email_handler_fn(
 // }
 
 #[named]
-async fn event_consumer_fn(consumer: &mut EventConsumer) -> Result<()> {
-    let event = consumer.rx.recv().await.ok_or(anyhow!("No event"))?;
+async fn event_consumer_fn(
+    consumer: &mut EventConsumer,
+    rx: &mut UnboundedReceiver<EmailWalletEvent>,
+    email_sender: EmailForwardSender,
+) -> Result<()> {
+    let event = rx.recv().await.ok_or(anyhow!("No event"))?;
     info!(LOG, "Event: {:?}", event; "func" => function_name!());
-    (consumer.fn_to_call)(event)?;
+    (consumer)(event, email_sender).await;
     Ok(())
 }
 

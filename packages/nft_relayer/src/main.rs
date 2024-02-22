@@ -9,8 +9,9 @@ use ethers::{abi, types::Address};
 use relayer::*;
 
 use slog::{error, info};
-use std::env;
+use std::future::Future;
 use std::sync::OnceLock;
+use std::{env, pin::Pin};
 
 mod rest_api;
 use rest_api::*;
@@ -35,13 +36,13 @@ async fn main() -> Result<()> {
             )
             .unwrap();
         let (sender, rx) = EmailForwardSender::new();
-        let sender_for_event = sender.clone();
-        let event_consumer_fn = move |event: EmailWalletEvent| {
-            tokio::runtime::Runtime::new()
-                .unwrap()
-                .block_on(event_consumer_fn(event, sender_for_event.clone()))
-        };
-        let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
+        // let sender_for_event = sender.clone();
+        // let event_consumer_fn = move |event: EmailWalletEvent| {
+        //     tokio::runtime::Runtime::new()
+        //         .unwrap()
+        //         .block_on(event_consumer_fn(event, sender_for_event.clone()))
+        // };
+        // let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
         let sender_for_api = sender.clone();
         let nft_transfer_fn =
             axum::routing::post::<_, _, (), _>(move |payload: String| async move {
@@ -59,10 +60,23 @@ async fn main() -> Result<()> {
             });
 
         let routes = vec![("/api/nftTransfer".to_string(), nft_transfer_fn)];
-
-        run(RelayerConfig::new(), event_consumer, rx, routes).await?;
+        run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     }
     Ok(())
+}
+
+fn event_consumer(
+    event: EmailWalletEvent,
+    sender: EmailForwardSender,
+) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+    Box::pin(async {
+        match event_consumer_fn(event, sender).await {
+            Ok(_) => {}
+            Err(err) => {
+                error!(LOG, "Failed to accept event: {}", err);
+            }
+        }
+    })
 }
 
 async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) -> Result<()> {
