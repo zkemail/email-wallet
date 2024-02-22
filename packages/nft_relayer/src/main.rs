@@ -375,20 +375,25 @@ mod test {
     use std::str::FromStr;
     use tokio;
 
-    #[tokio::test]
-    #[ignore]
-    async fn test_nft_mint() {
+    #[test]
+    fn test_nft_mint() {
+        tokio::runtime::Runtime::new().unwrap().block_on(async {
+            test_nft_mint_inner().await;
+        });
+    }
+
+    async fn test_nft_mint_inner() {
         let email_addr = "suegamisora@gmail.com";
         // let token_name = "APE";
         let token_addr = Address::from_str("0x1234567890123456789012345678901234567890").unwrap();
         let token_id = U256::from(1);
-        let recipient_addr = "alice@gmail.com";
+        // let recipient_addr = "alice@gmail.com";
         let relayer_url = "http://localhost:3000";
 
-        let padded_recipient_addr = PaddedEmailAddr::from_email_addr(recipient_addr);
+        let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
         let rand = Fr::random(OsRng);
         println!("rand {}", field2hex(&rand));
-        let email_addr_commit = padded_recipient_addr.to_commitment(&rand).unwrap();
+        let email_addr_commit = padded_email_addr.to_commitment(&rand).unwrap();
         let extension_addr = CLIENT
             .query_default_extension_for_command("NFT")
             .await
