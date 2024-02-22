@@ -387,7 +387,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
 
-        require(verifier.verifyClaimFundProof(recipientWalletSalt, us.emailAddrCommit, proof), "invalid proof");
+        require(verifier.verifyClaimFundProof(us.emailAddrCommit, recipientWalletSalt, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
 
