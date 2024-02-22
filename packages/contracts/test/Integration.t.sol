@@ -25,21 +25,21 @@ import "./mocks/DummyNFT.sol";
 import "./helpers/IntegrationTestHelper.sol";
 
 contract IntegrationTest is IntegrationTestHelper {
-//     using Strings for *;
-//     using console for *;
-//     using SubjectUtils for *;
+    using Strings for *;
+    using console for *;
+    using SubjectUtils for *;
 
-//     function testIntegration_Account_Creation() public {
-//         vm.startPrank(relayer1);
-//         (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
-//             user1.emailAddr,
-//             user1.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user1.emailAddrPointer = emailAddrPointer;
-//         vm.stopPrank();
-//     }
+    function testIntegration_Account_Creation() public {
+        vm.startPrank(relayer1);
+        (/*bytes32 relayerHash, */string memory registeredEmailAddr) = accountCreation(
+            user1.emailAddr,
+            user1.accountKey,
+            "gmail.com"
+        );
+        require(Strings.equal(user1.emailAddr, registeredEmailAddr), "Relayer hash mismatch");
+        // user1.emailAddr = emailAddrPointer;
+        vm.stopPrank();
+    }
 
 //     function testIntegration_Account_Init() public {
 //         vm.startPrank(relayer1);
