@@ -15,6 +15,7 @@ use std::sync::OnceLock;
 mod rest_api;
 use rest_api::*;
 mod utils;
+use dotenv::dotenv;
 use utils::*;
 
 pub static DEMO_NFT_ADDR: OnceLock<Address> = OnceLock::new();
@@ -383,6 +384,17 @@ mod test {
     }
 
     async fn test_nft_mint_inner() {
+        dotenv().ok();
+        PRIVATE_KEY.set(env::var("PRIVATE_KEY").unwrap()).unwrap();
+        CHAIN_ID
+            .set(env::var("CHAIN_ID").unwrap().parse().unwrap())
+            .unwrap();
+        CHAIN_RPC_PROVIDER
+            .set(env::var("CHAIN_RPC_PROVIDER").unwrap())
+            .unwrap();
+        CORE_CONTRACT_ADDRESS
+            .set(env::var("CORE_CONTRACT_ADDRESS").unwrap())
+            .unwrap();
         let email_addr = "suegamisora@gmail.com";
         // let token_name = "APE";
         let token_addr = Address::from_str("0x1234567890123456789012345678901234567890").unwrap();
@@ -419,6 +431,7 @@ mod test {
             )
             .await
             .unwrap();
+        println!("register unclaimed state tx hash {}", tx_hash);
         let request = UnclaimRequest {
             email_address: email_addr.to_string(),
             random: field2hex(&rand),

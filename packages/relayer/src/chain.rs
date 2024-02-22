@@ -256,6 +256,12 @@ impl ChainClient {
             announce_commit_randomness.unwrap_or(U256::zero()),
             announce_email_addr.unwrap_or(String::new()),
         );
+        let fee = {
+            let gas = self.unclaims_handler.unclaimed_fund_claim_gas().await?;
+            let fee = self.unclaims_handler.max_fee_per_gas().await?;
+            gas * fee
+        };
+        let call = call.value(fee);
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -288,6 +294,12 @@ impl ChainClient {
             announce_commit_randomness.unwrap_or(U256::zero()),
             announce_email_addr.unwrap_or(String::new()),
         );
+        let fee = {
+            let gas = self.unclaims_handler.unclaimed_state_claim_gas().await?;
+            let fee = self.unclaims_handler.max_fee_per_gas().await?;
+            gas * fee
+        };
+        let call = call.value(fee);
         let tx = call.send().await?;
         let receipt = tx
             .log()
