@@ -49,7 +49,7 @@ impl Database {
                 expiry_time BIGINT NOT NULL,
                 is_fund BOOLEAN NOT NULL,
                 is_announced BOOLEAN NOT NULL,
-                is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+                is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
                 is_seen BOOLEAN NOT NULL DEFAULT FALSE
             );",
         )
