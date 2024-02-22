@@ -33,11 +33,10 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (/*bytes32 relayerHash, */string memory registeredEmailAddr) = accountCreation(
             user1.emailAddr,
-            user1.accountKey,
+            relayer1Rand,
             "gmail.com"
         );
         require(Strings.equal(user1.emailAddr, registeredEmailAddr), "Relayer hash mismatch");
-        // user1.emailAddr = emailAddrPointer;
         vm.stopPrank();
     }
 

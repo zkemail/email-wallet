@@ -268,34 +268,33 @@ abstract contract IntegrationTestHelper is Test {
 
     function accountCreation(
         string memory emailAddr,
-        bytes32 accountKey,
+        bytes32 relayerRand,
         string memory emailDomain
     ) internal returns (string memory registeredEmailAddr) {
         registeredEmailAddr = emailAddr;
         string memory projectRoot = vm.projectRoot();
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_creation.sh");
-        inputGenerationInput[1] = emailAddr;
-        inputGenerationInput[2] = uint256(accountKey).toHexString(32);
+        inputGenerationInput[1] = string.concat(projectRoot, "/test/emails/account_creation_test1.eml");
+        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
             string.concat(projectRoot, "/test/build_integration/account_creation_public.json")
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        // emailAddrPointer = bytes32(vm.parseUint(pubSignals[1]));
-        bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[3]));
-        bytes32 x = bytes32(vm.parseUint(pubSignals[4]));
-        bytes32 y = bytes32(vm.parseUint(pubSignals[5]));
-        bytes memory psiPoint = abi.encode(x, y);
 
-        publicInputFile = vm.readFile(
-            string.concat(projectRoot, "/test/build_integration/account_init_public.json")
-        );
-        pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 2]));
-        uint emailTimestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
-        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 0]));
+        // bytes32 domain = bytes32(vm.parseUint(pubSignals[0]));
+        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
+        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
+        uint emailTimestamp = vm.parseUint(pubSignals[11]);
+        bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[12]));
+        bytes memory psiPoint;
+        {
+            bytes32 x = bytes32(vm.parseUint(pubSignals[13]));
+            bytes32 y = bytes32(vm.parseUint(pubSignals[14]));
+            psiPoint = abi.encode(x, y);
+        }        
 
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
@@ -306,7 +305,7 @@ abstract contract IntegrationTestHelper is Test {
                 psiPoint,
                 EmailProof({
                     proof: proof,
-                    domain: "gmail.com",
+                    domain: "gmail.com", // TODO fix later
                     dkimPublicKeyHash: publicKeyHash,
                     nullifier: emailNullifier,
                     timestamp: emailTimestamp
