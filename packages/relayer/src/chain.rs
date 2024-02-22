@@ -396,11 +396,36 @@ impl ChainClient {
             ONBOARDING_TOKEN_ADDR.get().unwrap().to_owned(),
             self.client.clone(),
         );
-        let tx = erc20.transfer(
+        let call = erc20.transfer(
             wallet_addr,
             ONBOARDING_TOKEN_AMOUNT.get().unwrap().to_owned(),
         );
-        let tx = tx.send().await?;
+        let tx = call.send().await?;
+
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
+    pub async fn approve_erc721(
+        &self,
+        token_addr: Address,
+        to: Address,
+        token_id: U256,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let erc721 = ERC721::new(token_addr, self.client.clone());
+        let call = erc721.approve(to, token_id);
+        let tx = call.send().await?;
 
         let receipt = tx
             .log()

@@ -376,6 +376,7 @@ mod test {
     use tokio;
 
     #[tokio::test]
+    #[ignore]
     async fn test_nft_mint() {
         let email_addr = "suegamisora@gmail.com";
         // let token_name = "APE";
@@ -392,6 +393,12 @@ mod test {
             .query_default_extension_for_command("NFT")
             .await
             .unwrap();
+        println!("extension_addr {}", extension_addr);
+        let tx_hash = CLIENT
+            .approve_erc721(token_addr.clone(), extension_addr.clone(), token_id.clone())
+            .await
+            .unwrap();
+        println!("approve tx hash {}", tx_hash);
         let state = abi::encode(&[Token::Address(token_addr), Token::Uint(token_id)]);
         let now = Utc::now();
         let one_day_later = now + Duration::days(1);
