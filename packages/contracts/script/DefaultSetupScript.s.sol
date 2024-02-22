@@ -7,6 +7,7 @@ import "../src/verifier/Verifier.sol";
 import "../src/utils/ECDSAOwnedDKIMRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
 import "../src/extensions/NFTExtension.sol";
+import "../src/extensions/UniswapExtension.sol";
 import "../src/EmailWalletCore.sol";
 
 contract TestERC20 is ERC20 {
@@ -217,7 +218,7 @@ contract Deploy is Script {
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
         nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
-        nftExt.setNFTAddress(tokenName, tokenAddr);
+        nftExt.setNFTAddress(tokenName, address(testToken));
 
         {
             address uniswapV3Router = 0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD;
