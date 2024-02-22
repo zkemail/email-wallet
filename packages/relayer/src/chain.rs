@@ -134,7 +134,10 @@ impl ChainClient {
         *mutex += 1;
 
         let call = self.account_handler.register_psi_point(
-            get_psi_point_bytes(hex_to_u256(&point.x)?, hex_to_u256(&point.y)?),
+            get_psi_point_bytes(
+                U256::from_str_radix(&point.x, 10)?,
+                U256::from_str_radix(&point.y, 10)?,
+            ),
             fr_to_bytes32(&wallet_salt.0)?,
         );
         let tx = call.send().await?;
