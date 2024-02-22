@@ -4,7 +4,7 @@ use email_wallet_utils::{
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
 
-use ethers::{abi, types::Address};
+use ethers::types::Address;
 
 use relayer::*;
 
@@ -381,6 +381,7 @@ mod test {
     use super::*;
     use chrono::{Duration, Utc};
     use email_wallet_utils::*;
+    use ethers::{abi, contract::abigen, types::Address};
     use ethers::{
         abi::Token,
         core::k256::elliptic_curve::Field,
@@ -390,7 +391,15 @@ mod test {
     use std::str::FromStr;
     use tokio;
 
+    abigen!(
+        ERC721Mintable,
+        r"[
+        function safeMint(address to, uint256 tokenId, string memory uri)
+    ]"
+    );
+
     #[test]
+    #[ignore]
     fn test_nft_mint() {
         tokio::runtime::Runtime::new().unwrap().block_on(async {
             test_nft_mint_inner().await;
@@ -411,10 +420,16 @@ mod test {
             .unwrap();
         let email_addr = "suegamisora@gmail.com";
         // let token_name = "APE";
-        let token_addr = Address::from_str("0x1234567890123456789012345678901234567890").unwrap();
-        let token_id = U256::from(1);
+        let token_addr = Address::from_str("0x1095F49b9d7A980847467C2A71b4231c0A6C208E").unwrap();
+        let token_id = U256::from(9);
+        let relayer_addr = Address::from_str("0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38").unwrap();
+        let uri = "https://ipfs.io/ipfs/QmQEVVLJUR1WLN15S49rzDJsSP7za9DxeqpUzWuG4aondg".to_string();
+        let nft_mintable = ERC721Mintable::new(token_addr, CLIENT.core.client());
+        let call = nft_mintable.safe_mint(relayer_addr, token_id, uri);
+        let tx = call.send().await.unwrap();
+        tx.log().confirmations(1).await.unwrap();
         // let recipient_addr = "alice@gmail.com";
-        let relayer_url = "http://localhost:3000";
+        let relayer_url = "http://localhost:4500";
 
         let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
         let rand = Fr::random(OsRng);

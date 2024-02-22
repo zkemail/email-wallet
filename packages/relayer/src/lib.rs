@@ -486,7 +486,7 @@ pub async fn run(
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at voider: {}", e; "func" => function_name!())
+                    error!(LOG, "Error at catch claims: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -679,7 +679,7 @@ async fn claimer_fn(
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
     let email_addr = claim.email_address.clone();
-    info!(LOG, "Claiming unclaim for {:?}", email_addr.clone(); "func" => function_name!());
+    info!(LOG, "Claiming unclaim {:?}", claim; "func" => function_name!());
     // tokio::task::spawn(async move {
     //     let event = claim_unclaims(
     //         claim,
@@ -761,11 +761,13 @@ async fn catch_claims_in_db_fn(
 ) -> Result<()> {
     let now = now();
     let claims = db_clone.get_claims_unexpired(now).await?;
+    info!(LOG, "unexpired claims: {:?}", claims; "func" => function_name!());
     for claim in claims {
         info!(LOG, "Claiming claim for : {}", claim.email_address; "func" => function_name!());
         tx_claimer.send(claim)?;
     }
     let claims = db_clone.get_claims_expired(now).await?;
+    info!(LOG, "expired claims: {:?}", claims; "func" => function_name!());
     for claim in claims {
         let email_addr = claim.email_address.clone();
         info!(LOG, "Voiding claim for : {}", email_addr.clone(); "func" => function_name!());

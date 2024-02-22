@@ -61,6 +61,7 @@ impl EmailsPool for FileEmailsPool {
 }
 
 impl FileEmailsPool {
+    #[named]
     pub fn new() -> Self {
         let dir_path = PathBuf::new()
             .join(env!("CARGO_MANIFEST_DIR"))
@@ -68,6 +69,7 @@ impl FileEmailsPool {
             .to_str()
             .unwrap()
             .to_string();
+        info!(LOG, "dir_path: {}", dir_path; "func" => function_name!());
         fs::create_dir_all(&dir_path).unwrap();
         Self { dir_path }
     }

@@ -4,7 +4,7 @@ use crate::*;
 
 use ethers::types::Address;
 
-
+#[named]
 pub(crate) async fn void_unclaims(
     claim: Claim,
     db: Arc<Database>,
@@ -14,6 +14,7 @@ pub(crate) async fn void_unclaims(
     let now = now();
     let commit = hex2field(&claim.commit)?;
     db.delete_claim(&claim.id, claim.is_fund).await?;
+    info!(LOG, "claim deleted id {}", claim.id; "func" => function_name!());
     let (reply_msg, sender, tx_hash) = if claim.is_fund {
         let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
         if unclaimed_fund.expiry_time.as_u64() > u64::try_from(now).unwrap() {

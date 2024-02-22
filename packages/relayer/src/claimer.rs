@@ -26,6 +26,7 @@ pub(crate) async fn claim_unclaims(
     // tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<EmailWalletEvent> {
     let mut need_creation = false;
+    let is_seen = claim.is_seen;
     if db
         .get_claims_by_id(&claim.id)
         .await?
@@ -101,11 +102,10 @@ pub(crate) async fn claim_unclaims(
             "Account key not found for email address: {}",
             claim.email_address
         ))?;
-    if !claim.is_seen
-        && !chain_client
-            .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
-            .await?
-    {
+    let is_account_created = chain_client
+        .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
+        .await?;
+    if !is_seen && !is_account_created {
         return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,
             account_key: AccountKey(hex2field(&account_key_str)?),
@@ -113,6 +113,8 @@ pub(crate) async fn claim_unclaims(
             tx_hash: "".to_string(),
         });
         // return Err(anyhow!("Account not created"));
+    } else if !is_account_created {
+        return Err(anyhow!("Account not created"));
     }
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
