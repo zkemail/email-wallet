@@ -1,30 +1,30 @@
-// // SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.12;
 
-// import "forge-std/Test.sol";
-// import "forge-std/console.sol";
-// import "@openzeppelin/contracts/utils/Strings.sol";
-// import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-// import "@zk-email/contracts/DKIMRegistry.sol";
-// import "../src/EmailWalletCore.sol";
-// import "../src/utils/TokenRegistry.sol";
-// import "../src/utils/UniswapTWAPOracle.sol";
-// import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import "./helpers/WETH9.sol";
-// import "../src/verifier/AccountCreationVerifier.sol";
+import "forge-std/Test.sol";
+import "forge-std/console.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@zk-email/contracts/DKIMRegistry.sol";
+import "../src/EmailWalletCore.sol";
+import "../src/utils/TokenRegistry.sol";
+import "../src/utils/UniswapTWAPOracle.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./helpers/WETH9.sol";
+import "../src/verifier/AccountCreationVerifier.sol";
 // import "../src/verifier/AccountInitVerifier.sol";
-// // import "../src/verifier/AccountTransportVerifier.sol";
-// import "../src/verifier/ClaimVerifier.sol";
-// import "../src/verifier/EmailSenderVerifier.sol";
-// import "../src/verifier/AnnouncementVerifier.sol";
-// import "../src/verifier/Verifier.sol";
-// import {EmailWalletEvents} from "../src/interfaces/Events.sol";
-// import "../src/extensions/UniswapExtension.sol";
-// import "../src/extensions/NFTExtension.sol";
-// import "./mocks/DummyNFT.sol";
-// import "./helpers/IntegrationTestHelper.sol";
+// import "../src/verifier/AccountTransportVerifier.sol";
+import "../src/verifier/ClaimVerifier.sol";
+import "../src/verifier/EmailSenderVerifier.sol";
+import "../src/verifier/AnnouncementVerifier.sol";
+import "../src/verifier/Verifier.sol";
+import {EmailWalletEvents} from "../src/interfaces/Events.sol";
+import "../src/extensions/UniswapExtension.sol";
+import "../src/extensions/NFTExtension.sol";
+import "./mocks/DummyNFT.sol";
+import "./helpers/IntegrationTestHelper.sol";
 
-// contract IntegrationTest is IntegrationTestHelper {
+contract IntegrationTest is IntegrationTestHelper {
 //     using Strings for *;
 //     using console for *;
 //     using SubjectUtils for *;
@@ -1031,4 +1031,4 @@
 //         require(ape.getApproved(1) == recipient, "Recipient should be approved for APE");
 //         vm.stopPrank();
 //     }
-// }
+}
