@@ -93,7 +93,8 @@ abstract contract IntegrationTestHelper is Test {
         });
     UserTestConfig user2 =
         UserTestConfig({
-            emailAddr: "emaiwallet.bob@gmail.com",
+            // emailAddr: "emaiwallet.bob@gmail.com",
+            emailAddr: "rrelayerbob@gmail.com",
             accountKey: 0x1e2ead4231d73a3c85b1ff883f212d998c41cc9d2a8bac238f6d351ff2c57249
         });
 
@@ -269,6 +270,7 @@ abstract contract IntegrationTestHelper is Test {
     }
 
     function accountCreation(
+        string memory emailFile,
         string memory emailAddr,
         bytes32 relayerRand,
         string memory emailDomain
@@ -276,7 +278,7 @@ abstract contract IntegrationTestHelper is Test {
         string memory projectRoot = vm.projectRoot();
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_creation.sh");
-        inputGenerationInput[1] = string.concat(projectRoot, "/test/emails/account_creation_test1.eml");
+        inputGenerationInput[1] = emailFile;
         inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
         vm.ffi(inputGenerationInput);
 
@@ -322,7 +324,7 @@ abstract contract IntegrationTestHelper is Test {
 
     function genEmailOpPartial(
         string memory emailFile,
-        bytes32 relayerRand,
+        bytes32 accountKey,
         string memory command,
         string memory maskedSubject,
         string memory emailDomain,
@@ -331,7 +333,7 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/email_sender.sh");
         inputGenerationInput[1] = emailFile;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+        inputGenerationInput[2] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
         inputGenerationInput = new string[](2);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/extract_sign_rand.sh");
@@ -353,26 +355,30 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.emailProof = proofToBytes(
             string.concat(vm.projectRoot(), "/test/build_integration/email_sender_proof.json")
         );
-        emailOp.hasEmailRecipient = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4]) == 1;
-        emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]));
-        emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]));
-        emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 0]));
-        emailOp.timestamp = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6]);
+        emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
+        emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
+        emailOp.timestamp = vm.parseUint(pubSignals[11]);
+        emailOp.walletSalt = bytes32(vm.parseUint(pubSignals[32]));
+        emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
+        emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
+        
+        
+        
     }
 
     function claimFund(
         uint256 registeredUnclaimId,
         string memory emailAddr,
-        bytes32 relayerRand,
-        bytes32 emailAddrRand
+        bytes32 emailAddrRand,
+        bytes32 accountKey
     ) internal returns (bytes32 newRelayerHash) {
         newRelayerHash;
 
         string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
-        inputGenerationInput[3] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[2] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[3] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
@@ -387,8 +393,8 @@ abstract contract IntegrationTestHelper is Test {
     function claimState(
         uint256 registeredUnclaimId,
         string memory emailAddr,
-        bytes32 relayerRand,
-        bytes32 emailAddrRand
+        bytes32 emailAddrRand,
+        bytes32 accountKey
     ) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
         newRelayerHash;
         newEmailAddrPointer;
@@ -396,8 +402,8 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
-        inputGenerationInput[3] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[2] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[3] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
