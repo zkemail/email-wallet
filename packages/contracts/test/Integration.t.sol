@@ -23,6 +23,7 @@ import "../src/extensions/UniswapExtension.sol";
 import "../src/extensions/NFTExtension.sol";
 import "./mocks/DummyNFT.sol";
 import "./helpers/IntegrationTestHelper.sol";
+import "../src/Wallet.sol";
 
 contract IntegrationTest is IntegrationTestHelper {
     using Strings for *;
@@ -31,32 +32,40 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Account_Creation() public {
         vm.startPrank(relayer1);
-        string memory registeredEmailAddr = accountCreation(
+        Wallet user1Wallet = accountCreation(
             user1.emailAddr,
             relayer1Rand,
             "gmail.com"
         );
-        require(Strings.equal(user1.emailAddr, registeredEmailAddr), "email address mismatch"); // TODO fix this later
         vm.stopPrank();
     }
 
     // function testIntegration_Transfer_ETH_To_Internal() public {
+    //     // vm.startPrank(relayer1);
+    //     // (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
+    //     //     user1.emailAddr,
+    //     //     user1.accountKey,
+    //     //     "gmail.com"
+    //     // );
+    //     // // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     // user1.emailAddrPointer = emailAddrPointer;
     //     vm.startPrank(relayer1);
-    //     (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
+    //     string memory registeredEmailAddr = accountCreation(
     //         user1.emailAddr,
-    //         user1.accountKey,
+    //         relayer1Rand,
     //         "gmail.com"
     //     );
-    //     // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-    //     user1.emailAddrPointer = emailAddrPointer;
-    //     string memory projectRoot = vm.projectRoot();
+    //     require(Strings.equal(user1.emailAddr, registeredEmailAddr), "email address mismatch"); // TODO fix this later
+    //     vm.stopPrank();
+
+    //     // string memory projectRoot = vm.projectRoot();
     //     // (relayerHash, emailAddrPointer) = accountInit(
     //     //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
     //     //     relayer1Rand,
     //     //     "gmail.com"
     //     // );
     //     // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-    //     require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+    //     // require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
     //     // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
     //     //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
     //     // );

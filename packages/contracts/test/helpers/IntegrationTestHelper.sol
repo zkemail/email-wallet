@@ -272,8 +272,7 @@ abstract contract IntegrationTestHelper is Test {
         string memory emailAddr,
         bytes32 relayerRand,
         string memory emailDomain
-    ) internal returns (string memory registeredEmailAddr) {
-        registeredEmailAddr = emailAddr;
+    ) internal returns (Wallet wallet) {
         string memory projectRoot = vm.projectRoot();
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_creation.sh");
@@ -307,7 +306,7 @@ abstract contract IntegrationTestHelper is Test {
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
         );
         {
-            accountHandler.createAccount(
+            wallet = accountHandler.createAccount(
                 walletSalt,
                 psiPoint,
                 EmailProof({
