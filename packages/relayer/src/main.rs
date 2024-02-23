@@ -94,6 +94,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -127,6 +128,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: Some(message_id),
                 reply_to: Some(RELAYER_EMAIL_ADDRESS.get().unwrap().clone()),
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -157,6 +159,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -191,6 +194,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -226,6 +230,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -244,6 +249,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                     body_html,
                     reference: None,
                     reply_to: None,
+                    body_attachments: None,
                 };
                 sender.send(email)?;
             }

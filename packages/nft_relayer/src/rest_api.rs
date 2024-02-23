@@ -46,6 +46,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
             body_html,
             reference: None,
             reply_to: None,
+            body_attachments: None,
         };
         return Ok((request_id, email));
     }
@@ -72,6 +73,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         to: request.email_addr,
         reference: None,
         reply_to: None,
+        body_attachments: None,
     };
     Ok((request_id, email))
 }

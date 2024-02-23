@@ -381,9 +381,21 @@
                                                 You don't have to add any message in the reply 😄.
                                             </p>
                                             <p align="center">
-                                                After creating the wallet, you can recive the following assets!
+                                                After creating the wallet, you can receive the following assets!
                                             </p>
-                                            {{assetsList}}
+                                            <ul>
+                                                {{#each assetsList}}
+                                                {{#with this}}
+                                                <li>
+                                                    {{msg}}
+
+                                                    {{#if is_img}}
+                                                    <img src={{img}} />
+                                                    {{/if}}
+                                                </li>
+                                                {{/with}}
+                                                {{/each}}
+                                            </ul>
                                             <!-- <p align="center">You will receive 100 TEST tokens after replying to this
                                                 email. You can send them to your friends by specifying the recpient's
                                                 email address.</p> -->

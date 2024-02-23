@@ -7,7 +7,7 @@ use handlebars::Handlebars;
 use lettre::{
     message::{
         header::{Cc, From, Header, HeaderName, InReplyTo, ReplyTo, To},
-        Mailbox, Mailboxes, MessageBuilder, MultiPart,
+        Attachment, Mailbox, Mailboxes, MessageBuilder, MultiPart, SinglePart,
     },
     transport::smtp::{
         authentication::Credentials, client::SmtpConnection, commands::*, extension::ClientId,
@@ -72,6 +72,14 @@ pub struct EmailMessage {
     pub reply_to: Option<String>,
     pub body_plain: String,
     pub body_html: String,
+    pub body_attachments: Option<Vec<EmailAttachment>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct EmailAttachment {
+    pub inline_id: String,
+    pub content_type: String,
+    pub contents: Vec<u8>,
 }
 
 #[derive(Clone)]
@@ -104,6 +112,7 @@ impl SmtpClient {
             email.reply_to,
             email.body_plain,
             email.body_html,
+            email.body_attachments,
         )
         .await
         // match email.email_args {
@@ -370,6 +379,7 @@ impl SmtpClient {
         reply_to: Option<String>,
         body_plain: String,
         body_html: String,
+        body_attachments: Option<Vec<EmailAttachment>>,
     ) -> Result<()> {
         let from_mbox = Mailbox::new(None, self.config.id.parse::<Address>()?);
         let to_mbox = Mailbox::new(None, to.parse::<Address>()?);
@@ -384,8 +394,22 @@ impl SmtpClient {
         if let Some(reply_to) = reply_to {
             email_builder = email_builder.in_reply_to(reply_to);
         }
-        let email =
-            email_builder.multipart(MultiPart::alternative_plain_html(body_plain, body_html))?;
+        let mut multipart = MultiPart::related().singlepart(SinglePart::html(body_html));
+        if let Some(body_attachments) = body_attachments {
+            for attachment in body_attachments {
+                multipart = multipart.singlepart(
+                    Attachment::new_inline(attachment.inline_id)
+                        .body(attachment.contents, attachment.content_type.parse()?),
+                );
+            }
+        }
+        let email = email_builder.multipart(
+            MultiPart::alternative()
+                .singlepart(SinglePart::plain(body_plain))
+                .multipart(multipart),
+        )?;
+
+        // email_builder.multipart(MultiPart::alternative_plain_html(body_plain, body_html))?;
 
         self.transport.send(email).await?;
 

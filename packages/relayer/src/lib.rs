@@ -42,7 +42,7 @@ pub use logger::LOG;
 pub(crate) use psi::*;
 use rand::rngs::OsRng;
 pub(crate) use smtp_client::*;
-pub use smtp_client::{render_html, EmailMessage};
+pub use smtp_client::{render_html, EmailAttachment, EmailMessage};
 pub(crate) use strings::*;
 pub(crate) use subgraph::*;
 pub(crate) use subject_templates::*;

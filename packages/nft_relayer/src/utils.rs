@@ -10,6 +10,7 @@ use ethers::{
 use relayer::CLIENT;
 use relayer::*;
 use reqwest;
+use serde_json::Value;
 use slog::info;
 
 pub enum Asset {
@@ -83,7 +84,8 @@ pub async fn download_img_from_uri(url: &str) -> Result<Vec<u8>> {
 pub async fn generate_asset_list_body(
     assets: &[Asset],
     mut assets_msgs: Vec<String>,
-) -> Result<(String, String)> {
+) -> Result<(String, Vec<Value>, Vec<EmailAttachment>)> {
+    // let mut image_names = vec![None; assets_msgs.len()];
     let mut images = vec![None; assets_msgs.len()];
     for asset in assets {
         match asset {
@@ -94,6 +96,7 @@ pub async fn generate_asset_list_body(
                 amount_str,
             } => {
                 assets_msgs.push(format!("ERC20: {} {}", amount_str, token_name));
+                // image_names.push(None);
                 images.push(None);
             }
             Asset::ERC721 {
@@ -103,7 +106,9 @@ pub async fn generate_asset_list_body(
                 token_uri,
             } => {
                 let img = download_img_from_uri(&token_uri).await?;
-                info!(LOG, "img bytes {:?}", img);
+                // info!(LOG, "img bytes {:?}", img);
+                // let image_name = format!("nft_{}_id_{}", token_name, token_id);
+                // image_names.push(Some(image_name));
                 images.push(Some(img));
                 assets_msgs.push(format!("NFT: ID {} of {}", token_id, token_name));
             }
@@ -113,18 +118,46 @@ pub async fn generate_asset_list_body(
     for asset_msg in assets_msgs.iter() {
         assets_list_plain.push_str(&format!("{}\n", asset_msg));
     }
-    let mut assets_list_html = String::new();
-    assets_list_html.push_str("<ul>\n");
-    for (asset_msg, image) in assets_msgs.iter().zip(images.iter()) {
-        if let Some(image) = image {
-            let img_base64 = BASE64_STANDARD.encode(image);
-            assets_list_html.push_str(&format!(
-                "<li>{}\n<img src=\"data:image/png;base64,{}\"/>\n</li>",
-                asset_msg, img_base64
-            ));
+    let mut assets_list_html = vec![];
+    let mut attachments = vec![];
+    // assets_list_html.push_str("<ul>\n");
+    for (idx, ((asset_msg, image_bytes))) in assets_msgs.iter().zip(images.into_iter()).enumerate()
+    {
+        // let image_str = image
+        //     .as_ref()
+        //     .map(|img| format!("data:image/png;base64,{}", BASE64_STANDARD.encode(img)));
+        // let image_str = match image_name {
+        //     Some(name) => format!("cid:{}", name),
+        //     None => String::new(),
+        // };
+        let value = serde_json::json!({
+            "msg": asset_msg,
+            "img": format!("cid:{}",idx),
+            "is_img": image_bytes.is_some(),
+        });
+        assets_list_html.push(value);
+        if let Some(img) = image_bytes {
+            let email_attachment = EmailAttachment {
+                inline_id: idx.to_string(),
+                content_type: "image/png".to_string(),
+                contents: img,
+            };
+            attachments.push(email_attachment);
         }
-        assets_list_html.push_str(&format!("<li>{}</li>\n", asset_msg));
+        // if let Some(image) = image {
+        //     let img_base64 = BASE64_STANDARD.encode(image);
+
+        //     assets_list_html.push((
+        //         asset_msg.clone(),
+        //         format!("data:image/png;base64,{}", img_base64),
+        //     ));
+        //     // assets_list_html.push_str(&format!(
+        //     //     "<li>{}\n<img src=\"data:image/png;base64,{}\"/>\n</li>",
+        //     //     asset_msg, img_base64
+        //     // ));
+        // }
+        // assets_list_html.push_str(&format!("<li>{}</li>\n", asset_msg));
     }
-    assets_list_html.push_str("</ul>\n");
-    Ok((assets_list_plain, assets_list_html))
+    // assets_list_html.push_str("</ul>\n");
+    Ok((assets_list_plain, assets_list_html, attachments))
 }

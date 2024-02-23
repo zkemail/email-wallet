@@ -132,6 +132,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -165,6 +166,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: Some(message_id),
                 reply_to: Some(RELAYER_EMAIL_ADDRESS.get().unwrap().clone()),
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -208,6 +210,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -243,6 +246,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 body_html,
                 reference: None,
                 reply_to: None,
+                body_attachments: None,
             };
             sender.send(email)?;
         }
@@ -261,6 +265,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                     body_html,
                     reference: None,
                     reply_to: None,
+                    body_attachments: None,
                 };
                 sender.send(email)?;
             }
@@ -304,31 +309,41 @@ pub(crate) async fn generate_invitation_email(
             invitation_code_hex
         )
     };
-    let (assets_list_plain, assets_list_html) =
+    let (assets_list_plain, assets_list_html, attachments) =
         generate_asset_list_body(&assets, assets_msgs).await?;
     let body_plain = if is_for_nft_demo {
         format!(
-            "Hi {}!\nYou can claim ETH Denver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can recive the following assets!\n{}",
+            "Hi {}!\nYou can claim ETH Denver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can receive the following assets!\n{}",
             email_addr, wallet_addr, assets_list_plain,
         )
     } else {
         format!(
-            "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can recive the following assets!\n{}",
+            "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can receive the following assets!\n{}",
             email_addr, wallet_addr, assets_list_plain
         )
     };
-    let body_html = if is_for_nft_demo {
-        render_html(
+    let email_msg = if is_for_nft_demo {
+        let html = render_html(
             "invitation_nft.html",
             serde_json::json!({
                 "userEmailAddr": email_addr,
                 "walletAddr": wallet_addr,
                 "assetsList": assets_list_html,
+                "invitationCode": invitation_code_hex,
             }),
         )
-        .await?
+        .await?;
+        EmailMessage {
+            to: email_addr.to_string(),
+            subject,
+            body_plain,
+            body_html: html,
+            reference: None,
+            reply_to: None,
+            body_attachments: Some(attachments),
+        }
     } else {
-        render_html(
+        let html = render_html(
             "invitation.html",
             serde_json::json!({
                 "userEmailAddr": email_addr,
@@ -336,21 +351,23 @@ pub(crate) async fn generate_invitation_email(
                 "assetsList": assets_list_html,
             }),
         )
-        .await?
+        .await?;
+        EmailMessage {
+            to: email_addr.to_string(),
+            subject,
+            body_plain,
+            body_html: html,
+            reference: None,
+            reply_to: None,
+            body_attachments: Some(attachments),
+        }
     };
     if is_first {
         CLIENT
             .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
             .await?;
     }
-    Ok(EmailMessage {
-        to: email_addr.to_string(),
-        subject,
-        body_plain,
-        body_html,
-        reference: None,
-        reply_to: None,
-    })
+    Ok(email_msg)
 }
 
 pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
@@ -418,10 +435,10 @@ mod test {
         CORE_CONTRACT_ADDRESS
             .set(env::var("CORE_CONTRACT_ADDRESS").unwrap())
             .unwrap();
-        let email_addr = "suegamisora@gmail.com";
+        let email_addr = "suegamisora@g.ecc.u-tokyo.ac.jp";
         // let token_name = "APE";
         let token_addr = Address::from_str("0x1095F49b9d7A980847467C2A71b4231c0A6C208E").unwrap();
-        let token_id = U256::from(9);
+        let token_id = U256::from(14);
         let relayer_addr = Address::from_str("0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38").unwrap();
         let uri = "https://ipfs.io/ipfs/QmQEVVLJUR1WLN15S49rzDJsSP7za9DxeqpUzWuG4aondg".to_string();
         let nft_mintable = ERC721Mintable::new(token_addr, CLIENT.core.client());
