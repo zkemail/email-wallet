@@ -60,7 +60,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
         request.email_addr,  request.recipient_addr, request.nft_id, nft_name,wallet_addr,
     );
-    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftId": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, });
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, });
     let body_html = render_html("nft_transfer.html", render_data).await?;
     let email = EmailMessage {
         subject: subject.clone(),

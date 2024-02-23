@@ -322,7 +322,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         email_domain: parsed_email.get_email_domain()?,
         dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
         timestamp,
-        masked_subject,
+        masked_subject: original_subject.clone(),
         skip_subject_prefix: U256::from(skip_subject_prefix),
         fee_token_name,
         fee_per_gas: *FEE_PER_GAS.get().unwrap(),

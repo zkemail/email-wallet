@@ -510,4 +510,27 @@ mod test {
         //     .await
         //     .unwrap();
     }
+
+    #[tokio::test]
+    async fn nft_transfer_test() {
+        let email_addr = "suegamisora@gmail.com";
+        let relayer_url = "http://localhost:4500";
+        let token_id = 25u64;
+        let token_addr = "0x1095F49b9d7A980847467C2A71b4231c0A6C208E";
+        let recipient_addr = "0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38";
+        let request = NFTTransferRequest {
+            email_addr: email_addr.to_string(),
+            nft_id: token_id,
+            nft_addr: token_addr.to_string(),
+            recipient_addr: recipient_addr.to_string(),
+            is_recipient_email: false,
+        };
+        let payload = serde_json::to_string(&request).unwrap();
+        reqwest::Client::new()
+            .post(format!("{}/api/nftTransfer", relayer_url))
+            .body(payload)
+            .send()
+            .await
+            .unwrap();
+    }
 }
