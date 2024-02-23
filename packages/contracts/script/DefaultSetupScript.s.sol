@@ -62,7 +62,7 @@ contract Deploy is Script {
     UniswapExtension uniExt;
     UniswapExtension uniExtImpl;
 
-    uint256 constant emailValidityDuration = 1 hours;
+    uint256 constant emailValidityDuration = 14 days;
     uint256 constant unclaimedFundClaimGas = 450000;
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;
