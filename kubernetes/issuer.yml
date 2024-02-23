@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: issuer-config
+  labels:
+    app: issuer
+data:
+  RPC_URL: ""
+  NFT_CONTRACT_ADDRESS: ""
+  RELAYER_URL:
+  NFT_EXTENSION_ADDRESS:
+  UNCLAIMS_HANDLER_ADDRESS:
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: issuer-secret
+  labels:
+    app: issuer
+type: Opaque
+data:
+  PRIVATE_KEY: ""
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: issuer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: issuer
+  template:
+    metadata:
+      labels:
+        app: issuer
+    spec:
+      containers:
+        - name: issuer-container
+          image: bisht13/issuer:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: issuer-config
+            - secretRef:
+                name: issuer-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: issuer-svc
+spec:
+  selector:
+    app: issuer
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer
