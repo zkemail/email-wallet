@@ -31,92 +31,92 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Account_Creation() public {
         vm.startPrank(relayer1);
-        (/*bytes32 relayerHash, */string memory registeredEmailAddr) = accountCreation(
+        string memory registeredEmailAddr = accountCreation(
             user1.emailAddr,
             relayer1Rand,
             "gmail.com"
         );
-        require(Strings.equal(user1.emailAddr, registeredEmailAddr), "Relayer hash mismatch");
+        require(Strings.equal(user1.emailAddr, registeredEmailAddr), "email address mismatch"); // TODO fix this later
         vm.stopPrank();
     }
 
-//     function testIntegration_Transfer_ETH_To_Internal() public {
-//         vm.startPrank(relayer1);
-//         (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
-//             user1.emailAddr,
-//             user1.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user1.emailAddrPointer = emailAddrPointer;
-//         string memory projectRoot = vm.projectRoot();
-//         // (relayerHash, emailAddrPointer) = accountInit(
-//         //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-//         //     relayer1Rand,
-//         //     "gmail.com"
-//         // );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-//         // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-//         //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-//         // );
-//         bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
-//         // address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
-//         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
+    // function testIntegration_Transfer_ETH_To_Internal() public {
+    //     vm.startPrank(relayer1);
+    //     (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
+    //         user1.emailAddr,
+    //         user1.accountKey,
+    //         "gmail.com"
+    //     );
+    //     // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     user1.emailAddrPointer = emailAddrPointer;
+    //     string memory projectRoot = vm.projectRoot();
+    //     // (relayerHash, emailAddrPointer) = accountInit(
+    //     //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
+    //     //     relayer1Rand,
+    //     //     "gmail.com"
+    //     // );
+    //     // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
+    //     // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
+    //     //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
+    //     // );
+    //     bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
+    //     // address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
+    //     address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
 
-//         vm.stopPrank();
-//         vm.startPrank(user1Wallet);
-//         deal(user1Wallet, 0.15 ether);
-//         weth.deposit{value: 0.15 ether}();
-//         require(weth.balanceOf(user1Wallet) == 0.15 ether, "User1 wallet balance before the transaction mismatch");
-//         vm.stopPrank();
-//         vm.startPrank(relayer1);
-//         (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(
-//             string.concat(projectRoot, "/test/emails/token_transfer_test1.eml"),
-//             relayer1Rand,
-//             "Send",
-//             "Send 0.1 ETH to ",
-//             "gmail.com",
-//             "ETH"
-//         );
-//         emailOp.walletParams.tokenName = "ETH";
-//         emailOp.walletParams.amount = 0.1 ether;
-//         deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-//         (bool success, bytes memory reason, , uint256 registeredUnclaimId) = core.handleEmailOp{
-//             value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
-//         }(emailOp);
-//         assertEq(success, true, string(reason));
-//         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
-//         require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
-//         require(
-//             address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
-//             "Core contract eth balance mismatch"
-//         );
-//         (/*relayerHash, */emailAddrPointer) = accountCreation(
-//             user2.emailAddr, 
-//             user2.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user2.emailAddrPointer = emailAddrPointer;
-//         // (relayerHash, emailAddrPointer) = accountInit(
-//         //     string.concat(projectRoot, "/test/emails/account_init_test2.eml"),
-//         //     relayer1Rand,
-//         //     "gmail.com"
-//         // );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
-//         walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
-//         // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
-//         //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
-//         // );
-//         address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
-//         require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
-//         claimFund(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
-//         require(weth.balanceOf(user2Wallet) == 0.1 ether, "User2 wallet balance mismatch");
-//         require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
-//         vm.stopPrank();
-//     }
+    //     vm.stopPrank();
+    //     vm.startPrank(user1Wallet);
+    //     deal(user1Wallet, 0.15 ether);
+    //     weth.deposit{value: 0.15 ether}();
+    //     require(weth.balanceOf(user1Wallet) == 0.15 ether, "User1 wallet balance before the transaction mismatch");
+    //     vm.stopPrank();
+    //     vm.startPrank(relayer1);
+    //     (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(
+    //         string.concat(projectRoot, "/test/emails/token_transfer_test1.eml"),
+    //         relayer1Rand,
+    //         "Send",
+    //         "Send 0.1 ETH to ",
+    //         "gmail.com",
+    //         "ETH"
+    //     );
+    //     emailOp.walletParams.tokenName = "ETH";
+    //     emailOp.walletParams.amount = 0.1 ether;
+    //     deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
+    //     (bool success, bytes memory reason, , uint256 registeredUnclaimId) = core.handleEmailOp{
+    //         value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
+    //     }(emailOp);
+    //     assertEq(success, true, string(reason));
+    //     require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
+    //     require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
+    //     require(
+    //         address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
+    //         "Core contract eth balance mismatch"
+    //     );
+    //     (/*relayerHash, */emailAddrPointer) = accountCreation(
+    //         user2.emailAddr, 
+    //         user2.accountKey,
+    //         "gmail.com"
+    //     );
+    //     // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     user2.emailAddrPointer = emailAddrPointer;
+    //     // (relayerHash, emailAddrPointer) = accountInit(
+    //     //     string.concat(projectRoot, "/test/emails/account_init_test2.eml"),
+    //     //     relayer1Rand,
+    //     //     "gmail.com"
+    //     // );
+    //     // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
+    //     require(emailAddrPointer == user2.emailAddrPointer, "Email address pointer mismatch");
+    //     walletSalt = accountHandler.getInfoOfAccountKeyCommit(user2.emailAddrPointer).walletSalt;
+    //     // (, , walletSalt) = accountHandler.infoOfEmailAddrPointer(
+    //     //     accountHandler.walletSaltOfPointer(user2.emailAddrPointer)
+    //     // );
+    //     address user2Wallet = accountHandler.getWalletOfSalt(walletSalt);
+    //     require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
+    //     claimFund(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
+    //     require(weth.balanceOf(user2Wallet) == 0.1 ether, "User2 wallet balance mismatch");
+    //     require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
+    //     vm.stopPrank();
+    // }
 
 //     function testIntegration_Transfer_ETH_To_External() public {
 //         vm.startPrank(relayer1);
