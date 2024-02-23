@@ -74,7 +74,7 @@ pub(crate) async fn claim_unclaims(
         //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
         //     .await?;
 
-        db.insert_user(&claim.email_address, &account_key_str, &tx_hash, false)
+        db.insert_user(&claim.email_address, &account_key_str, "", false)
             .await?;
         // tx_sender
         //     .send(EmailMessage {

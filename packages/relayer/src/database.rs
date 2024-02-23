@@ -134,14 +134,22 @@ impl Database {
         Ok(())
     }
 
-    // pub(crate) async fn user_onborded(&self, email_address: &str) -> Result<()> {
-    //     let row = sqlx::query("UPDATE users SET is_onborded=$1 WHERE email_address=$2")
-    //         .bind(true)
-    //         .bind(email_address)
-    //         .fetch_one(&self.db)
-    //         .await?;
-    //     Ok(())
-    // }
+    #[named]
+    pub async fn user_onborded(&self, email_address: &str, tx_hash: &str) -> Result<()> {
+        let row =
+            sqlx::query("UPDATE users SET is_onborded=$1 AND tx_hash=$2 WHERE email_address=$3")
+                .bind(true)
+                .bind(tx_hash)
+                .bind(email_address)
+                .fetch_one(&self.db)
+                .await?;
+        info!(
+            LOG,
+            "inserted row: {}",
+            row.get::<String, _>("email_address"); "func" => function_name!()
+        );
+        Ok(())
+    }
 
     pub async fn get_claims_by_id(&self, id: &U256) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();

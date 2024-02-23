@@ -36,9 +36,10 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
         let account_key = AccountKey::from(hex2field(&format!("0x{}", invitation_code))?);
-        if db.contains_user(&from_addr).await? {
-            let stored_account_key = db.get_account_key(&from_addr).await?.unwrap();
-            if stored_account_key != field2hex(&account_key.0) {
+        // let is_user_contained = db.contains_user(&from_addr).await?;
+        let stored_account_key = db.get_account_key(&from_addr).await?;
+        if let Some(stored_account_key) = stored_account_key.as_ref() {
+            if stored_account_key != &field2hex(&account_key.0) {
                 return Err(anyhow!(
                     "Stored account key is not equal to one in the email: {} != {}",
                     stored_account_key,
@@ -77,8 +78,14 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
             let res = chain_client.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
-            db.insert_user(&from_addr, &field2hex(&account_key.0), &res, false)
-                .await?;
+            if let Some(_) = stored_account_key {
+                db.user_onborded(&from_addr, &res).await?;
+                trace!(LOG, "User onboarded"; "func" => function_name!());
+            } else {
+                db.insert_user(&from_addr, &field2hex(&account_key.0), &res, true)
+                    .await?;
+                trace!(LOG, "User inserted"; "func" => function_name!());
+            }
             let wallet_addr = chain_client
                 .get_wallet_addr_from_salt(&wallet_salt.0)
                 .await?;

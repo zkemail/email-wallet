@@ -435,10 +435,10 @@ mod test {
         CORE_CONTRACT_ADDRESS
             .set(env::var("CORE_CONTRACT_ADDRESS").unwrap())
             .unwrap();
-        let email_addr = "suegamisora@g.ecc.u-tokyo.ac.jp";
+        let email_addr = "emaiwallet.alice@gmail.com";
         // let token_name = "APE";
         let token_addr = Address::from_str("0x1095F49b9d7A980847467C2A71b4231c0A6C208E").unwrap();
-        let token_id = U256::from(14);
+        let token_id = U256::from(17);
         let relayer_addr = Address::from_str("0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38").unwrap();
         let uri = "https://ipfs.io/ipfs/QmQEVVLJUR1WLN15S49rzDJsSP7za9DxeqpUzWuG4aondg".to_string();
         let nft_mintable = ERC721Mintable::new(token_addr, CLIENT.core.client());

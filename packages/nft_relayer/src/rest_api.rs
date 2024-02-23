@@ -57,8 +57,8 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     )?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
     let body_plain = format!(
-        "Hi {}! To send your NFT {} with id {} to {}, please reply to this email!\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
-        request.email_addr, nft_name, request.nft_id, request.recipient_addr, wallet_addr,
+        "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
+        request.email_addr,  request.recipient_addr, request.nft_id, nft_name,wallet_addr,
     );
     let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftId": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, });
     let body_html = render_html("nft_transfer.html", render_data).await?;
