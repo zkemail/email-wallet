@@ -512,6 +512,7 @@ mod test {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn nft_transfer_test() {
         let email_addr = "suegamisora@gmail.com";
         let relayer_url = "http://localhost:4500";
