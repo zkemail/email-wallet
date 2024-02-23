@@ -361,9 +361,6 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.walletSalt = bytes32(vm.parseUint(pubSignals[32]));
         emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
         emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
-        
-        
-        
     }
 
     function claimFund(

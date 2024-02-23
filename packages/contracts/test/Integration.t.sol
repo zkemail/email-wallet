@@ -34,7 +34,7 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Account_Creation() public {
         vm.startPrank(relayer1);
-        Wallet user1Wallet = accountCreation(
+        Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
             relayer1Rand,
@@ -45,19 +45,19 @@ contract IntegrationTest is IntegrationTestHelper {
 
     function testIntegration_Transfer_ETH_To_Internal() public {
         vm.startPrank(relayer1);
-        Wallet user1Wallet = accountCreation(
+        Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
             relayer1Rand,
             "gmail.com"
         );
-        address user1WalletAddress = address(user1Wallet);
+        address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
 
-        vm.startPrank(user1WalletAddress);
-        deal(user1WalletAddress, 0.15 ether);
+        vm.startPrank(user1Wallet);
+        deal(user1Wallet, 0.15 ether);
         weth.deposit{value: 0.15 ether}();
-        require(weth.balanceOf(user1WalletAddress) == 0.15 ether, "User1 wallet balance before the transaction mismatch");
+        require(weth.balanceOf(user1Wallet) == 0.15 ether, "User1 wallet balance before the transaction mismatch");
         vm.stopPrank();
 
 
@@ -72,15 +72,13 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.1 ether;
-        // console.logString("aaae");
-        // console.logBytes32(emailOp.walletSalt);
 
         deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
         (bool success, bytes memory reason, , uint256 registeredUnclaimId) = core.handleEmailOp{
             value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
         }(emailOp);
         assertEq(success, true, string(reason));
-        require(weth.balanceOf(user1WalletAddress) < 0.05 ether, "User1 wallet balance after the transaction is too large");
+        require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance after the transaction is too large");
         require(weth.balanceOf(address(unclaimsHandler)) == 0.1 ether, "Core contract weth balance mismatch");
         require(
             address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
@@ -103,53 +101,42 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
     }
 
-//     function testIntegration_Transfer_ETH_To_External() public {
-//         vm.startPrank(relayer1);
-//         (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
-//             user1.emailAddr,
-//             user1.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user1.emailAddrPointer = emailAddrPointer;
-//         string memory projectRoot = vm.projectRoot();
-//         // (relayerHash, emailAddrPointer) = accountInit(
-//         //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-//         //     relayer1Rand,
-//         //     "gmail.com"
-//         // );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-//         // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-//         //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-//         // );
-//         bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
-//         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
-//         vm.stopPrank();
-//         vm.startPrank(user1Wallet);
-//         deal(user1Wallet, 0.3 ether);
-//         weth.deposit{value: 0.3 ether}();
-//         vm.stopPrank();
-//         vm.startPrank(relayer1);
-//         address recipient = vm.addr(4);
-//         (EmailOp memory emailOp, ) = genEmailOpPartial(
-//             string.concat(projectRoot, "/test/emails/token_transfer_test2.eml"),
-//             relayer1Rand,
-//             "Send",
-//             string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
-//             "gmail.com",
-//             "ETH"
-//         );
-//         emailOp.walletParams.tokenName = "ETH";
-//         emailOp.walletParams.amount = 0.25 ether;
-//         emailOp.recipientETHAddr = recipient;
-//         (bool success, bytes memory reason, , ) = core.handleEmailOp{value: 0}(emailOp);
-//         assertEq(success, true, string(reason));
-//         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
-//         require(recipient.balance == 0.25 ether, "Recipient address balance mismatch");
-//         require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
-//         vm.stopPrank();
-//     }
+    function testIntegration_Transfer_ETH_To_External() public {
+        vm.startPrank(relayer1);
+        Wallet user1WalletContract = accountCreation(
+            string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
+            user1.emailAddr,
+            relayer1Rand,
+            "gmail.com"
+        );
+        address user1Wallet = address(user1WalletContract);
+        vm.stopPrank();
+
+        vm.startPrank(user1Wallet);
+        deal(user1Wallet, 0.3 ether);
+        weth.deposit{value: 0.3 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer1);
+        address recipient = vm.addr(4);
+        (EmailOp memory emailOp, ) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/token_transfer_test2.eml"),
+            user1.accountKey,
+            "Send",
+            string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
+            "gmail.com",
+            "ETH"
+        );
+        emailOp.walletParams.tokenName = "ETH";
+        emailOp.walletParams.amount = 0.25 ether;
+        emailOp.recipientETHAddr = recipient;
+        (bool success, bytes memory reason, , ) = core.handleEmailOp{value: 0}(emailOp);
+        assertEq(success, true, string(reason));
+        require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
+        require(recipient.balance == 0.25 ether, "Recipient address balance mismatch");
+        require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
+        vm.stopPrank();
+    }
 
 //     function testIntegration_Transfers_Random() public {
 //         vm.startPrank(relayer1);
@@ -265,171 +252,161 @@ contract IntegrationTest is IntegrationTestHelper {
 //         vm.stopPrank();
 //     }
 
-//     function testIntegration_Swap_Tokens() public {
-//         vm.startPrank(relayer1);
-//         (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
-//             user1.emailAddr,
-//             user1.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user1.emailAddrPointer = emailAddrPointer;
-//         // (relayerHash, emailAddrPointer) = accountInit(
-//         //     string.concat(vm.projectRoot(), "/test/emails/account_init_test1.eml"),
-//         //     relayer1Rand,
-//         //     "gmail.com"
-//         // );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-//         // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-//         //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-//         // );
-//         bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
-//         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
-//         // address recipient = vm.addr(4);
-//         vm.stopPrank();
-//         vm.startPrank(user1Wallet);
-//         deal(user1Wallet, 20 ether);
-//         weth.deposit{value: 20 ether}();
-//         deal(address(daiToken), user1Wallet, 20 * 10000 ether);
-//         deal(address(usdcToken), user1Wallet, 20 * 10000 * (10 ** 6));
-//         vm.stopPrank();
+    function testIntegration_Swap_Tokens() public {
+        vm.startPrank(relayer1);
+        Wallet user1WalletContract = accountCreation(
+            string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
+            user1.emailAddr,
+            relayer1Rand,
+            "gmail.com"
+        );
+        address user1Wallet = address(user1WalletContract);
+        vm.stopPrank();
 
-//         vm.startPrank(relayer1);
-//         (EmailOp memory emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/install_uniswap.eml"),
-//             relayer1Rand,
-//             "Install",
-//             "Install extension Uniswap",
-//             "gmail.com",
-//             "ETH"
-//         );
-//         emailOp.extensionName = "Uniswap";
-//         (bool success, bytes memory reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         (emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/uniswap_test1.eml"),
-//             relayer1Rand,
-//             "Swap",
-//             "Swap 0.2 ETH to DAI",
-//             "gmail.com",
-//             "ETH"
-//         );
-//         bytes[] memory extensionBytes = new bytes[](2);
-//         extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
-//         extensionBytes[1] = abi.encode("DAI");
-//         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
-//         uint preEthBalance = weth.balanceOf(user1Wallet);
-//         uint preDaiBalance = daiToken.balanceOf(user1Wallet);
-//         (success, reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
-//         require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+        vm.startPrank(user1Wallet);
+        deal(user1Wallet, 20 ether);
+        weth.deposit{value: 20 ether}();
+        deal(address(daiToken), user1Wallet, 20 * 10000 ether);
+        // TODO: failed it's related to https://github.com/foundry-rs/forge-std/pull/505 
+        // deal(address(usdcToken), user1Wallet, 20 * 10000 * (10 ** 6));
+        vm.stopPrank();
 
-//         (emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/uniswap_test2.eml"),
-//             relayer1Rand,
-//             "Swap",
-//             "Swap 200 DAI to USDC",
-//             "gmail.com",
-//             "DAI"
-//         );
-//         extensionBytes = new bytes[](2);
-//         extensionBytes[0] = abi.encode(uint256(200 ether), "DAI");
-//         extensionBytes[1] = abi.encode("USDC");
-//         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
-//         preDaiBalance = daiToken.balanceOf(user1Wallet);
-//         uint preUsdcBalance = usdcToken.balanceOf(user1Wallet);
-//         (success, reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
-//         require(preUsdcBalance < usdcToken.balanceOf(user1Wallet), "USDC balance does not increase");
+        // vm.startPrank(relayer1);
+        // (EmailOp memory emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/install_uniswap.eml"),
+        //     user1.accountKey,
+        //     "Install",
+        //     "Install extension Uniswap",
+        //     "gmail.com",
+        //     "ETH"
+        // );
+        // emailOp.extensionName = "Uniswap";
+        // (bool success, bytes memory reason, , ) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
 
-//         (emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/uniswap_test3.eml"),
-//             relayer1Rand,
-//             "Swap",
-//             "Swap 200 USDC to ETH",
-//             "gmail.com",
-//             "USDC"
-//         );
-//         extensionBytes = new bytes[](2);
-//         extensionBytes[0] = abi.encode(uint256(200 * (10 ** 6)), "USDC");
-//         extensionBytes[1] = abi.encode("ETH");
-//         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
-//         preUsdcBalance = usdcToken.balanceOf(user1Wallet);
-//         preEthBalance = weth.balanceOf(user1Wallet);
-//         (success, reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         require(preUsdcBalance > usdcToken.balanceOf(user1Wallet), "USDC balance does not decrease");
-//         require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test1.eml"),
+        //     user1.accountKey,
+        //     "Swap",
+        //     "Swap 0.2 ETH to DAI",
+        //     "gmail.com",
+        //     "ETH"
+        // );
+        // bytes[] memory extensionBytes = new bytes[](2);
+        // extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
+        // extensionBytes[1] = abi.encode("DAI");
+        // emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        // uint preEthBalance = weth.balanceOf(user1Wallet);
+        // uint preDaiBalance = daiToken.balanceOf(user1Wallet);
+        // (success, reason, , ) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
+        // require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
 
-//         (emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/uniswap_test4.eml"),
-//             relayer1Rand,
-//             "Swap",
-//             "Swap 200 DAI to ETH",
-//             "gmail.com",
-//             "DAI"
-//         );
-//         extensionBytes = new bytes[](2);
-//         extensionBytes[0] = abi.encode(uint256(200 ether), "DAI");
-//         extensionBytes[1] = abi.encode("ETH");
-//         emailOp.extensionParams = ExtensionParams(0, extensionBytes);
-//         preDaiBalance = daiToken.balanceOf(user1Wallet);
-//         preEthBalance = weth.balanceOf(user1Wallet);
-//         (success, reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
-//         require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test2.eml"),
+        //     user1.accountKey,
+        //     "Swap",
+        //     "Swap 200 DAI to USDC",
+        //     "gmail.com",
+        //     "DAI"
+        // );
+        // extensionBytes = new bytes[](2);
+        // extensionBytes[0] = abi.encode(uint256(200 ether), "DAI");
+        // extensionBytes[1] = abi.encode("USDC");
+        // emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        // preDaiBalance = daiToken.balanceOf(user1Wallet);
+        // uint preUsdcBalance = usdcToken.balanceOf(user1Wallet);
+        // (success, reason, , ) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
+        // require(preUsdcBalance < usdcToken.balanceOf(user1Wallet), "USDC balance does not increase");
 
-//         // template index 1
-//         // Swap 0.2 ETH to DAI with 0.5 slippage
-//         (emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/uniswap_test5.eml"),
-//             relayer1Rand,
-//             "Swap",
-//             "Swap 0.2 ETH to DAI with 0.5 slippage",
-//             "gmail.com",
-//             "ETH"
-//         );
-//         extensionBytes = new bytes[](3);
-//         extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
-//         extensionBytes[1] = abi.encode("DAI");
-//         extensionBytes[2] = abi.encode(uint256(0.5 ether));
-//         emailOp.extensionParams = ExtensionParams(1, extensionBytes);
-//         preEthBalance = weth.balanceOf(user1Wallet);
-//         preDaiBalance = daiToken.balanceOf(user1Wallet);
-//         (success, reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
-//         require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test3.eml"),
+        //     user1.accountKey,
+        //     "Swap",
+        //     "Swap 200 USDC to ETH",
+        //     "gmail.com",
+        //     "USDC"
+        // );
+        // extensionBytes = new bytes[](2);
+        // extensionBytes[0] = abi.encode(uint256(200 * (10 ** 6)), "USDC");
+        // extensionBytes[1] = abi.encode("ETH");
+        // emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        // preUsdcBalance = usdcToken.balanceOf(user1Wallet);
+        // preEthBalance = weth.balanceOf(user1Wallet);
+        // (success, reason, , ) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preUsdcBalance > usdcToken.balanceOf(user1Wallet), "USDC balance does not decrease");
+        // require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
 
-//         // This test case is not working because of the slippage changes frequently.
-//         // // template index 2
-//         // // Swap 0.2 ETH to DAI under 3627979510633925696217750990627 sqrt price limit
-//         // (emailOp, ) = genEmailOpPartial(
-//         //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test6.eml"),
-//         //     relayer1Rand,
-//         //     "Swap",
-//         //     "Swap 0.2 ETH to DAI under 3627979510633925696217750990627 sqrt price limit",
-//         //     "gmail.com",
-//         //     "DAI"
-//         // );
-//         // extensionBytes = new bytes[](3);
-//         // extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
-//         // extensionBytes[1] = abi.encode("DAI");
-//         // extensionBytes[2] = abi.encode(uint(3627979510633925696217750990627));
-//         // emailOp.extensionParams = ExtensionParams(2, extensionBytes);
-//         // preEthBalance = weth.balanceOf(user1Wallet);
-//         // preDaiBalance = daiToken.balanceOf(user1Wallet);
-//         // (success, reason, ,) = core.handleEmailOp(emailOp);
-//         // require(success, string(reason));
-//         // require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
-//         // require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test4.eml"),
+        //     user1.accountKey,
+        //     "Swap",
+        //     "Swap 200 DAI to ETH",
+        //     "gmail.com",
+        //     "DAI"
+        // );
+        // extensionBytes = new bytes[](2);
+        // extensionBytes[0] = abi.encode(uint256(200 ether), "DAI");
+        // extensionBytes[1] = abi.encode("ETH");
+        // emailOp.extensionParams = ExtensionParams(0, extensionBytes);
+        // preDaiBalance = daiToken.balanceOf(user1Wallet);
+        // preEthBalance = weth.balanceOf(user1Wallet);
+        // (success, reason, , ) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preDaiBalance > daiToken.balanceOf(user1Wallet), "DAI balance does not decrease");
+        // require(preEthBalance < weth.balanceOf(user1Wallet), "ETH balance does not increase");
 
-//         vm.stopPrank();
-//     }
+        // // template index 1
+        // // Swap 0.2 ETH to DAI with 0.5 slippage
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test5.eml"),
+        //     user1.accountKey,
+        //     "Swap",
+        //     "Swap 0.2 ETH to DAI with 0.5 slippage",
+        //     "gmail.com",
+        //     "ETH"
+        // );
+        // extensionBytes = new bytes[](3);
+        // extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
+        // extensionBytes[1] = abi.encode("DAI");
+        // extensionBytes[2] = abi.encode(uint256(0.5 ether));
+        // emailOp.extensionParams = ExtensionParams(1, extensionBytes);
+        // preEthBalance = weth.balanceOf(user1Wallet);
+        // preDaiBalance = daiToken.balanceOf(user1Wallet);
+        // (success, reason, , ) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
+        // require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+
+        // This test case is not working because of the slippage changes frequently.
+        // // template index 2
+        // // Swap 0.2 ETH to DAI under 3627979510633925696217750990627 sqrt price limit
+        // (emailOp, ) = genEmailOpPartial(
+        //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test6.eml"),
+        //     relayer1Rand,
+        //     "Swap",
+        //     "Swap 0.2 ETH to DAI under 3627979510633925696217750990627 sqrt price limit",
+        //     "gmail.com",
+        //     "DAI"
+        // );
+        // extensionBytes = new bytes[](3);
+        // extensionBytes[0] = abi.encode(uint256(0.2 ether), "ETH");
+        // extensionBytes[1] = abi.encode("DAI");
+        // extensionBytes[2] = abi.encode(uint(3627979510633925696217750990627));
+        // emailOp.extensionParams = ExtensionParams(2, extensionBytes);
+        // preEthBalance = weth.balanceOf(user1Wallet);
+        // preDaiBalance = daiToken.balanceOf(user1Wallet);
+        // (success, reason, ,) = core.handleEmailOp(emailOp);
+        // require(success, string(reason));
+        // require(preEthBalance > weth.balanceOf(user1Wallet), "ETH balance does not decrease");
+        // require(preDaiBalance < daiToken.balanceOf(user1Wallet), "DAI balance does not increase");
+
+        vm.stopPrank();
+    }
 
 //     function testIntegration_Deposit_Transfer_Withdraw() public {
 //         address depositer = vm.addr(6);
