@@ -136,17 +136,18 @@ impl Database {
 
     #[named]
     pub async fn user_onborded(&self, email_address: &str, tx_hash: &str) -> Result<()> {
-        let row =
-            sqlx::query("UPDATE users SET is_onborded=$1 AND tx_hash=$2 WHERE email_address=$3")
-                .bind(true)
-                .bind(tx_hash)
-                .bind(email_address)
-                .fetch_one(&self.db)
-                .await?;
+        info!(LOG, "email_address {}", email_address; "func" => function_name!());
+        let res = sqlx::query(
+            "UPDATE users SET is_onborded = TRUE, tx_hash = $1 WHERE email_address = $2",
+        )
+        .bind(tx_hash)
+        .bind(email_address)
+        .execute(&self.db)
+        .await?;
         info!(
             LOG,
-            "inserted row: {}",
-            row.get::<String, _>("email_address"); "func" => function_name!()
+            "updated result: {:?}",
+            res; "func" => function_name!()
         );
         Ok(())
     }

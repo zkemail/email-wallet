@@ -86,8 +86,11 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             account_key,
             tx_hash,
         } => {
-            let subject =
-                format!("Email Wallet Notification. Your Email Wallet Account is created.",);
+            let invitation_code_hex = &field2hex(&account_key.0)[2..];
+            let subject = format!(
+                "Email Wallet Notification. Your Email Wallet Account is created. Code {}",
+                invitation_code_hex
+            );
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
@@ -435,10 +438,10 @@ mod test {
         CORE_CONTRACT_ADDRESS
             .set(env::var("CORE_CONTRACT_ADDRESS").unwrap())
             .unwrap();
-        let email_addr = "emaiwallet.alice@gmail.com";
+        let email_addr = "suegamisora@gmail.com";
         // let token_name = "APE";
         let token_addr = Address::from_str("0x1095F49b9d7A980847467C2A71b4231c0A6C208E").unwrap();
-        let token_id = U256::from(17);
+        let token_id = U256::from(26);
         let relayer_addr = Address::from_str("0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38").unwrap();
         let uri = "https://ipfs.io/ipfs/QmQEVVLJUR1WLN15S49rzDJsSP7za9DxeqpUzWuG4aondg".to_string();
         let nft_mintable = ERC721Mintable::new(token_addr, CLIENT.core.client());
