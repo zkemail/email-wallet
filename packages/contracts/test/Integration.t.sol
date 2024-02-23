@@ -40,59 +40,6 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
     }
 
-//     function testIntegration_Account_Init() public {
-//         vm.startPrank(relayer1);
-//         (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
-//             user1.emailAddr,
-//             user1.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user1.emailAddrPointer = emailAddrPointer;
-//         // string memory projectRoot = vm.projectRoot();
-//         // (relayerHash, emailAddrPointer) = accountInit(
-//         //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-//         //     relayer1Rand,
-//         //     "gmail.com"
-//         // );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-//         vm.stopPrank();
-//     }
-
-//     // function testIntegration_Account_Transport() public {
-//     //     vm.startPrank(relayer1);
-//     //     (bytes32 relayerHash, bytes32 emailAddrPointer) = accountCreation(
-//     //         user1.emailAddr,
-//     //         relayer1Rand,
-//     //         user1.accountKey
-//     //     );
-//     //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//     //     user1.emailAddrPointer = emailAddrPointer;
-//     //     string memory projectRoot = vm.projectRoot();
-//     //     (relayerHash, emailAddrPointer) = accountInit(
-//     //         string.concat(projectRoot, "/test/emails/account_transport_test1.eml"),
-//     //         relayer1Rand,
-//     //         "gmail.com"
-//     //     );
-//     //     require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//     //     require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-//     //     vm.stopPrank();
-//     //     vm.startPrank(relayer2);
-//     //     (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) = accountTransport(
-//     //         relayer1RandHash,
-//     //         accountHandler.accountKeyCommitOfPointer(user1.emailAddrPointer),
-//     //         string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-//     //         "gmail.com",
-//     //         "suegamisora@gmail.com",
-//     //         relayer2Rand,
-//     //         user1.accountKey
-//     //     );
-//     //     user1.emailAddrPointer = newEmailAddrPointer;
-//     //     require(newRelayerHash == relayer2RandHash, "Relayer hash mismatch");
-//     //     vm.stopPrank();
-//     // }
-
 //     function testIntegration_Transfer_ETH_To_Internal() public {
 //         vm.startPrank(relayer1);
 //         (/*bytes32 relayerHash, */bytes32 emailAddrPointer) = accountCreation(
