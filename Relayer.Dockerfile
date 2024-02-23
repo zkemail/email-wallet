@@ -1,33 +1,27 @@
-FROM rustlang/rust:nightly
+FROM rust:latest
 
-RUN apt-get update && apt-get upgrade -y 
-RUN apt-get update && \
-    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm vim 
+RUN apt update && apt upgrade -y 
 
-# Node install
-RUN npm install -g n 
-RUN n 18
-RUN npm install -g yarn
+SHELL ["/bin/bash", "-c"]
 
-RUN git clone https://github.com/zkemail/email-wallet.git
-WORKDIR /email-wallet
-RUN yarn
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash 
+RUN . /root/.nvm/nvm.sh && . /root/.nvm/bash_completion
 
-WORKDIR /email-wallet/packages/relayer
-COPY packages/relayer/.env ./.env
-# COPY packages/relayer/scripts/ ./scripts # FIXME: It's for testing
+RUN bash -i -c "nvm install 18 && nvm use 18"
+RUN bash -i -c "npm install -g yarn"
+
+WORKDIR /relayer
+
+COPY . .
+
+RUN bash -i -c "yarn"
+
+RUN curl -L https://foundry.paradigm.xyz | bash
+WORKDIR /relayer/packages/contracts
+RUN forge build
+
+WORKDIR /relayer/packages/nft_relayer
 RUN cargo build --release
-
-WORKDIR /email-wallet/packages/prover
-RUN apt-get update && apt-get install -y python3.10 python3-distutils python3-pip python3-apt
-RUN pip install modal
-ARG modal_token_id
-ARG modal_token_secret
-RUN modal token set --token-id ${modal_token_id} --token-secret ${modal_token_secret} 
-RUN nohup modal serve modal_server.py &
-
-WORKDIR /email-wallet/packages/relayer
-CMD [ "/bin/bash", "-c", "/email-wallet/packages/relayer/scripts/startup.sh"]
 
 
 # # ------------------ Chef stage -------------------
