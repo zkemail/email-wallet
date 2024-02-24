@@ -787,70 +787,60 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
     }
 
-//     function testIntegration_Approve_NFT() public {
-//         vm.startPrank(relayer1);
-//         (/*bytes32 relayerHash, */ bytes32 emailAddrPointer) = accountCreation(
-//             user1.emailAddr,
-//             user1.accountKey,
-//             "gmail.com"
-//         );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         user1.emailAddrPointer = emailAddrPointer;
-//         string memory projectRoot = vm.projectRoot();
-//         // (relayerHash, emailAddrPointer) = accountInit(
-//         //     string.concat(projectRoot, "/test/emails/account_init_test1.eml"),
-//         //     relayer1Rand,
-//         //     "gmail.com"
-//         // );
-//         // require(relayerHash == relayer1RandHash, "Relayer hash mismatch");
-//         require(emailAddrPointer == user1.emailAddrPointer, "Email address pointer mismatch");
-//         bytes32 walletSalt = accountHandler.getInfoOfAccountKeyCommit(user1.emailAddrPointer).walletSalt;
-//         // (, , bytes32 walletSalt) = accountHandler.infoOfEmailAddrPointer(
-//         //     accountHandler.walletSaltOfPointer(user1.emailAddrPointer)
-//         // );
-//         address user1Wallet = accountHandler.getWalletOfSalt(walletSalt);
-//         DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
-//         ape.freeMint(user1Wallet, 1);
-//         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
+    function testIntegration_Approve_NFT() public {
+        vm.startPrank(relayer1);
+        Wallet user1WalletContract = accountCreation(
+            string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
+            user1.emailAddr,
+            relayer1Rand,
+            "gmail.com"
+        );
+        address user1Wallet = address(user1WalletContract);
+        vm.stopPrank();
 
-//         vm.stopPrank();
-//         vm.startPrank(user1Wallet);
-//         deal(user1Wallet, 0.15 ether);
-//         weth.deposit{value: 0.15 ether}();
-//         vm.stopPrank();
+        vm.startPrank(relayer1);
+        DummyNFT ape = DummyNFT(nftExtension.addressOfNFTName("APE"));
+        ape.freeMint(user1Wallet, 1);
+        require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
+        vm.stopPrank();
 
-//         vm.startPrank(relayer1);
-//         (EmailOp memory emailOp, ) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/install_nft.eml"),
-//             relayer1Rand,
-//             "Install",
-//             "Install extension NFT",
-//             "gmail.com",
-//             "ETH"
-//         );
-//         emailOp.extensionName = "NFT";
-//         (bool success, bytes memory reason, , ) = core.handleEmailOp(emailOp);
-//         require(success, string(reason));
-//         bytes32 emailAddrRand;
-//         address recipient = vm.addr(4);
-//         (emailOp, emailAddrRand) = genEmailOpPartial(
-//             string.concat(vm.projectRoot(), "/test/emails/nft_approve_test1.eml"),
-//             relayer1Rand,
-//             "NFT",
-//             string.concat("NFT Approve ", recipient.addressToChecksumHexString(), " for 1 of APE"),
-//             "gmail.com",
-//             "ETH"
-//         );
-//         bytes[] memory extensionBytes = new bytes[](2);
-//         extensionBytes[0] = abi.encode(uint(1));
-//         extensionBytes[1] = abi.encode("APE");
-//         emailOp.extensionParams = ExtensionParams(1, extensionBytes);
-//         emailOp.recipientETHAddr = recipient;
-//         deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
-//         (success, reason, , ) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
-//         require(success, string(reason));
-//         require(ape.ownerOf(1) == user1Wallet, "User1 wallet should still own APE");
-//         require(ape.getApproved(1) == recipient, "Recipient should be approved for APE");
-//         vm.stopPrank();
-//     }
+        vm.startPrank(user1Wallet);
+        deal(user1Wallet, 0.15 ether);
+        weth.deposit{value: 0.15 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer1);
+        (EmailOp memory emailOp, ) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/install_nft.eml"),
+            user1.accountKey,
+            "Install",
+            "Install extension NFT",
+            "gmail.com",
+            "ETH"
+        );
+        emailOp.extensionName = "NFT";
+        (bool success, bytes memory reason, , ) = core.handleEmailOp(emailOp);
+        require(success, string(reason));
+        bytes32 emailAddrRand;
+        address recipient = vm.addr(4);
+        (emailOp, emailAddrRand) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/nft_approve_test1.eml"),
+            user1.accountKey,
+            "NFT",
+            string.concat("NFT Approve ", recipient.addressToChecksumHexString(), " for 1 of APE"),
+            "gmail.com",
+            "ETH"
+        );
+        bytes[] memory extensionBytes = new bytes[](2);
+        extensionBytes[0] = abi.encode(uint(1));
+        extensionBytes[1] = abi.encode("APE");
+        emailOp.extensionParams = ExtensionParams(1, extensionBytes);
+        emailOp.recipientETHAddr = recipient;
+        deal(relayer1, core.unclaimedStateClaimGas() * core.maxFeePerGas());
+        (success, reason, , ) = core.handleEmailOp{value: core.unclaimedStateClaimGas() * core.maxFeePerGas()}(emailOp);
+        require(success, string(reason));
+        require(ape.ownerOf(1) == user1Wallet, "User1 wallet should still own APE");
+        require(ape.getApproved(1) == recipient, "Recipient should be approved for APE");
+        vm.stopPrank();
+    }
 }
