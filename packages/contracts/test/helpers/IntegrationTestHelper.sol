@@ -59,12 +59,16 @@ abstract contract IntegrationTestHelper is Test {
     // TestERC20 wethToken;
     ERC20 daiToken;
     ERC20 usdcToken;
+    ERC20 usdcNativeToken;
 
     bytes32 mockDKIMHash = bytes32(uint256(123));
 
     address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
     address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
-    address constant USDC_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    // TODO: This native USDC address not working correctly at the moment. 
+    // See https://github.com/foundry-rs/forge-std/pull/505 
+    address constant USDC_NATIVE_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    address constant USDC_ADDR = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
     address constant UNISWAP_V3_FACTORY = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     address constant UNISWAP_V3_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
@@ -224,6 +228,7 @@ abstract contract IntegrationTestHelper is Test {
         daiToken = ERC20(DAI_ADDR);
         // usdcToken = new TestERC20("USDC", "USDC");
         usdcToken = ERC20(USDC_ADDR);
+        usdcNativeToken = ERC20(USDC_NATIVE_ADDR);
         tokenRegistry.setTokenAddress("WETH", address(weth));
         tokenRegistry.setTokenAddress("DAI", address(daiToken));
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
@@ -384,7 +389,11 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
         bytes32 recipientWalletSalt = bytes32(vm.parseUint(pubSignals[1]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(registeredUnclaimId, recipientWalletSalt, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(
+            registeredUnclaimId, 
+            recipientWalletSalt, 
+            proof
+        );
     }
 
     function claimState(
