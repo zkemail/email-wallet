@@ -14,7 +14,7 @@ import "../Wallet.sol";
 import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
-import "forge-std/console.sol";
+
 contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
 
@@ -206,7 +206,6 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         require(verifier.verifyClaimFundProof(fund.emailAddrCommit, recipientWalletSalt, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
-
         delete unclaimedFundOfId[id];
 
         // Transfer token from Core contract to recipient's wallet
