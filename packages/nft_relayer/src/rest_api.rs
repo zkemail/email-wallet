@@ -4,13 +4,15 @@ use email_wallet_utils::{
     converters::hex2field,
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
-use ethers::types::Address;
+use ethers::types::{Address, U256};
 
 use rand::Rng;
 use relayer::CLIENT;
 use relayer::*;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+
+use crate::download_img_from_uri;
 
 #[derive(Serialize, Deserialize)]
 pub struct NFTTransferRequest {
@@ -60,20 +62,25 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
         request.email_addr,  request.recipient_addr, request.nft_id, nft_name,wallet_addr,
     );
-    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, });
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, "img":"cid:0" });
     let body_html = render_html("nft_transfer.html", render_data).await?;
+    let nft_uri = CLIENT
+        .query_erc721_token_uri_of_token(nft_addr, U256::from(request.nft_id))
+        .await?;
+    let img = download_img_from_uri(&nft_uri).await?;
+    let attachment = EmailAttachment {
+        inline_id: "0".to_string(),
+        content_type: "image/png".to_string(),
+        contents: img,
+    };
     let email = EmailMessage {
         subject: subject.clone(),
         body_html,
         body_plain,
-        // body: format!(
-        //     "NFT Send {} of {} to {}",
-        //     request.nft_id, nft_name, request.recipient_addr
-        // ),
         to: request.email_addr,
         reference: None,
         reply_to: None,
-        body_attachments: None,
+        body_attachments: Some(vec![attachment]),
     };
     Ok((request_id, email))
 }

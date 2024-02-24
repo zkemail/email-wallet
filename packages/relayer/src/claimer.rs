@@ -128,25 +128,27 @@ pub(crate) async fn claim_unclaims(
     //     .unwrap();
     let now = now();
     // let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
-    let reply_msg = if claim.is_fund {
+
+    let (unclaimed_fund, unclaimed_state) = if claim.is_fund {
         let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
         if unclaimed_fund.expiry_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
-        let mut token_name = chain_client
-            .query_token_name(unclaimed_fund.token_addr)
-            .await?;
-        if token_name == "WETH" {
-            token_name = "ETH".to_string();
-        }
-        let decimals = chain_client
-            .query_decimals_of_erc20_address(unclaimed_fund.token_addr)
-            .await?;
-        let token_amount_str = format_units(unclaimed_fund.amount, decimals as u32)?;
-        format!(
-            "You received {} {} from {}",
-            token_amount_str, token_name, unclaimed_fund.sender
-        )
+        // let mut token_name = chain_client
+        //     .query_token_name(unclaimed_fund.token_addr)
+        //     .await?;
+        // // if token_name == "WETH" {
+        // //     token_name = "ETH".to_string();
+        // // }
+        // let decimals = chain_client
+        //     .query_decimals_of_erc20_address(unclaimed_fund.token_addr)
+        //     .await?;
+        // let token_amount_str = format_units(unclaimed_fund.amount, decimals as u32)?;
+        // format!(
+        //     "You received {} {} from {}",
+        //     token_amount_str, token_name, unclaimed_fund.sender
+        // )
+        (Some(unclaimed_fund), None)
     } else {
         let unclaimed_state = chain_client.query_unclaimed_state(claim.id).await?;
         if unclaimed_state.expiry_time.as_u64() < u64::try_from(now).unwrap() {
@@ -160,11 +162,13 @@ pub(crate) async fn claim_unclaims(
                 "Unclaimed state anounces the email address but its extension is not installed."
             ));
         }
-        format!(
-            "You got new data of {} from {}",
-            unclaimed_state.extension_addr, unclaimed_state.sender
-        )
+        // format!(
+        //     "You got new data of {} from {}",
+        //     unclaimed_state.extension_addr, unclaimed_state.sender
+        // )
+        (None, Some(unclaimed_state))
     };
+
     let input = generate_claim_input(
         CIRCUITS_DIR_PATH.get().unwrap(),
         &claim.email_address,
@@ -202,7 +206,11 @@ pub(crate) async fn claim_unclaims(
     //     })
     //     .unwrap();
     Ok(EmailWalletEvent::Claimed {
-        claim,
+        unclaimed_fund,
+        unclaimed_state,
+        email_addr: claim.email_address,
+        is_fund: claim.is_fund,
+        is_announced: claim.is_announced,
         recipient_account_key: account_key,
         tx_hash,
     })

@@ -55,16 +55,7 @@ pub async fn search_user_assets(email_addr: &str) -> Result<Vec<Asset>> {
         {
             continue;
         }
-        let decoded = abi::decode(
-            &[ParamType::Address, ParamType::Uint(256)],
-            &unclaimed_state.state,
-        )?;
-        let nft_addr = decoded[0].clone().into_address().unwrap();
-        let nft_id = decoded[1].clone().into_uint().unwrap();
-        let nft_name = CLIENT.query_nft_name_of_address(nft_addr).await?;
-        let nft_uri = CLIENT
-            .query_erc721_token_uri_of_token(nft_addr, nft_id)
-            .await?;
+        let (nft_addr, nft_id, nft_name, nft_uri) = get_nft_info(&unclaimed_state.state).await?;
         assets.push(Asset::ERC721 {
             token_addr: nft_addr,
             token_name: nft_name,
@@ -73,6 +64,17 @@ pub async fn search_user_assets(email_addr: &str) -> Result<Vec<Asset>> {
         });
     }
     Ok(assets)
+}
+
+pub async fn get_nft_info(state: &[u8]) -> Result<(Address, U256, String, String)> {
+    let decoded = abi::decode(&[ParamType::Address, ParamType::Uint(256)], &state)?;
+    let nft_addr = decoded[0].clone().into_address().unwrap();
+    let nft_id = decoded[1].clone().into_uint().unwrap();
+    let nft_name = CLIENT.query_nft_name_of_address(nft_addr).await?;
+    let nft_uri = CLIENT
+        .query_erc721_token_uri_of_token(nft_addr, nft_id)
+        .await?;
+    Ok((nft_addr, nft_id, nft_name, nft_uri))
 }
 
 pub async fn download_img_from_uri(url: &str) -> Result<Vec<u8>> {
@@ -95,6 +97,10 @@ pub async fn generate_asset_list_body(
                 amount: _,
                 amount_str,
             } => {
+                let mut token_name = token_name.clone();
+                if token_name == "WETH" {
+                    token_name = "ETH".to_string();
+                }
                 assets_msgs.push(format!("ERC20: {} {}", amount_str, token_name));
                 // image_names.push(None);
                 images.push(None);

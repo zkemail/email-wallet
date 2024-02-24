@@ -39,6 +39,7 @@ use futures::TryFutureExt;
 pub(crate) use imap_client::*;
 pub use logger::LOG;
 
+pub use chain::*;
 pub(crate) use psi::*;
 use rand::rngs::OsRng;
 pub(crate) use smtp_client::*;
@@ -111,7 +112,12 @@ pub enum EmailWalletEvent {
         tx_hash: String,
     },
     Claimed {
-        claim: Claim,
+        // claim: Claim,
+        unclaimed_fund: Option<UnclaimedFund>,
+        unclaimed_state: Option<UnclaimedState>,
+        email_addr: String,
+        is_fund: bool,
+        is_announced: bool,
         recipient_account_key: AccountKey,
         tx_hash: String,
     },

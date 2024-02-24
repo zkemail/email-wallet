@@ -357,7 +357,7 @@
 </head>
 
 <body>
-    <span class="preheader">New Email Wallet Transaction Request</span>
+    <span class="preheader">New Email Wallet Notification</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
         <tr>
             <td>&nbsp;</td>
@@ -375,12 +375,12 @@
                                         <td>
                                             <p>Hi {{userEmailAddr}}!</p>
                                             <p align="center">
-                                                <strong>Please reply to this email to send {{recipient}} your NFT: ID
-                                                    {{nftID}} of {{nftName}}.</strong>
-                                                You don't have to add any message in the reply 😄.
+                                                You received data of extension {{extensionAddr}} from {{senderAddr}}.
                                             </p>
-                                            <img src={{img}} />
-                                            <p align="center">Your wallet address: <a
+                                            <p align="center">Check the transaction on etherscan: <a
+                                                    href="https://sepolia.etherscan.io/tx/{{transactionHash}}">{{transactionHash}}</a>
+                                            </p>
+                                            <p align="center">Check your wallet: <a
                                                     href="https://sepolia.etherscan.io/address/{{walletAddr}}">{{walletAddr}}</a>
                                             </p>
                                             <p align="center">Good luck!</p>

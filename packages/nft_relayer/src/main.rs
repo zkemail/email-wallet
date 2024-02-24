@@ -183,37 +183,94 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             sender.send(email)?;
         }
         EmailWalletEvent::Claimed {
-            claim,
+            unclaimed_fund,
+            unclaimed_state,
+            email_addr,
+            is_fund,
+            is_announced,
             recipient_account_key,
             tx_hash,
         } => {
-            let subject = format!(
-                "Email Wallet Notification. {}",
-                if claim.is_fund {
-                    "You received money on Ethereum"
-                } else {
-                    "You got some data of Email Wallet extensions"
-                }
-            );
             let wallet_salt = WalletSalt::new(
-                &PaddedEmailAddr::from_email_addr(&claim.email_address),
+                &PaddedEmailAddr::from_email_addr(&email_addr),
                 recipient_account_key,
             )?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-            let body_plain = format!(
-                            "Hi {}!\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
-                            claim.email_address, &tx_hash, wallet_addr
+            let (subject, body_plain, body_html, body_attachments) = if is_fund {
+                let unclaim_fund = unclaimed_fund.unwrap();
+                let token_decimal = CLIENT
+                    .query_decimals_of_erc20_address(unclaim_fund.token_addr)
+                    .await?;
+                let amount =
+                    uint_to_decimal_string(unclaim_fund.amount.as_u128(), token_decimal as usize);
+                let mut name = CLIENT.query_token_name(unclaim_fund.token_addr).await?;
+                if name == "WETH" {
+                    name = "ETH".to_string();
+                }
+                let subject = format!(
+                    "Email Wallet Notification. You received {} {}.",
+                    amount, name
+                );
+                let body_plain = format!(
+                            "Hi {}!\nYou received {} {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
+                            email_addr, amount, name, unclaim_fund.sender, &tx_hash, wallet_addr
                         );
-            let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
-            let body_html = render_html("claimed.html", render_data).await?;
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+                let body_html = render_html("claimed_fund.html", render_data).await?;
+                (subject, body_plain, body_html, None)
+            } else {
+                let unclaimed_state = unclaimed_state.unwrap();
+                info!(LOG, "unclaimed state {:?}", unclaimed_state);
+                if unclaimed_state.extension_addr
+                    == CLIENT.query_default_extension_for_command("NFT").await?
+                {
+                    let (nft_addr, nft_id, nft_name, nft_uri) =
+                        get_nft_info(&unclaimed_state.state).await?;
+                    let subject = format!(
+                        "Email Wallet Notification. You received NFT: id {} of {}.",
+                        nft_id, nft_name
+                    );
+                    let body_plain = format!(
+                            "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
+                            email_addr, nft_id, nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
+                        );
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0)});
+                    let body_html = render_html("claimed_nft.html", render_data).await?;
+                    let img = download_img_from_uri(&nft_uri).await?;
+                    let attachment = EmailAttachment {
+                        inline_id: "0".to_string(),
+                        content_type: "image/png".to_string(),
+                        contents: img,
+                    };
+                    (subject, body_plain, body_html, Some(vec![attachment]))
+                } else {
+                    let subject = format!(
+                        "Email Wallet Notification. You received data of extension {}.",
+                        unclaimed_state.extension_addr
+                    );
+                    let body_plain = format!(
+                            "Hi {}!\nYou received data of extension {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
+                            email_addr, unclaimed_state.extension_addr, unclaimed_state.sender, &tx_hash, wallet_addr
+                        );
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+                    let body_html = render_html("claimed_extension.html", render_data).await?;
+                    (subject, body_plain, body_html, None)
+                }
+            };
+            // let body_plain = format!(
+            //                 "Hi {}!\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
+            //                 claim.email_address, &tx_hash, wallet_addr
+            //             );
+            // let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            // let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
-                to: claim.email_address,
+                to: email_addr,
                 subject,
                 body_plain,
                 body_html,
                 reference: None,
                 reply_to: None,
-                body_attachments: None,
+                body_attachments,
             };
             sender.send(email)?;
         }
@@ -441,7 +498,7 @@ mod test {
         let email_addr = "suegamisora@gmail.com";
         // let token_name = "APE";
         let token_addr = Address::from_str("0x1095F49b9d7A980847467C2A71b4231c0A6C208E").unwrap();
-        let token_id = U256::from(26);
+        let token_id = U256::from(32);
         let relayer_addr = Address::from_str("0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38").unwrap();
         let uri = "https://ipfs.io/ipfs/QmQEVVLJUR1WLN15S49rzDJsSP7za9DxeqpUzWuG4aondg".to_string();
         let nft_mintable = ERC721Mintable::new(token_addr, CLIENT.core.client());
@@ -516,7 +573,7 @@ mod test {
     async fn nft_transfer_test() {
         let email_addr = "suegamisora@gmail.com";
         let relayer_url = "http://localhost:4500";
-        let token_id = 25u64;
+        let token_id = 31u64;
         let token_addr = "0x1095F49b9d7A980847467C2A71b4231c0A6C208E";
         let recipient_addr = "0x17E60b84C20CeE3DF59BF2A4E34252053A2B9C38";
         let request = NFTTransferRequest {

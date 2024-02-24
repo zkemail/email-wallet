@@ -38,35 +38,35 @@ impl SubgraphClient {
         }
     }
 
-    #[named]
-    pub(crate) async fn get_relayers_by_wallet_addr(
-        &self,
-        wallet_addr: &Address,
-    ) -> Result<Vec<(Address, [u8; 32], String)>> {
-        let variables = get_relayers::Variables {
-            wallet_addr: Some(to_checksum(wallet_addr, CHAIN_ID.get().map(|v| *v as u8))),
-        };
-        let response_body =
-            post_graphql::<GetRelayers, _>(&self.web_client, &self.subgraph_api, variables).await?;
-        info!(LOG, "{:?}", response_body; "func" => function_name!());
-        if response_body.data.is_none() {
-            return Ok(vec![]);
-        }
-        let response_data: get_relayers::ResponseData = response_body.data.unwrap();
-        let relayer_accounts = response_data
-            .account
-            .expect("no account in response_data")
-            .relayer_accounts;
-        let mut relayer_infos = vec![];
-        for relayer_account in relayer_accounts {
-            relayer_infos.push((
-                Address::from_str(&relayer_account.relayer.address)?,
-                u256_to_bytes32(&hex_to_u256(&relayer_account.relayer.rand_hash)?),
-                relayer_account.relayer.hostname,
-            ));
-        }
-        Ok(relayer_infos)
-    }
+    // #[named]
+    // pub(crate) async fn get_relayers_by_wallet_addr(
+    //     &self,
+    //     wallet_addr: &Address,
+    // ) -> Result<Vec<(Address, [u8; 32], String)>> {
+    //     let variables = get_relayers::Variables {
+    //         wallet_addr: Some(to_checksum(wallet_addr, CHAIN_ID.get().map(|v| *v as u8))),
+    //     };
+    //     let response_body =
+    //         post_graphql::<GetRelayers, _>(&self.web_client, &self.subgraph_api, variables).await?;
+    //     info!(LOG, "{:?}", response_body; "func" => function_name!());
+    //     if response_body.data.is_none() {
+    //         return Ok(vec![]);
+    //     }
+    //     let response_data: get_relayers::ResponseData = response_body.data.unwrap();
+    //     let relayer_accounts = response_data
+    //         .account
+    //         .expect("no account in response_data")
+    //         .relayer_accounts;
+    //     let mut relayer_infos = vec![];
+    //     for relayer_account in relayer_accounts {
+    //         relayer_infos.push((
+    //             Address::from_str(&relayer_account.relayer.address)?,
+    //             u256_to_bytes32(&hex_to_u256(&relayer_account.relayer.rand_hash)?),
+    //             relayer_account.relayer.hostname,
+    //         ));
+    //     }
+    //     Ok(relayer_infos)
+    // }
 
     #[named]
     pub(crate) async fn get_all_relayers_for_psi(&self) -> Result<Vec<(Address, String)>> {

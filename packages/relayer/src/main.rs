@@ -164,31 +164,35 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             sender.send(email)?;
         }
         EmailWalletEvent::Claimed {
-            claim,
+            unclaimed_fund,
+            unclaimed_state,
+            email_addr,
+            is_fund,
+            is_announced,
             recipient_account_key,
             tx_hash,
         } => {
             let subject = format!(
                 "Email Wallet Notification. {}",
-                if claim.is_fund {
+                if is_fund {
                     "You received money on Ethereum"
                 } else {
                     "You got some data of Email Wallet extensions"
                 }
             );
             let wallet_salt = WalletSalt::new(
-                &PaddedEmailAddr::from_email_addr(&claim.email_address),
+                &PaddedEmailAddr::from_email_addr(&email_addr),
                 recipient_account_key,
             )?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
             let body_plain = format!(
                             "Hi {}!\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
-                            claim.email_address, &tx_hash, wallet_addr
+                            email_addr, &tx_hash, wallet_addr
                         );
-            let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash});
             let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
-                to: claim.email_address,
+                to: email_addr,
                 subject,
                 body_plain,
                 body_html,
