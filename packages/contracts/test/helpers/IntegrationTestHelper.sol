@@ -95,8 +95,7 @@ abstract contract IntegrationTestHelper is Test {
         });
     UserTestConfig user2 =
         UserTestConfig({
-            // emailAddr: "emaiwallet.bob@gmail.com",
-            emailAddr: "rrelayerbob@gmail.com",
+            emailAddr: "emaiwallet.bob@gmail.com",
             accountKey: 0x1e2ead4231d73a3c85b1ff883f212d998c41cc9d2a8bac238f6d351ff2c57249
         });
 
