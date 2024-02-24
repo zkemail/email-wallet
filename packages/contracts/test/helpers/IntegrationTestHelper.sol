@@ -22,8 +22,6 @@ import "../../src/extensions/UniswapExtension.sol";
 import "../../src/extensions/NFTExtension.sol";
 import "../mocks/DummyNFT.sol";
 
-import "forge-std/console.sol";
-
 abstract contract IntegrationTestHelper is Test {
     using Strings for *;
     using console for *;

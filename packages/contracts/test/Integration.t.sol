@@ -84,19 +84,19 @@ contract IntegrationTest is IntegrationTestHelper {
             address(unclaimsHandler).balance == core.unclaimedFundClaimGas() * core.maxFeePerGas(),
             "Core contract eth balance mismatch"
         );
-        Wallet user2Wallet = accountCreation(
+        Wallet user2WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test2.eml"),
             user2.emailAddr,
             relayer1Rand,
             "gmail.com"
         );
-        address user2WalletAddress = address(user2Wallet);
+        address user2Wallet = address(user2WalletContract);
 
-        require(weth.balanceOf(user2WalletAddress) == 0, "User2 wallet balance mismatch");
-        // TODO: If the user2 wallet is not emaiwallet.bob@gmail.com,
-        // need to update the eml file.
-        // claimFund(registeredUnclaimId, user2.emailAddr, relayer1Rand, emailAddrRand);
-        // require(weth.balanceOf(user2WalletAddress) == 0.1 ether, "User2 wallet balance mismatch");
+        require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
+        // Failed
+        // claimFund(registeredUnclaimId, user2.emailAddr, emailAddrRand, user2.accountKey);
+        // console.logUint(weth.balanceOf(user2Wallet));
+        // require(weth.balanceOf(user2Wallet) == 0.1 ether, "User2 wallet balance mismatch");
         // require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
     }
