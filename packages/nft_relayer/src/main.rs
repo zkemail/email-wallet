@@ -100,12 +100,32 @@ async fn main() -> Result<()> {
                 }
             }
         });
+    let sender_for_recover_account_key_fn_api = sender.clone();
+    let recover_account_key_fn =
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Recover account key payload: {}", payload);
+            match recover_account_key_api_fn(payload).await {
+                Ok((request_id, email)) => {
+                    sender_for_recover_account_key_fn_api.send(email).unwrap();
+                    request_id.to_string()
+                }
+                Err(err) => {
+                    error!(
+                        relayer::LOG,
+                        "Failed to accept recover account key: {}", err
+                    );
+                    err.to_string()
+                }
+            }
+        });
+
     let routes = vec![
         ("/api/nftTransfer".to_string(), nft_transfer_fn),
         ("/api/isAccountCreated".to_string(), is_account_created_fn),
         ("/api/createAccount".to_string(), create_account_fn),
         ("/api/send".to_string(), send_fn),
         ("/api/getWalletAddress".to_string(), get_wallet_address_fn),
+        ("/api/recoverAccountKey".to_string(), recover_account_key_fn),
     ];
     run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     Ok(())

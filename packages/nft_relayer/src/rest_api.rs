@@ -50,6 +50,11 @@ pub struct GetWalletAddress {
     pub account_key: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct RecoverAccountKey {
+    pub email_addr: String,
+}
+
 pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
     let request = serde_json::from_str::<NFTTransferRequest>(&payload)
@@ -242,4 +247,47 @@ pub async fn get_wallet_address_api_fn(payload: String) -> Result<String> {
     )?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
     Ok("0x".to_string() + &encode(&wallet_addr.0))
+}
+
+pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+    let request_id = rand::thread_rng().gen();
+    let request = serde_json::from_str::<RecoverAccountKey>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+    let email_addr = request.email_addr;
+    let account_key_str = DB.get_account_key(&email_addr).await?;
+    if account_key_str.is_none() {
+        let subject = "Email Wallet Error: Account Not Found".to_string();
+        let error_msg =
+            "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
+        let render_data =
+            serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone()});
+        let body_html = render_html("error.html", render_data).await?;
+        let email = EmailMessage {
+            subject,
+            to: email_addr,
+            body_plain: error_msg,
+            body_html,
+            reference: None,
+            reply_to: None,
+            body_attachments: None,
+        };
+        return Ok((request_id, email));
+    }
+    let account_key = AccountKey(hex2field(&account_key_str.unwrap())?);
+    let account_key_hex = &field2hex(&account_key.0)[2..];
+    let wallet_salt = WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let subject = "Email Wallet Account Recovery".to_string();
+    let render_data = serde_json::json!({"userEmailAddr": email_addr, "accountKey": account_key_hex, "walletAddr": wallet_addr});
+    let body_html = render_html("account_recovery.html", render_data).await?;
+    let email = EmailMessage {
+        subject,
+        to: email_addr.clone(),
+        body_plain: format!("Hi {}! Your account key is {}, keep it in a safe space.\nYour wallet address: https://sepolia.etherscan.io/address/{}.", email_addr, account_key_hex, wallet_addr),
+        body_html,
+        reference: None,
+        reply_to: None,
+        body_attachments: None,
+    };
+    Ok((request_id, email))
 }
