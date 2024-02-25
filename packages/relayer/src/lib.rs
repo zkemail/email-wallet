@@ -75,6 +75,7 @@ pub static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
 pub static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
 pub static CHAIN_ID: OnceLock<u32> = OnceLock::new();
 pub static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
+pub static CHAIN_RPC_EXPLORER: OnceLock<String> = OnceLock::new();
 pub static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
 pub static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
 pub static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
@@ -194,6 +195,9 @@ pub async fn setup() -> Result<()> {
     CHAIN_RPC_PROVIDER
         .set(env::var(CHAIN_RPC_PROVIDER_KEY).unwrap())
         .unwrap();
+    CHAIN_RPC_EXPLORER
+        .set(env::var(CHAIN_RPC_EXPLORER_KEY).unwrap())
+        .unwrap();
     CORE_CONTRACT_ADDRESS
         .set(env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap())
         .unwrap();
@@ -228,6 +232,7 @@ pub async fn run(
     PRIVATE_KEY.set(config.private_key).unwrap();
     CHAIN_ID.set(config.chain_id).unwrap();
     CHAIN_RPC_PROVIDER.set(config.chain_rpc_provider).unwrap();
+    CHAIN_RPC_EXPLORER.set(config.chain_rpc_explorer).unwrap();
     CORE_CONTRACT_ADDRESS
         .set(config.core_contract_address)
         .unwrap();

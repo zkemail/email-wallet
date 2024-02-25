@@ -1,10 +1,16 @@
+# syntax=docker/dockerfile:1.6
+
 FROM rust:latest
 
-RUN apt update && apt upgrade -y 
+RUN rm -f /etc/apt/apt.conf.d/docker-clean
+
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt update && apt upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash 
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 RUN . /root/.nvm/nvm.sh && . /root/.nvm/bash_completion
 
 RUN bash -i -c "nvm install 18 && nvm use 18"
@@ -14,14 +20,23 @@ WORKDIR /relayer
 
 COPY . .
 
-RUN bash -i -c "yarn"
+RUN --mount=type=cache,target=/var/cache/yarn \
+    bash -i -c "yarn" \ 
+    && rm -rf /var/lib/yarn/lists/*
 
 RUN curl -L https://foundry.paradigm.xyz | bash
 WORKDIR /relayer/packages/contracts
-RUN forge build
+RUN bash -i -c "foundryup"
+RUN bash -i -c "forge build"
 
 WORKDIR /relayer/packages/nft_relayer
-RUN cargo build --release
+RUN --mount=type=cache,target=/var/cache/cargo \
+    cargo build --release \
+    && rm -rf /var/lib/cargo/lists/*
+
+EXPOSE 4500
+
+# CMD ["/bin/bash", "-c", "cargo", "run", "--release"]
 
 
 # # ------------------ Chef stage -------------------

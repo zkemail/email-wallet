@@ -374,14 +374,11 @@
                                     <tr>
                                         <td>
                                             <p>Hi {{userEmailAddr}}!</p>
-                                            <!-- <p align="center">
-                                                {{voidMsg}}.
-                                            </p> -->
+                                            <p align="center">
+                                                To complete your transaction request {{originalSubject}}, please reply confirm to this email. Thank you for using Email Wallet!
+                                            </p>
                                             <p align="center">Your wallet address: <a
                                                     href="{{chainRPCExplorer}}/address/{{walletAddr}}">{{walletAddr}}</a>
-                                            </p>
-                                            <p align="center">Check the transaction on etherscan: <a
-                                                    href="{{chainRPCExplorer}}/tx/{{transactionHash}}">{{transactionHash}}</a>
                                             </p>
                                             <p align="center">Good luck!</p>
                                         </td>

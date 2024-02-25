@@ -26,42 +26,108 @@ async fn main() -> Result<()> {
     let args = env::args().collect::<Vec<_>>();
     if args.len() == 2 && args[1] == "setup" {
         return setup().await;
-    } else {
-        dotenv::dotenv().ok();
-        DEMO_NFT_ADDR
-            .set(
-                env::var("DEMO_NFT_ADDR")
-                    .map(|s| s.parse().unwrap())
-                    .unwrap(),
-            )
-            .unwrap();
-        let (sender, rx) = EmailForwardSender::new();
-        // let sender_for_event = sender.clone();
-        // let event_consumer_fn = move |event: EmailWalletEvent| {
-        //     tokio::runtime::Runtime::new()
-        //         .unwrap()
-        //         .block_on(event_consumer_fn(event, sender_for_event.clone()))
-        // };
-        // let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
-        let sender_for_api = sender.clone();
-        let nft_transfer_fn =
-            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
-                info!(LOG, "NFT transfer payload: {}", payload);
-                match nft_transfer_api_fn(payload).await {
-                    Ok((request_id, email)) => {
-                        sender_for_api.send(email).unwrap();
-                        request_id.to_string()
-                    }
-                    Err(err) => {
-                        error!(relayer::LOG, "Failed to accept nft transfer: {}", err);
-                        err.to_string()
-                    }
-                }
-            });
-
-        let routes = vec![("/api/nftTransfer".to_string(), nft_transfer_fn)];
-        run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     }
+    dotenv::dotenv().ok();
+    DEMO_NFT_ADDR
+        .set(
+            env::var("DEMO_NFT_ADDR")
+                .map(|s| s.parse().unwrap())
+                .unwrap(),
+        )
+        .unwrap();
+    let (sender, rx) = EmailForwardSender::new();
+    let sender_for_nft_transfer_api = sender.clone();
+    let nft_transfer_fn = axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+        info!(LOG, "NFT transfer payload: {}", payload);
+        match nft_transfer_api_fn(payload).await {
+            Ok((request_id, email)) => {
+                sender_for_nft_transfer_api.send(email).unwrap();
+                request_id.to_string()
+            }
+            Err(err) => {
+                error!(relayer::LOG, "Failed to accept nft transfer: {}", err);
+                err.to_string()
+            }
+        }
+    });
+    let sender_for_create_account_api = sender.clone();
+    let create_account_fn = axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+        info!(LOG, "Create account payload: {}", payload);
+        match create_account_api_fn(payload).await {
+            Ok((request_id, email)) => {
+                sender_for_create_account_api.send(email).unwrap();
+                request_id.to_string()
+            }
+            Err(err) => {
+                error!(relayer::LOG, "Failed to accept create account: {}", err);
+                err.to_string()
+            }
+        }
+    });
+    let is_account_created_fn =
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Is account created payload: {}", payload);
+            match is_account_created_api_fn(payload).await {
+                Ok(status) => status.to_string(),
+                Err(err) => {
+                    error!(relayer::LOG, "Failed to accept is account created: {}", err);
+                    err.to_string()
+                }
+            }
+        });
+    let sender_for_send_fn_api = sender.clone();
+    let send_fn = axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+        info!(LOG, "Send payload: {}", payload);
+        match send_api_fn(payload).await {
+            Ok((request_id, email)) => {
+                sender_for_send_fn_api.send(email).unwrap();
+                request_id.to_string()
+            }
+            Err(err) => {
+                error!(relayer::LOG, "Failed to accept send: {}", err);
+                err.to_string()
+            }
+        }
+    });
+    let get_wallet_address_fn =
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Get wallet address payload: {}", payload);
+            match get_wallet_address_api_fn(payload).await {
+                Ok(wallet_addr) => wallet_addr,
+                Err(err) => {
+                    error!(relayer::LOG, "Failed to accept get wallet address: {}", err);
+                    err.to_string()
+                }
+            }
+        });
+    let sender_for_recover_account_key_fn_api = sender.clone();
+    let recover_account_key_fn =
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Recover account key payload: {}", payload);
+            match recover_account_key_api_fn(payload).await {
+                Ok((request_id, email)) => {
+                    sender_for_recover_account_key_fn_api.send(email).unwrap();
+                    request_id.to_string()
+                }
+                Err(err) => {
+                    error!(
+                        relayer::LOG,
+                        "Failed to accept recover account key: {}", err
+                    );
+                    err.to_string()
+                }
+            }
+        });
+
+    let routes = vec![
+        ("/api/nftTransfer".to_string(), nft_transfer_fn),
+        ("/api/isAccountCreated".to_string(), is_account_created_fn),
+        ("/api/createAccount".to_string(), create_account_fn),
+        ("/api/send".to_string(), send_fn),
+        ("/api/getWalletAddress".to_string(), get_wallet_address_fn),
+        ("/api/recoverAccountKey".to_string(), recover_account_key_fn),
+    ];
+    run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     Ok(())
 }
 
@@ -126,7 +192,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(),  wallet_addr, tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -160,7 +226,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             this transaction https://sepolia.etherscan.io/tx/{}. Thank you for using Email Wallet!\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                             sender_email_addr, original_subject, &tx_hash, wallet_addr, &tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": sender_email_addr, "originalSubject": original_subject, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": sender_email_addr, "originalSubject": original_subject, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
             let body_html = render_html("email_handled.html", render_data).await?;
             let email = EmailMessage {
                 to: sender_email_addr,
@@ -215,7 +281,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received {} {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, amount, name, unclaim_fund.sender, &tx_hash, wallet_addr
                         );
-                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                 let body_html = render_html("claimed_fund.html", render_data).await?;
                 (subject, body_plain, body_html, None)
             } else {
@@ -234,7 +300,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, nft_id, nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0)});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                     let body_html = render_html("claimed_nft.html", render_data).await?;
                     let img = download_img_from_uri(&nft_uri).await?;
                     let attachment = EmailAttachment {
@@ -252,7 +318,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received data of extension {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, unclaimed_state.extension_addr, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                     let body_html = render_html("claimed_extension.html", render_data).await?;
                     (subject, body_plain, body_html, None)
                 }
@@ -297,7 +363,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             claim.email_address, &tx_hash, wallet_addr
                         );
-            let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
             let body_html = render_html("voided.html", render_data).await?;
             let email = EmailMessage {
                 to: claim.email_address,
@@ -315,8 +381,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             if let Some(error) = error {
                 let subject = format!("Email Wallet Notification. Error occurred.");
                 let body_plain = format!("Hi {}!\nError occurred: {}", email_addr, error);
-                let render_data =
-                    serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                 let body_html = render_html("error.html", render_data).await?;
                 let email = EmailMessage {
                     to: email_addr,
@@ -390,6 +455,7 @@ pub(crate) async fn generate_invitation_email(
                 "walletAddr": wallet_addr,
                 "assetsList": assets_list_html,
                 "invitationCode": invitation_code_hex,
+                "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(),
             }),
         )
         .await?;
@@ -409,6 +475,7 @@ pub(crate) async fn generate_invitation_email(
                 "userEmailAddr": email_addr,
                 "walletAddr": wallet_addr,
                 "assetsList": assets_list_html,
+                "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(),
             }),
         )
         .await?;
@@ -491,6 +558,9 @@ mod test {
             .unwrap();
         CHAIN_RPC_PROVIDER
             .set(env::var("CHAIN_RPC_PROVIDER").unwrap())
+            .unwrap();
+        CHAIN_RPC_EXPLORER
+            .set(env::var("CHAIN_RPC_EXPLORER").unwrap())
             .unwrap();
         CORE_CONTRACT_ADDRESS
             .set(env::var("CORE_CONTRACT_ADDRESS").unwrap())
