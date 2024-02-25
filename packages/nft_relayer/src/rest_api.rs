@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use email_wallet_utils::{
-    converters::{field2hex, field2u64, hex2field},
+    converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
 use ethers::types::{Address, U256};
@@ -12,7 +12,6 @@ use relayer::CLIENT;
 use relayer::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Number;
-use slog::info;
 use std::str::FromStr;
 
 use crate::download_img_from_uri;
@@ -113,7 +112,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     Ok((request_id, email))
 }
 
-pub async fn create_account_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMessage)> {
     let request = serde_json::from_str::<CreateAccountRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
     let email_addr = request.email_addr;
@@ -142,7 +141,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(u64, EmailMessage
         CLIENT
             .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
             .await?;
-        Ok((field2u64(&account_key.0), email))
+        Ok((field2hex(&account_key.0), email))
     } else {
         let subject = "Email Wallet Error: Account Already Exists".to_string();
         let error_msg =
@@ -160,7 +159,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(u64, EmailMessage
             reply_to: None,
             body_attachments: None,
         };
-        Ok((0, email))
+        Ok(("0x".to_string(), email))
     }
 }
 
@@ -242,5 +241,5 @@ pub async fn get_wallet_address_api_fn(payload: String) -> Result<String> {
         account_key,
     )?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-    Ok(encode(&wallet_addr.0))
+    Ok("0x".to_string() + &encode(&wallet_addr.0))
 }

@@ -49,14 +49,6 @@ pub fn field2hex(field: &Fr) -> String {
     format!("{:?}", field)
 }
 
-pub fn field2u64(field: &Fr) -> u64 {
-    field
-        .to_repr()
-        .as_ref()
-        .iter()
-        .fold(0, |acc, &byte| (acc << 8) | u64::from(byte))
-}
-
 pub fn digits2int(input_digits: &str) -> anyhow::Result<u64> {
     Ok(input_digits.parse()?)
 }
