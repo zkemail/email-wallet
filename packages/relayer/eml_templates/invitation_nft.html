@@ -84,6 +84,18 @@
         width: 100%;
       }
 
+      .banner {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-image: linear-gradient(45deg, #844aff, #5e2bff);
+        margin-bottom: 2rem;
+        border-radius: 0.4rem;
+        border: 1px solid #000000;
+        padding: 10px;
+      }
+
       .wrapper {
         box-sizing: border-box;
         padding: 20px;
@@ -183,6 +195,12 @@
 
       a {
         color: #3498db;
+        text-decoration: underline;
+      }
+
+      .info-link {
+        color: #0000ff;
+        opacity: 0.7;
         text-decoration: underline;
       }
 
@@ -391,6 +409,69 @@
           border-color: #34495e !important;
         }
       }
+
+      /* -------------------------------------
+          Dark Mode
+      ------------------------------------- */
+  @media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+
+  .container {
+    background-color: #1e1e1e;
+  }
+
+  .main {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+  }
+
+  .banner {
+    background-image: linear-gradient(45deg, #844aff, #5e2bff);
+    border-radius: 0.4rem;
+    border: 1px solid #ffffff;
+    padding: 10px;
+  }
+
+  .wrapper {
+    padding: 20px;
+  }
+
+  p,
+  li {
+    color: #ffffff;
+  }
+
+  .info-link {
+    color: #ffffff;
+    opacity: 0.7;
+  }
+
+  .footer {
+    background-color: #1e1e1e;
+  }
+
+  .powered-by,
+  .footer td,
+  .footer p,
+  .footer span,
+  .footer a {
+    color: #999999;
+  }
+
+  hr {
+    border-color: #666666; 
+  }
+
+  .social-icons img {
+    background-color: #ffffff;
+    border-radius: 50%;
+    padding: 0.1rem;
+  }
+
+  } 
     </style>
   </head>
 
@@ -419,52 +500,46 @@
                     cellspacing="0"
                   >
                     <tr>
+                        <div class="banner">
                         <div style="
-                        display: flex;
-                        flex-direction: row;
-                        align-items: center;
-                        justify-content: space-between;
-                        background-image: linear-gradient(45deg, #844aff, #5e2bff);
-                        margin-bottom: 2rem;
-                        border-radius: 0.4rem;
-                        border: 1px solid #000000;
-                        padding: 10px;
-                    ">
-                        <!-- <div style="
                             display: flex;
-                            flex-direction: row;
-                            align-items: center;
-                            width: 80%;
-                        "> -->
+                            flex-direction: column;
+                            justify-self: self-start;
+                            align-items: self-start;
+                            width: 40%;
+                            margin-top: -1rem;
+                        ">
                             <!-- <img src="./assets/img/" alt="Email Wallet" style="width: 20%; height: auto;"> -->
+                            <img src="./assets/img/logoEmailWallet.svg" alt="Email Wallet" style="width: 40%; height: auto; margin-left: 0.5rem;">
                             <p style="
                                 margin: 0;
                                 margin-left: 10px;
-                                font-size: large;
+                                font-size: small;
                                 font-weight: 600;
                                 color: #ffffff;
+                                margin-top: -0.7rem;
                             ">
                                 Email Wallet
                             </p>
-                        <!-- </div> -->
-                        <img src="./assets/img/ethDenver.png" alt="ETH Denver" style="width: 10%; height: auto; margin-right: 1rem;">
+                        </div>
+                        <img src="./assets/img/ethDenver.png" alt="ETH Denver" style="width: 12%; height: auto; margin-right: 1rem;">
                     </div>
                     
-                      <td>
+                      <td style="padding-left: 1rem;">
                         <p>Hi adityabhist64@gmail.com!</p>
                         <p>You can claim ETH Denver NFT.</p>
 
-                        <p>
+                        <p style="font-size: medium;">
                           <strong
                             >Please reply "confirm" to this email to start using
                             Email Wallet.</strong
                           >
                         </p>
-                        <p>
+                        <p style="font-size: small;">
                           After creating the wallet, you can receive the
                           following assets!
                         </p>
-                        <ul>
+                        <ul style="font-size: small;">
                           {{#each assetsList}} {{#with this}}
                           <li>
                             {{msg}} {{#if is_img}}
@@ -473,11 +548,12 @@
                           </li>
                           {{/with}} {{/each}}
                         </ul>
-                        <p>
+                        <br />
+                        <a class="info-link" href="https://prove.email/blog/ethDenverNFT">
                             To understand how this works, visit the website :
                             
-                          <a href="https://prove.email/blog/ethDenverNFT">https://prove.email/blog/ethDenverNFT</a>
-                        </p>
+                           https://prove.email/blog/ethDenverNFT
+                        </a>
                         <div
                           style="
                             display: flex;
