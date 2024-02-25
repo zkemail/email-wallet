@@ -70,8 +70,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
             "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
-        let render_data =
-            serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone()});
+        let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
             subject,
@@ -94,7 +93,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
         request.email_addr,  request.recipient_addr, request.nft_id, nft_name,wallet_addr,
     );
-    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, "img":"cid:0" });
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, "img":"cid:0", "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("nft_transfer.html", render_data).await?;
     let nft_uri = CLIENT
         .query_erc721_token_uri_of_token(nft_addr, U256::from(request.nft_id))
@@ -129,7 +128,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
             "Email Wallet Account Creation. Code {}",
             invitation_code_hex
         );
-        let render_data = serde_json::json!({"userEmailAddr": email_addr.clone()});
+        let render_data = serde_json::json!({"userEmailAddr": email_addr.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("account_creation.html", render_data).await?;
         let email = EmailMessage {
             subject,
@@ -152,8 +151,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
         let error_msg =
             "Your wallet is already created. Please use your wallet to send and receive NFTs."
                 .to_string();
-        let render_data =
-            serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone()});
+        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
             subject,
@@ -192,8 +190,7 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
             "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
-        let render_data =
-            serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone()});
+        let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
             subject,
@@ -216,7 +213,7 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
         "Hi {}! Please reply to this email to send {} {} to {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
         request.email_addr, request.amount, request.token_id, request.recipient_addr, wallet_addr,
     );
-    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr});
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("send_request.html", render_data).await?;
     let email = EmailMessage {
         subject: subject.clone(),
@@ -259,8 +256,7 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
             "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
-        let render_data =
-            serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone()});
+        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
             subject,
@@ -278,7 +274,7 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
     let wallet_salt = WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
     let subject = "Email Wallet Account Recovery".to_string();
-    let render_data = serde_json::json!({"userEmailAddr": email_addr, "accountKey": account_key_hex, "walletAddr": wallet_addr});
+    let render_data = serde_json::json!({"userEmailAddr": email_addr, "accountKey": account_key_hex, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("account_recovery.html", render_data).await?;
     let email = EmailMessage {
         subject,

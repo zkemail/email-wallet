@@ -192,7 +192,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(),  wallet_addr, tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -226,7 +226,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             this transaction https://sepolia.etherscan.io/tx/{}. Thank you for using Email Wallet!\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                             sender_email_addr, original_subject, &tx_hash, wallet_addr, &tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": sender_email_addr, "originalSubject": original_subject, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": sender_email_addr, "originalSubject": original_subject, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
             let body_html = render_html("email_handled.html", render_data).await?;
             let email = EmailMessage {
                 to: sender_email_addr,
@@ -281,7 +281,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received {} {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, amount, name, unclaim_fund.sender, &tx_hash, wallet_addr
                         );
-                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                 let body_html = render_html("claimed_fund.html", render_data).await?;
                 (subject, body_plain, body_html, None)
             } else {
@@ -300,7 +300,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, nft_id, nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0)});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                     let body_html = render_html("claimed_nft.html", render_data).await?;
                     let img = download_img_from_uri(&nft_uri).await?;
                     let attachment = EmailAttachment {
@@ -318,7 +318,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received data of extension {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, unclaimed_state.extension_addr, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                     let body_html = render_html("claimed_extension.html", render_data).await?;
                     (subject, body_plain, body_html, None)
                 }
@@ -363,7 +363,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             claim.email_address, &tx_hash, wallet_addr
                         );
-            let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash});
+            let render_data = serde_json::json!({"userEmailAddr": claim.email_address, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
             let body_html = render_html("voided.html", render_data).await?;
             let email = EmailMessage {
                 to: claim.email_address,
@@ -381,8 +381,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             if let Some(error) = error {
                 let subject = format!("Email Wallet Notification. Error occurred.");
                 let body_plain = format!("Hi {}!\nError occurred: {}", email_addr, error);
-                let render_data =
-                    serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                 let body_html = render_html("error.html", render_data).await?;
                 let email = EmailMessage {
                     to: email_addr,
@@ -456,6 +455,7 @@ pub(crate) async fn generate_invitation_email(
                 "walletAddr": wallet_addr,
                 "assetsList": assets_list_html,
                 "invitationCode": invitation_code_hex,
+                "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(),
             }),
         )
         .await?;
@@ -475,6 +475,7 @@ pub(crate) async fn generate_invitation_email(
                 "userEmailAddr": email_addr,
                 "walletAddr": wallet_addr,
                 "assetsList": assets_list_html,
+                "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(),
             }),
         )
         .await?;
@@ -557,6 +558,9 @@ mod test {
             .unwrap();
         CHAIN_RPC_PROVIDER
             .set(env::var("CHAIN_RPC_PROVIDER").unwrap())
+            .unwrap();
+        CHAIN_RPC_EXPLORER
+            .set(env::var("CHAIN_RPC_EXPLORER").unwrap())
             .unwrap();
         CORE_CONTRACT_ADDRESS
             .set(env::var("CORE_CONTRACT_ADDRESS").unwrap())
