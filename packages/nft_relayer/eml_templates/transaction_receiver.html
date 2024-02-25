@@ -33,7 +33,6 @@
                                                 width: 40%;
                                                 margin-top: -1rem;
                                             ">
-                                                <!-- <img src="./assets/img/" alt="Email Wallet" style="width: 20%; height: auto;"> -->
                                                 <img src="./assets/img/logoEmailWallet.svg" alt="Email Wallet" style="width: 40%; height: auto; margin-left: 0.5rem;">
                                                 <p style="
                                                     margin: 0;
@@ -50,20 +49,19 @@
                                         </div>
                                         <td style="padding-left: 1rem;">
                                             <p>Hi {{userEmailAddr}}!</p>
-                                            <p >
-                                                You received data of extension {{extensionAddr}} from {{senderAddr}}.
+                                            <p>
+                                                An Email Wallet transaction is executed for you <a
+                                                    href="https://sepolia.etherscan.io/tx/{{transactionHash}}">in
+                                                    this transaction</a>.
                                             </p>
-                                            <p align="center">Check the transaction on etherscan: <a
-                                                    href="{{chainRPCExplorer}}/tx/{{transactionHash}}">{{transactionHash}}</a>
+                                            <p>Check the transaction on etherscan: <a
+                                                    href="https://sepolia.etherscan.io/tx/{{transactionHash}}">{{transactionHash}}</a>
                                             </p>
-                                            <p align="center">Check your wallet: <a
-                                                    href="{{chainRPCExplorer}}/address/{{walletAddr}}">{{walletAddr}}</a>
-                                            </p>
-                                            <p align="center"  style="
-                                            margin-top: 1rem;
+                                            <p align="center"
+                                            style="margin-top: 1rem;
                                             font-weight: 800;
-                                            font-family: 'Regola';
-                                          ">Good luck!</p>
+                                            font-family: 'Regola';">
+                                            Good luck!</p>
                                         </td>
                                     </tr>
                                 </table>

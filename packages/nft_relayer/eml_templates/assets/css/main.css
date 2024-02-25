@@ -3,7 +3,7 @@
       ------------------------------------- */
 
       /*All the styling goes here*/
-      :root {color-scheme: light dark;}
+      /* :root {color-scheme: light dark;} */
       
       @font-face {
         font-family: "Regola";
@@ -407,7 +407,7 @@
       /* -------------------------------------
           Dark Mode
       ------------------------------------- */
-  @media (prefers-color-scheme: dark) {
+  /* @media (prefers-color-scheme: dark) {
   body {
     background-color: #1e1e1e;
     color: #ffffff;
@@ -465,4 +465,4 @@
     padding: 0.1rem;
   }
 
-  } 
+  }  */
