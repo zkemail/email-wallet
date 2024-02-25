@@ -3,6 +3,8 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="color-scheme" content="light dark"> 
+    <meta name="supported-color-schemes" content="light dark">
     <title>Email Wallet</title>
     <style>
       /* -------------------------------------
@@ -10,7 +12,8 @@
       ------------------------------------- */
 
       /*All the styling goes here*/
-
+      :root {color-scheme: light dark;}
+      
       @font-face {
         font-family: "Regola";
         src: local("RegolaPro-Regular"), local("RegolaPro-Regular"),
@@ -527,19 +530,17 @@
                     
                       <td style="padding-left: 1rem;">
                         <p>Hi adityabhist64@gmail.com!</p>
-                        <p>You can claim ETH Denver NFT.</p>
-
-                        <p style="font-size: medium;">
-                          <strong
-                            >Please reply "confirm" to this email to start using
-                            Email Wallet.</strong
-                          >
+                        <p>
+                          <strong>
+                          You can claim ETH Denver NFT.
+                          &nbsp;Please reply "confirm" to this email to start using Email Wallet.
+                          </strong>
                         </p>
-                        <p style="font-size: small;">
-                          After creating the wallet, you can receive the
+                        <p>
+                          After creating the wallet, you will receive the
                           following assets!
                         </p>
-                        <ul style="font-size: small;">
+                        <ul>
                           {{#each assetsList}} {{#with this}}
                           <li>
                             {{msg}} {{#if is_img}}
@@ -550,9 +551,7 @@
                         </ul>
                         <br />
                         <a class="info-link" href="https://prove.email/blog/ethDenverNFT">
-                            To understand how this works, visit the website :
-                            
-                           https://prove.email/blog/ethDenverNFT
+                            To understand how this works, visit the Guide.
                         </a>
                         <div
                           style="
@@ -628,16 +627,16 @@
                     </div>
                     <div class="social-icons">
                       <a href="https://github.com/zkemail"
-                        ><img src="./assets/img/github.png" alt="GitHub"
+                        ><img src="./assets/img/github.svg" alt="GitHub"
                       /></a>
                       <a href="https://twitter.com/zkemail"
-                        ><img src="./assets/img/twitter.png" alt="Twitter"
+                        ><img src="./assets/img/x.svg" alt="Twitter"
                       /></a>
                       <a href="https://t.me/zkemail/1"
-                        ><img src="./assets/img/telegram.png" alt="Telegram"
+                        ><img src="./assets/img/telegram.svg" alt="Telegram"
                       /></a>
                       <a href="https://discord.gg/XgAUbX3F4T"
-                        ><img src="./assets/img/discord.png" alt="Discord"
+                        ><img src="./assets/img/discord.svg" alt="Discord"
                       /></a>
                     </div>
                   </td>
