@@ -26,42 +26,88 @@ async fn main() -> Result<()> {
     let args = env::args().collect::<Vec<_>>();
     if args.len() == 2 && args[1] == "setup" {
         return setup().await;
-    } else {
-        dotenv::dotenv().ok();
-        DEMO_NFT_ADDR
-            .set(
-                env::var("DEMO_NFT_ADDR")
-                    .map(|s| s.parse().unwrap())
-                    .unwrap(),
-            )
-            .unwrap();
-        let (sender, rx) = EmailForwardSender::new();
-        // let sender_for_event = sender.clone();
-        // let event_consumer_fn = move |event: EmailWalletEvent| {
-        //     tokio::runtime::Runtime::new()
-        //         .unwrap()
-        //         .block_on(event_consumer_fn(event, sender_for_event.clone()))
-        // };
-        // let event_consumer = EventConsumer::new(Box::new(event_consumer_fn));
-        let sender_for_api = sender.clone();
-        let nft_transfer_fn =
-            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
-                info!(LOG, "NFT transfer payload: {}", payload);
-                match nft_transfer_api_fn(payload).await {
-                    Ok((request_id, email)) => {
-                        sender_for_api.send(email).unwrap();
-                        request_id.to_string()
-                    }
-                    Err(err) => {
-                        error!(relayer::LOG, "Failed to accept nft transfer: {}", err);
-                        err.to_string()
-                    }
-                }
-            });
-
-        let routes = vec![("/api/nftTransfer".to_string(), nft_transfer_fn)];
-        run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     }
+    dotenv::dotenv().ok();
+    DEMO_NFT_ADDR
+        .set(
+            env::var("DEMO_NFT_ADDR")
+                .map(|s| s.parse().unwrap())
+                .unwrap(),
+        )
+        .unwrap();
+    let (sender, rx) = EmailForwardSender::new();
+    let sender_for_nft_transfer_api = sender.clone();
+    let nft_transfer_fn = axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+        info!(LOG, "NFT transfer payload: {}", payload);
+        match nft_transfer_api_fn(payload).await {
+            Ok((request_id, email)) => {
+                sender_for_nft_transfer_api.send(email).unwrap();
+                request_id.to_string()
+            }
+            Err(err) => {
+                error!(relayer::LOG, "Failed to accept nft transfer: {}", err);
+                err.to_string()
+            }
+        }
+    });
+    let sender_for_create_account_api = sender.clone();
+    let create_account_fn = axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+        info!(LOG, "Create account payload: {}", payload);
+        match create_account_api_fn(payload).await {
+            Ok((request_id, email)) => {
+                sender_for_create_account_api.send(email).unwrap();
+                request_id.to_string()
+            }
+            Err(err) => {
+                error!(relayer::LOG, "Failed to accept create account: {}", err);
+                err.to_string()
+            }
+        }
+    });
+    let is_account_created_fn =
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Is account created payload: {}", payload);
+            match is_account_created_api_fn(payload).await {
+                Ok(status) => status.to_string(),
+                Err(err) => {
+                    error!(relayer::LOG, "Failed to accept is account created: {}", err);
+                    err.to_string()
+                }
+            }
+        });
+    let sender_for_send_fn_api = sender.clone();
+    let send_fn = axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+        info!(LOG, "Send payload: {}", payload);
+        match send_api_fn(payload).await {
+            Ok((request_id, email)) => {
+                sender_for_send_fn_api.send(email).unwrap();
+                request_id.to_string()
+            }
+            Err(err) => {
+                error!(relayer::LOG, "Failed to accept send: {}", err);
+                err.to_string()
+            }
+        }
+    });
+    let get_wallet_address_fn =
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Get wallet address payload: {}", payload);
+            match get_wallet_address_api_fn(payload).await {
+                Ok(wallet_addr) => wallet_addr,
+                Err(err) => {
+                    error!(relayer::LOG, "Failed to accept get wallet address: {}", err);
+                    err.to_string()
+                }
+            }
+        });
+    let routes = vec![
+        ("/api/nftTransfer".to_string(), nft_transfer_fn),
+        ("/api/isAccountCreated".to_string(), is_account_created_fn),
+        ("/api/createAccount".to_string(), create_account_fn),
+        ("/api/send".to_string(), send_fn),
+        ("/api/getWalletAddress".to_string(), get_wallet_address_fn),
+    ];
+    run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     Ok(())
 }
 

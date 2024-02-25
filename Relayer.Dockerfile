@@ -36,7 +36,7 @@ RUN --mount=type=cache,target=/var/cache/cargo \
 
 EXPOSE 4500
 
-CMD ["/bin/bash", "-c", "cargo", "run", "--release"]
+# CMD ["/bin/bash", "-c", "cargo", "run", "--release"]
 
 
 # # ------------------ Chef stage -------------------
