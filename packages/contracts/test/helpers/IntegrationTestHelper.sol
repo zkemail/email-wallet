@@ -299,6 +299,11 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
         uint emailTimestamp = vm.parseUint(pubSignals[11]);
         bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[12]));
+        console.logString("function accountCreation");
+        console.logString("emailAddr");
+        console.logString(emailAddr);
+        console.logString("walletSalt");
+        console.logBytes32(walletSalt);
         bytes memory psiPoint;
         {
             bytes32 x = bytes32(vm.parseUint(pubSignals[13]));
@@ -335,6 +340,9 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/email_sender.sh");
         inputGenerationInput[1] = emailFile;
+        console.logString("function genEmailOpPartial");
+        console.logString("emailFile");
+        console.logString(emailFile);
         inputGenerationInput[2] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
         inputGenerationInput = new string[](2);
@@ -363,6 +371,12 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.walletSalt = bytes32(vm.parseUint(pubSignals[32]));
         emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
         emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
+
+        console.logString("function genEmailOpPartial");
+        console.logString("accountKey");
+        console.logBytes32(accountKey);
+        console.logString("walletSalt");
+        console.logBytes32(emailOp.walletSalt);
     }
 
     function claimFund(
@@ -391,6 +405,14 @@ abstract contract IntegrationTestHelper is Test {
             recipientWalletSalt, 
             proof
         );
+        console.logString("function claimFund");
+        console.logString("emailAddr");
+        console.logString(emailAddr);
+        console.logString("accountKey");
+        console.logBytes32(accountKey);
+        console.logString("walletSalt");
+        console.logBytes32(recipientWalletSalt);
+
     }
 
     function claimState(
