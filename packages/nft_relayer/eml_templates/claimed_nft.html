@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <span class="preheader">New Email Wallet Notification</span>
+    <span class="preheader">Received {{nftName}} in Email Wallet</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
         <tr>
             <td>&nbsp;</td>
@@ -52,7 +52,7 @@
                                         <td style="padding-left: 1rem;">
                                             <p>Hi {{userEmailAddr}}!</p>
                                             <p>
-                                                You received NFT: ID {{nftId}} of {{nftName}} from {{senderAddr}}.
+                                                You received NFT: ID {{nftId}} of {{nftName}} from  <span style="font-style: italic;">{{senderAddr}}.</span>
                                             </p>
                                             <div align="center" style="width: 100%; height: 20rem; margin-bottom: 1rem; padding-top: 2rem; padding-bottom: 2rem;">
                                             <img style="height: 100%; width: auto;" src={{img}} />

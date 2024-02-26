@@ -52,13 +52,13 @@
                                         </div>
                                         <td style="padding-left: 1rem;">
                                             <p>Hi {{userEmailAddr}}!</p>
-                                            <!-- <p>
-                                                {{claimMsg}}.
-                                            </p> -->
+                                            <p>
+                                                <strong>You have successfully claimed {{tokenAmount}} {{tokenName}} from <span
+                                                    style="font-style: italic;">{{senderAddr}}.</span></strong>
+                                            </p>
                                             <p>Check the transaction on etherscan: <a
                                                     href="{{chainRPCExplorer}}/tx/{{transactionHash}}">{{transactionHash}}</a>
-                                            </p>
-                                            <p>Check your wallet: <a
+                                            <br>Check your wallet: <a
                                                     href="{{chainRPCExplorer}}/address/{{walletAddr}}">{{walletAddr}}</a>
                                             </p>
                                             <p
