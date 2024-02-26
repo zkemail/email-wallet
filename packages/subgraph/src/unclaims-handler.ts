@@ -10,7 +10,6 @@ import { UnclaimedFund, UnclaimedState } from "../generated/schema";
 
 export function handleUnclaimedFundRegistered(event: UnclaimedFundRegisteredEvent): void {
   let unclaimedFund = new UnclaimedFund(event.params.id.toString());
-  unclaimedFund.emailAddrCommit = event.params.emailAddrCommit;
   unclaimedFund.tokenAddr = event.params.tokenAddr;
   unclaimedFund.amount = event.params.amount;
   unclaimedFund.sender = event.params.sender;
@@ -45,7 +44,6 @@ export function handleUnclaimedFundVoided(event: UnclaimedFundVoidedEvent): void
 
 export function handleUnclaimedStateRegistered(event: UnclaimedStateRegisteredEvent): void {
   let unclaimedState = new UnclaimedState(event.params.id.toString());
-  unclaimedState.emailAddrCommit = event.params.emailAddrCommit;
   unclaimedState.extensionAddr = event.params.extensionAddr;
   unclaimedState.sender = event.params.sender;
   unclaimedState.expiryTime = event.params.expiryTime;

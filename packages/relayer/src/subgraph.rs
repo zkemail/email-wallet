@@ -15,14 +15,6 @@ use graphql_client::GraphQLQuery;
     query_path = "./graphql/query.graphql",
     response_derives = "Debug, Serialize, Deserialize"
 )]
-pub(crate) struct GetRelayers;
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "./graphql/schema.graphql",
-    query_path = "./graphql/query.graphql",
-    response_derives = "Debug, Serialize, Deserialize"
-)]
 pub(crate) struct AllRelayersForPSI;
 
 pub struct SubgraphClient {
