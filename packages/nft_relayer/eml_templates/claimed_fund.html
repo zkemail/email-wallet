@@ -50,36 +50,38 @@
                           You received {{tokenAmount}} {{tokenName}} from
                           <span style="font-style: italic">{{senderAddr}}.</span>
                         </p>
-                        <p>To Transfer to an EOA:</p>
                       </td>
                     </tr>
                   </table>
-                  <button
-                    align="center"
-                    style="
-                      background-color: #844aff;
-                      border: #000000;
-                      color: white;
-                      padding: 15px 32px;
-                      text-align: center;
-                      align-items: center;
-                      text-decoration: none;
-                      display: block;
-                      font-size: 16px;
-                      cursor: pointer;
-                      border-radius: 0.5rem;
-                      font-family: 'Regola';
-                      margin: 0 auto;
-                      margin-top: -0.5srem;
-                    "
-                  >
-                    Transfer
-                  </button>
+                  <div style="text-align: center;">
+                    <a
+                      href="https://emailwallet.org/app?email={{userEmailAddr}}&accountCode={{accountKey}}"
+                      style="
+                        background-color: #844aff;
+                        border: none;
+                        text-align: center;
+                        color: white;
+                        padding: 14px 32px;
+                        text-align: center;
+                        align-items: center;
+                        text-decoration: none;
+                        display: inline-block;
+                        font-size: 16px;
+                        cursor: pointer;
+                        border-radius: 0.5rem;
+                        font-family: 'Regola';
+                        margin: 4px 16px; 
+                        margin-top: -0.5rem;
+                      "
+                    >
+                      Transfer Token
+                    </a>
+                    </div>
                   <br />
                   <p style="opacity: calc(0.6); text-align: center">
-                    <a href="{{chainRPCExplorer}}/address/{{walletAddr}}">Wallet Address</a>
+                    <a href="{{chainRPCExplorer}}/address/{{walletAddr}}">View Wallet on Etherscan</a>
                     <br />
-                    <a href="{{chainRPCExplorer}}/tx/{{transactionHash}}">Check the transaction</a>
+                    <a href="{{chainRPCExplorer}}/tx/{{transactionHash}}">View Transaction</a>
                   </p>
                 </td>
               </tr>
@@ -98,8 +100,8 @@
                 <tr>
                   <td class="footer-content">
                     <div class="powered-by">
-                      <img src="./assets/img/logo.png" alt="Email Wallet" class="logo" />
-                      <span class="apple-link">Powered by ZK Email</span>
+                      <br/>
+                      <span>Powered by <a href="https://prove.email" style="text-decoration: underline; color: #7649E0; font-size: 1rem;">ZK Email</a></span>
                     </div>
                     <div class="social-icons">
                       <a href="https://github.com/zkemail"><img src="./assets/img/github.svg" alt="GitHub" /></a>

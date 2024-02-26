@@ -47,14 +47,12 @@
                       <td style="padding-left: 1rem; padding-right: 1rem">
                         <p>Hi {{userEmailAddr}}!</p>
                         <p>
-                          Your Email Wallet account is ready to be deployed. Your wallet address:
-                          {{chainRPCExplorer}}/address/{{walletAddr}}.
+                          <strong>You must reply to this email to start using Email Wallet.</strong> 
+                          You can leave it blank or write a nice message!
+                          <br/>
+                          <br/>
+                          Your replies authenticate your account. You will receive:
                         </p>
-                        <p>
-                          <strong>Please reply to this email to start using Email Wallet.</strong>
-                          You don't have to add any message in the reply 😄.
-                        </p>
-                        <p>After creating the wallet, you can receive the following assets!</p>
                         <ul>
                           {{#each assetsList}} {{#with this}}
                           <li>
@@ -73,6 +71,9 @@
                       </td>
                     </tr>
                   </table>
+                  <p align="center" style="color: gray; font-size: small;">
+                    Your wallet will be deployed at <a href="{{chainRPCExplorer}}/address/{{walletAddr}}" style="text-decoration: underline; color: #7649E0;">{{walletAddr}}</a>
+                  </p>
                 </td>
               </tr>
               <!-- END MAIN CONTENT AREA -->
@@ -87,8 +88,8 @@
                 <tr>
                   <td class="footer-content">
                     <div class="powered-by">
-                      <img src="./assets/img/logo.png" alt="Email Wallet" class="logo" />
-                      <span class="apple-link">Powered by ZK Email</span>
+                      <br/>
+                      <span>Powered by <a href="https://prove.email" style="text-decoration: underline; color: #7649E0; font-size: 1rem;">ZK Email</a></span>
                     </div>
                     <div class="social-icons">
                       <a href="https://github.com/zkemail"><img src="./assets/img/github.svg" alt="GitHub" /></a>
