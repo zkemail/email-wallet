@@ -51,20 +51,20 @@
                                         </div>
                                         <td style="padding-left: 1rem;">
                                             <p>Hi {{userEmailAddr}}!</p>
-                                            <!-- <p align="center">
-                                                {{voidMsg}}.
-                                            </p> -->
+                                            <p style="font-weight: 600;">
+                                                Your request was voided.
+                                            </p>
                                             <p>Your wallet address: <a
                                                     href="https://sepolia.etherscan.io/address/{{walletAddr}}">{{walletAddr}}</a>
-                                            </p>
-                                            <p>Check the transaction on etherscan: <a
+                                            <br>Check the transaction on etherscan: <a
                                                     href="https://sepolia.etherscan.io/tx/{{transactionHash}}">{{transactionHash}}</a>
                                             </p>
                                             <p align="center" 
                                             style="
                                             margin-top: 1rem;
                                             font-weight: 800;
-                                            font-family: 'Regola';">Good luck!</p>
+                                            font-family: 'Regola';
+                                            margin-bottom: 0;">Good luck!</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -87,7 +87,7 @@
                             <td class="footer-content">
                               <div class="powered-by">
                                 <img src="./assets/img/logo.png" alt="Email Wallet" class="logo" />
-                                <span class="apple-link">Powered-by ZK Email</span>
+                                <span class="apple-link">Powered by ZK Email</span>
                               </div>
                               <div class="social-icons">
                                 <a href="https://github.com/zkemail"

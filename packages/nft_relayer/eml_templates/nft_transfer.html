@@ -52,12 +52,13 @@
                                         <td style="padding-left: 1rem;">
                                             <p>Hi {{userEmailAddr}}!</p>
                                             <p >
-                                                <strong>Please reply to this email to send {{recipient}} your NFT: ID
-                                                    {{nftID}} of {{nftName}}.</strong>
-                                                You don't have to add any message in the reply 😄.
-                                            </p>
-                                            <img src={{img}} />
-                                            <p align="center">Your wallet address: <a
+                                                <strong>Please reply "confirm" to this email to send <span style="font-style: italic;">{{recipient}}</span> your NFT: ID
+                                                    {{nftID}} of <span style="font-style: italic;">{{nftName}}.</span></strong>                                            </p>
+                                                    <div align="center" style="width: 100%; height: 10rem; margin-bottom: 2rem; padding-top: 2rem; padding-bottom: 2rem;">
+                                                      <img style="height: 100%; width: auto;" src={{img}} />
+                                                      </div>
+                                                      
+                                            <p>Your wallet address: <a
                                                     href="{{chainRPCExplorer}}/address/{{walletAddr}}">{{walletAddr}}</a>
                                             </p>
                                             <p align="center"
@@ -65,8 +66,10 @@
                                             margin-top: 1rem;
                                             font-weight: 800;
                                             font-family: 'Regola';
+                                            margin-bottom: 0;
                                           "
                                             >Good luck!</p>
+                                            <p align="center" style="opacity: calc(0.7);"><a href="https://prove.email/blog/ethDenverNFT">To understand how this works, visit the guide</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -89,7 +92,7 @@
                             <td class="footer-content">
                               <div class="powered-by">
                                 <img src="./assets/img/logo.png" alt="Email Wallet" class="logo" />
-                                <span class="apple-link">Powered-by ZK Email</span>
+                                <span class="apple-link">Powered by ZK Email</span>
                               </div>
                               <div class="social-icons">
                                 <a href="https://github.com/zkemail"
