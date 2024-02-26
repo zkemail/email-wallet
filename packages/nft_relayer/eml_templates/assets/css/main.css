@@ -7,8 +7,25 @@
       
       @font-face {
         font-family: "Regola";
-        src: local("RegolaPro-Regular"), local("RegolaPro-Regular"),
-          url("Regola_Pro_Regular.ttf") format("opentype");
+        src: url("../Regola_Pro/Regola\ Pro\ Regular.otf") format("opentype");
+      }
+
+      @font-face {
+        font-family: "Regola";
+        src: url("../Regola_Pro/Regola\ Pro\ Bold.otf") format("opentype");
+        font-weight: bold;
+      }
+
+      @font-face {
+        font-family: "Regola";
+        src: url("../Regola_Pro/Regola\ Pro\ Medium.otf") format("opentype");
+        font-weight: 500;
+      }
+
+      @font-face {
+        font-family: "Regola";
+        src: url("../Regola_Pro/Regola\ Pro\ Book.otf") format("opentype");
+        font-weight: 300;
       }
 
       img {
@@ -69,6 +86,11 @@
         padding: 10px;
       }
 
+      /* Bold text */
+      .bold {
+        font-weight: bold;
+      }
+
       /* -------------------------------------
           HEADER, FOOTER, MAIN
       ------------------------------------- */
@@ -102,9 +124,13 @@
 
       .footer {
         clear: both;
-        margin-top: 10px;
+        margin-top: 1rem;
         text-align: center;
         width: 100%;
+      }
+
+      .logo {
+        margin-top: -0.5rem;
       }
 
       .footer td,

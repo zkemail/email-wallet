@@ -127,8 +127,7 @@ pub async fn generate_asset_list_body(
     let mut assets_list_html = vec![];
     let mut attachments = vec![];
     // assets_list_html.push_str("<ul>\n");
-    for (idx, ((asset_msg, image_bytes))) in assets_msgs.iter().zip(images.into_iter()).enumerate()
-    {
+    for (idx, (asset_msg, image_bytes)) in assets_msgs.iter().zip(images.into_iter()).enumerate() {
         // let image_str = image
         //     .as_ref()
         //     .map(|img| format!("data:image/png;base64,{}", BASE64_STANDARD.encode(img)));

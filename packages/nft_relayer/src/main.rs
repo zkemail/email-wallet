@@ -294,11 +294,12 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                         get_nft_info(&unclaimed_state.state).await?;
                     let subject = format!(
                         "Email Wallet Notification. You received NFT: id {} of {}.",
-                        nft_id, nft_name
+                        nft_id.to_string(),
+                        nft_name
                     );
                     let body_plain = format!(
                             "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
-                            email_addr, nft_id, nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
+                            email_addr, nft_id.to_string(), nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
                     let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                     let body_html = render_html("claimed_nft.html", render_data).await?;
