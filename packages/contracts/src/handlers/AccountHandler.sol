@@ -13,8 +13,9 @@ import {RelayerHandler} from "./RelayerHandler.sol";
 import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract AccountHandler is UUPSUpgradeable, Ownable {
     // Default DKIM public key hashes registry
     IDKIMRegistry public defaultDkimRegistry;
 
@@ -47,18 +48,14 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         _;
     }
 
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(
+    constructor(        
         address _relayerHandler,
         address _defaultDkimRegistry,
         address _verifier,
         address _walletImplementation,
         uint _emailValidityDuration
-    ) public initializer {
-        __Ownable_init();
+    ) {
+        // _disableInitializers();
         deployer = _msgSender();
         emailValidityDuration = _emailValidityDuration;
         defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
@@ -66,6 +63,22 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         relayerHandler = RelayerHandler(_relayerHandler);
         verifier = IVerifier(_verifier);
     }
+
+    // function initialize(
+    //     address _relayerHandler,
+    //     address _defaultDkimRegistry,
+    //     address _verifier,
+    //     address _walletImplementation,
+    //     uint _emailValidityDuration
+    // ) public initializer {
+    //     __Ownable_init();
+    //     deployer = _msgSender();
+    //     emailValidityDuration = _emailValidityDuration;
+    //     defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
+    //     walletImplementation = _walletImplementation;
+    //     relayerHandler = RelayerHandler(_relayerHandler);
+    //     verifier = IVerifier(_verifier);
+    // }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyDeployer {}
 

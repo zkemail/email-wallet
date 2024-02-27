@@ -8,8 +8,9 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 import "../interfaces/Commands.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract ExtensionHandler is UUPSUpgradeable, Ownable {
     bool _defaultExtensionsSet;
 
     // Deployer
@@ -39,13 +40,14 @@ contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable 
     }
 
     constructor() {
-        _disableInitializers();
-    }
-
-    function initialize() initializer public {
-        __Ownable_init();
+        // _disableInitializers();
         deployer = _msgSender();
     }
+
+    // function initialize() initializer public {
+    //     // __Ownable_init();
+    //     deployer = _msgSender();
+    // }
 
     function _authorizeUpgrade(address newImplementation)
         internal
