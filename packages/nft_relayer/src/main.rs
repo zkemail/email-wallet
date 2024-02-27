@@ -161,6 +161,9 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            CLIENT
+                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+                .await?;
             // CLIENT
             //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
             //     .await?;
@@ -439,10 +442,7 @@ pub(crate) async fn generate_invitation_email(
     }
     let invitation_code_hex = &field2hex(&account_key.0)[2..];
     let subject = if is_for_nft_demo {
-        format!(
-            "You can claim ETH Denver NFT. Code {}",
-            invitation_code_hex
-        )
+        format!("You can claim ETH Denver NFT. Code {}", invitation_code_hex)
     } else {
         format!(
             "Email Wallet Notification. Your Email Wallet Account is ready to be deployed. Code {}",
@@ -504,11 +504,11 @@ pub(crate) async fn generate_invitation_email(
             body_attachments: None,
         }
     };
-    if is_first {
-        CLIENT
-            .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-            .await?;
-    }
+    // if is_first {
+    //     CLIENT
+    //         .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+    //         .await?;
+    // }
     Ok(email_msg)
 }
 
