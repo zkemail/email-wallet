@@ -36,18 +36,28 @@ networks: {
     },
   },
   zksolc: {
-    version: "1.3.23",
-    // compilerSource: "binary",
-    settings: {
-        libraries: {
-              "src/libraries/DecimalUtils.sol": {
-                "DecimalUtils": "0x51eF809FFd89cf8056D4C17F0aFF1b6F8257EB60"
-              },
-              "src/libraries/SubjectUtils.sol": {
-                "SubjectUtils": "0x775f1fbfc46720025ACC2FFE652e578de642e6a2"
-              }
-            }
-    },
+    version: "latest",
+    // // compilerSource: "binary",
+    // settings: {
+    //     libraries: {
+    //           "src/libraries/DecimalUtils.sol": {
+    //             "DecimalUtils": "0x51eF809FFd89cf8056D4C17F0aFF1b6F8257EB60"
+    //           },
+    //           "src/libraries/SubjectUtils.sol": {
+    //             "SubjectUtils": "0x775f1fbfc46720025ACC2FFE652e578de642e6a2"
+    //           }
+    //         }
+    // },
+    //   settings: {
+    //       libraries: {
+    //             "src/libraries/DecimalUtils.sol": {
+    //               "DecimalUtils": "0xE8eB47d071cd2AC541EE4886c5aF3A262e96689f"
+    //             },
+    //             "src/libraries/SubjectUtils.sol": {
+    //               "SubjectUtils": "0x8064e5515bC490aa4589B2588e6284c421d06B2a"
+    //             }
+    //           }
+    // }
   },
   solidity: {
     version: "0.8.23",
