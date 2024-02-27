@@ -48,8 +48,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             account_key,
             tx_hash,
         } => {
-            let subject =
-                format!("Email Wallet Notification. Your Email Wallet Account is created.",);
+            let subject = format!("Your Email Wallet Account is created.",);
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
@@ -107,8 +106,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             email_op: _,
             tx_hash,
         } => {
-            let subject =
-                format!("Email Wallet Notification. Your Email Wallet transaction is completed.",);
+            let subject = format!("Your Email Wallet transaction is completed.",);
             let wallet_salt = WalletSalt::new(
                 &PaddedEmailAddr::from_email_addr(&sender_email_addr),
                 account_key,
@@ -140,9 +138,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             tx_hash,
         } => {
             // let email_addr = &claim.email_address;
-            let subject = format!(
-                "Email Wallet Notification. Your Email Wallet account is ready to be deployed.",
-            );
+            let subject = format!("Your Email Wallet account is ready to be deployed.",);
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;

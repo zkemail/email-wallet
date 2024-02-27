@@ -218,8 +218,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             email_op: _,
             tx_hash,
         } => {
-            let subject =
-                format!("Email Wallet Notification. Your Email Wallet transaction is completed.",);
+            let subject = format!("Your Email Wallet transaction is completed.",);
             let wallet_salt = WalletSalt::new(
                 &PaddedEmailAddr::from_email_addr(&sender_email_addr),
                 account_key,
@@ -278,10 +277,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 if name == "WETH" {
                     name = "ETH".to_string();
                 }
-                let subject = format!(
-                    "Email Wallet Notification. You received {} {}.",
-                    amount, name
-                );
+                let subject = format!("You received {} {}.", amount, name);
                 let body_plain = format!(
                             "Hi {}!\nYou received {} {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, amount, name, unclaim_fund.sender, &tx_hash, wallet_addr
@@ -307,13 +303,10 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                         .expect("Invalid UTF-8 sequence"),
                     )
                     .expect("Failed to parse JSON");
-                    let subject = format!(
-                        "Email Wallet Notification. You received NFT: id {} of {}.",
-                        nft_id.to_string(),
-                        nft_name
-                    );
+                    let subject =
+                        format!("You received NFT #{} of {}.", nft_id.to_string(), nft_name);
                     let body_plain = format!(
-                            "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
+                            "Hi {}!\nYou received the NFT with ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, nft_id.to_string(), nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
                     let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id.to_string(), "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str, "img": json_uri["image"].as_str().unwrap_or_default()});
@@ -329,7 +322,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                     (subject, body_plain, body_html, Some(vec![]))
                 } else {
                     let subject = format!(
-                        "Email Wallet Notification. You received data of extension {}.",
+                        "You received data of extension {}.",
                         unclaimed_state.extension_addr
                     );
                     let body_plain = format!(
@@ -360,7 +353,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
         }
         EmailWalletEvent::Voided { claim, tx_hash } => {
             let subject = format!(
-                "Email Wallet Notification. {}",
+                "{}",
                 if claim.is_fund {
                     "Your money transfer on Ethereum is voided"
                 } else {
@@ -442,10 +435,13 @@ pub(crate) async fn generate_invitation_email(
     }
     let invitation_code_hex = &field2hex(&account_key.0)[2..];
     let subject = if is_for_nft_demo {
-        format!("You can claim ETH Denver NFT. Code {}", invitation_code_hex)
+        format!(
+            "You can claim an ETHDenver NFT. Code {}",
+            invitation_code_hex
+        )
     } else {
         format!(
-            "Email Wallet Notification. Your Email Wallet Account is ready to be deployed. Code {}",
+            "Your Email Wallet Account is ready to be deployed. Code {}",
             invitation_code_hex
         )
     };
@@ -453,7 +449,7 @@ pub(crate) async fn generate_invitation_email(
         generate_asset_list_body(&assets, assets_msgs).await?;
     let body_plain = if is_for_nft_demo {
         format!(
-            "Hi {}!\nYou can claim ETH Denver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can receive the following assets!\n{}",
+            "Hi {}!\nYou can claim ETHDenver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can receive the following assets!\n{}",
             email_addr, wallet_addr, assets_list_plain,
         )
     } else {
