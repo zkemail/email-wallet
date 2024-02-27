@@ -9,7 +9,7 @@ import "../interfaces/Types.sol";
 import "../interfaces/Commands.sol";
 import "../utils/TokenRegistry.sol";
 import "../handlers/ExtensionHandler.sol";
-import "../EmailWalletCore.sol";
+import "../interfaces/IEmailWalletCore.sol";
 
 library SubjectUtils {
     bytes16 private constant LOWER_HEX_DIGITS = "0123456789abcdef";
@@ -77,7 +77,7 @@ library SubjectUtils {
     function computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp,
         address walletAddr,
-        EmailWalletCore core
+        IEmailWalletCore core
     ) public view returns (string memory maskedSubject, bool isExtension) {
         ExtensionHandler extensionHandler = ExtensionHandler(core.extensionHandler());
 

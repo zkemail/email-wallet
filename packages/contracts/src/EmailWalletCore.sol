@@ -10,7 +10,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {LibZip} from "solady/utils/LibZip.sol";
+// import {LibZip} from "solady/utils/LibZip.sol";
 import {DecimalUtils} from "./libraries/DecimalUtils.sol";
 import {SubjectUtils} from "./libraries/SubjectUtils.sol";
 import {TokenRegistry} from "./utils/TokenRegistry.sol";
@@ -26,6 +26,7 @@ import {Wallet} from "./Wallet.sol";
 import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 import "./interfaces/Events.sol";
+import "./interfaces/IEmailWalletCore.sol";
 
 contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
@@ -126,10 +127,12 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         extensionHandler.setDefaultExtensions(defaultExtensions);
     }
 
-    // Upgradeable LibZip for calldata decompression
-    fallback() external payable {
-        LibZip.cdFallback();
-    }
+    // // Upgradeable LibZip for calldata decompression
+    // Commented out for now as it can't be used in zkSync
+    // LibZip uses ‘codecopy’ which is not supported in zksync
+    // fallback() external payable {
+    //     LibZip.cdFallback();
+    // }
 
     // Core contract should not receive ETH
     receive() external payable {
@@ -167,7 +170,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
             emailOp,
             accountHandler.getWalletOfSalt(emailOp.walletSalt),
-            this // Core contract to read some states
+            IEmailWalletCore(address(this)) // Core contract to read some states
         );
         bytes memory maskedSubjectBytes = bytes(emailOp.maskedSubject);
         require(emailOp.skipSubjectPrefix < maskedSubjectBytes.length, "skipSubjectPrefix too high");
