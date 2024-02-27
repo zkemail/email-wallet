@@ -7,24 +7,24 @@
       
       @font-face {
         font-family: "Regola";
-        src: url("../Regola_Pro/Regola\ Pro\ Regular.otf") format("opentype");
+        src: url("https://storage.googleapis.com/eml-templates-assets/Regola_Pro/Regola%20Pro%20Regular.otf") format("opentype");
       }
 
       @font-face {
         font-family: "Regola";
-        src: url("../Regola_Pro/Regola\ Pro\ Bold.otf") format("opentype");
+        src: url("https://storage.googleapis.com/eml-templates-assets/Regola_Pro/Regola%20Pro%20Bold.otf") format("opentype");
         font-weight: bold;
       }
 
       @font-face {
         font-family: "Regola";
-        src: url("../Regola_Pro/Regola\ Pro\ Medium.otf") format("opentype");
+        src: url("https://storage.googleapis.com/eml-templates-assets/Regola_Pro/Regola%20Pro%20Medium.otf") format("opentype");
         font-weight: 500;
       }
 
       @font-face {
         font-family: "Regola";
-        src: url("../Regola_Pro/Regola\ Pro\ Book.otf") format("opentype");
+        src: url("https://storage.googleapis.com/eml-templates-assets/Regola_Pro/Regola%20Pro%20Book.otf") format("opentype");
         font-weight: 300;
       }
 

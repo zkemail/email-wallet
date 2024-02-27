@@ -17,7 +17,6 @@ pub struct DkimOracleClient<'a> {
 pub struct SignedDkimPublicKey {
     pub selector: String,
     pub domain: String,
-    pub chain_id: u64,
     pub signature: String,
     pub public_key: String,
     pub public_key_hash: String,
