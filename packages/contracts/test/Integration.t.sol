@@ -451,52 +451,52 @@ contract IntegrationTest is IntegrationTestHelper {
         );
         address user1Wallet = address(user1WalletContract);
         claimFund(registeredUnclaimId, user1.emailAddr, rand1, user1.accountKey);
-        // require(
-        //     weth.balanceOf(user1Wallet) == 0.5 ether,
-        //     "User1 wallet balance after claiming unclaimed fund mismatch"
-        // );
+        require(
+            weth.balanceOf(user1Wallet) == 0.5 ether,
+            "User1 wallet balance after claiming unclaimed fund mismatch"
+        );
 
-        // (EmailOp memory emailOp, ) = genEmailOpPartial(
-        //     string.concat(vm.projectRoot(), "/test/emails/token_transfer_test1.eml"),
-        //     user1.accountKey,
-        //     "Send",
-        //     "Send 0.1 ETH to ",
-        //     "gmail.com",
-        //     "ETH"
-        // );
-        // emailOp.walletParams.tokenName = "ETH";
-        // emailOp.walletParams.amount = 0.1 ether;
-        // deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
-        // (bool success, bytes memory reason, , ) = core.handleEmailOp{
-        //     value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
-        // }(emailOp);
-        // assertEq(success, true, string(reason));
-        // // weth.balanceOf(user1Wallet).logUint();
-        // require(
-        //     weth.balanceOf(user1Wallet) < 0.4 ether,
-        //     "User1 wallet balance after the first transaction is too large"
-        // );
+        (EmailOp memory emailOp, ) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/token_transfer_test1.eml"),
+            user1.accountKey,
+            "Send",
+            "Send 0.1 ETH to ",
+            "gmail.com",
+            "ETH"
+        );
+        emailOp.walletParams.tokenName = "ETH";
+        emailOp.walletParams.amount = 0.1 ether;
+        deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
+        (bool success, bytes memory reason, , ) = core.handleEmailOp{
+            value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
+        }(emailOp);
+        assertEq(success, true, string(reason));
+        // weth.balanceOf(user1Wallet).logUint();
+        require(
+            weth.balanceOf(user1Wallet) < 0.4 ether,
+            "User1 wallet balance after the first transaction is too large"
+        );
 
-        // address recipient = vm.addr(4);
-        // (emailOp, ) = genEmailOpPartial(
-        //     string.concat(vm.projectRoot(), "/test/emails/token_transfer_test2.eml"),
-        //     user1.accountKey,
-        //     "Send",
-        //     string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
-        //     "gmail.com",
-        //     "ETH"
-        // );
-        // emailOp.walletParams.tokenName = "ETH";
-        // emailOp.walletParams.amount = 0.25 ether;
-        // emailOp.recipientETHAddr = recipient;
-        // (success, reason, , ) = core.handleEmailOp{value: 0}(emailOp);
-        // assertEq(success, true, string(reason));
-        // require(
-        //     weth.balanceOf(user1Wallet) < 0.15 ether,
-        //     "User1 wallet balance after the second transaction is too large"
-        // );
-        // require(recipient.balance == 0.25 ether, "Recipient eth balance mismatch");
-        // require(weth.balanceOf(recipient) == 0, "Recipient weth balance must be zero");
+        address recipient = vm.addr(4);
+        (emailOp, ) = genEmailOpPartial(
+            string.concat(vm.projectRoot(), "/test/emails/token_transfer_test2.eml"),
+            user1.accountKey,
+            "Send",
+            string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
+            "gmail.com",
+            "ETH"
+        );
+        emailOp.walletParams.tokenName = "ETH";
+        emailOp.walletParams.amount = 0.25 ether;
+        emailOp.recipientETHAddr = recipient;
+        (success, reason, , ) = core.handleEmailOp{value: 0}(emailOp);
+        assertEq(success, true, string(reason));
+        require(
+            weth.balanceOf(user1Wallet) < 0.15 ether,
+            "User1 wallet balance after the second transaction is too large"
+        );
+        require(recipient.balance == 0.25 ether, "Recipient eth balance mismatch");
+        require(weth.balanceOf(recipient) == 0, "Recipient weth balance must be zero");
         vm.stopPrank();
     }
 
