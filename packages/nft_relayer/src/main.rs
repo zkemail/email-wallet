@@ -118,6 +118,7 @@ async fn main() -> Result<()> {
                 }
             }
         });
+    let echo_fn = axum::routing::get(move || async move { "Hello, world!" });
 
     let routes = vec![
         ("/api/nftTransfer".to_string(), nft_transfer_fn),
@@ -126,6 +127,7 @@ async fn main() -> Result<()> {
         ("/api/send".to_string(), send_fn),
         ("/api/getWalletAddress".to_string(), get_wallet_address_fn),
         ("/api/recoverAccountKey".to_string(), recover_account_key_fn),
+        ("/api/echo".to_string(), echo_fn),
     ];
     run(RelayerConfig::new(), event_consumer, sender, rx, routes).await?;
     Ok(())
