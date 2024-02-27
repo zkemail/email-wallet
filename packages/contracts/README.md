@@ -39,7 +39,9 @@ yarn hardhat node-zksync
 $ npx hardhat compile
 ```
 
-and then, if you see the below message, you need to deploy missing libraries
+and then, if you see the below message, you need to deploy missing libraries,
+some how blockpi doesn't work correctly in this case, I prefer official endpoint.
+See hardhat.config.ts.
 
 ```
 To compile and deploy libraries, please run: `yarn hardhat deploy-zksync:libraries`
