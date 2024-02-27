@@ -18,7 +18,7 @@ networks: {
       url: "https://zksync-era-sepolia.blockpi.network/v1/rpc/public",
       ethNetwork: "sepolia",
       zksync: true,
-      verifyURL: "https://explorer.sepolia.era.zksync.dev/contract_verification",      
+    //   verifyURL: "https://explorer.sepolia.era.zksync.dev/contract_verification",      
     },
     zkSyncMainnet: {
       url: "https://mainnet.era.zksync.io",
