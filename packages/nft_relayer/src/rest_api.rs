@@ -69,7 +69,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     if account_key_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -149,7 +149,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
     } else {
         let subject = "Email Wallet Error: Account Already Exists".to_string();
         let error_msg =
-            "Your wallet is already created. Please use your wallet to send and receive NFTs."
+            "Your wallet is already created. Please use the login page instead."
                 .to_string();
         let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str.unwrap()});
         let body_html = render_html("account_already_exist.html", render_data).await?;
@@ -189,7 +189,7 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     if account_key_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -273,7 +273,7 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
     let account_key_hex = &field2hex(&account_key.0)[2..];
     let wallet_salt = WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-    let subject = "Email Wallet Account Recovery".to_string();
+    let subject = "Email Wallet Account Login".to_string();
     let render_data = serde_json::json!({"userEmailAddr": email_addr, "accountKey": account_key_hex, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("account_recovery.html", render_data).await?;
     let email = EmailMessage {
