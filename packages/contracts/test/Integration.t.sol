@@ -194,8 +194,7 @@ contract IntegrationTest is IntegrationTestHelper {
         UserTestConfig[2] memory users = [user1, user2];
         bool[3][3][3] memory usedEmail;
         uint idx = 0;
-        while (idx < 1) {
-        // while (idx < 8) {
+        while (idx < 8) {
             randomHash = keccak256(abi.encode(randomHash));
             uint amountSelector = uint(randomHash) % 3;
             randomHash = keccak256(abi.encode(randomHash));
@@ -250,8 +249,7 @@ contract IntegrationTest is IntegrationTestHelper {
                 value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
             }(emailOp);
             assertEq(success, true, string(reason));
-            // TODO: FIXME: We need to claim the fund.
-            // claimFund(registeredUnclaimId, users[1 - senderSelector].emailAddr, emailAddrRand, users[1 - senderSelector].accountKey);
+            claimFund(registeredUnclaimId, users[1 - senderSelector].emailAddr, emailAddrRand, users[1 - senderSelector].accountKey);
         }
         vm.stopPrank();
     }
