@@ -149,11 +149,9 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        margin-left: 0.4rem;
       }
 
       .social-icons a {
-        margin-right: 0.8rem;
         width: auto;
       }
 
@@ -170,7 +168,7 @@
       }
 
       .powered-by img {
-        width: 20%;
+        width: 100%;
         height: auto;
       }
 
