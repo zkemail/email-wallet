@@ -155,10 +155,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             tx_hash,
         } => {
             let invitation_code_hex = &field2hex(&account_key.0)[2..];
-            let subject = format!(
-                "Email Wallet Notification. Your Email Wallet Account is created. Code {}",
-                invitation_code_hex
-            );
+            let subject = "Your Email Wallet Account is created.".to_string();
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
@@ -194,7 +191,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(),  wallet_addr, tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": invitation_code_hex});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -259,6 +256,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             recipient_account_key,
             tx_hash,
         } => {
+            let account_key_str = &field2hex(&recipient_account_key.0)[2..];
             let wallet_salt = WalletSalt::new(
                 &PaddedEmailAddr::from_email_addr(&email_addr),
                 recipient_account_key,
@@ -283,7 +281,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received {} {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, amount, name, unclaim_fund.sender, &tx_hash, wallet_addr
                         );
-                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
                 let body_html = render_html("claimed_fund.html", render_data).await?;
                 (subject, body_plain, body_html, None)
             } else {
@@ -303,7 +301,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, nft_id.to_string(), nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
                     let body_html = render_html("claimed_nft.html", render_data).await?;
                     let img = download_img_from_uri(&nft_uri).await?;
                     let attachment = EmailAttachment {
@@ -321,7 +319,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received data of extension {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, unclaimed_state.extension_addr, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
                     let body_html = render_html("claimed_extension.html", render_data).await?;
                     (subject, body_plain, body_html, None)
                 }
@@ -427,10 +425,7 @@ pub(crate) async fn generate_invitation_email(
     }
     let invitation_code_hex = &field2hex(&account_key.0)[2..];
     let subject = if is_for_nft_demo {
-        format!(
-            "Email Wallet Notification. You can claim ETH Denver NFT. Code {}",
-            invitation_code_hex
-        )
+        "You can claim ETH Denver NFT.".to_string()
     } else {
         format!(
             "Email Wallet Notification. Your Email Wallet Account is ready to be deployed. Code {}",

@@ -151,7 +151,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
         let error_msg =
             "Your wallet is already created. Please use your wallet to send and receive NFTs."
                 .to_string();
-        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str.unwrap()});
         let body_html = render_html("account_already_exist.html", render_data).await?;
         let email = EmailMessage {
             subject,
