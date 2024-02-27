@@ -180,34 +180,44 @@
                             margin-bottom: 15px;
                           "
                         >
-                        You can claim an ETH Denver NFT.
+                          You can claim an ETH Denver NFT.
                         </p>
                         <p
-                           style="
+                          style="
                             font-family: 'Regola', sans-serif;
                             font-size: 14px;
                             font-weight: normal;
                             margin: 0;
                             margin-bottom: 15px;
                           "
-                          >
-                           <strong>Please reply "confirm" to this email to create your Email Wallet</strong> and receive:
+                        >
+                          <strong>Please reply "confirm" to this email to create your Email Wallet</strong> and receive:
                         </p>
                         <ul>
-                           {{#each assetsList}}
-                           {{#with this}}
-                           <li>
-                              {{msg}}
-                              {{#if is_img}}
-                              <div align="center" style="width: 100%; height: 10rem; margin-bottom: 1rem; padding-top: 2rem; padding-bottom: 2rem;">
-                                 <img style="height: 100%; width: auto;" src={{img}} />
-                              </div>
-                              {{/if}}
-                           </li>
-                           {{/with}}
-                           {{/each}}
+                          {{#each assetsList}} {{#with this}}
+                          <li>
+                            {{msg}} {{#if is_img}}
+                            <div
+                              align="center"
+                              style="
+                                width: 100%;
+                                height: 10rem;
+                                margin-bottom: 1rem;
+                                padding-top: 2rem;
+                                padding-bottom: 2rem;
+                              "
+                            >
+                              <img style="height: 100%; width: auto" src="{{img}}" />
+                            </div>
+                            {{/if}}
+                          </li>
+                          {{/with}} {{/each}}
                         </ul>
-                        <p style="opacity: calc(0.9);"><a href="https://prove.email/blog/ethDenverNFT">To understand how this works, read the guide.</a></p>
+                        <p style="opacity: calc(0.9)">
+                          <a href="https://prove.email/blog/ethDenverNFT"
+                            >To understand how this works, read the guide.</a
+                          >
+                        </p>
                       </td>
                     </tr>
                   </table>
