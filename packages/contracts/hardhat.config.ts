@@ -58,6 +58,16 @@ networks: {
     //             }
     //           }
     // }
+    //   settings: {
+    //       libraries: {
+    //             "src/libraries/DecimalUtils.sol": {
+    //               "DecimalUtils": "0x9c1a3d7C98dBF89c7f5d167F2219C29c2fe775A7"
+    //             },
+    //             "src/libraries/SubjectUtils.sol": {
+    //               "SubjectUtils": "0xCeAB1fc2693930bbad33024D270598c620D7A52B"
+    //             }
+    //           }
+    // }
       settings: {
           libraries: {
                 "src/libraries/DecimalUtils.sol": {

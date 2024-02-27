@@ -1,14 +1,13 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import { Provider, Wallet } from "zksync-ethers";
 import * as hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import dotenv from "dotenv";
 import { ethers } from "ethers";
 
 import "@matterlabs/hardhat-zksync-node/dist/type-extensions";
 import "@matterlabs/hardhat-zksync-verify/dist/src/type-extensions";
-
-// Load env file
-dotenv.config();
 
 export const getProvider = () => {
   const rpcUrl = hre.network.config.url;
