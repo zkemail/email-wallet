@@ -27,8 +27,9 @@ import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 import "./interfaces/Events.sol";
 import "./interfaces/IEmailWalletCore.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract EmailWalletCore is UUPSUpgradeable, Ownable {
     using SafeERC20 for IERC20;
     // ZK proof verifier
     IVerifier public verifier;
@@ -73,24 +74,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Context of currently executing EmailOp - reset on every EmailOp
     ExecutionContext internal currContext;
 
-    constructor() {
-        _disableInitializers();
-    }
-
-    /// @notice Constructor
-    /// @param _relayerHandler Address of the relayer handler contract
-    /// @param _accountHandler Address of the account handler contract
-    /// @param _unclaimsHandler Address of the unclaims handler contract
-    /// @param _extensionHandler Address of the extension handler contract
-    /// @param _verifier Address of the ZK proof verifier
-    /// @param _tokenRegistry Address of the token registry contract
-    /// @param _priceOracle Address of the price oracle contract
-    /// @param _wethContract Address of the WETH contract
-    /// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
-    /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
-    /// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
-    /// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
-    function initialize(
+    constructor(
         address _relayerHandler,
         address _accountHandler,
         address _unclaimsHandler,
@@ -103,8 +87,8 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 _emailValidityDuration,
         uint256 _unclaimedFundClaimGas,
         uint256 _unclaimedStateClaimGas
-    ) public initializer {
-        __Ownable_init();
+    ) {
+        // _disableInitializers();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
         unclaimsHandler = UnclaimsHandler(payable(_unclaimsHandler));
@@ -118,6 +102,48 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         unclaimedFundClaimGas = _unclaimedFundClaimGas;
         unclaimedStateClaimGas = _unclaimedStateClaimGas;
     }
+
+    // /// @notice Constructor
+    // /// @param _relayerHandler Address of the relayer handler contract
+    // /// @param _accountHandler Address of the account handler contract
+    // /// @param _unclaimsHandler Address of the unclaims handler contract
+    // /// @param _extensionHandler Address of the extension handler contract
+    // /// @param _verifier Address of the ZK proof verifier
+    // /// @param _tokenRegistry Address of the token registry contract
+    // /// @param _priceOracle Address of the price oracle contract
+    // /// @param _wethContract Address of the WETH contract
+    // /// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
+    // /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
+    // /// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
+    // /// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
+    // function initialize(
+    //     address _relayerHandler,
+    //     address _accountHandler,
+    //     address _unclaimsHandler,
+    //     address _extensionHandler,
+    //     address _verifier,
+    //     address _tokenRegistry,
+    //     address _priceOracle,
+    //     address _wethContract,
+    //     uint256 _maxFeePerGas,
+    //     uint256 _emailValidityDuration,
+    //     uint256 _unclaimedFundClaimGas,
+    //     uint256 _unclaimedStateClaimGas
+    // ) public initializer {
+    //     __Ownable_init();
+    //     relayerHandler = RelayerHandler(_relayerHandler);
+    //     accountHandler = AccountHandler(_accountHandler);
+    //     unclaimsHandler = UnclaimsHandler(payable(_unclaimsHandler));
+    //     extensionHandler = ExtensionHandler(_extensionHandler);
+    //     verifier = IVerifier(_verifier);
+    //     tokenRegistry = TokenRegistry(_tokenRegistry);
+    //     priceOracle = IPriceOracle(_priceOracle);
+    //     wethContract = _wethContract;
+    //     maxFeePerGas = _maxFeePerGas;
+    //     emailValidityDuration = _emailValidityDuration;
+    //     unclaimedFundClaimGas = _unclaimedFundClaimGas;
+    //     unclaimedStateClaimGas = _unclaimedStateClaimGas;
+    // }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 

@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+// import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+// import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title TokenRegistry
 /// @notice A registry of token name and their address on different chains
-contract TokenRegistry is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract TokenRegistry is UUPSUpgradeable, Ownable {
     event ChainRegistered(string indexed chainName, uint256 indexed chainId);
     event TokenRegistered(uint256 indexed chainId, string indexed tokenName, address indexed addr);
 
@@ -22,15 +23,19 @@ contract TokenRegistry is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     mapping(string => uint256) public chainIdOfName;
 
     constructor() {
-        _disableInitializers();
-    }
-
-    function initialize() initializer public {
-        __Ownable_init();
+        // _disableInitializers();
+        // __Ownable_init();
         chainIdOfName["mainnet"] = 0;
         chainIdOfName["optimism"] = 10;
         chainIdOfName["arbitrum"] = 42161;
     }
+
+    // function initialize() initializer public {
+    //     __Ownable_init();
+    //     chainIdOfName["mainnet"] = 0;
+    //     chainIdOfName["optimism"] = 10;
+    //     chainIdOfName["arbitrum"] = 42161;
+    // }
 
     function _authorizeUpgrade(address newImplementation)
         internal

@@ -14,8 +14,9 @@ import "../Wallet.sol";
 import "./RelayerHandler.sol";
 import "../interfaces/IVerifier.sol";
 import "./AccountHandler.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract UnclaimsHandler is ReentrancyGuard, UUPSUpgradeable, Ownable {
     using SafeERC20 for IERC20;
 
     // Deployer
@@ -63,11 +64,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         _;
     }
 
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(
+    constructor(
         address _relayerHandler,
         address _accountHandler,
         address _verifier,
@@ -75,8 +72,9 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         uint256 _unclaimedStateClaimGas,
         uint256 _unclaimsExpiryDuration,
         uint256 _maxFeePerGas
-    ) public initializer {
-        __Ownable_init();
+
+    ) {
+        // _disableInitializers();
         deployer = _msgSender();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
@@ -86,6 +84,26 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         unclaimsExpiryDuration = _unclaimsExpiryDuration;
         maxFeePerGas = _maxFeePerGas;
     }
+
+    // function initialize(
+    //     address _relayerHandler,
+    //     address _accountHandler,
+    //     address _verifier,
+    //     uint256 _unclaimedFundClaimGas,
+    //     uint256 _unclaimedStateClaimGas,
+    //     uint256 _unclaimsExpiryDuration,
+    //     uint256 _maxFeePerGas
+    // ) public initializer {
+    //     __Ownable_init();
+    //     deployer = _msgSender();
+    //     relayerHandler = RelayerHandler(_relayerHandler);
+    //     accountHandler = AccountHandler(_accountHandler);
+    //     verifier = IVerifier(_verifier);
+    //     unclaimedFundClaimGas = _unclaimedFundClaimGas;
+    //     unclaimedStateClaimGas = _unclaimedStateClaimGas;
+    //     unclaimsExpiryDuration = _unclaimsExpiryDuration;
+    //     maxFeePerGas = _maxFeePerGas;
+    // }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyDeployer {}
 
