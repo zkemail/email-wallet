@@ -12,6 +12,7 @@ use relayer::CLIENT;
 use relayer::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Number;
+use serde_json::Value;
 use std::str::FromStr;
 
 use crate::download_img_from_uri;
@@ -93,17 +94,25 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
         request.email_addr,  request.recipient_addr, request.nft_id, nft_name,wallet_addr,
     );
-    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, "img":"cid:0", "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
-    let body_html = render_html("nft_transfer.html", render_data).await?;
     let nft_uri = CLIENT
         .query_erc721_token_uri_of_token(nft_addr, U256::from(request.nft_id))
         .await?;
-    let img = download_img_from_uri(&nft_uri).await?;
-    let attachment = EmailAttachment {
-        inline_id: "0".to_string(),
-        content_type: "image/png".to_string(),
-        contents: img,
-    };
+    let json_uri: Value = serde_json::from_str(
+        &String::from_utf8(
+            base64::decode(nft_uri.split(",").nth(1).expect("Invalid base64 string"))
+                .expect("Failed to decode base64 string"),
+        )
+        .expect("Invalid UTF-8 sequence"),
+    )
+    .expect("Failed to parse JSON");
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, "img":"cid:0", "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "img": json_uri["image"].as_str().unwrap_or_default()});
+    let body_html = render_html("nft_transfer.html", render_data).await?;
+    // let img = download_img_from_uri(&nft_uri).await?;
+    // let attachment = EmailAttachment {
+    //     inline_id: "0".to_string(),
+    //     content_type: "image/png".to_string(),
+    //     contents: img,
+    // };
     let email = EmailMessage {
         subject: subject.clone(),
         body_html,
@@ -111,7 +120,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         to: request.email_addr,
         reference: None,
         reply_to: None,
-        body_attachments: Some(vec![attachment]),
+        body_attachments: Some(vec![]),
     };
     Ok((request_id, email))
 }
@@ -149,8 +158,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
     } else {
         let subject = "Email Wallet Error: Account Already Exists".to_string();
         let error_msg =
-            "Your wallet is already created. Please use the login page instead."
-                .to_string();
+            "Your wallet is already created. Please use the login page instead.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str.unwrap()});
         let body_html = render_html("account_already_exist.html", render_data).await?;
         let email = EmailMessage {

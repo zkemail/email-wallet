@@ -1,8 +1,10 @@
 use anyhow::{anyhow, Result};
+use chrono::format;
 use email_wallet_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
+use serde_json::Value;
 
 use ethers::types::Address;
 
@@ -292,6 +294,16 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 {
                     let (nft_addr, nft_id, nft_name, nft_uri) =
                         get_nft_info(&unclaimed_state.state).await?;
+                    let json_uri: Value = serde_json::from_str(
+                        &String::from_utf8(
+                            base64::decode(
+                                nft_uri.split(",").nth(1).expect("Invalid base64 string"),
+                            )
+                            .expect("Failed to decode base64 string"),
+                        )
+                        .expect("Invalid UTF-8 sequence"),
+                    )
+                    .expect("Failed to parse JSON");
                     let subject = format!(
                         "Email Wallet Notification. You received NFT: id {} of {}.",
                         nft_id.to_string(),
@@ -301,15 +313,17 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, nft_id.to_string(), nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id.to_string(), "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str, "img": json_uri["image"].as_str().unwrap_or_default()});
                     let body_html = render_html("claimed_nft.html", render_data).await?;
-                    let img = download_img_from_uri(&nft_uri).await?;
-                    let attachment = EmailAttachment {
-                        inline_id: "0".to_string(),
-                        content_type: "image/png".to_string(),
-                        contents: img,
-                    };
-                    (subject, body_plain, body_html, Some(vec![attachment]))
+                    // let img =
+                    //     download_img_from_uri(&json_uri["image"].as_str().unwrap_or_default())
+                    //         .await?;
+                    // let attachment = EmailAttachment {
+                    //     inline_id: "NFT".to_string(),
+                    //     content_type: "image/png".to_string(),
+                    //     contents: img,
+                    // };
+                    (subject, body_plain, body_html, Some(vec![]))
                 } else {
                     let subject = format!(
                         "Email Wallet Notification. You received data of extension {}.",
@@ -425,14 +439,17 @@ pub(crate) async fn generate_invitation_email(
     }
     let invitation_code_hex = &field2hex(&account_key.0)[2..];
     let subject = if is_for_nft_demo {
-        "You can claim ETH Denver NFT.".to_string()
+        format!(
+            "You can claim ETH Denver NFT. Code {}",
+            invitation_code_hex
+        )
     } else {
         format!(
             "Email Wallet Notification. Your Email Wallet Account is ready to be deployed. Code {}",
             invitation_code_hex
         )
     };
-    let (assets_list_plain, assets_list_html, attachments) =
+    let (assets_list_plain, assets_list_html) =
         generate_asset_list_body(&assets, assets_msgs).await?;
     let body_plain = if is_for_nft_demo {
         format!(
@@ -464,7 +481,7 @@ pub(crate) async fn generate_invitation_email(
             body_html: html,
             reference: None,
             reply_to: None,
-            body_attachments: Some(attachments),
+            body_attachments: None,
         }
     } else {
         let html = render_html(
@@ -484,7 +501,7 @@ pub(crate) async fn generate_invitation_email(
             body_html: html,
             reference: None,
             reply_to: None,
-            body_attachments: Some(attachments),
+            body_attachments: None,
         }
     };
     if is_first {

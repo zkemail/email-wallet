@@ -31,7 +31,7 @@ RUN bash -i -c "forge build"
 
 WORKDIR /relayer/packages/nft_relayer
 RUN --mount=type=cache,target=/var/cache/cargo \
-    cargo build --release \
+    cargo build \
     && rm -rf /var/lib/cargo/lists/*
 
 EXPOSE 4500
