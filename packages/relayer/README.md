@@ -16,6 +16,29 @@ To build the Relayer, you need to understand its three main components:
 
 ## Building the Relayer
 
+### Prerequisites
+
+Before building the Relayer, ensure that you have the following prerequisites installed:
+
+- Node.js and npm
+- Python 3
+- Docker
+- Rust and Cargo (with `build-essential` or equivalent for your operating system)
+
+For Ubuntu users, you can install `build-essential` by running:
+
+```bash
+sudo apt-get update
+sudo apt-get install build-essential
+```
+
+For macOS users, you can install the necessary tools by installing Xcode Command Line Tools:
+
+```bash
+xcode-select --install
+```
+
+
 ### Running the Prover
 
 #### ☞ Running locally 
