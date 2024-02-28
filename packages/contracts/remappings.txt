@@ -1,6 +1,7 @@
 @openzeppelin/=../../node_modules/@openzeppelin
 @zk-email/=../../node_modules/@zk-email
 @uniswap/=../../node_modules/@uniswap
+@matterlabs/=../../node_modules/@matterlabs
 forge-std/=../../node_modules/forge-std/src
 ds-test/=../../node_modules/ds-test/src
 solady/=../../node_modules/solady/src/

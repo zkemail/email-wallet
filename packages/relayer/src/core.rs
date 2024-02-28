@@ -79,8 +79,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
             let res = chain_client.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
-            let deploy_tx_hash = chain_client.deploy_wallet(&wallet_salt).await?;
-            info!(LOG, "wallet deployment tx hash: {}", deploy_tx_hash; "func" => function_name!());
+            // let deploy_tx_hash = chain_client.deploy_wallet(&wallet_salt).await?;
+            // info!(LOG, "wallet deployment tx hash: {}", deploy_tx_hash; "func" => function_name!());
             if let Some(_) = stored_account_key {
                 db.user_onborded(&from_addr, &res).await?;
                 trace!(LOG, "User onboarded"; "func" => function_name!());

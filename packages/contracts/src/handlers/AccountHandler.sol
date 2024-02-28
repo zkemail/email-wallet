@@ -13,6 +13,8 @@ import {RelayerHandler} from "./RelayerHandler.sol";
 import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
+import {DEPLOYER_SYSTEM_CONTRACT, IContractDeployer} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
+import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol';
 
 // import "forge-std/console.sol";
 
@@ -44,8 +46,8 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Duration for which an email is valid
     uint public emailValidityDuration;
 
-    // Mapping to store deployable wallets
-    mapping(address => bool) public isDeployableWallet;
+    // address constant public CONTRACT_DEPLOYER = 0x0000000000000000000000000000000000008006;
+
 
     modifier onlyDeployer() {
         require(msg.sender == deployer, "caller is not a deployer");
@@ -93,7 +95,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         bytes32 walletSalt,
         bytes calldata psiPoint,
         EmailProof calldata emailProof
-    ) public returns (address) {
+    ) public returns (Wallet wallet) {
         require(walletSalt != bytes32(0), "invalid wallet salt");
         require(walletSaltOfPSIPoint[psiPoint] == bytes32(0) || walletSaltOfPSIPoint[psiPoint] == walletSalt, "PSI point exists for another wallet salt");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
@@ -138,11 +140,8 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         walletSaltOfPSIPoint[psiPoint] = walletSalt;
         emailNullifiers[emailProof.nullifier] = true;
 
-        // wallet = _deployWallet(walletSalt);
-        address walletAddr = getWalletOfSalt(walletSalt);
-        isDeployableWallet[walletAddr] = true;
+        wallet = _deployWallet(walletSalt);
         emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
-        return walletAddr;
     }
 
     /// @notice Return true iff the wallet is deployed for the given wallet salt
@@ -178,37 +177,57 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Return the wallet address of the user given the salt
     /// @param salt Salt used to deploy the wallet
     function getWalletOfSalt(bytes32 salt) public view returns (address) {
-        return
-            Create2Upgradeable.computeAddress(
-                salt,
-                keccak256(
-                    abi.encodePacked(
-                        type(ERC1967Proxy).creationCode,
-                        abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
-                    )
-                )
-            );
+        return IContractDeployer(DEPLOYER_SYSTEM_CONTRACT).getNewAddressCreate2(
+            address(this),
+            keccak256(type(ERC1967Proxy).creationCode),
+            salt,
+            abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
+        );
     }
 
-    function deployWallet(bytes32 salt) public returns (Wallet wallet) {
-        address walletAddr = getWalletOfSalt(salt);
-        require(isDeployableWallet[walletAddr], "wallet not deployable");
-        return _deployWallet(salt);
-    }
 
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
     /// @dev We are deploying a deterministic proxy contract with the wallet implementation as the target.
     function _deployWallet(bytes32 salt) internal returns (Wallet wallet) {
-        wallet = Wallet(
-            payable(
-                new ERC1967Proxy{salt: bytes32(salt)}(
-                    address(walletImplementation),
-                    abi.encodeCall(Wallet.initialize, ())
+        // wallet = Wallet(
+        //     payable(
+        //         new ERC1967Proxy{salt: bytes32(salt)}(
+        //             address(walletImplementation),
+        //             abi.encodeCall(Wallet.initialize, ())
+        //         )
+        //     )
+        // );
+        // IContractDeployer contractDeployer = IContractDeployer(CONTRACT_DEPLOYER);
+        // wallet = Wallet(
+        //     payable(
+        //         contractDeployer.create2(
+        //             salt,
+        //             keccak256(type(ERC1967Proxy).creationCode),
+        //             abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
+        //         )
+        //     )
+        // );
+
+        (bool success, bytes memory returnData) = SystemContractsCaller.systemCallWithReturndata(
+            uint32(gasleft()),
+            address(DEPLOYER_SYSTEM_CONTRACT),
+            uint128(0),
+            abi.encodeCall(
+                DEPLOYER_SYSTEM_CONTRACT.create2,
+                (
+                    salt,
+                    keccak256(type(ERC1967Proxy).creationCode),
+                    abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
                 )
             )
         );
 
+        require(!success, "deployment failed");
+
+        // Decode the account address
+        (address walletAddr) = abi.decode(returnData, (address));
+        wallet = Wallet(payable(walletAddr));
         wallet.transferOwnership(owner()); // Transfer ownership to core
     }
 }
