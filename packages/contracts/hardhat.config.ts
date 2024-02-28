@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
     cache: "./cache",
     artifacts: "./artifacts"
   },
-networks: {
+  networks: {
     zkSyncSepoliaTestnet: {
       url: "https://zksync-era-sepolia.blockpi.network/v1/rpc/public",
       // If you want to deploy missing libraries, use the below url
@@ -31,11 +31,11 @@ networks: {
       forceDeploy: true
     },
     inMemoryNode: {
-        url: "http://127.0.0.1:8011",
-        ethNetwork: "", // in-memory node doesn't support eth node; removing this line will cause an error
-        zksync: true,
-        forceDeploy: true
-    },    
+      url: "http://127.0.0.1:8011",
+      ethNetwork: "", // in-memory node doesn't support eth node; removing this line will cause an error
+      zksync: true,
+      forceDeploy: true
+    },
     hardhat: {
       zksync: true,
     },
@@ -43,14 +43,15 @@ networks: {
   zksolc: {
     version: "latest",
     settings: {
-        libraries: {
-              "src/libraries/DecimalUtils.sol": {
-                "DecimalUtils": "0xc0e82deCFAB7B7414fCD3417E6D07Ce98c0A5230"
-              },
-              "src/libraries/SubjectUtils.sol": {
-                "SubjectUtils": "0x63d8162B05206e942820c1A6c14c9003F81faf89"
-              }
-            }
+      isSystem: true,
+      libraries: {
+        "src/libraries/DecimalUtils.sol": {
+          "DecimalUtils": "0xc0e82deCFAB7B7414fCD3417E6D07Ce98c0A5230"
+        },
+        "src/libraries/SubjectUtils.sol": {
+          "SubjectUtils": "0x63d8162B05206e942820c1A6c14c9003F81faf89"
+        }
+      }
     }
   },
   solidity: {

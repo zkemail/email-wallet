@@ -10,7 +10,7 @@
     "hardhat-deploy-libraries": "npx hardhat deploy-zksync:libraries --network zkSyncSepoliaTestnet --private-key <PRIVATE_KEY>",
     "hardhat-interact": "npx hardhat deploy-zksync --script interact.ts",
     "hardhat-compile": "npx hardhat compile",
-    "hardhat-clean": "npx hardhat clean"    
+    "hardhat-clean": "npx hardhat clean"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",
@@ -22,17 +22,17 @@
     "solady": "^0.0.123"
   },
   "devDependencies": {
-    "ds-test": "https://github.com/dapphub/ds-test",
-    "forge-std": "https://github.com/foundry-rs/forge-std",
-    "solhint": "^3.6.1",
     "@matterlabs/hardhat-zksync-deploy": "^1.1.2",
+    "@matterlabs/hardhat-zksync-node": "^1.0.1",
     "@matterlabs/hardhat-zksync-solc": "^1.0.6",
     "@matterlabs/hardhat-zksync-verify": "^1.2.2",
-    "@matterlabs/hardhat-zksync-node": "^1.0.1",
     "@matterlabs/zksync-contracts": "^0.6.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
-    "hardhat": "^2.19.2",
+    "ds-test": "https://github.com/dapphub/ds-test",
     "ethers": "^6.9.0",
+    "forge-std": "https://github.com/foundry-rs/forge-std",
+    "hardhat": "^2.20.1",
+    "solhint": "^3.6.1",
     "zksync-ethers": "^6.0.0"
   }
 }
