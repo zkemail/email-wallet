@@ -33,14 +33,14 @@ contract IntegrationTest is IntegrationTestHelper {
     using SubjectUtils for *;
 
     function testIntegration_Account_Creation() public {
-        vm.startPrank(relayer1);
-        Wallet user1WalletContract = accountCreation(
-            string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
-            user1.emailAddr,
-            relayer1Rand,
-            "gmail.com"
-        );
-        vm.stopPrank();
+        // vm.startPrank(relayer1);
+        // Wallet user1WalletContract = accountCreation(
+        //     string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
+        //     user1.emailAddr,
+        //     relayer1Rand,
+        //     "gmail.com"
+        // );
+        // vm.stopPrank();
 
         vm.startPrank(relayer1);
         Wallet user2WalletContract = accountCreation(

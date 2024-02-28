@@ -102,7 +102,7 @@ abstract contract IntegrationTestHelper is Test {
     string[][] subjectTemplates;
 
     function setUp() public virtual {
-        vm.createSelectFork("https://arb1.arbitrum.io/rpc");
+        vm.createSelectFork("https://sepolia.era.zksync.dev");
         vm.warp(1697222111);
         deployer = vm.addr(1);
         relayer1 = vm.addr(2);
@@ -314,6 +314,14 @@ abstract contract IntegrationTestHelper is Test {
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
         );
+        // console.logBytes32(psiPoint);
+        // console.logString("function accountCreation publicKeyHash");
+
+        // console.logString("function accountCreation proof");
+        // console.logBytes(proof);
+        // console.logString("function accountCreation psiPoint");
+        // console.logBytes32(publicKeyHash);
+
         {
             wallet = accountHandler.createAccount(
                 walletSalt,

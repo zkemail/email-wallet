@@ -27,7 +27,7 @@ networks: {
       url: "https://mainnet.era.zksync.io",
       ethNetwork: "mainnet",
       zksync: true,
-      verifyURL: "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
+      // verifyURL: "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
       forceDeploy: true
     },
     inMemoryNode: {

@@ -14,6 +14,8 @@ import {IVerifier} from "../interfaces/IVerifier.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 
+// import "forge-std/console.sol";
+
 contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Default DKIM public key hashes registry
     IDKIMRegistry public defaultDkimRegistry;
@@ -101,6 +103,21 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         if (emailProof.timestamp != 0) {
             require(emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         }
+        // console.logString("createAccount:");
+        // console.logString("emailProof.domain");
+        // console.logString(emailProof.domain);
+        // console.logString("emailProof.dkimPublicKeyHash");
+        // console.logBytes32(emailProof.dkimPublicKeyHash);
+        // console.logString("emailProof.nullifier");
+        // console.logBytes32(emailProof.nullifier);
+        // console.logString("emailProof.timestamp");
+        // console.logUint(emailProof.timestamp);
+        // console.logString("walletSalt");
+        // console.logBytes32(walletSalt);
+        // console.logString("psiPoint");
+        // console.logBytes(psiPoint);
+        // console.logString("emailProof.proof");
+        // console.logBytes(emailProof.proof);
 
         require(
             verifier.verifyAccountCreationProof(
