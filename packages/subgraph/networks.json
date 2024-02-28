@@ -84,19 +84,19 @@
   },
   "zksync-era-sepolia": {
     "EmailWalletCore": {
-      "address": "0x0C368789597b254394974eDc9d9f7fD4b03eBE48",
+      "address": "0x0123fD89e7deC2236a5B135Bff510f4658d6DE60",
     },
     "RelayerHandler": {
-      "address": "0xc6aFFd7376d31320aA7320a181B7014AE2109E98",
+      "address": "0x0edC7Bdf93E631bb68B4a88a9fBB22a491a45D6d",
     },
     "AccountHandler": {
-      "address": "0x1a01935Fa6B79B53419DB88496b2C8d27554754F",
+      "address": "0xf496bEBeB92Cb7f715250761FD773D9e8ec6Da85",
     },
     "UnclaimsHandler": {
-      "address": "0xfF0557f1309e80ba71A2E2b1d7e232D207571A57",
+      "address": "0x72974CE4062d97D119dEDBa3A98f7De65845041B",
     },
     "ExtensionHandler": {
-      "address": "0xA94d89072B0260976d49370D7662E5BD9e189E3D",
+      "address": "0xea3cAC5058dDE9cED36af16081fB4b4B0287A667",
     }
   }
 }
