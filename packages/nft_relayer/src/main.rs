@@ -1,10 +1,12 @@
 use anyhow::{anyhow, Result};
+use chrono::format;
 use email_wallet_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
+use serde_json::Value;
 
-use ethers::types::Address;
+use ethers::types::{Address, U256};
 
 use relayer::*;
 
@@ -155,13 +157,20 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             tx_hash,
         } => {
             let invitation_code_hex = &field2hex(&account_key.0)[2..];
-            let subject = format!(
-                "Email Wallet Notification. Your Email Wallet Account is created. Code {}",
-                invitation_code_hex
-            );
+            let subject = "Your Email Wallet Account is created.".to_string();
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            let test_balance = CLIENT
+                .query_user_erc20_balance(&wallet_salt, "TEST")
+                .await?;
+            if test_balance < U256::from(100) {
+                let amount = U256::from(100) - test_balance;
+                CLIENT.free_mint_test_erc20(wallet_addr, amount).await?;
+            }
+            // CLIENT
+            //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+            //     .await?;
             // CLIENT
             //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
             //     .await?;
@@ -194,7 +203,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\nYour wallet address: https://sepolia.etherscan.io/address/{}.\nCheck the transaction on etherscan: https://sepolia.etherscan.io/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(),  wallet_addr, tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": invitation_code_hex});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -216,8 +225,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             email_op: _,
             tx_hash,
         } => {
-            let subject =
-                format!("Email Wallet Notification. Your Email Wallet transaction is completed.",);
+            let subject = format!("Your Email Wallet transaction is completed.",);
             let wallet_salt = WalletSalt::new(
                 &PaddedEmailAddr::from_email_addr(&sender_email_addr),
                 account_key,
@@ -259,6 +267,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             recipient_account_key,
             tx_hash,
         } => {
+            let account_key_str = &field2hex(&recipient_account_key.0)[2..];
             let wallet_salt = WalletSalt::new(
                 &PaddedEmailAddr::from_email_addr(&email_addr),
                 recipient_account_key,
@@ -275,15 +284,12 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 if name == "WETH" {
                     name = "ETH".to_string();
                 }
-                let subject = format!(
-                    "Email Wallet Notification. You received {} {}.",
-                    amount, name
-                );
+                let subject = format!("You received {} {}.", amount, name);
                 let body_plain = format!(
                             "Hi {}!\nYou received {} {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, amount, name, unclaim_fund.sender, &tx_hash, wallet_addr
                         );
-                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "tokenAmount": amount, "tokenName": name, "senderAddr": unclaim_fund.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
                 let body_html = render_html("claimed_fund.html", render_data).await?;
                 (subject, body_plain, body_html, None)
             } else {
@@ -294,34 +300,43 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 {
                     let (nft_addr, nft_id, nft_name, nft_uri) =
                         get_nft_info(&unclaimed_state.state).await?;
-                    let subject = format!(
-                        "Email Wallet Notification. You received NFT: id {} of {}.",
-                        nft_id.to_string(),
-                        nft_name
-                    );
+                    let json_uri: Value = serde_json::from_str(
+                        &String::from_utf8(
+                            base64::decode(
+                                nft_uri.split(",").nth(1).expect("Invalid base64 string"),
+                            )
+                            .expect("Failed to decode base64 string"),
+                        )
+                        .expect("Invalid UTF-8 sequence"),
+                    )
+                    .expect("Failed to parse JSON");
+                    let subject =
+                        format!("You received NFT #{} of {}.", nft_id.to_string(), nft_name);
                     let body_plain = format!(
-                            "Hi {}!\nYou received NFT: ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
+                            "Hi {}!\nYou received the NFT with ID {} of {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, nft_id.to_string(), nft_name, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id, "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "nftId": nft_id.to_string(), "nftName": nft_name, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "img": format!("cid:{}", 0), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str, "img": json_uri["image"].as_str().unwrap_or_default()});
                     let body_html = render_html("claimed_nft.html", render_data).await?;
-                    let img = download_img_from_uri(&nft_uri).await?;
-                    let attachment = EmailAttachment {
-                        inline_id: "0".to_string(),
-                        content_type: "image/png".to_string(),
-                        contents: img,
-                    };
-                    (subject, body_plain, body_html, Some(vec![attachment]))
+                    // let img =
+                    //     download_img_from_uri(&json_uri["image"].as_str().unwrap_or_default())
+                    //         .await?;
+                    // let attachment = EmailAttachment {
+                    //     inline_id: "NFT".to_string(),
+                    //     content_type: "image/png".to_string(),
+                    //     contents: img,
+                    // };
+                    (subject, body_plain, body_html, Some(vec![]))
                 } else {
                     let subject = format!(
-                        "Email Wallet Notification. You received data of extension {}.",
+                        "You received data of extension {}.",
                         unclaimed_state.extension_addr
                     );
                     let body_plain = format!(
                             "Hi {}!\nYou received data of extension {} from {}.\nCheck the transaction for you on etherscan: https://sepolia.etherscan.io/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, unclaimed_state.extension_addr, unclaimed_state.sender, &tx_hash, wallet_addr
                         );
-                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                    let render_data = serde_json::json!({"userEmailAddr": email_addr, "extensionAddr": unclaimed_state.extension_addr, "senderAddr": unclaimed_state.sender, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
                     let body_html = render_html("claimed_extension.html", render_data).await?;
                     (subject, body_plain, body_html, None)
                 }
@@ -345,7 +360,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
         }
         EmailWalletEvent::Voided { claim, tx_hash } => {
             let subject = format!(
-                "Email Wallet Notification. {}",
+                "{}",
                 if claim.is_fund {
                     "Your money transfer on Ethereum is voided"
                 } else {
@@ -428,20 +443,20 @@ pub(crate) async fn generate_invitation_email(
     let invitation_code_hex = &field2hex(&account_key.0)[2..];
     let subject = if is_for_nft_demo {
         format!(
-            "Email Wallet Notification. You can claim ETH Denver NFT. Code {}",
+            "You can claim an ETHDenver NFT. Code {}",
             invitation_code_hex
         )
     } else {
         format!(
-            "Email Wallet Notification. Your Email Wallet Account is ready to be deployed. Code {}",
+            "Your Email Wallet Account is ready to be deployed. Code {}",
             invitation_code_hex
         )
     };
-    let (assets_list_plain, assets_list_html, attachments) =
+    let (assets_list_plain, assets_list_html) =
         generate_asset_list_body(&assets, assets_msgs).await?;
     let body_plain = if is_for_nft_demo {
         format!(
-            "Hi {}!\nYou can claim ETH Denver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can receive the following assets!\n{}",
+            "Hi {}!\nYou can claim ETHDenver NFT. Your wallet address: https://sepolia.etherscan.io/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.\nAfter creating the wallet, you can receive the following assets!\n{}",
             email_addr, wallet_addr, assets_list_plain,
         )
     } else {
@@ -469,7 +484,7 @@ pub(crate) async fn generate_invitation_email(
             body_html: html,
             reference: None,
             reply_to: None,
-            body_attachments: Some(attachments),
+            body_attachments: None,
         }
     } else {
         let html = render_html(
@@ -489,14 +504,14 @@ pub(crate) async fn generate_invitation_email(
             body_html: html,
             reference: None,
             reply_to: None,
-            body_attachments: Some(attachments),
+            body_attachments: None,
         }
     };
-    if is_first {
-        CLIENT
-            .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-            .await?;
-    }
+    // if is_first {
+    //     CLIENT
+    //         .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+    //         .await?;
+    // }
     Ok(email_msg)
 }
 

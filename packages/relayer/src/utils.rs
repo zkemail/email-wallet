@@ -297,6 +297,7 @@ pub(crate) async fn generate_proof(
         .await?
         .error_for_status()?;
     let res_json = res.json::<ProverRes>().await?;
+    info!(LOG, "prover response {:?}", res_json; "func" => function_name!());
     let proof = res_json.proof.to_eth_bytes()?;
     let pub_signals = res_json
         .pub_signals

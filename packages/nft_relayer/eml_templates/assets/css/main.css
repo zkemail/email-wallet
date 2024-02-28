@@ -106,9 +106,8 @@
         align-items: center;
         justify-content: space-between;
         background-image: linear-gradient(45deg, #844aff, #5e2bff);
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         border-radius: 0.4rem;
-        border: 1px solid #000000;
         padding: 10px;
       }
 
@@ -138,7 +137,7 @@
       .footer span,
       .footer a {
         color: #999999;
-        font-size: 12px;
+        font-size: 1rem;
         text-align: center;
       }
 
@@ -149,11 +148,9 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        margin-left: 0.4rem;
       }
 
       .social-icons a {
-        margin-right: 0.8rem;
         width: auto;
       }
 
@@ -170,7 +167,7 @@
       }
 
       .powered-by img {
-        width: 20%;
+        width: 100%;
         height: auto;
       }
 

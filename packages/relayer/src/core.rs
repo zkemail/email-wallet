@@ -14,7 +14,7 @@ use std::hash::{Hash, Hasher};
 use tokio::sync::mpsc::UnboundedSender;
 
 const DOMAIN_FIELDS: usize = 9;
-const SUBJECT_FIELDS: usize = 17;
+const SUBJECT_FIELDS: usize = 20;
 const EMAIL_ADDR_FIELDS: usize = 9;
 
 #[named]
@@ -204,6 +204,9 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 eth_addr,
             } = &template_vals[1]
             {
+                trace!(LOG, "is_email: {}", is_email; "func" => function_name!());
+                trace!(LOG, "email_addr: {:?}", email_addr; "func" => function_name!());
+                trace!(LOG, "eth_addr: {:?}", eth_addr; "func" => function_name!());
                 if *is_email {
                     recipient_email_addr = email_addr.clone();
                     let padded_email_addr =
@@ -296,11 +299,12 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     trace!(LOG, "proof generated"; "func" => function_name!());
     // let email_addr_pointer = u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
     let has_email_recipient = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into();
+    trace!(LOG, "has_email_recipient {}", has_email_recipient; "func" => function_name!());
     let recipient_email_addr_commit =
         u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
     let email_nullifier = u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]);
     let timestamp = pub_signals[DOMAIN_FIELDS + 2];
-    let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&subject)?;
+    let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&original_subject)?;
     info!(LOG, "masked_subject {}", masked_subject; "func" => function_name!());
     info!(
         LOG,
@@ -322,7 +326,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         email_domain: parsed_email.get_email_domain()?,
         dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
         timestamp,
-        masked_subject: original_subject.clone(),
+        masked_subject,
         skip_subject_prefix: U256::from(skip_subject_prefix),
         fee_token_name,
         fee_per_gas: *FEE_PER_GAS.get().unwrap(),
@@ -419,6 +423,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     })
 }
 
+#[named]
 pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
     match extract_email_addr_idxes(subject) {
         Ok(extracts) => {
@@ -428,6 +433,7 @@ pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
                 ));
             }
             let (start, end) = extracts[0];
+            info!(LOG, "start: {}, end: {}", start, end; "func" => function_name!());
             if end == subject.len() {
                 Ok((subject[0..start].to_string(), 0))
             } else {
@@ -436,7 +442,10 @@ pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
                 Ok((String::from_utf8(masked_subject_bytes)?, end - start))
             }
         }
-        Err(_) => Ok((subject.to_string(), 0)),
+        Err(err) => {
+            info!(LOG, "Recipient address not found in the subject: {}", err; "func" => function_name!());
+            Ok((subject.to_string(), 0))
+        }
     }
 }
 
