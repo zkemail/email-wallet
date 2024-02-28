@@ -6,7 +6,7 @@ use email_wallet_utils::{
 };
 use serde_json::Value;
 
-use ethers::types::Address;
+use ethers::types::{Address, U256};
 
 use relayer::*;
 
@@ -161,9 +161,16 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-            CLIENT
-                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+            let test_balance = CLIENT
+                .query_user_erc20_balance(&wallet_salt, "TEST")
                 .await?;
+            if test_balance < U256::from(100) {
+                let amount = U256::from(100) - test_balance;
+                CLIENT.free_mint_test_erc20(wallet_addr, amount).await?;
+            }
+            // CLIENT
+            //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+            //     .await?;
             // CLIENT
             //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
             //     .await?;
