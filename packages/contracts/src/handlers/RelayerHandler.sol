@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-// import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-// import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/Types.sol";
 import "../interfaces/Events.sol";
 
-contract RelayerHandler is UUPSUpgradeable, Ownable {
+contract RelayerHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Deployer
     address private deployer;
 
@@ -24,14 +23,13 @@ contract RelayerHandler is UUPSUpgradeable, Ownable {
     }
 
     constructor() {
-        // _disableInitializers();
-        deployer = _msgSender();
+        _disableInitializers();
     }
 
-    // function initialize() initializer public {
-    //     __Ownable_init();
-    //     deployer = _msgSender();
-    // }
+    function initialize() initializer public {
+        __Ownable_init();
+        deployer = _msgSender();
+    }
 
     function _authorizeUpgrade(address newImplementation)
         internal

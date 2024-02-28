@@ -1,3 +1,70 @@
+## Deployment for zksync
+
+### Create .env
+
+```
+WALLET_PRIVATE_KEY=$PRIVATE_KEY # REPLACE HERE
+CHAIN_NAME=ZKSYNCSEPOLIA
+CHAIN_ID=300
+SIGNER=0x69bec2dd161d6bbcc91ec32aa44d9333ebc864c0 # Signer for the subgraph
+WETH=0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9 # WETH address
+UNISWAP_FACTORY=0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f # Uniswap factory address
+MAX_AMOUNT=10000000000000000000000 # Max amount for the onboarding token
+TOKEN_NAME=TEST # Name of the onboarding token
+```
+
+### Remove missing libraries cache
+
+```
+rm -rf  .zksolc-libraries-cache
+```
+
+### Update hardhat.config.ts
+
+```
+Remove or comment out networks.zksolc.settings
+```
+
+### Run the node
+
+If you want to deploy to local, you should run the node
+
+```
+yarn hardhat node-zksync
+```
+
+### Compile 
+
+```
+$ npx hardhat compile
+```
+
+and then, if you see the below message, you need to deploy missing libraries,
+some how blockpi doesn't work correctly in this case, I prefer official endpoint.
+See hardhat.config.ts.
+
+```
+To compile and deploy libraries, please run: `yarn hardhat deploy-zksync:libraries`
+```
+
+Run the below command
+```
+% npx hardhat deploy-zksync:libraries --private-key-or-index $YOUR_DEPLOYER_PRIVATE_KEY --network (inMemoryNode|zkSyncSepoliaTestnet|zkSyncMainnet)
+```
+
+Now you can build contracts, do the compile again
+
+```
+npx hardhat compile
+```
+
+### Deployment
+
+```
+npx hardhat deploy-zksync --script deploy.ts --network (inMemoryNode|zkSyncSepoliaTestnet|zkSyncMainnet)
+```
+
+
 ## Contract Architecture
 
 #### Core
