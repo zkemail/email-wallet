@@ -57,12 +57,16 @@ abstract contract IntegrationTestHelper is Test {
     // TestERC20 wethToken;
     ERC20 daiToken;
     ERC20 usdcToken;
+    ERC20 usdcNativeToken;
 
     bytes32 mockDKIMHash = bytes32(uint256(123));
 
     address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
     address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
-    address constant USDC_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    // TODO: This native USDC address not working correctly at the moment. 
+    // See https://github.com/foundry-rs/forge-std/pull/505 
+    address constant USDC_NATIVE_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    address constant USDC_ADDR = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
     address constant UNISWAP_V3_FACTORY = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     address constant UNISWAP_V3_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
@@ -221,6 +225,7 @@ abstract contract IntegrationTestHelper is Test {
         daiToken = ERC20(DAI_ADDR);
         // usdcToken = new TestERC20("USDC", "USDC");
         usdcToken = ERC20(USDC_ADDR);
+        usdcNativeToken = ERC20(USDC_NATIVE_ADDR);
         tokenRegistry.setTokenAddress("WETH", address(weth));
         tokenRegistry.setTokenAddress("DAI", address(daiToken));
         tokenRegistry.setTokenAddress("USDC", address(usdcToken));
@@ -267,40 +272,55 @@ abstract contract IntegrationTestHelper is Test {
     }
 
     function accountCreation(
+        string memory emailFile,
         string memory emailAddr,
-        bytes32 accountKey,
+        bytes32 relayerRand,
         string memory emailDomain
-    ) internal returns (bytes32 emailAddrPointer) {
+    ) internal returns (Wallet wallet) {
         string memory projectRoot = vm.projectRoot();
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_creation.sh");
-        inputGenerationInput[1] = emailAddr;
-        inputGenerationInput[2] = uint256(accountKey).toHexString(32);
+        inputGenerationInput[1] = emailFile;
+        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
             string.concat(projectRoot, "/test/build_integration/account_creation_public.json")
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[2]));
-        bytes32 x = bytes32(vm.parseUint(pubSignals[3]));
-        bytes32 y = bytes32(vm.parseUint(pubSignals[4]));
-        bytes memory psiPoint = abi.encode(x, y);
 
-        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 2]));
-        uint emailTimestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 5]);
-        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 0]));
+        // bytes32 domain = bytes32(vm.parseUint(pubSignals[0]));
+
+        // bytes32 domain = bytes32(vm.parseUint("2018721414038404820327"));
+        // console.logBytes32(domain);
+        // console.logString(string(abi.encode(domain))); //  -> moc.liamg
+
+        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
+        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
+        uint emailTimestamp = vm.parseUint(pubSignals[11]);
+        bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[12]));
+        console.logString("function accountCreation");
+        console.logString("emailAddr");
+        console.logString(emailAddr);
+        console.logString("walletSalt");
+        console.logBytes32(walletSalt);
+        bytes memory psiPoint;
+        {
+            bytes32 x = bytes32(vm.parseUint(pubSignals[13]));
+            bytes32 y = bytes32(vm.parseUint(pubSignals[14]));
+            psiPoint = abi.encode(x, y);
+        }        
 
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
         );
         {
-            accountHandler.createAccount(
+            wallet = accountHandler.createAccount(
                 walletSalt,
                 psiPoint,
                 EmailProof({
                     proof: proof,
-                    domain: "gmail.com",
+                    domain: "gmail.com", // TODO fix later
                     dkimPublicKeyHash: publicKeyHash,
                     nullifier: emailNullifier,
                     timestamp: emailTimestamp
@@ -311,7 +331,7 @@ abstract contract IntegrationTestHelper is Test {
 
     function genEmailOpPartial(
         string memory emailFile,
-        bytes32 relayerRand,
+        bytes32 accountKey,
         string memory command,
         string memory maskedSubject,
         string memory emailDomain,
@@ -320,7 +340,10 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/email_sender.sh");
         inputGenerationInput[1] = emailFile;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+        console.logString("function genEmailOpPartial");
+        console.logString("emailFile");
+        console.logString(emailFile);
+        inputGenerationInput[2] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
         inputGenerationInput = new string[](2);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/extract_sign_rand.sh");
@@ -342,26 +365,33 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.emailProof = proofToBytes(
             string.concat(vm.projectRoot(), "/test/build_integration/email_sender_proof.json")
         );
-        emailOp.hasEmailRecipient = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4]) == 1;
-        emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]));
-        emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 2]));
-        emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 0]));
-        emailOp.timestamp = vm.parseUint(pubSignals[SUBJECT_FIELDS + DOMAIN_FIELDS + 6]);
+        emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
+        emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
+        emailOp.timestamp = vm.parseUint(pubSignals[11]);
+        emailOp.walletSalt = bytes32(vm.parseUint(pubSignals[32]));
+        emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
+        emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
+
+        console.logString("function genEmailOpPartial");
+        console.logString("accountKey");
+        console.logBytes32(accountKey);
+        console.logString("walletSalt");
+        console.logBytes32(emailOp.walletSalt);
     }
 
     function claimFund(
         uint256 registeredUnclaimId,
         string memory emailAddr,
-        bytes32 relayerRand,
-        bytes32 emailAddrRand
+        bytes32 emailAddrRand,
+        bytes32 accountKey
     ) internal returns (bytes32 newRelayerHash) {
         newRelayerHash;
 
         string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
-        inputGenerationInput[3] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[2] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[3] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
@@ -370,14 +400,26 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
         bytes32 recipientWalletSalt = bytes32(vm.parseUint(pubSignals[1]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(registeredUnclaimId, recipientWalletSalt, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(
+            registeredUnclaimId, 
+            recipientWalletSalt, 
+            proof
+        );
+        console.logString("function claimFund");
+        console.logString("emailAddr");
+        console.logString(emailAddr);
+        console.logString("accountKey");
+        console.logBytes32(accountKey);
+        console.logString("walletSalt");
+        console.logBytes32(recipientWalletSalt);
+
     }
 
     function claimState(
         uint256 registeredUnclaimId,
         string memory emailAddr,
-        bytes32 relayerRand,
-        bytes32 emailAddrRand
+        bytes32 emailAddrRand,
+        bytes32 accountKey
     ) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
         newRelayerHash;
         newEmailAddrPointer;
@@ -385,8 +427,8 @@ abstract contract IntegrationTestHelper is Test {
         string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
-        inputGenerationInput[3] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[2] = uint256(emailAddrRand).toHexString(32);
+        inputGenerationInput[3] = uint256(accountKey).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
