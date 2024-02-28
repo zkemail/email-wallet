@@ -6,6 +6,8 @@ import * as ethers from 'ethers';
 import * as zk from 'zksync-ethers';
 import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { utils } from 'zksync-ethers';
+
 // An example of a basic deploy script
 // It will deploy a Greeter contract to selected network
 // as well as verify it on Block Explorer if possible for the network
@@ -71,13 +73,17 @@ export default async function () {
 
   let accountHandlerImpl = await deployContract("AccountHandler");
   abi = new ethers.Interface(accountHandlerImpl.interface.formatJson());
-  let emailValidityDuration = 3600; // as same as `1 hours` in foundry script
+  let emailValidityDuration = 1209600; // as same as `14 days` in foundry script
+  const deployer = new Deployer(hre, getWallet());
+  const proxyArtifact = await deployer.loadArtifact("ERC1967Proxy");
+  const bytecodeHash = utils.hashBytecode(proxyArtifact.bytecode);
   data = abi.encodeFunctionData("initialize", [
     await relayerHandler.getAddress(),
     await dkim.getAddress(),
     await verifierImpl.getAddress(),
     await walletImpl.getAddress(),
-    emailValidityDuration
+    emailValidityDuration,
+    bytecodeHash
   ]);
   proxy = await deployContract("ERC1967Proxy", [accountHandlerImpl.target, data])
   contractArtifact = await hre.artifacts.readArtifact("AccountHandler");

@@ -233,13 +233,13 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         if (currContext.unclaimedFundRegistered) {
             require(msg.value == unclaimedFundClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed fund");
             totalFeeInETH += (unclaimedFundClaimGas * emailOp.feePerGas);
-            payable(address(unclaimsHandler)).transfer(unclaimedFundClaimGas * maxFeePerGas);
+            payable(address(unclaimsHandler)).call{value: unclaimedFundClaimGas * maxFeePerGas}("");
         }
         // Validate and transfer ETH to unclaims handler if unclaimed state registration happened
         else if (currContext.unclaimedStateRegistered) {
             require(msg.value == unclaimedStateClaimGas * maxFeePerGas, "incorrect ETH sent for unclaimed state");
             totalFeeInETH += (unclaimedStateClaimGas * emailOp.feePerGas);
-            payable(address(unclaimsHandler)).transfer(unclaimedStateClaimGas * maxFeePerGas);
+            payable(address(unclaimsHandler)).call{value: unclaimedStateClaimGas * maxFeePerGas}("");
         }
         // Return whatever ETH was sent in case unclaimed fund/state registration didnt happen
         else {
@@ -247,7 +247,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 currContext.registeredUnclaimId == 0,
                 "registeredUnclaimId must be zero if no unclaimed fund/state is registered"
             );
-            payable(msg.sender).transfer(msg.value);
+            payable(msg.sender).call{value: msg.value}("");
         }
 
         registeredUnclaimId = currContext.registeredUnclaimId;

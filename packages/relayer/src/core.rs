@@ -349,6 +349,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     };
     trace!(LOG, "email_op constructed: {:?}", email_op; "func" => function_name!());
     chain_client.validate_email_op(email_op.clone()).await?;
+    trace!(LOG, "email_op validated"; "func" => function_name!());
     let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op.clone()).await?;
     info!(LOG, "email_op broadcased to chain: {}", tx_hash; "func" => function_name!());
     if let Some(email_addr) = recipient_email_addr.as_ref() {

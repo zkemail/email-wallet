@@ -46,6 +46,8 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Duration for which an email is valid
     uint public emailValidityDuration;
 
+    bytes32 private bytecodeHash;
+
     // address constant public CONTRACT_DEPLOYER = 0x0000000000000000000000000000000000008006;
 
 
@@ -63,7 +65,8 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         address _defaultDkimRegistry,
         address _verifier,
         address _walletImplementation,
-        uint _emailValidityDuration
+        uint _emailValidityDuration,
+        bytes32 _bytecodeHash
     ) public initializer {
         __Ownable_init();
         deployer = _msgSender();
@@ -72,6 +75,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         walletImplementation = _walletImplementation;
         relayerHandler = RelayerHandler(_relayerHandler);
         verifier = IVerifier(_verifier);
+        bytecodeHash = _bytecodeHash;
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyDeployer {}
@@ -179,12 +183,16 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function getWalletOfSalt(bytes32 salt) public view returns (address) {
         return IContractDeployer(DEPLOYER_SYSTEM_CONTRACT).getNewAddressCreate2(
             address(this),
-            keccak256(type(ERC1967Proxy).creationCode),
+            // keccak256(type(ERC1967Proxy).creationCode),
+            bytecodeHash,
             salt,
             abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
         );
     }
 
+    function deployWallet(bytes32 salt) public returns (Wallet wallet) {
+        wallet = _deployWallet(salt);
+    }
 
     /// @notice Deploy a wallet contract with the given salt
     /// @param salt Salt to be used for wallet deployment
@@ -208,7 +216,6 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         //         )
         //     )
         // );
-
         (bool success, bytes memory returnData) = SystemContractsCaller.systemCallWithReturndata(
             uint32(gasleft()),
             address(DEPLOYER_SYSTEM_CONTRACT),
@@ -217,14 +224,15 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 DEPLOYER_SYSTEM_CONTRACT.create2,
                 (
                     salt,
-                    keccak256(type(ERC1967Proxy).creationCode),
+                    // keccak256(type(ERC1967Proxy).creationCode),
+                    bytecodeHash,
                     abi.encode(address(walletImplementation), abi.encodeCall(Wallet.initialize, ()))
                 )
             )
         );
 
-        require(!success, "deployment failed");
 
+        require(success, "deployment failed");
         // Decode the account address
         (address walletAddr) = abi.decode(returnData, (address));
         wallet = Wallet(payable(walletAddr));

@@ -212,7 +212,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         IERC20(fund.tokenAddr).safeTransfer(recipientAddr, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
-        payable(msg.sender).transfer(unclaimedFundClaimGas * maxFeePerGas);
+        payable(msg.sender).call{value: unclaimedFundClaimGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedFundClaimed(
             id,
@@ -246,7 +246,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
         (bool success, ) = payable(fund.sender).call{value: (unclaimedFundClaimGas - consumedGas) * maxFeePerGas}("");
         require(success, "ETH transfer to fund.sender failed");
-        payable(msg.sender).transfer(consumedGas * maxFeePerGas);
+        payable(msg.sender).call{value: consumedGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedFundVoided(id, fund.emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
     }
@@ -410,7 +410,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         }
 
         // Transfer claim fee to the sender (relayer)
-        payable(msg.sender).transfer(unclaimedStateClaimGas * maxFeePerGas);
+        payable(msg.sender).call{value: unclaimedStateClaimGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedStateClaimed(id, us.emailAddrCommit, recipientAddr);
     }
@@ -452,7 +452,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
         (success, ) = payable(us.sender).call{value: (unclaimedStateClaimGas - consumedGas) * maxFeePerGas}("");
         require(success, "ETH transfer to us.sender failed");
-        payable(msg.sender).transfer(consumedGas * maxFeePerGas);
+        payable(msg.sender).call{value: consumedGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedStateVoided(id, us.emailAddrCommit, us.sender);
     }
@@ -463,5 +463,8 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
     function getUnclaimedState(uint256 id) public view returns (UnclaimedState memory) {
         return unclaimedStateOfId[id];
+    }
+
+    function fallback() external payable {
     }
 }
