@@ -534,6 +534,10 @@ pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
     match error.as_str() {
         "Account is already created" => Ok(Some(error)),
         "insufficient balance" => Ok(Some("You don't have sufficient balance".to_string())),
+        "Account is not created" => Ok(Some(
+            "Your account is not created. Please reply to an email containing \"Code ~\" first."
+                .to_string(),
+        )),
         _ => Ok(None),
     }
 }

@@ -44,6 +44,9 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Duration for which an email is valid
     uint public emailValidityDuration;
 
+    // Mapping to store deployable wallets
+    mapping(address => bool) public isDeployableWallet;
+
     modifier onlyDeployer() {
         require(msg.sender == deployer, "caller is not a deployer");
         _;
@@ -90,7 +93,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         bytes32 walletSalt,
         bytes calldata psiPoint,
         EmailProof calldata emailProof
-    ) public returns (Wallet wallet) {
+    ) public returns (address) {
         require(walletSalt != bytes32(0), "invalid wallet salt");
         require(walletSaltOfPSIPoint[psiPoint] == bytes32(0) || walletSaltOfPSIPoint[psiPoint] == walletSalt, "PSI point exists for another wallet salt");
         require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
@@ -135,9 +138,11 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         walletSaltOfPSIPoint[psiPoint] = walletSalt;
         emailNullifiers[emailProof.nullifier] = true;
 
-        wallet = _deployWallet(walletSalt);
-
+        // wallet = _deployWallet(walletSalt);
+        address walletAddr = getWalletOfSalt(walletSalt);
+        isDeployableWallet[walletAddr] = true;
         emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
+        return walletAddr;
     }
 
     /// @notice Return true iff the wallet is deployed for the given wallet salt
@@ -183,6 +188,12 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                     )
                 )
             );
+    }
+
+    function deployWallet(bytes32 salt) public returns (Wallet wallet) {
+        address walletAddr = getWalletOfSalt(salt);
+        require(isDeployableWallet[walletAddr], "wallet not deployable");
+        return _deployWallet(salt);
     }
 
     /// @notice Deploy a wallet contract with the given salt

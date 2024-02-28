@@ -323,7 +323,7 @@ abstract contract IntegrationTestHelper is Test {
         // console.logBytes32(publicKeyHash);
 
         {
-            wallet = accountHandler.createAccount(
+            accountHandler.createAccount(
                 walletSalt,
                 psiPoint,
                 EmailProof({
@@ -334,6 +334,7 @@ abstract contract IntegrationTestHelper is Test {
                     timestamp: emailTimestamp
                 })
             );
+            wallet = accountHandler.deployWallet(walletSalt);
         }
     }
 

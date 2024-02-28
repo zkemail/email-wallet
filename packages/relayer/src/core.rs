@@ -48,6 +48,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             }
         }
         let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
+        info!(LOG, "Wallet salt: {}", field2hex(&wallet_salt.0); "func" => function_name!());
         if !chain_client
             .check_if_account_created_by_account_key(&from_addr, &field2hex(&account_key.0))
             .await?
@@ -78,6 +79,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
             let res = chain_client.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
+            let deploy_tx_hash = chain_client.deploy_wallet(&wallet_salt).await?;
+            info!(LOG, "wallet deployment tx hash: {}", deploy_tx_hash; "func" => function_name!());
             if let Some(_) = stored_account_key {
                 db.user_onborded(&from_addr, &res).await?;
                 trace!(LOG, "User onboarded"; "func" => function_name!());
@@ -111,6 +114,12 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         "The user of email address {} is not registered.",
         from_addr
     ))?;
+    if !chain_client
+        .check_if_account_created_by_account_key(&from_addr, &account_key_str)
+        .await?
+    {
+        return Err(anyhow!("Account is not created"));
+    }
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
