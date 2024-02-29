@@ -6,7 +6,7 @@ dataSources:
     name: EmailWalletCore
     network: zksync-era-sepolia
     source:
-      address: "0x25d1cCc1f40E7Acb471A451f545F5B2e5a3Bd34C"
+      address: "0x9c3a12c5f631e07C171048da64cD1BcA28c1576b"
       abi: EmailWalletCore
     mapping:
       kind: ethereum/events
@@ -26,7 +26,7 @@ dataSources:
     name: RelayerHandler
     network: zksync-era-sepolia
     source:
-      address: "0x5cD4463D44294e82D6F04697C6E4d8f89b3EC707"
+      address: "0x20fb0cDceED30D092AB22ddEeabB5e2E118964bd"
       abi: RelayerHandler
     mapping:
       kind: ethereum/events
@@ -48,7 +48,7 @@ dataSources:
     name: AccountHandler
     network: zksync-era-sepolia
     source:
-      address: "0xcB42d0949B8A83489C10bd5996927F45fDA55711"
+      address: "0x40f17B9a8352E61E751A22b643636ae5263188C6"
       abi: AccountHandler
     mapping:
       kind: ethereum/events
@@ -69,7 +69,7 @@ dataSources:
     name: UnclaimsHandler
     network: zksync-era-sepolia
     source:
-      address: "0xE2A70E443248B8825887B651dEc8CcD8fA8F9469"
+      address: "0x632C10DFd070059c7ED1dAb6C7f384666174d984"
       abi: UnclaimsHandler
     mapping:
       kind: ethereum/events
@@ -105,7 +105,7 @@ dataSources:
     name: ExtensionHandler
     network: zksync-era-sepolia
     source:
-      address: "0xf93c933a69cf02E539DCd9e2fccE265b58864692"
+      address: "0xA573e420E53570c8FF4a26464a97550E4EDE116c"
       abi: ExtensionHandler
     mapping:
       kind: ethereum/events
