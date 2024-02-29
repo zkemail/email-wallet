@@ -14,7 +14,7 @@ import { utils } from 'zksync-ethers';
 export default async function () {
 
   // // TestToken
-  let testToken = await deployContract("TestERC20", ["TestToken", "TT"]);
+  let testToken = await deployContract("TestERC20", ["TestToken", "TEST"]);
 
   // // TokenRegistry
   let tokenRegistryImpl = await deployContract("TokenRegistry");
@@ -41,7 +41,7 @@ export default async function () {
   tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, tokenName, testToken.target);
   await tx.wait();
 
-  let verifierImpl = await deployContract("AllVerifiers");
+  let verifierImpl = await deployContract("AllVerifiers", []);
 
   let signer = process.env.SIGNER as string;
   let dkim = await deployContract("ECDSAOwnedDKIMRegistry", [signer]);
@@ -99,10 +99,10 @@ export default async function () {
     await relayerHandler.getAddress(),
     await accountHandler.getAddress(),
     await verifierImpl.getAddress(),
-    450000, // unclaimedFundClaimGas
-    500000, // unclaimedStateClaimGas
+    30000000, // unclaimedFundClaimGas
+    30000000, // unclaimedStateClaimGas
     2592000, // unclaimsExpiryDuration = 30 days
-    2000000000, // maxFeePerGas = 2 gwei
+    100000000, // maxFeePerGas = 0.1 gwei
   ]);
   proxy = await deployContract("ERC1967Proxy", [unclaimsHandlerImpl.target, data])
   contractArtifact = await hre.artifacts.readArtifact("UnclaimsHandler");
@@ -126,10 +126,10 @@ export default async function () {
     await tokenRegistry.getAddress(),
     await oracle.getAddress(),
     await weth,
-    2000000000, // maxFeePerGas = 2 gwei
+    100000000, // maxFeePerGas = 0.1 gwei
     1209600, // emailValidityDuration = 14 days
-    450000, // unclaimedFundClaimGas
-    500000, // unclaimedStateClaimGas
+    30000000, // unclaimedFundClaimGas
+    30000000, // unclaimedStateClaimGas
   ]);
   proxy = await deployContract("ERC1967Proxy", [coreImpl.target, data])
   contractArtifact = await hre.artifacts.readArtifact("EmailWalletCore");

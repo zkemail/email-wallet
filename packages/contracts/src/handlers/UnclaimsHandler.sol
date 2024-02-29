@@ -297,7 +297,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         } catch {
             revert("unclaimed state reg err");
         }
-        
+
         emit EmailWalletEvents.UnclaimedStateRegistered(
             us.id,
             emailAddrCommit,
