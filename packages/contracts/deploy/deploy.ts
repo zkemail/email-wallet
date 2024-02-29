@@ -36,10 +36,23 @@ export default async function () {
   let tx = await tokenRegistry.setChainId(chainName, chainId);
   await tx.wait();
 
-  let tokenName = process.env.TOKEN_NAME as string;
-  console.log(`Setting token name ${tokenName} for chain ${chainName}`);
-  tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, tokenName, testToken.target);
+  console.log(`Setting token name TEST for chain ${chainName}`);
+  tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, "TEST", testToken.target);
   await tx.wait();
+  tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, "WETH", process.env.WETH);
+  await tx.wait();
+  if (process.env.USDC_ADDR != null) {
+    tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, "USDC", process.env.USDC_ADDR);
+    await tx.wait();
+  }
+  if (process.env.USDT_ADDR != null) {
+    tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, "USDT", process.env.USDT_ADDR);
+    await tx.wait();
+  }
+  if (process.env.DAI_ADDR != null) {
+    tx = await tokenRegistry["setTokenAddress(uint256,string,address)"](chainId, "DAI", process.env.DAI_ADDR);
+    await tx.wait();
+  }
 
   let verifierImpl = await deployContract("AllVerifiers", []);
 

@@ -51,11 +51,21 @@ const config: HardhatUserConfig = {
         "src/libraries/SubjectUtils.sol": {
           "SubjectUtils": "0x63d8162B05206e942820c1A6c14c9003F81faf89"
         }
+      },
+      optimizer: {
+        enabled: true,
+        runs: 1
       }
     }
   },
   solidity: {
     version: "0.8.23",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1
+      }
+    }
   },
 };
 

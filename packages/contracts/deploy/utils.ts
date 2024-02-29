@@ -66,7 +66,7 @@ type DeployContractOptions = {
   noVerify?: boolean
   /**
    * If specified, the contract will be deployed using this wallet
-   */ 
+   */
   wallet?: Wallet
 }
 export const deployContract = async (contractArtifactName: string, constructorArguments?: any[], options?: DeployContractOptions) => {
@@ -93,7 +93,6 @@ export const deployContract = async (contractArtifactName: string, constructorAr
 
   // Check if the wallet has enough balance
   await verifyEnoughBalance(wallet, deploymentFee);
-
   // Deploy the contract to zkSync
   const contract = await deployer.deploy(artifact, constructorArguments);
   const address = await contract.getAddress();
