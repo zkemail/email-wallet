@@ -111,6 +111,12 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         "The user of email address {} is not registered.",
         from_addr
     ))?;
+    if !chain_client
+        .check_if_account_created_by_account_key(&from_addr, &account_key_str)
+        .await?
+    {
+        bail!("The user of email address {} is not registered.", from_addr);
+    }
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;

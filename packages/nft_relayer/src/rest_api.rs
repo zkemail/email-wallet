@@ -159,7 +159,12 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
         let subject = "Email Wallet Error: Account Already Exists".to_string();
         let error_msg =
             "Your wallet is already created. Please use the login page instead.".to_string();
-        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str.unwrap()});
+        // TODO: Get user's account address
+        let account_key = AccountKey(hex2field(&account_key_str.clone().unwrap())?);
+        let wallet_salt =
+            WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
+        let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str.unwrap(), "walletAddr": wallet_addr});
         let body_html = render_html("account_already_exist.html", render_data).await?;
         let email = EmailMessage {
             subject,
