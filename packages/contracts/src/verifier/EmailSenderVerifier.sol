@@ -158,6 +158,10 @@ contract EmailSenderVerifier {
 
     uint16 constant pLastMem = 896;
 
+    address constant ecAddAddr = 0x4cc3aa31951FADa114cBAd54686E2A082Df6C4fa;
+    address constant ecMulAddr = 0x2abE798291c05B054475BDEB017161737A6A1b4F;
+    address constant ecPairingAddr = 0x9F7D2961D2E522D5B1407dD1e364A520DdC8a77F;
+
     function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[35] calldata _pubSignals) public view returns (bool) {
         assembly {
             function checkField(v) {
@@ -175,7 +179,7 @@ contract EmailSenderVerifier {
                 mstore(add(mIn, 32), y)
                 mstore(add(mIn, 64), s)
 
-                success := staticcall(sub(gas(), 2000), 7, mIn, 96, mIn, 64)
+                success := staticcall(sub(gas(), 2000), ecMulAddr, mIn, 96, mIn, 64)
 
                 if iszero(success) {
                     mstore(0, 0)
@@ -185,7 +189,7 @@ contract EmailSenderVerifier {
                 mstore(add(mIn, 64), mload(pR))
                 mstore(add(mIn, 96), mload(add(pR, 32)))
 
-                success := staticcall(sub(gas(), 2000), 6, mIn, 128, pR, 64)
+                success := staticcall(sub(gas(), 2000), ecAddAddr, mIn, 128, pR, 64)
 
                 if iszero(success) {
                     mstore(0, 0)
@@ -315,7 +319,7 @@ contract EmailSenderVerifier {
                 mstore(add(_pPairing, 736), deltay2)
 
 
-                let success := staticcall(sub(gas(), 2000), 8, _pPairing, 768, _pPairing, 0x20)
+                let success := staticcall(sub(gas(), 2000), ecPairingAddr, _pPairing, 768, _pPairing, 0x20)
 
                 isOk := and(success, mload(_pPairing))
             }

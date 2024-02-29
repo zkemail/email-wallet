@@ -81,5 +81,22 @@
       "address": "0x4B134222fC292edF71D7f31FE1D9D9cD571A663E",
       "startBlock": 567424
     }
+  },
+  "zksync-era-sepolia": {
+    "EmailWalletCore": {
+      "address": "0x25d1cCc1f40E7Acb471A451f545F5B2e5a3Bd34C",
+    },
+    "RelayerHandler": {
+      "address": "0x5cD4463D44294e82D6F04697C6E4d8f89b3EC707",
+    },
+    "AccountHandler": {
+      "address": "0xcB42d0949B8A83489C10bd5996927F45fDA55711",
+    },
+    "UnclaimsHandler": {
+      "address": "0xE2A70E443248B8825887B651dEc8CcD8fA8F9469",
+    },
+    "ExtensionHandler": {
+      "address": "0xf93c933a69cf02E539DCd9e2fccE265b58864692",
+    }
   }
 }

@@ -164,8 +164,9 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             let test_balance = CLIENT
                 .query_user_erc20_balance(&wallet_salt, "TEST")
                 .await?;
-            if test_balance < U256::from(100) {
-                let amount = U256::from(100) - test_balance;
+            let faucet_max = U256::from_str_radix("100000000000000000000", 10).unwrap();
+            if test_balance < faucet_max {
+                let amount = faucet_max - test_balance;
                 CLIENT.free_mint_test_erc20(wallet_addr, amount).await?;
             }
             // CLIENT
@@ -534,6 +535,10 @@ pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
     match error.as_str() {
         "Account is already created" => Ok(Some(error)),
         "insufficient balance" => Ok(Some("You don't have sufficient balance".to_string())),
+        "Account is not created" => Ok(Some(
+            "Your account is not created. Please reply to an email containing \"Code ~\" first."
+                .to_string(),
+        )),
         _ => Ok(None),
     }
 }

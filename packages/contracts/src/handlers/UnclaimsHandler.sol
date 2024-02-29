@@ -206,14 +206,13 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         require(verifier.verifyClaimFundProof(fund.emailAddrCommit, recipientWalletSalt, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
-
         delete unclaimedFundOfId[id];
 
         // Transfer token from Core contract to recipient's wallet
         IERC20(fund.tokenAddr).safeTransfer(recipientAddr, fund.amount);
 
         // Transfer claim fee to the sender (relayer)
-        payable(msg.sender).transfer(unclaimedFundClaimGas * maxFeePerGas);
+        payable(msg.sender).call{value: unclaimedFundClaimGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedFundClaimed(
             id,
@@ -247,7 +246,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
         (bool success, ) = payable(fund.sender).call{value: (unclaimedFundClaimGas - consumedGas) * maxFeePerGas}("");
         require(success, "ETH transfer to fund.sender failed");
-        payable(msg.sender).transfer(consumedGas * maxFeePerGas);
+        payable(msg.sender).call{value: consumedGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedFundVoided(id, fund.emailAddrCommit, fund.tokenAddr, fund.amount, fund.sender);
     }
@@ -259,7 +258,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
     /// @param expiryTime Expiry time to claim the unclaimed state.
     /// @param announceCommitRandomness Randomness used to generate the `emailAddrCommit` - if needs to be public.
     /// @param announceEmailAddr Email address of the recipient - if needs to be public.
-    function registerUnclaimedState(
+    function registerUnclaimedStateExternal(
         bytes32 emailAddrCommit,
         address extensionAddr,
         bytes calldata state,
@@ -293,11 +292,13 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         unclaimedStateOfId[us.id] = us;
         numUnclaimedStates++;
 
-        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
-            revert(string.concat("unclaimed state reg err: ", reason));
-        } catch {
-            revert("unclaimed state reg err");
-        }
+        // try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
+        //     revert(string.concat("unclaimed state reg err: ", reason));
+        // } catch {
+        //     revert("unclaimed state reg err");
+        // }
+        UnclaimedState memory usDummy; 
+        extension.registerUnclaimedState(usDummy, false);
 
         emit EmailWalletEvents.UnclaimedStateRegistered(
             us.id,
@@ -411,7 +412,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         }
 
         // Transfer claim fee to the sender (relayer)
-        payable(msg.sender).transfer(unclaimedStateClaimGas * maxFeePerGas);
+        payable(msg.sender).call{value: unclaimedStateClaimGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedStateClaimed(id, us.emailAddrCommit, recipientAddr);
     }
@@ -453,7 +454,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         // Transfer consumedGas to callee, and rest of the locked funds to user who locked up the funds
         (success, ) = payable(us.sender).call{value: (unclaimedStateClaimGas - consumedGas) * maxFeePerGas}("");
         require(success, "ETH transfer to us.sender failed");
-        payable(msg.sender).transfer(consumedGas * maxFeePerGas);
+        payable(msg.sender).call{value: consumedGas * maxFeePerGas}("");
 
         emit EmailWalletEvents.UnclaimedStateVoided(id, us.emailAddrCommit, us.sender);
     }
@@ -464,5 +465,8 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
     function getUnclaimedState(uint256 id) public view returns (UnclaimedState memory) {
         return unclaimedStateOfId[id];
+    }
+
+    function fallback() external payable {
     }
 }

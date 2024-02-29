@@ -987,7 +987,7 @@ pub mod email_wallet_core {
             ]),
             errors: ::std::collections::BTreeMap::new(),
             receive: true,
-            fallback: true,
+            fallback: false,
         }
     }
     ///The parsed JSON ABI of the contract.

@@ -157,3 +157,9 @@ mdbook serve
 <br />
 
 ☆ Built using [zk-email](https://github.com/zkemail/zk-email-verify) ☆
+
+
+failed
+% npx hardhat deploy-zksync --script verifyProof.ts --network zkSyncSepoliaTestnet
+Verified account creation proof
+false

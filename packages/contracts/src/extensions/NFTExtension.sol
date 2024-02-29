@@ -20,6 +20,8 @@ contract NFTExtension is Extension, IERC721Receiver, Initializable, UUPSUpgradea
 
     string[][] public templates;
 
+    event NFTRegister(bytes indexed state, address indexed sender);
+
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
         _;
@@ -114,13 +116,14 @@ contract NFTExtension is Extension, IERC721Receiver, Initializable, UUPSUpgradea
     }
 
     function registerUnclaimedState(UnclaimedState memory unclaimedState, bool) public override onlyCore {
-        (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
-
-        IERC721 nft = IERC721(nftAddr);
-        require(IERC721(nftAddr).getApproved(tokenId) == address(this), "NFT not approved to extension");
-
-        nft.safeTransferFrom(unclaimedState.sender, address(this), tokenId);
-        require(nft.ownerOf(tokenId) == address(this), "NFT not transferred to extension");
+        emit NFTRegister(unclaimedState.state, unclaimedState.sender);
+        // address nftAddr = 0x4A11Fe717207A6a48e8eD034Ed571A1b32560a5E;
+        // uint256 tokenId = 1013100020;
+        // (address nftAddr, uint256 tokenId) = abi.decode(unclaimedState.state, (address, uint256));
+        // IERC721 nft = IERC721(nftAddr);
+        // require(IERC721(nftAddr).getApproved(tokenId) == address(this), "NFT not approved to extension");
+        // nft.safeTransferFrom(unclaimedState.sender, address(this), tokenId);
+        // require(nft.ownerOf(tokenId) == address(this), "NFT not transferred to extension");
     }
 
     function claimUnclaimedState(UnclaimedState memory unclaimedState, address wallet) external override onlyCore {
