@@ -164,7 +164,7 @@ export default async function () {
   let nftExtensionImpl = await deployContract("NFTExtension");
   abi = new ethers.Interface(nftExtensionImpl.interface.formatJson());
   data = abi.encodeFunctionData("initialize", [
-    await relayerHandler.getAddress(),
+    await core.getAddress(),
   ]);
   proxy = await deployContract("ERC1967Proxy", [nftExtensionImpl.target, data])
   contractArtifact = await hre.artifacts.readArtifact("NFTExtension");

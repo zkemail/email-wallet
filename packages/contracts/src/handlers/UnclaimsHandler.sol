@@ -292,14 +292,12 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         unclaimedStateOfId[us.id] = us;
         numUnclaimedStates++;
 
-        // try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
-        //     revert(string.concat("unclaimed state reg err: ", reason));
-        // } catch {
-        //     revert("unclaimed state reg err");
-        // }
-        UnclaimedState memory usDummy; 
-        extension.registerUnclaimedState(usDummy, false);
-
+        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
+            revert(string.concat("unclaimed state reg err: ", reason));
+        } catch {
+            revert("unclaimed state reg err");
+        }
+        
         emit EmailWalletEvents.UnclaimedStateRegistered(
             us.id,
             emailAddrCommit,
