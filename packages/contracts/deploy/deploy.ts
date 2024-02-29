@@ -182,8 +182,9 @@ export default async function () {
   // );
   // console.log(`Setting nftExtension address = ${await nftExtension.getAddress()}`);
 
-
-  tx = await nftExtension.setNFTAddress("ETHDenver", "0xc989c0431feBb3557CCf4e59919D15305D591668");
+  const eth_denver_nft = await deployContract("ETHDenver");
+  console.log(`Setting ETHDenverNFT address = ${eth_denver_nft.target}`);
+  tx = await nftExtension.setNFTAddress("ETHDenver", eth_denver_nft.target);
   await tx.wait();
   console.log(`Setting NFT address for ETHDenver`);
 

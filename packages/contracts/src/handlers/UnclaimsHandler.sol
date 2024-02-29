@@ -258,7 +258,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
     /// @param expiryTime Expiry time to claim the unclaimed state.
     /// @param announceCommitRandomness Randomness used to generate the `emailAddrCommit` - if needs to be public.
     /// @param announceEmailAddr Email address of the recipient - if needs to be public.
-    function registerUnclaimedState(
+    function registerUnclaimedStateExternal(
         bytes32 emailAddrCommit,
         address extensionAddr,
         bytes calldata state,
@@ -292,11 +292,13 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         unclaimedStateOfId[us.id] = us;
         numUnclaimedStates++;
 
-        try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
-            revert(string.concat("unclaimed state reg err: ", reason));
-        } catch {
-            revert("unclaimed state reg err");
-        }
+        // try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
+        //     revert(string.concat("unclaimed state reg err: ", reason));
+        // } catch {
+        //     revert("unclaimed state reg err");
+        // }
+        UnclaimedState memory usDummy; 
+        extension.registerUnclaimedState(usDummy, false);
 
         emit EmailWalletEvents.UnclaimedStateRegistered(
             us.id,
