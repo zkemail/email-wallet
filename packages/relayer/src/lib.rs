@@ -423,6 +423,7 @@ pub async fn run(
             ))?);
             let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
+                tx_hash: meta.transaction_hash.to_string(),
                 id: event.id,
                 email_address: event.email_addr,
                 random,
@@ -445,6 +446,7 @@ pub async fn run(
             ))?);
             let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
+                tx_hash: meta.transaction_hash.to_string(),
                 id: event.id,
                 email_address: event.email_addr,
                 random,

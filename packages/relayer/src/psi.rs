@@ -24,6 +24,7 @@ pub(crate) struct CheckRequest {
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct RevealRequest {
+    pub(crate) tx_hash: String,
     pub(crate) id: U256,
     pub(crate) is_fund: bool,
     pub(crate) randomness: String,
@@ -37,6 +38,7 @@ pub struct Point {
 }
 
 pub(crate) struct PSIClient {
+    pub(crate) tx_hash: String,
     pub(crate) point: Point,
     pub(crate) random: String,
     pub(crate) email_addr: String,
@@ -51,6 +53,7 @@ impl PSIClient {
         db: Arc<Database>,
         chain_client: Arc<ChainClient>,
         email_addr: String,
+        tx_hash: String,
         id: U256,
         is_fund: bool,
     ) -> Result<Self> {
@@ -61,6 +64,7 @@ impl PSIClient {
         let point = psi_step1(CIRCUITS_DIR_PATH.get().unwrap(), &email_addr, &random).await?;
 
         Ok(Self {
+            tx_hash,
             email_addr,
             id,
             is_fund,
@@ -192,6 +196,7 @@ impl PSIClient {
             let res = client
                 .post(format!("{}/serveReveal/", address))
                 .json(&RevealRequest {
+                    tx_hash: self.tx_hash.clone(),
                     id: self.id,
                     email_address: self.email_addr.clone(),
                     randomness: self.random.clone(),
@@ -231,6 +236,7 @@ pub(crate) async fn serve_reveal_request(
         UnclaimType::Fund(unclaimed_fund) => {
             // TODO: local check of recipient_commit = hash(random, email_addr)
             tx_claimer.send(Claim {
+                tx_hash: payload.tx_hash,
                 id: payload.id,
                 email_address: payload.email_address.clone(),
                 random: payload.randomness,
@@ -248,6 +254,7 @@ pub(crate) async fn serve_reveal_request(
         UnclaimType::State(unclaimed_state) => {
             // TODO: local check of recipient_commit = hash(random, email_addr)
             tx_claimer.send(Claim {
+                tx_hash: payload.tx_hash,
                 id: payload.id,
                 email_address: payload.email_address.clone(),
                 random: payload.randomness,

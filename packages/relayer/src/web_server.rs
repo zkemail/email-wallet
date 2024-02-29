@@ -56,6 +56,8 @@ async fn unclaim(
     );
     let commit = padded_email_addr.to_commitment(&hex2field(&payload.random)?)?;
     info!(LOG, "commit {:?}", commit; "func" => function_name!());
+    // Wait for 10 seconds
+    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     let id = chain_client
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
         .await?;
@@ -71,6 +73,7 @@ async fn unclaim(
     //     .check_and_reveal(db.clone(), chain_client.clone(), &payload.email_address)
     //     .await?;
     let claim = Claim {
+        tx_hash: payload.tx_hash.clone(),
         id,
         email_address: payload.email_address.clone(),
         random: payload.random.clone(),

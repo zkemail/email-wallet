@@ -377,6 +377,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         //     .await?;
 
         let claim = Claim {
+            tx_hash: tx_hash.clone(),
             id: registered_unclaim_id,
             email_address: email_addr.clone(),
             commit,

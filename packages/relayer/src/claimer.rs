@@ -7,6 +7,7 @@ use ethers::utils::format_units;
 
 #[derive(Debug, Clone)]
 pub struct Claim {
+    pub tx_hash: String,
     pub id: U256,
     pub email_address: String,
     pub random: String,
@@ -42,6 +43,7 @@ pub(crate) async fn claim_unclaims(
             db.clone(),
             chain_client.clone(),
             claim.email_address.to_string(),
+            claim.tx_hash.clone(),
             claim.id,
             claim.is_fund,
         )

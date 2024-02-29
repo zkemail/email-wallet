@@ -42,7 +42,8 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS claims (
-                id TEXT PRIMARY KEY,
+                tx_hash TEXT PRIMARY KEY,
+                id TEXT NOT NULL,
                 email_address TEXT NOT NULL,
                 random TEXT NOT NULL,
                 email_addr_commit TEXT NOT NULL,
@@ -161,6 +162,7 @@ impl Database {
             .await?;
 
         for row in rows {
+            let tx_hash: String = row.get("tx_hash");
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
             let random: String = row.get("random");
@@ -169,6 +171,7 @@ impl Database {
             let is_announced: bool = row.get("is_announced");
             let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
+                tx_hash,
                 id: *id,
                 email_address,
                 random,
@@ -192,6 +195,7 @@ impl Database {
                 .await?;
 
         for row in rows {
+            let tx_hash: String = row.get("tx_hash");
             let id: String = row.get("id");
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
@@ -201,6 +205,7 @@ impl Database {
             let is_announced: bool = row.get("is_announced");
             let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
+                tx_hash,
                 id: hex_to_u256(&id)?,
                 email_address,
                 random,
@@ -225,6 +230,7 @@ impl Database {
                 .await?;
 
         for row in rows {
+            let tx_hash: String = row.get("tx_hash");
             let id: String = row.get("id");
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
@@ -234,6 +240,7 @@ impl Database {
             let is_announced: bool = row.get("is_announced");
             let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
+                tx_hash,
                 id: hex_to_u256(&id)?,
                 email_address,
                 random,
@@ -258,6 +265,7 @@ impl Database {
                 .await?;
 
         for row in rows {
+            let tx_hash: String = row.get("tx_hash");
             let id: String = row.get("id");
             let commit: String = row.get("email_addr_commit");
             let email_address: String = row.get("email_address");
@@ -267,6 +275,7 @@ impl Database {
             let is_announced: bool = row.get("is_announced");
             let is_seen: bool = row.get("is_seen");
             vec.push(Claim {
+                tx_hash,
                 id: hex_to_u256(&id)?,
                 email_address,
                 random,
@@ -284,8 +293,9 @@ impl Database {
     pub(crate) async fn insert_claim(&self, claim: &Claim) -> Result<()> {
         info!(LOG, "expiry_time {}", claim.expiry_time; "func" => function_name!());
         let row = sqlx::query(
-            "INSERT INTO claims (id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced, is_seen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+            "INSERT INTO claims (tx_hash, id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced, is_seen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
         )
+        .bind(claim.tx_hash.clone())
         .bind(u256_to_hex(&claim.id))
         .bind(claim.email_address.clone())
         .bind(claim.random.clone())
