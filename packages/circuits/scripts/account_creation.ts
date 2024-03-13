@@ -53,10 +53,10 @@ async function generate() {
 
   if (args.prove) {
     const dir = path.dirname(args.inputFile);
-    const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInputs, path.join(dir, "account_init.wasm"), path.join(dir, "account_init.zkey"), console);
-    await promisify(fs.writeFile)(path.join(dir, "account_init_proof.json"), JSON.stringify(proof, null, 2));
-    await promisify(fs.writeFile)(path.join(dir, "account_init_public.json"), JSON.stringify(publicSignals, null, 2));
-    log("✓ Proof for account init circuit generated");
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInputs, path.join(dir, "account_creation.wasm"), path.join(dir, "account_creation.zkey"), console);
+    await promisify(fs.writeFile)(path.join(dir, "account_creation_proof.json"), JSON.stringify(proof, null, 2));
+    await promisify(fs.writeFile)(path.join(dir, "account_creation_public.json"), JSON.stringify(publicSignals, null, 2));
+    log("✓ Proof for account creation circuit generated");
   }
   process.exit(0);
 }

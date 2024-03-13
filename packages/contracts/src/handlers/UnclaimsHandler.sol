@@ -206,7 +206,6 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         require(verifier.verifyClaimFundProof(fund.emailAddrCommit, recipientWalletSalt, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
-
         delete unclaimedFundOfId[id];
 
         // Transfer token from Core contract to recipient's wallet
