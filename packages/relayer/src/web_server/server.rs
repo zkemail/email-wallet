@@ -2,7 +2,7 @@ use crate::*;
 
 use std::sync::atomic::Ordering;
 
-use axum::{routing::MethodRouter, Router};
+use axum::Router;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
@@ -94,14 +94,19 @@ async fn unclaim(
 #[named]
 pub(crate) async fn run_server(
     addr: &str,
-    routes: Vec<(String, MethodRouter)>,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     tx_claimer: UnboundedSender<Claim>,
+    email_sender: EmailForwardSender,
 ) -> Result<()> {
     let chain_client_check_clone = Arc::clone(&chain_client);
     let chain_client_reveal_clone = Arc::clone(&chain_client);
     let tx_claimer_reveal_clone = tx_claimer.clone();
+
+    let sender_for_nft_transfer_api = email_sender.clone();
+    let sender_for_create_account_api = email_sender.clone();
+    let sender_for_send_fn_api = email_sender.clone();
+    let sender_for_recover_account_key_fn_api = email_sender.clone();
 
     let mut app = Router::new()
         .route(
@@ -171,10 +176,105 @@ pub(crate) async fn run_server(
                         err.to_string()
                     })
             }),
+        )
+        .route(
+            "/api/echo",
+            axum::routing::get(move || async move { "Hello, world!" }),
+        )
+        .route(
+            "/api/recoverAccountKey",
+            axum::routing::post(move |payload: String| async move {
+                info!(LOG, "/recoverAccountKey Received payload: {}", payload; "func" => function_name!());
+                match recover_account_key_api_fn(payload).await {
+                    Ok((request_id, email)) => {
+                        sender_for_recover_account_key_fn_api.send(email).unwrap();
+                        request_id.to_string()
+                    }
+                    Err(err) => {
+                        error!(
+                            LOG,
+                            "Failed to accept recover account key: {}", err
+                        );
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
+            "/api/getWalletAddress",
+            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+                info!(LOG, "Get wallet address payload: {}", payload);
+                match get_wallet_address_api_fn(payload).await {
+                    Ok(wallet_addr) => wallet_addr,
+                    Err(err) => {
+                        error!(LOG, "Failed to accept get wallet address: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
+            "/api/send",
+            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+                info!(LOG, "Send payload: {}", payload);
+                match send_api_fn(payload).await {
+                    Ok((request_id, email)) => {
+                        sender_for_send_fn_api.send(email).unwrap();
+                        request_id.to_string()
+                    }
+                    Err(err) => {
+                        error!(LOG, "Failed to accept send: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
+            "/api/createAccount",
+            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+                info!(LOG, "Create account payload: {}", payload);
+                match create_account_api_fn(payload).await {
+                    Ok((request_id, email)) => {
+                        sender_for_create_account_api.send(email).unwrap();
+                        request_id.to_string()
+                    }
+                    Err(err) => {
+                        error!(LOG, "Failed to accept create account: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
+            "/api/isAccountCreated",
+            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+                info!(LOG, "Is account created payload: {}", payload);
+                match is_account_created_api_fn(payload).await {
+                    Ok(status) => status.to_string(),
+                    Err(err) => {
+                        error!(LOG, "Failed to accept is account created: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
+            "/api/nftTransfer",
+            axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+                info!(LOG, "NFT transfer payload: {}", payload);
+                match nft_transfer_api_fn(payload).await {
+                    Ok((request_id, email)) => {
+                        sender_for_nft_transfer_api.send(email).unwrap();
+                        request_id.to_string()
+                    }
+                    Err(err) => {
+                        error!(LOG, "Failed to accept nft transfer: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
         );
-    for (path, router) in routes {
-        app = app.route(&path, router);
-    }
+
     app = app.layer(
         CorsLayer::new()
             .allow_methods(AllowMethods::any())

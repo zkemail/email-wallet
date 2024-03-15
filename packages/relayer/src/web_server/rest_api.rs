@@ -1,21 +1,19 @@
 use anyhow::{anyhow, Result};
 
+use crate::smtp_client::*;
 use email_wallet_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
 };
 use ethers::types::{Address, U256};
 
+use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
 use hex::encode;
 use rand::Rng;
-use relayer::CLIENT;
-use relayer::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Number;
 use serde_json::Value;
 use std::str::FromStr;
-
-use crate::download_img_from_uri;
 
 #[derive(Serialize, Deserialize)]
 pub struct NFTTransferRequest {

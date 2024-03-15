@@ -7,9 +7,9 @@ metadata:
 data:
   RPC_URL: ""
   NFT_CONTRACT_ADDRESS: ""
-  RELAYER_URL:
-  NFT_EXTENSION_ADDRESS:
-  UNCLAIMS_HANDLER_ADDRESS:
+  RELAYER_URL: ""
+  NFT_EXTENSION_ADDRESS: ""
+  UNCLAIMS_HANDLER_ADDRESS: ""
 
 ---
 apiVersion: v1
@@ -20,7 +20,7 @@ metadata:
     app: issuer
 type: Opaque
 data:
-  PRIVATE_KEY: ""
+  PRIVATE_KEY:
 
 ---
 apiVersion: apps/v1

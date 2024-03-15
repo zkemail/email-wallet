@@ -160,11 +160,11 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
             sender.send(email)?;
         }
         EmailWalletEvent::Claimed {
-            unclaimed_fund,
-            unclaimed_state,
+            unclaimed_fund: _,
+            unclaimed_state: _,
             email_addr,
             is_fund,
-            is_announced,
+            is_announced: _,
             recipient_account_key,
             tx_hash,
         } => {

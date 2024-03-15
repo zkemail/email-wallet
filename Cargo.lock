@@ -3088,29 +3088,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
 
 [[package]]
-name = "nft_relayer"
-version = "1.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "base64 0.21.7",
- "chrono",
- "dotenv",
- "email-wallet-utils",
- "ethers",
- "ff 0.13.0",
- "hex",
- "rand",
- "relayer",
- "reqwest",
- "serde",
- "serde_json",
- "sled",
- "slog",
- "tokio",
-]
-
-[[package]]
 name = "nix"
 version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4067,6 +4044,7 @@ dependencies = [
  "async-native-tls",
  "async-trait",
  "axum",
+ "base64 0.21.7",
  "candid",
  "chrono",
  "dotenv",

@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "packages/relayer",
-    "packages/nft_relayer",
     "packages/utils",
     "packages/scripts",
 ]

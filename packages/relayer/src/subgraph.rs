@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use ::reqwest;
 
-use ethers::utils::to_checksum;
+
 use graphql_client::reqwest::post_graphql;
 
 use graphql_client::GraphQLQuery;

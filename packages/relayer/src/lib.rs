@@ -51,7 +51,6 @@ pub use subject_templates::*;
 pub(crate) use utils::*;
 pub(crate) use voider::*;
 pub(crate) use web_server::*;
-pub use web_server::*;
 
 use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
@@ -220,7 +219,7 @@ pub async fn setup() -> Result<()> {
 pub async fn run(
     config: RelayerConfig,
     mut event_consumer: EventConsumer,
-    email_foward_sender: EmailForwardSender,
+    email_forward_sender: EmailForwardSender,
     mut email_forward_rx: UnboundedReceiver<EmailMessage>,
     routes: Vec<(String, MethodRouter)>,
 ) -> Result<()> {
@@ -260,7 +259,7 @@ pub async fn run(
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel::<String>();
-    let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
+    let (tx_sender, rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
     // let (tx_creator, mut rx_creator) =
     //     tokio::sync::mpsc::unbounded_channel::<(String, Option<AccountKey>)>();
     let (tx_claimer, mut rx_claimer) = tokio::sync::mpsc::unbounded_channel::<Claim>();
@@ -271,12 +270,13 @@ pub async fn run(
     let client = CLIENT.clone();
 
     // let event_consumer_tx = event_consumer.tx.clone();
+    let email_sender = email_forward_sender.clone();
     let event_consumer_task = tokio::task::spawn(async move {
         loop {
             match event_consumer_fn(
                 &mut event_consumer,
                 &mut rx_event_consumer,
-                email_foward_sender.clone(),
+                email_sender.clone(),
             )
             .await
             {
@@ -367,31 +367,30 @@ pub async fn run(
         anyhow::Ok(())
     });
 
+    // let email_sender = SmtpClient::new(config.smtp_config)?;
     let tx_claimer_for_server_task = tx_claimer.clone();
     let api_server_task = tokio::task::spawn(
         run_server(
             WEB_SERVER_ADDRESS.get().unwrap(),
-            routes,
             Arc::clone(&db),
             Arc::clone(&client),
             tx_claimer_for_server_task,
+            email_forward_sender.clone(),
         )
         .map_err(|err| error!(LOG, "Error api server: {}", err; "func" => function_name!())),
     );
+    // let email_sender_task = tokio::task::spawn(async move {
+    //     loop {
+    //         match email_sender_fn(&mut rx_sender, &email_sender).await {
+    //             Ok(()) => {}
+    //             Err(e) => {
+    //                 error!(LOG, "Error at email_sender: {}", e; "func" => function_name!())
+    //             }
+    //         }
+    //     }
 
-    let email_sender = SmtpClient::new(config.smtp_config)?;
-    let email_sender_task = tokio::task::spawn(async move {
-        loop {
-            match email_sender_fn(&mut rx_sender, &email_sender).await {
-                Ok(()) => {}
-                Err(e) => {
-                    error!(LOG, "Error at email_sender: {}", e; "func" => function_name!())
-                }
-            }
-        }
-
-        anyhow::Ok(())
-    });
+    //     anyhow::Ok(())
+    // });
 
     let tx_sender_for_forward_task = tx_sender.clone();
     let email_forward_task = tokio::task::spawn(async move {
@@ -512,7 +511,7 @@ pub async fn run(
         email_handler_task,
         claimer_task,
         api_server_task,
-        email_sender_task,
+        // email_sender_task,
         event_listener_task,
         voider_task
     );
@@ -728,20 +727,20 @@ async fn claimer_fn(
     Ok(())
 }
 
-#[named]
-async fn email_sender_fn(
-    rx_sender: &mut UnboundedReceiver<EmailMessage>,
-    email_sender: &SmtpClient,
-) -> Result<()> {
-    let email = rx_sender
-        .recv()
-        .await
-        .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Sending email: {:?}", email; "func" => function_name!());
-    // info!(LOG, "Email arg: {:?}", email.email_args; "func" => function_name!());
-    email_sender.send_new_email(email).await?;
-    Ok(())
-}
+// #[named]
+// async fn email_sender_fn(
+//     rx_sender: &mut UnboundedReceiver<EmailMessage>,
+//     email_sender: &SmtpClient,
+// ) -> Result<()> {
+//     let email = rx_sender
+//         .recv()
+//         .await
+//         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
+//     info!(LOG, "Sending email: {:?}", email; "func" => function_name!());
+//     // info!(LOG, "Email arg: {:?}", email.email_args; "func" => function_name!());
+//     email_sender.send_new_email(email).await?;
+//     Ok(())
+// }
 
 async fn event_listener_fn<
     F1: FnMut(email_wallet_events::UnclaimedFundRegisteredFilter, LogMeta) -> Result<()>,
