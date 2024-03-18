@@ -10,46 +10,46 @@ use tokio::sync::mpsc::UnboundedSender;
 
 const DELAY: u64 = 300;
 
-pub(crate) enum UnclaimType {
+pub enum UnclaimType {
     Fund(UnclaimedFund),
     State(UnclaimedState),
 }
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct CheckRequest {
-    pub(crate) point: Point,
-    pub(crate) id: U256,
-    pub(crate) is_fund: bool,
+pub struct CheckRequest {
+    pub point: Point,
+    pub id: U256,
+    pub is_fund: bool,
 }
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct RevealRequest {
-    pub(crate) tx_hash: String,
-    pub(crate) id: U256,
-    pub(crate) is_fund: bool,
-    pub(crate) randomness: String,
-    pub(crate) email_address: String,
+pub struct RevealRequest {
+    pub tx_hash: String,
+    pub id: U256,
+    pub is_fund: bool,
+    pub randomness: String,
+    pub email_address: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Point {
-    pub(crate) x: String,
-    pub(crate) y: String,
+    pub x: String,
+    pub y: String,
 }
 
-pub(crate) struct PSIClient {
-    pub(crate) tx_hash: String,
-    pub(crate) point: Point,
-    pub(crate) random: String,
-    pub(crate) email_addr: String,
-    pub(crate) id: U256,
-    pub(crate) is_fund: bool,
-    pub(crate) db: Arc<Database>,
-    pub(crate) chain_client: Arc<ChainClient>,
+pub struct PSIClient {
+    pub tx_hash: String,
+    pub point: Point,
+    pub random: String,
+    pub email_addr: String,
+    pub id: U256,
+    pub is_fund: bool,
+    pub db: Arc<Database>,
+    pub chain_client: Arc<ChainClient>,
 }
 
 impl PSIClient {
-    pub(crate) async fn new(
+    pub async fn new(
         db: Arc<Database>,
         chain_client: Arc<ChainClient>,
         email_addr: String,
@@ -75,7 +75,7 @@ impl PSIClient {
         })
     }
 
-    pub(crate) async fn check_and_reveal(
+    pub async fn check_and_reveal(
         &self,
         // email_addr: &str,
     ) -> Result<bool> {
@@ -138,7 +138,7 @@ impl PSIClient {
         }
     }
 
-    pub(crate) async fn check(&self, address: &str) -> Result<(bool, bool)> {
+    pub async fn check(&self, address: &str) -> Result<(bool, bool)> {
         let client = reqwest::Client::new();
         let res = client
             .post(format!("{}/serveCheck/", address))
@@ -172,7 +172,7 @@ impl PSIClient {
         Ok((is_point_registered, is_account_created))
     }
 
-    pub(crate) async fn find<'a>(&self) -> Result<(Vec<String>, Vec<String>)> {
+    pub async fn find<'a>(&self) -> Result<(Vec<String>, Vec<String>)> {
         let subgraph_client = SubgraphClient::new();
         let relayers = subgraph_client.get_all_relayers_for_psi().await?;
         let mut created_hosts = vec![];
@@ -190,7 +190,7 @@ impl PSIClient {
         Ok((created_hosts, inited_hosts))
     }
 
-    pub(crate) async fn reveal(&self, addresses: Vec<String>) -> Result<()> {
+    pub async fn reveal(&self, addresses: Vec<String>) -> Result<()> {
         let client = reqwest::Client::new();
         for address in addresses.into_iter() {
             let res = client
@@ -211,7 +211,7 @@ impl PSIClient {
     }
 }
 
-pub(crate) async fn serve_check_request(
+pub async fn serve_check_request(
     payload: CheckRequest,
     chain_client: Arc<ChainClient>,
 ) -> Result<Json<Point>> {
@@ -227,7 +227,7 @@ pub(crate) async fn serve_check_request(
     Ok(axum::response::Json(res))
 }
 
-pub(crate) async fn serve_reveal_request(
+pub async fn serve_reveal_request(
     payload: RevealRequest,
     chain_client: Arc<ChainClient>,
     tx_claimer: UnboundedSender<Claim>,
@@ -272,7 +272,7 @@ pub(crate) async fn serve_reveal_request(
     }
 }
 
-pub(crate) async fn check_unclaim_valid(
+pub async fn check_unclaim_valid(
     chain_client: Arc<ChainClient>,
     id: &U256,
     is_fund: bool,
@@ -296,7 +296,7 @@ pub(crate) async fn check_unclaim_valid(
     Ok(unclaim)
 }
 
-pub(crate) async fn psi_step1(
+pub async fn psi_step1(
     circuits_dir_path: &Path,
     email_addr: &str,
     client_rand: &str,
@@ -304,7 +304,7 @@ pub(crate) async fn psi_step1(
     compute_psi_point(circuits_dir_path, email_addr, client_rand).await
 }
 
-pub(crate) async fn psi_step2(
+pub async fn psi_step2(
     circuits_dir_path: &Path,
     point: Point,
     relayer_rand: &str,
@@ -338,11 +338,7 @@ pub(crate) async fn psi_step2(
     Ok(point)
 }
 
-pub(crate) async fn psi_step3(
-    circuits_dir_path: &Path,
-    point: Point,
-    client_rand: &str,
-) -> Result<Point> {
+pub async fn psi_step3(circuits_dir_path: &Path, point: Point, client_rand: &str) -> Result<Point> {
     let input_file_name = calculate_default_hash(&point.x);
     let input_file_name = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())

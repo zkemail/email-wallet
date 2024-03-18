@@ -2,55 +2,27 @@
 #![allow(unused_variables)]
 #![allow(unreachable_code)]
 
-pub(crate) mod abis;
-// pub(crate) mod account_creator;
-pub(crate) mod chain;
-pub(crate) mod claimer;
-pub(crate) mod config;
-pub(crate) mod core;
-pub(crate) mod database;
-pub(crate) mod dkim_oracle;
-pub(crate) mod emails_pool;
-pub(crate) mod imap_client;
-pub(crate) mod logger;
-pub(crate) mod psi;
-pub(crate) mod shared;
-pub(crate) mod smtp_client;
-pub(crate) mod strings;
-pub(crate) mod subgraph;
-pub(crate) mod subject_templates;
-pub(crate) mod utils;
-pub(crate) mod voider;
-pub(crate) mod web_server;
+pub mod abis;
+pub mod chain;
+pub mod config;
+pub mod core;
+pub mod database;
+pub mod modules;
+pub mod utils;
 
-pub(crate) use crate::core::*;
-use ::function_name::named;
-pub(crate) use abis::*;
-pub use axum::routing::MethodRouter;
-// pub(crate) use account_creator::*;
-pub(crate) use chain::*;
-pub use claimer::Claim;
-pub(crate) use claimer::*;
-pub use config::*;
-pub(crate) use database::*;
-pub(crate) use dkim_oracle::*;
-pub(crate) use emails_pool::*;
-use futures::TryFutureExt;
-pub(crate) use imap_client::*;
-pub use logger::LOG;
-
+pub use abis::*;
 pub use chain::*;
-pub(crate) use psi::*;
+pub use config::*;
+pub use core::*;
+pub use database::*;
+pub use modules::*;
+pub use utils::*;
+
+use ::function_name::named;
+use axum::routing::MethodRouter;
+use futures::TryFutureExt;
 use rand::rngs::OsRng;
-pub(crate) use smtp_client::*;
-pub use smtp_client::{render_html, EmailAttachment, EmailMessage};
-pub(crate) use strings::*;
-pub(crate) use subgraph::*;
-pub(crate) use subject_templates::*;
-pub use subject_templates::*;
-pub(crate) use utils::*;
-pub(crate) use voider::*;
-pub(crate) use web_server::*;
+use tokio::sync::Mutex;
 
 use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
@@ -152,6 +124,7 @@ lazy_static! {
         .unwrap();
         Arc::new(client)
     };
+    pub static ref SHARED_MUTEX: Arc<Mutex<i32>> = Arc::new(Mutex::new(0));
 }
 
 #[derive(Debug, Clone)]

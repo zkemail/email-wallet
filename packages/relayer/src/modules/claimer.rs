@@ -4,7 +4,6 @@ use crate::*;
 
 use ethers::types::Address;
 
-
 #[derive(Debug, Clone)]
 pub struct Claim {
     pub tx_hash: String,
@@ -19,7 +18,7 @@ pub struct Claim {
 }
 
 #[named]
-pub(crate) async fn claim_unclaims(
+pub async fn claim_unclaims(
     mut claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,

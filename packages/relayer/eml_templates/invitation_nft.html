@@ -31,7 +31,7 @@
         visibility: hidden;
         width: 0;
       "
-      >Email Wallet account created successfully!</span
+      >Claim your ETHDenver NFT!</span
     >
     <table
       role="presentation"
@@ -169,7 +169,7 @@
                             margin-bottom: 15px;
                           "
                         >
-                          Awesome, {{userEmailAddr}}!
+                          Hi {{userEmailAddr}}!
                         </p>
                         <p
                           style="
@@ -180,12 +180,10 @@
                             margin-bottom: 15px;
                           "
                         >
-                          Your Email Wallet account is now created and has received 100 TEST tokens. You may use this
-                          button to login on any browser.
+                          You can claim an ETHDenver NFT.
                         </p>
                         <p
                           style="
-                            text-align: center;
                             font-family: 'Regola', sans-serif;
                             font-size: 14px;
                             font-weight: normal;
@@ -193,30 +191,36 @@
                             margin-bottom: 15px;
                           "
                         >
-                          <a
-                            target="_blank"
-                            href="https://emailwallet.org/app?email={{userEmailAddr}}&accountCode={{accountKey}}"
-                            style="
-                              background-color: #7649e0;
-                              color: white;
-                              padding: 14px 20px;
-                              text-align: center;
-                              text-decoration: none;
-                              display: inline-block;
-                              font-size: 16px;
-                              margin: 4px 0px;
-                              cursor: pointer;
-                              border-radius: 8px;
-                            "
-                            >Login to Your Account
-                          </a>
+                          <strong>Please reply "confirm" to this email to create your Email Wallet</strong> and receive:
+                        </p>
+                        <ul>
+                          {{#each assetsList}} {{#with this}}
+                          <li>
+                            {{msg}} {{#if is_img}}
+                            <div
+                              align="center"
+                              style="
+                                width: 100%;
+                                height: 20rem;
+                                margin-bottom: 1rem;
+                                padding-top: 2rem;
+                                padding-bottom: 2rem;
+                              "
+                            >
+                              <img style="height: 20rem; width: auto" src="{{img}}" />
+                            </div>
+                            {{/if}}
+                          </li>
+                          {{/with}} {{/each}}
+                        </ul>
+                        <p style="opacity: calc(0.9)">
+                          <a href="https://prove.email/blog/ethDenverNFT"
+                            >To understand how this works, read the guide.</a
+                          >
                         </p>
                       </td>
                     </tr>
                   </table>
-                  <p style="opacity: calc(0.6); text-align: center">
-                    <a href="{{chainRPCExplorer}}/address/{{walletAddr}}">View Wallet on Explorer</a>
-                  </p>
                 </td>
               </tr>
               <!-- END MAIN CONTENT AREA -->

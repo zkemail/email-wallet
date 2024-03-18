@@ -258,7 +258,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
     Ok(())
 }
 
-pub(crate) fn parse_error(error: String) -> Result<Option<String>> {
+pub fn parse_error(error: String) -> Result<Option<String>> {
     let mut error = error;
     if error.contains("Contract call reverted with data: ") {
         let revert_data = error

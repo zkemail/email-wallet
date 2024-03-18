@@ -83,19 +83,19 @@ pub struct EmailAttachment {
 }
 
 #[derive(Clone)]
-pub(crate) struct SmtpConfig {
-    pub(crate) domain_name: String,
-    pub(crate) id: String,
-    pub(crate) password: String,
+pub struct SmtpConfig {
+    pub domain_name: String,
+    pub id: String,
+    pub password: String,
 }
 
-pub(crate) struct SmtpClient {
+pub struct SmtpClient {
     config: SmtpConfig,
     transport: AsyncSmtpTransport<Tokio1Executor>,
 }
 
 impl SmtpClient {
-    pub(crate) fn new(config: SmtpConfig) -> Result<Self> {
+    pub fn new(config: SmtpConfig) -> Result<Self> {
         let creds = Credentials::new(config.id.clone(), config.password.clone());
         let transport = AsyncSmtpTransport::<Tokio1Executor>::relay(&config.domain_name)?
             .credentials(creds)
@@ -104,7 +104,7 @@ impl SmtpClient {
         Ok(Self { config, transport })
     }
 
-    // pub(crate) async fn send_new_email(&self, email: EmailMessage) -> Result<()> {
+    // pub async fn send_new_email(&self, email: EmailMessage) -> Result<()> {
     //     self.send_inner(
     //         email.to,
     //         email.subject,
@@ -451,7 +451,7 @@ pub async fn render_html(template_name: &str, render_data: Value) -> Result<Stri
     Ok(reg.render_template(&email_template, &render_data)?)
 }
 
-// pub(crate) async fn error_email_if_needed(
+// pub async fn error_email_if_needed(
 //     email: String,
 //     db: Arc<Database>,
 //     chain_client: Arc<ChainClient>,

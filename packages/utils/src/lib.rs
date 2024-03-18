@@ -1,4 +1,5 @@
 use neon::prelude::*;
+pub mod circuit;
 pub mod converters;
 pub mod cryptos;
 pub mod parse_email;

@@ -4,9 +4,13 @@ use anyhow;
 use halo2curves::ff::PrimeField;
 use itertools::Itertools;
 use neon::prelude::*;
+use num_bigint::BigInt;
+use num_traits::One;
 use poseidon_rs::*;
 
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
+
+use crate::circuit::{CIRCOM_BIGINT_K, CIRCOM_BIGINT_N};
 
 pub fn hex2field(input_hex: &str) -> anyhow::Result<Fr> {
     if &input_hex[0..2] != "0x" {
@@ -103,7 +107,7 @@ pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: u
     fields
 }
 
-pub(crate) fn hex2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
+pub fn hex2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
     match hex2field(input_strs) {
         Ok(field) => Ok(field),
         Err(e) => cx.throw_error(e.to_string()),
@@ -128,4 +132,45 @@ pub fn bytes2fields_node(mut cx: FunctionContext) -> JsResult<JsArray> {
         js_array.set(&mut cx, i as u32, field)?;
     }
     Ok(js_array)
+}
+
+/// Converts a 64-bit integer to an array of 8 bytes in big-endian format.
+pub fn int64_to_bytes(num: u64) -> Vec<u8> {
+    num.to_be_bytes().to_vec()
+}
+
+/// Converts an 8-bit integer to a Vec<u8> with a single element.
+pub fn int8_to_bytes(num: u8) -> Vec<u8> {
+    vec![num]
+}
+
+/// Merges two Vec<u8> into a single Vec<u8>.
+pub fn merge_u8_arrays(a: Vec<u8>, b: Vec<u8>) -> Vec<u8> {
+    [a, b].concat()
+}
+
+pub fn uint8_array_to_char_array(bytes: Vec<u8>) -> Vec<String> {
+    bytes.iter().map(|&b| b.to_string()).collect()
+}
+
+fn big_int_to_chunked_bytes(num: BigInt, bytes_per_chunk: usize, num_chunks: usize) -> Vec<String> {
+    let mut res = Vec::new();
+    let msk = (BigInt::one() << (bytes_per_chunk * 8)) - BigInt::one();
+
+    for i in 0..num_chunks {
+        let chunk = ((&num >> (i * bytes_per_chunk * 8)) & &msk).to_str_radix(10);
+        res.push(chunk);
+    }
+
+    res
+}
+
+pub fn to_circom_bigint_bytes(num: BigInt) -> Vec<String> {
+    big_int_to_chunked_bytes(num, CIRCOM_BIGINT_N, CIRCOM_BIGINT_K)
+}
+
+pub fn vec_u8_to_bigint(bytes: Vec<u8>) -> BigInt {
+    bytes
+        .iter()
+        .fold(BigInt::from(0), |acc, &b| (acc << 8) | BigInt::from(b))
 }

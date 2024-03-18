@@ -31,7 +31,7 @@
         visibility: hidden;
         width: 0;
       "
-      >Email Wallet account created successfully!</span
+      >Received {{nftName}} in Email Wallet</span
     >
     <table
       role="presentation"
@@ -169,7 +169,7 @@
                             margin-bottom: 15px;
                           "
                         >
-                          Awesome, {{userEmailAddr}}!
+                          Hi {{userEmailAddr}}!
                         </p>
                         <p
                           style="
@@ -180,9 +180,12 @@
                             margin-bottom: 15px;
                           "
                         >
-                          Your Email Wallet account is now created and has received 100 TEST tokens. You may use this
-                          button to login on any browser.
+                          You received the NFT with ID {{nftId}} of {{nftName}} from
+                          <span style="font-style: italic">{{senderAddr}}.</span>
                         </p>
+                        <div align="center" style="width: 100%; height: 20rem; margin-bottom: 1rem">
+                          <img style="height: 20rem; width: auto" src="{{img}}" />
+                        </div>
                         <p
                           style="
                             text-align: center;
@@ -208,14 +211,23 @@
                               cursor: pointer;
                               border-radius: 8px;
                             "
-                            >Login to Your Account
+                            >Transfer NFT
                           </a>
                         </p>
                       </td>
                     </tr>
                   </table>
-                  <p style="opacity: calc(0.6); text-align: center">
-                    <a href="{{chainRPCExplorer}}/address/{{walletAddr}}">View Wallet on Explorer</a>
+                  <p style="opacity: calc(0.9); text-align: center">
+                    <a target="_blank" href="https://prove.email/blog/ethDenverNFT"> Read Email Wallet NFT Guide </a>
+                    <br />
+                    <br />
+                    <a target="_blank" style="opacity: calc(0.7)" href="{{chainRPCExplorer}}/address/{{walletAddr}}"
+                      >View Your Wallet on Explorer</a
+                    >
+                    <br />
+                    <a target="_blank" style="opacity: calc(0.7)" href="{{chainRPCExplorer}}/tx/{{transactionHash}}"
+                      >See Transaction Receipt</a
+                    >
                   </p>
                 </td>
               </tr>

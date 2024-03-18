@@ -1,8 +1,5 @@
 use std::str::FromStr;
 
-use crate::shared;
-use shared::SHARED_MUTEX;
-
 use crate::*;
 use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
@@ -13,27 +10,27 @@ const CONFIRMATIONS: usize = 1;
 
 #[derive(Default, Debug)]
 pub struct AccountCreationInput {
-    pub(crate) wallet_salt: [u8; 32],
-    pub(crate) psi_point: Bytes,
-    pub(crate) proof: EmailProof,
+    pub wallet_salt: [u8; 32],
+    pub psi_point: Bytes,
+    pub proof: EmailProof,
 }
 
 #[derive(Default, Debug)]
 pub struct RegisterUnclaimedFundInput {
-    pub(crate) email_addr_commit: [u8; 32],
-    pub(crate) token_addr: Address,
-    pub(crate) amount: U256,
-    pub(crate) expiry_time: U256,
-    pub(crate) announce_commit_randomness: U256,
-    pub(crate) announce_email_addr: String,
+    pub email_addr_commit: [u8; 32],
+    pub token_addr: Address,
+    pub amount: U256,
+    pub expiry_time: U256,
+    pub announce_commit_randomness: U256,
+    pub announce_email_addr: String,
 }
 
 #[derive(Default, Debug)]
 pub struct ClaimInput {
-    pub(crate) id: U256,
-    pub(crate) recipient_wallet_salt: [u8; 32],
-    pub(crate) is_fund: bool,
-    pub(crate) proof: Bytes,
+    pub id: U256,
+    pub recipient_wallet_salt: [u8; 32],
+    pub is_fund: bool,
+    pub proof: Bytes,
 }
 
 type SignerM = SignerMiddleware<Provider<Http>, LocalWallet>;
@@ -676,7 +673,7 @@ impl ChainClient {
         Ok(last_block)
     }
 
-    pub(crate) async fn check_if_point_registered(&self, point: Point) -> Result<bool> {
+    pub async fn check_if_point_registered(&self, point: Point) -> Result<bool> {
         let Point { x, y } = point;
         let x = hex2field(&x)?;
         let y = hex2field(&y)?;
@@ -691,7 +688,7 @@ impl ChainClient {
         Ok(wallet_salt != U256::zero())
     }
 
-    pub(crate) async fn check_if_account_created_by_point(&self, point: Point) -> Result<bool> {
+    pub async fn check_if_account_created_by_point(&self, point: Point) -> Result<bool> {
         let Point { x, y } = point;
         let x = hex2field(&x)?;
         let y = hex2field(&y)?;
@@ -710,7 +707,7 @@ impl ChainClient {
         Ok(is_deployed)
     }
 
-    pub(crate) async fn check_if_account_created_by_account_key(
+    pub async fn check_if_account_created_by_account_key(
         &self,
         email_addr: &str,
         account_key: &str,
@@ -727,7 +724,7 @@ impl ChainClient {
     }
 
     #[named]
-    pub(crate) async fn check_if_dkim_public_key_hash_valid(
+    pub async fn check_if_dkim_public_key_hash_valid(
         &self,
         domain_name: ::std::string::String,
         public_key_hash: [u8; 32],

@@ -1,9 +1,12 @@
+use std::error::Error;
+
 use crate::converters::*;
 
 use halo2curves::ff::Field;
 use neon::prelude::*;
 use poseidon_rs::*;
 use rand_core::{OsRng, RngCore};
+use rsa::sha2::{Digest, Sha256};
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
@@ -320,4 +323,102 @@ pub fn email_nullifier_node(mut cx: FunctionContext) -> JsResult<JsString> {
     };
     let nullifier_str = field2hex(&nullifier);
     Ok(cx.string(nullifier_str))
+}
+
+pub fn sha256_pad(mut data: Vec<u8>, max_sha_bytes: usize) -> (Vec<u8>, usize) {
+    let length_bits = data.len() * 8; // Convert length from bytes to bits
+    let length_in_bytes = int64_to_bytes(length_bits as u64);
+
+    // Add the bit '1' to the end of the data
+    data = merge_u8_arrays(data, int8_to_bytes(0x80));
+
+    // Pad with '0' bits until the length in bits is 448 mod 512
+    while (data.len() * 8 + length_in_bytes.len() * 8) % 512 != 448 {
+        data = merge_u8_arrays(data, int8_to_bytes(0));
+    }
+
+    // Append the original length in bits at the end of the data
+    data = merge_u8_arrays(data, length_in_bytes);
+
+    assert!(
+        (data.len() * 8) % 512 == 0,
+        "Padding did not complete properly!"
+    );
+
+    let message_len = data.len();
+
+    // Pad the data to the specified maximum length with zeros
+    while data.len() < max_sha_bytes {
+        data = merge_u8_arrays(data, int64_to_bytes(0));
+    }
+
+    assert!(
+        data.len() == max_sha_bytes,
+        "Padding to max length did not complete properly! Your padded message is {} long but max is {}!",
+        data.len(),
+        max_sha_bytes
+    );
+
+    (data, message_len)
+}
+
+pub fn partial_sha(msg: &[u8], msg_len: usize) -> Vec<u8> {
+    let mut hasher = Sha256::new();
+    // Assuming msg_len is used to specify how much of msg to hash.
+    // This example simply hashes the entire msg for simplicity.
+    hasher.update(&msg[..msg_len]);
+    let result = hasher.finalize();
+    result.to_vec()
+}
+
+pub fn generate_partial_sha(
+    body: Vec<u8>,
+    body_length: usize,
+    selector_string: Option<String>,
+    max_remaining_body_length: usize,
+) -> Result<(Vec<u8>, Vec<u8>, usize), Box<dyn Error>> {
+    let selector_index = 0;
+
+    if let Some(selector_str) = selector_string {
+        let selector = selector_str.as_bytes();
+        // Find selector in body and return the starting index
+        let body_slice = &body[..body_length];
+        let selector_index = match body_slice
+            .windows(selector.len())
+            .position(|window| window == selector)
+        {
+            Some(index) => index,
+            None => return Err("Selector not found in body".into()),
+        };
+    }
+
+    let sha_cutoff_index = (selector_index / 64) * 64;
+    let precompute_text = &body[..sha_cutoff_index];
+    let mut body_remaining = body[sha_cutoff_index..].to_vec();
+
+    let body_remaining_length = body_length - precompute_text.len();
+
+    if body_remaining_length > max_remaining_body_length {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!(
+                "Remaining body {} after the selector is longer than max ({})",
+                body_remaining_length, max_remaining_body_length
+            ),
+        )));
+    }
+
+    if body_remaining.len() % 64 != 0 {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Remaining body was not padded correctly with int64s",
+        )));
+    }
+
+    while body_remaining.len() < max_remaining_body_length {
+        body_remaining.push(0);
+    }
+
+    let precomputed_sha = partial_sha(precompute_text, sha_cutoff_index);
+    Ok((precomputed_sha, body_remaining, body_remaining_length))
 }

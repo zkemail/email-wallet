@@ -4,7 +4,6 @@ use std::str::FromStr;
 
 use ::reqwest;
 
-
 use graphql_client::reqwest::post_graphql;
 
 use graphql_client::GraphQLQuery;
@@ -15,15 +14,15 @@ use graphql_client::GraphQLQuery;
     query_path = "./graphql/query.graphql",
     response_derives = "Debug, Serialize, Deserialize"
 )]
-pub(crate) struct AllRelayersForPSI;
+pub struct AllRelayersForPSI;
 
 pub struct SubgraphClient {
-    pub(crate) web_client: reqwest::Client,
-    pub(crate) subgraph_api: String,
+    pub web_client: reqwest::Client,
+    pub subgraph_api: String,
 }
 
 impl SubgraphClient {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             web_client: reqwest::Client::new(),
             subgraph_api: SUBGRAPH_URL.get().unwrap().clone(),
@@ -31,7 +30,7 @@ impl SubgraphClient {
     }
 
     // #[named]
-    // pub(crate) async fn get_relayers_by_wallet_addr(
+    // pub async fn get_relayers_by_wallet_addr(
     //     &self,
     //     wallet_addr: &Address,
     // ) -> Result<Vec<(Address, [u8; 32], String)>> {
@@ -61,7 +60,7 @@ impl SubgraphClient {
     // }
 
     #[named]
-    pub(crate) async fn get_all_relayers_for_psi(&self) -> Result<Vec<(Address, String)>> {
+    pub async fn get_all_relayers_for_psi(&self) -> Result<Vec<(Address, String)>> {
         let variables = all_relayers_for_psi::Variables {};
         let response_body =
             post_graphql::<AllRelayersForPSI, _>(&self.web_client, &self.subgraph_api, variables)

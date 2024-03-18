@@ -10,7 +10,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone)]
 pub struct DkimOracleClient<'a> {
-    pub(crate) canister: Canister<'a>,
+    pub canister: Canister<'a>,
 }
 
 #[derive(Default, CandidType, Deserialize, Debug, Clone)]

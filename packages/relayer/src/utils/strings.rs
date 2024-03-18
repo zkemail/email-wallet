@@ -46,22 +46,22 @@ pub const WRONG_SUBJECT_FORMAT: &str = "Wrong subject format";
 pub const INSUFFICIENT_BALANCE: &str = "Insufficient balance";
 
 // Core REGEX'es and Commands
-pub(crate) const AMOUNT_REGEX: &str = "[0-9]+(\\.[0-9]+)?";
-pub(crate) const TOKEN_NAME_REGEX: &str = "[A-Z]+";
-pub(crate) const STRING_RGEX: &str = ".+";
-pub(crate) const UINT_REGEX: &str = "[0-9]+";
-pub(crate) const INT_REGEX: &str = "-?[0-9]+";
-pub(crate) const ETH_ADDR_REGEX: &str = "0x[0-9a-fA-F]{40}";
-pub(crate) const EMAIL_ADDR_REGEX: &str =
+pub const AMOUNT_REGEX: &str = "[0-9]+(\\.[0-9]+)?";
+pub const TOKEN_NAME_REGEX: &str = "[A-Z]+";
+pub const STRING_RGEX: &str = ".+";
+pub const UINT_REGEX: &str = "[0-9]+";
+pub const INT_REGEX: &str = "-?[0-9]+";
+pub const ETH_ADDR_REGEX: &str = "0x[0-9a-fA-F]{40}";
+pub const EMAIL_ADDR_REGEX: &str =
     "[a-zA-Z0-9!#$%&'\\*\\+-/=\\?^_`{\\|}~\\.]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9\\.-]+";
-pub(crate) const SEND_COMMAND: &str = "Send";
-pub(crate) const EXECUTE_COMMAND: &str = "Execute";
-pub(crate) const INSTALL_COMMAND: &str = "Install";
-pub(crate) const UNINSTALL_COMMAND: &str = "Uninstall";
-pub(crate) const EXIT_COMMAND: &str = "Exit";
-pub(crate) const DKIM_COMMAND: &str = "DKIM";
+pub const SEND_COMMAND: &str = "Send";
+pub const EXECUTE_COMMAND: &str = "Execute";
+pub const INSTALL_COMMAND: &str = "Install";
+pub const UNINSTALL_COMMAND: &str = "Uninstall";
+pub const EXIT_COMMAND: &str = "Exit";
+pub const DKIM_COMMAND: &str = "DKIM";
 
 // DKIM ORACLE ARGS
-pub(crate) const CANISTER_ID_KEY: &str = "CANISTER_ID";
-pub(crate) const PEM_PATH_KEY: &str = "PEM_PATH";
-pub(crate) const IC_REPLICA_URL_KEY: &str = "IC_REPLICA_URL";
+pub const CANISTER_ID_KEY: &str = "CANISTER_ID";
+pub const PEM_PATH_KEY: &str = "PEM_PATH";
+pub const IC_REPLICA_URL_KEY: &str = "IC_REPLICA_URL";

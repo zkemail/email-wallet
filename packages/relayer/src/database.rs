@@ -7,7 +7,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub(crate) async fn open(path: &str) -> Result<Self> {
+    pub async fn open(path: &str) -> Result<Self> {
         let res = Self {
             db: PgPool::connect(path)
                 .await
@@ -19,7 +19,7 @@ impl Database {
         Ok(res)
     }
 
-    pub(crate) async fn setup_database(&self) -> Result<()> {
+    pub async fn setup_database(&self) -> Result<()> {
         // sqlx::query(
         //     "CREATE TABLE IF NOT EXISTS emails (
         //         email_hash TEXT PRIMARY KEY,
@@ -60,7 +60,7 @@ impl Database {
         Ok(())
     }
 
-    // pub(crate) async fn get_unhandled_emails(&self) -> Result<Vec<String>> {
+    // pub async fn get_unhandled_emails(&self) -> Result<Vec<String>> {
     //     let mut vec = Vec::new();
 
     //     let rows = sqlx::query("SELECT email FROM emails")
@@ -75,7 +75,7 @@ impl Database {
     //     Ok(vec)
     // }
 
-    // pub(crate) async fn insert_email(&self, email_hash: &str, email: &str) -> Result<()> {
+    // pub async fn insert_email(&self, email_hash: &str, email: &str) -> Result<()> {
     //     info!("email_hash {}", email_hash);
     //     let row = sqlx::query(
     //         "INSERT INTO emails (email_hash, email) VALUES ($1 $2) REtURNING (email_hash)",
@@ -88,7 +88,7 @@ impl Database {
     //     Ok(())
     // }
 
-    // pub(crate) async fn delete_email(&self, email_hash: &str) -> Result<()> {
+    // pub async fn delete_email(&self, email_hash: &str) -> Result<()> {
     //     let row_affected = sqlx::query("DELETE FROM emails WHERE email_hash = $1")
     //         .bind(email_hash)
     //         .execute(&self.db)
@@ -101,7 +101,7 @@ impl Database {
 
     // // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
     // // where, ReturnStatus is some Enum ...
-    // pub(crate) async fn contains_email(&self, email_hash: &str) -> Result<bool> {
+    // pub async fn contains_email(&self, email_hash: &str) -> Result<bool> {
     //     let result = sqlx::query("SELECT 1 FROM emails WHERE email_hash = $1")
     //         .bind(email_hash)
     //         .fetch_optional(&self.db)
@@ -111,7 +111,7 @@ impl Database {
     // }
 
     #[named]
-    pub(crate) async fn insert_user(
+    pub async fn insert_user(
         &self,
         email_address: &str,
         account_key: &str,
@@ -290,7 +290,7 @@ impl Database {
     }
 
     #[named]
-    pub(crate) async fn insert_claim(&self, claim: &Claim) -> Result<()> {
+    pub async fn insert_claim(&self, claim: &Claim) -> Result<()> {
         info!(LOG, "expiry_time {}", claim.expiry_time; "func" => function_name!());
         let row = sqlx::query(
             "INSERT INTO claims (tx_hash, id, email_address, random, email_addr_commit, expiry_time, is_fund, is_announced, is_seen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
@@ -314,7 +314,7 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn delete_claim(&self, id: &U256, is_fund: bool) -> Result<()> {
+    pub async fn delete_claim(&self, id: &U256, is_fund: bool) -> Result<()> {
         sqlx::query("UPDATE claims SET is_deleted=TRUE WHERE id = $1 AND is_fund = $2 AND is_deleted = FALSE")
             .bind(u256_to_hex(id))
             .bind(is_fund)

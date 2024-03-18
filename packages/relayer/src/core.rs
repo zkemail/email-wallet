@@ -18,7 +18,7 @@ const SUBJECT_FIELDS: usize = 20;
 const EMAIL_ADDR_FIELDS: usize = 9;
 
 #[named]
-pub(crate) async fn handle_email<P: EmailsPool>(
+pub async fn handle_email<P: EmailsPool>(
     email: String,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
@@ -431,7 +431,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
 }
 
 #[named]
-pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
+pub fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
     match extract_email_addr_idxes(subject) {
         Ok(extracts) => {
             if extracts.len() != 1 {
@@ -456,7 +456,7 @@ pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
     }
 }
 
-pub(crate) fn calculate_default_hash(input: &str) -> String {
+pub fn calculate_default_hash(input: &str) -> String {
     let mut hasher = DefaultHasher::new();
     input.hash(&mut hasher);
     let hash_code = hasher.finish();
@@ -464,7 +464,7 @@ pub(crate) fn calculate_default_hash(input: &str) -> String {
     hash_code.to_string()
 }
 
-pub(crate) async fn select_fee_token(
+pub async fn select_fee_token(
     wallet_salt: &WalletSalt,
     chain_client: &Arc<ChainClient>,
 ) -> Result<String> {
@@ -501,7 +501,7 @@ pub(crate) async fn select_fee_token(
 }
 
 #[named]
-pub(crate) async fn check_and_update_dkim(
+pub async fn check_and_update_dkim(
     email: &str,
     parsed_email: &ParsedEmail,
     chain_client: &Arc<ChainClient>,

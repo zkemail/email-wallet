@@ -1251,6 +1251,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_regex",
+ "sha2 0.10.8",
  "slog",
  "tokio",
  "zk-regex-apis",

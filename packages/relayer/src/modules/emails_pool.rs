@@ -5,7 +5,7 @@ use std::fs;
 use std::path::PathBuf;
 
 #[async_trait]
-pub(crate) trait EmailsPool {
+pub trait EmailsPool {
     async fn get_unhandled_emails(&self) -> Result<Vec<(String, String)>>;
 
     async fn get_email_by_hash(&self, email_hash: &str) -> Result<String>;

@@ -5,7 +5,7 @@ use crate::*;
 use ethers::types::Address;
 
 #[named]
-pub(crate) async fn void_unclaims(
+pub async fn void_unclaims(
     claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,

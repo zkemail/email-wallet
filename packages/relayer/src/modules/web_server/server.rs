@@ -92,7 +92,7 @@ async fn unclaim(
 }
 
 #[named]
-pub(crate) async fn run_server(
+pub async fn run_server(
     addr: &str,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
