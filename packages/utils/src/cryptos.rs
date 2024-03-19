@@ -332,8 +332,7 @@ pub fn sha256_pad(mut data: Vec<u8>, max_sha_bytes: usize) -> (Vec<u8>, usize) {
     // Add the bit '1' to the end of the data
     data = merge_u8_arrays(data, int8_to_bytes(0x80));
 
-    // Pad with '0' bits until the length in bits is 448 mod 512
-    while (data.len() * 8 + length_in_bytes.len() * 8) % 512 != 448 {
+    while (data.len() * 8 + length_in_bytes.len() * 8) % 512 != 0 {
         data = merge_u8_arrays(data, int8_to_bytes(0));
     }
 
@@ -383,7 +382,7 @@ pub fn generate_partial_sha(
         let selector = selector_str.as_bytes();
         // Find selector in body and return the starting index
         let body_slice = &body[..body_length];
-        let selector_index = match body_slice
+        let _selector_index = match body_slice
             .windows(selector.len())
             .position(|window| window == selector)
         {

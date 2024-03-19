@@ -7,13 +7,11 @@ use email_wallet_utils::*;
 use ethers::abi::Token;
 use ethers::types::{Bytes, U256};
 
-use serde::{Deserialize, Serialize};
+use ::serde::{Deserialize, Serialize};
 
 use std::path::Path;
 
-use tokio::{
-    fs::{read_to_string, remove_file},
-};
+use tokio::fs::{read_to_string, remove_file};
 
 const DOMAIN_FIELDS: usize = 9;
 const SUBJECT_FIELDS: usize = 17;
@@ -57,6 +55,13 @@ struct AccountCreationInput {
     code_idx: usize,
     domain_idx: usize,
     timestamp_idx: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ClaimInput {
+    email_addr: Vec<u8>,
+    cm_rand: String,
+    account_key: String,
 }
 
 impl ProofJson {
@@ -175,28 +180,20 @@ pub async fn generate_claim_input(
     email_address_rand: &str,
     account_key: &str,
 ) -> Result<String> {
-    let input_file_name = PathBuf::new()
-        .join(INPUT_FILES_DIR.get().unwrap())
-        .join(email_address.to_string() + ".json");
+    let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
+    let mut padded_email_addr_bytes = vec![];
 
-    let command_str =
-        format!(
-        "--cwd {} gen-claim-input --email-addr {} --email-addr-rand {} --account-key {} --input-file {}",
-        circuits_dir_path.to_str().unwrap(), email_address, email_address_rand, account_key, input_file_name.to_str().unwrap()
-    );
+    for byte in padded_email_address.padded_bytes.into_iter() {
+        padded_email_addr_bytes.push(byte);
+    }
 
-    let mut proc = tokio::process::Command::new("yarn")
-        .args(command_str.split_whitespace())
-        .spawn()?;
+    let claim_input = ClaimInput {
+        email_addr: padded_email_addr_bytes,
+        cm_rand: email_address_rand.to_string(),
+        account_key: account_key.to_string(),
+    };
 
-    let status = proc.wait().await?;
-    assert!(status.success());
-
-    let result = read_to_string(&input_file_name).await?;
-
-    remove_file(input_file_name).await?;
-
-    Ok(result)
+    Ok(serde_json::to_string(&claim_input)?)
 }
 
 pub async fn compute_psi_point(

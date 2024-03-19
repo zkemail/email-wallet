@@ -5,7 +5,6 @@ use halo2curves::ff::PrimeField;
 use itertools::Itertools;
 use neon::prelude::*;
 use num_bigint::BigInt;
-use num_traits::One;
 use poseidon_rs::*;
 
 pub use zk_regex_apis::padding::{pad_string, pad_string_node};
@@ -153,16 +152,21 @@ pub fn uint8_array_to_char_array(bytes: Vec<u8>) -> Vec<String> {
     bytes.iter().map(|&b| b.to_string()).collect()
 }
 
-fn big_int_to_chunked_bytes(num: BigInt, bytes_per_chunk: usize, num_chunks: usize) -> Vec<String> {
-    let mut res = Vec::new();
-    let msk = (BigInt::one() << (bytes_per_chunk * 8)) - BigInt::one();
+fn big_int_to_chunked_bytes(num: BigInt, bits_per_chunk: usize, num_chunks: usize) -> Vec<String> {
+    let mut chunks = Vec::new();
+    let mut remainder = num;
+    let two = BigInt::from(2);
+    let chunk_size = two.pow(bits_per_chunk as u32);
 
-    for i in 0..num_chunks {
-        let chunk = ((&num >> (i * bytes_per_chunk * 8)) & &msk).to_str_radix(10);
-        res.push(chunk);
+    // Divide the number into chunks and convert each to a decimal string
+    for _ in 0..num_chunks {
+        let chunk = &remainder % &chunk_size;
+        remainder = remainder >> bits_per_chunk;
+        // Convert chunk to decimal string
+        chunks.push(chunk.to_string());
     }
 
-    res
+    chunks
 }
 
 pub fn to_circom_bigint_bytes(num: BigInt) -> Vec<String> {
