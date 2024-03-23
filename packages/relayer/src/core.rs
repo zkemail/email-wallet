@@ -99,19 +99,7 @@ pub async fn handle_email<P: EmailsPool>(
             }
             let email_hash = calculate_default_hash(&email);
             emails_pool.insert_email(&email_hash, &email).await?;
-            (*tx_sender)
-                .clone()
-                .send(EmailMessage {
-                    to: from_addr.clone(),
-                    email_args: EmailArgs::AccountCreation {
-                        user_email_addr: from_addr,
-                    },
-                    account_key: Some(field2hex(&account_key.0)),
-                    wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-                    tx_hash: Some(res),
-                })
-                .unwrap();
-          return Ok(EmailWalletEvent::AccountCreated {
+            return Ok(EmailWalletEvent::AccountCreated {
                 email_addr: from_addr,
                 account_key: account_key,
                 tx_hash: res,
