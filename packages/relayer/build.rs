@@ -90,6 +90,16 @@ fn main() {
     .write_to_file("./src/abis/ecdsa_owned_dkim_registry.rs")
     .unwrap();
     Abigen::new(
+        "NFTExtension",
+        "../contracts/artifacts/NFTExtension.sol/NFTExtension.json",
+    )
+    .unwrap()
+    .generate()
+    .unwrap()
+    .write_to_file("./src/abis/nft_extension.rs")
+    .unwrap();
+
+    Abigen::new(
         "TestERC20",
         "../contracts/artifacts/TestERC20.sol/TestERC20.json",
     )
@@ -98,4 +108,11 @@ fn main() {
     .unwrap()
     .write_to_file("./src/abis/test_erc20.rs")
     .unwrap();
+
+    Abigen::new("ERC721", "../contracts/artifacts/ERC721.sol/ERC721.json")
+        .unwrap()
+        .generate()
+        .unwrap()
+        .write_to_file("./src/abis/erc_721.rs")
+        .unwrap();
 }

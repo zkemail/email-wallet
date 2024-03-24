@@ -10,7 +10,7 @@ import "forge-std/Script.sol";
 import "forge-std/console.sol";
 
 contract Deploy is Script {
-    uint256 constant emailValidityDuration = 1 hours;
+    uint256 constant emailValidityDuration = 14 days;
     uint256 constant unclaimedFundClaimGas = 450000;
     uint256 constant unclaimedStateClaimGas = 500000;
     uint256 constant unclaimsExpiryDuration = 30 days;

@@ -1,33 +1,42 @@
-FROM rustlang/rust:nightly
+# syntax=docker/dockerfile:1.6
 
-RUN apt-get update && apt-get upgrade -y 
-RUN apt-get update && \
-    apt install -y cmake build-essential pkg-config libssl-dev libgmp-dev libsodium-dev nasm git awscli gcc nodejs npm vim 
+FROM rust:latest
 
-# Node install
-RUN npm install -g n 
-RUN n 18
-RUN npm install -g yarn
+RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
-RUN git clone https://github.com/zkemail/email-wallet.git
-WORKDIR /email-wallet
-RUN yarn
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt update && apt upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /email-wallet/packages/relayer
-COPY packages/relayer/.env ./.env
-# COPY packages/relayer/scripts/ ./scripts # FIXME: It's for testing
-RUN cargo build --release
+SHELL ["/bin/bash", "-c"]
 
-WORKDIR /email-wallet/packages/prover
-RUN apt-get update && apt-get install -y python3.10 python3-distutils python3-pip python3-apt
-RUN pip install modal
-ARG modal_token_id
-ARG modal_token_secret
-RUN modal token set --token-id ${modal_token_id} --token-secret ${modal_token_secret} 
-RUN nohup modal serve modal_server.py &
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+RUN . /root/.nvm/nvm.sh && . /root/.nvm/bash_completion
 
-WORKDIR /email-wallet/packages/relayer
-CMD [ "/bin/bash", "-c", "/email-wallet/packages/relayer/scripts/startup.sh"]
+RUN bash -i -c "nvm install 18 && nvm use 18"
+RUN bash -i -c "npm install -g yarn"
+
+WORKDIR /relayer
+
+COPY . .
+
+RUN --mount=type=cache,target=/var/cache/yarn \
+    bash -i -c "yarn" \ 
+    && rm -rf /var/lib/yarn/lists/*
+
+RUN curl -L https://foundry.paradigm.xyz | bash
+WORKDIR /relayer/packages/contracts
+RUN bash -i -c "foundryup"
+RUN bash -i -c "forge build"
+
+WORKDIR /relayer/packages/nft_relayer
+RUN --mount=type=cache,target=/var/cache/cargo \
+    cargo build \
+    && rm -rf /var/lib/cargo/lists/*
+
+EXPOSE 4500
+
+# CMD ["/bin/bash", "-c", "cargo", "run", "--release"]
 
 
 # # ------------------ Chef stage -------------------

@@ -1,37 +1,22 @@
 type Relayer @entity {
   id: Bytes!
   address: Bytes! # address
-  randHash: Bytes! # bytes32
   emailAddress: String! # string
   hostname: String! # string
-  relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "relayer")
+  relayerAccounts: [Account!]!
   createdAt: String!
   updatedAt: String!
 }
 
-type RelayerAccount @entity {
-  id: Bytes!
-  relayer: Relayer!
-  account: Account!
-  emailAddrPointer: Bytes! # bytes32
-  accountKeyCommit: Bytes! # bytes32
-  psiPoint: Bytes! # bytes
-  isInitialized: Boolean!
-  createdAt: BigInt!
-  initializedAt: BigInt
-}
-
 type Account @entity {
   id: Bytes!
-  relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "account")
   walletSalt: Bytes! # bytes32
-  walletAddr: Bytes! # address
+  psiPoint: Bytes! # bytes
   createdAt: BigInt!
 }
 
 type UnclaimedFund @entity {
   id: String!
-  emailAddrCommit: Bytes! # bytes32
   tokenAddr: Bytes! # address
   amount: BigInt! # uint256
   sender: Bytes! # address
@@ -46,7 +31,6 @@ type UnclaimedFund @entity {
 
 type UnclaimedState @entity {
   id: String!
-  emailAddrCommit: Bytes! # bytes32
   extensionAddr: Bytes! # address
   sender: Bytes! # address
   expiryTime: BigInt! # uint256
@@ -62,7 +46,7 @@ type UnclaimedState @entity {
 type EmailOp @entity(immutable: true) {
   id: Bytes!
   success: Boolean! # bool
-  emailAddrPointer: Bytes! # bytes32
+  walletSalt: Bytes! # bytes32
   hasRecipient: Boolean! # bool
   hasEmailRecipient: Boolean! # bool
   registeredUnclaimId: BigInt! # uint256

@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: EmailWalletCore
-    network: sepolia
+    network: base-sepolia
     source:
-      address: "0xBaBE00020e40F75BaF97DAB202228FbC4b9F9214"
+      address: "0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc"
+      startBlock: 6567424
       abi: EmailWalletCore
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -25,11 +25,11 @@ dataSources:
       file: ./src/email-wallet-core.ts
   - kind: ethereum
     name: RelayerHandler
-    network: sepolia
+    network: base-sepolia
     source:
-      address: "0x34246a80f161D6471357270914D8a7C37224902a"
+      address: "0xCd575A01f3Fc5684982255e844CCa8ddCed63957"
+      startBlock: 6567424
       abi: RelayerHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -43,16 +43,16 @@ dataSources:
       eventHandlers:
         - event: RelayerConfigUpdated(indexed address,string)
           handler: handleRelayerConfigUpdated
-        - event: RelayerRegistered(indexed address,bytes32,string,string)
+        - event: RelayerRegistered(indexed address,string,string)
           handler: handleRelayerRegistered
       file: ./src/relayer-handler.ts
   - kind: ethereum
     name: AccountHandler
-    network: sepolia
+    network: base-sepolia
     source:
-      address: "0x50ea0748316e3d6823cc27CE3A8ceA5EE3b1B792"
+      address: "0x59BF4862Bd50DaC6F9bF82b435ED3A6A179a58f7"
+      startBlock: 6567424
       abi: AccountHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -65,20 +65,16 @@ dataSources:
         - name: AccountHandler
           file: ../contracts/artifacts/Events.sol/EmailWalletEvents.json
       eventHandlers:
-        - event: AccountCreated(bytes32,bytes32,indexed bytes32,bytes)
+        - event: AccountCreated(indexed bytes32,bytes)
           handler: handleAccountCreated
-        - event: AccountInitialized(bytes32,bytes32,indexed bytes32)
-          handler: handleAccountInitialized
-        - event: AccountTransported(bytes32,bytes32,bytes32,bytes)
-          handler: handleAccountTransported
       file: ./src/account-handler.ts
   - kind: ethereum
     name: UnclaimsHandler
-    network: sepolia
+    network: base-sepolia
     source:
-      address: "0x8f38E289Dd734C1533Ea0acBD63ad490bA906384"
+      address: "0x8fa7adD319bA82aA899DF7caC4a6Ac99F14839de"
+      startBlock: 6567424
       abi: UnclaimsHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -111,11 +107,11 @@ dataSources:
       file: ./src/unclaims-handler.ts
   - kind: ethereum
     name: ExtensionHandler
-    network: sepolia
+    network: base-sepolia
     source:
-      address: "0xcCcfE37B8c02B4cCFea9fD5645f72eAc52570Eaf"
+      address: "0x4B134222fC292edF71D7f31FE1D9D9cD571A663E"
+      startBlock: 6567424
       abi: ExtensionHandler
-      startBlock: 4796719
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

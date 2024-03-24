@@ -15,6 +15,8 @@ contract NFTExtension is Extension, IERC721Receiver, Initializable, UUPSUpgradea
 
     // Mapping from NFT name to its address
     mapping(string => address) public addressOfNFTName;
+    // Mapping from NFT address to its name
+    mapping(address => string) public nameOfNFTAddress;
 
     string[][] public templates;
 
@@ -51,8 +53,10 @@ contract NFTExtension is Extension, IERC721Receiver, Initializable, UUPSUpgradea
     /// @param addr Address of the NFT
     function setNFTAddress(string memory nftName, address addr) public onlyOwner {
         require(addressOfNFTName[nftName] == address(0), "NFT already registered");
+        require(bytes(nameOfNFTAddress[addr]).length == 0, "Address already registered");
         require(addr != address(0), "invalid address");
         addressOfNFTName[nftName] = addr;
+        nameOfNFTAddress[addr] = nftName;
     }
 
     function execute(

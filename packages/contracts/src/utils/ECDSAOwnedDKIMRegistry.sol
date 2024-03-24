@@ -75,9 +75,7 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         return
             string.concat(
                 prefix,
-                "chain_id=",
-                block.chainid.toString(),
-                ";selector=",
+                "selector=",
                 selector,
                 ";domain=",
                 domainName,

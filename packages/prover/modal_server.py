@@ -2,14 +2,14 @@ import modal
 
 from core import (
     gen_account_creation_proof,
-    gen_account_init_proof,
-    gen_account_transport_proof,
+    # gen_account_init_proof,
+    # gen_account_transport_proof,
     gen_claim_proof,
     gen_email_sender_proof,
 )
 
 
-stub = modal.Stub("email-wallet-relayer-v1")
+stub = modal.Stub("email-wallet-relayer-v1.1")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 

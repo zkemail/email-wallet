@@ -1,3 +1,3 @@
 mod token_registry;
 
-pub(crate) use token_registry::*;
+pub use token_registry::*;

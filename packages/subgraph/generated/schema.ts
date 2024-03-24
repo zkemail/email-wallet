@@ -65,19 +65,6 @@ export class Relayer extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
-  get randHash(): Bytes {
-    let value = this.get("randHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set randHash(value: Bytes) {
-    this.set("randHash", Value.fromBytes(value));
-  }
-
   get emailAddress(): string {
     let value = this.get("emailAddress");
     if (!value || value.kind == ValueKind.NULL) {
@@ -104,14 +91,17 @@ export class Relayer extends Entity {
     this.set("hostname", Value.fromString(value));
   }
 
-  get relayerAccounts(): RelayerAccountLoader {
-    return new RelayerAccountLoader(
-      "Relayer",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "relayerAccounts"
-    );
+  get relayerAccounts(): Array<Bytes> {
+    let value = this.get("relayerAccounts");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set relayerAccounts(value: Array<Bytes>) {
+    this.set("relayerAccounts", Value.fromBytesArray(value));
   }
 
   get createdAt(): string {
@@ -138,158 +128,6 @@ export class Relayer extends Entity {
 
   set updatedAt(value: string) {
     this.set("updatedAt", Value.fromString(value));
-  }
-}
-
-export class RelayerAccount extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save RelayerAccount entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type RelayerAccount must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("RelayerAccount", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static loadInBlock(id: Bytes): RelayerAccount | null {
-    return changetype<RelayerAccount | null>(
-      store.get_in_block("RelayerAccount", id.toHexString())
-    );
-  }
-
-  static load(id: Bytes): RelayerAccount | null {
-    return changetype<RelayerAccount | null>(
-      store.get("RelayerAccount", id.toHexString())
-    );
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-
-  get relayer(): Bytes {
-    let value = this.get("relayer");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set relayer(value: Bytes) {
-    this.set("relayer", Value.fromBytes(value));
-  }
-
-  get account(): Bytes {
-    let value = this.get("account");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set account(value: Bytes) {
-    this.set("account", Value.fromBytes(value));
-  }
-
-  get emailAddrPointer(): Bytes {
-    let value = this.get("emailAddrPointer");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set emailAddrPointer(value: Bytes) {
-    this.set("emailAddrPointer", Value.fromBytes(value));
-  }
-
-  get accountKeyCommit(): Bytes {
-    let value = this.get("accountKeyCommit");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set accountKeyCommit(value: Bytes) {
-    this.set("accountKeyCommit", Value.fromBytes(value));
-  }
-
-  get psiPoint(): Bytes {
-    let value = this.get("psiPoint");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set psiPoint(value: Bytes) {
-    this.set("psiPoint", Value.fromBytes(value));
-  }
-
-  get isInitialized(): boolean {
-    let value = this.get("isInitialized");
-    if (!value || value.kind == ValueKind.NULL) {
-      return false;
-    } else {
-      return value.toBoolean();
-    }
-  }
-
-  set isInitialized(value: boolean) {
-    this.set("isInitialized", Value.fromBoolean(value));
-  }
-
-  get createdAt(): BigInt {
-    let value = this.get("createdAt");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set createdAt(value: BigInt) {
-    this.set("createdAt", Value.fromBigInt(value));
-  }
-
-  get initializedAt(): BigInt | null {
-    let value = this.get("initializedAt");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set initializedAt(value: BigInt | null) {
-    if (!value) {
-      this.unset("initializedAt");
-    } else {
-      this.set("initializedAt", Value.fromBigInt(<BigInt>value));
-    }
   }
 }
 
@@ -334,16 +172,6 @@ export class Account extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get relayerAccounts(): RelayerAccountLoader {
-    return new RelayerAccountLoader(
-      "Account",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "relayerAccounts"
-    );
-  }
-
   get walletSalt(): Bytes {
     let value = this.get("walletSalt");
     if (!value || value.kind == ValueKind.NULL) {
@@ -357,8 +185,8 @@ export class Account extends Entity {
     this.set("walletSalt", Value.fromBytes(value));
   }
 
-  get walletAddr(): Bytes {
-    let value = this.get("walletAddr");
+  get psiPoint(): Bytes {
+    let value = this.get("psiPoint");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -366,8 +194,8 @@ export class Account extends Entity {
     }
   }
 
-  set walletAddr(value: Bytes) {
-    this.set("walletAddr", Value.fromBytes(value));
+  set psiPoint(value: Bytes) {
+    this.set("psiPoint", Value.fromBytes(value));
   }
 
   get createdAt(): BigInt {
@@ -423,19 +251,6 @@ export class UnclaimedFund extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
-  }
-
-  get emailAddrCommit(): Bytes {
-    let value = this.get("emailAddrCommit");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set emailAddrCommit(value: Bytes) {
-    this.set("emailAddrCommit", Value.fromBytes(value));
   }
 
   get tokenAddr(): Bytes {
@@ -628,19 +443,6 @@ export class UnclaimedState extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
-  }
-
-  get emailAddrCommit(): Bytes {
-    let value = this.get("emailAddrCommit");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set emailAddrCommit(value: Bytes) {
-    this.set("emailAddrCommit", Value.fromBytes(value));
   }
 
   get extensionAddr(): Bytes {
@@ -848,8 +650,8 @@ export class EmailOp extends Entity {
     this.set("success", Value.fromBoolean(value));
   }
 
-  get emailAddrPointer(): Bytes {
-    let value = this.get("emailAddrPointer");
+  get walletSalt(): Bytes {
+    let value = this.get("walletSalt");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -857,8 +659,8 @@ export class EmailOp extends Entity {
     }
   }
 
-  set emailAddrPointer(value: Bytes) {
-    this.set("emailAddrPointer", Value.fromBytes(value));
+  set walletSalt(value: Bytes) {
+    this.set("walletSalt", Value.fromBytes(value));
   }
 
   get hasRecipient(): boolean {
@@ -1072,23 +874,5 @@ export class Extension extends Entity {
 
   set createdBy(value: Bytes) {
     this.set("createdBy", Value.fromBytes(value));
-  }
-}
-
-export class RelayerAccountLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): RelayerAccount[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<RelayerAccount[]>(value);
   }
 }

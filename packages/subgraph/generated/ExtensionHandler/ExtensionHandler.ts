@@ -23,76 +23,12 @@ export class AccountCreated__Params {
     this._event = event;
   }
 
-  get emailAddrPointer(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get accountKeyCommit(): Bytes {
-    return this._event.parameters[1].value.toBytes();
-  }
-
   get walletSalt(): Bytes {
-    return this._event.parameters[2].value.toBytes();
+    return this._event.parameters[0].value.toBytes();
   }
 
   get psiPoint(): Bytes {
-    return this._event.parameters[3].value.toBytes();
-  }
-}
-
-export class AccountInitialized extends ethereum.Event {
-  get params(): AccountInitialized__Params {
-    return new AccountInitialized__Params(this);
-  }
-}
-
-export class AccountInitialized__Params {
-  _event: AccountInitialized;
-
-  constructor(event: AccountInitialized) {
-    this._event = event;
-  }
-
-  get emailAddrPointer(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get accountKeyCommit(): Bytes {
     return this._event.parameters[1].value.toBytes();
-  }
-
-  get walletSalt(): Bytes {
-    return this._event.parameters[2].value.toBytes();
-  }
-}
-
-export class AccountTransported extends ethereum.Event {
-  get params(): AccountTransported__Params {
-    return new AccountTransported__Params(this);
-  }
-}
-
-export class AccountTransported__Params {
-  _event: AccountTransported;
-
-  constructor(event: AccountTransported) {
-    this._event = event;
-  }
-
-  get oldAccountKeyCommit(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get newEmailAddrPointer(): Bytes {
-    return this._event.parameters[1].value.toBytes();
-  }
-
-  get newAccountKeyCommit(): Bytes {
-    return this._event.parameters[2].value.toBytes();
-  }
-
-  get newPSIPoint(): Bytes {
-    return this._event.parameters[3].value.toBytes();
   }
 }
 
@@ -121,7 +57,7 @@ export class EmailOpHandled__Params {
     return this._event.parameters[2].value.toBytes();
   }
 
-  get emailAddrPointer(): Bytes {
+  get walletSalt(): Bytes {
     return this._event.parameters[3].value.toBytes();
   }
 
@@ -207,16 +143,12 @@ export class RelayerRegistered__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get randHash(): Bytes {
-    return this._event.parameters[1].value.toBytes();
-  }
-
   get emailAddr(): string {
-    return this._event.parameters[2].value.toString();
+    return this._event.parameters[1].value.toString();
   }
 
   get hostname(): string {
-    return this._event.parameters[3].value.toString();
+    return this._event.parameters[2].value.toString();
   }
 }
 

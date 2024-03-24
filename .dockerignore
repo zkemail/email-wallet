@@ -21,6 +21,7 @@ packages/contracts/broadcast
 packages/contracts/cache
 packages/contracts/out
 packages/contracts/cache
+packages/contracts/artifacts
 packages/contracts/test/build_integration/*.json
 packages/contracts/test/build_integration/*.zkey
 packages/contracts/test/build_integration/*.wasm
@@ -34,8 +35,10 @@ packages/relayer/*.db
 packages/relayer/received_eml/*.eml
 packages/relayer/received_eml/*.json
 packages/relayer/proofs
+packages/relayer/logs
 sql_database.db
 .sqlx
+.ic.pem
 
 # Prover
 packages/prover/build/*
@@ -59,3 +62,5 @@ book
 
 # Vs code settings
 .vscode
+
+Relayer.Dockerfile

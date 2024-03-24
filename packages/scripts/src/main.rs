@@ -4,7 +4,7 @@ extern crate reqwest;
 extern crate serde;
 extern crate tokio;
 
-pub(crate) mod abis;
+pub mod abis;
 
 mod token_registry;
 

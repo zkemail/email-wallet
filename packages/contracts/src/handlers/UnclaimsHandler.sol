@@ -203,10 +203,9 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
 
-        require(verifier.verifyClaimFundProof(recipientWalletSalt, fund.emailAddrCommit, proof), "invalid proof");
+        require(verifier.verifyClaimFundProof(fund.emailAddrCommit, recipientWalletSalt, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
-
         delete unclaimedFundOfId[id];
 
         // Transfer token from Core contract to recipient's wallet
@@ -387,7 +386,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
 
-        require(verifier.verifyClaimFundProof(recipientWalletSalt, us.emailAddrCommit, proof), "invalid proof");
+        require(verifier.verifyClaimFundProof(us.emailAddrCommit, recipientWalletSalt, proof), "invalid proof");
 
         address recipientAddr = accountHandler.getWalletOfSalt(recipientWalletSalt);
 

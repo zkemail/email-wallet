@@ -1,15 +1,3 @@
-query GetRelayers($wallet_addr: String) {
-  account(where: { walletAddr: $wallet_addr }) {
-    relayerAccounts {
-      relayer {
-        address
-        randHash
-        hostname
-      }
-    }
-  }
-}
-
 query AllRelayersForPSI { 
   relayers {
     address
