@@ -253,6 +253,28 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 sender.send(email)?;
             }
         }
+        EmailWalletEvent::Ack {
+            email_addr,
+            subject,
+        } => {
+            let body_plain = format!(
+                "Hi {}!\nYour email with the subject {} is received.",
+                email_addr, subject
+            );
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "request": subject});
+            let body_html = render_html("acknowledgement.html", render_data).await?;
+            let subject = format!("Email Wallet Notification. Acknowledgement.");
+            let email = EmailMessage {
+                to: email_addr,
+                subject,
+                body_plain,
+                body_html,
+                reference: None,
+                reply_to: None,
+                body_attachments: None,
+            };
+            sender.send(email)?;
+        }
     }
 
     Ok(())

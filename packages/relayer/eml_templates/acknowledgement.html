@@ -31,7 +31,7 @@
         visibility: hidden;
         width: 0;
       "
-      >Email Wallet Account Login</span
+      >Email Wallet Acknowledgement</span
     >
     <table
       role="presentation"
@@ -103,19 +103,19 @@
                     margin-bottom: -1rem;
                   "
                 >
-                <img
-                src="https://storage.googleapis.com/eml-templates-assets/img/logoEmailWallet.png"
-                alt="Email Wallet"
-                style="
-                  width: 75%;
-                  height: auto;
-                  border: none;
-                  max-width: 40%;
-                  margin: -5px;
-                  margin-top: 0px;
-                  -ms-interpolation-mode: bicubic;
-                "
-              />
+                  <img
+                    src="https://storage.googleapis.com/eml-templates-assets/img/logoEmailWallet.png"
+                    alt="Email Wallet"
+                    style="
+                      width: 75%;
+                      height: auto;
+                      border: none;
+                      max-width: 40%;
+                      margin: -5px;
+                      margin-top: 0px;
+                      -ms-interpolation-mode: bicubic;
+                    "
+                  />
                 </div>
               </div>
               <tr>
@@ -166,42 +166,11 @@
                             margin-bottom: 15px;
                           "
                         >
-                          You may use this button to login on any browser.
-                        </p>
-                        <p
-                          style="
-                            text-align: center;
-                            font-family: 'Regola', sans-serif;
-                            font-size: 14px;
-                            font-weight: normal;
-                            margin: 0;
-                            margin-bottom: 15px;
-                          "
-                        >
-                          <a
-                            target="_blank"
-                            href="https://emailwallet.org/app?email={{userEmailAddr}}&accountCode={{accountKey}}"
-                            style="
-                              background-color: #7649e0;
-                              color: white;
-                              padding: 14px 20px;
-                              text-align: center;
-                              text-decoration: none;
-                              display: inline-block;
-                              font-size: 16px;
-                              margin: 4px 0px;
-                              cursor: pointer;
-                              border-radius: 8px;
-                            "
-                            >Login to Your Account
-                          </a>
+                          We have received your following request: <b>{{request}}</b>
                         </p>
                       </td>
                     </tr>
                   </table>
-                  <p style="opacity: calc(0.6); text-align: center">
-                    <a href="{{chainRPCExplorer}}/address/{{walletAddr}}">View Wallet on Explorer</a>
-                  </p>
                 </td>
               </tr>
               <!-- END MAIN CONTENT AREA -->

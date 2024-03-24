@@ -101,6 +101,10 @@ pub enum EmailWalletEvent {
         email_addr: String,
         error: String,
     },
+    Ack {
+        email_addr: String,
+        subject: String,
+    },
 }
 
 lazy_static! {
@@ -137,8 +141,11 @@ impl EmailForwardSender {
     }
 
     pub fn send(&self, email: EmailMessage) -> Result<()> {
-        self.0.send(email)?;
-        Ok(())
+        info!(LOG, "Sending email: {:?}", email);
+        match self.0.send(email) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(anyhow!(e)),
+        }
     }
 }
 
@@ -593,6 +600,10 @@ async fn email_handler_fn(
     //     EmailWalletEvent::Error { error }
     // }).await:
     // );
+    tx_event_consumer.send(EmailWalletEvent::Ack {
+        email_addr: email_addr.clone(),
+        subject: parsed_email.get_subject_all().unwrap(),
+    })?;
     let event = match handle_email(
         email.clone(),
         Arc::clone(&db_clone),
