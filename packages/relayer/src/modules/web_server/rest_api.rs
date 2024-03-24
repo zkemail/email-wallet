@@ -105,12 +105,6 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     .expect("Failed to parse JSON");
     let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "nftName": nft_name, "nftID": request.nft_id, "recipientAddr": request.recipient_addr, "walletAddr": wallet_addr, "img":"cid:0", "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "img": json_uri["image"].as_str().unwrap_or_default()});
     let body_html = render_html("nft_transfer.html", render_data).await?;
-    // let img = download_img_from_uri(&nft_uri).await?;
-    // let attachment = EmailAttachment {
-    //     inline_id: "0".to_string(),
-    //     content_type: "image/png".to_string(),
-    //     contents: img,
-    // };
     let email = EmailMessage {
         subject: subject.clone(),
         body_html,

@@ -228,12 +228,6 @@ pub async fn compute_psi_point(
     Ok(point)
 }
 
-// pub fn calculate_addr_pointer(email_address: &str) -> Fr {
-//     let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
-//     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap()).unwrap());
-//     padded_email_address.to_pointer(&relayer_rand).unwrap()
-// }
-
 pub fn calculate_addr_commitment(email_address: &str, rand: Fr) -> Fr {
     let padded_email_address = PaddedEmailAddr::from_email_addr(email_address);
     padded_email_address.to_commitment(&rand).unwrap()
@@ -263,9 +257,6 @@ pub async fn generate_proof(
         .collect();
     Ok((proof, pub_signals))
 }
-// pub fn is_reply_mail(email: &str) -> bool {
-//     email.contains("In-Reply-To:") || email.contains("References:")
-// }
 
 pub fn get_psi_point_bytes(x: U256, y: U256) -> Bytes {
     Bytes::from(abi::encode(&[Token::Uint(x), Token::Uint(y)]))

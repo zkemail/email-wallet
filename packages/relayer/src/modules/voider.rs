@@ -9,7 +9,6 @@ pub async fn void_unclaims(
     claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    // tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<EmailWalletEvent> {
     let now = now();
     let commit = hex2field(&claim.commit)?;
@@ -38,19 +37,6 @@ pub async fn void_unclaims(
             result,
         )
     };
-    // tx_sender
-    //     .send(EmailMessage {
-    //         to: claim.email_address.to_string(),
-    //         email_args: EmailArgs::Void {
-    //             user_email_addr: claim.email_address.to_string(),
-    //             is_fund: claim.is_fund,
-    //             void_msg: reply_msg,
-    //         },
-    //         account_key: None,
-    //         wallet_addr: Some(ethers::utils::to_checksum(&sender, None)),
-    //         tx_hash: Some(tx_hash),
-    //     })
-    //     .unwrap();
     Ok(EmailWalletEvent::Voided { claim, tx_hash })
 }
 

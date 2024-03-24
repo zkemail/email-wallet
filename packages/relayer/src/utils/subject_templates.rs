@@ -104,12 +104,6 @@ pub async fn extract_command_from_subject(
         }
     }
     Err(anyhow!("No command found"))
-    // let command = subject
-    //     .split(' ')
-    //     .next()
-    //     .ok_or(anyhow!("No command found"))?
-    //     .to_string();
-    // Ok(command)
 }
 
 pub fn extract_template_vals_send(input: &str) -> Result<Vec<TemplateValue>> {

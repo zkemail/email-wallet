@@ -60,16 +60,6 @@ async fn unclaim(
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
         .await?;
     info!(LOG, "id {:?}", id; "func" => function_name!());
-    // let psi_client = PSIClient::new(
-    //     Arc::clone(&chain_client),
-    //     payload.email_address.clone(),
-    //     id,
-    //     payload.is_fund,
-    // )
-    // .await?;
-    // psi_client
-    //     .check_and_reveal(db.clone(), chain_client.clone(), &payload.email_address)
-    //     .await?;
     let claim = Claim {
         tx_hash: payload.tx_hash.clone(),
         id,

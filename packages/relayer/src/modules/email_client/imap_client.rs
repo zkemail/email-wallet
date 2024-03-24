@@ -179,28 +179,6 @@ impl ImapClient {
         }
     }
 
-    // async fn wait_new_email(mut self) -> Result<Self> {
-    //     loop {
-    //         let mut idle = self.session.idle();
-    //         idle.init().await?;
-    //         let result = idle.wait_with_timeout(Duration::from_secs(29 * 60)).0.await;
-    //         let is_new_data = matches!(result, Ok(NewData(_)));
-
-    //         let session_result = idle.done().await;
-
-    //         self = match session_result {
-    //             Ok(session) => Self { session, ..self },
-    //             Err(_) => Self::new(self.config).await.unwrap(),
-    //         };
-
-    //         if is_new_data {
-    //             return Ok(self);
-    //         } else {
-    //             self.reconnect().await?;
-    //         }
-    //     }
-    // }
-
     async fn reconnect(&mut self) -> Result<()> {
         const MAX_RETRIES: u32 = 5;
         let mut retry_count = 0;

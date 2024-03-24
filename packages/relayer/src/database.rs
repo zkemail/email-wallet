@@ -20,15 +20,6 @@ impl Database {
     }
 
     pub async fn setup_database(&self) -> Result<()> {
-        // sqlx::query(
-        //     "CREATE TABLE IF NOT EXISTS emails (
-        //         email_hash TEXT PRIMARY KEY,
-        //         email TEXT NOT NULL
-        //     );",
-        // )
-        // .execute(&self.db)
-        // .await?;
-
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS users (
                 email_address TEXT PRIMARY KEY,
@@ -59,56 +50,6 @@ impl Database {
 
         Ok(())
     }
-
-    // pub async fn get_unhandled_emails(&self) -> Result<Vec<String>> {
-    //     let mut vec = Vec::new();
-
-    //     let rows = sqlx::query("SELECT email FROM emails")
-    //         .fetch_all(&self.db)
-    //         .await?;
-
-    //     for row in rows {
-    //         let email: String = row.get("email");
-    //         vec.push(email)
-    //     }
-
-    //     Ok(vec)
-    // }
-
-    // pub async fn insert_email(&self, email_hash: &str, email: &str) -> Result<()> {
-    //     info!("email_hash {}", email_hash);
-    //     let row = sqlx::query(
-    //         "INSERT INTO emails (email_hash, email) VALUES ($1 $2) REtURNING (email_hash)",
-    //     )
-    //     .bind(email_hash)
-    //     .bind(email)
-    //     .fetch_one(&self.db)
-    //     .await?;
-    //     info!("inserted row: {}", row.get::<String, _>("email_hash"));
-    //     Ok(())
-    // }
-
-    // pub async fn delete_email(&self, email_hash: &str) -> Result<()> {
-    //     let row_affected = sqlx::query("DELETE FROM emails WHERE email_hash = $1")
-    //         .bind(email_hash)
-    //         .execute(&self.db)
-    //         .await?
-    //         .rows_affected();
-    //     info!("deleted {} rows", row_affected);
-
-    //     Ok(())
-    // }
-
-    // // Result<bool> is bad - fix later (possible solution: to output Result<ReturnStatus>
-    // // where, ReturnStatus is some Enum ...
-    // pub async fn contains_email(&self, email_hash: &str) -> Result<bool> {
-    //     let result = sqlx::query("SELECT 1 FROM emails WHERE email_hash = $1")
-    //         .bind(email_hash)
-    //         .fetch_optional(&self.db)
-    //         .await?;
-
-    //     Ok(result.is_some())
-    // }
 
     #[named]
     pub async fn insert_user(
@@ -320,11 +261,6 @@ impl Database {
             .bind(is_fund)
             .execute(&self.db)
             .await?;
-        // sqlx::query("DELETE FROM claims WHERE id = $1 AND is_fund = $2")
-        //     .bind(u256_to_hex(id))
-        //     .bind(is_fund)
-        //     .execute(&self.db)
-        //     .await?;
         Ok(())
     }
 

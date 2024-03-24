@@ -22,8 +22,6 @@ pub async fn claim_unclaims(
     mut claim: Claim,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
-    // tx_creator: UnboundedSender<String>,
-    // tx_sender: UnboundedSender<EmailMessage>,
 ) -> Result<EmailWalletEvent> {
     let mut need_creation = false;
     let is_seen = claim.is_seen;
@@ -50,7 +48,6 @@ pub async fn claim_unclaims(
         need_creation = psi_client.check_and_reveal().await?;
     }
     if need_creation && !db.contains_user(&claim.email_address).await.unwrap() {
-        // tx_creator.send(claim.email_address.clone())?;
         let account_key = AccountKey::new(rand::thread_rng());
         let account_key_str = field2hex(&account_key.0);
         let psi_point = compute_psi_point(
@@ -71,28 +68,12 @@ pub async fn claim_unclaims(
             .get_wallet_addr_from_salt(&wallet_salt.0)
             .await?;
 
-        // let token_transfered = chain_client
-        //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-        //     .await?;
-
         db.insert_user(&claim.email_address, &account_key_str, "", false)
             .await?;
-        // tx_sender
-        //     .send(EmailMessage {
-        //         to: claim.email_address.to_string(),
-        //         email_args: EmailArgs::AccountCreation {
-        //             user_email_addr: claim.email_address,
-        //         },
-        //         account_key: Some(account_key_str),
-        //         wallet_addr: None,
-        //         tx_hash: Some(res),
-        //     })
-        //     .unwrap();
         return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,
             account_key,
             is_first: true,
-            // claim: claim.clone(),
             tx_hash,
         });
     }
@@ -120,35 +101,13 @@ pub async fn claim_unclaims(
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
     let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;
-    // let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-    // let account_key_commit =
-    //     account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
-    // let info = chain_client
-    //     .query_account_info(&account_key_commit)
-    //     .await
-    //     .unwrap();
     let now = now();
-    // let wallet_salt = WalletSalt(bytes32_to_fr(&info.wallet_salt)?);
 
     let (unclaimed_fund, unclaimed_state) = if claim.is_fund {
         let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
         if unclaimed_fund.expiry_time.as_u64() < u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim expired"));
         }
-        // let mut token_name = chain_client
-        //     .query_token_name(unclaimed_fund.token_addr)
-        //     .await?;
-        // // if token_name == "WETH" {
-        // //     token_name = "ETH".to_string();
-        // // }
-        // let decimals = chain_client
-        //     .query_decimals_of_erc20_address(unclaimed_fund.token_addr)
-        //     .await?;
-        // let token_amount_str = format_units(unclaimed_fund.amount, decimals as u32)?;
-        // format!(
-        //     "You received {} {} from {}",
-        //     token_amount_str, token_name, unclaimed_fund.sender
-        // )
         (Some(unclaimed_fund), None)
     } else {
         let unclaimed_state = chain_client.query_unclaimed_state(claim.id).await?;
@@ -163,10 +122,6 @@ pub async fn claim_unclaims(
                 "Unclaimed state anounces the email address but its extension is not installed."
             ));
         }
-        // format!(
-        //     "You got new data of {} from {}",
-        //     unclaimed_state.extension_addr, unclaimed_state.sender
-        // )
         (None, Some(unclaimed_state))
     };
 
@@ -193,19 +148,6 @@ pub async fn claim_unclaims(
     let wallet_addr = chain_client
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
-    // tx_sender
-    //     .send(EmailMessage {
-    //         to: claim.email_address.to_string(),
-    //         email_args: EmailArgs::Claim {
-    //             user_email_addr: claim.email_address.to_string(),
-    //             is_fund: claim.is_fund,
-    //             claim_msg: reply_msg,
-    //         },
-    //         account_key: Some(field2hex(&account_key.0)),
-    //         wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-    //         tx_hash: Some(result),
-    //     })
-    //     .unwrap();
     Ok(EmailWalletEvent::Claimed {
         unclaimed_fund,
         unclaimed_state,

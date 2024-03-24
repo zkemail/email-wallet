@@ -23,9 +23,7 @@ pub async fn handle_email<P: EmailsPool>(
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     emails_pool: P,
-    // tx_sender: Arc<UnboundedSender<EmailMessage>>,
     tx_claimer: UnboundedSender<Claim>,
-    // tx_creator: UnboundedSender<String>,
 ) -> Result<EmailWalletEvent> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     trace!(LOG, "email: {}", email; "func" => function_name!());
@@ -36,7 +34,6 @@ pub async fn handle_email<P: EmailsPool>(
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
         let account_key = AccountKey::from(hex2field(&format!("0x{}", invitation_code))?);
-        // let is_user_contained = db.contains_user(&from_addr).await?;
         let stored_account_key = db.get_account_key(&from_addr).await?;
         if let Some(stored_account_key) = stored_account_key.as_ref() {
             if stored_account_key != &field2hex(&account_key.0) {
@@ -90,9 +87,6 @@ pub async fn handle_email<P: EmailsPool>(
                 .get_wallet_addr_from_salt(&wallet_salt.0)
                 .await?;
             info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
-            // let token_transfered = chain_client
-            //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-            //     .await?;
             let claims = db.get_claims_by_email_addr(&from_addr).await?;
             for claim in claims {
                 tx_claimer.send(claim)?;
@@ -199,7 +193,6 @@ pub async fn handle_email<P: EmailsPool>(
     };
 
     let mut recipient_email_addr = None;
-    // let mut num_recipient_email_addr_bytes = U256::default();
     let mut recipient_eth_addr = Address::default();
 
     let wallet_params = match command.as_str() {
@@ -219,8 +212,6 @@ pub async fn handle_email<P: EmailsPool>(
                         PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                     let email_addr_commit =
                         padded_email_addr.to_commitment_with_signature(&parsed_email.signature)?;
-                    // num_recipient_email_addr_bytes =
-                    //     U256::from(email_addr.as_ref().unwrap().len());
                     info!(LOG, "derived commit {:?}", email_addr_commit; "func" => function_name!());
                 } else {
                     recipient_eth_addr = eth_addr.unwrap();
@@ -248,7 +239,7 @@ pub async fn handle_email<P: EmailsPool>(
                 let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
                 info!(LOG, "decimal size: {}", decimal_size; "func" => function_name!());
                 WalletParams {
-                    token_name: token_name.clone(),
+                    token_name: token_name.clone().to_string(),
                     amount: TemplateValue::amount_to_uint(amount, decimal_size),
                 }
             } else {
@@ -303,7 +294,6 @@ pub async fn handle_email<P: EmailsPool>(
     let (email_proof, pub_signals) =
         generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
     trace!(LOG, "proof generated"; "func" => function_name!());
-    // let email_addr_pointer = u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
     let has_email_recipient = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into();
     trace!(LOG, "has_email_recipient {}", has_email_recipient; "func" => function_name!());
     let recipient_email_addr_commit =
@@ -351,7 +341,6 @@ pub async fn handle_email<P: EmailsPool>(
     if let Some(email_addr) = recipient_email_addr.as_ref() {
         info!(LOG, "recipient email address: {}", email_addr; "func" => function_name!());
         let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
-        // let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
         let is_fund = command == SEND_COMMAND;
         let expiry_time = if is_fund {
             let unclaimed_fund: UnclaimedFund = chain_client
@@ -365,16 +354,6 @@ pub async fn handle_email<P: EmailsPool>(
             i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
         };
         let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
-        // let psi_client = PSIClient::new(
-        //     Arc::clone(&chain_client),
-        //     email_addr.to_string(),
-        //     registered_unclaim_id,
-        //     is_fund,
-        // )
-        // .await?;
-        // psi_client
-        //     .check_and_reveal(db.clone(), chain_client.clone(), &email_addr)
-        //     .await?;
 
         let claim = Claim {
             tx_hash: tx_hash.clone(),
@@ -389,35 +368,8 @@ pub async fn handle_email<P: EmailsPool>(
         };
         tx_claimer.send(claim)?;
         trace!(LOG, "claim sent to tx_claimer"; "func" => function_name!());
-        // (*tx_sender)
-        //     .clone()
-        //     .send(EmailMessage {
-        //         to: email_addr.to_string(),
-        //         email_args: EmailArgs::TxReceived {
-        //             user_email_addr: email_addr.to_string(),
-        //         },
-        //         account_key: None,
-        //         wallet_addr: None,
-        //         tx_hash: Some(tx_hash.clone()),
-        //     })
-        //     .unwrap();
     }
     let message_id = parsed_email.get_message_id()?;
-    // (*tx_sender)
-    //     .clone()
-    //     .send(EmailMessage {
-    //         to: from_addr.clone(),
-    //         email_args: EmailArgs::TxComplete {
-    //             user_email_addr: from_addr,
-    //             original_subject: subject,
-    //             reply_to: message_id,
-    //         },
-    //         account_key: Some(field2hex(&account_key.0)),
-    //         wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-    //         tx_hash: Some(tx_hash),
-    //     })
-    //     .unwrap();
-    // trace!(LOG, "email_op sent to tx_sender"; "func" => function_name!());
 
     Ok(EmailWalletEvent::EmailHandled {
         sender_email_addr: from_addr,
