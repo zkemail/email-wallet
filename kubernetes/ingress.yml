@@ -8,16 +8,6 @@ metadata:
     ingressClassName: "gce"
 spec:
   rules:
-    - host: issuerapi.emailwallet.org
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: issuer-svc
-                port:
-                  number: 443
     - host: relayerapi.emailwallet.org
       http:
         paths:

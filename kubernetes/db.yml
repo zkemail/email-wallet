@@ -1,45 +1,29 @@
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
-  name: postgres-config
+  name: postgres-secret
   labels:
     app: postgres
+type: Opaque
 data:
-  POSTGRES_DB: postgresdb
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: password
+  POSTGRES_DB:
+  POSTGRES_USER:
+  POSTGRES_PASSWORD:
 
 ---
-kind: PersistentVolume
 apiVersion: v1
-metadata:
-  name: postgres-pv
-  labels:
-    type: local
-    app: postgres
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 20Gi
-  accessModes:
-    - ReadOnlyMany
-  hostPath:
-    path: "/mnt/data"
-
----
 kind: PersistentVolumeClaim
-apiVersion: v1
 metadata:
   name: postgres-pvc
   labels:
     app: postgres
 spec:
-  storageClassName: manual
   accessModes:
-    - ReadOnlyMany
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 10Gi
+  storageClassName: standard
 
 ---
 apiVersion: apps/v1
@@ -63,11 +47,12 @@ spec:
           ports:
             - containerPort: 5432
           envFrom:
-            - configMapRef:
-                name: postgres-config
+            - secretRef:
+                name: postgres-secret
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgredb
+              subPath: data
       volumes:
         - name: postgredb
           persistentVolumeClaim:

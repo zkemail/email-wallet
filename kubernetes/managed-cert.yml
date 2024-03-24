@@ -5,4 +5,3 @@ metadata:
 spec:
   domains:
     - relayerapi.emailwallet.org
-    - issuerapi.emailwallet.org

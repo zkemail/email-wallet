@@ -7,6 +7,7 @@ metadata:
 data:
   CORE_CONTRACT_ADDRESS: ""
   CHAIN_RPC_PROVIDER: ""
+  CHAIN_RPC_EXPLORER: ""
   CHAIN_ID: ""
   FEE_PER_GAS: ""
   RELAYER_EMAIL_ADDR: ""
@@ -23,7 +24,7 @@ data:
   CANISTER_ID: ""
   IC_REPLICA_URL: ""
   JSON_LOGGER: ""
-  DEMO_NFT_ADDR: ""
+  PEM_PATH: ""
 
 ---
 apiVersion: v1
@@ -35,13 +36,15 @@ metadata:
 type: Opaque
 data:
   PRIVATE_KEY:
+  DATABASE_URL:
   IMAP_DOMAIN_NAME:
   IMAP_PORT:
+  AUTH_TYPE:
   SMTP_DOMAIN_NAME:
   LOGIN_ID:
   LOGIN_PASSWORD:
   PROVER_ADDRESS:
-  PEM_PATH:
+  ICPEM:
 
 ---
 apiVersion: apps/v1
@@ -51,7 +54,7 @@ metadata:
   labels:
     app: relayer
 spec:
-  replicas: 2 # Number of initial replicas
+  replicas: 1 # Number of initial replicas
   selector:
     matchLabels:
       app: relayer
@@ -73,10 +76,34 @@ spec:
           resources:
             requests:
               memory: "8Gi"
-              cpu: 4
+              cpu: "4"
             limits:
               memory: "16Gi"
-              cpu: 8
+              cpu: "8"
+          livenessProbe:
+            httpGet:
+              path: /api/echo
+              port: 4500
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/echo
+              port: 4500
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          volumeMounts:
+            - name: pem-volume
+              mountPath: "/relayer/packages/relayer/.ic.pem"
+              subPath: ".ic.pem"
+          command: ["/bin/sh", "-c", "sleep infinity"]
+      volumes:
+        - name: pem-volume
+          secret:
+            secretName: relayer-secret
+            items:
+              - key: ICPEM
+                path: ".ic.pem"
 
 ---
 apiVersion: v1
@@ -88,32 +115,6 @@ spec:
     app: relayer
   ports:
     - protocol: TCP
-      port: 4500
+      port: 443
       targetPort: 4500
   type: ClusterIP
-
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: relayer-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: ReplicaSet
-    name: relayer
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 75
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: 75
