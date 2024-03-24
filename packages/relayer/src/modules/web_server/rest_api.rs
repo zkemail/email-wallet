@@ -89,8 +89,8 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     )?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
     let body_plain = format!(
-        "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
-        request.email_addr,  request.recipient_addr, request.nft_id, nft_name,wallet_addr,
+        "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
+        request.email_addr,  request.recipient_addr, request.nft_id, nft_name, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
     );
     let nft_uri = CLIENT
         .query_erc721_token_uri_of_token(nft_addr, U256::from(request.nft_id))
@@ -140,12 +140,6 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
             reply_to: None,
             body_attachments: None,
         };
-        let wallet_salt =
-            WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-        let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-        CLIENT
-            .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-            .await?;
         Ok((field2hex(&account_key.0), email))
     } else {
         let subject = "Email Wallet Error: Account Already Exists".to_string();
@@ -215,8 +209,8 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     )?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
     let body_plain = format!(
-        "Hi {}! Please reply to this email to send {} {} to {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: https://sepolia.etherscan.io/address/{}.",
-        request.email_addr, request.amount, request.token_id, request.recipient_addr, wallet_addr,
+        "Hi {}! Please reply to this email to send {} {} to {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
+        request.email_addr, request.amount, request.token_id, request.recipient_addr, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
     );
     let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("send_request.html", render_data).await?;
@@ -284,7 +278,7 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
     let email = EmailMessage {
         subject,
         to: email_addr.clone(),
-        body_plain: format!("Hi {}! Your account key is {}, keep it in a safe space.\nYour wallet address: https://sepolia.etherscan.io/address/{}.", email_addr, account_key_hex, wallet_addr),
+        body_plain: format!("Hi {}! Your account key is {}, keep it in a safe space.\nYour wallet address: {}/address/{}.", email_addr, account_key_hex, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr),
         body_html,
         reference: None,
         reply_to: None,

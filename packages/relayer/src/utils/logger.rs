@@ -50,6 +50,8 @@ fn init_logger() -> slog::Logger {
     }
     let log_drain =
         slog_async::Async::new(slog::Duplicate(log_terminal_drain, log_file_drain).fuse())
+            .chan_size(10_000) // Increase the channel size
+            .overflow_strategy(slog_async::OverflowStrategy::Block) // Change overflow strategy to block
             .build()
             .fuse();
     slog::Logger::root(log_drain, o!("version" => env!("CARGO_PKG_VERSION")))
