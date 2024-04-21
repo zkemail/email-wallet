@@ -2,6 +2,7 @@
 
 use crate::*;
 
+use email_wallet_utils::generate_claim_input;
 use ethers::types::Address;
 
 #[derive(Debug, Clone)]
@@ -126,7 +127,6 @@ pub async fn claim_unclaims(
     };
 
     let input = generate_claim_input(
-        CIRCUITS_DIR_PATH.get().unwrap(),
         &claim.email_address,
         &claim.random,
         &field2hex(&account_key.0),

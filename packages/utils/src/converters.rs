@@ -1,13 +1,14 @@
 use std::convert::TryInto;
 
 use anyhow;
+use ethers::types::U256;
 use halo2curves::ff::PrimeField;
 use itertools::Itertools;
 use neon::prelude::*;
 use num_bigint::BigInt;
 use poseidon_rs::*;
 
-pub use zk_regex_apis::padding::{pad_string, pad_string_node};
+pub use zk_regex_apis::padding::pad_string;
 
 use crate::circuit::{CIRCOM_BIGINT_K, CIRCOM_BIGINT_N};
 
@@ -177,4 +178,34 @@ pub fn vec_u8_to_bigint(bytes: Vec<u8>) -> BigInt {
     bytes
         .iter()
         .fold(BigInt::from(0), |acc, &b| (acc << 8) | BigInt::from(b))
+}
+
+pub fn u256_to_bytes32(x: &U256) -> [u8; 32] {
+    let mut bytes = [0u8; 32];
+    x.to_big_endian(&mut bytes);
+    bytes
+}
+
+pub fn u256_to_hex(x: &U256) -> String {
+    "0x".to_string() + &hex::encode(u256_to_bytes32(x))
+}
+
+pub fn hex_to_u256(hex: &str) -> Result<U256, hex::FromHexError> {
+    let bytes: Vec<u8> = hex::decode(&hex[2..])?;
+    let mut array = [0u8; 32];
+    array.copy_from_slice(&bytes);
+    Ok(U256::from_big_endian(&array))
+}
+
+pub fn fr_to_bytes32(fr: &Fr) -> Result<[u8; 32], hex::FromHexError> {
+    let hex = field2hex(fr);
+    let bytes = hex::decode(&hex[2..])?;
+    let mut result = [0u8; 32];
+    result.copy_from_slice(&bytes);
+    Ok(result)
+}
+
+pub fn bytes32_to_fr(bytes32: &[u8; 32]) -> Result<Fr, hex::FromHexError> {
+    let hex: String = "0x".to_string() + &hex::encode(bytes32);
+    hex2field(&hex).map_err(|_e| hex::FromHexError::InvalidStringLength)
 }

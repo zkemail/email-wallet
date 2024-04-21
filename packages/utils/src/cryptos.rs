@@ -7,7 +7,7 @@ use neon::prelude::*;
 use poseidon_rs::*;
 use rand_core::{OsRng, RngCore};
 use rsa::sha2::{Digest, Sha256};
-pub use zk_regex_apis::padding::{pad_string, pad_string_node};
+pub use zk_regex_apis::padding::pad_string;
 
 pub const MAX_EMAIL_ADDR_BYTES: usize = 256;
 
@@ -24,9 +24,9 @@ impl RelayerRand {
         Ok(Self(value))
     }
 
-    // pub fn hash(&self) -> Result<Fr, PoseidonError> {
-    //     poseidon_fields(&[self.0])
-    // }
+    pub fn hash(&self) -> Result<Fr, PoseidonError> {
+        poseidon_fields(&[self.0])
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -51,9 +51,9 @@ impl PaddedEmailAddr {
         bytes2fields(&self.padded_bytes)
     }
 
-    // pub fn to_pointer(&self, relayer_rand: &RelayerRand) -> Result<Fr, PoseidonError> {
-    //     self.to_commitment(&relayer_rand.0)
-    // }
+    pub fn to_pointer(&self, relayer_rand: &RelayerRand) -> Result<Fr, PoseidonError> {
+        self.to_commitment(&relayer_rand.0)
+    }
 
     pub fn to_commitment(&self, rand: &Fr) -> Result<Fr, PoseidonError> {
         let mut inputs = vec![*rand];
@@ -88,16 +88,16 @@ impl AccountKey {
         Self(elem)
     }
 
-    // pub fn to_commitment(
-    //     &self,
-    //     email_addr: &PaddedEmailAddr,
-    //     relayer_rand_hash: &Fr,
-    // ) -> Result<Fr, PoseidonError> {
-    //     let mut inputs = vec![self.0];
-    //     inputs.append(&mut email_addr.to_email_addr_fields());
-    //     inputs.push(*relayer_rand_hash);
-    //     poseidon_fields(&inputs)
-    // }
+    pub fn to_commitment(
+        &self,
+        email_addr: &PaddedEmailAddr,
+        relayer_rand_hash: &Fr,
+    ) -> Result<Fr, PoseidonError> {
+        let mut inputs = vec![self.0];
+        inputs.append(&mut email_addr.to_email_addr_fields());
+        inputs.push(*relayer_rand_hash);
+        poseidon_fields(&inputs)
+    }
 
     // pub fn to_wallet_salt(&self, account_key: AccountKey) -> Result<WalletSalt, PoseidonError> {
     //     let field = poseidon_fields(&[self.0, Fr::zero()])?;
@@ -420,4 +420,44 @@ pub fn generate_partial_sha(
 
     let precomputed_sha = partial_sha(precompute_text, sha_cutoff_index);
     Ok((precomputed_sha, body_remaining, body_remaining_length))
+}
+
+pub fn account_key_commit_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let account_key = cx.argument::<JsString>(0)?.value(&mut cx);
+    let email_addr = cx.argument::<JsString>(1)?.value(&mut cx);
+    let relayer_rand_hash = cx.argument::<JsString>(2)?.value(&mut cx);
+    let account_key = hex2field_node(&mut cx, &account_key)?;
+    let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
+    let relayer_rand_hash = hex2field_node(&mut cx, &relayer_rand_hash)?;
+    let account_key_commit =
+        match AccountKey(account_key).to_commitment(&padded_email_addr, &relayer_rand_hash) {
+            Ok(fr) => fr,
+            Err(e) => return cx.throw_error(&format!("AccountKeyCommit failed: {}", e)),
+        };
+    let account_key_commit_str = field2hex(&account_key_commit);
+    Ok(cx.string(account_key_commit_str))
+}
+
+pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let relayer_rand = cx.argument::<JsString>(0)?.value(&mut cx);
+    let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
+    let relayer_rand_hash = match RelayerRand(relayer_rand).hash() {
+        Ok(fr) => fr,
+        Err(e) => return cx.throw_error(&format!("RelayerRand hash failed: {}", e)),
+    };
+    let relayer_rand_hash_str = field2hex(&relayer_rand_hash);
+    Ok(cx.string(relayer_rand_hash_str))
+}
+
+pub fn email_addr_pointer_node(mut cx: FunctionContext) -> JsResult<JsString> {
+    let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
+    let relayer_rand = cx.argument::<JsString>(1)?.value(&mut cx);
+    let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
+    let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
+    let email_addr_pointer = match padded_email_addr.to_pointer(&RelayerRand(relayer_rand)) {
+        Ok(fr) => fr,
+        Err(e) => return cx.throw_error(&format!("EmailAddrPointer failed: {}", e)),
+    };
+    let email_addr_pointer_str = field2hex(&email_addr_pointer);
+    Ok(cx.string(email_addr_pointer_str))
 }

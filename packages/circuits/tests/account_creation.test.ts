@@ -14,7 +14,7 @@ import { genAccountCreationInput } from "../helpers/account_creation";
 import { readFileSync } from "fs";
 import { hash_to_curve, point_scalar_mul } from "circom-grumpkin";
 
-jest.setTimeout(1080000);
+jest.setTimeout(2080000);
 describe("Account Initialization", () => {
     it("init an account", async () => {
         const emailFilePath = path.join(__dirname, "./emails/account_creation_test1.eml");

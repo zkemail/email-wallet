@@ -49,12 +49,8 @@ pub async fn handle_email<P: EmailsPool>(
             .check_if_account_created_by_account_key(&from_addr, &field2hex(&account_key.0))
             .await?
         {
-            let input = generate_account_creation_input(
-                CIRCUITS_DIR_PATH.get().unwrap(),
-                &email,
-                RELAYER_RAND.get().unwrap(),
-            )
-            .await?;
+            let input =
+                generate_account_creation_input(&email, RELAYER_RAND.get().unwrap()).await?;
             let (proof, pub_signals) =
                 generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
             let email_proof = EmailProof {
@@ -287,9 +283,7 @@ pub async fn handle_email<P: EmailsPool>(
         }
     };
     trace!(LOG, "parameter constructed"; "func" => function_name!());
-    let input =
-        generate_email_sender_input(CIRCUITS_DIR_PATH.get().unwrap(), &email, &account_key_str)
-            .await?;
+    let input = generate_email_sender_input(&email, &account_key_str).await?;
     trace!(LOG, "input generated"; "func" => function_name!());
     let (email_proof, pub_signals) =
         generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;

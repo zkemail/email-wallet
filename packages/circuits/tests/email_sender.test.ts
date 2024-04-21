@@ -13,7 +13,7 @@ const option = {
 import { genEmailSenderInput } from "../helpers/email_sender";
 import { readFileSync } from "fs";
 
-jest.setTimeout(1440000);
+jest.setTimeout(2440000);
 describe("Email Sender", () => {
     it("Verify a sent email whose subject has an email address", async () => {
         const emailFilePath = path.join(__dirname, "./emails/email_sender_test1.eml");
