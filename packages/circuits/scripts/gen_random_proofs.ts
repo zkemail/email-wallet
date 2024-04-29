@@ -8,10 +8,8 @@
 import { program } from "commander";
 import fs from "fs";
 import { promisify } from "util";
-import { genAccountCreationInput } from "../helpers/account_creation";
 import path from "path";
-import { genAccountInitInput } from "../helpers/account_init";
-import { genAccountTransportInput } from "../helpers/account_transport";
+import { genAccountCreationInput } from "../helpers/account_creation";
 import { genClaimInput } from "../helpers/claim";
 import { genEmailSenderInput } from "../helpers/email_sender";
 import { genAnnouncementInput } from "../helpers/announcement";
@@ -53,27 +51,17 @@ async function exec() {
     const initEmailPath = path.join(__dirname, "../tests/emails/account_init_test1.eml");
     const emailSenderEmailPath = path.join(__dirname, "../tests/emails/email_sender_test1.eml");
 
-    const accountCreationInput = await genAccountCreationInput(emailAddr, relayerRand, accountKey);
+    const accountCreationInput = await genAccountCreationInput(emailAddr, relayerRand);
     await promisify(fs.writeFile)(path.join(buildDir, "account_creation_input.json"), JSON.stringify(accountCreationInput, null, 2));
     await prove(accountCreationInput, path.join(buildDir, "account_creation_js", "account_creation.wasm"), path.join(buildDir, "account_creation.zkey"), path.join(buildDir, "account_creation_proof.json"), path.join(buildDir, "account_creation_public.json"));
     log("✓ Proof for account creation circuit generated");
 
-    const accountInitInput = await genAccountInitInput(initEmailPath, relayerRand);
-    await promisify(fs.writeFile)(path.join(buildDir, "account_init_input.json"), JSON.stringify(accountInitInput, null, 2));
-    await prove(accountInitInput, path.join(buildDir, "account_init_js", "account_init.wasm"), path.join(buildDir, "account_init.zkey"), path.join(buildDir, "account_init_proof.json"), path.join(buildDir, "account_init_public.json"));
-    log("✓ Proof for account initialization circuit generated");
-
-    const accountTransportInput = await genAccountTransportInput(initEmailPath, relayerRandHash, newRelayerRand);
-    await promisify(fs.writeFile)(path.join(buildDir, "account_transport_input.json"), JSON.stringify(accountTransportInput, null, 2));
-    await prove(accountTransportInput, path.join(buildDir, "account_transport_js", "account_transport.wasm"), path.join(buildDir, "account_transport.zkey"), path.join(buildDir, "account_transport_proof.json"), path.join(buildDir, "account_transport_public.json"));
-    log("✓ Proof for account transport circuit generated");
-
-    const claimInput = await genClaimInput(emailAddr, relayerRand, emailAddrRand);
+    const claimInput = await genClaimInput(emailAddr, emailAddrRand, accountKey);
     await promisify(fs.writeFile)(path.join(buildDir, "claim_input.json"), JSON.stringify(claimInput, null, 2));
     await prove(claimInput, path.join(buildDir, "claim_js", "claim.wasm"), path.join(buildDir, "claim.zkey"), path.join(buildDir, "claim_proof.json"), path.join(buildDir, "claim_public.json"));
     log("✓ Proof for claim circuit generated");
 
-    const emailSenderInput = await genEmailSenderInput(emailSenderEmailPath, relayerRand);
+    const emailSenderInput = await genEmailSenderInput(emailSenderEmailPath, accountKey);
     await promisify(fs.writeFile)(path.join(buildDir, "email_sender_input.json"), JSON.stringify(emailSenderInput, null, 2));
     await prove(emailSenderInput, path.join(buildDir, "email_sender_js", "email_sender.wasm"), path.join(buildDir, "email_sender.zkey"), path.join(buildDir, "email_sender_proof.json"), path.join(buildDir, "email_sender_public.json"));
     log("✓ Proof for email sender circuit generated");

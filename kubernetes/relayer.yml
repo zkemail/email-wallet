@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: relayer-config
+  labels:
+    app: relayer
+data:
+  CORE_CONTRACT_ADDRESS: ""
+  CHAIN_RPC_PROVIDER: ""
+  CHAIN_RPC_EXPLORER: ""
+  CHAIN_ID: ""
+  FEE_PER_GAS: ""
+  RELAYER_EMAIL_ADDR: ""
+  RELAYER_HOSTNAME: ""
+  WEB_SERVER_ADDRESS: ""
+  SUBGRAPH_URL: ""
+  CIRCUITS_DIR_PATH: ""
+  INPUT_FILES_DIR_PATH: ""
+  EMAIL_TEMPLATES_PATH: ""
+  ONBOARDING_TOKEN_ADDR: ""
+  ONBOARDING_TOKEN_AMOUNT: ""
+  ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: ""
+  ONBOARDING_REPLY: ""
+  CANISTER_ID: ""
+  IC_REPLICA_URL: ""
+  JSON_LOGGER: ""
+  PEM_PATH: ""
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: relayer-secret
+  labels:
+    app: relayer
+type: Opaque
+data:
+  PRIVATE_KEY:
+  DATABASE_URL:
+  IMAP_DOMAIN_NAME:
+  IMAP_PORT:
+  AUTH_TYPE:
+  SMTP_DOMAIN_NAME:
+  LOGIN_ID:
+  LOGIN_PASSWORD:
+  PROVER_ADDRESS:
+  ICPEM:
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: relayer
+  labels:
+    app: relayer
+spec:
+  replicas: 1 # Number of initial replicas
+  selector:
+    matchLabels:
+      app: relayer
+  template:
+    metadata:
+      labels:
+        app: relayer
+    spec:
+      containers:
+        - name: relayer-container
+          image: bisht13/relayer:latest
+          ports:
+            - containerPort: 4500
+          envFrom:
+            - configMapRef:
+                name: relayer-config
+            - secretRef:
+                name: relayer-secret
+          resources:
+            requests:
+              memory: "8Gi"
+              cpu: "4"
+            limits:
+              memory: "16Gi"
+              cpu: "8"
+          livenessProbe:
+            httpGet:
+              path: /api/echo
+              port: 4500
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/echo
+              port: 4500
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          volumeMounts:
+            - name: pem-volume
+              mountPath: "/relayer/packages/relayer/.ic.pem"
+              subPath: ".ic.pem"
+          command: ["/bin/sh", "-c", "sleep infinity"]
+      volumes:
+        - name: pem-volume
+          secret:
+            secretName: relayer-secret
+            items:
+              - key: ICPEM
+                path: ".ic.pem"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relayer-svc
+spec:
+  selector:
+    app: relayer
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 4500
+  type: ClusterIP

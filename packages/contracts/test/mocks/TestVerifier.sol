@@ -8,28 +8,12 @@ import "../../src/interfaces/IVerifier.sol";
  */
 contract TestVerifier is IVerifier {
     function verifyAccountCreationProof(
-        bytes32 /* relayerHash */,
-        bytes32 /* emailAddrPointer */,
-        bytes32 /* accountKeyCommit */,
-        bytes32 /* walletSalt */,
-        bytes memory /* psiPoint */,
-        bytes memory proof
-    ) external pure returns (bool) {
-        if (proof[0] == 0x01) {
-            return true;
-        }
-
-        return false;
-    }
-
-    function verifyAccountInitializaionProof(
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
-        uint256 /* timestamp */,
-        bytes32 /* relayerHash */,
-        bytes32 /* emailAddrPointer */,
-        bytes32 /* accountKeyCommit */,
         bytes32 /* emailNullifier */,
+        uint256 /* emailTimestamp */,
+        bytes32 /* walletSalt */,
+        bytes memory /* psiPoint */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
@@ -43,10 +27,9 @@ contract TestVerifier is IVerifier {
         string memory /* emailDomain */,
         bytes32 /* dkimPublicKeyHash */,
         uint256 /* timestamp */,
-        string memory /* maskedSubject */,
         bytes32 /* emailNullifier */,
-        bytes32 /* relayerHash */,
-        bytes32 /* emailAddrPointer */,
+        string memory /* maskedSubject */,
+        bytes32 /* walletSalt */,
         bool /* hasEmailRecipient */,
         bytes32 /* recipientEmailAddrCommit */,
         bytes memory proof
@@ -59,9 +42,8 @@ contract TestVerifier is IVerifier {
     }
 
     function verifyClaimFundProof(
-        bytes32 /* recipientRelayerHash */,
-        bytes32 /* recipientEmailAddrPointer */,
         bytes32 /* recipientEmailAddrCommit */,
+        bytes32 /* recipientWalletSalt */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
@@ -71,15 +53,10 @@ contract TestVerifier is IVerifier {
         return false;
     }
 
-    function verifyAccountTransportProof(
-        string memory /* emailDomain */,
-        bytes32 /* dkimPublicKeyHash */,
-        uint256 /* timestamp */,
-        bytes32 /* emailNullifier */,
-        bytes32 /* oldRelayerRandHash */,
-        bytes32 /* newRelayerRandHash */,
-        bytes32 /* oldAccountKeyCommit */,
-        bytes32 /* newAccountKeyCommit */,
+    function verifyAnnouncementProof(
+        string memory /* emailAddr */,
+        bytes32 /* rand */,
+        bytes32 /* emailAddrCommit */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {

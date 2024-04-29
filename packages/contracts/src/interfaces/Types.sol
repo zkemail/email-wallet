@@ -2,24 +2,24 @@
 pragma solidity ^0.8.9;
 
 struct RelayerConfig {
-    bytes32 randHash; // Hash of the relayer's randomnes - the one used to create pointers and account key commitments
     string emailAddr; // relayer's email address
     string hostname; // hostname of relayer's server - used by other relayers for PSI communication
 }
 
 // Struct to represent an operation from the user
 struct EmailOp {
-    bytes32 emailAddrPointer; // emailAddrPointer of sender's account
-    bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
-    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
-    uint256 numRecipientEmailAddrBytes; // Number of bytes of recipient's email address if `hasEmailRecipient` is true
-    address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
+    bytes32 walletSalt; // emailAddrPointer of sender's account
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email
     bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
-    uint256 timestamp; // Timestamp of the email
     string maskedSubject; // Subject string with email address masked
+    uint256 skipSubjectPrefix; // Number of bytes to skip in the subject
+    uint256 timestamp; // Timestamp of the email
+    bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
+    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
+    uint256 numRecipientEmailAddrBytes; // Number of bytes of recipient's email address if `hasEmailRecipient` is true
+    address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string feeTokenName; // Name of the token to pay the fee
     uint256 feePerGas; // Amount of wei to be charged per gas
     bytes executeCallData; // Encoded (target+calldata) hex if the the command is "Execute"
@@ -59,12 +59,6 @@ struct UnclaimedState {
     address sender;
     bytes state;
     uint256 expiryTime;
-}
-
-struct AccountKeyInfo {
-    address relayer;
-    bool initialized;
-    bytes32 walletSalt;
 }
 
 // A struct to represent commong args in a proof of email

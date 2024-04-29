@@ -18,12 +18,12 @@ program
     "User's email address"
   )
   .requiredOption(
-    "--relayer-rand <string>",
-    "Relayer's randomness"
-  )
-  .requiredOption(
     "--email-addr-rand <string>",
     "Randomness for the email address commitment"
+  )
+  .requiredOption(
+    "--account-key <string>",
+    "User's account key"
   )
   .requiredOption(
     "--input-file <string>",
@@ -48,7 +48,7 @@ async function generate() {
 
   log("Generating Inputs for:", args);
 
-  const circuitInputs = await genClaimInput(args.emailAddr, args.relayerRand, args.emailAddrRand);
+  const circuitInputs = await genClaimInput(args.emailAddr, args.emailAddrRand, args.accountKey);
 
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 

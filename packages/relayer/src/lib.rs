@@ -2,77 +2,88 @@
 #![allow(unused_variables)]
 #![allow(unreachable_code)]
 
-pub(crate) mod abis;
-pub(crate) mod account_creator;
-pub(crate) mod chain;
-pub(crate) mod claimer;
-pub(crate) mod config;
-pub(crate) mod core;
-pub(crate) mod database;
-pub(crate) mod dkim_oracle;
-pub(crate) mod emails_pool;
-pub(crate) mod imap_client;
-pub(crate) mod logger;
-pub(crate) mod psi;
-pub(crate) mod shared;
-pub(crate) mod smtp_client;
-pub(crate) mod strings;
-pub(crate) mod subgraph;
-pub(crate) mod subject_templates;
-pub(crate) mod voider;
-pub(crate) mod web_server;
+pub mod abis;
+pub mod chain;
+pub mod config;
+pub mod core;
+pub mod database;
+pub mod modules;
+pub mod utils;
 
-pub(crate) use crate::core::*;
-use ::function_name::named;
-pub(crate) use abis::*;
-pub(crate) use account_creator::*;
-pub(crate) use chain::*;
-pub(crate) use claimer::*;
+pub use abis::*;
+pub use chain::*;
 pub use config::*;
-pub(crate) use database::*;
-pub(crate) use dkim_oracle::*;
-pub(crate) use emails_pool::*;
+pub use core::*;
+pub use database::*;
+pub use modules::*;
+pub use utils::*;
+
+use ::function_name::named;
 use futures::TryFutureExt;
-pub(crate) use imap_client::*;
-pub(crate) use logger::*;
-pub(crate) use psi::*;
 use rand::rngs::OsRng;
-pub(crate) use smtp_client::*;
-pub(crate) use strings::*;
-pub(crate) use subgraph::*;
-pub(crate) use subject_templates::*;
-pub(crate) use voider::*;
-pub(crate) use web_server::*;
+use tokio::sync::Mutex;
 
 use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use email_wallet_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr};
 use ethers::prelude::*;
-use slog::{debug, error, info, trace};
+use lazy_static::lazy_static;
+use slog::{error, info, trace};
 use std::env;
+use std::future::Future;
 use std::path::PathBuf;
+use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::time::{sleep, Duration};
 
-static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
-static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
-static RELAYER_RAND: OnceLock<String> = OnceLock::new();
-static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
-static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
-static CHAIN_ID: OnceLock<u32> = OnceLock::new();
-static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
-static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
-static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
-static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
-static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
-static SUBGRAPH_URL: OnceLock<String> = OnceLock::new();
-static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
-static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
-static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
-static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
-static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
+pub static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
+pub static WEB_SERVER_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static RELAYER_RAND: OnceLock<String> = OnceLock::new();
+pub static PROVER_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static PRIVATE_KEY: OnceLock<String> = OnceLock::new();
+pub static CHAIN_ID: OnceLock<u32> = OnceLock::new();
+pub static CHAIN_RPC_PROVIDER: OnceLock<String> = OnceLock::new();
+pub static CHAIN_RPC_EXPLORER: OnceLock<String> = OnceLock::new();
+pub static CORE_CONTRACT_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static FEE_PER_GAS: OnceLock<U256> = OnceLock::new();
+pub static INPUT_FILES_DIR: OnceLock<String> = OnceLock::new();
+pub static EMAIL_TEMPLATES: OnceLock<String> = OnceLock::new();
+pub static SUBGRAPH_URL: OnceLock<String> = OnceLock::new();
+pub static ONBOARDING_TOKEN_ADDR: OnceLock<H160> = OnceLock::new();
+pub static ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: OnceLock<u32> = OnceLock::new();
+pub static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
+pub static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
+pub static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
+pub static RELAYER_EMAIL_ADDRESS: OnceLock<String> = OnceLock::new();
+
+lazy_static! {
+    pub static ref DB: Arc<Database> = {
+        dotenv().ok();
+        let db = tokio::task::block_in_place(|| {
+            tokio::runtime::Runtime::new()
+                .unwrap()
+                .block_on(Database::open(&env::var(DATABASE_PATH_KEY).unwrap()))
+        })
+        .unwrap();
+        Arc::new(db)
+    };
+    pub static ref CLIENT: Arc<ChainClient> = {
+        dotenv().ok();
+        let client = tokio::task::block_in_place(|| {
+            tokio::runtime::Runtime::new()
+                .unwrap()
+                .block_on(ChainClient::setup())
+        })
+        .unwrap();
+        Arc::new(client)
+    };
+    pub static ref SHARED_MUTEX: Arc<Mutex<i32>> = Arc::new(Mutex::new(0));
+}
+
+pub type EventConsumer =
+    fn(EmailWalletEvent, EmailForwardSender) -> Pin<Box<dyn Future<Output = ()> + Send>>;
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
@@ -82,6 +93,9 @@ pub async fn setup() -> Result<()> {
         .unwrap();
     CHAIN_RPC_PROVIDER
         .set(env::var(CHAIN_RPC_PROVIDER_KEY).unwrap())
+        .unwrap();
+    CHAIN_RPC_EXPLORER
+        .set(env::var(CHAIN_RPC_EXPLORER_KEY).unwrap())
         .unwrap();
     CORE_CONTRACT_ADDRESS
         .set(env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap())
@@ -93,7 +107,6 @@ pub async fn setup() -> Result<()> {
     let client = ChainClient::setup().await?;
     let tx_hash = client
         .register_relayer(
-            relayer_rand.hash()?,
             env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
             env::var(RELAYER_HOSTNAME_KEY).unwrap(),
         )
@@ -103,7 +116,12 @@ pub async fn setup() -> Result<()> {
 }
 
 #[named]
-pub async fn run(config: RelayerConfig) -> Result<()> {
+pub async fn run(
+    config: RelayerConfig,
+    mut event_consumer: EventConsumer,
+    email_forward_sender: EmailForwardSender,
+    mut email_forward_rx: UnboundedReceiver<EmailMessage>,
+) -> Result<()> {
     info!(LOG, "Starting relayer"; "func" => function_name!());
 
     CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
@@ -112,6 +130,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     PRIVATE_KEY.set(config.private_key).unwrap();
     CHAIN_ID.set(config.chain_id).unwrap();
     CHAIN_RPC_PROVIDER.set(config.chain_rpc_provider).unwrap();
+    CHAIN_RPC_EXPLORER.set(config.chain_rpc_explorer).unwrap();
     CORE_CONTRACT_ADDRESS
         .set(config.core_contract_address)
         .unwrap();
@@ -131,25 +150,38 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     ONBOARDING_REPLY_MSG
         .set(config.onboarding_reply_msg)
         .unwrap();
+    RELAYER_EMAIL_ADDRESS
+        .set(config.smtp_config.id.clone())
+        .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
 
     let (tx_handler, mut rx_handler) = tokio::sync::mpsc::unbounded_channel::<String>();
     let (tx_sender, mut rx_sender) = tokio::sync::mpsc::unbounded_channel::<EmailMessage>();
-    let (tx_creator, mut rx_creator) =
-        tokio::sync::mpsc::unbounded_channel::<(String, Option<AccountKey>)>();
     let (tx_claimer, mut rx_claimer) = tokio::sync::mpsc::unbounded_channel::<Claim>();
+    let (tx_event_consumer, mut rx_event_consumer) = tokio::sync::mpsc::unbounded_channel();
+    let db = DB.clone();
+    let client = CLIENT.clone();
 
-    let db = Arc::new(Database::open(&config.db_path).await?);
-    let client = Arc::new(ChainClient::setup().await?);
-
-    let registered_rand_hash = client
-        .query_relayer_rand_hash(client.self_eth_addr())
-        .await?;
-    if registered_rand_hash != relayer_rand.hash()? {
-        panic!("Relayer randomness is not registered");
-    }
+    let email_sender = email_forward_sender.clone();
+    let event_consumer_task = tokio::task::spawn(async move {
+        loop {
+            match event_consumer_fn(
+                &mut event_consumer,
+                &mut rx_event_consumer,
+                email_sender.clone(),
+            )
+            .await
+            {
+                Ok(()) => {}
+                Err(e) => {
+                    error!(LOG, "Error at event_consumer: {}", e; "func" => function_name!())
+                }
+            }
+        }
+        anyhow::Ok(())
+    });
 
     let tx_handler_for_fetcher_task = tx_handler.clone();
     let emails_pool_fetcher_task = tokio::task::spawn(async move {
@@ -178,9 +210,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         anyhow::Ok(())
     });
 
-    let tx_sender_for_email_task = tx_sender.clone();
+    let tx_event_consumer_for_email_task = tx_event_consumer.clone();
     let tx_claimer_for_email_task = tx_claimer.clone();
-    let tx_creator_for_email_task = tx_creator.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let email_handler_task = tokio::task::spawn(async move {
@@ -189,9 +220,8 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 &mut rx_handler,
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                tx_sender_for_email_task.clone().into(),
-                &tx_claimer_for_email_task,
-                &tx_creator_for_email_task,
+                tx_event_consumer_for_email_task.clone(),
+                tx_claimer_for_email_task.clone(),
             )
             .await
             {
@@ -205,31 +235,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         anyhow::Ok(())
     });
 
-    let tx_sender_for_creator_task = tx_sender.clone();
-    let db_clone = Arc::clone(&db);
-    let client_clone = Arc::clone(&client);
-    let account_creation_task = tokio::task::spawn(async move {
-        loop {
-            match account_creation_fn(
-                &mut rx_creator,
-                Arc::clone(&db_clone),
-                Arc::clone(&client_clone),
-                &tx_sender_for_creator_task,
-            )
-            .await
-            {
-                Ok(()) => {}
-                Err(e) => {
-                    error!(LOG, "Error at account_creation: {}", e; "func" => function_name!())
-                }
-            }
-        }
-
-        anyhow::Ok(())
-    });
-
-    let tx_sender_for_claimer_task = tx_sender.clone();
-    let tx_creator_for_claimer_task = tx_creator.clone();
+    let tx_event_consumer_for_claimer_task = tx_event_consumer.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let claimer_task = tokio::task::spawn(async move {
@@ -238,8 +244,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 &mut rx_claimer,
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                &tx_creator_for_claimer_task,
-                &tx_sender_for_claimer_task,
+                tx_event_consumer_for_claimer_task.clone(),
             )
             .await
             {
@@ -260,6 +265,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             Arc::clone(&db),
             Arc::clone(&client),
             tx_claimer_for_server_task,
+            email_forward_sender.clone(),
         )
         .map_err(|err| error!(LOG, "Error api server: {}", err; "func" => function_name!())),
     );
@@ -278,11 +284,27 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         anyhow::Ok(())
     });
 
+    let tx_sender_for_forward_task = tx_sender.clone();
+    let email_forward_task = tokio::task::spawn(async move {
+        loop {
+            match email_forward_rx.recv().await {
+                Some(email) => {
+                    tx_sender_for_forward_task.send(email)?;
+                }
+                None => {
+                    error!(LOG, "Error at email_forward: no email"; "func" => function_name!())
+                }
+            }
+        }
+        anyhow::Ok(())
+    });
+
     let tx_claimer_for_listener_task = tx_claimer.clone();
     let client_clone = Arc::clone(&client);
     let event_listener_task = tokio::task::spawn(async move {
-        let mut from_block_fund = U64::from(0);
-        let mut from_block_state = U64::from(0);
+        // Get latest block
+        let mut from_block_fund = client_clone.get_latest_block_number().await;
+        let mut from_block_state = client_clone.get_latest_block_number().await;
         let fund_f = |event: email_wallet_events::UnclaimedFundRegisteredFilter, meta: LogMeta| {
             if event.email_addr.is_empty() {
                 return Ok(());
@@ -292,6 +314,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             ))?);
             let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
+                tx_hash: meta.transaction_hash.to_string(),
                 id: event.id,
                 email_address: event.email_addr,
                 random,
@@ -299,6 +322,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: true,
                 is_announced: true,
+                is_seen: false,
             };
             tx_claimer_for_listener_task.send(claim)?;
             Ok(())
@@ -313,6 +337,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
             ))?);
             let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
             let claim = Claim {
+                tx_hash: meta.transaction_hash.to_string(),
                 id: event.id,
                 email_address: event.email_addr,
                 random,
@@ -320,6 +345,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 expiry_time: i64::try_from(event.expiry_time.as_u64()).unwrap(),
                 is_fund: false,
                 is_announced: true,
+                is_seen: false,
             };
             tx_claimer_for_listener_task.send(claim)?;
             Ok(())
@@ -348,37 +374,23 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     });
 
     let tx_claimer_for_catcher_task = tx_claimer.clone();
-    let tx_sender_for_catcher_task = tx_sender.clone();
+    let tx_event_consumer_for_catcher_task = tx_event_consumer.clone();
+    // let tx_sender_for_catcher_task = tx_sender.clone();
     let db_clone = Arc::clone(&db);
     let client_clone = Arc::clone(&client);
     let voider_task = tokio::task::spawn(async move {
         loop {
-            // let now = now();
-            // let claims = db_clone.get_claims_expired(now).await?;
-            // for claim in claims {
-            //     info!(LOG, "Voiding claim for : {}", claim.email_address);
-            //     tokio::task::spawn(
-            //         void_unclaims(
-            //             claim,
-            //             Arc::clone(&db_clone),
-            //             Arc::clone(&client_clone),
-            //             tx_sender_for_voider_task.clone(),
-            //         )
-            //         .map_err(|err| error!(LOG, "Error voider task: {}", err)),
-            //     );
-            // }
-            // sleep(Duration::from_secs(120)).await;
             match catch_claims_in_db_fn(
                 Arc::clone(&db_clone),
                 Arc::clone(&client_clone),
-                &tx_claimer_for_catcher_task,
-                &tx_sender_for_catcher_task,
+                tx_claimer_for_catcher_task.clone(),
+                tx_event_consumer_for_catcher_task.clone(),
             )
             .await
             {
                 Ok(()) => {}
                 Err(e) => {
-                    error!(LOG, "Error at voider: {}", e; "func" => function_name!())
+                    error!(LOG, "Error at catch claims: {}", e; "func" => function_name!())
                 }
             }
         }
@@ -386,9 +398,9 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
     });
 
     let _ = tokio::join!(
+        event_consumer_task,
         email_receiver_task,
         email_handler_task,
-        account_creation_task,
         claimer_task,
         api_server_task,
         email_sender_task,
@@ -443,70 +455,53 @@ async fn email_handler_fn(
     rx_handler: &mut UnboundedReceiver<String>,
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
-    tx_sender_for_email_task: Arc<UnboundedSender<EmailMessage>>,
-    tx_claimer_for_email_task: &UnboundedSender<Claim>,
-    tx_creator_for_email_task: &UnboundedSender<(String, Option<AccountKey>)>,
+    tx_event_consumer: UnboundedSender<EmailWalletEvent>,
+    tx_claimer: UnboundedSender<Claim>,
+    // tx_creator_for_email_task: &UnboundedSender<(String, Option<AccountKey>)>,
 ) -> Result<()> {
     let email_hash = rx_handler
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Handling email hash {}", email_hash; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     let email = emails_pool.get_email_by_hash(&email_hash).await?;
-    info!(LOG, "Handled email {}", email; "func" => function_name!());
     let emails_pool = FileEmailsPool::new();
     emails_pool.delete_email(&email_hash).await?;
-    tokio::task::spawn(
-        handle_email(
-            email.clone(),
-            Arc::clone(&db_clone),
-            Arc::clone(&client_clone),
-            emails_pool,
-            Arc::clone(&tx_sender_for_email_task),
-            tx_claimer_for_email_task.clone(),
-            tx_creator_for_email_task.clone(),
-        )
-        .map_err(|err: anyhow::Error| {
-            let err = err.to_string();
-            tokio::spawn(async move {
-                match error_email_if_needed(email, Arc::clone(&db_clone), Arc::clone(&client_clone), tx_sender_for_email_task.clone(), err.clone()).await {
-                    Ok(err_cleaned) => {
-                        error!(LOG, "Error handling email: {}", err_cleaned; "func" => function_name!());
-                    }
-                    Err(err_to_send) => {
-                        error!(LOG, "Error sending error email: {}", err_to_send; "func" => function_name!());
-                    }
-                }
-            });
-        }),
-    );
-
+    let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
+    let email_addr = parsed_email.get_from_addr().unwrap();
+    tx_event_consumer.send(EmailWalletEvent::Ack {
+        email_addr: email_addr.clone(),
+        subject: parsed_email.get_subject_all().unwrap(),
+    })?;
+    let event = match handle_email(
+        email.clone(),
+        Arc::clone(&db_clone),
+        Arc::clone(&client_clone),
+        emails_pool,
+        tx_claimer,
+    )
+    .await
+    {
+        Ok(event) => event,
+        Err(err) => {
+            let error = err.to_string();
+            error!(LOG, "Error handling email: {}", error; "func" => function_name!());
+            EmailWalletEvent::Error { email_addr, error }
+        }
+    };
+    tx_event_consumer.send(event)?;
     anyhow::Ok(())
 }
 
 #[named]
-async fn account_creation_fn(
-    rx_creator: &mut UnboundedReceiver<(String, Option<AccountKey>)>,
-    db_clone: Arc<Database>,
-    client_clone: Arc<ChainClient>,
-    tx_sender_for_creator_task: &UnboundedSender<EmailMessage>,
+async fn event_consumer_fn(
+    consumer: &mut EventConsumer,
+    rx: &mut UnboundedReceiver<EmailWalletEvent>,
+    email_sender: EmailForwardSender,
 ) -> Result<()> {
-    let (email_address, account_key) = rx_creator
-        .recv()
-        .await
-        .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Creating account for email: {}", email_address; "func" => function_name!());
-    tokio::task::spawn(
-        create_account(
-            email_address,
-            account_key,
-            Arc::clone(&db_clone),
-            Arc::clone(&client_clone),
-            tx_sender_for_creator_task.clone(),
-        )
-        .map_err(|err| error!(LOG, "Error creating account: {}", err; "func" => function_name!())),
-    );
+    let event = rx.recv().await.ok_or(anyhow!("No event"))?;
+    info!(LOG, "Event: {:?}", event; "func" => function_name!());
+    (consumer)(event, email_sender).await;
     Ok(())
 }
 
@@ -515,24 +510,26 @@ async fn claimer_fn(
     rx_claimer: &mut UnboundedReceiver<Claim>,
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
-    tx_creator_for_claimer_task: &UnboundedSender<(String, Option<AccountKey>)>,
-    tx_sender_for_claimer_task: &UnboundedSender<EmailMessage>,
+    tx_event_consumer: UnboundedSender<EmailWalletEvent>,
 ) -> Result<()> {
     let claim = rx_claimer
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Claiming unclaim for {:?}", claim.email_address; "func" => function_name!());
-    tokio::task::spawn(
-        claim_unclaims(
-            claim,
-            Arc::clone(&db_clone),
-            Arc::clone(&client_clone),
-            tx_creator_for_claimer_task.clone(),
-            tx_sender_for_claimer_task.clone(),
-        )
-        .map_err(|err| error!(LOG, "Error claiming unclaim: {}", err; "func" => function_name!())),
-    );
+    let email_addr = claim.email_address.clone();
+    info!(LOG, "Claiming unclaim {:?}", claim; "func" => function_name!());
+    let event = match claim_unclaims(claim, Arc::clone(&db_clone), Arc::clone(&client_clone)).await
+    {
+        Ok(event) => event,
+        Err(err) => {
+            error!(LOG, "Error claiming unclaim: {}", err.to_string(); "func" => function_name!());
+            EmailWalletEvent::Error {
+                email_addr,
+                error: err.to_string(),
+            }
+        }
+    };
+    tx_event_consumer.send(event)?;
     Ok(())
 }
 
@@ -545,8 +542,8 @@ async fn email_sender_fn(
         .recv()
         .await
         .ok_or(anyhow!(CANNOT_GET_EMAIL_FROM_QUEUE))?;
-    info!(LOG, "Sending email to: {:?}", email.to; "func" => function_name!());
-    info!(LOG, "Email arg: {:?}", email.email_args; "func" => function_name!());
+    info!(LOG, "Sending email: {:?}", email; "func" => function_name!());
+    // info!(LOG, "Email arg: {:?}", email.email_args; "func" => function_name!());
     email_sender.send_new_email(email).await?;
     Ok(())
 }
@@ -576,27 +573,42 @@ async fn event_listener_fn<
 async fn catch_claims_in_db_fn(
     db_clone: Arc<Database>,
     client_clone: Arc<ChainClient>,
-    tx_claimer_for_catcher_task: &UnboundedSender<Claim>,
-    tx_sender_for_catcher_task: &UnboundedSender<EmailMessage>,
+    tx_claimer: UnboundedSender<Claim>,
+    tx_event_consumer: UnboundedSender<EmailWalletEvent>,
 ) -> Result<()> {
     let now = now();
     let claims = db_clone.get_claims_unexpired(now).await?;
+    info!(LOG, "unexpired claims: {:?}", claims; "func" => function_name!());
     for claim in claims {
         info!(LOG, "Claiming claim for : {}", claim.email_address; "func" => function_name!());
-        tx_claimer_for_catcher_task.send(claim)?;
+        tx_claimer.send(claim)?;
     }
     let claims = db_clone.get_claims_expired(now).await?;
+    info!(LOG, "expired claims: {:?}", claims; "func" => function_name!());
     for claim in claims {
-        info!(LOG, "Voiding claim for : {}", claim.email_address; "func" => function_name!());
-        tokio::task::spawn(
-            void_unclaims(
-                claim,
-                Arc::clone(&db_clone),
-                Arc::clone(&client_clone),
-                tx_sender_for_catcher_task.clone(),
-            )
-            .map_err(|err| error!(LOG, "Error voider task: {}", err; "func" => function_name!())),
-        );
+        let email_addr = claim.email_address.clone();
+        info!(LOG, "Voiding claim for : {}", email_addr.clone(); "func" => function_name!());
+        let db_clone = Arc::clone(&db_clone);
+        let client_clone = Arc::clone(&client_clone);
+        let tx_event_consumer = tx_event_consumer.clone();
+        let event = match void_unclaims(
+            claim,
+            Arc::clone(&db_clone),
+            Arc::clone(&client_clone),
+            // tx_sender_for_catcher_task.clone(),
+        )
+        .await
+        {
+            Ok(event) => event,
+            Err(err) => {
+                error!(LOG, "Error voider task: {}", err; "func" => function_name!());
+                EmailWalletEvent::Error {
+                    email_addr,
+                    error: err.to_string(),
+                }
+            }
+        };
+        tx_event_consumer.send(event)?;
     }
     sleep(Duration::from_secs(120)).await;
     Ok(())

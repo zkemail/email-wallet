@@ -7,7 +7,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
     }
 
     // Internally means that the unclaimed fund is registered by handleEmailOp (send tokent to email)
@@ -314,7 +314,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             walletAddr
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, walletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
@@ -356,7 +356,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             walletAddr
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, walletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
@@ -370,8 +370,6 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
     function test_ClaimUnclaimedFund_ToNewlyCreatedAccount() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
@@ -388,18 +386,20 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
-        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(
-            newEmailAddrPointer,
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+        relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        accountHandler.createAccount(
+            newWalletSalt,
+            newPSIPoint,
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            })
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newWalletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(
@@ -415,7 +415,6 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 recipientEmailAddrCommit2 = bytes32(uint256(5345345));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
         bytes32 newWalletSalt = bytes32(uint256(2003));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address newRelayer = vm.addr(8);
@@ -440,19 +439,21 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // New relayer should be able to create account and claim both
         vm.startPrank(newRelayer);
-        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSIPoint, mockProof);
-        accountHandler.initializeAccount(
-            newEmailAddrPointer,
-            emailDomain,
-            block.timestamp,
-            emailNullifier2,
-            mockDKIMHash,
-            mockProof
+        relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        accountHandler.createAccount(
+            newWalletSalt,
+            newPSIPoint,
+            EmailProof({
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier2,
+                domain: emailDomain,
+                timestamp: block.timestamp,
+                proof: mockProof
+            })
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newEmailAddrPointer, mockProof);
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId2, newEmailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newWalletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId2, newWalletSalt, mockProof);
         vm.stopPrank();
 
         assertEq(
@@ -465,46 +466,6 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             50 ether,
             "recipient didnt receive tokens"
         );
-    }
-
-    function test_ClaimUnclaimedFund_ToTransportedAccount() public {
-        address sender = vm.addr(7);
-        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newAccountKeyCommit = bytes32(uint256(2002));
-        bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
-        address newRelayer = vm.addr(8);
-
-        vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
-        daiToken.freeMint(sender, 100 ether);
-
-        vm.startPrank(sender);
-        daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{
-            value: unclaimedFundClaimGas * maxFeePerGas
-        }(recipientEmailAddrCommit, address(daiToken), 100 ether, 0, 0, "");
-        vm.stopPrank();
-
-        // New relayer should be able to claim for existing unclaied funds
-        vm.startPrank(newRelayer);
-        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        accountHandler.transportAccount(
-            accountKeyCommit,
-            newEmailAddrPointer,
-            newAccountKeyCommit,
-            newPSIPoint,
-            EmailProof({
-                dkimPublicKeyHash: mockDKIMHash,
-                nullifier: emailNullifier2,
-                domain: emailDomain,
-                timestamp: block.timestamp,
-                proof: mockProof
-            }),
-            mockProof
-        );
-
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
-        vm.stopPrank();
     }
 
     function test_RevertIf_ClaimUnclaimedFund_CalledByNonRelayer() public {
@@ -524,9 +485,9 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         // Register a new relayer and call unclaim; but not the relayer of account (which is the `relayer` in EmailWalletHelper)
         vm.startPrank(newRelayer);
-        relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
-        vm.expectRevert("invalid relayer for account");
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        // relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        vm.expectRevert("caller is not a relayer");
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
 
@@ -550,35 +511,36 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         vm.expectRevert("unclaimed fund expired");
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddrPointer, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, emailAddr, mockProof);
         vm.stopPrank();
     }
 
-    function test_RevertIf_ClaimUnclaimedFund_ToUninitializedAccount() public {
-        address sender = vm.addr(7);
-        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newEmailAddrPointer = bytes32(uint256(32334));
-        bytes32 newAccountKeyCommit = bytes32(uint256(32335));
-        bytes32 newWalletSalt = bytes32(uint256(32336));
-        bytes memory newPSI = abi.encodePacked(uint256(32337));
+    // A createAccount function initializes the account internally
+    // function test_RevertIf_ClaimUnclaimedFund_ToUninitializedAccount() public {
+    //     address sender = vm.addr(7);
+    //     bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
+    //     bytes32 newEmailAddrPointer = bytes32(uint256(32334));
+    //     bytes32 newAccountKeyCommit = bytes32(uint256(32335));
+    //     bytes32 newWalletSalt = bytes32(uint256(32336));
+    //     bytes memory newPSI = abi.encodePacked(uint256(32337));
 
-        vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
-        daiToken.freeMint(sender, 100 ether);
+    //     vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
+    //     daiToken.freeMint(sender, 100 ether);
 
-        vm.startPrank(sender);
-        daiToken.approve(address(core.unclaimsHandler()), 100 ether);
-        uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{
-            value: unclaimedFundClaimGas * maxFeePerGas
-        }(recipientEmailAddrCommit, address(daiToken), 100 ether, 0, 0, "");
-        vm.stopPrank();
+    //     vm.startPrank(sender);
+    //     daiToken.approve(address(core.unclaimsHandler()), 100 ether);
+    //     uint256 registeredUnclaimId = unclaimsHandler.registerUnclaimedFund{
+    //         value: unclaimedFundClaimGas * maxFeePerGas
+    //     }(recipientEmailAddrCommit, address(daiToken), 100 ether, 0, 0, "");
+    //     vm.stopPrank();
 
-        // Relayer claim the unclaimed fund to a newly created account, but not initialized
-        vm.startPrank(relayer);
-        accountHandler.createAccount(newEmailAddrPointer, newAccountKeyCommit, newWalletSalt, newPSI, mockProof);
-        vm.expectRevert("account not initialized");
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
-        vm.stopPrank();
-    }
+    //     // Relayer claim the unclaimed fund to a newly created account, but not initialized
+    //     vm.startPrank(relayer);
+    //     accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSI, mockProof);
+    //     vm.expectRevert("account not initialized");
+    //     unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
+    //     vm.stopPrank();
+    // }
 
     function test_VoidUnclaimedFund() public {
         address sender = vm.addr(7);

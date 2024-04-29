@@ -2,14 +2,14 @@ import modal
 
 from core import (
     gen_account_creation_proof,
-    gen_account_init_proof,
-    gen_account_transport_proof,
+    # gen_account_init_proof,
+    # gen_account_transport_proof,
     gen_claim_proof,
     gen_email_sender_proof,
 )
 
 
-stub = modal.Stub("email-wallet-relayer-v1")
+stub = modal.Stub("email-wallet-relayer-v1.1")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 
@@ -42,27 +42,27 @@ def flask_app():
         proof = gen_account_creation_proof(str(nonce), False, input)
         return jsonify(proof)
 
-    @app.post("/prove/account_init")
-    def prove_account_init():
-        req = request.get_json()
-        input = req["input"]
-        nonce = random.randint(
-            0,
-            sys.maxsize,
-        )
-        proof = gen_account_init_proof(str(nonce), False, input)
-        return jsonify(proof)
+    # @app.post("/prove/account_init")
+    # def prove_account_init():
+    #     req = request.get_json()
+    #     input = req["input"]
+    #     nonce = random.randint(
+    #         0,
+    #         sys.maxsize,
+    #     )
+    #     proof = gen_account_init_proof(str(nonce), False, input)
+    #     return jsonify(proof)
 
-    @app.post("/prove/account_transport")
-    def prove_account_transport():
-        req = request.get_json()
-        input = req["input"]
-        nonce = random.randint(
-            0,
-            sys.maxsize,
-        )
-        proof = gen_account_transport_proof(str(nonce), False, input)
-        return jsonify(proof)
+    # @app.post("/prove/account_transport")
+    # def prove_account_transport():
+    #     req = request.get_json()
+    #     input = req["input"]
+    #     nonce = random.randint(
+    #         0,
+    #         sys.maxsize,
+    #     )
+    #     proof = gen_account_transport_proof(str(nonce), False, input)
+    #     return jsonify(proof)
 
     @app.post("/prove/claim")
     def prove_claim():

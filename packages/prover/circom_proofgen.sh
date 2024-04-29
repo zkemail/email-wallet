@@ -16,12 +16,6 @@ SCRIPT_DIR=$(cd $(dirname $0); pwd)
 # HOME="${MODAL_ZK_EMAIL_CIRCOM_PATH}/../"
 # wallet_eml_dir_path=$MODAL_INCOMING_EML_PATH
 
-# if [ "$PROVER_LOCATION" = "local" ]; then
-#     zk_email_path=$LOCAL_ZK_EMAIL_CIRCOM_PATH
-#     HOME="${LOCAL_ZK_EMAIL_CIRCOM_PATH}/../"
-#     # wallet_eml_dir_path=$LOCAL_INCOMING_EML_PATH
-# fi
-
 # prover_output_path="${wallet_eml_dir_path}/../proofs/"
 
 # wallet_eml_path="${wallet_eml_dir_path}/wallet_${nonce}.eml"

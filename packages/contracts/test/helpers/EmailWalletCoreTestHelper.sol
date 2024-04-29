@@ -55,7 +55,7 @@ contract EmailWalletCoreTestHelper is Test {
     // User details (sender) - for when sender failure is not expected
     // Computing hashes to resemble the actual process
     string emailDomain = "test.com";
-    bytes32 emailAddrPointer = keccak256(abi.encodePacked(relayerRand, "sender@test.com"));
+    bytes32 emailAddr = keccak256("sender@test.com");
     bytes32 accountKeyCommit = keccak256(abi.encodePacked(uint256(2001), "sender@test.com", randHash));
     bytes32 walletSalt = keccak256(abi.encodePacked(accountKeyCommit, uint(0)));
     bytes psiPoint = abi.encodePacked(uint(1004));
@@ -186,21 +186,24 @@ contract EmailWalletCoreTestHelper is Test {
     // Register the test relayer - when not testing relayer functionality
     function _registerRelayer() internal {
         vm.startPrank(relayer);
-        relayerHandler.registerRelayer(randHash, "relayer@relayer.xyz", "relayer.xyz");
+        relayerHandler.registerRelayer("relayer@relayer.xyz", "relayer.xyz");
         vm.stopPrank();
     }
 
     // Register test user account - for using as sender when not testing accoung functionality
-    function _registerAndInitializeAccount() internal {
+    function _createTestAccount() internal {
         vm.startPrank(relayer);
-        accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
-        accountHandler.initializeAccount(
-            emailAddrPointer,
-            emailDomain,
-            block.timestamp,
-            emailNullifier,
-            mockDKIMHash,
-            mockProof
+
+        accountHandler.createAccount(
+            walletSalt, 
+            psiPoint, 
+            EmailProof({
+                proof: mockProof,
+                domain: emailDomain,
+                dkimPublicKeyHash: mockDKIMHash,
+                nullifier: emailNullifier,
+                timestamp: block.timestamp
+            })
         );
         vm.stopPrank();
     }
@@ -209,7 +212,7 @@ contract EmailWalletCoreTestHelper is Test {
     function _getBaseEmailOp() internal view returns (EmailOp memory) {
         return
             EmailOp({
-                emailAddrPointer: emailAddrPointer,
+                walletSalt: walletSalt,
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(0),
                 numRecipientEmailAddrBytes: 0,
@@ -220,6 +223,7 @@ contract EmailWalletCoreTestHelper is Test {
                 dkimPublicKeyHash: mockDKIMHash,
                 timestamp: block.timestamp,
                 maskedSubject: "",
+                skipSubjectPrefix: 0,
                 feeTokenName: "ETH",
                 feePerGas: 0,
                 executeCallData: abi.encodePacked(""),

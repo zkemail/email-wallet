@@ -126,7 +126,6 @@ SMTP_DOMAIN_NAME=smtp.gmail.com
 LOGIN_ID=                    # IMAP login id - usually your email address.
 LOGIN_PASSWORD=""         # IMAP password - usually your email password.
 
-PROVER_LOCATION=local         # Keep this local for running the prover locally.
 PROVER_ADDRESS="http://0.0.0.0:8080" # local or modal URL
 
 FEE_PER_GAS=0        # Fee per gas in wei.

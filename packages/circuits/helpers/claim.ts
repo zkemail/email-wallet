@@ -1,16 +1,18 @@
 const emailWalletUtils = require("../../utils");
 
-export async function genClaimInput(emailAddr: string, relayerRand: string, emailAddrRand: string):
-  Promise<{
-    recipient_email_addr: number[],
-    recipient_relayer_rand: string,
-    cm_rand: string,
-  }> {
+export async function genClaimInput(
+  emailAddr: string,
+  emailAddrRand: string,
+  accountKey: string,
+): Promise<{
+  email_addr: number[];
+  cm_rand: string;
+  account_key: string;
+}> {
   const paddedEmailAddr = emailWalletUtils.padEmailAddr(emailAddr);
   return {
-    recipient_email_addr: paddedEmailAddr,
-    recipient_relayer_rand: relayerRand,
+    email_addr: paddedEmailAddr,
     cm_rand: emailAddrRand,
+    account_key: accountKey,
   };
 }
-

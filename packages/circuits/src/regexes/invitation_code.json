@@ -2,7 +2,7 @@
     "parts": [
         {
             "is_public": false,
-            "regex_def": "CODE:0x"
+            "regex_def": "( )?(c|C)ode( )?"
         },
         {
             "is_public": true,

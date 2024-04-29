@@ -7,7 +7,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
     }
 
     function test_ExitAndTransferOwnership() public {

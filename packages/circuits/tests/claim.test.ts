@@ -17,18 +17,15 @@ jest.setTimeout(120000);
 describe("Claim", () => {
     it("claim an unclaimed funds/states", async () => {
         const emailAddr = "suegamisora@gmail.com";
-        const relayerRand = emailWalletUtils.genRelayerRand();
         const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
-        const circuitInputs = await genClaimInput(emailAddr, relayerRand, emailAddrRand);
+        const accountKey = emailWalletUtils.genAccountKey();
+        const circuitInputs = await genClaimInput(emailAddr, emailAddrRand, accountKey);
         const circuit = await wasm_tester(path.join(__dirname, "../src/claim.circom"), option);
         const witness = await circuit.calculateWitness(circuitInputs);
         await circuit.checkConstraints(witness);
-        const expectedRelayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-        // expect(expectedRelayerRandHash).toEqual("0x" + witness[1].toString(16));
-        expect(BigInt(expectedRelayerRandHash)).toEqual(witness[1]);
-        const expectedEmailAddrPointer = emailWalletUtils.emailAddrPointer(emailAddr, relayerRand);
-        expect(BigInt(expectedEmailAddrPointer)).toEqual(witness[2]);
         const expectedEmailAddrCommit = emailWalletUtils.emailAddrCommit(emailAddr, emailAddrRand);
-        expect(BigInt(expectedEmailAddrCommit)).toEqual(witness[3]);
+        expect(BigInt(expectedEmailAddrCommit)).toEqual(witness[1]);
+        const walletSalt = emailWalletUtils.walletSalt(emailAddr, accountKey);
+        expect(BigInt(walletSalt)).toEqual(witness[2]);
     });
 });

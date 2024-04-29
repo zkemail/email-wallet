@@ -1,0 +1,416 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Email Wallet</title>
+  </head>
+  <body
+    style="
+      background-color: #f6f6f6;
+      -webkit-font-smoothing: antialiased;
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    "
+  >
+    <span
+      class="preheader"
+      style="
+        color: transparent;
+        display: none;
+        height: 0;
+        max-height: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        mso-hide: all;
+        visibility: hidden;
+        width: 0;
+      "
+      >Your Email Wallet request was voided</span
+    >
+    <table
+      role="presentation"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      class="body"
+      style="
+        border-collapse: separate;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+        width: 100%;
+        background-color: #f6f6f6;
+      "
+    >
+      <tr>
+        <td style="font-family: 'Regola', sans-serif; font-size: 14px; vertical-align: top">&nbsp;</td>
+        <td
+          class="container"
+          style="
+            font-family: 'Regola', sans-serif;
+            font-size: 14px;
+            display: block;
+            max-width: 580px;
+            padding: 10px;
+            width: 580px;
+            margin: 0 auto !important;
+          "
+        >
+          <div
+            class="content"
+            style="box-sizing: border-box; display: block; margin: 0 auto; max-width: 580px; padding: 10px"
+          >
+            <!-- START CENTERED WHITE CONTAINER -->
+            <table
+              role="presentation"
+              class="main"
+              style="
+                border-collapse: separate;
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+                width: 100%;
+                background: #ffffff;
+                border-radius: 3px;
+              "
+            >
+              <!-- START MAIN CONTENT AREA -->
+              <div
+                class="banner"
+                style="
+                  justify-content: space-between;
+                  padding: 10px;
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  background-image: linear-gradient(45deg, #844aff, #5e2bff);
+                  margin-bottom: 1rem;
+                  border-radius: 0.4rem;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    justify-self: self-start;
+                    align-items: self-start;
+                    width: 45%;
+                    margin-top: -1rem;
+                    margin-bottom: -1rem;
+                  "
+                >
+                <img
+                src="https://storage.googleapis.com/eml-templates-assets/img/logoEmailWallet.png"
+                alt="Email Wallet"
+                style="
+                  width: 75%;
+                  height: auto;
+                  border: none;
+                  max-width: 40%;
+                  margin: -5px;
+                  margin-top: 0px;
+                  -ms-interpolation-mode: bicubic;
+                "
+              />
+                </div>
+              </div>
+              <tr>
+                <td
+                  class="wrapper"
+                  style="
+                    font-family: 'Regola', sans-serif;
+                    font-size: 14px;
+                    vertical-align: top;
+                    box-sizing: border-box;
+                    padding: 20px;
+                  "
+                >
+                  <table
+                    role="presentation"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%"
+                  >
+                    <tr>
+                      <td
+                        style="
+                          padding-left: 1rem;
+                          padding-right: 1rem;
+                          font-family: 'Regola', sans-serif;
+                          font-size: 14px;
+                          vertical-align: top;
+                        "
+                      >
+                        <p
+                          style="
+                            font-family: 'Regola', sans-serif;
+                            font-size: 14px;
+                            font-weight: normal;
+                            margin: 0;
+                            margin-bottom: 15px;
+                          "
+                        >
+                          Hi {{userEmailAddr}}!
+                        </p>
+                        <p
+                          style="
+                            font-family: 'Regola', sans-serif;
+                            font-size: 14px;
+                            font-weight: normal;
+                            margin: 0;
+                            margin-bottom: 15px;
+                          "
+                        >
+                          Your request was voided.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                  <p style="opacity: calc(0.6); text-align: center">
+                    <a href="{{chainRPCExplorer}}/address/{{walletAddr}}">View Wallet on Explorer</a>
+                  </p>
+                </td>
+              </tr>
+              <!-- END MAIN CONTENT AREA -->
+            </table>
+            <!-- END CENTERED WHITE CONTAINER -->
+            <!-- START FOOTER -->
+            <table
+              class="footer"
+              align="center"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              style="
+                clear: both;
+                margin-top: 1rem;
+                text-align: center;
+                width: 100%;
+                border-collapse: separate;
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+              "
+            >
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    margin-top: 1rem;
+                    font-weight: 800;
+                    font-family: 'Regola', sans-serif;
+                    margin-bottom: 15px;
+                    font-size: 12px;
+                    margin: 0;
+                    color: #999999;
+                    text-align: center;
+                    vertical-align: top;
+                  "
+                >
+                  Good luck!
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    color: #999999;
+                    font-size: 1rem;
+                    text-align: center;
+                    font-family: 'Regola', sans-serif;
+                    vertical-align: top;
+                  "
+                >
+                  Powered by
+                  <a
+                    href="https://prove.email"
+                    style="text-decoration: underline; color: #7649e0; font-size: 1rem; text-align: center"
+                    >ZK Email</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    font-family: 'Regola', sans-serif;
+                    font-size: 12px;
+                    vertical-align: top;
+                    color: #999999;
+                    text-align: center;
+                  "
+                >
+                  <table
+                    align="center"
+                    class="social-icons"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      margin: 0 auto;
+                      text-align: center;
+                      border-collapse: separate;
+                      mso-table-lspace: 0pt;
+                      mso-table-rspace: 0pt;
+                      width: auto;
+                      margin-top: 1rem;
+                    "
+                  >
+                    <tr>
+                      <td
+                        align="center"
+                        style="
+                          padding: 0 2px 0 5px;
+                          font-family: 'Regola', sans-serif;
+                          font-size: 12px;
+                          vertical-align: top;
+                          color: #999999;
+                          text-align: center;
+                        "
+                      >
+                        <a
+                          href="https://github.com/zkemail"
+                          style="
+                            color: #999999;
+                            text-decoration: underline;
+                            font-size: 12px;
+                            text-align: center;
+                            width: auto;
+                          "
+                        >
+                          <img
+                            src="https://storage.googleapis.com/eml-templates-assets/img/github.png"
+                            alt="GitHub"
+                            width="40"
+                            style="
+                              border: none;
+                              -ms-interpolation-mode: bicubic;
+                              max-width: 100%;
+                              height: 2rem;
+                              width: auto;
+                            "
+                          />
+                        </a>
+                      </td>
+                      <td
+                        align="center"
+                        style="
+                          padding: 0 5px;
+                          font-family: 'Regola', sans-serif;
+                          font-size: 12px;
+                          vertical-align: top;
+                          color: #999999;
+                          text-align: center;
+                        "
+                      >
+                        <a
+                          href="https://twitter.com/zkemail"
+                          style="
+                            color: #999999;
+                            text-decoration: underline;
+                            font-size: 12px;
+                            text-align: center;
+                            width: auto;
+                          "
+                        >
+                          <img
+                            src="https://storage.googleapis.com/eml-templates-assets/img/x.png"
+                            alt="Twitter"
+                            width="40"
+                            style="
+                              border: none;
+                              -ms-interpolation-mode: bicubic;
+                              max-width: 100%;
+                              height: 2rem;
+                              width: auto;
+                            "
+                          />
+                        </a>
+                      </td>
+                      <td
+                        align="center"
+                        style="
+                          padding: 0 5px;
+                          font-family: 'Regola', sans-serif;
+                          font-size: 12px;
+                          vertical-align: top;
+                          color: #999999;
+                          text-align: center;
+                        "
+                      >
+                        <a
+                          href="https://t.me/zkemail/1"
+                          style="
+                            color: #999999;
+                            text-decoration: underline;
+                            font-size: 12px;
+                            text-align: center;
+                            width: auto;
+                          "
+                        >
+                          <img
+                            src="https://storage.googleapis.com/eml-templates-assets/img/telegram.png"
+                            alt="Telegram"
+                            width="40"
+                            style="
+                              border: none;
+                              -ms-interpolation-mode: bicubic;
+                              max-width: 100%;
+                              height: 2rem;
+                              width: auto;
+                            "
+                          />
+                        </a>
+                      </td>
+                      <td
+                        align="center"
+                        style="
+                          padding: 0 5px;
+                          font-family: 'Regola', sans-serif;
+                          font-size: 12px;
+                          vertical-align: top;
+                          color: #999999;
+                          text-align: center;
+                        "
+                      >
+                        <a
+                          href="https://discord.gg/XgAUbX3F4T"
+                          style="
+                            color: #999999;
+                            text-decoration: underline;
+                            font-size: 12px;
+                            text-align: center;
+                            width: auto;
+                          "
+                        >
+                          <img
+                            src="https://storage.googleapis.com/eml-templates-assets/img/discord.png"
+                            alt="Discord"
+                            width="40"
+                            style="
+                              border: none;
+                              -ms-interpolation-mode: bicubic;
+                              max-width: 100%;
+                              height: 2rem;
+                              width: auto;
+                            "
+                          />
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            <!-- END FOOTER -->
+          </div>
+        </td>
+        <td style="font-family: 'Regola', sans-serif; font-size: 14px; vertical-align: top">&nbsp;</td>
+      </tr>
+    </table>
+  </body>
+</html>

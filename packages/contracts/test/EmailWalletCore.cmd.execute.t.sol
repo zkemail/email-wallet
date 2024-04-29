@@ -16,7 +16,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
 
         testContractAddr = address(new ExecuteTestContract());
     }

@@ -16,7 +16,7 @@ itertools = "0.10.3"
 serde_json = "1.0.95"
 serde = { version = "1.0.159", features = ["derive"] }
 # halo2-regex = { git = "https://github.com/zkemail/halo2-regex.git", version = "0.1.0" }
-zk-regex-apis = { version = "1.1.4", git = "https://github.com/zkemail/zk-regex.git", branch = "main", default-features = false }
+zk-regex-apis = { version = "2.0.2", git = "https://github.com/zkemail/zk-regex.git", branch = "main", default-features = false }
 fancy-regex = "0.11.0"
 hex = "0.4.3"
 tokio = { version = "1.16", features = [
@@ -36,12 +36,12 @@ halo2curves = { version = "0.4.0", git = "https://github.com/privacy-scaling-exp
 rand_core = { version = "0.6", default-features = false }
 num-bigint = "0.4.4"
 base64 = "0.21.4"
-rsa = { version = "0.6.1", features = ["serde"] }
+rsa = { version = "0.9.6", features = ["serde"] }
 num-traits = "0.2.15"
 cfdkim = { version = "0.3.0", git = "https://github.com/SoraSuegami/dkim.git" }
 slog = "2.7.0"
-# wasm-bindgen = { version = "0.2.90", default-features = false }
-
+sha2 = "0.10.8"
+ethers = "2.0.14"
 
 [dependencies.neon]
 version = "0.10"

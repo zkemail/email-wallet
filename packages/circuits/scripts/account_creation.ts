@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account creation circuit.
+ * This script is for generating input for the account inititalization circuit.
  * 
  */
 
@@ -14,16 +14,12 @@ const snarkjs = require("snarkjs");
 
 program
   .requiredOption(
-    "--email-addr <string>",
-    "User's email address"
+    "--email-file <string>",
+    "Path to an email file"
   )
   .requiredOption(
     "--relayer-rand <string>",
     "Relayer's randomness"
-  )
-  .requiredOption(
-    "--account-key <string>",
-    "User's account key"
   )
   .requiredOption(
     "--input-file <string>",
@@ -43,13 +39,12 @@ function log(...message: any) {
 
 async function generate() {
   if (!args.inputFile.endsWith(".json")) {
-    throw new Error("--input-file path arg must end with .json");
+    throw new Error("--input file path arg must end with .json");
   }
 
   log("Generating Inputs for:", args);
 
-  const circuitInputs = await genAccountCreationInput(args.emailAddr, args.relayerRand, args.accountKey);
-
+  const circuitInputs = await genAccountCreationInput(args.emailFile, args.relayerRand);
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
   await promisify(fs.writeFile)(args.inputFile, JSON.stringify(circuitInputs, null, 2));

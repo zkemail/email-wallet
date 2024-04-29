@@ -2,24 +2,13 @@
 pragma solidity ^0.8.12;
 
 library EmailWalletEvents {
-    event RelayerRegistered(address indexed addr, bytes32 randHash, string emailAddr, string hostname);
+    event RelayerRegistered(address indexed addr, string emailAddr, string hostname);
 
     event RelayerConfigUpdated(address indexed addr, string hostname);
 
     event AccountCreated(
-        bytes32 emailAddrPointer,
-        bytes32 accountKeyCommit,
         bytes32 indexed walletSalt,
         bytes psiPoint
-    );
-
-    event AccountInitialized(bytes32 emailAddrPointer, bytes32 accountKeyCommit, bytes32 indexed walletSalt);
-
-    event AccountTransported(
-        bytes32 oldAccountKeyCommit,
-        bytes32 newEmailAddrPointer,
-        bytes32 newAccountKeyCommit,
-        bytes newPSIPoint
     );
 
     event UnclaimedFundRegistered(
@@ -75,7 +64,7 @@ library EmailWalletEvents {
         bool indexed success,
         uint256 indexed registeredUnclaimId,
         bytes32 indexed emailNullifier,
-        bytes32 emailAddrPointer,
+        bytes32 walletSalt,
         bytes32 recipientEmailAddrCommit,
         address recipientETHAddr,
         bytes err

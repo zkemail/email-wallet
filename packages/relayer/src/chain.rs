@@ -1,8 +1,5 @@
 use std::str::FromStr;
 
-use crate::shared;
-use shared::SHARED_MUTEX;
-
 use crate::*;
 use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
@@ -13,49 +10,27 @@ const CONFIRMATIONS: usize = 1;
 
 #[derive(Default, Debug)]
 pub struct AccountCreationInput {
-    pub(crate) email_addr_pointer: [u8; 32],
-    pub(crate) account_key_commit: [u8; 32],
-    pub(crate) wallet_salt: [u8; 32],
-    pub(crate) psi_point: Bytes,
-    pub(crate) proof: Bytes,
-}
-
-#[derive(Default, Debug)]
-pub struct AccountInitInput {
-    pub(crate) email_addr_pointer: [u8; 32],
-    pub(crate) email_domain: String,
-    pub(crate) email_timestamp: U256,
-    pub(crate) email_nullifier: [u8; 32],
-    pub(crate) dkim_public_key_hash: [u8; 32],
-    pub(crate) proof: Bytes,
-}
-
-#[derive(Default, Debug)]
-pub struct AccountTransportInput {
-    pub(crate) old_account_key_commit: [u8; 32],
-    pub(crate) new_email_addr_pointer: [u8; 32],
-    pub(crate) new_account_key_commit: [u8; 32],
-    pub(crate) new_psi_point: Bytes,
-    pub(crate) transport_email_proof: EmailProof,
-    pub(crate) account_creation_proof: Bytes,
+    pub wallet_salt: [u8; 32],
+    pub psi_point: Bytes,
+    pub proof: EmailProof,
 }
 
 #[derive(Default, Debug)]
 pub struct RegisterUnclaimedFundInput {
-    pub(crate) email_addr_commit: [u8; 32],
-    pub(crate) token_addr: Address,
-    pub(crate) amount: U256,
-    pub(crate) expiry_time: U256,
-    pub(crate) announce_commit_randomness: U256,
-    pub(crate) announce_email_addr: String,
+    pub email_addr_commit: [u8; 32],
+    pub token_addr: Address,
+    pub amount: U256,
+    pub expiry_time: U256,
+    pub announce_commit_randomness: U256,
+    pub announce_email_addr: String,
 }
 
 #[derive(Default, Debug)]
 pub struct ClaimInput {
-    pub(crate) id: U256,
-    pub(crate) email_addr_pointer: [u8; 32],
-    pub(crate) is_fund: bool,
-    pub(crate) proof: Bytes,
+    pub id: U256,
+    pub recipient_wallet_salt: [u8; 32],
+    pub is_fund: bool,
+    pub proof: Bytes,
 }
 
 type SignerM = SignerMiddleware<Provider<Http>, LocalWallet>;
@@ -63,14 +38,15 @@ type SignerM = SignerMiddleware<Provider<Http>, LocalWallet>;
 #[derive(Debug, Clone)]
 pub struct ChainClient {
     pub client: Arc<SignerM>,
-    pub(crate) core: EmailWalletCore<SignerM>,
-    pub(crate) token_registry: TokenRegistry<SignerM>,
-    pub(crate) account_handler: AccountHandler<SignerM>,
-    pub(crate) extension_handler: ExtensionHandler<SignerM>,
-    pub(crate) relayer_handler: RelayerHandler<SignerM>,
-    pub(crate) unclaims_handler: UnclaimsHandler<SignerM>,
-    pub(crate) ecdsa_owned_dkim_registry: ECDSAOwnedDKIMRegistry<SignerM>,
-    pub(crate) test_erc20: TestERC20<SignerM>,
+    pub core: EmailWalletCore<SignerM>,
+    pub token_registry: TokenRegistry<SignerM>,
+    pub account_handler: AccountHandler<SignerM>,
+    pub extension_handler: ExtensionHandler<SignerM>,
+    pub relayer_handler: RelayerHandler<SignerM>,
+    pub unclaims_handler: UnclaimsHandler<SignerM>,
+    pub ecdsa_owned_dkim_registry: ECDSAOwnedDKIMRegistry<SignerM>,
+    pub test_erc20: TestERC20<SignerM>,
+    pub nft_extension: NFTExtension<SignerM>,
 }
 
 impl ChainClient {
@@ -103,6 +79,13 @@ impl ChainClient {
             token_registry.get_token_address("TEST".to_string()).await?,
             client.clone(),
         );
+        let nft_extension = NFTExtension::new(
+            extension_handler
+                .default_extension_of_command("NFT".to_string())
+                .call()
+                .await?,
+            client.clone(),
+        );
         Ok(Self {
             client,
             core,
@@ -113,6 +96,7 @@ impl ChainClient {
             unclaims_handler,
             ecdsa_owned_dkim_registry,
             test_erc20,
+            nft_extension,
         })
     }
 
@@ -120,19 +104,39 @@ impl ChainClient {
         self.client.address()
     }
 
-    pub async fn register_relayer(
+    pub async fn register_relayer(&self, email_addr: String, hostname: String) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let call = self.relayer_handler.register_relayer(email_addr, hostname);
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
+    pub async fn register_psi_point(
         &self,
-        rand_hash: Fr,
-        email_addr: String,
-        hostname: String,
+        point: &Point,
+        wallet_salt: &WalletSalt,
     ) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
-        let call =
-            self.relayer_handler
-                .register_relayer(fr_to_bytes32(&rand_hash)?, email_addr, hostname);
+        let call = self.account_handler.register_psi_point(
+            get_psi_point_bytes(
+                U256::from_str_radix(&point.x, 10)?,
+                U256::from_str_radix(&point.y, 10)?,
+            ),
+            fr_to_bytes32(&wallet_salt.0)?,
+        );
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -149,61 +153,9 @@ impl ChainClient {
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
-        let call = self.account_handler.create_account(
-            data.email_addr_pointer,
-            data.account_key_commit,
-            data.wallet_salt,
-            data.psi_point,
-            data.proof,
-        );
-        let tx = call.send().await?;
-        let receipt = tx
-            .log()
-            .confirmations(CONFIRMATIONS)
-            .await?
-            .ok_or(anyhow!("No receipt"))?;
-        let tx_hash = receipt.transaction_hash;
-        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        Ok(tx_hash)
-    }
-
-    pub async fn init_account(&self, data: AccountInitInput) -> Result<String> {
-        // Mutex is used to prevent nonce conflicts.
-        let mut mutex = SHARED_MUTEX.lock().await;
-        *mutex += 1;
-
-        let call = self.account_handler.initialize_account(
-            data.email_addr_pointer,
-            data.email_domain,
-            data.email_timestamp,
-            data.email_nullifier,
-            data.dkim_public_key_hash,
-            data.proof,
-        );
-        let tx = call.send().await?;
-        let receipt = tx
-            .log()
-            .confirmations(CONFIRMATIONS)
-            .await?
-            .ok_or(anyhow!("No receipt"))?;
-        let tx_hash = receipt.transaction_hash;
-        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        Ok(tx_hash)
-    }
-
-    pub async fn transport_account(&self, data: AccountTransportInput) -> Result<String> {
-        // Mutex is used to prevent nonce conflicts.
-        let mut mutex = SHARED_MUTEX.lock().await;
-        *mutex += 1;
-
-        let call = self.account_handler.transport_account(
-            data.old_account_key_commit,
-            data.new_email_addr_pointer,
-            data.new_account_key_commit,
-            data.new_psi_point,
-            data.transport_email_proof,
-            data.account_creation_proof,
-        );
+        let call =
+            self.account_handler
+                .create_account(data.wallet_salt, data.psi_point, data.proof);
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -223,7 +175,7 @@ impl ChainClient {
         if data.is_fund {
             let call = self.unclaims_handler.claim_unclaimed_fund(
                 data.id,
-                data.email_addr_pointer,
+                data.recipient_wallet_salt,
                 data.proof,
             );
             let tx = call.send().await?;
@@ -238,7 +190,7 @@ impl ChainClient {
         } else {
             let call = self.unclaims_handler.claim_unclaimed_state(
                 data.id,
-                data.email_addr_pointer,
+                data.recipient_wallet_salt,
                 data.proof,
             );
             let tx = call.send().await?;
@@ -281,6 +233,82 @@ impl ChainClient {
             let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
             Ok(tx_hash)
         }
+    }
+
+    pub async fn register_unclaimed_fund(
+        &self,
+        email_addr_commit: Fr,
+        token_addr: Address,
+        amount: U256,
+        expiry_time: U256,
+        announce_commit_randomness: Option<U256>,
+        announce_email_addr: Option<String>,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let call = self.unclaims_handler.register_unclaimed_fund(
+            fr_to_bytes32(&email_addr_commit)?,
+            token_addr,
+            amount,
+            expiry_time,
+            announce_commit_randomness.unwrap_or(U256::zero()),
+            announce_email_addr.unwrap_or(String::new()),
+        );
+        let fee = {
+            let gas = self.unclaims_handler.unclaimed_fund_claim_gas().await?;
+            let fee = self.unclaims_handler.max_fee_per_gas().await?;
+            gas * fee
+        };
+        let call = call.value(fee);
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
+    pub async fn register_unclaimed_state(
+        &self,
+        email_addr_commit: Fr,
+        extension_addr: Address,
+        state: Bytes,
+        expiry_time: U256,
+        announce_commit_randomness: Option<U256>,
+        announce_email_addr: Option<String>,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let call = self.unclaims_handler.register_unclaimed_state(
+            fr_to_bytes32(&email_addr_commit)?,
+            extension_addr,
+            state,
+            expiry_time,
+            announce_commit_randomness.unwrap_or(U256::zero()),
+            announce_email_addr.unwrap_or(String::new()),
+        );
+        let fee = {
+            let gas = self.unclaims_handler.unclaimed_state_claim_gas().await?;
+            let fee = self.unclaims_handler.max_fee_per_gas().await?;
+            gas * fee
+        };
+        let call = call.value(fee);
+        let tx = call.send().await?;
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
     }
 
     #[named]
@@ -371,7 +399,7 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
-    pub(crate) async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<String> {
+    pub async fn transfer_onboarding_tokens(&self, wallet_addr: H160) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
@@ -380,11 +408,11 @@ impl ChainClient {
             ONBOARDING_TOKEN_ADDR.get().unwrap().to_owned(),
             self.client.clone(),
         );
-        let tx = erc20.transfer(
+        let call = erc20.transfer(
             wallet_addr,
             ONBOARDING_TOKEN_AMOUNT.get().unwrap().to_owned(),
         );
-        let tx = tx.send().await?;
+        let tx = call.send().await?;
 
         let receipt = tx
             .log()
@@ -397,20 +425,29 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
-    pub async fn query_account_key_commit(&self, pointer: &Fr) -> Result<Fr> {
-        let account_key_commit = self
-            .account_handler
-            .account_key_commit_of_pointer(fr_to_bytes32(pointer)?)
-            .await?;
-        bytes32_to_fr(&account_key_commit)
-    }
+    pub async fn approve_erc721(
+        &self,
+        token_addr: Address,
+        to: Address,
+        token_id: U256,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
 
-    pub async fn query_account_info(&self, account_key_commit: &Fr) -> Result<AccountKeyInfo> {
-        let info = self
-            .account_handler
-            .get_info_of_account_key_commit(fr_to_bytes32(account_key_commit)?)
-            .await?;
-        Ok(info)
+        let erc721 = ERC721::new(token_addr, self.client.clone());
+        let call = erc721.approve(to, token_id);
+        let tx = call.send().await?;
+
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
     }
 
     pub async fn query_user_erc20_balance(
@@ -462,9 +499,13 @@ impl ChainClient {
         Ok(name)
     }
 
-    pub async fn query_relayer_rand_hash(&self, relayer: Address) -> Result<Fr> {
-        let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        bytes32_to_fr(&rand_hash)
+    pub async fn query_default_extension_for_command(&self, command: &str) -> Result<Address> {
+        let extension_addr = self
+            .extension_handler
+            .default_extension_of_command(command.to_string())
+            .call()
+            .await?;
+        Ok(extension_addr)
     }
 
     pub async fn query_user_extension_for_command(
@@ -501,37 +542,6 @@ impl ChainClient {
             .await?;
         Ok(wallet_addr)
     }
-
-    pub async fn query_rand_hash_of_relayer(&self, relayer: Address) -> Result<Fr> {
-        let rand_hash = self.relayer_handler.get_rand_hash(relayer).call().await?;
-        bytes32_to_fr(&rand_hash)
-    }
-
-    // pub async fn query_ak_commit_and_relayer_of_wallet_salt(
-    //     &self,
-    //     wallet_salt: &WalletSalt,
-    // ) -> Result<(Vec<Fr>, Vec<Address>)> {
-    //     let events: Vec<(email_wallet_events::AccountCreatedFilter, LogMeta)> = self
-    //         .account_handler
-    //         .event_for_name::<email_wallet_events::AccountCreatedFilter>("AccountCreated")?
-    //         .from_block(0)
-    //         .topic2(H256::from(fr_to_bytes32(&wallet_salt.0)?))
-    //         .query_with_meta()
-    //         .await?;
-    //     let mut account_key_commits = vec![];
-    //     let mut relayers = vec![];
-    //     for (created, log_meta) in events {
-    //         let account_key_commit = bytes32_to_fr(&created.account_key_commit)?;
-    //         account_key_commits.push(account_key_commit);
-    //         let tx_hash = log_meta.transaction_hash;
-    //         let tx = self.client.get_transaction(tx_hash).await?;
-    //         if let Some(tx) = tx {
-    //             let relayer = tx.from;
-    //             relayers.push(relayer);
-    //         }
-    //     }
-    //     Ok((account_key_commits, relayers))
-    // }
 
     pub async fn query_unclaimed_fund(&self, id: U256) -> Result<UnclaimedFund> {
         let unclaimed_fund = self.unclaims_handler.get_unclaimed_fund(id).await?;
@@ -584,6 +594,35 @@ impl ChainClient {
         ))
     }
 
+    pub async fn query_nft_name_of_address(&self, nft_addr: Address) -> Result<String> {
+        let name = self
+            .nft_extension
+            .name_of_nft_address(nft_addr)
+            .call()
+            .await?;
+        Ok(name)
+    }
+
+    pub async fn query_erc721_owner_of_token(
+        &self,
+        nft_addr: Address,
+        token_id: U256,
+    ) -> Result<Address> {
+        let erc721 = ERC721::new(nft_addr, self.client.clone());
+        let owner = erc721.owner_of(token_id).call().await?;
+        Ok(owner)
+    }
+
+    pub async fn query_erc721_token_uri_of_token(
+        &self,
+        nft_addr: Address,
+        token_id: U256,
+    ) -> Result<String> {
+        let erc721 = ERC721::new(nft_addr, self.client.clone());
+        let uri = erc721.token_uri(token_id).call().await?;
+        Ok(uri)
+    }
+
     pub async fn validate_email_op(&self, email_op: EmailOp) -> Result<()> {
         let call = self.core.validate_email_op(email_op);
         call.call().await?;
@@ -634,68 +673,58 @@ impl ChainClient {
         Ok(last_block)
     }
 
-    pub(crate) async fn check_if_point_registered(&self, point: Point) -> Result<bool> {
+    pub async fn check_if_point_registered(&self, point: Point) -> Result<bool> {
         let Point { x, y } = point;
         let x = hex2field(&x)?;
         let y = hex2field(&y)?;
         let x = U256::from_little_endian(&x.to_bytes());
         let y = U256::from_little_endian(&y.to_bytes());
-        let res = self
+        let wallet_salt = self
             .account_handler
-            .pointer_of_psi_point(get_psi_point_bytes(x, y))
+            .wallet_salt_of_psi_point(get_psi_point_bytes(x, y))
             .call()
             .await?;
-        let res = U256::from_little_endian(&res);
-        Ok(res == U256::zero())
+        let wallet_salt = U256::from_little_endian(&wallet_salt);
+        Ok(wallet_salt != U256::zero())
     }
 
-    pub(crate) async fn check_if_account_initialized_by_account_key(
+    pub async fn check_if_account_created_by_point(&self, point: Point) -> Result<bool> {
+        let Point { x, y } = point;
+        let x = hex2field(&x)?;
+        let y = hex2field(&y)?;
+        let x = U256::from_little_endian(&x.to_bytes());
+        let y = U256::from_little_endian(&y.to_bytes());
+        let wallet_salt = self
+            .account_handler
+            .wallet_salt_of_psi_point(get_psi_point_bytes(x, y))
+            .call()
+            .await?;
+        let is_deployed = self
+            .account_handler
+            .is_wallet_salt_deployed(wallet_salt)
+            .call()
+            .await?;
+        Ok(is_deployed)
+    }
+
+    pub async fn check_if_account_created_by_account_key(
         &self,
         email_addr: &str,
         account_key: &str,
     ) -> Result<bool> {
         let account_key = AccountKey(hex2field(account_key)?);
         let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
-        let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-        let account_key_commitment =
-            account_key.to_commitment(&padded_email_addr, &relayer_rand.hash()?)?;
-
-        let account_key_info = self
+        let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;
+        let is_deployed = self
             .account_handler
-            .info_of_account_key_commit(Fr::to_bytes(&account_key_commitment))
+            .is_wallet_salt_deployed(fr_to_bytes32(&wallet_salt.0)?)
             .call()
             .await?;
-
-        Ok(account_key_info.1)
-    }
-
-    pub(crate) async fn check_if_account_initialized_by_point(&self, point: Point) -> Result<bool> {
-        let Point { x, y } = point;
-        let x = hex2field(&x)?;
-        let y = hex2field(&y)?;
-        let x = U256::from_little_endian(&x.to_bytes());
-        let y = U256::from_little_endian(&y.to_bytes());
-        let pointer = self
-            .account_handler
-            .pointer_of_psi_point(get_psi_point_bytes(x, y))
-            .call()
-            .await?;
-        let account_key_commitment = self
-            .account_handler
-            .account_key_commit_of_pointer(pointer)
-            .call()
-            .await?;
-        let account_key_info = self
-            .account_handler
-            .info_of_account_key_commit(account_key_commitment)
-            .call()
-            .await?;
-
-        Ok(account_key_info.1)
+        Ok(is_deployed)
     }
 
     #[named]
-    pub(crate) async fn check_if_dkim_public_key_hash_valid(
+    pub async fn check_if_dkim_public_key_hash_valid(
         &self,
         domain_name: ::std::string::String,
         public_key_hash: [u8; 32],
@@ -710,5 +739,9 @@ impl ChainClient {
             "{:?} for {} is already registered: {}", public_key_hash, domain_name, is_valid; "func" => function_name!()
         );
         Ok(is_valid)
+    }
+
+    pub async fn get_latest_block_number(&self) -> U64 {
+        self.client.get_block_number().await.unwrap()
     }
 }

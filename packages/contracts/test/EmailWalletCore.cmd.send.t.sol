@@ -7,7 +7,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
     function setUp() public override {
         super.setUp();
         _registerRelayer();
-        _registerAndInitializeAccount();
+        _createTestAccount();
     }
 
     function test_ValidateSendingToEthAddress() public {
@@ -206,6 +206,71 @@ contract TransferTest is EmailWalletCoreTestHelper {
         (, , , address tokenAddr, uint256 amount, ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
         assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
         assertEq(amount, 65.4 ether, "amount mismatch");
+    }
+
+    function test_SendTokenToEmailWithSubjectPrefix() public {
+        string memory subject = "Re: Send 65.4 DAI to ";
+        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
+
+        // this need to be send to handleEmailOp for registering unclaimed funds
+        vm.deal(relayer, unclaimedFundClaimGas * maxFeePerGas);
+
+        // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
+        daiToken.freeMint(walletAddr, 100 ether);
+
+        usdcToken.freeMint(walletAddr, 100 ether); // for gas reimbursemt of unclaimed funds
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 65.4 ether;
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+        emailOp.skipSubjectPrefix = 4;
+
+        vm.startPrank(relayer);
+        (bool success, , , uint256 registeredUnclaimId) = core.handleEmailOp{
+            value: unclaimedFundClaimGas * maxFeePerGas
+        }(emailOp);
+        vm.stopPrank();
+
+        assertEq(success, true, "handleEmailOp failed");
+        assertEq(daiToken.balanceOf(walletAddr), 34.6 ether, "sender did not have correct DAI left");
+
+        // Should register unclaimed funds
+        (, , , address tokenAddr, uint256 amount, ) = unclaimsHandler.unclaimedFundOfId(registeredUnclaimId);
+        assertEq(tokenAddr, address(daiToken), "tokenName mismatch");
+        assertEq(amount, 65.4 ether, "amount mismatch");
+    }
+
+    function test_RevertIf_PrefixIsWrong() public {
+        string memory subject = "Re: Send 65.4 DAI to ";
+        bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
+
+        // this need to be send to handleEmailOp for registering unclaimed funds
+        vm.deal(relayer, unclaimedFundClaimGas * maxFeePerGas);
+
+        // Mint 150 DAI to sender wallet (will send 100 DAI to recipient)
+        daiToken.freeMint(walletAddr, 100 ether);
+
+        usdcToken.freeMint(walletAddr, 100 ether); // for gas reimbursemt of unclaimed funds
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.SEND;
+        emailOp.walletParams.tokenName = "DAI";
+        emailOp.walletParams.amount = 65.4 ether;
+        emailOp.hasEmailRecipient = true;
+        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.maskedSubject = subject;
+        emailOp.feeTokenName = "USDC";
+        emailOp.skipSubjectPrefix = 3;
+
+        vm.startPrank(relayer);
+        vm.expectRevert("subject != Send 65.4 DAI to ");
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
     }
 
     function test_ConvertWethToEthOnExternalTransfer() public {

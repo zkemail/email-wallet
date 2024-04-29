@@ -2,7 +2,8 @@ pragma circom 2.1.5;
 
 include "circomlib/circuits/poseidon.circom";
 include "./utils/constants.circom";
-include "./utils/email_addr_pointer.circom";
+include "./utils/wallet_salt.circom";
+// include "./utils/email_addr_pointer.circom";
 include "./utils/email_addr_commit.circom";
 include "./utils/bytes2ints.circom";
 
@@ -10,20 +11,20 @@ include "./utils/bytes2ints.circom";
 // Used for claiming unclaimed funds
 template Claim() {
     var email_max_bytes = email_max_bytes_const();
-    signal input recipient_email_addr[email_max_bytes];
-    signal input recipient_relayer_rand;
+    signal input email_addr[email_max_bytes];
     signal input cm_rand;
-    signal output recipient_relayer_rand_hash;
-    signal output recipient_pointer;
-    signal output recipient_email_addr_commit;
+    signal input account_key;
 
-    signal recipient_relayer_rand_hash_input[1];
-    recipient_relayer_rand_hash_input[0] <== recipient_relayer_rand;
-    recipient_relayer_rand_hash <== Poseidon(1)(recipient_relayer_rand_hash_input);
+    signal output email_addr_commit;
+    signal output wallet_salt;
+
+    // signal recipient_relayer_rand_hash_input[1];
+    // recipient_relayer_rand_hash_input[0] <== recipient_relayer_rand;
+    // recipient_relayer_rand_hash <== Poseidon(1)(recipient_relayer_rand_hash_input);
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
-    signal recipient_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(recipient_email_addr);
-    recipient_pointer <== EmailAddrPointer(num_email_addr_ints)(recipient_relayer_rand, recipient_email_addr_ints);
-    recipient_email_addr_commit <== EmailAddrCommit(num_email_addr_ints)(cm_rand, recipient_email_addr_ints);
+    signal email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(email_addr);    
+    email_addr_commit <== EmailAddrCommit(num_email_addr_ints)(cm_rand, email_addr_ints);
+    wallet_salt <== WalletSalt(num_email_addr_ints)(email_addr_ints, account_key);
 }
 
 component main  = Claim();
