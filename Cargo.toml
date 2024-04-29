@@ -1,4 +1,8 @@
 [workspace]
-members = ["packages/relayer", "packages/utils", "packages/scripts"]
+members = [
+    "packages/relayer",
+    "packages/utils",
+    "packages/scripts",
+]
 exclude = ["node_modules/*"]
 resolver = "2"

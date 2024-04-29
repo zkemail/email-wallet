@@ -8,7 +8,8 @@ export function handleEmailOpHandled(event: EmailOpHandledEvent): void {
   entity.success = event.params.success;
   entity.registeredUnclaimId = event.params.registeredUnclaimId;
   entity.emailNullifier = event.params.emailNullifier;
-  entity.emailAddrPointer = event.params.emailAddrPointer;
+  entity.walletSalt = event.params.walletSalt;
+  // entity.emailAddrPointer = event.params.emailAddrPointer;
 
   if (event.params.recipientEmailAddrCommit != Bytes.empty()) {
     entity.hasRecipient = true;

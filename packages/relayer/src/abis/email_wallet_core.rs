@@ -2477,7 +2477,16 @@ pub mod email_wallet_core {
     )]
     pub struct ExtensionHandlerReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `handleEmailOp` function with signature `handleEmailOp((bytes32,string,bytes32,string,bytes32,string,uint256,uint256,bool,bytes32,uint256,address,string,uint256,bytes,string,address,address,(string,uint256),(uint8,bytes[]),bytes))` and selector `0x7dc73e3e`
-    #[derive(Clone, ::ethers::contract::EthAbiType, ::ethers::contract::EthAbiCodec)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        ::ethers::contract::EthAbiCodec,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub struct HandleEmailOpReturn {
         pub success: bool,
         pub err: ::ethers::core::types::Bytes,

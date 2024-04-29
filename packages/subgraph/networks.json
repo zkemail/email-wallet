@@ -59,5 +59,27 @@
       "address": "0xcCcfE37B8c02B4cCFea9fD5645f72eAc52570Eaf",
       "startBlock": 4796719
     }
+  },
+  "base-sepolia": {
+    "EmailWalletCore": {
+      "address": "0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc",
+      "startBlock": 567424
+    },
+    "RelayerHandler": {
+      "address": "0xCd575A01f3Fc5684982255e844CCa8ddCed63957",
+      "startBlock": 567424
+    },
+    "AccountHandler": {
+      "address": "0x59BF4862Bd50DaC6F9bF82b435ED3A6A179a58f7",
+      "startBlock": 567424
+    },
+    "UnclaimsHandler": {
+      "address": "0x8fa7adD319bA82aA899DF7caC4a6Ac99F14839de",
+      "startBlock": 567424
+    },
+    "ExtensionHandler": {
+      "address": "0x4B134222fC292edF71D7f31FE1D9D9cD571A663E",
+      "startBlock": 567424
+    }
   }
 }

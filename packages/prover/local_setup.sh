@@ -5,7 +5,7 @@ mkdir -p build
 
 npm install -g snarkjs@latest
 pip install -r requirements.txt
-gdown "https://drive.google.com/uc?id=1sYlhq4tU7ZZGN1r9HM0pJcA4q6pHErXb"
+gdown "https://drive.google.com/uc?id=1T1VvuaZhm1pSQoUkjaZptRbjq1XX8aT8"
 unzip params.zip
 # curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-creation/contributions/emailwallet-account-creation_00019.zkey --output /root/params/account_creation.zkey
 # curl https://email-wallet-trusted-setup-ceremony-pse-p0tion-production.s3.eu-central-1.amazonaws.com/circuits/emailwallet-account-init/contributions/emailwallet-account-init_00007.zkey --output /root/params/account_init.zkey

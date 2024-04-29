@@ -1,6 +1,5 @@
-use relayer::*;
-
 use anyhow::Result;
+use relayer::*;
 use std::env;
 
 #[tokio::main]
@@ -9,7 +8,8 @@ async fn main() -> Result<()> {
     if args.len() == 2 && args[1] == "setup" {
         return setup().await;
     } else {
-        run(RelayerConfig::new()).await?;
+        let (sender, rx) = EmailForwardSender::new();
+        run(RelayerConfig::new(), event_consumer, sender, rx).await?;
     }
     Ok(())
 }

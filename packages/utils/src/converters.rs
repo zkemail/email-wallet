@@ -1,12 +1,16 @@
 use std::convert::TryInto;
 
 use anyhow;
+use ethers::types::U256;
 use halo2curves::ff::PrimeField;
 use itertools::Itertools;
 use neon::prelude::*;
+use num_bigint::BigInt;
 use poseidon_rs::*;
 
-pub use zk_regex_apis::padding::{pad_string, pad_string_node};
+pub use zk_regex_apis::padding::pad_string;
+
+use crate::circuit::{CIRCOM_BIGINT_K, CIRCOM_BIGINT_N};
 
 pub fn hex2field(input_hex: &str) -> anyhow::Result<Fr> {
     if &input_hex[0..2] != "0x" {
@@ -103,7 +107,7 @@ pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: u
     fields
 }
 
-pub(crate) fn hex2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
+pub fn hex2field_node(cx: &mut FunctionContext, input_strs: &str) -> NeonResult<Fr> {
     match hex2field(input_strs) {
         Ok(field) => Ok(field),
         Err(e) => cx.throw_error(e.to_string()),
@@ -128,4 +132,80 @@ pub fn bytes2fields_node(mut cx: FunctionContext) -> JsResult<JsArray> {
         js_array.set(&mut cx, i as u32, field)?;
     }
     Ok(js_array)
+}
+
+/// Converts a 64-bit integer to an array of 8 bytes in big-endian format.
+pub fn int64_to_bytes(num: u64) -> Vec<u8> {
+    num.to_be_bytes().to_vec()
+}
+
+/// Converts an 8-bit integer to a Vec<u8> with a single element.
+pub fn int8_to_bytes(num: u8) -> Vec<u8> {
+    vec![num]
+}
+
+/// Merges two Vec<u8> into a single Vec<u8>.
+pub fn merge_u8_arrays(a: Vec<u8>, b: Vec<u8>) -> Vec<u8> {
+    [a, b].concat()
+}
+
+pub fn uint8_array_to_char_array(bytes: Vec<u8>) -> Vec<String> {
+    bytes.iter().map(|&b| b.to_string()).collect()
+}
+
+fn big_int_to_chunked_bytes(num: BigInt, bits_per_chunk: usize, num_chunks: usize) -> Vec<String> {
+    let mut chunks = Vec::new();
+    let mut remainder = num;
+    let two = BigInt::from(2);
+    let chunk_size = two.pow(bits_per_chunk as u32);
+
+    // Divide the number into chunks and convert each to a decimal string
+    for _ in 0..num_chunks {
+        let chunk = &remainder % &chunk_size;
+        remainder = remainder >> bits_per_chunk;
+        // Convert chunk to decimal string
+        chunks.push(chunk.to_string());
+    }
+
+    chunks
+}
+
+pub fn to_circom_bigint_bytes(num: BigInt) -> Vec<String> {
+    big_int_to_chunked_bytes(num, CIRCOM_BIGINT_N, CIRCOM_BIGINT_K)
+}
+
+pub fn vec_u8_to_bigint(bytes: Vec<u8>) -> BigInt {
+    bytes
+        .iter()
+        .fold(BigInt::from(0), |acc, &b| (acc << 8) | BigInt::from(b))
+}
+
+pub fn u256_to_bytes32(x: &U256) -> [u8; 32] {
+    let mut bytes = [0u8; 32];
+    x.to_big_endian(&mut bytes);
+    bytes
+}
+
+pub fn u256_to_hex(x: &U256) -> String {
+    "0x".to_string() + &hex::encode(u256_to_bytes32(x))
+}
+
+pub fn hex_to_u256(hex: &str) -> Result<U256, hex::FromHexError> {
+    let bytes: Vec<u8> = hex::decode(&hex[2..])?;
+    let mut array = [0u8; 32];
+    array.copy_from_slice(&bytes);
+    Ok(U256::from_big_endian(&array))
+}
+
+pub fn fr_to_bytes32(fr: &Fr) -> Result<[u8; 32], hex::FromHexError> {
+    let hex = field2hex(fr);
+    let bytes = hex::decode(&hex[2..])?;
+    let mut result = [0u8; 32];
+    result.copy_from_slice(&bytes);
+    Ok(result)
+}
+
+pub fn bytes32_to_fr(bytes32: &[u8; 32]) -> Result<Fr, hex::FromHexError> {
+    let hex: String = "0x".to_string() + &hex::encode(bytes32);
+    hex2field(&hex).map_err(|_e| hex::FromHexError::InvalidStringLength)
 }

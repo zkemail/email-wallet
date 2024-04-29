@@ -14,19 +14,17 @@ use std::hash::{Hash, Hasher};
 use tokio::sync::mpsc::UnboundedSender;
 
 const DOMAIN_FIELDS: usize = 9;
-const SUBJECT_FIELDS: usize = 17;
+const SUBJECT_FIELDS: usize = 20;
 const EMAIL_ADDR_FIELDS: usize = 9;
 
 #[named]
-pub(crate) async fn handle_email<P: EmailsPool>(
+pub async fn handle_email<P: EmailsPool>(
     email: String,
     db: Arc<Database>,
     chain_client: Arc<ChainClient>,
     emails_pool: P,
-    tx_sender: Arc<UnboundedSender<EmailMessage>>,
     tx_claimer: UnboundedSender<Claim>,
-    // tx_creator: UnboundedSender<String>,
-) -> Result<()> {
+) -> Result<EmailWalletEvent> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     trace!(LOG, "email: {}", email; "func" => function_name!());
     let from_addr = parsed_email.get_from_addr()?;
@@ -36,9 +34,9 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
         let account_key = AccountKey::from(hex2field(&format!("0x{}", invitation_code))?);
-        if db.contains_user(&from_addr).await? {
-            let stored_account_key = db.get_account_key(&from_addr).await?.unwrap();
-            if stored_account_key != field2hex(&account_key.0) {
+        let stored_account_key = db.get_account_key(&from_addr).await?;
+        if let Some(stored_account_key) = stored_account_key.as_ref() {
+            if stored_account_key != &field2hex(&account_key.0) {
                 return Err(anyhow!(
                     "Stored account key is not equal to one in the email: {} != {}",
                     stored_account_key,
@@ -51,12 +49,8 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             .check_if_account_created_by_account_key(&from_addr, &field2hex(&account_key.0))
             .await?
         {
-            let input = generate_account_creation_input(
-                CIRCUITS_DIR_PATH.get().unwrap(),
-                &email,
-                RELAYER_RAND.get().unwrap(),
-            )
-            .await?;
+            let input =
+                generate_account_creation_input(&email, RELAYER_RAND.get().unwrap()).await?;
             let (proof, pub_signals) =
                 generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
             let email_proof = EmailProof {
@@ -77,34 +71,29 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
             let res = chain_client.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
-            db.insert_user(&from_addr, &field2hex(&account_key.0), &res, false)
-                .await?;
+            if let Some(_) = stored_account_key {
+                db.user_onborded(&from_addr, &res).await?;
+                trace!(LOG, "User onboarded"; "func" => function_name!());
+            } else {
+                db.insert_user(&from_addr, &field2hex(&account_key.0), &res, true)
+                    .await?;
+                trace!(LOG, "User inserted"; "func" => function_name!());
+            }
             let wallet_addr = chain_client
                 .get_wallet_addr_from_salt(&wallet_salt.0)
                 .await?;
             info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
-            let token_transfered = chain_client
-                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-                .await?;
             let claims = db.get_claims_by_email_addr(&from_addr).await?;
             for claim in claims {
                 tx_claimer.send(claim)?;
             }
             let email_hash = calculate_default_hash(&email);
             emails_pool.insert_email(&email_hash, &email).await?;
-            (*tx_sender)
-                .clone()
-                .send(EmailMessage {
-                    to: from_addr.clone(),
-                    email_args: EmailArgs::AccountCreation {
-                        user_email_addr: from_addr,
-                    },
-                    account_key: Some(field2hex(&account_key.0)),
-                    wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-                    tx_hash: Some(res),
-                })
-                .unwrap();
-            return Ok(());
+            return Ok(EmailWalletEvent::AccountCreated {
+                email_addr: from_addr,
+                account_key: account_key,
+                tx_hash: res,
+            });
         }
     }
     trace!(LOG, "Process as a normal email"; "func" => function_name!());
@@ -112,6 +101,12 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         "The user of email address {} is not registered.",
         from_addr
     ))?;
+    if !chain_client
+        .check_if_account_created_by_account_key(&from_addr, &account_key_str)
+        .await?
+    {
+        bail!("The user of email address {} is not registered.", from_addr);
+    }
     let account_key = AccountKey(hex2field(&account_key_str)?);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
@@ -120,12 +115,15 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         .get_wallet_addr_from_salt(&wallet_salt.0)
         .await?;
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
-    let mut subject = parsed_email.get_subject_all()?;
-    trace!(LOG, "Subject: {}", subject; "func" => function_name!());
-    let (command, skip_subject_prefix) =
-        subject_templates::extract_command_from_subject(&subject, &chain_client, &wallet_salt)
-            .await?;
-    subject = subject[skip_subject_prefix..].to_string();
+    let original_subject = parsed_email.get_subject_all()?;
+    trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
+    let (command, skip_subject_prefix) = subject_templates::extract_command_from_subject(
+        &original_subject,
+        &chain_client,
+        &wallet_salt,
+    )
+    .await?;
+    let subject = original_subject[skip_subject_prefix..].to_string();
     trace!(LOG, "Command: {}", command; "func" => function_name!());
     trace!(LOG, "Skip Subject Prefix: {}", skip_subject_prefix; "func" => function_name!());
     trace!(LOG, "Prefix Skipped Subject: {}", subject; "func" => function_name!());
@@ -191,7 +189,6 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     };
 
     let mut recipient_email_addr = None;
-    // let mut num_recipient_email_addr_bytes = U256::default();
     let mut recipient_eth_addr = Address::default();
 
     let wallet_params = match command.as_str() {
@@ -202,14 +199,15 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 eth_addr,
             } = &template_vals[1]
             {
+                trace!(LOG, "is_email: {}", is_email; "func" => function_name!());
+                trace!(LOG, "email_addr: {:?}", email_addr; "func" => function_name!());
+                trace!(LOG, "eth_addr: {:?}", eth_addr; "func" => function_name!());
                 if *is_email {
                     recipient_email_addr = email_addr.clone();
                     let padded_email_addr =
                         PaddedEmailAddr::from_email_addr(&email_addr.clone().unwrap());
                     let email_addr_commit =
                         padded_email_addr.to_commitment_with_signature(&parsed_email.signature)?;
-                    // num_recipient_email_addr_bytes =
-                    //     U256::from(email_addr.as_ref().unwrap().len());
                     info!(LOG, "derived commit {:?}", email_addr_commit; "func" => function_name!());
                 } else {
                     recipient_eth_addr = eth_addr.unwrap();
@@ -237,7 +235,7 @@ pub(crate) async fn handle_email<P: EmailsPool>(
                 let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
                 info!(LOG, "decimal size: {}", decimal_size; "func" => function_name!());
                 WalletParams {
-                    token_name: token_name.clone(),
+                    token_name: token_name.clone().to_string(),
                     amount: TemplateValue::amount_to_uint(amount, decimal_size),
                 }
             } else {
@@ -285,20 +283,18 @@ pub(crate) async fn handle_email<P: EmailsPool>(
         }
     };
     trace!(LOG, "parameter constructed"; "func" => function_name!());
-    let input =
-        generate_email_sender_input(CIRCUITS_DIR_PATH.get().unwrap(), &email, &account_key_str)
-            .await?;
+    let input = generate_email_sender_input(&email, &account_key_str).await?;
     trace!(LOG, "input generated"; "func" => function_name!());
     let (email_proof, pub_signals) =
         generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
     trace!(LOG, "proof generated"; "func" => function_name!());
-    // let email_addr_pointer = u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 3]);
     let has_email_recipient = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into();
+    trace!(LOG, "has_email_recipient {}", has_email_recipient; "func" => function_name!());
     let recipient_email_addr_commit =
         u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
     let email_nullifier = u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]);
     let timestamp = pub_signals[DOMAIN_FIELDS + 2];
-    let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&subject)?;
+    let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&original_subject)?;
     info!(LOG, "masked_subject {}", masked_subject; "func" => function_name!());
     info!(
         LOG,
@@ -334,12 +330,11 @@ pub(crate) async fn handle_email<P: EmailsPool>(
     };
     trace!(LOG, "email_op constructed: {:?}", email_op; "func" => function_name!());
     chain_client.validate_email_op(email_op.clone()).await?;
-    let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op).await?;
+    let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op.clone()).await?;
     info!(LOG, "email_op broadcased to chain: {}", tx_hash; "func" => function_name!());
     if let Some(email_addr) = recipient_email_addr.as_ref() {
         info!(LOG, "recipient email address: {}", email_addr; "func" => function_name!());
         let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
-        // let commit = bytes32_to_fr(&recipient_email_addr_commit)?;
         let is_fund = command == SEND_COMMAND;
         let expiry_time = if is_fund {
             let unclaimed_fund: UnclaimedFund = chain_client
@@ -353,18 +348,9 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
         };
         let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
-        let psi_client = PSIClient::new(
-            Arc::clone(&chain_client),
-            email_addr.to_string(),
-            registered_unclaim_id,
-            is_fund,
-        )
-        .await?;
-        psi_client
-            .check_and_reveal(db.clone(), chain_client.clone(), &email_addr)
-            .await?;
 
         let claim = Claim {
+            tx_hash: tx_hash.clone(),
             id: registered_unclaim_id,
             email_address: email_addr.clone(),
             commit,
@@ -372,43 +358,26 @@ pub(crate) async fn handle_email<P: EmailsPool>(
             expiry_time,
             is_fund,
             is_announced: false,
+            is_seen: false,
         };
         tx_claimer.send(claim)?;
         trace!(LOG, "claim sent to tx_claimer"; "func" => function_name!());
-        (*tx_sender)
-            .clone()
-            .send(EmailMessage {
-                to: email_addr.to_string(),
-                email_args: EmailArgs::TxReceived {
-                    user_email_addr: email_addr.to_string(),
-                },
-                account_key: None,
-                wallet_addr: None,
-                tx_hash: Some(tx_hash.clone()),
-            })
-            .unwrap();
     }
     let message_id = parsed_email.get_message_id()?;
-    (*tx_sender)
-        .clone()
-        .send(EmailMessage {
-            to: from_addr.clone(),
-            email_args: EmailArgs::TxComplete {
-                user_email_addr: from_addr,
-                original_subject: subject,
-                reply_to: message_id,
-            },
-            account_key: Some(field2hex(&account_key.0)),
-            wallet_addr: Some(ethers::utils::to_checksum(&wallet_addr, None)),
-            tx_hash: Some(tx_hash),
-        })
-        .unwrap();
-    trace!(LOG, "email_op sent to tx_sender"; "func" => function_name!());
 
-    Ok(())
+    Ok(EmailWalletEvent::EmailHandled {
+        sender_email_addr: from_addr,
+        account_key: account_key,
+        recipient_email_addr: recipient_email_addr,
+        original_subject: original_subject,
+        message_id,
+        email_op: email_op,
+        tx_hash,
+    })
 }
 
-pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
+#[named]
+pub fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
     match extract_email_addr_idxes(subject) {
         Ok(extracts) => {
             if extracts.len() != 1 {
@@ -417,6 +386,7 @@ pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
                 ));
             }
             let (start, end) = extracts[0];
+            info!(LOG, "start: {}, end: {}", start, end; "func" => function_name!());
             if end == subject.len() {
                 Ok((subject[0..start].to_string(), 0))
             } else {
@@ -425,11 +395,14 @@ pub(crate) fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
                 Ok((String::from_utf8(masked_subject_bytes)?, end - start))
             }
         }
-        Err(_) => Ok((subject.to_string(), 0)),
+        Err(err) => {
+            info!(LOG, "Recipient address not found in the subject: {}", err; "func" => function_name!());
+            Ok((subject.to_string(), 0))
+        }
     }
 }
 
-pub(crate) fn calculate_default_hash(input: &str) -> String {
+pub fn calculate_default_hash(input: &str) -> String {
     let mut hasher = DefaultHasher::new();
     input.hash(&mut hasher);
     let hash_code = hasher.finish();
@@ -437,7 +410,7 @@ pub(crate) fn calculate_default_hash(input: &str) -> String {
     hash_code.to_string()
 }
 
-pub(crate) async fn select_fee_token(
+pub async fn select_fee_token(
     wallet_salt: &WalletSalt,
     chain_client: &Arc<ChainClient>,
 ) -> Result<String> {
@@ -474,7 +447,7 @@ pub(crate) async fn select_fee_token(
 }
 
 #[named]
-pub(crate) async fn check_and_update_dkim(
+pub async fn check_and_update_dkim(
     email: &str,
     parsed_email: &ParsedEmail,
     chain_client: &Arc<ChainClient>,

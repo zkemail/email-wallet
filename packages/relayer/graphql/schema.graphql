@@ -1,94 +1,20 @@
 type Query {
-  relayer: Relayer,
   relayers: [Relayer!],
-  relayerAccount: RelayerAccount,
-  account: Account,
-  unclaimedFund: UnclaimedFund,
-  unclaimedState: UnclaimedState,
-  emailOp: EmailOp,
-  extension: Extension,
 }
 
 type Relayer @entity {
   id: String!
   address: String! # address
-  randHash: String! # bytes32
   emailAddress: String! # string
   hostname: String! # string
-  relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "relayer")
+  relayerAccounts: [Account!]!
   createdAt: String!
   updatedAt: String!
 }
 
-type RelayerAccount @entity {
-  id: String!
-  relayer: Relayer!
-  account: Account!
-  emailAddrPointer: String! # bytes32
-  accountKeyCommit: String! # bytes32
-  psiPoint: String! # bytes
-  isInitialized: Boolean!
-  createdAt: String!
-  initializedAt: String!
-}
-
 type Account @entity {
   id: String!
-  relayerAccounts: [RelayerAccount!]! @derivedFrom(field: "account")
   walletSalt: String! # bytes32
-  walletAddr: String! # address
+  psiPoint: String! # address
   createdAt: String!
-}
-
-type UnclaimedFund @entity {
-  id: String!
-  emailAddrCommit: String! # bytes32
-  tokenAddr: String! # address
-  amount: String! # uint256
-  sender: String! # address
-  expiryTime: String! # uint256
-  commitmentRandomness: String! # uint256
-  emailAddr: String! # string
-  recipient: String! # address
-  createdAt: String!
-  claimedAt: String!
-  voidedAt: String!
-}
-
-type UnclaimedState @entity {
-  id: String!
-  emailAddrCommit: String! # bytes32
-  extensionAddr: String! # address
-  sender: String! # address
-  expiryTime: String! # uint256
-  state: String! # bytes
-  commitmentRandomness: String! # uint256
-  emailAddr: String! # string
-  recipient: String! # address
-  createdAt: String!
-  claimedAt: String!
-  voidedAt: String!
-}
-
-type EmailOp @entity(immutable: true) {
-  id: String!
-  success: Boolean! # bool
-  emailAddrPointer: String! # bytes32
-  hasRecipient: Boolean! # bool
-  hasEmailRecipient: Boolean! # bool
-  registeredUnclaimId: String! # uint256
-  emailNullifier: String! # bytes32
-  blockNumber: String!
-  transactionHash: String!
-  createdAt: String!
-}
-
-type Extension @entity(immutable: true) {
-  id: String!
-  name: String! # string
-  extensionAddr: String! # address
-  subjectTemplates: [[String!]!]! # string[][]
-  maxExecutionGas: String! # uint256
-  createdAt: String!
-  createdBy: String! # address
 }
