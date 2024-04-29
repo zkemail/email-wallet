@@ -46,7 +46,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("genRelayerRand", gen_relayer_rand_node)?;
     cx.export_function("relayerRandHash", relayer_rand_hash_node)?;
     cx.export_function("padEmailAddr", pad_email_addr_node)?;
-    cx.export_function("emailAddrPointer", email_addr_pointer_node)?;
+    // cx.export_function("emailAddrPointer", email_addr_pointer_node)?;
     cx.export_function("emailAddrCommitRand", email_addr_commit_rand_node)?;
     cx.export_function("emailAddrCommit", email_addr_commit_node)?;
     cx.export_function(

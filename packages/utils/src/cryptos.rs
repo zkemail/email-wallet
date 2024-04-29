@@ -51,9 +51,9 @@ impl PaddedEmailAddr {
         bytes2fields(&self.padded_bytes)
     }
 
-    pub fn to_pointer(&self, relayer_rand: &RelayerRand) -> Result<Fr, PoseidonError> {
-        self.to_commitment(&relayer_rand.0)
-    }
+    // pub fn to_pointer(&self, relayer_rand: &RelayerRand) -> Result<Fr, PoseidonError> {
+    //     self.to_commitment(&relayer_rand.0)
+    // }
 
     pub fn to_commitment(&self, rand: &Fr) -> Result<Fr, PoseidonError> {
         let mut inputs = vec![*rand];
@@ -449,15 +449,15 @@ pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
     Ok(cx.string(relayer_rand_hash_str))
 }
 
-pub fn email_addr_pointer_node(mut cx: FunctionContext) -> JsResult<JsString> {
-    let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
-    let relayer_rand = cx.argument::<JsString>(1)?.value(&mut cx);
-    let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
-    let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
-    let email_addr_pointer = match padded_email_addr.to_pointer(&RelayerRand(relayer_rand)) {
-        Ok(fr) => fr,
-        Err(e) => return cx.throw_error(&format!("EmailAddrPointer failed: {}", e)),
-    };
-    let email_addr_pointer_str = field2hex(&email_addr_pointer);
-    Ok(cx.string(email_addr_pointer_str))
-}
+// pub fn email_addr_pointer_node(mut cx: FunctionContext) -> JsResult<JsString> {
+//     let email_addr = cx.argument::<JsString>(0)?.value(&mut cx);
+//     let relayer_rand = cx.argument::<JsString>(1)?.value(&mut cx);
+//     let relayer_rand = hex2field_node(&mut cx, &relayer_rand)?;
+//     let padded_email_addr = PaddedEmailAddr::from_email_addr(&email_addr);
+//     let email_addr_pointer = match padded_email_addr.to_pointer(&RelayerRand(relayer_rand)) {
+//         Ok(fr) => fr,
+//         Err(e) => return cx.throw_error(&format!("EmailAddrPointer failed: {}", e)),
+//     };
+//     let email_addr_pointer_str = field2hex(&email_addr_pointer);
+//     Ok(cx.string(email_addr_pointer_str))
+// }
