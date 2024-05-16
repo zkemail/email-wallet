@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: managed-cert-ingress
+  namespace: email-wallet
   annotations:
     kubernetes.io/ingress.global-static-ip-name: k8s-ingress
     networking.gke.io/managed-certificates: managed-cert

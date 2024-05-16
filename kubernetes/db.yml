@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secret
+  namespace: email-wallet
   labels:
     app: postgres
 type: Opaque
@@ -15,6 +16,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
+  namespace: email-wallet
   labels:
     app: postgres
 spec:
@@ -30,6 +32,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
+  namespace: email-wallet
 spec:
   replicas: 1
   selector:
@@ -62,7 +65,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: postgres-svc
+  namespace: email-wallet
   labels:
     app: postgres
 spec:
