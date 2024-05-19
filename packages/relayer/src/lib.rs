@@ -472,6 +472,7 @@ async fn email_handler_fn(
     tx_event_consumer.send(EmailWalletEvent::Ack {
         email_addr: email_addr.clone(),
         subject: parsed_email.get_subject_all().unwrap(),
+        original_message_id: Some(parsed_email.get_message_id().unwrap_or_default()),
     })?;
     let event = match handle_email(
         email.clone(),

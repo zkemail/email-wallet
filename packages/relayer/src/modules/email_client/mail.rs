@@ -233,6 +233,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
         EmailWalletEvent::Ack {
             email_addr,
             subject,
+            original_message_id,
         } => {
             let body_plain = format!(
                 "Hi {}!\nYour email with the subject {} is received.",
@@ -246,12 +247,13 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 subject,
                 body_plain,
                 body_html,
-                reference: None,
-                reply_to: None,
+                reference: original_message_id.clone(),
+                reply_to: original_message_id,
                 body_attachments: None,
             };
             sender.send(email)?;
         }
+        EmailWalletEvent::NoOp => {}
     }
 
     Ok(())
