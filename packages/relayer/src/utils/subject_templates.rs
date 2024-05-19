@@ -103,7 +103,10 @@ pub async fn extract_command_from_subject(
             return Ok((word.to_string(), position));
         }
     }
-    Err(anyhow!("No command found"))
+    Err(anyhow!(
+        "No command found in the subject, subject: {}",
+        subject
+    ))
 }
 
 pub fn extract_template_vals_send(input: &str) -> Result<Vec<TemplateValue>> {

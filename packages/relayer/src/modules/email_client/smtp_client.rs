@@ -63,7 +63,9 @@ pub enum EmailWalletEvent {
     Ack {
         email_addr: String,
         subject: String,
+        original_message_id: Option<String>,
     },
+    NoOp,
 }
 
 #[derive(Debug, Clone)]
@@ -230,6 +232,6 @@ pub fn parse_error(error: String) -> Result<Option<String>> {
     match error.as_str() {
         "Account is already created" => Ok(Some(error)),
         "insufficient balance" => Ok(Some("You don't have sufficient balance".to_string())),
-        _ => Ok(None),
+        _ => Ok(Some(error)),
     }
 }

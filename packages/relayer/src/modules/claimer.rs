@@ -78,13 +78,11 @@ pub async fn claim_unclaims(
             tx_hash,
         });
     }
-    let account_key_str = db
-        .get_account_key(&claim.email_address)
-        .await?
-        .ok_or(anyhow!(
-            "Account key not found for email address: {}",
-            claim.email_address
-        ))?;
+    let account_key_str = if let Some(key) = db.get_account_key(&claim.email_address).await? {
+        key
+    } else {
+        return Ok(EmailWalletEvent::NoOp);
+    };
     let is_account_created = chain_client
         .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
         .await?;
