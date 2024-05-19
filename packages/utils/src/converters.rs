@@ -68,7 +68,12 @@ pub fn bytes2fields(bytes: &[u8]) -> Vec<Fr> {
         .collect_vec()
 }
 
-pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: usize) -> Vec<Fr> {
+pub fn bytes_chunk_fields(bytes: &[u8], chunk_bit_size: usize, num_chunk_in_field: usize, max_chunk_size: usize) -> Vec<Fr> {
+    let max_bytes_size = max_chunk_size * chunk_bit_size / 8;
+    let mut bytes = bytes.to_vec();
+    if bytes.len() < max_bytes_size {
+        bytes.resize(max_bytes_size, 0);
+    }
     let bits = bytes
         .iter()
         .flat_map(|byte| {
@@ -80,7 +85,7 @@ pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: u
         })
         .collect_vec();
     let words = bits
-        .chunks(chunk_size)
+        .chunks(chunk_bit_size)
         .map(|bits| {
             let mut word = Fr::zero();
             for (i, bit) in bits.iter().enumerate() {
@@ -96,7 +101,7 @@ pub fn bytes_chunk_fields(bytes: &[u8], chunk_size: usize, num_chunk_in_field: u
         .map(|words| {
             let mut input = Fr::zero();
             let mut coeff = Fr::one();
-            let offset = Fr::from_u128(1u128 << chunk_size);
+            let offset = Fr::from_u128(1u128 << chunk_bit_size);
             for (_, word) in words.iter().enumerate() {
                 input += coeff * word;
                 coeff *= offset;

@@ -70,7 +70,7 @@ impl PaddedEmailAddr {
 pub fn extract_rand_from_signature(signature: &[u8]) -> Result<Fr, PoseidonError> {
     let mut signature = signature.to_vec();
     signature.reverse();
-    let mut inputs = bytes_chunk_fields(&signature, 121, 2);
+    let mut inputs = bytes_chunk_fields(&signature, 121, 2, 17);
     inputs.push(Fr::one());
     let cm_rand = poseidon_fields(&inputs)?;
     Ok(cm_rand)
@@ -127,13 +127,13 @@ impl WalletSalt {
 
 /// `public_key_n` is little endian.
 pub fn public_key_hash(public_key_n: &[u8]) -> Result<Fr, PoseidonError> {
-    let inputs = bytes_chunk_fields(public_key_n, 121, 2);
+    let inputs = bytes_chunk_fields(public_key_n, 121, 2, 17);
     poseidon_fields(&inputs)
 }
 
 /// `signature` is little endian.
 pub fn email_nullifier(signature: &[u8]) -> Result<Fr, PoseidonError> {
-    let inputs = bytes_chunk_fields(signature, 121, 2);
+    let inputs = bytes_chunk_fields(signature, 121, 2, 17);
     let sign_rand = poseidon_fields(&inputs)?;
     poseidon_fields(&[sign_rand])
 }
@@ -461,3 +461,16 @@ pub fn relayer_rand_hash_node(mut cx: FunctionContext) -> JsResult<JsString> {
 //     let email_addr_pointer_str = field2hex(&email_addr_pointer);
 //     Ok(cx.string(email_addr_pointer_str))
 // }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_public_key_hash() {
+        let mut public_key_n = hex::decode("cfb0520e4ad78c4adb0deb5e605162b6469349fc1fde9269b88d596ed9f3735c00c592317c982320874b987bcc38e8556ac544bdee169b66ae8fe639828ff5afb4f199017e3d8e675a077f21cd9e5c526c1866476e7ba74cd7bb16a1c3d93bc7bb1d576aedb4307c6b948d5b8c29f79307788d7a8ebf84585bf53994827c23a5").unwrap();
+        public_key_n.reverse();
+        let hash_field = public_key_hash(&public_key_n).unwrap();
+        let expected_hash = format!("0x{}",hex::encode([24, 26, 185, 80, 217, 115, 238, 83, 131, 133, 50, 236, 177, 184, 177, 21, 40, 246, 234, 122, 176, 142, 40, 104, 251, 50, 24, 70, 64, 82, 249, 83]));
+        assert_eq!(field2hex(&hash_field), expected_hash);
+    }       
+}
