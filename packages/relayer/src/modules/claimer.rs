@@ -69,8 +69,14 @@ pub async fn claim_unclaims(
             .get_wallet_addr_from_salt(&wallet_salt.0)
             .await?;
 
-        db.insert_user(&claim.email_address, &account_key_str, "", false)
-            .await?;
+        db.insert_user(
+            &claim.email_address,
+            &account_key_str,
+            "",
+            false,
+            &wallet_addr.to_string(),
+        )
+        .await?;
         return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,
             account_key,

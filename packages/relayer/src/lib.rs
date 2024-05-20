@@ -57,6 +57,7 @@ pub static ONBOARDING_TOKEN_AMOUNT: OnceLock<U256> = OnceLock::new();
 pub static ONBOARDING_COUNTER: AtomicU32 = AtomicU32::new(1);
 pub static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
 pub static RELAYER_EMAIL_ADDRESS: OnceLock<String> = OnceLock::new();
+pub static SAFE_API_ENDPOINT: OnceLock<String> = OnceLock::new();
 
 lazy_static! {
     pub static ref DB: Arc<Database> = {
@@ -153,6 +154,7 @@ pub async fn run(
     RELAYER_EMAIL_ADDRESS
         .set(config.smtp_config.id.clone())
         .unwrap();
+    SAFE_API_ENDPOINT.set(config.safe_api_endpoint).unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();

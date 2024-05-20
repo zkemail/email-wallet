@@ -71,17 +71,23 @@ pub async fn handle_email<P: EmailsPool>(
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
             let res = chain_client.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
+            let wallet_addr = chain_client
+                .get_wallet_addr_from_salt(&wallet_salt.0)
+                .await?;
             if let Some(_) = stored_account_key {
                 db.user_onborded(&from_addr, &res).await?;
                 trace!(LOG, "User onboarded"; "func" => function_name!());
             } else {
-                db.insert_user(&from_addr, &field2hex(&account_key.0), &res, true)
-                    .await?;
+                db.insert_user(
+                    &from_addr,
+                    &field2hex(&account_key.0),
+                    &res,
+                    true,
+                    &wallet_addr.to_string(),
+                )
+                .await?;
                 trace!(LOG, "User inserted"; "func" => function_name!());
             }
-            let wallet_addr = chain_client
-                .get_wallet_addr_from_salt(&wallet_salt.0)
-                .await?;
             info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
             let claims = db.get_claims_by_email_addr(&from_addr).await?;
             for claim in claims {
@@ -136,6 +142,7 @@ pub async fn handle_email<P: EmailsPool>(
         UNINSTALL_COMMAND => (0, extract_template_vals_uninstall(&subject)?),
         EXIT_COMMAND => (0, extract_template_vals_exit(&subject)?),
         DKIM_COMMAND => (0, extract_template_vals_dkim(&subject)?),
+        SAFE_COMMAND => (0, extract_template_vals_safe_tx(&subject)?),
         _ => {
             let extension_addr = chain_client
                 .query_user_extension_for_command(&wallet_salt, command.as_str())

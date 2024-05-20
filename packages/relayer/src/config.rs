@@ -25,6 +25,7 @@ pub struct RelayerConfig {
     pub onboarding_token_amount: U256,
     pub onboarding_token_distribution_limit: u32,
     pub onboarding_reply_msg: String,
+    pub safe_api_endpoint: String,
 }
 
 impl RelayerConfig {
@@ -101,6 +102,7 @@ impl RelayerConfig {
             onboarding_token_distribution_limit,
             onboarding_token_amount,
             onboarding_reply_msg,
+            safe_api_endpoint: env::var(SAFE_API_ENDPOINT_KEY).unwrap(),
         }
     }
 }

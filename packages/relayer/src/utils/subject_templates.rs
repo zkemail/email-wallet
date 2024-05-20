@@ -93,6 +93,7 @@ pub async fn extract_command_from_subject(
             || word == UNINSTALL_COMMAND
             || word == EXIT_COMMAND
             || word == DKIM_COMMAND
+            || word == SAFE_COMMAND
         {
             return Ok((word.to_string(), position));
         } else if chain_client
@@ -176,6 +177,16 @@ pub fn extract_template_vals_dkim(input: &str) -> Result<Vec<TemplateValue>> {
         "set".to_string(),
         "to".to_string(),
         "{address}".to_string(),
+    ];
+    extract_template_vals(input, templates)
+}
+
+pub fn extract_template_vals_safe_tx(input: &str) -> Result<Vec<TemplateValue>> {
+    let templates = vec![
+        SAFE_COMMAND.to_string(),
+        "Transaction:".to_string(),
+        "Approve".to_string(),
+        "{tx_hash}".to_string(),
     ];
     extract_template_vals(input, templates)
 }
@@ -333,6 +344,20 @@ fn extract_template_vals(input: &str, templates: Vec<String>) -> Result<Vec<Temp
                     email_addr,
                     eth_addr,
                 });
+                input_idx += 1;
+            }
+            "tx_hash" => {
+                let tx_hash_match = Regex::new(TX_HASH_REGEX)
+                    .unwrap()
+                    .find(input_decomposed[input_idx])
+                    .ok_or(anyhow!("No tx hash found"))?;
+                if tx_hash_match.start() != 0
+                    || tx_hash_match.end() != input_decomposed[input_idx].len()
+                {
+                    return Err(anyhow!("Tx hash must be the whole word"));
+                }
+                let tx_hash = tx_hash_match.as_str().to_string();
+                template_vals.push(TemplateValue::String(tx_hash));
                 input_idx += 1;
             }
             _ => {

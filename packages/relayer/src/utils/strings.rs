@@ -31,6 +31,7 @@ pub const ONBOARDING_TOKEN_ADDR_KEY: &str = "ONBOARDING_TOKEN_ADDR";
 pub const ONBOARDING_TOKEN_AMOUNT_KEY: &str = "ONBOARDING_TOKEN_AMOUNT";
 pub const ONBOARDING_TOKEN_DISTRIBUTION_LIMIT_KEY: &str = "ONBOARDING_TOKEN_DISTRIBUTION_LIMIT";
 pub const ONBOARDING_REPLY_KEY: &str = "ONBOARDING_REPLY";
+pub const SAFE_API_ENDPOINT_KEY: &str = "SAFE_API_ENDPOINT";
 
 // Log strings
 pub const JSON_LOGGER_KEY: &str = "JSON_LOGGER";
@@ -53,12 +54,14 @@ pub const INT_REGEX: &str = "-?[0-9]+";
 pub const ETH_ADDR_REGEX: &str = "0x[0-9a-fA-F]{40}";
 pub const EMAIL_ADDR_REGEX: &str =
     "[a-zA-Z0-9!#$%&'\\*\\+-/=\\?^_`{\\|}~\\.]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9\\.-]+";
+pub const TX_HASH_REGEX: &str = "0x[0-9a-fA-F]{64}";
 pub const SEND_COMMAND: &str = "Send";
 pub const EXECUTE_COMMAND: &str = "Execute";
 pub const INSTALL_COMMAND: &str = "Install";
 pub const UNINSTALL_COMMAND: &str = "Uninstall";
 pub const EXIT_COMMAND: &str = "Exit";
 pub const DKIM_COMMAND: &str = "DKIM";
+pub const SAFE_COMMAND: &str = "Safe";
 
 // DKIM ORACLE ARGS
 pub const CANISTER_ID_KEY: &str = "CANISTER_ID";
