@@ -48,6 +48,14 @@ impl Database {
         .execute(&self.db)
         .await?;
 
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS safe (
+                safe_address TEXT PRIMARY KEY,
+            );",
+        )
+        .execute(&self.db)
+        .await?;
+
         Ok(())
     }
 
@@ -58,14 +66,16 @@ impl Database {
         account_key: &str,
         tx_hash: &str,
         is_onborded: bool,
+        wallet_addr: &str,
     ) -> Result<()> {
         let row = sqlx::query(
-            "INSERT INTO users (email_address, account_key, tx_hash, is_onborded) VALUES ($1, $2, $3, $4) RETURNING *",
+            "INSERT INTO users (email_address, account_key, tx_hash, is_onborded, wallet_addr) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         )
         .bind(email_address)
         .bind(account_key)
         .bind(tx_hash)
         .bind(is_onborded)
+        .bind(wallet_addr)
         .fetch_one(&self.db)
         .await?;
         info!(
@@ -311,5 +321,22 @@ impl Database {
             Err(sqlx::error::Error::RowNotFound) => Ok(None),
             Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,
         }
+    }
+
+    pub async fn is_wallet_addr_exist(&self, wallet_addr: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM users WHERE wallet_addr = $1")
+            .bind(wallet_addr)
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(result.is_some())
+    }
+
+    pub async fn add_safe(&self, safe_addr: &str) -> Result<()> {
+        sqlx::query("INSERT INTO safe (safe_address) VALUES ($1)")
+            .bind(safe_addr)
+            .execute(&self.db)
+            .await?;
+        Ok(())
     }
 }

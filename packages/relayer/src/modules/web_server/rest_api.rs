@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 
-use crate::smtp_client::*;
+use crate::{smtp_client::*, AddSafeRequest, SafeInfoResponse, SafeTxnRequest, SAFE_API_ENDPOINT};
 use email_wallet_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
@@ -10,6 +10,7 @@ use ethers::types::{Address, U256};
 use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
 use hex::encode;
 use rand::Rng;
+use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Serialize};
 use serde_json::Number;
 use serde_json::Value;
@@ -286,3 +287,38 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
     };
     Ok((request_id, email))
 }
+
+// pub async fn safe_api_fn(payload: String) -> Result<String> {
+//     let request = serde_json::from_str::<AddSafeRequest>(&payload)
+//         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+//     let url = format!(
+//         "{}/v1/safes/{}/",
+//         SAFE_API_ENDPOINT.get().unwrap(),
+//         request.safe_address
+//     );
+//     let client = reqwest::Client::new();
+//     let mut headers = HeaderMap::new();
+//     headers.insert("accept", HeaderValue::from_static("application/json"));
+
+//     let response = client.get(url).headers(headers).send().await?;
+//     let body = response.text().await?;
+//     let safe: SafeInfoResponse = serde_json::from_str(&body)?;
+
+//     let mut email_wallet_address_exist = false;
+
+//     for owner in safe.owners {
+//         // Check if there is a account key for the owner
+//         if DB.is_wallet_addr_exist(&owner).await? {
+//             email_wallet_address_exist = true;
+//             break;
+//         }
+//     }
+
+//     if email_wallet_address_exist {
+//         DB.add_safe(&request.safe_address).await?;
+//     } else {
+//         Ok("Email Wallet Account not present as the owner ".to_string())
+//     }
+
+//     Ok(())
+// }

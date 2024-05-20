@@ -41,6 +41,24 @@ pub struct StatResponse {
     pub onboarding_tokens_left: u32,
 }
 
+// #[derive(Serialize, Deserialize)]
+// pub struct AddSafeRequest {
+//     pub safe_address: String,
+// }
+
+// #[derive(Serialize, Deserialize)]
+// pub struct SafeInfoResponse {
+//     pub address: String,
+//     pub nonce: u64,
+//     pub threshold: u8,
+//     pub owners: Vec<String>,
+//     pub masterCopy: String,
+//     pub modules: Vec<String>,
+//     pub fallbackHandler: String,
+//     pub guard: String,
+//     pub version: String,
+// }
+
 #[named]
 async fn unclaim(
     payload: UnclaimRequest,
@@ -264,6 +282,19 @@ pub async fn run_server(
                 }
             }),
         );
+    // .route(
+    //     "/api/addSafe",
+    //     axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+    //         info!(LOG, "Safe txn payload: {}", payload);
+    //         match add_safe_api_fn(payload).await {
+    //             Ok(status) => status.to_string(),
+    //             Err(err) => {
+    //                 error!(LOG, "Failed to complete the safe request: {}", err);
+    //                 err.to_string()
+    //             }
+    //         }
+    //     }),
+    // );
 
     app = app.layer(
         CorsLayer::new()
