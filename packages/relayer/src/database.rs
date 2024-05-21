@@ -50,7 +50,7 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS safe (
-                wallet_addr TEXT PRIMARY KEY,
+                wallet_addr TEXT PRIMARY KEY
             );",
         )
         .execute(&self.db)
