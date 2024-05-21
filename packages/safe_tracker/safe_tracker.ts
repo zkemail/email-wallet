@@ -20,15 +20,20 @@ interface SafeRequest {
   safe_addr: string;
 }
 
+enum Operation {
+  Add = "add",
+  Remove = "remove"
+}
+
 // Function to send a POST request to the bore.pub API
-const sendSafeRequest = async (walletAddress: string, safeAddress: string, addOrRemove: string) => {
+const sendSafeRequest = async (walletAddress: string, safeAddress: string, operation: Operation) => {
   const safeRequest: SafeRequest = {
     wallet_addr: walletAddress,
     safe_addr: safeAddress,
   };
 
   try {
-    const response = await fetch(`http://bore.pub:30188/api/${addOrRemove}SafeOwner`, {
+    const response = await fetch(`http://bore.pub:44168/api/${operation}SafeOwner`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,41 +52,41 @@ const sendSafeRequest = async (walletAddress: string, safeAddress: string, addOr
   }
 };
 
+// Function to parse log data and extract necessary information
+const parseLogData = (log) => {
+  console.log("Data:", log.data);
+  const abiCoder = new ethers.AbiCoder();
+  const decodedData = abiCoder.decode(["address"], log.data);
+  const affectedAddress = decodedData[0];
+  console.log(`Affected Address: ${affectedAddress}`);
+  const eventSenderAddress = log.address;
+  console.log(`Event Sender Address: ${eventSenderAddress}`);
+  return { affectedAddress, eventSenderAddress };
+};
+
+
 const main = async () => {
   // Event selectors for AddedOwner and RemovedOwner
   const addedOwnerEvent = ethers.id("AddedOwner(address)");
   const removedOwnerEvent = ethers.id("RemovedOwner(address)");
 
-  // Add these event selectors to the topics array for subscription
-  const topics = [addedOwnerEvent, removedOwnerEvent];
-  // await sendSafeRequest("0x2dbe252f92cb4b77762bb5846bbbb3b4e622684d", "0x000000000000000087c51cd469a0e1e2af0e0e597fd88d9ae4baa96700000010", "add");
-  await sendSafeRequest("0x2dbe252f92cb4b77762bb5846bbbb3b4e622684d", "0x000000000000000087c51cd469a0e1e2af0e0e597fd88d9ae4baa96700000010", "remove");
+  // Subscribe to logs using Alchemy
+  // Note that you can only subscribe to one topic in a single element array
+  const subscriptionAdd = alchemy.ws.on([addedOwnerEvent], async (log, event) => {
+    // Parse the logs for the specific transaction
+    console.log("Owner added!");
+    const { affectedAddress, eventSenderAddress } = parseLogData(log);
+    await sendSafeRequest(affectedAddress, eventSenderAddress, "add" as Operation);
+  });
 
   // Subscribe to logs using Alchemy
-  const subscription = alchemy.ws.on(topics, async (log, event) => {
+  const subscriptionRemove = alchemy.ws.on([removedOwnerEvent], async (log, event) => {
     // Parse the logs for the specific transaction
-    let data = log.data;
-    const abiCoder = new ethers.AbiCoder();
-    const decodedData = abiCoder.decode(["address"], data);
-    const affectedAddress = decodedData[0];
-    console.log(`Affected Address: ${affectedAddress}`);
-    const eventSenderAddress = log.address;
-    console.log(`Event Sender Address: ${eventSenderAddress}`);
-
-    switch (log.topics[0]) {
-      case addedOwnerEvent:
-        console.log(`Owner Added: ${affectedAddress}`);
-        await sendSafeRequest(affectedAddress, eventSenderAddress, "add");
-        break;
-      case removedOwnerEvent:
-        console.log(`Owner Removed: ${affectedAddress}`);
-        await sendSafeRequest(affectedAddress, eventSenderAddress, "remove");
-        break;
-      default:
-        console.log("The data does not match any known event selectors.");
-        break;
-    }
+    console.log("Owner removed!");
+    const { affectedAddress, eventSenderAddress } = parseLogData(log);
+    await sendSafeRequest(affectedAddress, eventSenderAddress, "remove" as Operation);
   });
+
   console.log("Subscribed to Safe owner logs...");
 };
 
