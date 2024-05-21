@@ -1,48 +1,57 @@
-# syntax=docker/dockerfile:1.6
-
+# Use the latest official Rust image as the base
 FROM rust:latest
-
-# Remove unnecessary apt clean configuration
-RUN rm -f /etc/apt/apt.conf.d/docker-clean
-
-# Update and upgrade packages with caching
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt update && apt upgrade -y \
-    && rm -rf /var/lib/apt/lists/*
 
 # Use bash as the shell
 SHELL ["/bin/bash", "-c"]
 
 # Install NVM, Node.js, and Yarn
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash \
-    && . /root/.nvm/nvm.sh \
-    && . /root/.nvm/bash_completion \
-    && bash -i -c "nvm install 18 && nvm use 18" \
-    && bash -i -c "npm install -g yarn"
+    && . $HOME/.nvm/nvm.sh \
+    && nvm install 18 \
+    && nvm alias default 18 \
+    && nvm use default \
+    && npm install -g yarn
 
+# Set the working directory
 WORKDIR /relayer
+
+# Pre-configure Git to avoid common issues and increase clone verbosity
+RUN git config --global advice.detachedHead false \
+    && git config --global core.compression 0 \
+    && git config --global protocol.version 2 \
+    && git config --global http.postBuffer 1048576000 \
+    && git config --global fetch.verbose true
 
 # Copy project files
 COPY . .
 
-# Install Yarn dependencies with caching
-RUN --mount=type=cache,target=/var/cache/yarn \
-    bash -i -c "yarn" \
-    && rm -rf /var/lib/yarn/lists/*
+# Install Yarn dependencies with retry mechanism
+RUN . $HOME/.nvm/nvm.sh && nvm use default && yarn || \
+    (sleep 5 && yarn) || \
+    (sleep 10 && yarn)
 
-# Install Foundry and build contracts
+# Install Foundry
 RUN curl -L https://foundry.paradigm.xyz | bash \
-    && bash -i -c "foundryup"
+    && source $HOME/.bashrc \
+    && foundryup
 
+# Verify Foundry installation
+RUN source $HOME/.bashrc && forge --version
+
+# Set the working directory for contracts
 WORKDIR /relayer/packages/contracts
-RUN bash -i -c "forge build"
 
+# Install Yarn dependencies for contracts
+RUN source $HOME/.nvm/nvm.sh && nvm use default && yarn
+
+# Build the contracts using Foundry
+RUN source $HOME/.bashrc && forge build
+
+# Set the working directory for the Rust project
 WORKDIR /relayer/packages/relayer
 
-# Build Rust project with caching
-RUN --mount=type=cache,target=/var/cache/cargo \
-    cargo build \
-    && rm -rf /var/lib/cargo/lists/*
+# Build the Rust project with caching
+RUN cargo build
 
 # Expose port
 EXPOSE 4500
