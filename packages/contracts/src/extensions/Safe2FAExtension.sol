@@ -24,19 +24,15 @@ contract Safe2FAExtension is Extension, Initializable, UUPSUpgradeable, OwnableU
         _disableInitializers();
     }
 
-    function initialize(address coreAddr) initializer public {
+    function initialize(address coreAddr) public initializer {
         __Ownable_init();
         core = EmailWalletCore(payable(coreAddr));
         templates = new string[][](4);
         templates[0] = ["Safe", "Transaction:", "Approve", "{string}", "from", "{address}"];
     }
-     
-     // Safe Transaction: Approve {txhash}
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
+
+    // Safe Transaction: Approve {txhash}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function execute(
         uint8 templateIndex,
@@ -49,7 +45,7 @@ contract Safe2FAExtension is Extension, Initializable, UUPSUpgradeable, OwnableU
         wallet;
         recipientETHAddr;
         emailNullifier;
-        require(templateIndex ==0, "invalid templateIndex");
+        require(templateIndex == 0, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
         require(subjectParams.length == 2, "invalid subjectParams length");
 

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "./helpers/EmailWalletCoreTestHelper.sol";
-import "../src/extensions/Safe2FA.sol";
+import "../src/extensions/Safe2FAExtension.sol";
 import "./mocks/TestExtension.sol";
 import {SafeL2} from "safe-contracts/contracts/SafeL2.sol";
 import {SafeProxy} from "safe-contracts/contracts/proxies/SafeProxy.sol";
