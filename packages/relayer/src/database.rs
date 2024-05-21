@@ -50,7 +50,17 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS safe (
-                safe_address TEXT PRIMARY KEY,
+                wallet_addr TEXT PRIMARY KEY,
+            );",
+        )
+        .execute(&self.db)
+        .await?;
+
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS safe_txs (
+                tx_hash TEXT PRIMARY KEY,
+                wallet_addr TEXT NOT NULL,
+                is_completed BOOLEAN NOT NULL DEFAULT FALSE
             );",
         )
         .execute(&self.db)
@@ -332,11 +342,63 @@ impl Database {
         Ok(result.is_some())
     }
 
-    pub async fn add_safe(&self, safe_addr: &str) -> Result<()> {
-        sqlx::query("INSERT INTO safe (safe_address) VALUES ($1)")
-            .bind(safe_addr)
+    pub async fn add_user_with_safe(&self, wallet_addr: &str) -> Result<()> {
+        sqlx::query("INSERT INTO safe (wallet_addr) VALUES ($1)")
+            .bind(wallet_addr)
             .execute(&self.db)
             .await?;
         Ok(())
+    }
+
+    pub async fn get_users_with_safe(&self) -> Result<Vec<String>> {
+        let mut vec = Vec::new();
+        let rows = sqlx::query("SELECT wallet_addr FROM safe")
+            .fetch_all(&self.db)
+            .await?;
+
+        for row in rows {
+            let wallet_addr: String = row.get("wallet_addr");
+            vec.push(wallet_addr);
+        }
+        Ok(vec)
+    }
+
+    pub async fn delete_user_with_safe(&self, wallet_addr: &str) -> Result<()> {
+        sqlx::query("DELETE FROM safe WHERE wallet_addr = $1")
+            .bind(wallet_addr)
+            .execute(&self.db)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn get_email_by_wallet(&self, wallet_addr: &str) -> Result<String> {
+        let row = sqlx::query("SELECT email_address FROM users WHERE wallet_addr = $1")
+            .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(row.get("email_address"))
+    }
+
+    pub async fn insert_safe_tx(&self, tx_hash: &str, wallet_addr: &str) -> Result<()> {
+        sqlx::query("INSERT INTO safe_txs (tx_hash, wallet_addr) VALUES ($1, $2) RETURNING *")
+            .bind(tx_hash)
+            .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn has_approved_safe_tx_by_addr(
+        &self,
+        tx_hash: &str,
+        wallet_addr: &str,
+    ) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM safe_txs WHERE tx_hash = $1 AND wallet_addr = $2 AND is_completed = TRUE")
+            .bind(tx_hash)
+            .bind(wallet_addr)
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(result.is_some())
     }
 }

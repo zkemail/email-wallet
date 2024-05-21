@@ -82,7 +82,6 @@ impl TemplateValue {
 
 pub async fn extract_command_from_subject(
     subject: &str,
-    chain_client: &Arc<ChainClient>,
     wallet_salt: &WalletSalt,
 ) -> Result<(String, usize)> {
     for word in subject.split_whitespace() {
@@ -96,7 +95,7 @@ pub async fn extract_command_from_subject(
             || word == SAFE_COMMAND
         {
             return Ok((word.to_string(), position));
-        } else if chain_client
+        } else if CLIENT
             .query_user_extension_for_command(wallet_salt, word)
             .await?
             != Address::zero()
@@ -181,15 +180,17 @@ pub fn extract_template_vals_dkim(input: &str) -> Result<Vec<TemplateValue>> {
     extract_template_vals(input, templates)
 }
 
-pub fn extract_template_vals_safe_tx(input: &str) -> Result<Vec<TemplateValue>> {
-    let templates = vec![
-        SAFE_COMMAND.to_string(),
-        "Transaction:".to_string(),
-        "Approve".to_string(),
-        "{tx_hash}".to_string(),
-    ];
-    extract_template_vals(input, templates)
-}
+// pub fn extract_template_vals_safe_tx(input: &str) -> Result<Vec<TemplateValue>> {
+//     let templates = vec![
+//         SAFE_COMMAND.to_string(),
+//         "Transaction:".to_string(),
+//         "Approve".to_string(),
+//         "{tx_hash}".to_string(),
+//         "from".to_string(),
+//         "{address}".to_string(),
+//     ];
+//     extract_template_vals(input, templates)
+// }
 
 pub fn extract_template_vals_and_idx(
     input: &str,
@@ -346,20 +347,20 @@ fn extract_template_vals(input: &str, templates: Vec<String>) -> Result<Vec<Temp
                 });
                 input_idx += 1;
             }
-            "tx_hash" => {
-                let tx_hash_match = Regex::new(TX_HASH_REGEX)
-                    .unwrap()
-                    .find(input_decomposed[input_idx])
-                    .ok_or(anyhow!("No tx hash found"))?;
-                if tx_hash_match.start() != 0
-                    || tx_hash_match.end() != input_decomposed[input_idx].len()
-                {
-                    return Err(anyhow!("Tx hash must be the whole word"));
-                }
-                let tx_hash = tx_hash_match.as_str().to_string();
-                template_vals.push(TemplateValue::String(tx_hash));
-                input_idx += 1;
-            }
+            // "tx_hash" => {
+            //     let tx_hash_match = Regex::new(TX_HASH_REGEX)
+            //         .unwrap()
+            //         .find(input_decomposed[input_idx])
+            //         .ok_or(anyhow!("No tx hash found"))?;
+            //     if tx_hash_match.start() != 0
+            //         || tx_hash_match.end() != input_decomposed[input_idx].len()
+            //     {
+            //         return Err(anyhow!("Tx hash must be the whole word"));
+            //     }
+            //     let tx_hash = tx_hash_match.as_str().to_string();
+            //     template_vals.push(TemplateValue::String(tx_hash));
+            //     input_idx += 1;
+            // }
             _ => {
                 input_idx += 1;
             }

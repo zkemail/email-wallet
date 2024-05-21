@@ -44,19 +44,10 @@ pub struct PSIClient {
     pub email_addr: String,
     pub id: U256,
     pub is_fund: bool,
-    pub db: Arc<Database>,
-    pub chain_client: Arc<ChainClient>,
 }
 
 impl PSIClient {
-    pub async fn new(
-        db: Arc<Database>,
-        chain_client: Arc<ChainClient>,
-        email_addr: String,
-        tx_hash: String,
-        id: U256,
-        is_fund: bool,
-    ) -> Result<Self> {
+    pub async fn new(email_addr: String, tx_hash: String, id: U256, is_fund: bool) -> Result<Self> {
         let rng = rand::rngs::OsRng;
         let random = Fr::random(OsRng);
         let random = field2hex(&random);
@@ -70,15 +61,12 @@ impl PSIClient {
             is_fund,
             random,
             point,
-            db,
-            chain_client,
         })
     }
 
     pub async fn check_and_reveal(&self) -> Result<bool> {
-        if let Some(account_key) = self.db.get_account_key(&self.email_addr).await? {
-            if self
-                .chain_client
+        if let Some(account_key) = DB.get_account_key(&self.email_addr).await? {
+            if CLIENT
                 .check_if_account_created_by_account_key(&self.email_addr, &account_key)
                 .await?
             {
@@ -117,12 +105,10 @@ impl PSIClient {
         )
         .await?;
 
-        let is_point_registered = self
-            .chain_client
+        let is_point_registered = CLIENT
             .check_if_point_registered(result_point.clone())
             .await?;
-        let is_account_created = self
-            .chain_client
+        let is_account_created = CLIENT
             .check_if_account_created_by_point(result_point)
             .await?;
 
@@ -168,11 +154,8 @@ impl PSIClient {
     }
 }
 
-pub async fn serve_check_request(
-    payload: CheckRequest,
-    chain_client: Arc<ChainClient>,
-) -> Result<Json<Point>> {
-    check_unclaim_valid(Arc::clone(&chain_client), &payload.id, payload.is_fund).await?;
+pub async fn serve_check_request(payload: CheckRequest) -> Result<Json<Point>> {
+    check_unclaim_valid(&payload.id, payload.is_fund).await?;
 
     let res = psi_step2(
         CIRCUITS_DIR_PATH.get().unwrap(),
@@ -186,10 +169,9 @@ pub async fn serve_check_request(
 
 pub async fn serve_reveal_request(
     payload: RevealRequest,
-    chain_client: Arc<ChainClient>,
     tx_claimer: UnboundedSender<Claim>,
 ) -> Result<String> {
-    match check_unclaim_valid(Arc::clone(&chain_client), &payload.id, payload.is_fund).await? {
+    match check_unclaim_valid(&payload.id, payload.is_fund).await? {
         UnclaimType::Fund(unclaimed_fund) => {
             // TODO: local check of recipient_commit = hash(random, email_addr)
             tx_claimer.send(Claim {
@@ -229,21 +211,17 @@ pub async fn serve_reveal_request(
     }
 }
 
-pub async fn check_unclaim_valid(
-    chain_client: Arc<ChainClient>,
-    id: &U256,
-    is_fund: bool,
-) -> Result<UnclaimType> {
+pub async fn check_unclaim_valid(id: &U256, is_fund: bool) -> Result<UnclaimType> {
     let current_time = U256::from(now());
     let current_time_delayed = current_time + U256::from(DELAY);
     let unclaim = if is_fund {
-        let fund = chain_client.query_unclaimed_fund(*id).await?;
+        let fund = CLIENT.query_unclaimed_fund(*id).await?;
         if fund.expiry_time < current_time_delayed {
             bail!("Unclaimed fund is expired");
         }
         UnclaimType::Fund(fund)
     } else {
-        let state = chain_client.query_unclaimed_state(*id).await?;
+        let state = CLIENT.query_unclaimed_state(*id).await?;
         if state.expiry_time < current_time_delayed {
             bail!("Unclaimed state is expired");
         }
