@@ -5,32 +5,28 @@ use crate::*;
 use ethers::types::Address;
 
 #[named]
-pub async fn void_unclaims(
-    claim: Claim,
-    db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
-) -> Result<EmailWalletEvent> {
+pub async fn void_unclaims(claim: Claim) -> Result<EmailWalletEvent> {
     let now = now();
     let commit = hex2field(&claim.commit)?;
-    db.delete_claim(&claim.id, claim.is_fund).await?;
+    DB.delete_claim(&claim.id, claim.is_fund).await?;
     info!(LOG, "claim deleted id {}", claim.id; "func" => function_name!());
     let (reply_msg, sender, tx_hash) = if claim.is_fund {
-        let unclaimed_fund = chain_client.query_unclaimed_fund(claim.id).await?;
+        let unclaimed_fund = CLIENT.query_unclaimed_fund(claim.id).await?;
         if unclaimed_fund.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(claim.id, true).await?;
+        let result = CLIENT.void(claim.id, true).await?;
         (
             format!("Voided fund: {}", unclaimed_fund.token_addr),
             unclaimed_fund.sender,
             result,
         )
     } else {
-        let unclaimed_state = chain_client.query_unclaimed_state(claim.id).await?;
+        let unclaimed_state = CLIENT.query_unclaimed_state(claim.id).await?;
         if unclaimed_state.expiry_time.as_u64() > u64::try_from(now).unwrap() {
             return Err(anyhow!("Claim is not expired"));
         }
-        let result = chain_client.void(claim.id, false).await?;
+        let result = CLIENT.void(claim.id, false).await?;
         (
             format!("Voided state: {}", unclaimed_state.extension_addr),
             unclaimed_state.sender,

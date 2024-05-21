@@ -20,8 +20,6 @@ const EMAIL_ADDR_FIELDS: usize = 9;
 #[named]
 pub async fn handle_email<P: EmailsPool>(
     email: String,
-    db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
     emails_pool: P,
     tx_claimer: UnboundedSender<Claim>,
 ) -> Result<EmailWalletEvent> {
@@ -30,11 +28,11 @@ pub async fn handle_email<P: EmailsPool>(
     let from_addr = parsed_email.get_from_addr()?;
     let padded_from_addr = PaddedEmailAddr::from_email_addr(&from_addr);
     trace!(LOG, "From address: {}", from_addr; "func" => function_name!());
-    check_and_update_dkim(&email, &parsed_email, &chain_client).await?;
+    check_and_update_dkim(&email, &parsed_email).await?;
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
         let account_key = AccountKey::from(hex2field(&format!("0x{}", invitation_code))?);
-        let stored_account_key = db.get_account_key(&from_addr).await?;
+        let stored_account_key = DB.get_account_key(&from_addr).await?;
         if let Some(stored_account_key) = stored_account_key.as_ref() {
             if stored_account_key != &field2hex(&account_key.0) {
                 return Err(anyhow!(
@@ -45,7 +43,7 @@ pub async fn handle_email<P: EmailsPool>(
             }
         }
         let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
-        if !chain_client
+        if !CLIENT
             .check_if_account_created_by_account_key(&from_addr, &field2hex(&account_key.0))
             .await?
         {
@@ -69,16 +67,14 @@ pub async fn handle_email<P: EmailsPool>(
                 proof: email_proof,
             };
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
-            let res = chain_client.create_account(data).await?;
+            let res = CLIENT.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
-            let wallet_addr = chain_client
-                .get_wallet_addr_from_salt(&wallet_salt.0)
-                .await?;
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
             if let Some(_) = stored_account_key {
-                db.user_onborded(&from_addr, &res).await?;
+                DB.user_onborded(&from_addr, &res).await?;
                 trace!(LOG, "User onboarded"; "func" => function_name!());
             } else {
-                db.insert_user(
+                DB.insert_user(
                     &from_addr,
                     &field2hex(&account_key.0),
                     &res,
@@ -89,7 +85,7 @@ pub async fn handle_email<P: EmailsPool>(
                 trace!(LOG, "User inserted"; "func" => function_name!());
             }
             info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
-            let claims = db.get_claims_by_email_addr(&from_addr).await?;
+            let claims = DB.get_claims_by_email_addr(&from_addr).await?;
             for claim in claims {
                 tx_claimer.send(claim)?;
             }
@@ -103,11 +99,11 @@ pub async fn handle_email<P: EmailsPool>(
         }
     }
     trace!(LOG, "Process as a normal email"; "func" => function_name!());
-    let account_key_str = db.get_account_key(&from_addr).await?.ok_or(anyhow!(
+    let account_key_str = DB.get_account_key(&from_addr).await?.ok_or(anyhow!(
         "The user of email address {} is not registered.",
         from_addr
     ))?;
-    if !chain_client
+    if !CLIENT
         .check_if_account_created_by_account_key(&from_addr, &account_key_str)
         .await?
     {
@@ -117,23 +113,17 @@ pub async fn handle_email<P: EmailsPool>(
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
     let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
     trace!(LOG, "Wallet salt: {}", field2hex(&wallet_salt.0); "func" => function_name!());
-    let wallet_addr = chain_client
-        .get_wallet_addr_from_salt(&wallet_salt.0)
-        .await?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
     let original_subject = parsed_email.get_subject_all()?;
     trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
-    let (command, skip_subject_prefix) = subject_templates::extract_command_from_subject(
-        &original_subject,
-        &chain_client,
-        &wallet_salt,
-    )
-    .await?;
+    let (command, skip_subject_prefix) =
+        subject_templates::extract_command_from_subject(&original_subject, &wallet_salt).await?;
     let subject = original_subject[skip_subject_prefix..].to_string();
     trace!(LOG, "Command: {}", command; "func" => function_name!());
     trace!(LOG, "Skip Subject Prefix: {}", skip_subject_prefix; "func" => function_name!());
     trace!(LOG, "Prefix Skipped Subject: {}", subject; "func" => function_name!());
-    let fee_token_name = select_fee_token(&wallet_salt, &chain_client).await?;
+    let fee_token_name = select_fee_token(&wallet_salt).await?;
     trace!(LOG, "Fee token name: {}", fee_token_name; "func" => function_name!());
     let (template_idx, template_vals) = match command.as_str() {
         SEND_COMMAND => (0, extract_template_vals_send(&subject)?),
@@ -142,12 +132,12 @@ pub async fn handle_email<P: EmailsPool>(
         UNINSTALL_COMMAND => (0, extract_template_vals_uninstall(&subject)?),
         EXIT_COMMAND => (0, extract_template_vals_exit(&subject)?),
         DKIM_COMMAND => (0, extract_template_vals_dkim(&subject)?),
-        SAFE_COMMAND => (0, extract_template_vals_safe_tx(&subject)?),
+        // SAFE_COMMAND => (0, extract_template_vals_safe_tx(&subject)?),
         _ => {
-            let extension_addr = chain_client
+            let extension_addr = CLIENT
                 .query_user_extension_for_command(&wallet_salt, command.as_str())
                 .await?;
-            let subject_templates = chain_client
+            let subject_templates = CLIENT
                 .query_subject_templates_of_extension(extension_addr)
                 .await?;
             let (idx, vals) = extract_template_vals_and_idx(&subject, subject_templates)?;
@@ -228,18 +218,18 @@ pub async fn handle_email<P: EmailsPool>(
                 info!(
                     LOG,
                     "token addr: {}",
-                    chain_client.query_erc20_address(token_name).await?; "func" => function_name!()
+                    CLIENT.query_erc20_address(token_name).await?; "func" => function_name!()
                 );
                 info!(
                     LOG,
                     "decimal: {}",
-                    chain_client
+                    CLIENT
                         .query_decimals_of_erc20_address(
-                            chain_client.query_erc20_address(token_name).await?
+                            CLIENT.query_erc20_address(token_name).await?
                         )
                         .await?; "func" => function_name!()
                 );
-                let decimal_size = chain_client.query_decimals_of_erc20(token_name).await?;
+                let decimal_size = CLIENT.query_decimals_of_erc20(token_name).await?;
                 info!(LOG, "decimal size: {}", decimal_size; "func" => function_name!());
                 WalletParams {
                     token_name: token_name.clone().to_string(),
@@ -259,9 +249,8 @@ pub async fn handle_email<P: EmailsPool>(
             for val in template_vals.iter() {
                 match val {
                     TemplateValue::TokenAmount { token_name, amount } => {
-                        let decimal_size = chain_client
-                            .query_decimals_of_erc20(token_name.as_str())
-                            .await?;
+                        let decimal_size =
+                            CLIENT.query_decimals_of_erc20(token_name.as_str()).await?;
                         subject_params.push(val.abi_encode(Some(decimal_size))?);
                     }
                     TemplateValue::Amount(amount) => {
@@ -336,22 +325,19 @@ pub async fn handle_email<P: EmailsPool>(
         email_proof,
     };
     trace!(LOG, "email_op constructed: {:?}", email_op; "func" => function_name!());
-    chain_client.validate_email_op(email_op.clone()).await?;
-    let (tx_hash, registered_unclaim_id) = chain_client.handle_email_op(email_op.clone()).await?;
+    CLIENT.validate_email_op(email_op.clone()).await?;
+    let (tx_hash, registered_unclaim_id) = CLIENT.handle_email_op(email_op.clone()).await?;
     info!(LOG, "email_op broadcased to chain: {}", tx_hash; "func" => function_name!());
     if let Some(email_addr) = recipient_email_addr.as_ref() {
         info!(LOG, "recipient email address: {}", email_addr; "func" => function_name!());
         let commit_rand = extract_rand_from_signature(&parsed_email.signature)?;
         let is_fund = command == SEND_COMMAND;
         let expiry_time = if is_fund {
-            let unclaimed_fund: UnclaimedFund = chain_client
-                .query_unclaimed_fund(registered_unclaim_id)
-                .await?;
+            let unclaimed_fund: UnclaimedFund =
+                CLIENT.query_unclaimed_fund(registered_unclaim_id).await?;
             i64::try_from(unclaimed_fund.expiry_time.as_u64()).unwrap()
         } else {
-            let unclaimed_state = chain_client
-                .query_unclaimed_state(registered_unclaim_id)
-                .await?;
+            let unclaimed_state = CLIENT.query_unclaimed_state(registered_unclaim_id).await?;
             i64::try_from(unclaimed_state.expiry_time.as_u64()).unwrap()
         };
         let commit = "0x".to_string() + &hex::encode(recipient_email_addr_commit);
@@ -417,28 +403,16 @@ pub fn calculate_default_hash(input: &str) -> String {
     hash_code.to_string()
 }
 
-pub async fn select_fee_token(
-    wallet_salt: &WalletSalt,
-    chain_client: &Arc<ChainClient>,
-) -> Result<String> {
-    let eth_balance = match chain_client
-        .query_user_erc20_balance(wallet_salt, "ETH")
-        .await
-    {
+pub async fn select_fee_token(wallet_salt: &WalletSalt) -> Result<String> {
+    let eth_balance = match CLIENT.query_user_erc20_balance(wallet_salt, "ETH").await {
         Ok(balance) => balance,
         Err(_) => U256::from(0),
     };
-    let dai_balance = match chain_client
-        .query_user_erc20_balance(wallet_salt, "DAI")
-        .await
-    {
+    let dai_balance = match CLIENT.query_user_erc20_balance(wallet_salt, "DAI").await {
         Ok(balance) => balance,
         Err(_) => U256::from(0),
     };
-    let usdc_balance = match chain_client
-        .query_user_erc20_balance(wallet_salt, "USDC")
-        .await
-    {
+    let usdc_balance = match CLIENT.query_user_erc20_balance(wallet_salt, "USDC").await {
         Ok(balance) => balance,
         Err(_) => U256::from(0),
     };
@@ -454,18 +428,14 @@ pub async fn select_fee_token(
 }
 
 #[named]
-pub async fn check_and_update_dkim(
-    email: &str,
-    parsed_email: &ParsedEmail,
-    chain_client: &Arc<ChainClient>,
-) -> Result<()> {
+pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> Result<()> {
     let mut public_key_n = parsed_email.public_key.clone();
     public_key_n.reverse();
     let public_key_hash = public_key_hash(&public_key_n)?;
     info!(LOG, "public_key_hash {:?}", public_key_hash; "func" => function_name!());
     let domain = parsed_email.get_email_domain()?;
     info!(LOG, "domain {:?}", domain; "func" => function_name!());
-    if chain_client
+    if CLIENT
         .check_if_dkim_public_key_hash_valid(domain.clone(), fr_to_bytes32(&public_key_hash)?)
         .await?
     {
@@ -492,7 +462,7 @@ pub async fn check_and_update_dkim(
     info!(LOG, "public_key_hash from oracle {:?}", public_key_hash; "func" => function_name!());
     let signature = Bytes::from_hex(&oracle_result.signature[2..])?;
     info!(LOG, "signature {:?}", signature; "func" => function_name!());
-    let tx_hash = chain_client
+    let tx_hash = CLIENT
         .set_dkim_public_key_hash(
             selector,
             domain,
