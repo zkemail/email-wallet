@@ -2414,6 +2414,11 @@
     "@safe-global/safe-gateway-typescript-sdk" "^3.5.3"
     viem "^1.0.0"
 
+"@safe-global/safe-contracts@1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@safe-global/safe-contracts/-/safe-contracts-1.4.1.tgz#82605342f3289dc6b99818f599a3409ec2cb3fdc"
+  integrity sha512-fP1jewywSwsIniM04NsqPyVRFKPMAuirC3ftA/TA4X3Zc5EnwQp/UCJUU2PL/37/z/jMo8UUaJ+pnFNWmMU7dQ==
+
 "@safe-global/safe-gateway-typescript-sdk@^3.5.3":
   version "3.13.2"
   resolved "https://registry.yarnpkg.com/@safe-global/safe-gateway-typescript-sdk/-/safe-gateway-typescript-sdk-3.13.2.tgz#f03884c7eb766f5508085d95ab96063a28e20920"
@@ -10624,6 +10629,10 @@ solidity-coverage@^0.8.2:
     semver "^7.3.4"
     shelljs "^0.8.3"
     web3-utils "^1.3.6"
+
+"solidity-stringutils@https://github.com/Arachnid/solidity-stringutils.git":
+  version "0.0.0"
+  resolved "https://github.com/Arachnid/solidity-stringutils.git#4b2fcc43fa0426e19ce88b1f1ec16f5903a2e461"
 
 sonic-boom@^2.2.1:
   version "2.8.0"
