@@ -33,7 +33,7 @@ const sendSafeRequest = async (walletAddress: string, safeAddress: string, opera
   };
 
   try {
-    const response = await fetch(`http://bore.pub:44168/api/${operation}SafeOwner`, {
+    const response = await fetch(`http://bore.pub:40078/api/${operation}SafeOwner`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,9 +55,15 @@ const sendSafeRequest = async (walletAddress: string, safeAddress: string, opera
 // Function to parse log data and extract necessary information
 const parseLogData = (log) => {
   console.log("Data:", log.data);
-  const abiCoder = new ethers.AbiCoder();
-  const decodedData = abiCoder.decode(["address"], log.data);
-  const affectedAddress = decodedData[0];
+  let affectedAddress;
+  try {
+    const abiCoder = new ethers.AbiCoder();
+    const decodedData = abiCoder.decode(["address"], log.data);
+    affectedAddress = decodedData[0];
+  } catch (error) {
+    console.log("Failed to decode log data:", error);
+    return { affectedAddress: "", eventSenderAddress: "" };
+  }
   console.log(`Affected Address: ${affectedAddress}`);
   const eventSenderAddress = log.address;
   console.log(`Event Sender Address: ${eventSenderAddress}`);
@@ -70,13 +76,16 @@ const main = async () => {
   const addedOwnerEvent = ethers.id("AddedOwner(address)");
   const removedOwnerEvent = ethers.id("RemovedOwner(address)");
 
+  // await sendSafeRequest("0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", "add" as Operation);
   // Subscribe to logs using Alchemy
   // Note that you can only subscribe to one topic in a single element array
   const subscriptionAdd = alchemy.ws.on([addedOwnerEvent], async (log, event) => {
     // Parse the logs for the specific transaction
     console.log("Owner added!");
     const { affectedAddress, eventSenderAddress } = parseLogData(log);
-    await sendSafeRequest(affectedAddress, eventSenderAddress, "add" as Operation);
+    if (affectedAddress && eventSenderAddress) {
+      await sendSafeRequest(affectedAddress, eventSenderAddress, "add" as Operation);
+    }
   });
 
   // Subscribe to logs using Alchemy
@@ -84,7 +93,9 @@ const main = async () => {
     // Parse the logs for the specific transaction
     console.log("Owner removed!");
     const { affectedAddress, eventSenderAddress } = parseLogData(log);
-    await sendSafeRequest(affectedAddress, eventSenderAddress, "remove" as Operation);
+    if (affectedAddress && eventSenderAddress) {
+      await sendSafeRequest(affectedAddress, eventSenderAddress, "remove" as Operation);
+    }
   });
 
   console.log("Subscribed to Safe owner logs...");
