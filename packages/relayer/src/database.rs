@@ -62,8 +62,7 @@ impl Database {
             "CREATE TABLE IF NOT EXISTS safe_txs (
                 tx_hash TEXT NOT NULL,
                 wallet_addr TEXT NOT NULL,
-                PRIMARY KEY (tx_hash, wallet_addr),
-                UNIQUE (tx_hash, wallet_addr)
+                PRIMARY KEY (tx_hash, wallet_addr)
             );",
         )
         .execute(&self.db)
