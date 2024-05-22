@@ -2,13 +2,9 @@ import { ethers } from "ethers";
 import express from "express";
 // Imports the Alchemy SDK
 const { Alchemy, Network } = require("alchemy-sdk");
+import axios from "axios";
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
-
-const fetch = async (...args: Parameters<typeof import("node-fetch").default>) => {
-  const module = await import("node-fetch");
-  return module.default(...args);
-};
 
 // Configures the Alchemy SDK
 const config = {
@@ -43,7 +39,7 @@ interface LogType {
   removed: boolean;
 }
 
-// Function to send a POST request to the bore.pub API
+// Function to send a POST request to the bore.pub API using axios
 const sendSafeRequest = async (walletAddress: string, safeAddress: string, operation: Operation) => {
   const safeRequest: SafeRequest = {
     wallet_addr: walletAddress,
@@ -51,20 +47,13 @@ const sendSafeRequest = async (walletAddress: string, safeAddress: string, opera
   };
 
   try {
-    const response = await fetch(`${process.env.RELAYER_URL}/api/${operation}SafeOwner`, {
-      method: "POST",
+    const response = await axios.post(`${process.env.RELAYER_URL}/api/${operation}SafeOwner`, safeRequest, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(safeRequest),
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.text();
-    console.log("Response from API:", data);
+    console.log("Response from API:", response.data);
   } catch (error) {
     console.error("Error sending request to API:", error);
   }
@@ -116,28 +105,23 @@ const main = async () => {
         continue;
       }
       console.log(`Adding owner: ${owner}`);
-      await sendSafeRequest(owner, eventSenderAddress, "add" as Operation);
-    }
-  });
-  // await sendSafeRequest("0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", "add" as Operation);
-  // Subscribe to logs using Alchemy
-  // Note that you can only subscribe to one topic in a single element array
-  alchemy.ws.on([addedOwnerEvent], async (log: LogType, event: { event: string }) => {
-    // Parse the logs for the specific transaction
-    console.log("Owner added!");
-    const { affectedAddress, eventSenderAddress } = await parseLogData(log);
-    if (affectedAddress && eventSenderAddress) {
-      await sendSafeRequest(affectedAddress, eventSenderAddress, "add" as Operation);
+      await sendSafeRequest(owner, eventSenderAddress, Operation.Add);
     }
   });
 
-  // Subscribe to logs using Alchemy
+  alchemy.ws.on([addedOwnerEvent], async (log: LogType, event: { event: string }) => {
+    console.log("Owner added!");
+    const { affectedAddress, eventSenderAddress } = await parseLogData(log);
+    if (affectedAddress && eventSenderAddress) {
+      await sendSafeRequest(affectedAddress, eventSenderAddress, Operation.Add);
+    }
+  });
+
   alchemy.ws.on([removedOwnerEvent], async (log: LogType, event: { event: string }) => {
-    // Parse the logs for the specific transaction
     console.log("Owner removed!");
     const { affectedAddress, eventSenderAddress } = await parseLogData(log);
     if (affectedAddress && eventSenderAddress) {
-      await sendSafeRequest(affectedAddress, eventSenderAddress, "remove" as Operation);
+      await sendSafeRequest(affectedAddress, eventSenderAddress, Operation.Remove);
     }
   });
 
@@ -147,7 +131,7 @@ const main = async () => {
   const app = express();
   const port = 3000; // Define the port to use
 
-  app.get("/", (_: any, res: any) => {
+  app.get("/", (_req, res) => {
     res.send("Safe Tracker is running!");
   });
 
@@ -156,4 +140,4 @@ const main = async () => {
   });
 };
 
-main();
+main().catch(console.error);

@@ -6,10 +6,10 @@
   "dependencies": {
     "@types/express": "^4.17.21",
     "alchemy-sdk": "^3.3.1",
+    "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "ethers": "^6.12.1",
-    "express": "^4.19.2",
-    "node-fetch": "^3.3.2"
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "typescript": "^4.0.0"
