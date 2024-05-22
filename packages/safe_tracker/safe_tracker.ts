@@ -46,7 +46,7 @@ const sendSafeRequest = async (walletAddress: string, safeAddress: string, opera
   };
 
   try {
-    const response = await fetch(`http://bore.pub:40078/api/${operation}SafeOwner`, {
+    const response = await fetch(`${process.env.RELAYER_URL}/api/${operation}SafeOwner`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -147,7 +147,7 @@ const main = async () => {
   });
 
   app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+    console.log(`Server listening at http://0.0.0.0:${port}`);
   });
 };
 
