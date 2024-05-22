@@ -101,8 +101,8 @@ const main = async () => {
   const subscriptionSafeSetup = alchemy.ws.on([safeSetupEvent], async (log: LogType, event: { event: string }) => {
     console.log("Safe setup detected!");
     const abiCoder = new ethers.AbiCoder();
-    const decodedData = abiCoder.decode(["address", "address[]", "uint256", "address", "address"], log.data);
-    const owners = decodedData[1];
+    const decodedData = abiCoder.decode(["address[]", "uint256", "address", "address"], log.data);
+    const owners = decodedData[0];
     console.log(`Owners: ${owners}`);
     const eventSenderAddress = log.address;
     console.log(`Event Sender Address: ${eventSenderAddress}`);
