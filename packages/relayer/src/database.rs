@@ -60,8 +60,10 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS safe_txs (
-                tx_hash TEXT PRIMARY KEY,
-                wallet_addr TEXT NOT NULL
+                tx_hash TEXT NOT NULL,
+                wallet_addr TEXT NOT NULL,
+                PRIMARY KEY (tx_hash, wallet_addr),
+                UNIQUE (tx_hash, wallet_addr)
             );",
         )
         .execute(&self.db)
