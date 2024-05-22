@@ -44,6 +44,7 @@ pub struct StatResponse {
 #[derive(Serialize, Deserialize)]
 pub struct SafeRequest {
     pub wallet_addr: String,
+    pub safe_addr: String,
 }
 
 #[named]
@@ -261,10 +262,23 @@ pub async fn run_server(
             }),
         )
     .route(
-        "/api/safe",
+        "/api/addSafeOwner",
         axum::routing::post::<_, _, (), _>(move |payload: String| async move {
             info!(LOG, "Safe txn payload: {}", payload);
-            match safe_api_fn(payload).await {
+            match add_safe_owner_api_fn(payload).await {
+                Ok(_) => "Request processed".to_string(),
+                Err(err) => {
+                    error!(LOG, "Failed to complete the safe request: {}", err);
+                    err.to_string()
+                }
+            }
+        }),
+    )
+    .route(
+        "/api/removeSafeOwner",
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Safe txn payload: {}", payload);
+            match delete_safe_owner_api_fn(payload).await {
                 Ok(_) => "Request processed".to_string(),
                 Err(err) => {
                     error!(LOG, "Failed to complete the safe request: {}", err);

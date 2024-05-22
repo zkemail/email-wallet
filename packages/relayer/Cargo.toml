@@ -26,7 +26,7 @@ lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
 ethers = { version = "2.0.10", features = ["abigen"] }
 email-wallet-utils = { path = "../utils" }
 futures = "0.3.28"
-sqlx = { version = "=0.7.3", features = ["postgres", "runtime-tokio"] }
+sqlx = { version = "=0.6.3", features = ["postgres", "runtime-tokio-native-tls"] }
 regex = "1.10.2"
 axum = "0.6.20"
 rand = "0.8.5"
@@ -53,6 +53,7 @@ slog-json = "2.6.1"
 file-rotate = "0.7.5"
 function_name = "0.3.0"
 base64 = "0.21.7"
+serde_with = "3.8.1"
 
 
 [build-dependencies]

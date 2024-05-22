@@ -287,14 +287,29 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
     Ok((request_id, email))
 }
 
-pub async fn safe_api_fn(payload: String) -> Result<()> {
+pub async fn add_safe_owner_api_fn(payload: String) -> Result<()> {
     let request = serde_json::from_str::<SafeRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
 
     let is_wallet_addr_email_wallet = DB.is_wallet_addr_exist(&request.wallet_addr).await?;
 
     if is_wallet_addr_email_wallet {
-        DB.add_user_with_safe(&request.wallet_addr).await?;
+        DB.add_user_with_safe(&request.wallet_addr, &request.safe_addr)
+            .await?;
+    }
+
+    Ok(())
+}
+
+pub async fn delete_safe_owner_api_fn(payload: String) -> Result<()> {
+    let request = serde_json::from_str::<SafeRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+
+    let is_wallet_addr_email_wallet = DB.is_wallet_addr_exist(&request.wallet_addr).await?;
+
+    if is_wallet_addr_email_wallet {
+        DB.remove_safe_from_user(&request.wallet_addr, &request.safe_addr)
+            .await?;
     }
 
     Ok(())
