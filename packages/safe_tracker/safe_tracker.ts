@@ -25,6 +25,20 @@ enum Operation {
   Remove = "remove"
 }
 
+// Define the structure for the LogType
+interface LogType {
+  address: string;
+  data: string;
+  topics: string[];
+  blockNumber: number;
+  transactionHash: string;
+  transactionIndex: number;
+  blockHash: string;
+  logIndex: number;
+  removed: boolean;
+}
+
+
 // Function to send a POST request to the bore.pub API
 const sendSafeRequest = async (walletAddress: string, safeAddress: string, operation: Operation) => {
   const safeRequest: SafeRequest = {
@@ -53,13 +67,20 @@ const sendSafeRequest = async (walletAddress: string, safeAddress: string, opera
 };
 
 // Function to parse log data and extract necessary information
-const parseLogData = (log) => {
+const parseLogData = async (log: LogType) => {
   console.log("Data:", log.data);
   let affectedAddress;
   try {
+    if (log.data == "0x") {
+      throw new Error("No data on log found");
+    }
     const abiCoder = new ethers.AbiCoder();
     const decodedData = abiCoder.decode(["address"], log.data);
-    affectedAddress = decodedData[0];
+    affectedAddress = decodedData[0];      
+    const codeAtAddress = await alchemy.core.getCode(affectedAddress);
+    if (codeAtAddress === '0x') {
+      throw new Error(`No contract deployed at address: ${affectedAddress}, skipping...`);
+    }
   } catch (error) {
     console.log("Failed to decode log data:", error);
     return { affectedAddress: "", eventSenderAddress: "" };
@@ -75,24 +96,43 @@ const main = async () => {
   // Event selectors for AddedOwner and RemovedOwner
   const addedOwnerEvent = ethers.id("AddedOwner(address)");
   const removedOwnerEvent = ethers.id("RemovedOwner(address)");
-
+  const safeSetupEvent = ethers.id("SafeSetup(address,address[],uint256,address,address)");
+  
+  const subscriptionSafeSetup = alchemy.ws.on([safeSetupEvent], async (log: LogType, event: { event: string }) => {
+    console.log("Safe setup detected!");
+    const abiCoder = new ethers.AbiCoder();
+    const decodedData = abiCoder.decode(["address", "address[]", "uint256", "address", "address"], log.data);
+    const owners = decodedData[1];
+    console.log(`Owners: ${owners}`);
+    const eventSenderAddress = log.address;
+    console.log(`Event Sender Address: ${eventSenderAddress}`);
+    for (const owner of owners) {
+      const codeAtAddress = await alchemy.core.getCode(owner);
+      if (codeAtAddress === '0x') {
+        console.log(`No contract deployed at address: ${owner}, skipping...`);
+        continue;
+      }
+      console.log(`Adding owner: ${owner}`);
+      await sendSafeRequest(owner, eventSenderAddress, "add" as Operation);
+    }
+  });
   // await sendSafeRequest("0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", "add" as Operation);
   // Subscribe to logs using Alchemy
   // Note that you can only subscribe to one topic in a single element array
-  const subscriptionAdd = alchemy.ws.on([addedOwnerEvent], async (log, event) => {
+  const subscriptionAdd = alchemy.ws.on([addedOwnerEvent], async (log: LogType, event: { event: string }) => {
     // Parse the logs for the specific transaction
     console.log("Owner added!");
-    const { affectedAddress, eventSenderAddress } = parseLogData(log);
+    const { affectedAddress, eventSenderAddress } = await parseLogData(log);
     if (affectedAddress && eventSenderAddress) {
       await sendSafeRequest(affectedAddress, eventSenderAddress, "add" as Operation);
     }
   });
 
   // Subscribe to logs using Alchemy
-  const subscriptionRemove = alchemy.ws.on([removedOwnerEvent], async (log, event) => {
+  const subscriptionRemove = alchemy.ws.on([removedOwnerEvent], async (log: LogType, event: { event: string }) => {
     // Parse the logs for the specific transaction
     console.log("Owner removed!");
-    const { affectedAddress, eventSenderAddress } = parseLogData(log);
+    const { affectedAddress, eventSenderAddress } = await parseLogData(log);
     if (affectedAddress && eventSenderAddress) {
       await sendSafeRequest(affectedAddress, eventSenderAddress, "remove" as Operation);
     }
