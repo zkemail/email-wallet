@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
+import express from "express";
 // Imports the Alchemy SDK
 const { Alchemy, Network } = require("alchemy-sdk");
-const { keccak256 } = require("js-sha3");
-import { config as dotenvConfig } from 'dotenv';
+import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 // Configures the Alchemy SDK
@@ -22,7 +22,7 @@ interface SafeRequest {
 
 enum Operation {
   Add = "add",
-  Remove = "remove"
+  Remove = "remove",
 }
 
 // Define the structure for the LogType
@@ -37,7 +37,6 @@ interface LogType {
   logIndex: number;
   removed: boolean;
 }
-
 
 // Function to send a POST request to the bore.pub API
 const sendSafeRequest = async (walletAddress: string, safeAddress: string, operation: Operation) => {
@@ -76,9 +75,9 @@ const parseLogData = async (log: LogType) => {
     }
     const abiCoder = new ethers.AbiCoder();
     const decodedData = abiCoder.decode(["address"], log.data);
-    affectedAddress = decodedData[0];      
+    affectedAddress = decodedData[0];
     const codeAtAddress = await alchemy.core.getCode(affectedAddress);
-    if (codeAtAddress === '0x') {
+    if (codeAtAddress === "0x") {
       throw new Error(`No contract deployed at address: ${affectedAddress}, skipping...`);
     }
   } catch (error) {
@@ -91,13 +90,12 @@ const parseLogData = async (log: LogType) => {
   return { affectedAddress, eventSenderAddress };
 };
 
-
 const main = async () => {
   // Event selectors for AddedOwner and RemovedOwner
   const addedOwnerEvent = ethers.id("AddedOwner(address)");
   const removedOwnerEvent = ethers.id("RemovedOwner(address)");
   const safeSetupEvent = ethers.id("SafeSetup(address,address[],uint256,address,address)");
-  
+
   const subscriptionSafeSetup = alchemy.ws.on([safeSetupEvent], async (log: LogType, event: { event: string }) => {
     console.log("Safe setup detected!");
     const abiCoder = new ethers.AbiCoder();
@@ -108,7 +106,7 @@ const main = async () => {
     console.log(`Event Sender Address: ${eventSenderAddress}`);
     for (const owner of owners) {
       const codeAtAddress = await alchemy.core.getCode(owner);
-      if (codeAtAddress === '0x') {
+      if (codeAtAddress === "0x") {
         console.log(`No contract deployed at address: ${owner}, skipping...`);
         continue;
       }
@@ -139,6 +137,18 @@ const main = async () => {
   });
 
   console.log("Subscribed to Safe owner logs...");
+
+  // Set up Express server
+  const app = express();
+  const port = 3000; // Define the port to use
+
+  app.get("/", (_: any, res: any) => {
+    res.send("Safe Tracker is running!");
+  });
+
+  app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`);
+  });
 };
 
 main();
