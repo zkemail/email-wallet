@@ -79,7 +79,7 @@ pub async fn handle_email<P: EmailsPool>(
                     &field2hex(&account_key.0),
                     &res,
                     true,
-                    &wallet_addr.to_string(),
+                    &format!("0x{}", hex::encode(wallet_addr.as_bytes())),
                 )
                 .await?;
                 trace!(LOG, "User inserted"; "func" => function_name!());
@@ -132,7 +132,6 @@ pub async fn handle_email<P: EmailsPool>(
         UNINSTALL_COMMAND => (0, extract_template_vals_uninstall(&subject)?),
         EXIT_COMMAND => (0, extract_template_vals_exit(&subject)?),
         DKIM_COMMAND => (0, extract_template_vals_dkim(&subject)?),
-        // SAFE_COMMAND => (0, extract_template_vals_safe_tx(&subject)?),
         _ => {
             let extension_addr = CLIENT
                 .query_user_extension_for_command(&wallet_salt, command.as_str())

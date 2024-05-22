@@ -64,7 +64,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
             &account_key_str,
             "",
             false,
-            &wallet_addr.to_string(),
+            &format!("0x{}", hex::encode(wallet_addr.as_bytes())),
         )
         .await?;
         return Ok(EmailWalletEvent::AccountNotCreated {

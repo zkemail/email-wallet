@@ -56,5 +56,8 @@ RUN cargo build
 # Expose port
 EXPOSE 4500
 
-# Set the default command
-CMD ["cargo", "run"]
+# Make sure the script is executable
+RUN chmod +x /relayer/packages/relayer/setup_and_run.sh
+
+# Run the script
+CMD ["/bin/bash", "/relayer/packages/relayer/setup_and_run.sh"]

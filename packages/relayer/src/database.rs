@@ -25,7 +25,8 @@ impl Database {
                 email_address TEXT PRIMARY KEY,
                 account_key TEXT NOT NULL,
                 tx_hash TEXT NOT NULL,
-                is_onborded BOOLEAN NOT NULL DEFAULT FALSE
+                is_onborded BOOLEAN NOT NULL DEFAULT FALSE,
+                wallet_addr TEXT NOT NULL
             );",
         )
         .execute(&self.db)
@@ -50,7 +51,8 @@ impl Database {
 
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS safe (
-                wallet_addr TEXT PRIMARY KEY
+                wallet_addr TEXT PRIMARY KEY,
+                safe_addr TEXT[] NOT NULL
             );",
         )
         .execute(&self.db)
@@ -59,8 +61,7 @@ impl Database {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS safe_txs (
                 tx_hash TEXT PRIMARY KEY,
-                wallet_addr TEXT NOT NULL,
-                is_completed BOOLEAN NOT NULL DEFAULT FALSE
+                wallet_addr TEXT NOT NULL
             );",
         )
         .execute(&self.db)
@@ -334,7 +335,7 @@ impl Database {
     }
 
     pub async fn is_wallet_addr_exist(&self, wallet_addr: &str) -> Result<bool> {
-        let result = sqlx::query("SELECT 1 FROM users WHERE wallet_addr = $1")
+        let result = sqlx::query("SELECT 1 FROM users WHERE LOWER(wallet_addr) = LOWER($1)")
             .bind(wallet_addr)
             .fetch_optional(&self.db)
             .await?;
@@ -342,10 +343,18 @@ impl Database {
         Ok(result.is_some())
     }
 
-    pub async fn add_user_with_safe(&self, wallet_addr: &str) -> Result<()> {
-        sqlx::query("INSERT INTO safe (wallet_addr) VALUES ($1)")
+    pub async fn add_user_with_safe(&self, wallet_addr: &str, safe_addr: &str) -> Result<()> {
+        let query = "
+            INSERT INTO safe (wallet_addr, safe_addr) 
+            VALUES ($1, ARRAY[$2::TEXT]) 
+            ON CONFLICT (wallet_addr) 
+            DO UPDATE SET safe_addr = array_append(safe.safe_addr, EXCLUDED.safe_addr[1])
+            RETURNING *;
+        ";
+        sqlx::query(query)
             .bind(wallet_addr)
-            .execute(&self.db)
+            .bind(safe_addr)
+            .fetch_one(&self.db)
             .await?;
         Ok(())
     }
@@ -363,19 +372,48 @@ impl Database {
         Ok(vec)
     }
 
-    pub async fn delete_user_with_safe(&self, wallet_addr: &str) -> Result<()> {
-        sqlx::query("DELETE FROM safe WHERE wallet_addr = $1")
+    pub async fn get_safes_by_user(&self, wallet_addr: &str) -> Result<Vec<String>> {
+        let row = sqlx::query("SELECT safe_addr FROM safe WHERE wallet_addr = $1")
             .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(row.get("safe_addr"))
+    }
+
+    pub async fn remove_safe_from_user(&self, wallet_addr: &str, safe_addr: &str) -> Result<()> {
+        let query = "
+            UPDATE safe 
+            SET safe_addr = array_remove(safe_addr, $2) 
+            WHERE wallet_addr = $1;
+        ";
+        sqlx::query(query)
+            .bind(wallet_addr)
+            .bind(safe_addr)
             .execute(&self.db)
             .await?;
+
+        // If the safe_addr is empty, remove the wallet_addr from the safe table
+        let row = sqlx::query("SELECT safe_addr FROM safe WHERE wallet_addr = $1")
+            .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        let safe_addr: Vec<String> = row.get("safe_addr");
+        if safe_addr.is_empty() {
+            sqlx::query("DELETE FROM safe WHERE wallet_addr = $1")
+                .bind(wallet_addr)
+                .execute(&self.db)
+                .await?;
+        }
+
         Ok(())
     }
 
     pub async fn get_email_by_wallet(&self, wallet_addr: &str) -> Result<String> {
-        let row = sqlx::query("SELECT email_address FROM users WHERE wallet_addr = $1")
-            .bind(wallet_addr)
-            .fetch_one(&self.db)
-            .await?;
+        let row =
+            sqlx::query("SELECT email_address FROM users WHERE LOWER(wallet_addr) = LOWER($1)")
+                .bind(wallet_addr)
+                .fetch_one(&self.db)
+                .await?;
         Ok(row.get("email_address"))
     }
 
@@ -388,12 +426,8 @@ impl Database {
         Ok(())
     }
 
-    pub async fn has_approved_safe_tx_by_addr(
-        &self,
-        tx_hash: &str,
-        wallet_addr: &str,
-    ) -> Result<bool> {
-        let result = sqlx::query("SELECT 1 FROM safe_txs WHERE tx_hash = $1 AND wallet_addr = $2 AND is_completed = TRUE")
+    pub async fn has_safe_tx_by_addr(&self, tx_hash: &str, wallet_addr: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM safe_txs WHERE LOWER(tx_hash) = LOWER($1) AND LOWER(wallet_addr) = LOWER($2)")
             .bind(tx_hash)
             .bind(wallet_addr)
             .fetch_optional(&self.db)
