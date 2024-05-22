@@ -8,10 +8,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY yarn.lock ./
 
-# Install any dependencies
-RUN npm install
 # For yarn, use the following command instead
-# RUN yarn install
+RUN yarn install
 
 # Copy the rest of your app's source code from your host to your image filesystem.
 COPY . .

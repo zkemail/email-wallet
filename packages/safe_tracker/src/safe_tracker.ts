@@ -96,7 +96,7 @@ const main = async () => {
   const removedOwnerEvent = ethers.id("RemovedOwner(address)");
   const safeSetupEvent = ethers.id("SafeSetup(address,address[],uint256,address,address)");
 
-  const subscriptionSafeSetup = alchemy.ws.on([safeSetupEvent], async (log: LogType, event: { event: string }) => {
+  alchemy.ws.on([safeSetupEvent], async (log: LogType, event: { event: string }) => {
     console.log("Safe setup detected!");
     const abiCoder = new ethers.AbiCoder();
     const decodedData = abiCoder.decode(["address[]", "uint256", "address", "address"], log.data);
@@ -117,7 +117,7 @@ const main = async () => {
   // await sendSafeRequest("0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", "add" as Operation);
   // Subscribe to logs using Alchemy
   // Note that you can only subscribe to one topic in a single element array
-  const subscriptionAdd = alchemy.ws.on([addedOwnerEvent], async (log: LogType, event: { event: string }) => {
+  alchemy.ws.on([addedOwnerEvent], async (log: LogType, event: { event: string }) => {
     // Parse the logs for the specific transaction
     console.log("Owner added!");
     const { affectedAddress, eventSenderAddress } = await parseLogData(log);
@@ -127,7 +127,7 @@ const main = async () => {
   });
 
   // Subscribe to logs using Alchemy
-  const subscriptionRemove = alchemy.ws.on([removedOwnerEvent], async (log: LogType, event: { event: string }) => {
+  alchemy.ws.on([removedOwnerEvent], async (log: LogType, event: { event: string }) => {
     // Parse the logs for the specific transaction
     console.log("Owner removed!");
     const { affectedAddress, eventSenderAddress } = await parseLogData(log);

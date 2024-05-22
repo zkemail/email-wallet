@@ -9,5 +9,8 @@
     "dotenv": "^16.4.5",
     "ethers": "^6.12.1",
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.0"
   }
 }
