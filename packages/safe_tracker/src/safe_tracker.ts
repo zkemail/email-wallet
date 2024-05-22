@@ -3,6 +3,7 @@ import express from "express";
 // Imports the Alchemy SDK
 const { Alchemy, Network } = require("alchemy-sdk");
 import { config as dotenvConfig } from "dotenv";
+import fetch from "node-fetch";
 dotenvConfig();
 
 // Configures the Alchemy SDK
