@@ -3,8 +3,12 @@ import express from "express";
 // Imports the Alchemy SDK
 const { Alchemy, Network } = require("alchemy-sdk");
 import { config as dotenvConfig } from "dotenv";
-import fetch from "node-fetch";
 dotenvConfig();
+
+const fetch = async (...args: Parameters<typeof import("node-fetch").default>) => {
+  const module = await import("node-fetch");
+  return module.default(...args);
+};
 
 // Configures the Alchemy SDK
 const config = {
