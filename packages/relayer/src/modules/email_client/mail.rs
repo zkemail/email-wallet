@@ -4,7 +4,10 @@ use crate::{
     ONBOARDING_REPLY_MSG, ONBOARDING_TOKEN_DISTRIBUTION_LIMIT, RELAYER_EMAIL_ADDRESS,
 };
 use anyhow::anyhow;
-use email_wallet_utils::cryptos::{PaddedEmailAddr, WalletSalt};
+use email_wallet_utils::{
+    converters::field2hex,
+    cryptos::{PaddedEmailAddr, WalletSalt},
+};
 use std::{pin::Pin, sync::atomic::Ordering};
 
 pub fn event_consumer(
@@ -62,7 +65,8 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\n{}\nYour wallet address: {}/address/{}.\nCheck the transaction on etherscan: {}/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr, CHAIN_RPC_EXPLORER.get().unwrap(), tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            let account_key_str = field2hex(&account_key.0);
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -162,7 +166,8 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nCheck the transaction for you on etherscan: {}/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), &tx_hash, wallet_addr
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            let account_key_str = field2hex(&recipient_account_key.0);
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
             let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
