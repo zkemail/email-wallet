@@ -68,7 +68,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     if account_key_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://2fa.emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -188,7 +188,7 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     if account_key_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://2fa.emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {

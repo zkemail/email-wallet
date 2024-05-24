@@ -89,8 +89,8 @@ pub async fn handle_email<P: EmailsPool>(
             for claim in claims {
                 tx_claimer.send(claim)?;
             }
-            let email_hash = calculate_default_hash(&email);
-            emails_pool.insert_email(&email_hash, &email).await?;
+            // let email_hash = calculate_default_hash(&email);
+            // emails_pool.insert_email(&email_hash, &email).await?;
             return Ok(EmailWalletEvent::AccountCreated {
                 email_addr: from_addr,
                 account_key: account_key,
