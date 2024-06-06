@@ -112,6 +112,10 @@ cp packages/relayer/.env.example packages/relayer/.env
 
 2. Update the `.env` file
 
+Regarding to use thegraph, you need to get your own TheGraph API key.  
+After that, you can replace the subgraph url in the env file with your TheGraph API key.  
+See this URL https://thegraph.com/studio/apikeys/  
+
 ```bash
 CORE_CONTRACT_ADDRESS=           # Address of the deployed wallet contract.
 PRIVATE_KEY=                      # Private key for Relayer's account.
