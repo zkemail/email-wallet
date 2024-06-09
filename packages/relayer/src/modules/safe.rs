@@ -91,7 +91,7 @@ struct Confirmation {
     signature_type: Option<String>,
 }
 
-pub async fn safe_fn(email_sender: EmailForwardSender) -> Result<()> {
+pub async fn safe_fn() -> Result<()> {
     // Get all wallet address from safe db
     let wallet_addresses = DB.get_users_with_safe().await.unwrap();
     for wallet_addr in wallet_addresses {
@@ -150,7 +150,7 @@ pub async fn safe_fn(email_sender: EmailForwardSender) -> Result<()> {
                     body_html,
                     body_attachments: None,
                 };
-                email_sender.send(email).unwrap();
+                send_email(email).await?;
                 DB.insert_safe_tx(&safe_txn_hash, &wallet_addr).await?;
             }
             // Delay to ensure not exceeding 5 requests per second

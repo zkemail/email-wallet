@@ -6,8 +6,8 @@ use dotenv::dotenv;
 
 #[derive(Clone)]
 pub struct RelayerConfig {
-    pub imap_config: ImapConfig,
-    pub smtp_config: SmtpConfig,
+    pub smtp_server: String,
+    pub relayer_email_addr: String,
     pub db_path: String,
     pub web_server_address: String,
     pub circuits_dir_path: PathBuf,
@@ -32,36 +32,6 @@ impl RelayerConfig {
     pub fn new() -> Self {
         dotenv().ok();
 
-        let imap_auth = env::var(IMAP_AUTH_TYPE_KEY).unwrap();
-        let imap_auth = match &*imap_auth {
-            "password" => ImapAuth::Password {
-                user_id: env::var(LOGIN_ID_KEY).unwrap(),
-                password: env::var(LOGIN_PASSWORD_KEY).unwrap(),
-            },
-            "oauth" => ImapAuth::Oauth {
-                user_id: env::var(LOGIN_ID_KEY).unwrap(),
-                client_id: env::var(IMAP_CLIENT_ID_KEY).unwrap(),
-                client_secret: env::var(IMAP_CLIENT_SECRET_KEY).unwrap(),
-                auth_url: env::var(IMAP_AUTH_URL_KEY).unwrap(),
-                token_url: env::var(IMAP_TOKEN_URL_KEY).unwrap(),
-                redirect_url: IMAP_REDIRECT_URL_KEY.to_string(),
-            },
-            _ => panic!("{WRONG_AUTH_METHOD}"),
-        };
-
-        let imap_config = ImapConfig {
-            domain_name: env::var(IMAP_DOMAIN_NAME_KEY).unwrap(),
-            port: env::var(IMAP_PORT_KEY).unwrap().parse().unwrap(),
-            auth: imap_auth,
-            initially_checked: false,
-        };
-
-        let smtp_config = SmtpConfig {
-            domain_name: env::var(SMTP_DOMAIN_NAME_KEY).unwrap(),
-            id: env::var(LOGIN_ID_KEY).unwrap(),
-            password: env::var(LOGIN_PASSWORD_KEY).unwrap(),
-        };
-
         let fee_per_gas = env::var(FEE_PER_GAS_KEY).unwrap();
         let fee_per_gas = U256::from_dec_str(&fee_per_gas).unwrap();
 
@@ -83,8 +53,8 @@ impl RelayerConfig {
         let onboarding_reply_msg = env::var(ONBOARDING_REPLY_KEY).unwrap();
 
         Self {
-            imap_config,
-            smtp_config,
+            smtp_server: env::var(SMTP_SERVER_KEY).unwrap(),
+            relayer_email_addr: env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
             db_path: env::var(DATABASE_PATH_KEY).unwrap(),
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),
             circuits_dir_path: env::var(CIRCUITS_DIR_PATH_KEY).unwrap().into(),

@@ -1,11 +1,13 @@
 use anyhow::{anyhow, Result};
+use slog::error;
 
-use crate::{smtp_client::*, SafeRequest};
-use email_wallet_utils::{
+use crate::{handle_email, handle_email_event, render_html, EmailMessage, SafeRequest};
+use ethers::types::{Address, U256};
+use relayer_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
+    LOG,
 };
-use ethers::types::{Address, U256};
 
 use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
 use hex::encode;
@@ -312,5 +314,22 @@ pub async fn delete_safe_owner_api_fn(payload: String) -> Result<()> {
             .await?;
     }
 
+    Ok(())
+}
+
+pub async fn receive_email_api_fn(email: String) -> Result<()> {
+    tokio::spawn(async move {
+        match handle_email(email).await {
+            Ok(event) => match handle_email_event(event).await {
+                Ok(_) => {}
+                Err(e) => {
+                    error!(LOG, "Error handling email event: {:?}", e);
+                }
+            },
+            Err(e) => {
+                error!(LOG, "Error handling email: {:?}", e);
+            }
+        }
+    });
     Ok(())
 }

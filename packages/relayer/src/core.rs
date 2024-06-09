@@ -3,7 +3,7 @@
 
 use crate::*;
 
-use email_wallet_utils::*;
+use relayer_utils::*;
 
 use ethers::types::{Address, Bytes, U256};
 use ethers::utils::hex::FromHex;
@@ -11,18 +11,12 @@ use ethers::utils::hex::FromHex;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use tokio::sync::mpsc::UnboundedSender;
-
 const DOMAIN_FIELDS: usize = 9;
 const SUBJECT_FIELDS: usize = 20;
 const EMAIL_ADDR_FIELDS: usize = 9;
 
 #[named]
-pub async fn handle_email<P: EmailsPool>(
-    email: String,
-    emails_pool: P,
-    tx_claimer: UnboundedSender<Claim>,
-) -> Result<EmailWalletEvent> {
+pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     trace!(LOG, "email: {}", email; "func" => function_name!());
     let from_addr = parsed_email.get_from_addr()?;
@@ -87,10 +81,8 @@ pub async fn handle_email<P: EmailsPool>(
             info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
             let claims = DB.get_claims_by_email_addr(&from_addr).await?;
             for claim in claims {
-                tx_claimer.send(claim)?;
+                claim_unclaims(claim).await?;
             }
-            // let email_hash = calculate_default_hash(&email);
-            // emails_pool.insert_email(&email_hash, &email).await?;
             return Ok(EmailWalletEvent::AccountCreated {
                 email_addr: from_addr,
                 account_key: account_key,
@@ -352,8 +344,8 @@ pub async fn handle_email<P: EmailsPool>(
             is_announced: false,
             is_seen: false,
         };
-        tx_claimer.send(claim)?;
-        trace!(LOG, "claim sent to tx_claimer"; "func" => function_name!());
+        claim_unclaims(claim).await?;
+        trace!(LOG, "Added claim"; "func" => function_name!());
     }
     let message_id = parsed_email.get_message_id()?;
 

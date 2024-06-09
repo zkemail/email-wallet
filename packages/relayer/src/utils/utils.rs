@@ -3,9 +3,9 @@
 
 use crate::*;
 use chrono::{DateTime, Local};
-use email_wallet_utils::*;
 use ethers::abi::Token;
 use ethers::types::{Bytes, U256};
+use relayer_utils::*;
 
 use ::serde::Deserialize;
 

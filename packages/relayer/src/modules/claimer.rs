@@ -2,10 +2,14 @@
 
 use crate::*;
 
-use email_wallet_utils::generate_claim_input;
 use ethers::types::Address;
+use relayer_utils::{
+    field2hex, generate_claim_input, hex2field, u256_to_bytes32, AccountKey, PaddedEmailAddr,
+    WalletSalt,
+};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claim {
     pub tx_hash: String,
     pub id: U256,
@@ -159,4 +163,36 @@ async fn is_installed_extension(extension_addr: Address, wallet_salt: &WalletSal
         .query_user_extension_for_command(wallet_salt, command)
         .await?;
     Ok(installed_extension == extension_addr)
+}
+
+#[named]
+pub async fn void_unclaims(claim: Claim) -> Result<EmailWalletEvent> {
+    let now = now();
+    let commit = hex2field(&claim.commit)?;
+    DB.delete_claim(&claim.id, claim.is_fund).await?;
+    info!(LOG, "claim deleted id {}", claim.id; "func" => function_name!());
+    let (reply_msg, sender, tx_hash) = if claim.is_fund {
+        let unclaimed_fund = CLIENT.query_unclaimed_fund(claim.id).await?;
+        if unclaimed_fund.expiry_time.as_u64() > u64::try_from(now).unwrap() {
+            return Err(anyhow!("Claim is not expired"));
+        }
+        let result = CLIENT.void(claim.id, true).await?;
+        (
+            format!("Voided fund: {}", unclaimed_fund.token_addr),
+            unclaimed_fund.sender,
+            result,
+        )
+    } else {
+        let unclaimed_state = CLIENT.query_unclaimed_state(claim.id).await?;
+        if unclaimed_state.expiry_time.as_u64() > u64::try_from(now).unwrap() {
+            return Err(anyhow!("Claim is not expired"));
+        }
+        let result = CLIENT.void(claim.id, false).await?;
+        (
+            format!("Voided state: {}", unclaimed_state.extension_addr),
+            unclaimed_state.sender,
+            result,
+        )
+    };
+    Ok(EmailWalletEvent::Voided { claim, tx_hash })
 }

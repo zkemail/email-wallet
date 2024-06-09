@@ -5,6 +5,7 @@ use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
 use ethers::prelude::*;
 use ethers::signers::Signer;
+use futures::future::BoxFuture;
 
 const CONFIRMATIONS: usize = 1;
 
@@ -630,7 +631,10 @@ impl ChainClient {
     }
 
     pub async fn stream_unclaim_fund_registration<
-        F: FnMut(email_wallet_events::UnclaimedFundRegisteredFilter, LogMeta) -> Result<()>,
+        F: FnMut(
+            email_wallet_events::UnclaimedFundRegisteredFilter,
+            LogMeta,
+        ) -> BoxFuture<'static, Result<()>>, // Specify that the closure returns a BoxFuture
     >(
         &self,
         from_block: U64,
@@ -646,13 +650,16 @@ impl ChainClient {
         let mut last_block = from_block;
         while let Some(Ok((event, meta))) = stream.next().await {
             last_block = meta.block_number;
-            f(event, meta)?;
+            f(event, meta).await?; // Now you can directly await the closure
         }
         Ok(last_block)
     }
 
     pub async fn stream_unclaim_state_registration<
-        F: FnMut(email_wallet_events::UnclaimedStateRegisteredFilter, LogMeta) -> Result<()>,
+        F: FnMut(
+            email_wallet_events::UnclaimedStateRegisteredFilter,
+            LogMeta,
+        ) -> BoxFuture<'static, Result<()>>, // Specify that the closure returns a BoxFuture
     >(
         &self,
         from_block: U64,
@@ -668,7 +675,7 @@ impl ChainClient {
         let mut last_block = from_block;
         while let Some(Ok((event, meta))) = stream.next().await {
             last_block = meta.block_number;
-            f(event, meta)?;
+            f(event, meta).await?;
         }
         Ok(last_block)
     }

@@ -167,14 +167,11 @@ pub async fn serve_check_request(payload: CheckRequest) -> Result<Json<Point>> {
     Ok(axum::response::Json(res))
 }
 
-pub async fn serve_reveal_request(
-    payload: RevealRequest,
-    tx_claimer: UnboundedSender<Claim>,
-) -> Result<String> {
+pub async fn serve_reveal_request(payload: RevealRequest) -> Result<String> {
     match check_unclaim_valid(&payload.id, payload.is_fund).await? {
         UnclaimType::Fund(unclaimed_fund) => {
             // TODO: local check of recipient_commit = hash(random, email_addr)
-            tx_claimer.send(Claim {
+            claim_unclaims(Claim {
                 tx_hash: payload.tx_hash,
                 id: payload.id,
                 email_address: payload.email_address.clone(),
@@ -184,7 +181,8 @@ pub async fn serve_reveal_request(
                 is_fund: true,
                 is_announced: false,
                 is_seen: false,
-            })?;
+            })
+            .await?;
             Ok(format!(
                 "Unclaimed fund for {} is accepted",
                 payload.email_address
@@ -192,7 +190,7 @@ pub async fn serve_reveal_request(
         }
         UnclaimType::State(unclaimed_state) => {
             // TODO: local check of recipient_commit = hash(random, email_addr)
-            tx_claimer.send(Claim {
+            claim_unclaims(Claim {
                 tx_hash: payload.tx_hash,
                 id: payload.id,
                 email_address: payload.email_address.clone(),
@@ -202,7 +200,8 @@ pub async fn serve_reveal_request(
                 is_fund: false,
                 is_announced: false,
                 is_seen: false,
-            })?;
+            })
+            .await?;
             Ok(format!(
                 "Unclaimed state for {} is accepted",
                 payload.email_address
