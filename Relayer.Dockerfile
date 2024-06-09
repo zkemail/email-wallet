@@ -1,5 +1,5 @@
 # Use the base image
-FROM relayer-base:latest
+FROM bisht13/relayer-base:latest
 
 # Set the working directory for the Rust project
 WORKDIR /relayer/packages/relayer
