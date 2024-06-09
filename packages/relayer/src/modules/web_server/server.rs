@@ -4,7 +4,6 @@ use std::sync::atomic::Ordering;
 
 use axum::Router;
 use serde::{Deserialize, Serialize};
-use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
 #[derive(Serialize, Deserialize)]

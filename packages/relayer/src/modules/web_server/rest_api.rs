@@ -1,12 +1,14 @@
 use anyhow::{anyhow, Result};
 use slog::error;
 
-use crate::{handle_email, handle_email_event, render_html, EmailMessage, SafeRequest};
+use crate::{
+    handle_email, handle_email_event, render_html, EmailMessage, EmailWalletEvent, SafeRequest,
+};
 use ethers::types::{Address, U256};
 use relayer_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
-    LOG,
+    ParsedEmail, LOG,
 };
 
 use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
@@ -319,7 +321,7 @@ pub async fn delete_safe_owner_api_fn(payload: String) -> Result<()> {
 
 pub async fn receive_email_api_fn(email: String) -> Result<()> {
     tokio::spawn(async move {
-        match handle_email(email).await {
+        match handle_email(email.clone()).await {
             Ok(event) => match handle_email_event(event).await {
                 Ok(_) => {}
                 Err(e) => {
@@ -328,6 +330,19 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
             },
             Err(e) => {
                 error!(LOG, "Error handling email: {:?}", e);
+                let parsed_email = ParsedEmail::new_from_raw_email(&email).await.unwrap();
+                let from_addr = parsed_email.get_from_addr().unwrap();
+                match handle_email_event(EmailWalletEvent::Error {
+                    email_addr: from_addr,
+                    error: e.to_string(),
+                })
+                .await
+                {
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!(LOG, "Error handling email event: {:?}", e);
+                    }
+                }
             }
         }
     });

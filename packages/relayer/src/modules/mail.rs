@@ -3,7 +3,7 @@ use handlebars::Handlebars;
 use relayer_utils::AccountKey;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{pin::Pin, sync::atomic::Ordering};
+use std::sync::atomic::Ordering;
 use tokio::fs::read_to_string;
 
 #[derive(Debug, Clone)]

@@ -28,13 +28,12 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use ethers::prelude::*;
 use lazy_static::lazy_static;
-use relayer_utils::{converters::*, cryptos::*, parse_email::ParsedEmail, Fr, LOG};
+use relayer_utils::{converters::*, cryptos::*, Fr, LOG};
 use slog::{error, info, trace};
 use std::env;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock};
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::time::{sleep, Duration};
 
 pub static CIRCUITS_DIR_PATH: OnceLock<PathBuf> = OnceLock::new();
@@ -290,13 +289,11 @@ async fn event_listener_fn(
 async fn catch_claims_in_db_fn() -> Result<()> {
     let now = now();
     let claims = DB.get_claims_unexpired(now).await?;
-    info!(LOG, "unexpired claims: {:?}", claims; "func" => function_name!());
     for claim in claims {
         info!(LOG, "Claiming claim for : {}", claim.email_address; "func" => function_name!());
         claim_unclaims(claim.clone()).await?;
     }
     let claims = DB.get_claims_expired(now).await?;
-    info!(LOG, "expired claims: {:?}", claims; "func" => function_name!());
     for claim in claims {
         let email_addr = claim.email_address.clone();
         info!(LOG, "Voiding claim for : {}", email_addr.clone(); "func" => function_name!());

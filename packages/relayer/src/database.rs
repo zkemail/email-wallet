@@ -182,10 +182,8 @@ impl Database {
         Ok(vec)
     }
 
-    #[named]
     pub async fn get_claims_unexpired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-        info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
             sqlx::query("SELECT * FROM claims WHERE expiry_time > $1 AND is_deleted = FALSE")
                 .bind(now)
@@ -217,10 +215,8 @@ impl Database {
         Ok(vec)
     }
 
-    #[named]
     pub async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-        info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
             sqlx::query("SELECT * FROM claims WHERE expiry_time < $1 AND is_deleted = FALSE")
                 .bind(now)
