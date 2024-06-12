@@ -14,4 +14,4 @@ WORKDIR /app/relayer-imap
 RUN cargo build
 
 # Specify the command to run when the container starts
-CMD ["cargo", "run", "--bin", "smtp-relayer"]
+CMD ["cargo", "run", "--bin", "relayer-imap"]

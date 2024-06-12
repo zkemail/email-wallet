@@ -17,4 +17,4 @@ RUN cargo build
 EXPOSE 3000
 
 # Specify the command to run when the container starts
-CMD ["cargo", "run", "--bin", "smtp-relayer"]
+CMD ["cargo", "run", "--bin", "relayer-smtp"]
