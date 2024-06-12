@@ -85,9 +85,9 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             let wallet_salt =
                 WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-            // CLIENT
-            //     .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
-            //     .await?;
+            CLIENT
+                .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
+                .await?;
             // Distribute onboarding tokens
             let current_count = ONBOARDING_COUNTER.fetch_add(1, Ordering::SeqCst);
             if current_count < *ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.get().unwrap() {
