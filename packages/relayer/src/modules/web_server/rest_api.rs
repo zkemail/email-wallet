@@ -320,6 +320,15 @@ pub async fn delete_safe_owner_api_fn(payload: String) -> Result<()> {
 }
 
 pub async fn receive_email_api_fn(email: String) -> Result<()> {
+    let parsed_email = ParsedEmail::new_from_raw_email(&email).await.unwrap();
+    let from_addr = parsed_email.get_from_addr().unwrap();
+    handle_email_event(EmailWalletEvent::Ack {
+        email_addr: from_addr.clone(),
+        subject: parsed_email.get_subject_all().unwrap_or_default(),
+        original_message_id: parsed_email.get_message_id().ok(),
+    })
+    .await
+    .unwrap();
     tokio::spawn(async move {
         match handle_email(email.clone()).await {
             Ok(event) => match handle_email_event(event).await {
@@ -330,8 +339,6 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
             },
             Err(e) => {
                 error!(LOG, "Error handling email: {:?}", e);
-                let parsed_email = ParsedEmail::new_from_raw_email(&email).await.unwrap();
-                let from_addr = parsed_email.get_from_addr().unwrap();
                 match handle_email_event(EmailWalletEvent::Error {
                     email_addr: from_addr,
                     error: e.to_string(),
