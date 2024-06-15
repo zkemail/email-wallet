@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
-use slog::error;
 
 use crate::{
-    handle_email, handle_email_event, render_html, EmailMessage, EmailWalletEvent, SafeRequest,
+    error, handle_email, handle_email_event, render_html, trace, EmailMessage, EmailWalletEvent,
+    SafeRequest,
 };
 use ethers::types::{Address, U256};
 use relayer_utils::{
@@ -322,14 +322,21 @@ pub async fn delete_safe_owner_api_fn(payload: String) -> Result<()> {
 pub async fn receive_email_api_fn(email: String) -> Result<()> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await.unwrap();
     let from_addr = parsed_email.get_from_addr().unwrap();
-    handle_email_event(EmailWalletEvent::Ack {
-        email_addr: from_addr.clone(),
-        subject: parsed_email.get_subject_all().unwrap_or_default(),
-        original_message_id: parsed_email.get_message_id().ok(),
-    })
-    .await
-    .unwrap();
     tokio::spawn(async move {
+        match handle_email_event(EmailWalletEvent::Ack {
+            email_addr: from_addr.clone(),
+            subject: parsed_email.get_subject_all().unwrap_or_default(),
+            original_message_id: parsed_email.get_message_id().ok(),
+        })
+        .await
+        {
+            Ok(_) => {
+                trace!(LOG, "Ack email event sent");
+            }
+            Err(e) => {
+                error!(LOG, "Error handling email event: {:?}", e);
+            }
+        }
         match handle_email(email.clone()).await {
             Ok(event) => match handle_email_event(event).await {
                 Ok(_) => {}
