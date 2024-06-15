@@ -1,6 +1,9 @@
 # Use the base image
 FROM bisht13/relayer-base:latest
 
+# Copy the project files
+COPY packages/relayer /relayer/packages/relayer
+
 # Set the working directory for the Rust project
 WORKDIR /relayer/packages/relayer
 

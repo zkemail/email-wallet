@@ -25,6 +25,9 @@ RUN git config --global advice.detachedHead false \
 # Copy project files
 COPY . .
 
+# Remove the packages/relayer directory
+RUN rm -rf packages/relayer
+
 # Install Yarn dependencies with retry mechanism
 RUN . $HOME/.nvm/nvm.sh && nvm use default && yarn || \
     (sleep 5 && yarn) || \
