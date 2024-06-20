@@ -112,6 +112,10 @@ cp packages/relayer/.env.example packages/relayer/.env
 
 2. Update the `.env` file
 
+Regarding to use thegraph, you need to get your own TheGraph API key.  
+After that, you can replace the subgraph url in the env file with your TheGraph API key.  
+See this URL https://thegraph.com/studio/apikeys/  
+
 ```bash
 CORE_CONTRACT_ADDRESS=           # Address of the deployed wallet contract.
 PRIVATE_KEY=                      # Private key for Relayer's account.
@@ -134,7 +138,7 @@ RELAYER_EMAIL_ADDR=
 RELAYER_HOSTNAME="example.com"
 WEB_SERVER_ADDRESS="127.0.0.1:4500"
 CIRCUITS_DIR_PATH=  #Path to email-wallet/packages/circuits
-SUBGRAPH_URL=https://api.thegraph.com/subgraphs/name/zkemail/email-wallet-v1-sepolia-2
+SUBGRAPH_URL=https://gateway-arbitrum.network.thegraph.com/api/[api-key]/subgraphs/id/AFNg1WfLo4dv1tfixaKCvWTVnFGEsVhVKx2Kef1dbt9G # Please replace [api-key] with your TheGraph API key
 INPUT_FILES_DIR_PATH=  #Path to email-wallet/packages/relayer/input_files
 EMAIL_TEMPLATES_PATH=  #Path to email templates, e.g. ./packages/relayer/eml_templates/
 
