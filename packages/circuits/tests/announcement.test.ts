@@ -1,11 +1,6 @@
-const utils = require("../../utils");
-const ff = require("ffjavascript");
-const stringifyBigInts = ff.utils.stringifyBigInts;
 const circom_tester = require("circom_tester");
 const wasm_tester = circom_tester.wasm;
 import * as path from "path";
-const p = "21888242871839275222246405745257275088548364400416034343698204186575808495617";
-const field = new ff.F1Field(p);
 const emailWalletUtils = require("@zk-email/relayer-utils");
 const option = {
   include: path.join(__dirname, "../../../node_modules"),

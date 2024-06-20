@@ -5,7 +5,6 @@ const emailWalletUtils = require("@zk-email/relayer-utils");
 const option = {
   include: path.join(__dirname, "../../../node_modules"),
 };
-import { readFileSync } from "fs";
 
 // const grumpkin = require("circom-grumpkin");
 jest.setTimeout(120000);
