@@ -1,6 +1,6 @@
 import fs from "fs";
 import { promisify } from "util";
-const emailWalletUtils = require("../../utils");
+const emailWalletUtils = require("@zk-email/relayer-utils");
 
 export async function genEmailSenderInput(
   emailFilePath: string,
