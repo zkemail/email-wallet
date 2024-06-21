@@ -25,7 +25,7 @@ impl Database {
                 email_address TEXT PRIMARY KEY,
                 account_code TEXT NOT NULL,
                 tx_hash TEXT NOT NULL,
-                is_onborded BOOLEAN NOT NULL DEFAULT FALSE,
+                is_onboarded BOOLEAN NOT NULL DEFAULT FALSE,
                 wallet_addr TEXT NOT NULL
             );",
         )
@@ -77,16 +77,16 @@ impl Database {
         email_address: &str,
         account_code: &str,
         tx_hash: &str,
-        is_onborded: bool,
+        is_onboarded: bool,
         wallet_addr: &str,
     ) -> Result<()> {
         let row = sqlx::query(
-            "INSERT INTO users (email_address, account_code, tx_hash, is_onborded, wallet_addr) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            "INSERT INTO users (email_address, account_code, tx_hash, is_onboarded, wallet_addr) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         )
         .bind(email_address)
         .bind(account_code)
         .bind(tx_hash)
-        .bind(is_onborded)
+        .bind(is_onboarded)
         .bind(wallet_addr)
         .fetch_one(&self.db)
         .await?;
@@ -102,7 +102,7 @@ impl Database {
     pub async fn user_onborded(&self, email_address: &str, tx_hash: &str) -> Result<()> {
         info!(LOG, "email_address {}", email_address; "func" => function_name!());
         let res = sqlx::query(
-            "UPDATE users SET is_onborded = TRUE, tx_hash = $1 WHERE email_address = $2",
+            "UPDATE users SET is_onboarded = TRUE, tx_hash = $1 WHERE email_address = $2",
         )
         .bind(tx_hash)
         .bind(email_address)
@@ -292,11 +292,11 @@ impl Database {
     }
 
     pub async fn is_user_onborded(&self, email_address: &str) -> Result<bool> {
-        let result = sqlx::query("SELECT is_onborded FROM users WHERE email_address = $1")
+        let result = sqlx::query("SELECT is_onboarded FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_one(&self.db)
             .await?;
-        Ok(result.get("is_onborded"))
+        Ok(result.get("is_onboarded"))
     }
 
     pub async fn get_account_code(&self, email_address: &str) -> Result<Option<String>> {
