@@ -25,20 +25,20 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     check_and_update_dkim(&email, &parsed_email).await?;
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
-        let account_key = AccountKey::from(hex2field(&format!("0x{}", invitation_code))?);
-        let stored_account_key = DB.get_account_key(&from_addr).await?;
-        if let Some(stored_account_key) = stored_account_key.as_ref() {
-            if stored_account_key != &field2hex(&account_key.0) {
+        let account_code = AccountCode::from(hex2field(&format!("0x{}", invitation_code))?);
+        let stored_account_code = DB.get_account_code(&from_addr).await?;
+        if let Some(stored_account_code) = stored_account_code.as_ref() {
+            if stored_account_code != &field2hex(&account_code.0) {
                 return Err(anyhow!(
                     "Stored account key is not equal to one in the email: {} != {}",
-                    stored_account_key,
-                    field2hex(&account_key.0)
+                    stored_account_code,
+                    field2hex(&account_code.0)
                 ));
             }
         }
-        let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
+        let account_salt = AccountSalt::new(&padded_from_addr, account_code)?;
         if !CLIENT
-            .check_if_account_created_by_account_key(&from_addr, &field2hex(&account_key.0))
+            .check_if_account_created_by_account_code(&from_addr, &field2hex(&account_code.0))
             .await?
         {
             let input =
@@ -53,7 +53,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
                 proof: proof,
             };
             let data = AccountCreationInput {
-                wallet_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
+                account_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
                 psi_point: get_psi_point_bytes(
                     pub_signals[DOMAIN_FIELDS + 4],
                     pub_signals[DOMAIN_FIELDS + 5],
@@ -63,14 +63,14 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
             let res = CLIENT.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-            if let Some(_) = stored_account_key {
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+            if let Some(_) = stored_account_code {
                 DB.user_onborded(&from_addr, &res).await?;
                 trace!(LOG, "User onboarded"; "func" => function_name!());
             } else {
                 DB.insert_user(
                     &from_addr,
-                    &field2hex(&account_key.0),
+                    &field2hex(&account_code.0),
                     &res,
                     true,
                     &format!("0x{}", hex::encode(wallet_addr.as_bytes())),
@@ -85,37 +85,37 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             }
             return Ok(EmailWalletEvent::AccountCreated {
                 email_addr: from_addr,
-                account_key: account_key,
+                account_code: account_code,
                 tx_hash: res,
             });
         }
     }
     trace!(LOG, "Process as a normal email"; "func" => function_name!());
-    let account_key_str = DB.get_account_key(&from_addr).await?.ok_or(anyhow!(
+    let account_code_str = DB.get_account_code(&from_addr).await?.ok_or(anyhow!(
         "The user of email address {} is not registered.",
         from_addr
     ))?;
     if !CLIENT
-        .check_if_account_created_by_account_key(&from_addr, &account_key_str)
+        .check_if_account_created_by_account_code(&from_addr, &account_code_str)
         .await?
     {
         bail!("The user of email address {} is not registered.", from_addr);
     }
-    let account_key = AccountKey(hex2field(&account_key_str)?);
+    let account_code = AccountCode(hex2field(&account_code_str)?);
     let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
-    let wallet_salt = WalletSalt::new(&padded_from_addr, account_key)?;
-    trace!(LOG, "Wallet salt: {}", field2hex(&wallet_salt.0); "func" => function_name!());
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let account_salt = AccountSalt::new(&padded_from_addr, account_code)?;
+    trace!(LOG, "Wallet salt: {}", field2hex(&account_salt.0); "func" => function_name!());
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
     let original_subject = parsed_email.get_subject_all()?;
     trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
     let (command, skip_subject_prefix) =
-        subject_templates::extract_command_from_subject(&original_subject, &wallet_salt).await?;
+        subject_templates::extract_command_from_subject(&original_subject, &account_salt).await?;
     let subject = original_subject[skip_subject_prefix..].to_string();
     trace!(LOG, "Command: {}", command; "func" => function_name!());
     trace!(LOG, "Skip Subject Prefix: {}", skip_subject_prefix; "func" => function_name!());
     trace!(LOG, "Prefix Skipped Subject: {}", subject; "func" => function_name!());
-    let fee_token_name = select_fee_token(&wallet_salt).await?;
+    let fee_token_name = select_fee_token(&account_salt).await?;
     trace!(LOG, "Fee token name: {}", fee_token_name; "func" => function_name!());
     let (template_idx, template_vals) = match command.as_str() {
         SEND_COMMAND => (0, extract_template_vals_send(&subject)?),
@@ -126,7 +126,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
         DKIM_COMMAND => (0, extract_template_vals_dkim(&subject)?),
         _ => {
             let extension_addr = CLIENT
-                .query_user_extension_for_command(&wallet_salt, command.as_str())
+                .query_user_extension_for_command(&account_salt, command.as_str())
                 .await?;
             let subject_templates = CLIENT
                 .query_subject_templates_of_extension(extension_addr)
@@ -270,7 +270,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
         }
     };
     trace!(LOG, "parameter constructed"; "func" => function_name!());
-    let input = generate_email_sender_input(&email, &account_key_str).await?;
+    let input = generate_email_sender_input(&email, &account_code_str).await?;
     trace!(LOG, "input generated"; "func" => function_name!());
     let (email_proof, pub_signals) =
         generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
@@ -293,7 +293,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
         bytes32_to_fr(&recipient_email_addr_commit)?; "func" => function_name!()
     );
     let email_op = EmailOp {
-        wallet_salt: fr_to_bytes32(&wallet_salt.0)?,
+        account_salt: fr_to_bytes32(&account_salt.0)?,
         has_email_recipient,
         recipient_email_addr_commit,
         num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
@@ -351,7 +351,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
 
     Ok(EmailWalletEvent::EmailHandled {
         sender_email_addr: from_addr,
-        account_key: account_key,
+        account_code: account_code,
         recipient_email_addr: recipient_email_addr,
         original_subject: original_subject,
         message_id,
@@ -394,16 +394,16 @@ pub fn calculate_default_hash(input: &str) -> String {
     hash_code.to_string()
 }
 
-pub async fn select_fee_token(wallet_salt: &WalletSalt) -> Result<String> {
-    let eth_balance = match CLIENT.query_user_erc20_balance(wallet_salt, "ETH").await {
+pub async fn select_fee_token(account_salt: &AccountSalt) -> Result<String> {
+    let eth_balance = match CLIENT.query_user_erc20_balance(account_salt, "ETH").await {
         Ok(balance) => balance,
         Err(_) => U256::from(0),
     };
-    let dai_balance = match CLIENT.query_user_erc20_balance(wallet_salt, "DAI").await {
+    let dai_balance = match CLIENT.query_user_erc20_balance(account_salt, "DAI").await {
         Ok(balance) => balance,
         Err(_) => U256::from(0),
     };
-    let usdc_balance = match CLIENT.query_user_erc20_balance(wallet_salt, "USDC").await {
+    let usdc_balance = match CLIENT.query_user_erc20_balance(account_salt, "USDC").await {
         Ok(balance) => balance,
         Err(_) => U256::from(0),
     };

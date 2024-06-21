@@ -37,7 +37,7 @@ abstract contract IntegrationTestHelper is Test {
 
     struct UserTestConfig {
         string emailAddr;
-        bytes32 accountKey;
+        bytes32 accountCode;
     }
 
     EmailWalletCore core;
@@ -63,8 +63,8 @@ abstract contract IntegrationTestHelper is Test {
 
     address constant WETH_ADDR = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
     address constant DAI_ADDR = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
-    // TODO: This native USDC address not working correctly at the moment. 
-    // See https://github.com/foundry-rs/forge-std/pull/505 
+    // TODO: This native USDC address not working correctly at the moment.
+    // See https://github.com/foundry-rs/forge-std/pull/505
     address constant USDC_NATIVE_ADDR = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
     address constant USDC_ADDR = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
     address constant UNISWAP_V3_FACTORY = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
@@ -91,12 +91,12 @@ abstract contract IntegrationTestHelper is Test {
     UserTestConfig user1 =
         UserTestConfig({
             emailAddr: "suegamisora@gmail.com",
-            accountKey: 0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76
+            accountCode: 0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76
         });
     UserTestConfig user2 =
         UserTestConfig({
             emailAddr: "emaiwallet.bob@gmail.com",
-            accountKey: 0x1e2ead4231d73a3c85b1ff883f212d998c41cc9d2a8bac238f6d351ff2c57249
+            accountCode: 0x1e2ead4231d73a3c85b1ff883f212d998c41cc9d2a8bac238f6d351ff2c57249
         });
 
     string[][] subjectTemplates;
@@ -298,25 +298,25 @@ abstract contract IntegrationTestHelper is Test {
         bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
         bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
         uint emailTimestamp = vm.parseUint(pubSignals[11]);
-        bytes32 walletSalt = bytes32(vm.parseUint(pubSignals[12]));
+        bytes32 accountSalt = bytes32(vm.parseUint(pubSignals[12]));
         console.logString("function accountCreation");
         console.logString("emailAddr");
         console.logString(emailAddr);
-        console.logString("walletSalt");
-        console.logBytes32(walletSalt);
+        console.logString("accountSalt");
+        console.logBytes32(accountSalt);
         bytes memory psiPoint;
         {
             bytes32 x = bytes32(vm.parseUint(pubSignals[13]));
             bytes32 y = bytes32(vm.parseUint(pubSignals[14]));
             psiPoint = abi.encode(x, y);
-        }        
+        }
 
         bytes memory proof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
         );
         {
             wallet = accountHandler.createAccount(
-                walletSalt,
+                accountSalt,
                 psiPoint,
                 EmailProof({
                     proof: proof,
@@ -331,7 +331,7 @@ abstract contract IntegrationTestHelper is Test {
 
     function genEmailOpPartial(
         string memory emailFile,
-        bytes32 accountKey,
+        bytes32 accountCode,
         string memory command,
         string memory maskedSubject,
         string memory emailDomain,
@@ -343,7 +343,7 @@ abstract contract IntegrationTestHelper is Test {
         console.logString("function genEmailOpPartial");
         console.logString("emailFile");
         console.logString(emailFile);
-        inputGenerationInput[2] = uint256(accountKey).toHexString(32);
+        inputGenerationInput[2] = uint256(accountCode).toHexString(32);
         vm.ffi(inputGenerationInput);
         inputGenerationInput = new string[](2);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/extract_sign_rand.sh");
@@ -368,22 +368,22 @@ abstract contract IntegrationTestHelper is Test {
         emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
         emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
         emailOp.timestamp = vm.parseUint(pubSignals[11]);
-        emailOp.walletSalt = bytes32(vm.parseUint(pubSignals[32]));
+        emailOp.accountSalt = bytes32(vm.parseUint(pubSignals[32]));
         emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
         emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
 
         console.logString("function genEmailOpPartial");
-        console.logString("accountKey");
-        console.logBytes32(accountKey);
-        console.logString("walletSalt");
-        console.logBytes32(emailOp.walletSalt);
+        console.logString("accountCode");
+        console.logBytes32(accountCode);
+        console.logString("accountSalt");
+        console.logBytes32(emailOp.accountSalt);
     }
 
     function claimFund(
         uint256 registeredUnclaimId,
         string memory emailAddr,
         bytes32 emailAddrRand,
-        bytes32 accountKey
+        bytes32 accountCode
     ) internal returns (bytes32 newRelayerHash) {
         newRelayerHash;
 
@@ -391,35 +391,30 @@ abstract contract IntegrationTestHelper is Test {
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
         inputGenerationInput[2] = uint256(emailAddrRand).toHexString(32);
-        inputGenerationInput[3] = uint256(accountKey).toHexString(32);
+        inputGenerationInput[3] = uint256(accountCode).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
             string.concat(vm.projectRoot(), "/test/build_integration/claim_public.json")
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        bytes32 recipientWalletSalt = bytes32(vm.parseUint(pubSignals[1]));
+        bytes32 recipientAccountSalt = bytes32(vm.parseUint(pubSignals[1]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(
-            registeredUnclaimId, 
-            recipientWalletSalt, 
-            proof
-        );
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedFund(registeredUnclaimId, recipientAccountSalt, proof);
         console.logString("function claimFund");
         console.logString("emailAddr");
         console.logString(emailAddr);
-        console.logString("accountKey");
-        console.logBytes32(accountKey);
-        console.logString("walletSalt");
-        console.logBytes32(recipientWalletSalt);
-
+        console.logString("accountCode");
+        console.logBytes32(accountCode);
+        console.logString("accountSalt");
+        console.logBytes32(recipientAccountSalt);
     }
 
     function claimState(
         uint256 registeredUnclaimId,
         string memory emailAddr,
         bytes32 emailAddrRand,
-        bytes32 accountKey
+        bytes32 accountCode
     ) internal returns (bytes32 newRelayerHash, bytes32 newEmailAddrPointer) {
         newRelayerHash;
         newEmailAddrPointer;
@@ -428,16 +423,16 @@ abstract contract IntegrationTestHelper is Test {
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/claim.sh");
         inputGenerationInput[1] = emailAddr;
         inputGenerationInput[2] = uint256(emailAddrRand).toHexString(32);
-        inputGenerationInput[3] = uint256(accountKey).toHexString(32);
+        inputGenerationInput[3] = uint256(accountCode).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
             string.concat(vm.projectRoot(), "/test/build_integration/claim_public.json")
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        bytes32 recipientWalletSalt = bytes32(vm.parseUint(pubSignals[1]));
+        bytes32 recipientAccountSalt = bytes32(vm.parseUint(pubSignals[1]));
         bytes memory proof = proofToBytes(string.concat(vm.projectRoot(), "/test/build_integration/claim_proof.json"));
-        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(registeredUnclaimId, recipientWalletSalt, proof);
+        UnclaimsHandler(core.unclaimsHandler()).claimUnclaimedState(registeredUnclaimId, recipientAccountSalt, proof);
     }
 
     function genAnnouncement(

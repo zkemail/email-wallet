@@ -50,7 +50,6 @@ contract IntegrationTest is IntegrationTestHelper {
             "gmail.com"
         );
         vm.stopPrank();
-
     }
 
     function testIntegration_Transfer_ETH_To_Internal() public {
@@ -70,11 +69,10 @@ contract IntegrationTest is IntegrationTestHelper {
         require(weth.balanceOf(user1Wallet) == 0.15 ether, "User1 wallet balance before the transaction mismatch");
         vm.stopPrank();
 
-
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, bytes32 emailAddrRand) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Send",
             "Send 0.1 ETH to ",
             "gmail.com",
@@ -108,7 +106,7 @@ contract IntegrationTest is IntegrationTestHelper {
         console.logString("User2 wallet address: ");
         console.logAddress(user2Wallet);
         require(weth.balanceOf(user2Wallet) == 0, "User2 wallet balance mismatch");
-        claimFund(registeredUnclaimId, user2.emailAddr, emailAddrRand, user2.accountKey);
+        claimFund(registeredUnclaimId, user2.emailAddr, emailAddrRand, user2.accountCode);
         require(weth.balanceOf(user2Wallet) == 0.1 ether, "User2 wallet balance mismatch");
         require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
@@ -134,7 +132,7 @@ contract IntegrationTest is IntegrationTestHelper {
         address recipient = vm.addr(4);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test2.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Send",
             string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
             "gmail.com",
@@ -184,7 +182,7 @@ contract IntegrationTest is IntegrationTestHelper {
         deal(address(daiToken), user2Wallet, 20 * 10000 ether);
         deal(address(usdcToken), user2Wallet, 20 * 10000 * (10 ** 6));
         vm.stopPrank();
-        
+
         vm.startPrank(relayer1);
         bytes32 randomHash = keccak256(abi.encode(blockhash(block.number - 1)));
         string[3] memory amountStrs = ["1", "0.2", "0.03"];
@@ -222,7 +220,7 @@ contract IntegrationTest is IntegrationTestHelper {
                     (1 - senderSelector).toString(),
                     ".eml"
                 ),
-                users[senderSelector].accountKey,
+                users[senderSelector].accountCode,
                 "Send",
                 string.concat("Send ", amountStrs[amountSelector], " ", tokens[tokenSelector], " to "),
                 "gmail.com",
@@ -238,18 +236,23 @@ contract IntegrationTest is IntegrationTestHelper {
             }
             deal(relayer1, core.unclaimedFundClaimGas() * core.maxFeePerGas());
             console.logString("function testIntegration_Transfers_Random");
-            console.logString("users[senderSelector].accountKey");
-            console.logBytes32(users[senderSelector].accountKey);
+            console.logString("users[senderSelector].accountCode");
+            console.logBytes32(users[senderSelector].accountCode);
             console.logString("tokens[tokenSelector]");
             console.logString(tokens[tokenSelector]);
             console.logString("tokens[feeSelector]");
             console.logString(tokens[feeSelector]);
-            
+
             (bool success, bytes memory reason, , uint256 registeredUnclaimId) = core.handleEmailOp{
                 value: core.unclaimedFundClaimGas() * core.maxFeePerGas()
             }(emailOp);
             assertEq(success, true, string(reason));
-            claimFund(registeredUnclaimId, users[1 - senderSelector].emailAddr, emailAddrRand, users[1 - senderSelector].accountKey);
+            claimFund(
+                registeredUnclaimId,
+                users[1 - senderSelector].emailAddr,
+                emailAddrRand,
+                users[1 - senderSelector].accountCode
+            );
         }
         vm.stopPrank();
     }
@@ -275,7 +278,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/install_uniswap.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Install",
             "Install extension Uniswap",
             "gmail.com",
@@ -287,7 +290,7 @@ contract IntegrationTest is IntegrationTestHelper {
 
         (emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/uniswap_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Swap",
             "Swap 0.2 ETH to DAI",
             "gmail.com",
@@ -306,7 +309,7 @@ contract IntegrationTest is IntegrationTestHelper {
 
         (emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/uniswap_test2.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Swap",
             "Swap 200 DAI to USDC",
             "gmail.com",
@@ -327,7 +330,7 @@ contract IntegrationTest is IntegrationTestHelper {
         // This test case is not working because we don't have 200 usdcNativeToken in the wallet.
         // (emailOp, ) = genEmailOpPartial(
         //     string.concat(vm.projectRoot(), "/test/emails/uniswap_test3.eml"),
-        //     user1.accountKey,
+        //     user1.accountCode,
         //     "Swap",
         //     "Swap 200 USDC to ETH",
         //     "gmail.com",
@@ -347,7 +350,7 @@ contract IntegrationTest is IntegrationTestHelper {
 
         (emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/uniswap_test4.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Swap",
             "Swap 200 DAI to ETH",
             "gmail.com",
@@ -368,7 +371,7 @@ contract IntegrationTest is IntegrationTestHelper {
         // Swap 0.2 ETH to DAI with 0.5 slippage
         (emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/uniswap_test5.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Swap",
             "Swap 0.2 ETH to DAI with 0.5 slippage",
             "gmail.com",
@@ -450,7 +453,7 @@ contract IntegrationTest is IntegrationTestHelper {
             "gmail.com"
         );
         address user1Wallet = address(user1WalletContract);
-        claimFund(registeredUnclaimId, user1.emailAddr, rand1, user1.accountKey);
+        claimFund(registeredUnclaimId, user1.emailAddr, rand1, user1.accountCode);
         require(
             weth.balanceOf(user1Wallet) == 0.5 ether,
             "User1 wallet balance after claiming unclaimed fund mismatch"
@@ -458,7 +461,7 @@ contract IntegrationTest is IntegrationTestHelper {
 
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Send",
             "Send 0.1 ETH to ",
             "gmail.com",
@@ -480,7 +483,7 @@ contract IntegrationTest is IntegrationTestHelper {
         address recipient = vm.addr(4);
         (emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test2.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Send",
             string.concat("Send 0.25 ETH to ", recipient.addressToChecksumHexString()),
             "gmail.com",
@@ -520,7 +523,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/token_transfer_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Send",
             "Send 0.1 ETH to ",
             "gmail.com",
@@ -574,7 +577,7 @@ contract IntegrationTest is IntegrationTestHelper {
         ape.freeMint(user1Wallet, 1);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
         vm.stopPrank();
-        
+
         vm.startPrank(user1Wallet);
         deal(user1Wallet, 0.15 ether);
         weth.deposit{value: 0.15 ether}();
@@ -583,7 +586,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/install_nft.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Install",
             "Install extension NFT",
             "gmail.com",
@@ -595,7 +598,7 @@ contract IntegrationTest is IntegrationTestHelper {
         bytes32 emailAddrRand;
         (emailOp, emailAddrRand) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/nft_transfer_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "NFT",
             "NFT Send 1 of APE to ",
             "gmail.com",
@@ -625,7 +628,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer1);
-        claimState(registeredUnclaimId, user2.emailAddr, emailAddrRand, user2.accountKey);
+        claimState(registeredUnclaimId, user2.emailAddr, emailAddrRand, user2.accountCode);
         require(ape.ownerOf(1) == user2Wallet, "User2 wallet does not own APE");
         vm.stopPrank();
     }
@@ -655,7 +658,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/install_nft.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Install",
             "Install extension NFT",
             "gmail.com",
@@ -731,7 +734,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.stopPrank();
 
         vm.startPrank(relayer1);
-        claimState(registeredUnclaimId, user1.emailAddr, rand1, user1.accountKey);
+        claimState(registeredUnclaimId, user1.emailAddr, rand1, user1.accountCode);
         require(ape.ownerOf(1) == user1Wallet, "User1 wallet does not own APE");
         vm.stopPrank();
     }
@@ -761,7 +764,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/install_nft.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Install",
             "Install extension NFT",
             "gmail.com",
@@ -773,7 +776,7 @@ contract IntegrationTest is IntegrationTestHelper {
         bytes32 emailAddrRand;
         (emailOp, emailAddrRand) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/nft_transfer_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "NFT",
             "NFT Send 1 of APE to ",
             "gmail.com",
@@ -830,7 +833,7 @@ contract IntegrationTest is IntegrationTestHelper {
         vm.startPrank(relayer1);
         (EmailOp memory emailOp, ) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/install_nft.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "Install",
             "Install extension NFT",
             "gmail.com",
@@ -843,7 +846,7 @@ contract IntegrationTest is IntegrationTestHelper {
         address recipient = vm.addr(4);
         (emailOp, emailAddrRand) = genEmailOpPartial(
             string.concat(vm.projectRoot(), "/test/emails/nft_approve_test1.eml"),
-            user1.accountKey,
+            user1.accountCode,
             "NFT",
             string.concat("NFT Approve ", recipient.addressToChecksumHexString(), " for 1 of APE"),
             "gmail.com",

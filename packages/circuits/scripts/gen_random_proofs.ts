@@ -42,9 +42,8 @@ async function exec() {
   const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
   const newRelayerRand = emailWalletUtils.genRelayerRand();
   // const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
-  const accountKey = emailWalletUtils.genAccountKey();
+  const accountCode = emailWalletUtils.genAccountCode();
   const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
-  const initEmailPath = path.join(__dirname, "../tests/emails/account_init_test1.eml");
   const emailSenderEmailPath = path.join(__dirname, "../tests/emails/email_sender_test1.eml");
 
   const accountCreationInput = await genAccountCreationInput(emailAddr, relayerRand);
@@ -61,7 +60,7 @@ async function exec() {
   );
   log("✓ Proof for account creation circuit generated");
 
-  const claimInput = await genClaimInput(emailAddr, emailAddrRand, accountKey);
+  const claimInput = await genClaimInput(emailAddr, emailAddrRand, accountCode);
   await promisify(fs.writeFile)(path.join(buildDir, "claim_input.json"), JSON.stringify(claimInput, null, 2));
   await prove(
     claimInput,
@@ -72,7 +71,7 @@ async function exec() {
   );
   log("✓ Proof for claim circuit generated");
 
-  const emailSenderInput = await genEmailSenderInput(emailSenderEmailPath, accountKey);
+  const emailSenderInput = await genEmailSenderInput(emailSenderEmailPath, accountCode);
   await promisify(fs.writeFile)(
     path.join(buildDir, "email_sender_input.json"),
     JSON.stringify(emailSenderInput, null, 2),

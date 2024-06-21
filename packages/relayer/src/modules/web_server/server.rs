@@ -24,12 +24,12 @@ pub struct UnclaimRequest {
 #[derive(Serialize, Deserialize)]
 pub struct AccountRegistrationRequest {
     pub email_address: String,
-    pub account_key: String,
+    pub account_code: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct AccountRegistrationResponse {
-    pub account_key: String,
+    pub account_code: String,
     pub wallet_addr: String,
     pub tx_hash: String,
 }
@@ -158,10 +158,10 @@ pub async fn run_server() -> Result<()> {
             axum::routing::get(move || async move { "Hello, world!" }),
         )
         .route(
-            "/api/recoverAccountKey",
+            "/api/recoverAccountCode",
             axum::routing::post(move |payload: String| async move {
-                info!(LOG, "/recoverAccountKey Received payload: {}", payload; "func" => function_name!());
-                match recover_account_key_api_fn(payload).await {
+                info!(LOG, "/recoverAccountCode Received payload: {}", payload; "func" => function_name!());
+                match recover_account_code_api_fn(payload).await {
                     Ok((request_id, email)) => {
                         send_email(email).await.unwrap();
                         request_id.to_string()

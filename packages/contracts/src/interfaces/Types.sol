@@ -8,7 +8,7 @@ struct RelayerConfig {
 
 // Struct to represent an operation from the user
 struct EmailOp {
-    bytes32 walletSalt; // emailAddrPointer of sender's account
+    bytes32 accountSalt; // emailAddrPointer of sender's account
     string command; // Command name (like "wallet", "swap")
     bytes32 emailNullifier; // Nullifier of email to prevent re-run
     string emailDomain; // Domain name of the sender's email

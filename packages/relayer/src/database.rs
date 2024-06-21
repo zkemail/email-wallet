@@ -23,7 +23,7 @@ impl Database {
         sqlx::query(
             "CREATE TABLE IF NOT EXISTS users (
                 email_address TEXT PRIMARY KEY,
-                account_key TEXT NOT NULL,
+                account_code TEXT NOT NULL,
                 tx_hash TEXT NOT NULL,
                 is_onborded BOOLEAN NOT NULL DEFAULT FALSE,
                 wallet_addr TEXT NOT NULL
@@ -75,16 +75,16 @@ impl Database {
     pub async fn insert_user(
         &self,
         email_address: &str,
-        account_key: &str,
+        account_code: &str,
         tx_hash: &str,
         is_onborded: bool,
         wallet_addr: &str,
     ) -> Result<()> {
         let row = sqlx::query(
-            "INSERT INTO users (email_address, account_key, tx_hash, is_onborded, wallet_addr) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            "INSERT INTO users (email_address, account_code, tx_hash, is_onborded, wallet_addr) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         )
         .bind(email_address)
-        .bind(account_key)
+        .bind(account_code)
         .bind(tx_hash)
         .bind(is_onborded)
         .bind(wallet_addr)
@@ -299,16 +299,16 @@ impl Database {
         Ok(result.get("is_onborded"))
     }
 
-    pub async fn get_account_key(&self, email_address: &str) -> Result<Option<String>> {
-        let row_result = sqlx::query("SELECT account_key FROM users WHERE email_address = $1")
+    pub async fn get_account_code(&self, email_address: &str) -> Result<Option<String>> {
+        let row_result = sqlx::query("SELECT account_code FROM users WHERE email_address = $1")
             .bind(email_address)
             .fetch_one(&self.db)
             .await;
 
         match row_result {
             Ok(row) => {
-                let account_key: String = row.get("account_key");
-                Ok(Some(account_key))
+                let account_code: String = row.get("account_code");
+                Ok(Some(account_code))
             }
             Err(sqlx::error::Error::RowNotFound) => Ok(None),
             Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,

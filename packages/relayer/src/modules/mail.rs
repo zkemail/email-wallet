@@ -1,6 +1,6 @@
 use crate::*;
 use handlebars::Handlebars;
-use relayer_utils::AccountKey;
+use relayer_utils::AccountCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::atomic::Ordering;
@@ -10,13 +10,13 @@ use tokio::fs::read_to_string;
 pub enum EmailWalletEvent {
     AccountCreated {
         email_addr: String,
-        account_key: AccountKey,
+        account_code: AccountCode,
         // is_faucet: bool,
         tx_hash: String,
     },
     EmailHandled {
         sender_email_addr: String,
-        account_key: AccountKey,
+        account_code: AccountCode,
         recipient_email_addr: Option<String>,
         original_subject: String,
         message_id: String,
@@ -25,7 +25,7 @@ pub enum EmailWalletEvent {
     },
     AccountNotCreated {
         email_addr: String,
-        account_key: AccountKey,
+        account_code: AccountCode,
         // claim: Claim,
         is_first: bool,
         tx_hash: String,
@@ -37,7 +37,7 @@ pub enum EmailWalletEvent {
         email_addr: String,
         is_fund: bool,
         is_announced: bool,
-        recipient_account_key: AccountKey,
+        recipient_account_code: AccountCode,
         tx_hash: String,
     },
     Voided {
@@ -78,13 +78,13 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
     match event {
         EmailWalletEvent::AccountCreated {
             email_addr,
-            account_key,
+            account_code,
             tx_hash,
         } => {
             let subject = format!("Your Email Wallet Account is created.",);
-            let wallet_salt =
-                WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            let account_salt =
+                AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
             CLIENT
                 .free_mint_test_erc20(wallet_addr, ethers::utils::parse_ether("100")?)
                 .await?;
@@ -115,8 +115,8 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                            email address replaced respectively in the subject line.\n{}\nYour wallet address: {}/address/{}.\nCheck the transaction on etherscan: {}/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr, CHAIN_RPC_EXPLORER.get().unwrap(), tx_hash
                         );
-            let account_key_str = field2hex(&account_key.0);
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
+            let account_code_str = field2hex(&account_code.0);
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -131,7 +131,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
         }
         EmailWalletEvent::EmailHandled {
             sender_email_addr,
-            account_key,
+            account_code,
             recipient_email_addr: _,
             original_subject,
             message_id,
@@ -139,11 +139,11 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             tx_hash,
         } => {
             let subject = format!("Your Email Wallet transaction is completed.",);
-            let wallet_salt = WalletSalt::new(
+            let account_salt = AccountSalt::new(
                 &PaddedEmailAddr::from_email_addr(&sender_email_addr),
-                account_key,
+                account_code,
             )?;
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
             let body_plain = format!(
                             "Hi {}!\nYour transaction request {} is completed in
                             this transaction {}/tx/{}. Thank you for using Email Wallet!\nYour wallet address: {}/address/{}.\nCheck the transaction on etherscan: {}/tx/{}",
@@ -164,15 +164,15 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
         }
         EmailWalletEvent::AccountNotCreated {
             email_addr,
-            account_key,
+            account_code,
             // claim,
             is_first: _,
             tx_hash,
         } => {
             let subject = format!("Your Email Wallet account is ready to be deployed.",);
-            let wallet_salt =
-                WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            let account_salt =
+                AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
             let body_plain = format!(
                             "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: {}/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.",
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
@@ -196,7 +196,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             email_addr,
             is_fund,
             is_announced: _,
-            recipient_account_key,
+            recipient_account_code,
             tx_hash,
         } => {
             let subject = format!(
@@ -207,17 +207,17 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                     "You got some data of Email Wallet extensions"
                 }
             );
-            let wallet_salt = WalletSalt::new(
+            let account_salt = AccountSalt::new(
                 &PaddedEmailAddr::from_email_addr(&email_addr),
-                recipient_account_key,
+                recipient_account_code,
             )?;
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
             let body_plain = format!(
                             "Hi {}!\nCheck the transaction for you on etherscan: {}/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), &tx_hash, wallet_addr
                         );
-            let account_key_str = field2hex(&recipient_account_key.0);
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
+            let account_code_str = field2hex(&recipient_account_code.0);
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str});
             let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -239,16 +239,16 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                     "Your data of Email Wallet extensions is voided"
                 }
             );
-            let account_key = DB
-                .get_account_key(&claim.email_address)
+            let account_code = DB
+                .get_account_code(&claim.email_address)
                 .await?
                 .ok_or(anyhow!("Account not found"))?;
-            let account_key = AccountKey(hex2field(&account_key)?);
-            let wallet_salt = WalletSalt::new(
+            let account_code = AccountCode(hex2field(&account_code)?);
+            let account_salt = AccountSalt::new(
                 &PaddedEmailAddr::from_email_addr(&claim.email_address),
-                account_key,
+                account_code,
             )?;
-            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+            let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
             let body_plain = format!(
                             "Hi {}!\nCheck the transaction for you on etherscan: {}/tx/{}.\nNote that your wallet address is {}\n",
                             claim.email_address, CHAIN_RPC_EXPLORER.get().unwrap(), &tx_hash, wallet_addr

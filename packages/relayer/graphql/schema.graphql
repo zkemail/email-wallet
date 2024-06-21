@@ -1,5 +1,5 @@
 type Query {
-  relayers: [Relayer!],
+  relayers: [Relayer!]
 }
 
 type Relayer @entity {
@@ -14,7 +14,7 @@ type Relayer @entity {
 
 type Account @entity {
   id: String!
-  walletSalt: String! # bytes32
+  accountSalt: String! # bytes32
   psiPoint: String! # address
   createdAt: String!
 }

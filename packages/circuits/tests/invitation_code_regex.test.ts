@@ -11,8 +11,6 @@ jest.setTimeout(120000);
 describe("Invitation Code Regex", () => {
   it("invitation code", async () => {
     const codeStr = "Code 123abc";
-    // const prefixLen = "ACCOUNTKEY.0x".length;
-    // const revealed = "123abc";
     const paddedStr = emailWalletUtils.padString(codeStr, 256);
     const circuitInputs = {
       msg: paddedStr,
@@ -34,8 +32,6 @@ describe("Invitation Code Regex", () => {
 
   it("invitation code in the subject", async () => {
     const codeStr = "Send 0.1 ETH to alice@gmail.com code 123abc";
-    // const prefixLen = "sepolia+ACCOUNTKEY.0x".length;
-    // const revealed = "123abc";
     const paddedStr = emailWalletUtils.padString(codeStr, 256);
     const circuitInputs = {
       msg: paddedStr,
@@ -59,8 +55,6 @@ describe("Invitation Code Regex", () => {
 
   it("invitation code in the email address", async () => {
     const codeStr = "sepolia+code123456@sendeth.org";
-    // const prefixLen = "sepolia+ACCOUNTKEY.0x".length;
-    // const revealed = "123abc";
     const paddedStr = emailWalletUtils.padString(codeStr, 256);
     const circuitInputs = {
       msg: paddedStr,

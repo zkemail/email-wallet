@@ -93,7 +93,7 @@ modal run python packages/prover/local.py
    DATABASE_URL=postgresql://emailwallet:p@ssw0rd@localhost:5432/emailwallet
    ```
 
-**Note**: The system triggers on emails with `accountKey` in the subject, for new account setups. Reply-email functionality for account transport will be deprecated.
+**Note**: The system triggers on emails with `accountCode` in the subject, for new account setups. Reply-email functionality for account transport will be deprecated.
 
 
 <!-- ```bash

@@ -10,7 +10,7 @@ type Relayer @entity {
 
 type Account @entity {
   id: Bytes!
-  walletSalt: Bytes! # bytes32
+  accountSalt: Bytes! # bytes32
   psiPoint: Bytes! # bytes
   createdAt: BigInt!
 }
@@ -46,7 +46,7 @@ type UnclaimedState @entity {
 type EmailOp @entity(immutable: true) {
   id: Bytes!
   success: Boolean! # bool
-  walletSalt: Bytes! # bytes32
+  accountSalt: Bytes! # bytes32
   hasRecipient: Boolean! # bool
   hasEmailRecipient: Boolean! # bool
   registeredUnclaimId: BigInt! # uint256

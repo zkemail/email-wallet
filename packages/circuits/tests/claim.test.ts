@@ -13,14 +13,14 @@ describe("Claim", () => {
   it("claim an unclaimed funds/states", async () => {
     const emailAddr = "suegamisora@gmail.com";
     const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
-    const accountKey = emailWalletUtils.genAccountKey();
-    const circuitInputs = await genClaimInput(emailAddr, emailAddrRand, accountKey);
+    const accountCode = emailWalletUtils.genAccountCode();
+    const circuitInputs = await genClaimInput(emailAddr, emailAddrRand, accountCode);
     const circuit = await wasm_tester(path.join(__dirname, "../src/claim.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const expectedEmailAddrCommit = emailWalletUtils.emailAddrCommit(emailAddr, emailAddrRand);
     expect(BigInt(expectedEmailAddrCommit)).toEqual(witness[1]);
-    const walletSalt = emailWalletUtils.walletSalt(emailAddr, accountKey);
-    expect(BigInt(walletSalt)).toEqual(witness[2]);
+    const accountSalt = emailWalletUtils.accountSalt(emailAddr, accountCode);
+    expect(BigInt(accountSalt)).toEqual(witness[2]);
   });
 });

@@ -15,8 +15,8 @@ describe("Email Sender", () => {
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
     console.log(parsedEmail.canonicalizedHeader);
-    const accountKey = await emailWalletUtils.genAccountKey();
-    const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+    const accountCode = await emailWalletUtils.genAccountCode();
+    const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
     const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
@@ -39,8 +39,8 @@ describe("Email Sender", () => {
       expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + domainFields.length + 3 + idx]);
     }
     const senderEmailAddr = "suegamisora@gmail.com";
-    const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-    expect(BigInt(walletSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
+    const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
+    expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
     expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     const recipientEmailAddr = "alice@gmail.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
@@ -57,8 +57,8 @@ describe("Email Sender", () => {
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
     console.log(parsedEmail.canonicalizedHeader);
-    const accountKey = await emailWalletUtils.genAccountKey();
-    const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+    const accountCode = await emailWalletUtils.genAccountCode();
+    const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
     const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
@@ -81,8 +81,8 @@ describe("Email Sender", () => {
       expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + domainFields.length + 3 + idx]);
     }
     const senderEmailAddr = "suegamisora@gmail.com";
-    const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-    expect(BigInt(walletSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
+    const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
+    expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
     expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
   });
@@ -92,8 +92,8 @@ describe("Email Sender", () => {
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
     console.log(parsedEmail.canonicalizedHeader);
-    const accountKey = await emailWalletUtils.genAccountKey();
-    const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+    const accountCode = await emailWalletUtils.genAccountCode();
+    const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
     const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
@@ -116,8 +116,8 @@ describe("Email Sender", () => {
       expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + domainFields.length + 3 + idx]);
     }
     const senderEmailAddr = "suegamisora@gmail.com";
-    const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-    expect(BigInt(walletSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
+    const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
+    expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
     expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     const recipientEmailAddr = "bob@example.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
@@ -134,8 +134,8 @@ describe("Email Sender", () => {
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
     console.log(parsedEmail.canonicalizedHeader);
-    const accountKey = await emailWalletUtils.genAccountKey();
-    const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+    const accountCode = await emailWalletUtils.genAccountCode();
+    const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
     const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
@@ -158,8 +158,8 @@ describe("Email Sender", () => {
       expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + domainFields.length + 3 + idx]);
     }
     const senderEmailAddr = "suegamisora@gmail.com";
-    const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-    expect(BigInt(walletSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
+    const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
+    expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
     expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     const recipientEmailAddr = "bob@example.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
@@ -176,8 +176,8 @@ describe("Email Sender", () => {
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
     console.log(parsedEmail.canonicalizedHeader);
-    const accountKey = await emailWalletUtils.genAccountKey();
-    const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+    const accountCode = await emailWalletUtils.genAccountCode();
+    const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
     const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
@@ -200,8 +200,8 @@ describe("Email Sender", () => {
       expect(BigInt(maskedSubjectFields[idx])).toEqual(witness[1 + domainFields.length + 3 + idx]);
     }
     const senderEmailAddr = "suegamisora@gmail.com";
-    const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-    expect(BigInt(walletSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
+    const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
+    expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
     expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     const recipientEmailAddr = "alice@gmail.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
@@ -218,8 +218,8 @@ describe("Email Sender", () => {
   //     const emailRaw = readFileSync(emailFilePath, "utf8");
   //     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
   //     console.log(parsedEmail.canonicalizedHeader);
-  //     const accountKey = await emailWalletUtils.genAccountKey();
-  //     const circuitInputs = await genEmailSenderInput(emailFilePath, accountKey);
+  //     const accountCode = await emailWalletUtils.genAccountCode();
+  //     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
   //     const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
   //     const witness = await circuit.calculateWitness(circuitInputs);
   //     await circuit.checkConstraints(witness);
@@ -242,8 +242,8 @@ describe("Email Sender", () => {
   //     const timestamp = 1693290766n;
   //     expect(timestamp).toEqual(witness[29]);
   //     const senderEmailAddr = "suegamisora@gmail.com";
-  //     const walletSalt = emailWalletUtils.walletSalt(senderEmailAddr, accountKey);
-  //     expect(BigInt(walletSalt)).toEqual(witness[30]);
+  //     const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
+  //     expect(BigInt(accountSalt)).toEqual(witness[30]);
   //     expect(1n).toEqual(witness[31]);
   //     const recipientEmailAddr = "vitalik@ethereum.org"
   //     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(recipientEmailAddr, parsedEmail.signature);
