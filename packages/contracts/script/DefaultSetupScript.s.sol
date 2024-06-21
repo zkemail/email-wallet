@@ -8,6 +8,7 @@ import "../src/utils/ECDSAOwnedDKIMRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
 import "../src/extensions/NFTExtension.sol";
 import "../src/extensions/UniswapExtension.sol";
+import "../src/extensions/Safe2FAExtension.sol";
 import "../src/EmailWalletCore.sol";
 
 contract TestERC20 is ERC20 {
@@ -62,6 +63,9 @@ contract Deploy is Script {
     UniswapExtension uniExt;
     UniswapExtension uniExtImpl;
 
+    Safe2FAExtension safeExt;
+    Safe2FAExtension safeExtImpl;
+
     uint256 constant emailValidityDuration = 14 days;
     uint256 constant unclaimedFundClaimGas = 450000;
     uint256 constant unclaimedStateClaimGas = 500000;
@@ -70,6 +74,7 @@ contract Deploy is Script {
 
     string[][] nftExtTemplates = new string[][](3);
     string[][] uniswapExtTemplates = new string[][](4);
+    string[][] safeExtTemplates = new string[][](1);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -103,21 +108,19 @@ contract Deploy is Script {
         }
 
         string memory chainName = vm.envString("CHAIN_NAME");
-        
+
         uint256 chainId = vm.envUint("CHAIN_ID");
 
         string memory tokenName = vm.envString("TOKEN_NAME");
 
         vm.startBroadcast(deployerPrivateKey);
 
-       {
+        {
             tokenRegistryImpl = new TokenRegistry();
-            bytes memory data = abi.encodeWithSelector(
-                TokenRegistry(tokenRegistryImpl).initialize.selector
-            );
+            bytes memory data = abi.encodeWithSelector(TokenRegistry(tokenRegistryImpl).initialize.selector);
             ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), data);
             tokenRegistry = TokenRegistry(payable(address(proxy)));
-       }
+        }
 
         verifierImpl = new AllVerifiers();
 
@@ -127,75 +130,65 @@ contract Deploy is Script {
 
         {
             relayerHandlerImpl = new RelayerHandler();
-            bytes memory data = abi.encodeWithSelector(
-                RelayerHandler(relayerHandlerImpl).initialize.selector
-            );            
+            bytes memory data = abi.encodeWithSelector(RelayerHandler(relayerHandlerImpl).initialize.selector);
             ERC1967Proxy proxy = new ERC1967Proxy(address(relayerHandlerImpl), data);
             relayerHandler = RelayerHandler(payable(address(proxy)));
         }
 
         {
             extensionHandlerImpl = new ExtensionHandler();
-            bytes memory data = abi.encodeWithSelector(
-                ExtensionHandler(extensionHandlerImpl).initialize.selector
-            );            
+            bytes memory data = abi.encodeWithSelector(ExtensionHandler(extensionHandlerImpl).initialize.selector);
             ERC1967Proxy proxy = new ERC1967Proxy(address(extensionHandlerImpl), data);
-            extensionHandler = ExtensionHandler(payable(address(proxy)));            
+            extensionHandler = ExtensionHandler(payable(address(proxy)));
         }
 
         {
             accountHandlerImpl = new AccountHandler();
             bytes memory data = abi.encodeWithSelector(
                 AccountHandler(accountHandlerImpl).initialize.selector,
-                    address(relayerHandler),
-                    dkim,
-                    address(verifierImpl),
-                    address(walletImpl),
-                    emailValidityDuration
-            );            
+                address(relayerHandler),
+                dkim,
+                address(verifierImpl),
+                address(walletImpl),
+                emailValidityDuration
+            );
             ERC1967Proxy proxy = new ERC1967Proxy(address(accountHandlerImpl), data);
             accountHandler = AccountHandler(payable(address(proxy)));
         }
-        
+
         {
             unclaimsHandlerImpl = new UnclaimsHandler();
             bytes memory data = abi.encodeWithSelector(
                 UnclaimsHandler(unclaimsHandlerImpl).initialize.selector,
-                    address(relayerHandler),
-                    address(accountHandler),
-                    address(verifierImpl),
-                    unclaimedFundClaimGas,
-                    unclaimedStateClaimGas,
-                    unclaimsExpiryDuration,
-                    maxFeePerGas
-            );            
+                address(relayerHandler),
+                address(accountHandler),
+                address(verifierImpl),
+                unclaimedFundClaimGas,
+                unclaimedStateClaimGas,
+                unclaimsExpiryDuration,
+                maxFeePerGas
+            );
             ERC1967Proxy proxy = new ERC1967Proxy(address(unclaimsHandlerImpl), data);
             unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
         }
-
-        oracle = new UniswapTWAPOracle(uniswapFactory, weth);
-
-        testToken = new TestERC20("EmailWalletV1Test", "TEST", maxAmount);
-        tokenRegistry.setChainId(chainName, chainId);
-        tokenRegistry.setTokenAddress(chainId, tokenName, address(testToken));
 
         {
             coreImpl = new EmailWalletCore();
             bytes memory data = abi.encodeWithSelector(
                 EmailWalletCore(coreImpl).initialize.selector,
-                    address(relayerHandler),
-                    address(accountHandler),
-                    address(unclaimsHandler),
-                    address(extensionHandler),
-                    address(verifierImpl),
-                    address(tokenRegistry),
-                    address(oracle),
-                    address(weth),
-                    2 gwei,
-                    1 hours,
-                    450000,
-                    500000
-            );            
+                address(relayerHandler),
+                address(accountHandler),
+                address(unclaimsHandler),
+                address(extensionHandler),
+                address(verifierImpl),
+                address(tokenRegistry),
+                address(oracle),
+                address(weth),
+                2 gwei,
+                1 hours,
+                450000,
+                500000
+            );
             ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), data);
             core = EmailWalletCore(payable(address(proxy)));
             core.relayerHandler().transferOwnership(address(core));
@@ -204,21 +197,24 @@ contract Deploy is Script {
             core.extensionHandler().transferOwnership(address(core));
         }
 
-        bytes[] memory defaultExtensions = new bytes[](2);
+        oracle = new UniswapTWAPOracle(uniswapFactory, weth);
+
+        testToken = new TestERC20("EmailWalletV1Test", "TEST", maxAmount);
+        tokenRegistry.setChainId(chainName, chainId);
+        tokenRegistry.setTokenAddress(chainId, tokenName, address(testToken));
+
+        bytes[] memory defaultExtensions = new bytes[](3);
 
         {
             nftExtImpl = new NFTExtension();
-            bytes memory data = abi.encodeWithSelector(
-                NFTExtension(nftExtImpl).initialize.selector,
-                    address(core)
-            );            
+            bytes memory data = abi.encodeWithSelector(NFTExtension(nftExtImpl).initialize.selector, address(core));
             ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtImpl), data);
-            nftExt = NFTExtension(payable(address(proxy)));    
+            nftExt = NFTExtension(payable(address(proxy)));
         }
         nftExtTemplates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];
         nftExtTemplates[1] = ["NFT", "Approve", "{recipient}", "for", "{uint}", "of", "{string}"];
         defaultExtensions[0] = abi.encode("NFTExtension", address(nftExt), nftExtTemplates, 0.001 ether); // TODO: Check max exec gas
-        nftExt.setNFTAddress(tokenName, address(testToken));
+        // nftExt.setNFTAddress(tokenName, address(testToken));
 
         {
             address uniswapV3Router = 0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD;
@@ -227,13 +223,13 @@ contract Deploy is Script {
             uniExtImpl = new UniswapExtension();
             bytes memory data = abi.encodeWithSelector(
                 UniswapExtension(uniExtImpl).initialize.selector,
-                    address(core),
-                    tokenRegistry,
-                    uniswapV3Router,
-                    uniswapV3Factory
-            );            
+                address(core),
+                tokenRegistry,
+                uniswapV3Router,
+                uniswapV3Factory
+            );
             ERC1967Proxy proxy = new ERC1967Proxy(address(uniExtImpl), data);
-            uniExt = UniswapExtension(payable(address(proxy))); 
+            uniExt = UniswapExtension(payable(address(proxy)));
         }
         uniswapExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
         uniswapExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
@@ -265,6 +261,18 @@ contract Deploy is Script {
 
         defaultExtensions[1] = abi.encode("UniswapExtension", address(uniExt), uniswapExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
+        {
+            safeExtImpl = new Safe2FAExtension();
+            bytes memory data = abi.encodeWithSelector(
+                Safe2FAExtension(safeExtImpl).initialize.selector,
+                address(core)
+            );
+            ERC1967Proxy proxy = new ERC1967Proxy(address(safeExtImpl), data);
+            safeExt = Safe2FAExtension(payable(address(proxy)));
+        }
+        safeExtTemplates[0] = ["Safe", "Transaction:", "Approve", "{string}", "from", "{address}"];
+        defaultExtensions[2] = abi.encode("Safe2FAExtension", address(safeExt), safeExtTemplates, 0.001 ether); // TODO: Check max exec gas
+
         core.initializeExtension(defaultExtensions);
 
         vm.stopBroadcast();
@@ -289,7 +297,7 @@ contract Deploy is Script {
         console.log("NFTExtension proxy deployed at: %s", address(nftExt));
         console.log("NFTExtension implementation deployed at: %s", address(nftExtImpl));
         console.log("UniswapExtension proxy deployed at: %s", address(uniExt));
-        console.log("UniswapExtension implementation deployed at: %s", address(uniExtImpl));     
+        console.log("UniswapExtension implementation deployed at: %s", address(uniExtImpl));
         console.log("---- DONE ----");
     }
 }

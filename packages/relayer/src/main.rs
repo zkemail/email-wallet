@@ -8,8 +8,7 @@ async fn main() -> Result<()> {
     if args.len() == 2 && args[1] == "setup" {
         return setup().await;
     } else {
-        let (sender, rx) = EmailForwardSender::new();
-        run(RelayerConfig::new(), event_consumer, sender, rx).await?;
+        run(RelayerConfig::new()).await?;
     }
     Ok(())
 }

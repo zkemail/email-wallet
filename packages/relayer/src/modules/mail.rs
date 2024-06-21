@@ -1,27 +1,80 @@
-use crate::{
-    error, hex2field, parse_error, render_html, AccountKey, EmailForwardSender, EmailMessage,
-    EmailWalletEvent, Future, Result, CHAIN_RPC_EXPLORER, CLIENT, DB, LOG, ONBOARDING_COUNTER,
-    ONBOARDING_REPLY_MSG, ONBOARDING_TOKEN_DISTRIBUTION_LIMIT, RELAYER_EMAIL_ADDRESS,
-};
-use anyhow::anyhow;
-use email_wallet_utils::cryptos::{PaddedEmailAddr, WalletSalt};
-use std::{pin::Pin, sync::atomic::Ordering};
+use crate::*;
+use handlebars::Handlebars;
+use relayer_utils::AccountKey;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::sync::atomic::Ordering;
+use tokio::fs::read_to_string;
 
-pub fn event_consumer(
-    event: EmailWalletEvent,
-    sender: EmailForwardSender,
-) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-    Box::pin(async {
-        match event_consumer_fn(event, sender).await {
-            Ok(_) => {}
-            Err(err) => {
-                error!(LOG, "Failed to accept event: {}", err);
-            }
-        }
-    })
+#[derive(Debug, Clone)]
+pub enum EmailWalletEvent {
+    AccountCreated {
+        email_addr: String,
+        account_key: AccountKey,
+        // is_faucet: bool,
+        tx_hash: String,
+    },
+    EmailHandled {
+        sender_email_addr: String,
+        account_key: AccountKey,
+        recipient_email_addr: Option<String>,
+        original_subject: String,
+        message_id: String,
+        email_op: EmailOp,
+        tx_hash: String,
+    },
+    AccountNotCreated {
+        email_addr: String,
+        account_key: AccountKey,
+        // claim: Claim,
+        is_first: bool,
+        tx_hash: String,
+    },
+    Claimed {
+        // claim: Claim,
+        unclaimed_fund: Option<UnclaimedFund>,
+        unclaimed_state: Option<UnclaimedState>,
+        email_addr: String,
+        is_fund: bool,
+        is_announced: bool,
+        recipient_account_key: AccountKey,
+        tx_hash: String,
+    },
+    Voided {
+        claim: Claim,
+        tx_hash: String,
+    },
+    Error {
+        email_addr: String,
+        error: String,
+    },
+    Ack {
+        email_addr: String,
+        subject: String,
+        original_message_id: Option<String>,
+    },
+    NoOp,
 }
 
-async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) -> Result<()> {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmailMessage {
+    pub to: String,
+    pub subject: String,
+    pub reference: Option<String>,
+    pub reply_to: Option<String>,
+    pub body_plain: String,
+    pub body_html: String,
+    pub body_attachments: Option<Vec<EmailAttachment>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmailAttachment {
+    pub inline_id: String,
+    pub content_type: String,
+    pub contents: Vec<u8>,
+}
+
+pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
     match event {
         EmailWalletEvent::AccountCreated {
             email_addr,
@@ -62,7 +115,8 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                            email address replaced respectively in the subject line.\n{}\nYour wallet address: {}/address/{}.\nCheck the transaction on etherscan: {}/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr, CHAIN_RPC_EXPLORER.get().unwrap(), tx_hash
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            let account_key_str = field2hex(&account_key.0);
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -73,7 +127,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 reply_to: None,
                 body_attachments: None,
             };
-            sender.send(email)?;
+            send_email(email).await?;
         }
         EmailWalletEvent::EmailHandled {
             sender_email_addr,
@@ -106,7 +160,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 reply_to: Some(RELAYER_EMAIL_ADDRESS.get().unwrap().clone()),
                 body_attachments: None,
             };
-            sender.send(email)?;
+            send_email(email).await?;
         }
         EmailWalletEvent::AccountNotCreated {
             email_addr,
@@ -134,7 +188,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 reply_to: None,
                 body_attachments: None,
             };
-            sender.send(email)?;
+            send_email(email).await?;
         }
         EmailWalletEvent::Claimed {
             unclaimed_fund: _,
@@ -162,7 +216,8 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                             "Hi {}!\nCheck the transaction for you on etherscan: {}/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), &tx_hash, wallet_addr
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            let account_key_str = field2hex(&recipient_account_key.0);
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str});
             let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -173,7 +228,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 reply_to: None,
                 body_attachments: None,
             };
-            sender.send(email)?;
+            send_email(email).await?;
         }
         EmailWalletEvent::Voided { claim, tx_hash } => {
             let subject = format!(
@@ -209,7 +264,7 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 reply_to: None,
                 body_attachments: None,
             };
-            sender.send(email)?;
+            send_email(email).await?;
         }
         EmailWalletEvent::Error { email_addr, error } => {
             let error = parse_error(error)?;
@@ -227,12 +282,13 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                     reply_to: None,
                     body_attachments: None,
                 };
-                sender.send(email)?;
+                send_email(email).await?;
             }
         }
         EmailWalletEvent::Ack {
             email_addr,
             subject,
+            original_message_id,
         } => {
             let body_plain = format!(
                 "Hi {}!\nYour email with the subject {} is received.",
@@ -246,12 +302,69 @@ async fn event_consumer_fn(event: EmailWalletEvent, sender: EmailForwardSender) 
                 subject,
                 body_plain,
                 body_html,
-                reference: None,
-                reply_to: None,
+                reference: original_message_id.clone(),
+                reply_to: original_message_id,
                 body_attachments: None,
             };
-            sender.send(email)?;
+            send_email(email).await?;
         }
+        EmailWalletEvent::NoOp => {}
+    }
+
+    Ok(())
+}
+
+pub async fn render_html(template_name: &str, render_data: Value) -> Result<String> {
+    let email_template_filename = PathBuf::new()
+        .join(EMAIL_TEMPLATES.get().unwrap())
+        .join(template_name);
+    let email_template = read_to_string(&email_template_filename).await?;
+
+    let reg = Handlebars::new();
+
+    Ok(reg.render_template(&email_template, &render_data)?)
+}
+
+pub fn parse_error(error: String) -> Result<Option<String>> {
+    let mut error = error;
+    if error.contains("Contract call reverted with data: ") {
+        let revert_data = error
+            .replace("Contract call reverted with data: ", "")
+            .split_at(10)
+            .1
+            .to_string();
+        let revert_bytes = hex::decode(revert_data)
+            .unwrap()
+            .into_iter()
+            .filter(|&b| b >= 0x20 && b <= 0x7E)
+            .collect();
+        error = String::from_utf8(revert_bytes).unwrap().trim().to_string();
+    }
+
+    match error.as_str() {
+        "Account is already created" => Ok(Some(error)),
+        "insufficient balance" => Ok(Some("You don't have sufficient balance".to_string())),
+        _ => Ok(Some(error)),
+    }
+}
+
+pub async fn send_email(email: EmailMessage) -> Result<()> {
+    let smtp_server = SMTP_SERVER.get().unwrap();
+
+    // Send POST request to email server
+    let client = reqwest::Client::new();
+    let response = client
+        .post(smtp_server)
+        .json(&email)
+        .send()
+        .await
+        .map_err(|e| anyhow!("Failed to send email: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(anyhow!(
+            "Failed to send email: {}",
+            response.text().await.unwrap_or_default()
+        ));
     }
 
     Ok(())

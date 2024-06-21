@@ -1,11 +1,15 @@
 use anyhow::{anyhow, Result};
 
-use crate::smtp_client::*;
-use email_wallet_utils::{
-    converters::{field2hex, hex2field},
-    cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
+use crate::{
+    error, handle_email, handle_email_event, render_html, trace, EmailMessage, EmailWalletEvent,
+    SafeRequest,
 };
 use ethers::types::{Address, U256};
+use relayer_utils::{
+    converters::{field2hex, hex2field},
+    cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
+    ParsedEmail, LOG,
+};
 
 use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
 use hex::encode;
@@ -68,7 +72,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
     if account_key_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://2fa.emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -188,7 +192,7 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     if account_key_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://2fa.emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -285,4 +289,76 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
         body_attachments: None,
     };
     Ok((request_id, email))
+}
+
+pub async fn add_safe_owner_api_fn(payload: String) -> Result<()> {
+    let request = serde_json::from_str::<SafeRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+
+    let is_wallet_addr_email_wallet = DB.is_wallet_addr_exist(&request.wallet_addr).await?;
+
+    if is_wallet_addr_email_wallet {
+        DB.add_user_with_safe(&request.wallet_addr, &request.safe_addr)
+            .await?;
+    }
+
+    Ok(())
+}
+
+pub async fn delete_safe_owner_api_fn(payload: String) -> Result<()> {
+    let request = serde_json::from_str::<SafeRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+
+    let is_wallet_addr_email_wallet = DB.is_wallet_addr_exist(&request.wallet_addr).await?;
+
+    if is_wallet_addr_email_wallet {
+        DB.remove_safe_from_user(&request.wallet_addr, &request.safe_addr)
+            .await?;
+    }
+
+    Ok(())
+}
+
+pub async fn receive_email_api_fn(email: String) -> Result<()> {
+    let parsed_email = ParsedEmail::new_from_raw_email(&email).await.unwrap();
+    let from_addr = parsed_email.get_from_addr().unwrap();
+    tokio::spawn(async move {
+        match handle_email_event(EmailWalletEvent::Ack {
+            email_addr: from_addr.clone(),
+            subject: parsed_email.get_subject_all().unwrap_or_default(),
+            original_message_id: parsed_email.get_message_id().ok(),
+        })
+        .await
+        {
+            Ok(_) => {
+                trace!(LOG, "Ack email event sent");
+            }
+            Err(e) => {
+                error!(LOG, "Error handling email event: {:?}", e);
+            }
+        }
+        match handle_email(email.clone()).await {
+            Ok(event) => match handle_email_event(event).await {
+                Ok(_) => {}
+                Err(e) => {
+                    error!(LOG, "Error handling email event: {:?}", e);
+                }
+            },
+            Err(e) => {
+                error!(LOG, "Error handling email: {:?}", e);
+                match handle_email_event(EmailWalletEvent::Error {
+                    email_addr: from_addr,
+                    error: e.to_string(),
+                })
+                .await
+                {
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!(LOG, "Error handling email event: {:?}", e);
+                    }
+                }
+            }
+        }
+    });
+    Ok(())
 }

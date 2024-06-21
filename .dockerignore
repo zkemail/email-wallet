@@ -41,18 +41,16 @@ sql_database.db
 .ic.pem
 
 # Prover
-packages/prover/build/*
-packages/prover/params/*.zkey
-packages/prover/__pycache__/*
+packages/prover
 
 # Subgraphs
 packages/subgraph/build
 
-# Subgraphs
-packages/subgraph/build
+# Frontend
+packages/frontend
 
-# Subgraphs
-packages/subgraph/build
+# Safe Tracker
+packages/safe_tracker
 
 # Mac
 .DS_Store

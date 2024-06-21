@@ -1,0 +1,54 @@
+# Node modules
+node_modules
+
+# TypeScript compiled JavaScript output
+dist
+
+# Dependency directories
+bower_components
+
+# Version control
+.git
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE settings
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+*.swp
+*.swo
+*.tmp
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional tsc command artifact
+tsconfig.tsbuildinfo
+
+# Optional npm log files
+npm-debug.log*
+npm-error.log*

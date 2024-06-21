@@ -25,7 +25,8 @@ impl Database {
                 email_address TEXT PRIMARY KEY,
                 account_key TEXT NOT NULL,
                 tx_hash TEXT NOT NULL,
-                is_onborded BOOLEAN NOT NULL DEFAULT FALSE
+                is_onborded BOOLEAN NOT NULL DEFAULT FALSE,
+                wallet_addr TEXT NOT NULL
             );",
         )
         .execute(&self.db)
@@ -48,6 +49,25 @@ impl Database {
         .execute(&self.db)
         .await?;
 
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS safe (
+                wallet_addr TEXT PRIMARY KEY,
+                safe_addr TEXT[] NOT NULL
+            );",
+        )
+        .execute(&self.db)
+        .await?;
+
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS safe_txs (
+                tx_hash TEXT NOT NULL,
+                wallet_addr TEXT NOT NULL,
+                PRIMARY KEY (tx_hash, wallet_addr)
+            );",
+        )
+        .execute(&self.db)
+        .await?;
+
         Ok(())
     }
 
@@ -58,14 +78,16 @@ impl Database {
         account_key: &str,
         tx_hash: &str,
         is_onborded: bool,
+        wallet_addr: &str,
     ) -> Result<()> {
         let row = sqlx::query(
-            "INSERT INTO users (email_address, account_key, tx_hash, is_onborded) VALUES ($1, $2, $3, $4) RETURNING *",
+            "INSERT INTO users (email_address, account_key, tx_hash, is_onborded, wallet_addr) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         )
         .bind(email_address)
         .bind(account_key)
         .bind(tx_hash)
         .bind(is_onborded)
+        .bind(wallet_addr)
         .fetch_one(&self.db)
         .await?;
         info!(
@@ -160,10 +182,8 @@ impl Database {
         Ok(vec)
     }
 
-    #[named]
     pub async fn get_claims_unexpired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-        info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
             sqlx::query("SELECT * FROM claims WHERE expiry_time > $1 AND is_deleted = FALSE")
                 .bind(now)
@@ -195,10 +215,8 @@ impl Database {
         Ok(vec)
     }
 
-    #[named]
     pub async fn get_claims_expired(&self, now: i64) -> Result<Vec<Claim>> {
         let mut vec = Vec::new();
-        info!(LOG, "now {}", now; "func" => function_name!());
         let rows =
             sqlx::query("SELECT * FROM claims WHERE expiry_time < $1 AND is_deleted = FALSE")
                 .bind(now)
@@ -311,5 +329,107 @@ impl Database {
             Err(sqlx::error::Error::RowNotFound) => Ok(None),
             Err(e) => Err(e).map_err(|e| anyhow::anyhow!(e))?,
         }
+    }
+
+    pub async fn is_wallet_addr_exist(&self, wallet_addr: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM users WHERE LOWER(wallet_addr) = LOWER($1)")
+            .bind(wallet_addr)
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(result.is_some())
+    }
+
+    pub async fn add_user_with_safe(&self, wallet_addr: &str, safe_addr: &str) -> Result<()> {
+        let query = "
+            INSERT INTO safe (wallet_addr, safe_addr) 
+            VALUES ($1, ARRAY[$2::TEXT]) 
+            ON CONFLICT (wallet_addr) 
+            DO UPDATE SET safe_addr = array_append(safe.safe_addr, EXCLUDED.safe_addr[1])
+            RETURNING *;
+        ";
+        sqlx::query(query)
+            .bind(wallet_addr)
+            .bind(safe_addr)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn get_users_with_safe(&self) -> Result<Vec<String>> {
+        let mut vec = Vec::new();
+        let rows = sqlx::query("SELECT wallet_addr FROM safe")
+            .fetch_all(&self.db)
+            .await?;
+
+        for row in rows {
+            let wallet_addr: String = row.get("wallet_addr");
+            vec.push(wallet_addr);
+        }
+        Ok(vec)
+    }
+
+    pub async fn get_safes_by_user(&self, wallet_addr: &str) -> Result<Vec<String>> {
+        let row = sqlx::query("SELECT safe_addr FROM safe WHERE wallet_addr = $1")
+            .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(row.get("safe_addr"))
+    }
+
+    pub async fn remove_safe_from_user(&self, wallet_addr: &str, safe_addr: &str) -> Result<()> {
+        let query = "
+            UPDATE safe 
+            SET safe_addr = array_remove(safe_addr, $2) 
+            WHERE wallet_addr = $1;
+        ";
+        sqlx::query(query)
+            .bind(wallet_addr)
+            .bind(safe_addr)
+            .execute(&self.db)
+            .await?;
+
+        // If the safe_addr is empty, remove the wallet_addr from the safe table
+        let row = sqlx::query("SELECT safe_addr FROM safe WHERE wallet_addr = $1")
+            .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        let safe_addr: Vec<String> = row.get("safe_addr");
+        if safe_addr.is_empty() {
+            sqlx::query("DELETE FROM safe WHERE wallet_addr = $1")
+                .bind(wallet_addr)
+                .execute(&self.db)
+                .await?;
+        }
+
+        Ok(())
+    }
+
+    pub async fn get_email_by_wallet(&self, wallet_addr: &str) -> Result<String> {
+        let row =
+            sqlx::query("SELECT email_address FROM users WHERE LOWER(wallet_addr) = LOWER($1)")
+                .bind(wallet_addr)
+                .fetch_one(&self.db)
+                .await?;
+        Ok(row.get("email_address"))
+    }
+
+    pub async fn insert_safe_tx(&self, tx_hash: &str, wallet_addr: &str) -> Result<()> {
+        sqlx::query("INSERT INTO safe_txs (tx_hash, wallet_addr) VALUES ($1, $2) RETURNING *")
+            .bind(tx_hash)
+            .bind(wallet_addr)
+            .fetch_one(&self.db)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn has_safe_tx_by_addr(&self, tx_hash: &str, wallet_addr: &str) -> Result<bool> {
+        let result = sqlx::query("SELECT 1 FROM safe_txs WHERE LOWER(tx_hash) = LOWER($1) AND LOWER(wallet_addr) = LOWER($2)")
+            .bind(tx_hash)
+            .bind(wallet_addr)
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(result.is_some())
     }
 }

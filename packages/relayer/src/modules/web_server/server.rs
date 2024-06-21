@@ -4,7 +4,6 @@ use std::sync::atomic::Ordering;
 
 use axum::Router;
 use serde::{Deserialize, Serialize};
-use tokio::sync::mpsc::UnboundedSender;
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
 #[derive(Serialize, Deserialize)]
@@ -41,13 +40,14 @@ pub struct StatResponse {
     pub onboarding_tokens_left: u32,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct SafeRequest {
+    pub wallet_addr: String,
+    pub safe_addr: String,
+}
+
 #[named]
-async fn unclaim(
-    payload: UnclaimRequest,
-    db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
-    tx_claimer: UnboundedSender<Claim>,
-) -> Result<String> {
+async fn unclaim(payload: UnclaimRequest) -> Result<String> {
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
     info!(
         LOG,
@@ -56,7 +56,7 @@ async fn unclaim(
     );
     let commit = padded_email_addr.to_commitment(&hex2field(&payload.random)?)?;
     info!(LOG, "commit {:?}", commit; "func" => function_name!());
-    let id = chain_client
+    let id = CLIENT
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
         .await?;
     info!(LOG, "id {:?}", id; "func" => function_name!());
@@ -71,8 +71,8 @@ async fn unclaim(
         is_announced: false,
         is_seen: false,
     };
-    tx_claimer.send(claim)?;
-    trace!(LOG, "claim sent to tx_claimer"; "func" => function_name!());
+    claim_unclaims(claim).await?;
+    trace!(LOG, "Unclaimed {} for {} is accepted", if payload.is_fund { "fund" } else { "state" }, payload.email_address; "func" => function_name!());
 
     Ok(format!(
         "Unclaimed {} for {} is accepted",
@@ -82,22 +82,8 @@ async fn unclaim(
 }
 
 #[named]
-pub async fn run_server(
-    addr: &str,
-    db: Arc<Database>,
-    chain_client: Arc<ChainClient>,
-    tx_claimer: UnboundedSender<Claim>,
-    email_sender: EmailForwardSender,
-) -> Result<()> {
-    let chain_client_check_clone = Arc::clone(&chain_client);
-    let chain_client_reveal_clone = Arc::clone(&chain_client);
-    let tx_claimer_reveal_clone = tx_claimer.clone();
-
-    let sender_for_nft_transfer_api = email_sender.clone();
-    let sender_for_create_account_api = email_sender.clone();
-    let sender_for_send_fn_api = email_sender.clone();
-    let sender_for_recover_account_key_fn_api = email_sender.clone();
-
+pub async fn run_server() -> Result<()> {
+    let addr = WEB_SERVER_ADDRESS.get().unwrap();
     let mut app = Router::new()
         .route(
             "/api/emailAddrCommit",
@@ -120,7 +106,7 @@ pub async fn run_server(
                 info!(LOG, "/unclaim Received payload: {}", payload; "func" => function_name!());
                 let json = serde_json::from_str::<UnclaimRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
-                unclaim(json, db, chain_client, tx_claimer)
+                unclaim(json)
                     .await
                     .map_err(|err| {
                         error!(LOG, "Failed to accept unclaim: {}", err; "func" => function_name!());
@@ -145,7 +131,7 @@ pub async fn run_server(
                 info!(LOG, "/serveCheck Received payload: {}", payload; "func" => function_name!());
                 let json = serde_json::from_str::<CheckRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
-                serve_check_request(json, chain_client_check_clone)
+                serve_check_request(json)
                     .await
                     .map_err(|err| {
                         error!(LOG, "Failed PSI check serve: {}", err; "func" => function_name!());
@@ -159,7 +145,7 @@ pub async fn run_server(
                 info!(LOG, "/serveCheck Received payload: {}", payload; "func" => function_name!());
                 let json = serde_json::from_str::<RevealRequest>(&payload)
                     .map_err(|_| "Invalid payload json".to_string())?;
-                serve_reveal_request(json, chain_client_reveal_clone, tx_claimer_reveal_clone)
+                serve_reveal_request(json)
                     .await
                     .map_err(|err| {
                         error!(LOG, "Failed PSI reveal serve: {}", err; "func" => function_name!());
@@ -177,7 +163,7 @@ pub async fn run_server(
                 info!(LOG, "/recoverAccountKey Received payload: {}", payload; "func" => function_name!());
                 match recover_account_key_api_fn(payload).await {
                     Ok((request_id, email)) => {
-                        sender_for_recover_account_key_fn_api.send(email).unwrap();
+                        send_email(email).await.unwrap();
                         request_id.to_string()
                     }
                     Err(err) => {
@@ -209,7 +195,7 @@ pub async fn run_server(
                 info!(LOG, "Send payload: {}", payload);
                 match send_api_fn(payload).await {
                     Ok((request_id, email)) => {
-                        sender_for_send_fn_api.send(email).unwrap();
+                        send_email(email).await.unwrap();
                         request_id.to_string()
                     }
                     Err(err) => {
@@ -225,7 +211,7 @@ pub async fn run_server(
                 info!(LOG, "Create account payload: {}", payload);
                 match create_account_api_fn(payload).await {
                     Ok((request_id, email)) => {
-                        sender_for_create_account_api.send(email).unwrap();
+                        send_email(email).await.unwrap();
                         request_id.to_string()
                     }
                     Err(err) => {
@@ -254,7 +240,7 @@ pub async fn run_server(
                 info!(LOG, "NFT transfer payload: {}", payload);
                 match nft_transfer_api_fn(payload).await {
                     Ok((request_id, email)) => {
-                        sender_for_nft_transfer_api.send(email).unwrap();
+                        send_email(email).await.unwrap();
                         request_id.to_string()
                     }
                     Err(err) => {
@@ -263,7 +249,46 @@ pub async fn run_server(
                     }
                 }
             }),
-        );
+        )
+    .route(
+        "/api/addSafeOwner",
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Safe txn payload: {}", payload);
+            match add_safe_owner_api_fn(payload).await {
+                Ok(_) => "Request processed".to_string(),
+                Err(err) => {
+                    error!(LOG, "Failed to complete the safe request: {}", err);
+                    err.to_string()
+                }
+            }
+        }),
+    )
+    .route(
+        "/api/removeSafeOwner",
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Safe txn payload: {}", payload);
+            match delete_safe_owner_api_fn(payload).await {
+                Ok(_) => "Request processed".to_string(),
+                Err(err) => {
+                    error!(LOG, "Failed to complete the safe request: {}", err);
+                    err.to_string()
+                }
+            }
+        }),
+    )
+    .route(
+        "/api/receiveEmail",
+        axum::routing::post::<_, _, (), _>(move |payload: String| async move {
+            info!(LOG, "Receive email payload: {}", payload);
+            match receive_email_api_fn(payload).await {
+                Ok(_) => "Request processed".to_string(),
+                Err(err) => {
+                    error!(LOG, "Failed to complete the receive email request: {}", err);
+                    err.to_string()
+                }
+            }
+        }),
+    );
 
     app = app.layer(
         CorsLayer::new()

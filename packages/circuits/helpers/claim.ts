@@ -1,4 +1,4 @@
-const emailWalletUtils = require("../../utils");
+const emailWalletUtils = require("@zk-email/relayer-utils");
 
 export async function genClaimInput(
   emailAddr: string,
