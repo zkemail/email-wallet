@@ -1,9 +1,8 @@
 /**
- * 
+ *
  * This script is for generating input for the claim circuit.
- * 
+ *
  */
-
 
 import { program } from "commander";
 import fs from "fs";
@@ -13,22 +12,10 @@ import path from "path";
 const snarkjs = require("snarkjs");
 
 program
-  .requiredOption(
-    "--email-addr <string>",
-    "User's email address"
-  )
-  .requiredOption(
-    "--email-addr-rand <string>",
-    "Randomness for the email address commitment"
-  )
-  .requiredOption(
-    "--account-key <string>",
-    "User's account key"
-  )
-  .requiredOption(
-    "--input-file <string>",
-    "Path of a json file to write the generated input"
-  )
+  .requiredOption("--email-addr <string>", "User's email address")
+  .requiredOption("--email-addr-rand <string>", "Randomness for the email address commitment")
+  .requiredOption("--account-key <string>", "User's account key")
+  .requiredOption("--input-file <string>", "Path of a json file to write the generated input")
   .option("--silent", "No console logs")
   .option("--prove", "Also generate proof");
 
@@ -48,7 +35,7 @@ async function generate() {
 
   log("Generating Inputs for:", args);
 
-  const circuitInputs = await genClaimInput(args.emailAddr, args.emailAddrRand, args.accountKey);
+  const circuitInputs = await genClaimInput(args.emailAddr, args.emailAddrRand, args.accountCode);
 
   log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
@@ -58,7 +45,12 @@ async function generate() {
 
   if (args.prove) {
     const dir = path.dirname(args.inputFile);
-    const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInputs, path.join(dir, "claim.wasm"), path.join(dir, "claim.zkey"), console);
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+      circuitInputs,
+      path.join(dir, "claim.wasm"),
+      path.join(dir, "claim.zkey"),
+      console,
+    );
     await promisify(fs.writeFile)(path.join(dir, "claim_proof.json"), JSON.stringify(proof, null, 2));
     await promisify(fs.writeFile)(path.join(dir, "claim_public.json"), JSON.stringify(publicSignals, null, 2));
     log("✓ Proof for claim circuit generated");

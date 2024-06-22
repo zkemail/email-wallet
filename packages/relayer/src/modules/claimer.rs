@@ -4,8 +4,8 @@ use crate::*;
 
 use ethers::types::Address;
 use relayer_utils::{
-    field2hex, generate_claim_input, hex2field, u256_to_bytes32, AccountKey, PaddedEmailAddr,
-    WalletSalt,
+    field2hex, generate_claim_input, hex2field, u256_to_bytes32, AccountCode, AccountSalt,
+    PaddedEmailAddr,
 };
 use serde::{Deserialize, Serialize};
 
@@ -47,25 +47,25 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
         need_creation = psi_client.check_and_reveal().await?;
     }
     if need_creation && !DB.contains_user(&claim.email_address).await.unwrap() {
-        let account_key = AccountKey::new(rand::thread_rng());
-        let account_key_str = field2hex(&account_key.0);
+        let account_code = AccountCode::new(rand::thread_rng());
+        let account_code_str = field2hex(&account_code.0);
         let psi_point = compute_psi_point(
             CIRCUITS_DIR_PATH.get().unwrap(),
             &claim.email_address,
-            &account_key_str,
+            &account_code_str,
         )
         .await?;
-        let wallet_salt = WalletSalt::new(
+        let account_salt = AccountSalt::new(
             &PaddedEmailAddr::from_email_addr(&claim.email_address),
-            account_key,
+            account_code,
         )?;
-        let tx_hash = CLIENT.register_psi_point(&psi_point, &wallet_salt).await?;
+        let tx_hash = CLIENT.register_psi_point(&psi_point, &account_salt).await?;
         info!(LOG, "register psi point tx hash: {}", tx_hash; "func" => function_name!());
-        let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+        let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
 
         DB.insert_user(
             &claim.email_address,
-            &account_key_str,
+            &account_code_str,
             "",
             false,
             &format!("0x{}", hex::encode(wallet_addr.as_bytes())),
@@ -73,23 +73,23 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
         .await?;
         return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,
-            account_key,
+            account_code,
             is_first: true,
             tx_hash,
         });
     }
-    let account_key_str = if let Some(key) = DB.get_account_key(&claim.email_address).await? {
+    let account_code_str = if let Some(key) = DB.get_account_code(&claim.email_address).await? {
         key
     } else {
         return Ok(EmailWalletEvent::NoOp);
     };
     let is_account_created = CLIENT
-        .check_if_account_created_by_account_key(&claim.email_address, &account_key_str)
+        .check_if_account_created_by_account_code(&claim.email_address, &account_code_str)
         .await?;
     if !is_seen && !is_account_created {
         return Ok(EmailWalletEvent::AccountNotCreated {
             email_addr: claim.email_address,
-            account_key: AccountKey(hex2field(&account_key_str)?),
+            account_code: AccountCode(hex2field(&account_code_str)?),
             is_first: false,
             tx_hash: "".to_string(),
         });
@@ -97,9 +97,9 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     } else if !is_account_created {
         return Err(anyhow!("Account not created"));
     }
-    let account_key = AccountKey(hex2field(&account_key_str)?);
+    let account_code = AccountCode(hex2field(&account_code_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
-    let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;
+    let account_salt = AccountSalt::new(&padded_email_addr, account_code)?;
     let now = now();
 
     let (unclaimed_fund, unclaimed_state) = if claim.is_fund {
@@ -114,7 +114,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
             return Err(anyhow!("Claim expired"));
         }
         if claim.is_announced
-            && is_installed_extension(unclaimed_state.extension_addr, &wallet_salt).await?
+            && is_installed_extension(unclaimed_state.extension_addr, &account_salt).await?
         {
             return Err(anyhow!(
                 "Unclaimed state anounces the email address but its extension is not installed."
@@ -126,7 +126,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     let input = generate_claim_input(
         &claim.email_address,
         &claim.random,
-        &field2hex(&account_key.0),
+        &field2hex(&account_code.0),
     )
     .await?;
     let (proof, pub_signals) =
@@ -136,31 +136,34 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     info!(LOG, "commit in pub signals: {}", pub_signals[0]; "func" => function_name!());
     let data = ClaimInput {
         id: claim.id,
-        recipient_wallet_salt: u256_to_bytes32(&pub_signals[1]),
+        recipient_account_salt: u256_to_bytes32(&pub_signals[1]),
         is_fund: claim.is_fund,
         proof,
     };
     let tx_hash = CLIENT.claim(data).await?;
     DB.delete_claim(&claim.id, claim.is_fund).await?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     Ok(EmailWalletEvent::Claimed {
         unclaimed_fund,
         unclaimed_state,
         email_addr: claim.email_address,
         is_fund: claim.is_fund,
         is_announced: claim.is_announced,
-        recipient_account_key: account_key,
+        recipient_account_code: account_code,
         tx_hash,
     })
 }
 
-async fn is_installed_extension(extension_addr: Address, wallet_salt: &WalletSalt) -> Result<bool> {
+async fn is_installed_extension(
+    extension_addr: Address,
+    account_salt: &AccountSalt,
+) -> Result<bool> {
     let subject_templates = CLIENT
         .query_subject_templates_of_extension(extension_addr)
         .await?;
     let command = subject_templates[0][0].as_str();
     let installed_extension = CLIENT
-        .query_user_extension_for_command(wallet_salt, command)
+        .query_user_extension_for_command(account_salt, command)
         .await?;
     Ok(installed_extension == extension_addr)
 }

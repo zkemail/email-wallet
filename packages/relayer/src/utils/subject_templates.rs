@@ -82,7 +82,7 @@ impl TemplateValue {
 
 pub async fn extract_command_from_subject(
     subject: &str,
-    wallet_salt: &WalletSalt,
+    account_salt: &AccountSalt,
 ) -> Result<(String, usize)> {
     for word in subject.split_whitespace() {
         let position = subject.find(word).unwrap();
@@ -96,7 +96,7 @@ pub async fn extract_command_from_subject(
         {
             return Ok((word.to_string(), position));
         } else if CLIENT
-            .query_user_extension_for_command(wallet_salt, word)
+            .query_user_extension_for_command(account_salt, word)
             .await?
             != Address::zero()
         {

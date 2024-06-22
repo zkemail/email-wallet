@@ -64,9 +64,9 @@ impl PSIClient {
     }
 
     pub async fn check_and_reveal(&self) -> Result<bool> {
-        if let Some(account_key) = DB.get_account_key(&self.email_addr).await? {
+        if let Some(account_code) = DB.get_account_code(&self.email_addr).await? {
             if CLIENT
-                .check_if_account_created_by_account_key(&self.email_addr, &account_key)
+                .check_if_account_created_by_account_code(&self.email_addr, &account_code)
                 .await?
             {
                 return Ok(false);

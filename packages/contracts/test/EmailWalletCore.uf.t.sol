@@ -314,7 +314,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             walletAddr
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, walletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, accountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
@@ -356,7 +356,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             walletAddr
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, walletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, accountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(daiToken.balanceOf(walletAddr), 100 ether, "recipient didnt receive tokens");
@@ -370,7 +370,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
     function test_ClaimUnclaimedFund_ToNewlyCreatedAccount() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newWalletSalt = bytes32(uint256(2003));
+        bytes32 newAccountSalt = bytes32(uint256(2003));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
 
@@ -388,7 +388,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newWalletSalt,
+            newAccountSalt,
             newPSIPoint,
             EmailProof({
                 dkimPublicKeyHash: mockDKIMHash,
@@ -399,11 +399,11 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             })
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newWalletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newAccountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(
-            daiToken.balanceOf(accountHandler.getWalletOfSalt(newWalletSalt)),
+            daiToken.balanceOf(accountHandler.getWalletOfSalt(newAccountSalt)),
             100 ether,
             "recipient didnt receive tokens"
         );
@@ -415,7 +415,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 recipientEmailAddrCommit2 = bytes32(uint256(5345345));
         bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-        bytes32 newWalletSalt = bytes32(uint256(2003));
+        bytes32 newAccountSalt = bytes32(uint256(2003));
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address newRelayer = vm.addr(8);
 
@@ -441,7 +441,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newWalletSalt,
+            newAccountSalt,
             newPSIPoint,
             EmailProof({
                 dkimPublicKeyHash: mockDKIMHash,
@@ -452,17 +452,17 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
             })
         );
 
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newWalletSalt, mockProof);
-        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId2, newWalletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newAccountSalt, mockProof);
+        unclaimsHandler.claimUnclaimedFund(registeredUnclaimId2, newAccountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(
-            daiToken.balanceOf(accountHandler.getWalletOfSalt(newWalletSalt)),
+            daiToken.balanceOf(accountHandler.getWalletOfSalt(newAccountSalt)),
             100 ether,
             "recipient didnt receive tokens"
         );
         assertEq(
-            usdcToken.balanceOf(accountHandler.getWalletOfSalt(newWalletSalt)),
+            usdcToken.balanceOf(accountHandler.getWalletOfSalt(newAccountSalt)),
             50 ether,
             "recipient didnt receive tokens"
         );
@@ -520,8 +520,8 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
     //     address sender = vm.addr(7);
     //     bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
     //     bytes32 newEmailAddrPointer = bytes32(uint256(32334));
-    //     bytes32 newAccountKeyCommit = bytes32(uint256(32335));
-    //     bytes32 newWalletSalt = bytes32(uint256(32336));
+    //     bytes32 newAccountCodeCommit = bytes32(uint256(32335));
+    //     bytes32 newAccountSalt = bytes32(uint256(32336));
     //     bytes memory newPSI = abi.encodePacked(uint256(32337));
 
     //     vm.deal(sender, unclaimedFundClaimGas * maxFeePerGas);
@@ -536,7 +536,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
 
     //     // Relayer claim the unclaimed fund to a newly created account, but not initialized
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(newEmailAddrPointer, newWalletSalt, newPSI, mockProof);
+    //     accountHandler.createAccount(newEmailAddrPointer, newAccountSalt, newPSI, mockProof);
     //     vm.expectRevert("account not initialized");
     //     unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newEmailAddrPointer, mockProof);
     //     vm.stopPrank();

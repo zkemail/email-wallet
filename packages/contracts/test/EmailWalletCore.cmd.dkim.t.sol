@@ -32,7 +32,7 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
-        assertEq(accountHandler.dkimRegistryOfWalletSalt(walletSalt), dkimRegistryAddr, "didnt set DKIM registry");
+        assertEq(accountHandler.dkimRegistryOfAccountSalt(accountSalt), dkimRegistryAddr, "didnt set DKIM registry");
     }
 
     function test_SetCustomDKIMRegistryAlthoughAfterTimeLimit() public {
@@ -53,6 +53,6 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(success, "emailOp failed");
-        assertEq(accountHandler.dkimRegistryOfWalletSalt(walletSalt), dkimRegistryAddr, "didnt set DKIM registry");
+        assertEq(accountHandler.dkimRegistryOfAccountSalt(accountSalt), dkimRegistryAddr, "didnt set DKIM registry");
     }
 }

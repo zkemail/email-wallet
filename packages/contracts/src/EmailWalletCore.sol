@@ -141,14 +141,18 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function validateEmailOp(EmailOp memory emailOp) public view {
         (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
-        require(emailOp.walletSalt != bytes32(0), "wallet salt not set");
+        require(emailOp.accountSalt != bytes32(0), "wallet salt not set");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
         require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
         require(
-            accountHandler.isDKIMPublicKeyHashValid(emailOp.walletSalt, emailOp.emailDomain, emailOp.dkimPublicKeyHash),
+            accountHandler.isDKIMPublicKeyHashValid(
+                emailOp.accountSalt,
+                emailOp.emailDomain,
+                emailOp.dkimPublicKeyHash
+            ),
             "invalid DKIM public key"
         );
 
@@ -166,16 +170,19 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         // Validate computed subject = passed subject
         (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
             emailOp,
-            accountHandler.getWalletOfSalt(emailOp.walletSalt),
+            accountHandler.getWalletOfSalt(emailOp.accountSalt),
             this // Core contract to read some states
         );
         bytes memory maskedSubjectBytes = bytes(emailOp.maskedSubject);
         require(emailOp.skipSubjectPrefix < maskedSubjectBytes.length, "skipSubjectPrefix too high");
         bytes memory skippedSubjectBytes = new bytes(maskedSubjectBytes.length - emailOp.skipSubjectPrefix);
-        for (uint i=0; i<skippedSubjectBytes.length; i++) {
+        for (uint i = 0; i < skippedSubjectBytes.length; i++) {
             skippedSubjectBytes[i] = maskedSubjectBytes[emailOp.skipSubjectPrefix + i];
         }
-        require(Strings.equal(computedSubject, string(skippedSubjectBytes)), string.concat("subject != ", computedSubject));
+        require(
+            Strings.equal(computedSubject, string(skippedSubjectBytes)),
+            string.concat("subject != ", computedSubject)
+        );
 
         // Verify proof
         require(
@@ -185,7 +192,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 emailOp.timestamp,
                 emailOp.emailNullifier,
                 emailOp.maskedSubject,
-                emailOp.walletSalt,
+                emailOp.accountSalt,
                 emailOp.hasEmailRecipient,
                 emailOp.recipientEmailAddrCommit,
                 emailOp.emailProof
@@ -211,7 +218,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         // Set context for this EmailOp
         currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
-        currContext.walletAddr = accountHandler.getWalletOfSalt(emailOp.walletSalt);
+        currContext.walletAddr = accountHandler.getWalletOfSalt(emailOp.accountSalt);
 
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
@@ -280,7 +287,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             success,
             registeredUnclaimId,
             emailOp.emailNullifier,
-            emailOp.walletSalt,
+            emailOp.accountSalt,
             emailOp.recipientEmailAddrCommit,
             emailOp.recipientETHAddr,
             err
@@ -478,7 +485,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            accountHandler.updateDKIMRegistryOfWalletSalt(emailOp.walletSalt, emailOp.newDkimRegistry);
+            accountHandler.updateDKIMRegistryOfAccountSalt(emailOp.accountSalt, emailOp.newDkimRegistry);
             success = true;
         }
         // The command is for an extension

@@ -12,7 +12,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     function test_CreateAccount() public {
         vm.startPrank(relayer);
         vm.expectEmit(true, true, true, true);
-        
+
         EmailProof memory emailProof = EmailProof({
             proof: mockProof,
             domain: emailDomain,
@@ -21,35 +21,31 @@ contract AccountTest is EmailWalletCoreTestHelper {
             timestamp: block.timestamp
         });
 
-        emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(accountSalt, psiPoint);
 
-        accountHandler.createAccount(
-            walletSalt, 
-            psiPoint, 
-            emailProof
-        );
+        accountHandler.createAccount(accountSalt, psiPoint, emailProof);
         vm.stopPrank();
 
-        Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
+        Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(accountSalt)));
         assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
-        assertEq(accountHandler.walletSaltOfPSIPoint(psiPoint), walletSalt);
+        assertEq(accountHandler.accountSaltOfPSIPoint(psiPoint), accountSalt);
     }
 
     // function testFail_CreateAccount() public {
     //     vm.warp(1701388800);
     //     vm.startPrank(relayer);
     //     vm.expectEmit(true, true, true, true);
-    //     emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint);
+    //     emit EmailWalletEvents.AccountCreated(emailAddrPointer, accountCodeCommit, accountSalt, psiPoint);
 
-    //     accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountCodeCommit, accountSalt, psiPoint, mockProof);
     //     vm.stopPrank();
 
-    //     Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(walletSalt)));
+    //     Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(accountSalt)));
     //     assertEq(wallet.owner(), address(core), "wallet owner is not accountHandler");
 
-    //     assertEq(accountHandler.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
+    //     assertEq(accountHandler.accountCodeCommitOfPointer(emailAddrPointer), accountCodeCommit);
 
-    //     accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
+    //     accountHandler.infoOfaccountCodeCommit(accountCodeCommit);
     // }
 
     // We dont't use a pointer anymore.
@@ -57,19 +53,19 @@ contract AccountTest is EmailWalletCoreTestHelper {
     // "relayer not registered" is not used anymore
     // function test_RevertWhen_CreateAccountRelayerIsNotRegistered() public {
     //     vm.expectRevert("relayer not registered");
-    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountSalt, psiPoint, mockProof);
     // }
 
     // We dont't use a pointer anymore.
     // TODO: Remove this commented function later.
     // function test_RevertIf_PointerIsAlreadyRegistered() public {
-    //     bytes32 walletSalt2 = bytes32(uint256(3));
+    //     bytes32 accountSalt2 = bytes32(uint256(3));
     //     bytes memory psiPoint2 = abi.encodePacked(uint256(41121));
     //     vm.startPrank(relayer);
     //     accountHandler.createAccount(
     //         emailAddr,
-    //         walletSalt, 
-    //         psiPoint, 
+    //         accountSalt,
+    //         psiPoint,
     //         emailDomain,
     //         block.timestamp,
     //         emailNullifier,
@@ -79,8 +75,8 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     vm.expectRevert("pointer exists");
     //     accountHandler.createAccount(
     //         emailAddr,
-    //         walletSalt2, 
-    //         psiPoint2, 
+    //         accountSalt2,
+    //         psiPoint2,
     //         emailDomain,
     //         block.timestamp,
     //         emailNullifier,
@@ -91,12 +87,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
     // }
 
     function test_RevertIf_PSIPointIsAlreadyRegistered() public {
-        bytes32 walletSalt2 = bytes32(uint256(3));
+        bytes32 accountSalt2 = bytes32(uint256(3));
 
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            walletSalt, 
-            psiPoint, 
+            accountSalt,
+            psiPoint,
             EmailProof({
                 proof: mockProof,
                 domain: emailDomain,
@@ -107,8 +103,8 @@ contract AccountTest is EmailWalletCoreTestHelper {
         );
         vm.expectRevert("PSI point exists for another wallet salt");
         accountHandler.createAccount(
-            walletSalt2, 
-            psiPoint, 
+            accountSalt2,
+            psiPoint,
             EmailProof({
                 proof: mockProof,
                 domain: emailDomain,
@@ -121,26 +117,26 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     // account key commit is not used anymore
-    // function test_RevertIf_AccountKeyCommitAlreadyHasAnotherWalletSalt() public {
+    // function test_RevertIf_AccountCodeCommitAlreadyHasAnotherAccountSalt() public {
     //     bytes32 emailAddrPointer2 = bytes32(uint256(2));
-    //     bytes32 walletSalt2 = bytes32(uint256(2));
+    //     bytes32 accountSalt2 = bytes32(uint256(2));
     //     bytes memory psiPoint2 = abi.encodePacked(uint256(4));
 
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
-    //     vm.expectRevert("walletSalt exists");
-    //     accountHandler.createAccount(emailAddrPointer2, walletSalt2, psiPoint2, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountSalt, psiPoint, mockProof);
+    //     vm.expectRevert("accountSalt exists");
+    //     accountHandler.createAccount(emailAddrPointer2, accountSalt2, psiPoint2, mockProof);
     //     vm.stopPrank();
     // }
 
     function test_CreateWalletWithPredeterministicAddress() public {
-        address predictedAddr = accountHandler.getWalletOfSalt(walletSalt);
+        address predictedAddr = accountHandler.getWalletOfSalt(accountSalt);
 
         vm.startPrank(relayer);
         address walletAddr = address(
             accountHandler.createAccount(
-                walletSalt, 
-                psiPoint, 
+                accountSalt,
+                psiPoint,
                 EmailProof({
                     proof: mockProof,
                     domain: emailDomain,
@@ -156,13 +152,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
     }
 
     function test_RevertWhen_PredeterministicWalletIsAlreadyDeployed() public {
-        address predictedAddr = accountHandler.getWalletOfSalt(walletSalt);
+        address predictedAddr = accountHandler.getWalletOfSalt(accountSalt);
         deployCodeTo("WETH9.sol", abi.encode(address(weth)), predictedAddr);
 
         vm.startPrank(relayer);
         vm.expectRevert("wallet already deployed");
         accountHandler.createAccount(
-            walletSalt, 
+            accountSalt,
             psiPoint,
             EmailProof({
                 proof: mockProof,
@@ -178,14 +174,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
     // function test_AccountInitailization() public {
     //     vm.startPrank(relayer);
     //     accountHandler.createAccount(
-    //         emailAddrPointer, 
-    //         walletSalt, 
-    //         psiPoint, 
+    //         emailAddrPointer,
+    //         accountSalt,
+    //         psiPoint,
     //         mockProof
     //     );
 
     //     vm.expectEmit(true, true, true, true);
-    //     emit EmailWalletEvents.AccountInitialized(emailAddrPointer, walletSalt, walletSalt);
+    //     emit EmailWalletEvents.AccountInitialized(emailAddrPointer, accountSalt, accountSalt);
 
     //     accountHandler.initializeAccount(
     //         emailAddrPointer,
@@ -197,17 +193,17 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     );
     //     vm.stopPrank();
 
-    //     (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(walletSalt);
+    //     (, bool initialized, ) = accountHandler.infoOfEmailAddrPointer(accountSalt);
     //     assertTrue(initialized);
     // }
 
     // function testFail_AccountInitailization() public {
     //     vm.warp(1701388800);
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountCodeCommit, accountSalt, psiPoint, mockProof);
 
     //     vm.expectEmit(true, true, true, true);
-    //     emit EmailWalletEvents.AccountInitialized(emailAddrPointer, accountKeyCommit, walletSalt);
+    //     emit EmailWalletEvents.AccountInitialized(emailAddrPointer, accountCodeCommit, accountSalt);
 
     //     accountHandler.initializeAccount(
     //         emailAddrPointer,
@@ -219,7 +215,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     );
     //     vm.stopPrank();
 
-    //     accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
+    //     accountHandler.infoOfAccountCodeCommit(accountCodeCommit);
     // }
 
     // initializeAccount function is not called from outside anymore
@@ -240,13 +236,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     // function test_AccountTransport() public {
     //     bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-    //     bytes32 newAccountKeyCommit = bytes32(uint256(2002));
+    //     bytes32 newAccountCodeCommit = bytes32(uint256(2002));
     //     bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
     //     address relayer2 = vm.addr(3);
     //     bytes32 relayer2RandHash = bytes32(uint256(311));
 
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountSalt, psiPoint, mockProof);
     //     accountHandler.initializeAccount(
     //         emailAddrPointer,
     //         emailDomain,
@@ -262,16 +258,16 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     //     vm.expectEmit(true, true, true, true);
     //     emit EmailWalletEvents.AccountTransported(
-    //         accountKeyCommit,
+    //         accountCodeCommit,
     //         newEmailAddrPointer,
-    //         newAccountKeyCommit,
+    //         newAccountCodeCommit,
     //         newPSIPoint
     //     );
 
     //     // accountHandler.transportAccount(
-    //     //     accountKeyCommit,
+    //     //     accountCodeCommit,
     //     //     newEmailAddrPointer,
-    //     //     newAccountKeyCommit,
+    //     //     newAccountCodeCommit,
     //     //     newPSIPoint,
     //     //     EmailProof({
     //     //         nullifier: emailNullifier2,
@@ -284,14 +280,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     // );
     //     vm.stopPrank();
 
-    //     (, bool initializedOld, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
-    //     assertTrue(initializedOld); // old accountKeyCommit should still be initialized
-    //     assertEq(accountHandler.accountKeyCommitOfPointer(newEmailAddrPointer), newAccountKeyCommit);
-    //     (address newAkRelayer, bool newAkInitialized, bytes32 newWalletSalt) = accountHandler.infoOfAccountKeyCommit(
-    //         newAccountKeyCommit
+    //     (, bool initializedOld, ) = accountHandler.infoOfAccountCodeCommit(accountCodeCommit);
+    //     assertTrue(initializedOld); // old accountCodeCommit should still be initialized
+    //     assertEq(accountHandler.accountCodeCommitOfPointer(newEmailAddrPointer), newAccountCodeCommit);
+    //     (address newAkRelayer, bool newAkInitialized, bytes32 newAccountSalt) = accountHandler.infoOfAccountCodeCommit(
+    //         newAccountCodeCommit
     //     );
     //     assertEq(newAkRelayer, relayer2);
-    //     assertEq(newWalletSalt, walletSalt); // should not change
+    //     assertEq(newAccountSalt, accountSalt); // should not change
     //     assertTrue(newAkInitialized);
     //     assertEq(accountHandler.pointerOfPSIPoint(newPSIPoint), newEmailAddrPointer);
     // }
@@ -300,17 +296,17 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     address relayer2 = vm.addr(3);
     //     bytes32 relayer2RandHash = bytes32(uint256(311));
     //     bytes32 relayer2Pointer = bytes32(uint256(2001));
-    //     bytes32 relayer2AccountKeyCommit = bytes32(uint256(2002));
+    //     bytes32 relayer2AccountCodeCommit = bytes32(uint256(2002));
     //     bytes memory relayer2PSIPoint = abi.encodePacked(uint256(2003));
 
     //     address relayer3 = vm.addr(4);
     //     bytes32 relayer3RandHash = bytes32(uint256(411));
     //     bytes32 relayer3Pointer = bytes32(uint256(3001));
-    //     bytes32 relayer3AccountKeyCommit = bytes32(uint256(3002));
+    //     bytes32 relayer3AccountCodeCommit = bytes32(uint256(3002));
     //     bytes memory relayer3PSIPoint = abi.encodePacked(uint256(3003));
 
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountSalt, psiPoint, mockProof);
     //     accountHandler.initializeAccount(
     //         emailAddrPointer,
     //         emailDomain,
@@ -321,13 +317,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     );
     //     vm.stopPrank();
 
-    //     // Transporting will nullify the accountKeyCommit of relayer1
+    //     // Transporting will nullify the accountCodeCommit of relayer1
     //     vm.startPrank(relayer2);
     //     relayerHandler.registerRelayer("mail@relayer2", "relayer2.com");
     //     // accountHandler.transportAccount(
-    //     //     accountKeyCommit,
+    //     //     accountCodeCommit,
     //     //     relayer2Pointer,
-    //     //     relayer2AccountKeyCommit,
+    //     //     relayer2AccountCodeCommit,
     //     //     relayer2PSIPoint,
     //     //     EmailProof({
     //     //         dkimPublicKeyHash: mockDKIMHash,
@@ -340,13 +336,13 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     // );
     //     vm.stopPrank();
 
-    //     // Transporting to relayer3 with relayer2AccountKeyCommit - most recent relayer should used as "old"
+    //     // Transporting to relayer3 with relayer2AccountCodeCommit - most recent relayer should used as "old"
     //     vm.startPrank(relayer3);
     //     relayerHandler.registerRelayer("mail@relayer3", "relayer3.com");
     //     // accountHandler.transportAccount(
-    //     //     relayer2AccountKeyCommit,
+    //     //     relayer2AccountCodeCommit,
     //     //     relayer3Pointer,
-    //     //     relayer3AccountKeyCommit,
+    //     //     relayer3AccountCodeCommit,
     //     //     relayer3PSIPoint,
     //     //     EmailProof({
     //     //         dkimPublicKeyHash: mockDKIMHash,
@@ -360,36 +356,36 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     vm.stopPrank();
 
     //     // Relayer 1 and 2 should be nullified, but 3 should work
-    //     (, bool r1Initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
+    //     (, bool r1Initialized, ) = accountHandler.infoOfAccountCodeCommit(accountCodeCommit);
     //     assertTrue(r1Initialized, "relayer1 account should be initialized");
 
-    //     (, bool r2Initialized, ) = accountHandler.infoOfAccountKeyCommit(relayer2AccountKeyCommit);
+    //     (, bool r2Initialized, ) = accountHandler.infoOfAccountCodeCommit(relayer2AccountCodeCommit);
     //     assertTrue(r2Initialized, "relayer2 account should be initialized");
 
-    //     (, bool r3Initialized, ) = accountHandler.infoOfAccountKeyCommit(relayer3AccountKeyCommit);
+    //     (, bool r3Initialized, ) = accountHandler.infoOfAccountCodeCommit(relayer3AccountCodeCommit);
     //     assertTrue(r3Initialized, "relayer3 account should be initialized");
 
-    //     assertEq(accountHandler.accountKeyCommitOfPointer(relayer3Pointer), relayer3AccountKeyCommit);
+    //     assertEq(accountHandler.accountCodeCommitOfPointer(relayer3Pointer), relayer3AccountCodeCommit);
     // }
 
     // function test_RevertIf_TransportedAccountIsNotInitialized() public {
     //     address relayer2 = vm.addr(3);
     //     bytes32 relayer2RandHash = bytes32(uint256(311));
     //     bytes32 relayer2Pointer = bytes32(uint256(2001));
-    //     bytes32 relayer2AccountKeyCommit = bytes32(uint256(2002));
+    //     bytes32 relayer2AccountCodeCommit = bytes32(uint256(2002));
     //     bytes memory relayer2PSIPoint = abi.encodePacked(uint256(2003));
 
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountCodeCommit, accountSalt, psiPoint, mockProof);
     //     vm.stopPrank();
 
     //     vm.startPrank(relayer2);
     //     relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
     //     vm.expectRevert("account not initialized");
     //     accountHandler.transportAccount(
-    //         accountKeyCommit,
+    //         accountCodeCommit,
     //         relayer2Pointer,
-    //         relayer2AccountKeyCommit,
+    //         relayer2AccountCodeCommit,
     //         relayer2PSIPoint,
     //         EmailProof({
     //             dkimPublicKeyHash: mockDKIMHash,
@@ -408,14 +404,14 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     address relayer2 = vm.addr(3);
     //     bytes32 relayer2RandHash = bytes32(uint256(311121));
     //     bytes32 relayer2Pointer = bytes32(uint256(2001232));
-    //     bytes32 relayer2InitialAccountKeyCommit = bytes32(uint256(12012302));
-    //     bytes32 relayer2NewAccountKeyCommit = bytes32(uint256(12012302));
-    //     bytes32 relayer2WalletSalt = bytes32(uint256(2123123002));
+    //     bytes32 relayer2InitialAccountCodeCommit = bytes32(uint256(12012302));
+    //     bytes32 relayer2NewAccountCodeCommit = bytes32(uint256(12012302));
+    //     bytes32 relayer2AccountSalt = bytes32(uint256(2123123002));
     //     bytes memory relayer2PSIPoint = abi.encodePacked(uint256(20434303));
 
     //     // Register and initialize with relayer 1
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountCodeCommit, accountSalt, psiPoint, mockProof);
     //     accountHandler.initializeAccount(
     //         emailAddrPointer,
     //         emailDomain,
@@ -431,15 +427,15 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
     //     accountHandler.createAccount(
     //         relayer2Pointer,
-    //         relayer2InitialAccountKeyCommit,
-    //         relayer2WalletSalt,
+    //         relayer2InitialAccountCodeCommit,
+    //         relayer2AccountSalt,
     //         relayer2PSIPoint,
     //         mockProof
     //     );
     //     accountHandler.transportAccount(
-    //         accountKeyCommit,
+    //         accountCodeCommit,
     //         relayer2Pointer, // Pointer will be same as relayer2 has already created the account for email
-    //         relayer2NewAccountKeyCommit, // Different accountKeyCommitment as AK is the one used had with relayer1
+    //         relayer2NewAccountCodeCommit, // Different accountCodeCommitment as AK is the one used had with relayer1
     //         relayer2PSIPoint,
     //         EmailProof({
     //             dkimPublicKeyHash: mockDKIMHash,
@@ -452,12 +448,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     );
     //     vm.stopPrank();
 
-    //     (, bool r1Initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
+    //     (, bool r1Initialized, ) = accountHandler.infoOfAccountCodeCommit(accountCodeCommit);
     //     assertTrue(r1Initialized, "old relayer should still be initialized");
 
-    //     assertEq(accountHandler.accountKeyCommitOfPointer(relayer2Pointer), relayer2NewAccountKeyCommit);
+    //     assertEq(accountHandler.accountCodeCommitOfPointer(relayer2Pointer), relayer2NewAccountCodeCommit);
 
-    //     (, bool r2Initialized, ) = accountHandler.infoOfAccountKeyCommit(relayer2NewAccountKeyCommit);
+    //     (, bool r2Initialized, ) = accountHandler.infoOfAccountCodeCommit(relayer2NewAccountCodeCommit);
     //     assertTrue(r2Initialized, "new relayer account not initialized");
     // }
 
@@ -465,12 +461,12 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     address relayer2 = vm.addr(3);
     //     bytes32 relayer2RandHash = bytes32(uint256(311121));
     //     bytes32 relayer2Pointer = bytes32(uint256(202201232));
-    //     bytes32 relayer2AccountKeyCommit = bytes32(uint256(12012302));
+    //     bytes32 relayer2AccountCodeCommit = bytes32(uint256(12012302));
     //     bytes memory relayer2PSIPoint = abi.encodePacked(uint256(20434303));
 
     //     // Register and initialize with relayer 1
     //     vm.startPrank(relayer);
-    //     accountHandler.createAccount(emailAddrPointer, accountKeyCommit, walletSalt, psiPoint, mockProof);
+    //     accountHandler.createAccount(emailAddrPointer, accountCodeCommit, accountSalt, psiPoint, mockProof);
     //     accountHandler.initializeAccount(
     //         emailAddrPointer,
     //         emailDomain,
@@ -485,9 +481,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     vm.startPrank(relayer2);
     //     relayerHandler.registerRelayer(relayer2RandHash, "mail@relayer2", "relayer2.com");
     //     accountHandler.transportAccount(
-    //         accountKeyCommit,
+    //         accountCodeCommit,
     //         relayer2Pointer,
-    //         relayer2AccountKeyCommit,
+    //         relayer2AccountCodeCommit,
     //         relayer2PSIPoint,
     //         EmailProof({
     //             dkimPublicKeyHash: mockDKIMHash,
@@ -504,9 +500,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     vm.startPrank(relayer);
     //     vm.expectRevert("new account is already initialized");
     //     accountHandler.transportAccount(
-    //         relayer2AccountKeyCommit,
+    //         relayer2AccountCodeCommit,
     //         emailAddrPointer,
-    //         accountKeyCommit, // newAccountKeyCommit is the first (relayer1) accountKeyCommit
+    //         accountCodeCommit, // newAccountCodeCommit is the first (relayer1) accountCodeCommit
     //         psiPoint,
     //         EmailProof({
     //             dkimPublicKeyHash: mockDKIMHash,
@@ -519,10 +515,10 @@ contract AccountTest is EmailWalletCoreTestHelper {
     //     );
     //     vm.stopPrank();
 
-    //     (, bool initialized, ) = accountHandler.infoOfAccountKeyCommit(accountKeyCommit);
+    //     (, bool initialized, ) = accountHandler.infoOfAccountCodeCommit(accountCodeCommit);
     //     assertTrue(initialized, "transported account not initialized");
 
-    //     assertEq(accountHandler.accountKeyCommitOfPointer(emailAddrPointer), accountKeyCommit);
+    //     assertEq(accountHandler.accountCodeCommitOfPointer(emailAddrPointer), accountCodeCommit);
     // }
 
     function testUpgradeability() public {

@@ -56,8 +56,8 @@ contract EmailWalletCoreTestHelper is Test {
     // Computing hashes to resemble the actual process
     string emailDomain = "test.com";
     bytes32 emailAddr = keccak256("sender@test.com");
-    bytes32 accountKeyCommit = keccak256(abi.encodePacked(uint256(2001), "sender@test.com", randHash));
-    bytes32 walletSalt = keccak256(abi.encodePacked(accountKeyCommit, uint(0)));
+    bytes32 accountCodeCommit = keccak256(abi.encodePacked(uint256(2001), "sender@test.com", randHash));
+    bytes32 accountSalt = keccak256(abi.encodePacked(accountCodeCommit, uint(0)));
     bytes psiPoint = abi.encodePacked(uint(1004));
     address walletAddr;
 
@@ -84,7 +84,10 @@ contract EmailWalletCoreTestHelper is Test {
 
         {
             TokenRegistry tokenRegistryImpl = new TokenRegistry();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(tokenRegistryImpl),
+                abi.encodeCall(tokenRegistryImpl.initialize, ())
+            );
             tokenRegistry = TokenRegistry(payable(address(proxy)));
         }
 
@@ -103,59 +106,83 @@ contract EmailWalletCoreTestHelper is Test {
 
         {
             RelayerHandler relayerHandlerImpl = new RelayerHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(relayerHandlerImpl), abi.encodeCall(relayerHandlerImpl.initialize, ()));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(relayerHandlerImpl),
+                abi.encodeCall(relayerHandlerImpl.initialize, ())
+            );
             relayerHandler = RelayerHandler(payable(address(proxy)));
         }
 
         {
             ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(extensionHandlerImpl), abi.encodeCall(extensionHandlerImpl.initialize, ()));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(extensionHandlerImpl),
+                abi.encodeCall(extensionHandlerImpl.initialize, ())
+            );
             extensionHandler = ExtensionHandler(payable(address(proxy)));
         }
 
         {
             AccountHandler accountHandlerImpl = new AccountHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(accountHandlerImpl), abi.encodeCall(accountHandlerImpl.initialize, (
-                address(relayerHandler),
-                address(dkimRegistry),
-                address(verifier),
-                address(walletImp),
-                emailValidityDuration
-            )));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(accountHandlerImpl),
+                abi.encodeCall(
+                    accountHandlerImpl.initialize,
+                    (
+                        address(relayerHandler),
+                        address(dkimRegistry),
+                        address(verifier),
+                        address(walletImp),
+                        emailValidityDuration
+                    )
+                )
+            );
             accountHandler = AccountHandler(payable(address(proxy)));
         }
 
         {
             UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(unclaimsHandlerImpl), abi.encodeCall(unclaimsHandlerImpl.initialize, (
-                address(relayerHandler),
-                address(accountHandler),
-                address(verifier),
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas,
-                unclaimsExpiryDuration,
-                maxFeePerGas
-            )));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(unclaimsHandlerImpl),
+                abi.encodeCall(
+                    unclaimsHandlerImpl.initialize,
+                    (
+                        address(relayerHandler),
+                        address(accountHandler),
+                        address(verifier),
+                        unclaimedFundClaimGas,
+                        unclaimedStateClaimGas,
+                        unclaimsExpiryDuration,
+                        maxFeePerGas
+                    )
+                )
+            );
             unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
         }
 
         // Deploy core contract as proxy
         {
             EmailWalletCore coreImpl = new EmailWalletCore();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(coreImpl), abi.encodeCall(coreImpl.initialize, (
-                address(relayerHandler),
-                address(accountHandler),
-                address(unclaimsHandler),
-                address(extensionHandler),
-                address(verifier),
-                address(tokenRegistry),
-                address(priceOracle),
-                address(weth),
-                maxFeePerGas,
-                emailValidityDuration,
-                unclaimedFundClaimGas,
-                unclaimedStateClaimGas
-            )));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(coreImpl),
+                abi.encodeCall(
+                    coreImpl.initialize,
+                    (
+                        address(relayerHandler),
+                        address(accountHandler),
+                        address(unclaimsHandler),
+                        address(extensionHandler),
+                        address(verifier),
+                        address(tokenRegistry),
+                        address(priceOracle),
+                        address(weth),
+                        maxFeePerGas,
+                        emailValidityDuration,
+                        unclaimedFundClaimGas,
+                        unclaimedStateClaimGas
+                    )
+                )
+            );
 
             core = EmailWalletCore(payable(address(proxy)));
         }
@@ -168,7 +195,7 @@ contract EmailWalletCoreTestHelper is Test {
         core.initializeExtension(defaultExtensions);
 
         // Set test sender's wallet addr
-        walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(walletSalt);
+        walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(accountSalt);
 
         // Set a mock DKIM public key hash for test sender's emailDomain
         dkimRegistry.setDKIMPublicKeyHash(emailDomain, mockDKIMHash);
@@ -195,8 +222,8 @@ contract EmailWalletCoreTestHelper is Test {
         vm.startPrank(relayer);
 
         accountHandler.createAccount(
-            walletSalt, 
-            psiPoint, 
+            accountSalt,
+            psiPoint,
             EmailProof({
                 proof: mockProof,
                 domain: emailDomain,
@@ -212,7 +239,7 @@ contract EmailWalletCoreTestHelper is Test {
     function _getBaseEmailOp() internal view returns (EmailOp memory) {
         return
             EmailOp({
-                walletSalt: walletSalt,
+                accountSalt: accountSalt,
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(0),
                 numRecipientEmailAddrBytes: 0,

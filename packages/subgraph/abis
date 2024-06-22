@@ -489,7 +489,7 @@
     "absolutePath": "src/handlers/RelayerHandler.sol",
     "id": 67888,
     "exportedSymbols": {
-      "AccountKeyInfo": [
+      "AccountCodeInfo": [
         69738
       ],
       "Context": [

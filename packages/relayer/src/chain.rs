@@ -11,7 +11,7 @@ const CONFIRMATIONS: usize = 1;
 
 #[derive(Default, Debug)]
 pub struct AccountCreationInput {
-    pub wallet_salt: [u8; 32],
+    pub account_salt: [u8; 32],
     pub psi_point: Bytes,
     pub proof: EmailProof,
 }
@@ -29,7 +29,7 @@ pub struct RegisterUnclaimedFundInput {
 #[derive(Default, Debug)]
 pub struct ClaimInput {
     pub id: U256,
-    pub recipient_wallet_salt: [u8; 32],
+    pub recipient_account_salt: [u8; 32],
     pub is_fund: bool,
     pub proof: Bytes,
 }
@@ -125,7 +125,7 @@ impl ChainClient {
     pub async fn register_psi_point(
         &self,
         point: &Point,
-        wallet_salt: &WalletSalt,
+        account_salt: &AccountSalt,
     ) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
@@ -136,7 +136,7 @@ impl ChainClient {
                 U256::from_str_radix(&point.x, 10)?,
                 U256::from_str_radix(&point.y, 10)?,
             ),
-            fr_to_bytes32(&wallet_salt.0)?,
+            fr_to_bytes32(&account_salt.0)?,
         );
         let tx = call.send().await?;
         let receipt = tx
@@ -156,7 +156,7 @@ impl ChainClient {
 
         let call =
             self.account_handler
-                .create_account(data.wallet_salt, data.psi_point, data.proof);
+                .create_account(data.account_salt, data.psi_point, data.proof);
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -176,7 +176,7 @@ impl ChainClient {
         if data.is_fund {
             let call = self.unclaims_handler.claim_unclaimed_fund(
                 data.id,
-                data.recipient_wallet_salt,
+                data.recipient_account_salt,
                 data.proof,
             );
             let tx = call.send().await?;
@@ -191,7 +191,7 @@ impl ChainClient {
         } else {
             let call = self.unclaims_handler.claim_unclaimed_state(
                 data.id,
-                data.recipient_wallet_salt,
+                data.recipient_account_salt,
                 data.proof,
             );
             let tx = call.send().await?;
@@ -453,7 +453,7 @@ impl ChainClient {
 
     pub async fn query_user_erc20_balance(
         &self,
-        wallet_salt: &WalletSalt,
+        account_salt: &AccountSalt,
         token_name: &str,
     ) -> Result<U256> {
         let token_addr = self
@@ -462,7 +462,7 @@ impl ChainClient {
             .call()
             .await?;
         let erc20 = ERC20::new(token_addr, self.client.clone());
-        let wallet_addr = self.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+        let wallet_addr = self.get_wallet_addr_from_salt(&account_salt.0).await?;
         let balance = erc20.balance_of(wallet_addr).call().await?;
         Ok(balance)
     }
@@ -511,10 +511,10 @@ impl ChainClient {
 
     pub async fn query_user_extension_for_command(
         &self,
-        wallet_salt: &WalletSalt,
+        account_salt: &AccountSalt,
         command: &str,
     ) -> Result<Address> {
-        let wallet_addr = self.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+        let wallet_addr = self.get_wallet_addr_from_salt(&account_salt.0).await?;
         let extension_addr = self
             .extension_handler
             .get_extension_for_command(wallet_addr, command.to_string())
@@ -535,10 +535,10 @@ impl ChainClient {
         Ok(templates)
     }
 
-    pub async fn get_wallet_addr_from_salt(&self, wallet_salt: &Fr) -> Result<Address> {
+    pub async fn get_wallet_addr_from_salt(&self, account_salt: &Fr) -> Result<Address> {
         let wallet_addr = self
             .account_handler
-            .get_wallet_of_salt(fr_to_bytes32(wallet_salt)?)
+            .get_wallet_of_salt(fr_to_bytes32(account_salt)?)
             .call()
             .await?;
         Ok(wallet_addr)
@@ -686,13 +686,13 @@ impl ChainClient {
         let y = hex2field(&y)?;
         let x = U256::from_little_endian(&x.to_bytes());
         let y = U256::from_little_endian(&y.to_bytes());
-        let wallet_salt = self
+        let account_salt = self
             .account_handler
-            .wallet_salt_of_psi_point(get_psi_point_bytes(x, y))
+            .account_salt_of_psi_point(get_psi_point_bytes(x, y))
             .call()
             .await?;
-        let wallet_salt = U256::from_little_endian(&wallet_salt);
-        Ok(wallet_salt != U256::zero())
+        let account_salt = U256::from_little_endian(&account_salt);
+        Ok(account_salt != U256::zero())
     }
 
     pub async fn check_if_account_created_by_point(&self, point: Point) -> Result<bool> {
@@ -701,30 +701,30 @@ impl ChainClient {
         let y = hex2field(&y)?;
         let x = U256::from_little_endian(&x.to_bytes());
         let y = U256::from_little_endian(&y.to_bytes());
-        let wallet_salt = self
+        let account_salt = self
             .account_handler
-            .wallet_salt_of_psi_point(get_psi_point_bytes(x, y))
+            .account_salt_of_psi_point(get_psi_point_bytes(x, y))
             .call()
             .await?;
         let is_deployed = self
             .account_handler
-            .is_wallet_salt_deployed(wallet_salt)
+            .is_account_salt_deployed(account_salt)
             .call()
             .await?;
         Ok(is_deployed)
     }
 
-    pub async fn check_if_account_created_by_account_key(
+    pub async fn check_if_account_created_by_account_code(
         &self,
         email_addr: &str,
-        account_key: &str,
+        account_code: &str,
     ) -> Result<bool> {
-        let account_key = AccountKey(hex2field(account_key)?);
+        let account_code = AccountCode(hex2field(account_code)?);
         let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
-        let wallet_salt = WalletSalt::new(&padded_email_addr, account_key)?;
+        let account_salt = AccountSalt::new(&padded_email_addr, account_code)?;
         let is_deployed = self
             .account_handler
-            .is_wallet_salt_deployed(fr_to_bytes32(&wallet_salt.0)?)
+            .is_account_salt_deployed(fr_to_bytes32(&account_salt.0)?)
             .call()
             .await?;
         Ok(is_deployed)

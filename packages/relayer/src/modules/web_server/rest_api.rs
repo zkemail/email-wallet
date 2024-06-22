@@ -7,7 +7,7 @@ use crate::{
 use ethers::types::{Address, U256};
 use relayer_utils::{
     converters::{field2hex, hex2field},
-    cryptos::{AccountKey, PaddedEmailAddr, WalletSalt},
+    cryptos::{AccountCode, AccountSalt, PaddedEmailAddr},
     ParsedEmail, LOG,
 };
 
@@ -50,11 +50,11 @@ pub struct IsAccountCreatedRequest {
 #[derive(Serialize, Deserialize)]
 pub struct GetWalletAddress {
     pub email_addr: String,
-    pub account_key: String,
+    pub account_code: String,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct RecoverAccountKey {
+pub struct RecoverAccountCode {
     pub email_addr: String,
 }
 
@@ -68,11 +68,11 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         "NFT Send {} of {} to {}",
         request.nft_id, nft_name, request.recipient_addr
     );
-    let account_key_str = DB.get_account_key(&request.email_addr).await?;
-    if account_key_str.is_none() {
+    let account_code_str = DB.get_account_code(&request.email_addr).await?;
+    if account_code_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://2fa.emailwallet.org.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -86,12 +86,12 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         };
         return Ok((request_id, email));
     }
-    let account_key = AccountKey(hex2field(&account_key_str.unwrap())?);
-    let wallet_salt = WalletSalt::new(
+    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
-        account_key,
+        account_code,
     )?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     let body_plain = format!(
         "Hi {}! Please reply to this email to send {} your NFT: ID {} of {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
         request.email_addr,  request.recipient_addr, request.nft_id, nft_name, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
@@ -125,10 +125,10 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
     let request = serde_json::from_str::<CreateAccountRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
     let email_addr = request.email_addr;
-    let account_key_str = DB.get_account_key(&email_addr).await?;
-    if account_key_str.is_none() {
-        let account_key = AccountKey::new(rand::thread_rng());
-        let invitation_code_hex = &field2hex(&account_key.0)[2..];
+    let account_code_str = DB.get_account_code(&email_addr).await?;
+    if account_code_str.is_none() {
+        let account_code = AccountCode::new(rand::thread_rng());
+        let invitation_code_hex = &field2hex(&account_code.0)[2..];
         let subject = format!(
             "Email Wallet Account Creation. Code {}",
             invitation_code_hex
@@ -144,17 +144,17 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
             reply_to: None,
             body_attachments: None,
         };
-        Ok((field2hex(&account_key.0), email))
+        Ok((field2hex(&account_code.0), email))
     } else {
         let subject = "Email Wallet Error: Account Already Exists".to_string();
         let error_msg =
             "Your wallet is already created. Please use the login page instead.".to_string();
         // TODO: Get user's account address
-        let account_key = AccountKey(hex2field(&account_key_str.clone().unwrap())?);
-        let wallet_salt =
-            WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-        let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
-        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountKey": account_key_str.unwrap(), "walletAddr": wallet_addr});
+        let account_code = AccountCode(hex2field(&account_code_str.clone().unwrap())?);
+        let account_salt =
+            AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
+        let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+        let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str.unwrap(), "walletAddr": wallet_addr});
         let body_html = render_html("account_already_exist.html", render_data).await?;
         let email = EmailMessage {
             subject,
@@ -172,8 +172,8 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
 pub async fn is_account_created_api_fn(payload: String) -> Result<bool> {
     let request = serde_json::from_str::<IsAccountCreatedRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let account_key_str = DB.get_account_key(&request.email_addr).await?;
-    if account_key_str.is_none() {
+    let account_code_str = DB.get_account_code(&request.email_addr).await?;
+    if account_code_str.is_none() {
         Ok(false)
     } else {
         Ok(true)
@@ -188,11 +188,11 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
         "Send {} {} to {}",
         request.amount, request.token_id, request.recipient_addr
     );
-    let account_key_str = DB.get_account_key(&request.email_addr).await?;
-    if account_key_str.is_none() {
+    let account_code_str = DB.get_account_code(&request.email_addr).await?;
+    if account_code_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://2fa.emailwallet.org.".to_string();
+            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -206,12 +206,12 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
         };
         return Ok((request_id, email));
     }
-    let account_key = AccountKey(hex2field(&account_key_str.unwrap())?);
-    let wallet_salt = WalletSalt::new(
+    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
-        account_key,
+        account_code,
     )?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     let body_plain = format!(
         "Hi {}! Please reply to this email to send {} {} to {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
         request.email_addr, request.amount, request.token_id, request.recipient_addr, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
@@ -233,29 +233,29 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
 pub async fn get_wallet_address_api_fn(payload: String) -> Result<String> {
     let request = serde_json::from_str::<GetWalletAddress>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let account_key_str = DB.get_account_key(&request.email_addr).await?;
-    if account_key_str.is_none() {
+    let account_code_str = DB.get_account_code(&request.email_addr).await?;
+    if account_code_str.is_none() {
         return Err(anyhow!(
             "Account key not found for email address: {}",
             request.email_addr
         ));
     }
-    let account_key = AccountKey(hex2field(&request.account_key)?);
-    let wallet_salt = WalletSalt::new(
+    let account_code = AccountCode(hex2field(&request.account_code)?);
+    let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
-        account_key,
+        account_code,
     )?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     Ok("0x".to_string() + &encode(&wallet_addr.0))
 }
 
-pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+pub async fn recover_account_code_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
-    let request = serde_json::from_str::<RecoverAccountKey>(&payload)
+    let request = serde_json::from_str::<RecoverAccountCode>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
     let email_addr = request.email_addr;
-    let account_key_str = DB.get_account_key(&email_addr).await?;
-    if account_key_str.is_none() {
+    let account_code_str = DB.get_account_code(&email_addr).await?;
+    if account_code_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
         let error_msg =
             "Your wallet is not yet created. Please create your Email Wallet first.".to_string();
@@ -272,17 +272,18 @@ pub async fn recover_account_key_api_fn(payload: String) -> Result<(u64, EmailMe
         };
         return Ok((request_id, email));
     }
-    let account_key = AccountKey(hex2field(&account_key_str.unwrap())?);
-    let account_key_hex = &field2hex(&account_key.0)[2..];
-    let wallet_salt = WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&wallet_salt.0).await?;
+    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_code_hex = &field2hex(&account_code.0)[2..];
+    let account_salt =
+        AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     let subject = "Email Wallet Account Login".to_string();
-    let render_data = serde_json::json!({"userEmailAddr": email_addr, "accountKey": account_key_hex, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+    let render_data = serde_json::json!({"userEmailAddr": email_addr, "accountCode": account_code_hex, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("account_recovery.html", render_data).await?;
     let email = EmailMessage {
         subject,
         to: email_addr.clone(),
-        body_plain: format!("Hi {}! Your account key is {}, keep it in a safe space.\nYour wallet address: {}/address/{}.", email_addr, account_key_hex, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr),
+        body_plain: format!("Hi {}! Your account key is {}, keep it in a safe space.\nYour wallet address: {}/address/{}.", email_addr, account_code_hex, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr),
         body_html,
         reference: None,
         reply_to: None,

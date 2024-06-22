@@ -9,8 +9,8 @@ include "@zk-email/circuits/helpers/extract.circom";
 // include "@zk-email/circuits/regexes/from_regex.circom";
 include "./utils/constants.circom";
 // include "./utils/email_addr_pointer.circom";
-// include "./utils/account_key_commit.circom";
-include "./utils/wallet_salt.circom";
+// include "./utils/account_code_commit.circom";
+include "./utils/account_salt.circom";
 include "./utils/hex2int.circom";
 include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
@@ -23,7 +23,7 @@ include "@zk-email/zk-regex-circom/circuits/common/timestamp_regex.circom";
 include "circom-grumpkin/circuits/hash_to_curve.circom";
 include "circom-grumpkin/circuits/point_mul.circom";
 
-// Prove an email from user contain the accountKey. Used to initialize account when user reply to invitation email
+// Prove an email from user contain the accountCode. Used to initialize account when user reply to invitation email
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
 template AccountInit(n, k, max_header_bytes) {
@@ -47,7 +47,7 @@ template AccountInit(n, k, max_header_bytes) {
     signal output pubkey_hash;
     signal output email_nullifier;    
     signal output timestamp;
-    signal output wallet_salt;
+    signal output account_salt;
     signal output psi_point[2];
 
     
@@ -72,7 +72,7 @@ template AccountInit(n, k, max_header_bytes) {
     (code_regex_out, code_regex_reveal) <== InvitationCodeRegex(max_header_bytes)(in_padded);
     code_regex_out === 1;
     signal invitation_code_hex[code_len] <== VarShiftMaskedStr(max_header_bytes, code_len)(code_regex_reveal, code_idx);
-    signal account_key <== Hex2Field()(invitation_code_hex);
+    signal account_code <== Hex2Field()(invitation_code_hex);
 
     // DOMAIN NAME HEADER REGEX
     signal domain_regex_out, domain_regex_reveal[email_max_bytes];
@@ -100,12 +100,12 @@ template AccountInit(n, k, max_header_bytes) {
 
     var num_email_addr_ints = compute_ints_size(email_max_bytes);
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
-    wallet_salt <== WalletSalt(num_email_addr_ints)(sender_email_addr_ints, account_key);
+    account_salt <== AccountSalt(num_email_addr_ints)(sender_email_addr_ints, account_code);
     signal hashed_point[2];
     hashed_point <== HashToCurve(email_max_bytes)(sender_email_addr);
     psi_point <== PointScalarMul(254)(hashed_point, relayer_rand);
     // sender_pointer <== EmailAddrPointer(num_email_addr_ints)(sender_relayer_rand, sender_email_addr_ints);
-    // sender_ak_commit <== AccountKeyCommit(num_email_addr_ints)(sender_ak, sender_email_addr_ints, sender_relayer_rand_hash);
+    // sender_ak_commit <== AccountCodeCommit(num_email_addr_ints)(sender_ak, sender_email_addr_ints, sender_relayer_rand_hash);
 
 }
 

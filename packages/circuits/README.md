@@ -10,13 +10,13 @@ A circuit to verify the account creation.
 It takes as input the following data:
 1. an email address `email_addr`.
 2. a relayer's randomness `relayer_rand`.
-3. an account key `account_key`. 
+3. an account key `account_code`. 
 
 Its instances are as follows:
 1. the poseidon hash of the relayer's randomness (randomness hash) `relayer_rand_hash`.
 2. an email address pointer `pointer`.
 3. a commitment of the account key `ak_commit`.
-4. a user's wallet salt `wallet_salt`, a PSI point on elliptic curve `psi_point`.
+4. a user's wallet salt `account_salt`, a PSI point on elliptic curve `psi_point`.
 
 #### `account_init.circom`
 A circuit to verify the account initialization.

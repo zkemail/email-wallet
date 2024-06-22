@@ -7,7 +7,7 @@ include "circomlib/circuits/poseidon.circom";
 include "@zk-email/circuits/email-verifier.circom";
 include "@zk-email/circuits/helpers/extract.circom";
 include "./utils/constants.circom";
-include "./utils/wallet_salt.circom";
+include "./utils/account_salt.circom";
 include "./utils/email_addr_commit.circom";
 include "./utils/hash_sign.circom";
 include "./utils/email_nullifier.circom";
@@ -31,7 +31,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal input signature[k]; // RSA signature, k parts of n bits each.
     signal input in_padded_len; // length of in email data including the padding
     // signal input sender_relayer_rand; // Private randomness of the relayer
-    signal input sender_account_key;
+    signal input sender_account_code;
     signal input sender_email_idx; // Index of the from email address (= sender email address) in the email header
     signal input subject_idx; // Index of the subject in the header
     signal input recipient_email_idx; // Index of the recipient email address in the subject
@@ -53,7 +53,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal output email_nullifier;
     signal output timestamp;
     signal output masked_subject_str[subject_field_len];
-    signal output sender_wallet_salt;
+    signal output sender_account_salt;
     signal output has_email_recipient;
     signal output recipient_email_addr_commit;
     
@@ -158,7 +158,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     
     // Wallet salt
     signal sender_email_addr_ints[num_email_addr_ints] <== Bytes2Ints(email_max_bytes)(sender_email_addr);
-    sender_wallet_salt <== WalletSalt(num_email_addr_ints)(sender_email_addr_ints, sender_account_key);
+    sender_account_salt <== AccountSalt(num_email_addr_ints)(sender_email_addr_ints, sender_account_code);
 
 }
 

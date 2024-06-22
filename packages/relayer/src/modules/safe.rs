@@ -126,10 +126,10 @@ pub async fn safe_fn() -> Result<()> {
                 }
                 println!("Approving safe_txn_hash: {}", safe_txn_hash);
                 let email_addr = DB.get_email_by_wallet(&wallet_addr).await.unwrap();
-                let account_key_str = DB.get_account_key(&email_addr).await?;
-                let account_key = AccountKey(hex2field(&account_key_str.unwrap())?);
-                let wallet_salt =
-                    WalletSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_key)?;
+                let account_code_str = DB.get_account_code(&email_addr).await?;
+                let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+                let account_salt =
+                    AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
                 let subject = format!("Safe Transaction: Approve {} from {}", safe_txn_hash, safe);
                 let render_data = serde_json::json!({
                     "userEmailAddr": email_addr,

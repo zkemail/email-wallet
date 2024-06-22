@@ -31,10 +31,10 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     address private deployer;
 
     // Mapping of PSI point to emailAddrPointer
-    mapping(bytes => bytes32) public walletSaltOfPSIPoint;
+    mapping(bytes => bytes32) public accountSaltOfPSIPoint;
 
-    // Mapping of walletSalt to dkim registry address
-    mapping(bytes32 => address) public dkimRegistryOfWalletSalt;
+    // Mapping of accountSalt to dkim registry address
+    mapping(bytes32 => address) public dkimRegistryOfAccountSalt;
 
     // Mapping to store nullifiers of initialization and transport emails
     mapping(bytes32 => bool) public emailNullifiers;
@@ -71,31 +71,37 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     /// @notice Register a PSI point before deploying the wallet in `createAccount`.
     /// @param psiPoint PSI point of the user
-    /// @param walletSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
-    function registerPSIPoint(bytes memory psiPoint, bytes32 walletSalt) public {
-        require(walletSalt != bytes32(0), "invalid wallet salt");
-        require(walletSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
-        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+    /// @param accountSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
+    function registerPSIPoint(bytes memory psiPoint, bytes32 accountSalt) public {
+        require(accountSalt != bytes32(0), "invalid wallet salt");
+        require(accountSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
+        (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
-        walletSaltOfPSIPoint[psiPoint] = walletSalt;
+        accountSaltOfPSIPoint[psiPoint] = accountSalt;
     }
 
     /// @notice Create new account and wallet for a user
-    /// @param walletSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
+    /// @param accountSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
     /// @param psiPoint PSI point of the user under the relayer
     /// @param emailProof Proof and instances of the email proof
     function createAccount(
-        bytes32 walletSalt,
+        bytes32 accountSalt,
         bytes calldata psiPoint,
         EmailProof calldata emailProof
     ) public returns (Wallet wallet) {
-        require(walletSalt != bytes32(0), "invalid wallet salt");
-        require(walletSaltOfPSIPoint[psiPoint] == bytes32(0) || walletSaltOfPSIPoint[psiPoint] == walletSalt, "PSI point exists for another wallet salt");
-        require(Address.isContract(getWalletOfSalt(walletSalt)) == false, "wallet already deployed");
+        require(accountSalt != bytes32(0), "invalid wallet salt");
+        require(
+            accountSaltOfPSIPoint[psiPoint] == bytes32(0) || accountSaltOfPSIPoint[psiPoint] == accountSalt,
+            "PSI point exists for another wallet salt"
+        );
+        require(Address.isContract(getWalletOfSalt(accountSalt)) == false, "wallet already deployed");
         require(emailNullifiers[emailProof.nullifier] == false, "email already nullified");
-        require(isDKIMPublicKeyHashValid(walletSalt, emailProof.domain, emailProof.dkimPublicKeyHash), "invalid DKIM public key hash");
+        require(
+            isDKIMPublicKeyHashValid(accountSalt, emailProof.domain, emailProof.dkimPublicKeyHash),
+            "invalid DKIM public key hash"
+        );
 
-        (string memory relayerEmailAddr,) = relayerHandler.relayers(msg.sender);
+        (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
 
         if (emailProof.timestamp != 0) {
@@ -108,36 +114,36 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 emailProof.dkimPublicKeyHash,
                 emailProof.nullifier,
                 emailProof.timestamp,
-                walletSalt,
+                accountSalt,
                 psiPoint,
                 emailProof.proof
             ),
             "invalid account creation proof"
         );
 
-        walletSaltOfPSIPoint[psiPoint] = walletSalt;
+        accountSaltOfPSIPoint[psiPoint] = accountSalt;
         emailNullifiers[emailProof.nullifier] = true;
 
-        wallet = _deployWallet(walletSalt);
+        wallet = _deployWallet(accountSalt);
 
-        emit EmailWalletEvents.AccountCreated(walletSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(accountSalt, psiPoint);
     }
 
     /// @notice Return true iff the wallet is deployed for the given wallet salt
-    /// @param walletSalt Salt used to deploy the wallet
-    function isWalletSaltDeployed(bytes32 walletSalt) public view returns (bool) {
-        return Address.isContract(getWalletOfSalt(walletSalt));
+    /// @param accountSalt Salt used to deploy the wallet
+    function isAccountSaltDeployed(bytes32 accountSalt) public view returns (bool) {
+        return Address.isContract(getWalletOfSalt(accountSalt));
     }
 
-    /// @notice Return the DKIM public key hash for a given email domain and walletSalt
-    /// @param walletSalt Salt used to deploy the wallet
+    /// @notice Return the DKIM public key hash for a given email domain and accountSalt
+    /// @param accountSalt Salt used to deploy the wallet
     /// @param emailDomain Email domain for which the DKIM public key hash is to be returned
     function isDKIMPublicKeyHashValid(
-        bytes32 walletSalt,
+        bytes32 accountSalt,
         string memory emailDomain,
         bytes32 publicKeyHash
     ) public view returns (bool) {
-        address dkimRegistry = dkimRegistryOfWalletSalt[walletSalt];
+        address dkimRegistry = dkimRegistryOfAccountSalt[accountSalt];
 
         if (dkimRegistry == address(0)) {
             dkimRegistry = address(defaultDkimRegistry);
@@ -147,10 +153,10 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     /// @notice Update teh DKIM registry address for a given wallet salt
-    /// @param walletSalt Salt used to deploy the wallet
+    /// @param accountSalt Salt used to deploy the wallet
     /// @param dkimRegistry Address of the DKIM registry
-    function updateDKIMRegistryOfWalletSalt(bytes32 walletSalt, address dkimRegistry) public onlyOwner {
-        dkimRegistryOfWalletSalt[walletSalt] = dkimRegistry;
+    function updateDKIMRegistryOfAccountSalt(bytes32 accountSalt, address dkimRegistry) public onlyOwner {
+        dkimRegistryOfAccountSalt[accountSalt] = dkimRegistry;
     }
 
     /// @notice Return the wallet address of the user given the salt

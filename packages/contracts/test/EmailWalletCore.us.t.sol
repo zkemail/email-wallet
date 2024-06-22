@@ -21,9 +21,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Publish and install two extension - we will use them to test unclaimed state
         {
             NFTExtension nftExtensionImpl = new NFTExtension();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(nftExtensionImpl), abi.encodeCall(nftExtensionImpl.initialize, (
-                address(core)
-            )));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(nftExtensionImpl),
+                abi.encodeCall(nftExtensionImpl.initialize, (address(core)))
+            );
             nftExtension = NFTExtension(payable(address(proxy)));
 
             dummyNFT = new DummyNFT();
@@ -562,7 +563,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, walletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, accountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(55), walletAddr, "NFT not transferred to account");
@@ -602,7 +603,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, walletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, walletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, accountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), walletAddr, "NFT not transferred to account");
@@ -616,8 +617,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
     function test_ClaimUnclaimedState_ToNewlyCreatedAccount() public {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
-        bytes32 newWalletSalt = bytes32(uint256(2003));
-        address newWalletAddr = accountHandler.getWalletOfSalt(newWalletSalt);
+        bytes32 newAccountSalt = bytes32(uint256(2003));
+        address newWalletAddr = accountHandler.getWalletOfSalt(newAccountSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
         bytes memory state = abi.encode(address(dummyNFT), 23);
@@ -639,8 +640,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newWalletSalt, 
-            newPSIPoint, 
+            newAccountSalt,
+            newPSIPoint,
             EmailProof({
                 nullifier: emailNullifier2,
                 proof: mockProof,
@@ -653,7 +654,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.expectEmit(true, true, true, true);
         emit EmailWalletEvents.UnclaimedStateClaimed(registeredUnclaimId, recipientEmailAddrCommit, newWalletAddr);
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newWalletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newAccountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), newWalletAddr, "NFT not transferred to account");
@@ -665,8 +666,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 recipientEmailAddrCommit2 = bytes32(uint256(34));
-        bytes32 newWalletSalt = bytes32(uint256(2003));
-        address newWalletAddr = accountHandler.getWalletOfSalt(newWalletSalt);
+        bytes32 newAccountSalt = bytes32(uint256(2003));
+        address newWalletAddr = accountHandler.getWalletOfSalt(newAccountSalt);
         bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
         address relayer2 = vm.addr(3);
 
@@ -692,8 +693,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newWalletSalt, 
-            newPSIPoint, 
+            newAccountSalt,
+            newPSIPoint,
             EmailProof({
                 nullifier: emailNullifier2,
                 proof: mockProof,
@@ -703,8 +704,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
             })
         );
 
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newWalletSalt, mockProof);
-        unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newWalletSalt, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newAccountSalt, mockProof);
+        unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newAccountSalt, mockProof);
         vm.stopPrank();
 
         assertEq(dummyNFT.ownerOf(23), newWalletAddr, "NFT 23 didnt transfer to account");
@@ -715,7 +716,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
     //     address sender = vm.addr(7);
     //     bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
     //     bytes32 newEmailAddrPointer = bytes32(uint256(2001));
-    //     bytes32 newAccountKeyCommit = bytes32(uint256(2002));
+    //     bytes32 newAccountCodeCommit = bytes32(uint256(2002));
     //     bytes memory newPSIPoint = abi.encodePacked(uint256(2003));
     //     address relayer2 = vm.addr(3);
     //     bytes memory state = abi.encode(address(dummyNFT), 23);
@@ -737,9 +738,9 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
     //     vm.startPrank(relayer2);
     //     relayerHandler.registerRelayer(bytes32(uint256(980398)), "relayer3@test.com", "relayer3.com");
     //     accountHandler.transportAccount(
-    //         accountKeyCommit,
+    //         accountCodeCommit,
     //         newEmailAddrPointer,
-    //         newAccountKeyCommit,
+    //         newAccountCodeCommit,
     //         newPSIPoint,
     //         EmailProof({
     //             nullifier: emailNullifier2,
@@ -812,8 +813,8 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         address sender = vm.addr(7);
         bytes32 recipientEmailAddrCommit = bytes32(uint256(32333));
         bytes32 newEmailAddrPointer = bytes32(uint256(32334));
-        // bytes32 newAccountKeyCommit = bytes32(uint256(32335));
-        bytes32 newWalletSalt = bytes32(uint256(32336));
+        // bytes32 newAccountCodeCommit = bytes32(uint256(32335));
+        bytes32 newAccountSalt = bytes32(uint256(32336));
         bytes memory newPSI = abi.encodePacked(uint256(32337));
         bytes memory state = abi.encode(address(dummyNFT), 23);
 
@@ -835,7 +836,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed State to a newly created account, but not initialized
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            newWalletSalt, 
+            newAccountSalt,
             newPSI,
             EmailProof({
                 nullifier: emailNullifier2,

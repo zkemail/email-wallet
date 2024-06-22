@@ -12,7 +12,7 @@ contract TestVerifier is IVerifier {
         bytes32 /* dkimPublicKeyHash */,
         bytes32 /* emailNullifier */,
         uint256 /* emailTimestamp */,
-        bytes32 /* walletSalt */,
+        bytes32 /* accountSalt */,
         bytes memory /* psiPoint */,
         bytes memory proof
     ) external pure returns (bool) {
@@ -29,7 +29,7 @@ contract TestVerifier is IVerifier {
         uint256 /* timestamp */,
         bytes32 /* emailNullifier */,
         string memory /* maskedSubject */,
-        bytes32 /* walletSalt */,
+        bytes32 /* accountSalt */,
         bool /* hasEmailRecipient */,
         bytes32 /* recipientEmailAddrCommit */,
         bytes memory proof
@@ -43,7 +43,7 @@ contract TestVerifier is IVerifier {
 
     function verifyClaimFundProof(
         bytes32 /* recipientEmailAddrCommit */,
-        bytes32 /* recipientWalletSalt */,
+        bytes32 /* recipientAccountSalt */,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {
