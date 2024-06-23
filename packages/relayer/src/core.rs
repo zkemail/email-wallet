@@ -26,6 +26,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
         let account_code = AccountCode::from(hex2field(&format!("0x{}", invitation_code))?);
+        trace!(LOG, "Account code: {}", field2hex(&account_code.0); "func" => function_name!());
         let stored_account_code = DB.get_account_code(&from_addr).await?;
         if let Some(stored_account_code) = stored_account_code.as_ref() {
             if stored_account_code != &field2hex(&account_code.0) {
@@ -37,10 +38,12 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             }
         }
         let account_salt = AccountSalt::new(&padded_from_addr, account_code)?;
+        trace!(LOG, "Wallet salt: {}", field2hex(&account_salt.0); "func" => function_name!());
         if !CLIENT
             .check_if_account_created_by_account_code(&from_addr, &field2hex(&account_code.0))
             .await?
         {
+            info!(LOG, "Account creation"; "func" => function_name!());
             let input =
                 generate_account_creation_input(&email, RELAYER_RAND.get().unwrap()).await?;
             let (proof, pub_signals) =

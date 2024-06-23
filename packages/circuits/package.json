@@ -25,7 +25,7 @@
     "@zk-email/circuits": "^3.2.3",
     "@zk-email/helpers": "^3.1.3",
     "@zk-email/zk-regex-circom": "^1.2.2",
-    "@zk-email/relayer-utils": "^0.2.0",
+    "@zk-email/relayer-utils": "^0.2.1",
     "circom-grumpkin": "https://github.com/zkemail/circom-grumpkin.git",
     "commander": "^11.0.0",
     "snarkjs": "^0.7.0"
