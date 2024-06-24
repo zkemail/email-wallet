@@ -27,7 +27,7 @@ contract Safe2FAExtension is Extension, Initializable, UUPSUpgradeable, OwnableU
     function initialize(address coreAddr) public initializer {
         __Ownable_init();
         core = EmailWalletCore(payable(coreAddr));
-        templates = new string[][](4);
+        templates = new string[][](1);
         templates[0] = ["Safe", "Transaction:", "Approve", "{string}", "from", "{address}"];
     }
 

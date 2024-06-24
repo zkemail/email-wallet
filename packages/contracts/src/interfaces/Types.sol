@@ -87,3 +87,16 @@ struct ExecutionContext {
     bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address when there is email recipient
     TokenAllowance[] tokenAllowances; // token/amount allowed to be consumed by the extension
 }
+
+// Struct to represent an ephemeral transaction
+struct EphemeralTx {
+    address walletAddr; // Address of the wallet
+    uint256 txNonce; // Nonce of the transaction
+    address epheAddr; // Address of the ephemeral address
+    uint256 epheAddrNonce; // Nonce of the ephemeral address
+    address target; // Address of the contract to call
+    uint256 ethValue; // Amount of native ETH to send
+    bytes data; // Encoded data of the function to call
+    uint256 tokenAmount; // Amount of the ERC20 token to spend
+    bytes signature; // Signature by the ephemeral address
+}

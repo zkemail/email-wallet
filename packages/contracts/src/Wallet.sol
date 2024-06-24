@@ -5,6 +5,11 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol";
+import {IOauth} from "./interfaces/IOauth.sol";
+import {EphemeralTx} from "./interfaces/Types.sol";
+import {IWETHWithdraw} from "./interfaces/IWETHWithdraw.sol";
+import {TokenRegistry} from "./utils/TokenRegistry.sol";
+import {EmailWalletCore} from "./EmailWalletCore.sol";
 
 /// @title EmailWallet
 /// @notice Simple Wallet contract to be used as the EmailWallet for users
@@ -13,6 +18,8 @@ import "accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol";
 /// @dev External contracts should use `call` to deposit ETH if needed
 contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
+    IOauth oauth;
+    uint256 public epheTxNonce;
 
     /// @notice Fallback function to receive ETH
     /// @notice For convenience, this contract will convert ETH to WETH always
@@ -39,8 +46,10 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     /// @param wethAddress Address of the WETH contract
-    constructor(address wethAddress) {
+    /// @param oauthAddress Address of the Oauth contract
+    constructor(address wethAddress, address oauthAddress) {
         weth = wethAddress;
+        oauth = IOauth(oauthAddress);
     }
 
     /// @notice Initialize the contract
@@ -53,13 +62,38 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     /// @param value Amount of ETH to send
     /// @param data Encoded data of the function to call
     function execute(address target, uint256 value, bytes calldata data) external ownerOrSelf {
-        (bool success, bytes memory result) = target.call{value: value}(data);
+        _execute(target, value, data);
+    }
 
-        if (!success) {
-            assembly {
-                revert(add(result, 32), mload(result))
-            }
+    /// @notice Execute a transaction from an ephemeral address
+    /// @param txData Data of the ephemeral transaction
+    function executeEphemeralTx(EphemeralTx calldata txData) external {
+        require(txData.walletAddr == address(this), "invalid wallet address");
+        require(txData.txNonce == epheTxNonce, "invalid nonce");
+        bool isSudo = txData.target == address(this);
+        address target = txData.target;
+        EmailWalletCore core = EmailWalletCore(payable(owner()));
+        oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
+        oauth.validateSignature(txData.epheAddr, _hashEphemeralTx(txData), txData.signature);
+        require(
+            target != owner() &&
+                target != address(core.relayerHandler()) &&
+                target != address(core.accountHandler()) &&
+                target != address(core.extensionHandler()),
+            "invalid target"
+        );
+        TokenRegistry tokenRegistry = core.tokenRegistry();
+        string memory tokenName = tokenRegistry.getTokenNameOfAddress(target);
+        if (bytes(tokenName).length > 0) {
+            require(txData.tokenAmount > 0, "token amount is 0");
+            oauth.reduceTokenAllowance(txData.epheAddr, target, txData.tokenAmount);
         }
+        if (txData.ethValue > 0) {
+            oauth.reduceTokenAllowance(txData.epheAddr, weth, txData.ethValue);
+            IWETHWithdraw(weth).withdraw(txData.ethValue);
+        }
+        epheTxNonce++;
+        _execute(txData.target, txData.ethValue, txData.data);
     }
 
     /// @notice Convert ETH to WETH
@@ -72,4 +106,18 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     /// @notice Upgrade the implementation of the proxy
     /// @param newImplementation Address of the new implementation
     function _authorizeUpgrade(address newImplementation) internal override ownerOrSelf {}
+
+    function _hashEphemeralTx(EphemeralTx calldata txData) internal pure returns (bytes32) {
+        return keccak256(abi.encode(txData));
+    }
+
+    function _execute(address target, uint256 value, bytes calldata data) internal {
+        (bool success, bytes memory result) = target.call{value: value}(data);
+
+        if (!success) {
+            assembly {
+                revert(add(result, 32), mload(result))
+            }
+        }
+    }
 }
