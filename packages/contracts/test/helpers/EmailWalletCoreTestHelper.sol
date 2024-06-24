@@ -17,6 +17,7 @@ import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
+import {IOauth} from "../../src/interfaces/IOauth.sol";
 import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
 import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
 import {UnclaimsHandler} from "../../src/handlers/UnclaimsHandler.sol";
@@ -31,6 +32,7 @@ contract EmailWalletCoreTestHelper is Test {
     TokenRegistry tokenRegistry;
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
+    IOauth oauth;
     WETH9 weth;
 
     TestERC20 daiToken;

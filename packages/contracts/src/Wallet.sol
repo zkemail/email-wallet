@@ -18,7 +18,6 @@ import {EmailWalletCore} from "./EmailWalletCore.sol";
 /// @dev External contracts should use `call` to deposit ETH if needed
 contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
-    IOauth oauth;
     uint256 public epheTxNonce;
 
     /// @notice Fallback function to receive ETH
@@ -46,10 +45,8 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     /// @param wethAddress Address of the WETH contract
-    /// @param oauthAddress Address of the Oauth contract
-    constructor(address wethAddress, address oauthAddress) {
+    constructor(address wethAddress) {
         weth = wethAddress;
-        oauth = IOauth(oauthAddress);
     }
 
     /// @notice Initialize the contract
@@ -73,13 +70,15 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         bool isSudo = txData.target == address(this);
         address target = txData.target;
         EmailWalletCore core = EmailWalletCore(payable(owner()));
+        IOauth oauth = core.oauth();
         oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
         oauth.validateSignature(txData.epheAddr, _hashEphemeralTx(txData), txData.signature);
         require(
             target != owner() &&
                 target != address(core.relayerHandler()) &&
                 target != address(core.accountHandler()) &&
-                target != address(core.extensionHandler()),
+                target != address(core.extensionHandler()) &&
+                target != address(core.oauth()),
             "invalid target"
         );
         TokenRegistry tokenRegistry = core.tokenRegistry();

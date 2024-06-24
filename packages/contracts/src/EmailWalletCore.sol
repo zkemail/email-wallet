@@ -18,6 +18,7 @@ import {IVerifier} from "./interfaces/IVerifier.sol";
 import {Extension} from "./interfaces/Extension.sol";
 import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 import {EmailWalletEvents} from "./interfaces/Events.sol";
+import {IOauth} from "./interfaces/IOauth.sol";
 import {RelayerHandler} from "./handlers/RelayerHandler.sol";
 import {AccountHandler} from "./handlers/AccountHandler.sol";
 import {UnclaimsHandler} from "./handlers/UnclaimsHandler.sol";
@@ -49,6 +50,9 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     // Price oracle for feeToken conversion
     IPriceOracle public priceOracle;
+
+    // Oauth core contract
+    IOauth public oauth;
 
     // Address of WETH contract
     address public wethContract;
@@ -84,6 +88,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param _verifier Address of the ZK proof verifier
     /// @param _tokenRegistry Address of the token registry contract
     /// @param _priceOracle Address of the price oracle contract
+    /// @param _oauth Address of the Oauth contract
     /// @param _wethContract Address of the WETH contract
     /// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
     /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
@@ -97,6 +102,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         address _verifier,
         address _tokenRegistry,
         address _priceOracle,
+        address _oauth,
         address _wethContract,
         uint256 _maxFeePerGas,
         uint256 _emailValidityDuration,
@@ -111,6 +117,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         verifier = IVerifier(_verifier);
         tokenRegistry = TokenRegistry(_tokenRegistry);
         priceOracle = IPriceOracle(_priceOracle);
+        oauth = IOauth(_oauth);
         wethContract = _wethContract;
         maxFeePerGas = _maxFeePerGas;
         emailValidityDuration = _emailValidityDuration;

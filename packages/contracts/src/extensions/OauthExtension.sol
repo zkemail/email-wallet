@@ -12,18 +12,11 @@ import {IOauth} from "../interfaces/IOauth.sol";
 import {TokenRegistry} from "../utils/TokenRegistry.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth {
+contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using StringUtils for *;
 
     EmailWalletCore public core;
     string[][] public templates;
-    mapping(address => string) public usernameOfWallet;
-    mapping(string => address) public walletOfUsername;
-    mapping(address => uint256) public nextNonceOfWallet;
-    mapping(bytes32 => address) public epheAddrOfNonceHash;
-    mapping(address => uint256) public expiryOfEpheAddr;
-    mapping(address => mapping(address => uint256)) public tokenAllowancesOfEpheAddr;
-    mapping(address => bool) public isSudoOfEpheAddr;
 
     modifier onlyCore() {
         require((msg.sender == address(core)) || (msg.sender == address(core.unclaimsHandler())), "invalid sender");
@@ -243,8 +236,11 @@ contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpg
         require(templateIndex < 17, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
+        IOauth oauthCore = core.oauth();
         if (templateIndex == 0) {
-            _processSignup(subjectParams, wallet);
+            require(subjectParams.length == 1, "invalid subjectParams length");
+            bytes memory data = abi.encodeWithSignature("signup(string)", subjectParams[0]);
+            core.executeAsExtension(address(oauthCore), data);
         } else {
             bool[4] memory bits = _decomposeTo4Bits(templateIndex - 1);
             string memory username = abi.decode(subjectParams[0], (string));
@@ -275,70 +271,20 @@ contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpg
                 });
                 lastSubjectParamIdx++;
             }
-            _processSignin(wallet, username, nonce, expiry, tokenAllowances, isSudo);
+            require(lastSubjectParamIdx == subjectParams.length, "invalid subjectParams length");
+            bytes memory data = abi.encodeWithSignature(
+                "signin(string,uint256,uint256,(address,uint256)[],bool)",
+                username,
+                nonce,
+                expiry,
+                tokenAllowances,
+                isSudo
+            );
+            core.executeAsExtension(address(oauthCore), data);
         }
     }
 
-    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view override {
-        require(wallet != address(0), "invalid wallet");
-        require(epheAddr != address(0), "invalid epheAddr");
-        require(nonce < nextNonceOfWallet[wallet], "too large nonce");
-        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
-        require(
-            epheAddrOfNonceHash[nonceHash] == epheAddr,
-            "epheAddr is not registered for the given wallet and nonce"
-        );
-        require(expiryOfEpheAddr[epheAddr] > block.timestamp, "expired epheAddr");
-        require(isSudoOfEpheAddr[epheAddr] == isSudo, "invalid isSudo");
-    }
-
-    function validateSignature(address epheAddr, bytes32 hash, bytes memory signature) external view override {
-        address signer = ECDSA.recover(hash, signature);
-        require(signer == epheAddr, "invalid signature");
-    }
-
-    function reduceTokenAllowance(address epheAddr, address token, uint256 amount) external override {
-        require(tokenAllowancesOfEpheAddr[epheAddr][token] >= amount, "insufficient token allowance");
-        tokenAllowancesOfEpheAddr[epheAddr][token] -= amount;
-    }
-
-    function _processSignup(bytes[] memory subjectParams, address wallet) private {
-        require(subjectParams.length == 1, "invalid subjectParams length");
-        string memory username = abi.decode(subjectParams[0], (string));
-        require(walletOfUsername[username] == address(0), "username already exists");
-        require(bytes(usernameOfWallet[wallet]).length == 0, "wallet already takes a username");
-        usernameOfWallet[wallet] = username;
-        walletOfUsername[username] = wallet;
-    }
-
-    function _processSignin(
-        address wallet,
-        string memory username,
-        uint256 nonce,
-        uint256 expiry,
-        TokenAllowance[] memory tokenAllowances,
-        bool isSudo
-    ) private {
-        require(walletOfUsername[username] == wallet, "invalid username");
-        require(tokenAllowances.length <= 3, "invalid tokenAmounts length");
-        require(nonce < nextNonceOfWallet[wallet], "too large nonce");
-        require(block.timestamp < expiry, "expired nonce");
-
-        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
-        address epheAddr = epheAddrOfNonceHash[nonceHash];
-        require(epheAddr != address(0), "invalid nonce");
-        require(expiryOfEpheAddr[epheAddr] == 0, "nonce already used for sign-in");
-
-        expiryOfEpheAddr[epheAddr] = expiry;
-        isSudoOfEpheAddr[epheAddr] = isSudo;
-        for (uint8 i = 0; i < tokenAllowances.length; i++) {
-            tokenAllowancesOfEpheAddr[epheAddr][tokenAllowances[i].tokenAddr] = tokenAllowances[i].amount;
-        }
-    }
-
-    function _computeNonceHash(address wallet, uint256 nonce) private view returns (bytes32) {
-        return keccak256(abi.encodePacked(address(this), block.chainid, wallet, nonce));
-    }
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function _decomposeTo4Bits(uint8 idx) public pure returns (bool[4] memory) {
         bool[4] memory bits;
@@ -348,6 +294,4 @@ contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpg
         bits[3] = (idx & 1) != 0;
         return bits;
     }
-
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
