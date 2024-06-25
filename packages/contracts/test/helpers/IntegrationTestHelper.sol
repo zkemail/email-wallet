@@ -21,6 +21,8 @@ import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import "../../src/extensions/UniswapExtension.sol";
 import "../../src/extensions/NFTExtension.sol";
 import "../mocks/DummyNFT.sol";
+import {IOauth} from "../../src/interfaces/IOauth.sol";
+import {OauthCore} from "../../src/utils/OauthCore.sol";
 
 abstract contract IntegrationTestHelper is Test {
     using Strings for *;
@@ -45,9 +47,20 @@ abstract contract IntegrationTestHelper is Test {
     TokenRegistry tokenRegistry;
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
+    IOauth oauthCore;
     WETH9 weth;
     UniswapExtension uniExtension;
     NFTExtension nftExtension;
+
+    TokenRegistry tokenRegistryImpl;
+    RelayerHandler relayerHandlerImpl;
+    ExtensionHandler extensionHandlerImpl;
+    AccountHandler accountHandlerImpl;
+    UnclaimsHandler unclaimsHandlerImpl;
+    EmailWalletCore coreImpl;
+    Wallet walletImpl;
+    UniswapExtension uniExtensionImpl;
+    NFTExtension nftExtensionImpl;
 
     RelayerHandler relayerHandler;
     AccountHandler accountHandler;
@@ -58,6 +71,7 @@ abstract contract IntegrationTestHelper is Test {
     ERC20 daiToken;
     ERC20 usdcToken;
     ERC20 usdcNativeToken;
+    DummyNFT apeNFT;
 
     bytes32 mockDKIMHash = bytes32(uint256(123));
 
@@ -101,6 +115,8 @@ abstract contract IntegrationTestHelper is Test {
 
     string[][] subjectTemplates;
 
+    address extensionDev;
+
     function setUp() public virtual {
         vm.createSelectFork("https://arb1.arbitrum.io/rpc");
         vm.warp(1697222111);
@@ -113,161 +129,201 @@ abstract contract IntegrationTestHelper is Test {
         verifier = new AllVerifiers();
 
         {
-            TokenRegistry tokenRegistryImpl = new TokenRegistry();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(tokenRegistryImpl),
-                abi.encodeCall(tokenRegistryImpl.initialize, ())
-            );
-            tokenRegistry = TokenRegistry(payable(address(proxy)));
-        }
-
-        dkimRegistry = new DKIMRegistry();
-        priceOracle = new UniswapTWAPOracle(UNISWAP_V3_FACTORY, WETH_ADDR);
-        // weth = new WETH9();
-        weth = WETH9(payable(WETH_ADDR));
-
-        Wallet walletImp = new Wallet(address(weth));
-
-        dkimRegistry.setDKIMPublicKeyHash(
-            "gmail.com",
-            0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788
-        );
-
-        {
-            RelayerHandler relayerHandlerImpl = new RelayerHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(relayerHandlerImpl),
-                abi.encodeCall(relayerHandlerImpl.initialize, ())
-            );
-            relayerHandler = RelayerHandler(payable(address(proxy)));
-        }
-
-        {
-            ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(extensionHandlerImpl),
-                abi.encodeCall(extensionHandlerImpl.initialize, ())
-            );
-            extensionHandler = ExtensionHandler(payable(address(proxy)));
-        }
-
-        {
-            AccountHandler accountHandlerImpl = new AccountHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(accountHandlerImpl),
-                abi.encodeCall(
-                    accountHandlerImpl.initialize,
-                    (
-                        address(relayerHandler),
-                        address(dkimRegistry),
-                        address(verifier),
-                        address(walletImp),
-                        emailValidityDuration
+            tokenRegistryImpl = new TokenRegistry();
+            tokenRegistry = TokenRegistry(
+                payable(
+                    address(
+                        new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()))
                     )
                 )
             );
-            accountHandler = AccountHandler(payable(address(proxy)));
+        }
+        {
+            dkimRegistry = new DKIMRegistry();
+            priceOracle = new UniswapTWAPOracle(UNISWAP_V3_FACTORY, WETH_ADDR);
+            // weth = new WETH9();
+            oauthCore = new OauthCore();
+            weth = WETH9(payable(WETH_ADDR));
+
+            walletImpl = new Wallet(address(weth), address(oauthCore));
+
+            dkimRegistry.setDKIMPublicKeyHash(
+                "gmail.com",
+                0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788
+            );
         }
 
         {
-            UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(unclaimsHandlerImpl),
-                abi.encodeCall(
-                    unclaimsHandlerImpl.initialize,
-                    (
-                        address(relayerHandler),
-                        address(accountHandler),
-                        address(verifier),
-                        unclaimedFundClaimGas,
-                        unclaimedStateClaimGas,
-                        unclaimsExpiryDuration,
-                        maxFeePerGas
+            relayerHandlerImpl = new RelayerHandler();
+            relayerHandler = RelayerHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(address(relayerHandlerImpl), abi.encodeCall(relayerHandlerImpl.initialize, ()))
                     )
                 )
             );
-            unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
         }
 
         {
-            EmailWalletCore coreImpl = new EmailWalletCore();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(coreImpl),
-                abi.encodeCall(
-                    coreImpl.initialize,
-                    (
-                        address(relayerHandler),
-                        address(accountHandler),
-                        address(unclaimsHandler),
-                        address(extensionHandler),
-                        address(verifier),
-                        address(tokenRegistry),
-                        address(priceOracle),
-                        address(weth),
-                        maxFeePerGas,
-                        emailValidityDuration,
-                        unclaimedFundClaimGas,
-                        unclaimedStateClaimGas
+            extensionHandlerImpl = new ExtensionHandler();
+            extensionHandler = ExtensionHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(extensionHandlerImpl),
+                            abi.encodeCall(extensionHandlerImpl.initialize, ())
+                        )
                     )
                 )
             );
-            core = EmailWalletCore(payable(address(proxy)));
         }
 
-        relayerHandler.transferOwnership(address(core));
-        accountHandler.transferOwnership(address(core));
-        unclaimsHandler.transferOwnership(address(core));
-        extensionHandler.transferOwnership(address(core));
+        {
+            accountHandlerImpl = new AccountHandler();
+            accountHandler = AccountHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(accountHandlerImpl),
+                            abi.encodeCall(
+                                accountHandlerImpl.initialize,
+                                (
+                                    address(relayerHandler),
+                                    address(dkimRegistry),
+                                    address(verifier),
+                                    address(walletImpl),
+                                    emailValidityDuration
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
 
-        // Deploy some ERC20 test tokens and add them to registry
-        // wethToken = new TestERC20("WETH", "WETH");
-        // daiToken = new TestERC20("DAI", "DAI");
-        daiToken = ERC20(DAI_ADDR);
-        // usdcToken = new TestERC20("USDC", "USDC");
-        usdcToken = ERC20(USDC_ADDR);
-        usdcNativeToken = ERC20(USDC_NATIVE_ADDR);
-        tokenRegistry.setTokenAddress("WETH", address(weth));
-        tokenRegistry.setTokenAddress("DAI", address(daiToken));
-        tokenRegistry.setTokenAddress("USDC", address(usdcToken));
-        vm.stopPrank();
-        vm.startPrank(relayer1);
-        relayerHandler.registerRelayer("emailwallet.relayer@gmail.com", "emailwallet.com");
-        vm.stopPrank();
-        vm.startPrank(relayer2);
-        relayerHandler.registerRelayer("emailwallet.relayer2@gmail.com", "emailwallet2.com");
-        vm.stopPrank();
+        {
+            unclaimsHandlerImpl = new UnclaimsHandler();
+            unclaimsHandler = UnclaimsHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(unclaimsHandlerImpl),
+                            abi.encodeCall(
+                                unclaimsHandlerImpl.initialize,
+                                (
+                                    address(relayerHandler),
+                                    address(accountHandler),
+                                    address(verifier),
+                                    unclaimedFundClaimGas,
+                                    unclaimedStateClaimGas,
+                                    unclaimsExpiryDuration,
+                                    maxFeePerGas
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
 
-        address extensionDev = vm.addr(3);
+        {
+            coreImpl = new EmailWalletCore();
+            core = EmailWalletCore(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(coreImpl),
+                            abi.encodeCall(
+                                coreImpl.initialize,
+                                (
+                                    address(relayerHandler),
+                                    address(accountHandler),
+                                    address(unclaimsHandler),
+                                    address(extensionHandler),
+                                    address(verifier),
+                                    address(tokenRegistry),
+                                    address(priceOracle),
+                                    // address(oauthCore),
+                                    address(weth),
+                                    maxFeePerGas,
+                                    emailValidityDuration,
+                                    unclaimedFundClaimGas,
+                                    unclaimedStateClaimGas
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+        {
+            relayerHandler.transferOwnership(address(core));
+            accountHandler.transferOwnership(address(core));
+            unclaimsHandler.transferOwnership(address(core));
+            extensionHandler.transferOwnership(address(core));
+        }
+        {
+            // Deploy some ERC20 test tokens and add them to registry
+            // wethToken = new TestERC20("WETH", "WETH");
+            // daiToken = new TestERC20("DAI", "DAI");
+            daiToken = ERC20(DAI_ADDR);
+            // usdcToken = new TestERC20("USDC", "USDC");
+            usdcToken = ERC20(USDC_ADDR);
+            usdcNativeToken = ERC20(USDC_NATIVE_ADDR);
+            tokenRegistry.setTokenAddress("WETH", address(weth));
+            tokenRegistry.setTokenAddress("DAI", address(daiToken));
+            tokenRegistry.setTokenAddress("USDC", address(usdcToken));
+            vm.stopPrank();
+            vm.startPrank(relayer1);
+            relayerHandler.registerRelayer("emailwallet.relayer@gmail.com", "emailwallet.com");
+            vm.stopPrank();
+            vm.startPrank(relayer2);
+            relayerHandler.registerRelayer("emailwallet.relayer2@gmail.com", "emailwallet2.com");
+            vm.stopPrank();
+        }
+
+        extensionDev = vm.addr(3);
         vm.startPrank(extensionDev);
         {
-            UniswapExtension uniExtensionImpl = new UniswapExtension();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(uniExtensionImpl),
-                abi.encodeCall(
-                    uniExtensionImpl.initialize,
-                    (address(core), address(tokenRegistry), UNISWAP_V3_ROUTER, UNISWAP_V3_FACTORY)
+            uniExtensionImpl = new UniswapExtension();
+            uniExtension = UniswapExtension(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(uniExtensionImpl),
+                            abi.encodeCall(
+                                uniExtensionImpl.initialize,
+                                (address(core), address(tokenRegistry), UNISWAP_V3_ROUTER, UNISWAP_V3_FACTORY)
+                            )
+                        )
+                    )
                 )
             );
-            uniExtension = UniswapExtension(payable(address(proxy)));
         }
 
         {
-            NFTExtension nftExtensionImpl = new NFTExtension();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(nftExtensionImpl),
-                abi.encodeCall(nftExtensionImpl.initialize, (address(core)))
+            nftExtensionImpl = new NFTExtension();
+            nftExtension = NFTExtension(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(nftExtensionImpl),
+                            abi.encodeCall(nftExtensionImpl.initialize, (address(core)))
+                        )
+                    )
+                )
             );
-            nftExtension = NFTExtension(payable(address(proxy)));
 
-            DummyNFT apeNFT = new DummyNFT();
+            apeNFT = new DummyNFT();
             nftExtension.setNFTAddress("APE", address(apeNFT));
         }
-
-        uint256 maxExecutionGas = 10 ** 6;
-        string[][] memory templates = _getUniswapSubjectTemplates();
-        extensionHandler.publishExtension("Uniswap", address(uniExtension), templates, maxExecutionGas);
-        templates = _getNFTSubjectTemplates();
-        extensionHandler.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
+        {
+            uint256 maxExecutionGas = 10 ** 6;
+            string[][] memory templates = _getUniswapSubjectTemplates();
+            extensionHandler.publishExtension("Uniswap", address(uniExtension), templates, maxExecutionGas);
+            templates = _getNFTSubjectTemplates();
+            extensionHandler.publishExtension("NFT", address(nftExtension), templates, maxExecutionGas);
+        }
         vm.stopPrank();
     }
 
@@ -284,10 +340,12 @@ abstract contract IntegrationTestHelper is Test {
         inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
         vm.ffi(inputGenerationInput);
 
-        string memory publicInputFile = vm.readFile(
-            string.concat(projectRoot, "/test/build_integration/account_creation_public.json")
+        string[] memory pubSignals = abi.decode(
+            vm.parseJson(
+                vm.readFile(string.concat(projectRoot, "/test/build_integration/account_creation_public.json"))
+            ),
+            (string[])
         );
-        string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
 
         // bytes32 domain = bytes32(vm.parseUint(pubSignals[0]));
 
@@ -311,15 +369,14 @@ abstract contract IntegrationTestHelper is Test {
             psiPoint = abi.encode(x, y);
         }
 
-        bytes memory proof = proofToBytes(
-            string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
-        );
         {
             wallet = accountHandler.createAccount(
                 accountSalt,
                 psiPoint,
                 EmailProof({
-                    proof: proof,
+                    proof: proofToBytes(
+                        string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
+                    ),
                     domain: "gmail.com", // TODO fix later
                     dkimPublicKeyHash: publicKeyHash,
                     nullifier: emailNullifier,

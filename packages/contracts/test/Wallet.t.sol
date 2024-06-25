@@ -5,10 +5,11 @@ import "forge-std/Test.sol";
 import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Wallet} from "../src/Wallet.sol";
+import {OauthCore} from "../src/utils/OauthCore.sol";
 import {WETH9} from "./helpers/WETH9.sol";
 
 contract TestWallet is Wallet {
-    constructor(address wethAddress) Wallet(wethAddress) {}
+    constructor(address wethAddress, address oauthAddress) Wallet(wethAddress, oauthAddress) {}
 
     function getName() public pure returns (string memory) {
         return "Test";
@@ -17,6 +18,7 @@ contract TestWallet is Wallet {
 
 contract WalletTest is Test {
     WETH9 weth;
+    OauthCore oauth;
     Wallet public walletImplementation;
 
     // For testing sending ETH to this contract
@@ -52,7 +54,8 @@ contract WalletTest is Test {
 
     function setUp() public {
         weth = new WETH9();
-        walletImplementation = new Wallet(address(weth));
+        oauth = new OauthCore();
+        walletImplementation = new Wallet(address(weth), address(oauth));
     }
 
     function test_WalletDeploy() public {
@@ -97,7 +100,7 @@ contract WalletTest is Test {
         bytes32 salt = bytes32(uint(1003));
         Wallet wallet = _deployWallet(salt);
 
-        TestWallet newImplementation = new TestWallet(address(weth));
+        TestWallet newImplementation = new TestWallet(address(weth), address(oauth));
         wallet.upgradeTo(address(newImplementation)); // Upgrade to new test implementation
 
         TestWallet wallet2 = TestWallet(payable(address(wallet)));

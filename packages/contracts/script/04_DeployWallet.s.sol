@@ -20,10 +20,16 @@ contract Deploy is Script {
             return;
         }
 
+        address oauth = vm.envAddress("OAUTH");
+        if (oauth == address(0)) {
+            console.log("OAUTH env var not set.");
+            return;
+        }
+
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy wallet implementation
-        Wallet walletImpl = new Wallet(address(weth));
+        Wallet walletImpl = new Wallet(address(weth), address(oauth));
 
         vm.stopBroadcast();
 

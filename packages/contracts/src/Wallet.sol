@@ -20,6 +20,9 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
     uint256 public epheTxNonce;
 
+    // Oauth core contract
+    IOauth public oauth;
+
     /// @notice Fallback function to receive ETH
     /// @notice For convenience, this contract will convert ETH to WETH always
     /// @notice Conversion is not done if the sender is WETH (i.e when user call `weth.withdraw()`)
@@ -45,8 +48,10 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     /// @param wethAddress Address of the WETH contract
-    constructor(address wethAddress) {
+    /// @param oauthAddress Address of the Oauth contract
+    constructor(address wethAddress, address oauthAddress) {
         weth = wethAddress;
+        oauth = IOauth(oauthAddress);
     }
 
     /// @notice Initialize the contract
@@ -70,7 +75,6 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         bool isSudo = txData.target == address(this);
         address target = txData.target;
         EmailWalletCore core = EmailWalletCore(payable(owner()));
-        IOauth oauth = core.oauth();
         oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
         oauth.validateSignature(txData.epheAddr, _hashEphemeralTx(txData), txData.signature);
         require(
@@ -78,7 +82,7 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
                 target != address(core.relayerHandler()) &&
                 target != address(core.accountHandler()) &&
                 target != address(core.extensionHandler()) &&
-                target != address(core.oauth()),
+                target != address(oauth),
             "invalid target"
         );
         TokenRegistry tokenRegistry = core.tokenRegistry();

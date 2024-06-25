@@ -6,6 +6,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Extension} from "../interfaces/Extension.sol";
 import {EmailWalletCore} from "../EmailWalletCore.sol";
+import {Wallet} from "../Wallet.sol";
 import "../interfaces/Types.sol";
 import {StringUtils} from "../libraries/StringUtils.sol";
 import {IOauth} from "../interfaces/IOauth.sol";
@@ -228,50 +229,24 @@ contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpg
         bytes[] memory subjectParams,
         address wallet,
         bool hasEmailRecipient,
-        address recipientETHAddr,
-        bytes32 emailNullifier
+        address,
+        bytes32
     ) external override onlyCore {
-        recipientETHAddr;
-        emailNullifier;
         require(templateIndex < 17, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
-        IOauth oauthCore = core.oauth();
+        IOauth oauthCore = Wallet(payable(wallet)).oauth();
         if (templateIndex == 0) {
             require(subjectParams.length == 1, "invalid subjectParams length");
-            bytes memory data = abi.encodeWithSignature("signup(string)", subjectParams[0]);
-            core.executeAsExtension(address(oauthCore), data);
+            core.executeAsExtension(address(oauthCore), abi.encodeWithSignature("signup(string)", subjectParams[0]));
         } else {
-            bool[4] memory bits = _decomposeTo4Bits(templateIndex - 1);
-            string memory username = abi.decode(subjectParams[0], (string));
-            uint256 nonce = abi.decode(subjectParams[1], (uint256));
-            bool isSudo = false;
-            uint256 expiry;
-            uint8 numTokenAllowances = 2 * uint8(bits[2] ? 1 : 0) + uint8(bits[3] ? 1 : 0);
-            TokenAllowance[] memory tokenAllowances = new TokenAllowance[](numTokenAllowances);
-            uint256 lastSubjectParamIdx = 2;
-            if (bits[0]) {
-                isSudo = bits[1];
-            }
-            if (bits[1]) {
-                expiry = abi.decode(subjectParams[lastSubjectParamIdx], (uint256));
-                lastSubjectParamIdx++;
-            } else {
-                expiry = type(uint256).max;
-            }
-            uint256 tokenAmount;
-            string memory tokenName;
-            TokenRegistry tokenRegistry = core.tokenRegistry();
-            for (uint8 i = 0; i < numTokenAllowances; i++) {
-                (tokenAmount, tokenName) = abi.decode(subjectParams[lastSubjectParamIdx + i], (uint256, string));
-                require(tokenAmount > 0, "invalid tokenAmount");
-                tokenAllowances[i] = TokenAllowance({
-                    tokenAddr: tokenRegistry.getTokenAddress(tokenName),
-                    amount: tokenAmount
-                });
-                lastSubjectParamIdx++;
-            }
-            require(lastSubjectParamIdx == subjectParams.length, "invalid subjectParams length");
+            (
+                string memory username,
+                uint256 nonce,
+                bool isSudo,
+                uint256 expiry,
+                TokenAllowance[] memory tokenAllowances
+            ) = _parseSigninSubjectParams(templateIndex, subjectParams);
             bytes memory data = abi.encodeWithSignature(
                 "signin(string,uint256,uint256,(address,uint256)[],bool)",
                 username,
@@ -293,5 +268,47 @@ contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpg
         bits[2] = (idx & 2) != 0;
         bits[3] = (idx & 1) != 0;
         return bits;
+    }
+
+    function _parseSigninSubjectParams(
+        uint8 templateIndex,
+        bytes[] memory subjectParams
+    )
+        private
+        view
+        returns (
+            string memory username,
+            uint256 nonce,
+            bool isSudo,
+            uint256 expiry,
+            TokenAllowance[] memory tokenAllowances
+        )
+    {
+        bool[4] memory bits = _decomposeTo4Bits(templateIndex - 1);
+        username = abi.decode(subjectParams[0], (string));
+        nonce = abi.decode(subjectParams[1], (uint256));
+        isSudo = bits[0] && bits[1];
+        uint8 numTokenAllowances = 2 * uint8(bits[2] ? 1 : 0) + uint8(bits[3] ? 1 : 0);
+        tokenAllowances = new TokenAllowance[](numTokenAllowances);
+        uint256 lastSubjectParamIdx = 2;
+        if (bits[1]) {
+            expiry = abi.decode(subjectParams[lastSubjectParamIdx], (uint256));
+            lastSubjectParamIdx++;
+        } else {
+            expiry = type(uint256).max;
+        }
+        uint256 tokenAmount;
+        string memory tokenName;
+        TokenRegistry tokenRegistry = core.tokenRegistry();
+        for (uint8 i = 0; i < numTokenAllowances; i++) {
+            (tokenAmount, tokenName) = abi.decode(subjectParams[lastSubjectParamIdx + i], (uint256, string));
+            require(tokenAmount > 0, "invalid tokenAmount");
+            tokenAllowances[i] = TokenAllowance({
+                tokenAddr: tokenRegistry.getTokenAddress(tokenName),
+                amount: tokenAmount
+            });
+            lastSubjectParamIdx++;
+        }
+        require(lastSubjectParamIdx == subjectParams.length, "invalid subjectParams length");
     }
 }
