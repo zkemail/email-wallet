@@ -14,9 +14,9 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
     mapping(string => address) public walletOfUsername;
     mapping(address => uint256) public nextNonceOfWallet;
     mapping(bytes32 => address) public epheAddrOfNonceHash;
-    mapping(address => uint256) public expiryOfEpheAddr;
-    mapping(address => mapping(address => uint256)) public tokenAllowancesOfEpheAddr;
-    mapping(address => bool) public isSudoOfEpheAddr;
+    mapping(bytes32 => uint256) public expiryOfNonceHash;
+    mapping(bytes32 => mapping(address => uint256)) public tokenAllowancesOfNonceHash;
+    mapping(bytes32 => bool) public isSudoOfNonceHash;
 
     constructor() {
         _disableInitializers();
@@ -26,27 +26,32 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         __Ownable_init();
     }
 
-    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view override {
+    function validateEpheAddr(
+        address wallet,
+        address epheAddr,
+        uint256 nonce,
+        bool isSudo
+    ) external view override returns (bytes32 nonceHash) {
         require(wallet != address(0), "invalid wallet");
         require(epheAddr != address(0), "invalid epheAddr");
         require(nonce < nextNonceOfWallet[wallet], "too large nonce");
-        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
+        nonceHash = _computeNonceHash(wallet, nonce);
         require(
             epheAddrOfNonceHash[nonceHash] == epheAddr,
             "epheAddr is not registered for the given wallet and nonce"
         );
-        require(expiryOfEpheAddr[epheAddr] > block.timestamp, "expired epheAddr");
-        require(isSudoOfEpheAddr[epheAddr] == isSudo, "invalid isSudo");
+        require(expiryOfNonceHash[nonceHash] > block.timestamp, "expired epheAddr");
+        require(isSudoOfNonceHash[nonceHash] == isSudo, "invalid isSudo");
     }
 
     function validateSignature(address epheAddr, bytes32 hash, bytes memory signature) external pure override {
-        address signer = ECDSA.recover(hash, signature);
+        address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(hash), signature);
         require(signer == epheAddr, "invalid signature");
     }
 
-    function reduceTokenAllowance(address epheAddr, address token, uint256 amount) external override {
-        require(tokenAllowancesOfEpheAddr[epheAddr][token] >= amount, "insufficient token allowance");
-        tokenAllowancesOfEpheAddr[epheAddr][token] -= amount;
+    function reduceTokenAllowance(bytes32 nonceHash, address token, uint256 amount) external override {
+        require(tokenAllowancesOfNonceHash[nonceHash][token] >= amount, "insufficient token allowance");
+        tokenAllowancesOfNonceHash[nonceHash][token] -= amount;
     }
 
     function signup(string memory username) external override {
@@ -72,13 +77,36 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         bytes32 nonceHash = _computeNonceHash(wallet, nonce);
         address epheAddr = epheAddrOfNonceHash[nonceHash];
         require(epheAddr != address(0), "invalid nonce");
-        require(expiryOfEpheAddr[epheAddr] == 0, "nonce already used for sign-in");
+        require(expiryOfNonceHash[nonceHash] == 0, "nonce already used for sign-in");
 
-        expiryOfEpheAddr[epheAddr] = expiry;
-        isSudoOfEpheAddr[epheAddr] = isSudo;
+        expiryOfNonceHash[nonceHash] = expiry;
+        isSudoOfNonceHash[nonceHash] = isSudo;
         for (uint8 i = 0; i < tokenAllowances.length; i++) {
-            tokenAllowancesOfEpheAddr[epheAddr][tokenAllowances[i].tokenAddr] = tokenAllowances[i].amount;
+            tokenAllowancesOfNonceHash[nonceHash][tokenAllowances[i].tokenAddr] = tokenAllowances[i].amount;
         }
+    }
+
+    function registerEpheAddr(string memory username, address epheAddr, bytes calldata signature) external {
+        require(bytes(username).length > 0, "invalid username");
+        require(epheAddr != address(0), "invalid epheAddr");
+        bytes32 hash = hashOfRegisterEpheAddr(username, epheAddr);
+        address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(hash), signature);
+        require(signer == epheAddr, "invalid signature");
+        address wallet = walletOfUsername[username];
+        require(wallet != address(0), "username is not registered");
+        uint256 nonce = nextNonceOfWallet[wallet];
+        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
+        require(epheAddrOfNonceHash[nonceHash] == address(0), "nonce already used");
+        epheAddrOfNonceHash[nonceHash] = epheAddr;
+        nextNonceOfWallet[wallet]++;
+    }
+
+    /// @notice Hash of the register epheAddr
+    /// @param username Username of the wallet
+    /// @param epheAddr Address of the ephemeral address
+    /// @return Hash of the register epheAddr
+    function hashOfRegisterEpheAddr(string memory username, address epheAddr) public view returns (bytes32) {
+        return keccak256(abi.encodePacked(address(this), block.chainid, epheAddr, username));
     }
 
     function _computeNonceHash(address wallet, uint256 nonce) private view returns (bytes32) {

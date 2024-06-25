@@ -75,7 +75,7 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         bool isSudo = txData.target == address(this);
         address target = txData.target;
         EmailWalletCore core = EmailWalletCore(payable(owner()));
-        oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
+        bytes32 nonceHash = oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
         oauth.validateSignature(txData.epheAddr, _hashEphemeralTx(txData), txData.signature);
         require(
             target != owner() &&
@@ -89,10 +89,10 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         string memory tokenName = tokenRegistry.getTokenNameOfAddress(target);
         if (bytes(tokenName).length > 0) {
             require(txData.tokenAmount > 0, "token amount is 0");
-            oauth.reduceTokenAllowance(txData.epheAddr, target, txData.tokenAmount);
+            oauth.reduceTokenAllowance(nonceHash, target, txData.tokenAmount);
         }
         if (txData.ethValue > 0) {
-            oauth.reduceTokenAllowance(txData.epheAddr, weth, txData.ethValue);
+            oauth.reduceTokenAllowance(nonceHash, weth, txData.ethValue);
             IWETHWithdraw(weth).withdraw(txData.ethValue);
         }
         epheTxNonce++;

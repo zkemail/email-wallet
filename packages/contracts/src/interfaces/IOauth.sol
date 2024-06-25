@@ -9,7 +9,13 @@ interface IOauth {
     /// @param epheAddr Address of the ephemeral address.
     /// @param nonce Nonce of the ephemeral address.
     /// @param isSudo Whether the ephemeral address is sudo or not.
-    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view;
+    /// @return nonceHash Hash of the wallet + nonce.
+    function validateEpheAddr(
+        address wallet,
+        address epheAddr,
+        uint256 nonce,
+        bool isSudo
+    ) external view returns (bytes32 nonceHash);
 
     /// @notice Validate the signature of the ephemeral address.
     /// @param epheAddr Address of the ephemeral address.
@@ -18,10 +24,10 @@ interface IOauth {
     function validateSignature(address epheAddr, bytes32 hash, bytes memory signature) external view;
 
     /// @notice Reduce the token allowance of the ephemeral address.
-    /// @param epheAddr Address of the ephemeral address.
+    /// @param nonceHash Hash of the wallet + nonce.
     /// @param token Address of the token.
     /// @param amount Amount of the token to reduce.
-    function reduceTokenAllowance(address epheAddr, address token, uint256 amount) external;
+    function reduceTokenAllowance(bytes32 nonceHash, address token, uint256 amount) external;
 
     /// @notice Signup a username for the wallet.
     /// @param username Username to signup.
@@ -40,4 +46,11 @@ interface IOauth {
         TokenAllowance[] memory tokenAllowances,
         bool isSudo
     ) external;
+
+    /// @notice Register the ephemeral address for the wallet.
+    /// @param username Username of the wallet.
+    /// @param epheAddr Address of the ephemeral address.
+    /// @param signature Signature of the ephemeral address.
+    /// @dev This function MUST allows that the same `epheAddr` is used more than once; otherwise, an adversary can post the same `epheAddr` to block the user's registration.
+    function registerEpheAddr(string memory username, address epheAddr, bytes calldata signature) external;
 }
