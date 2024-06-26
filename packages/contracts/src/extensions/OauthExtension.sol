@@ -235,10 +235,12 @@ contract OauthExtension is Extension, Initializable, UUPSUpgradeable, OwnableUpg
         require(templateIndex < 17, "invalid templateIndex");
         require(!hasEmailRecipient, "recipient is not supported");
 
-        IOauth oauthCore = Wallet(payable(wallet)).oauth();
+        IOauth oauthCore = Wallet(payable(wallet)).getOauth();
         if (templateIndex == 0) {
             require(subjectParams.length == 1, "invalid subjectParams length");
-            core.executeAsExtension(address(oauthCore), abi.encodeWithSignature("signup(string)", subjectParams[0]));
+            string memory username = abi.decode(subjectParams[0], (string));
+            bytes memory data = abi.encodeWithSignature("signup(string)", username);
+            core.executeAsExtension(address(oauthCore), data);
         } else {
             (
                 string memory username,

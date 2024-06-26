@@ -21,7 +21,7 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     uint256 public epheTxNonce;
 
     // Oauth core contract
-    IOauth public oauth;
+    IOauth immutable oauth;
 
     /// @notice Fallback function to receive ETH
     /// @notice For convenience, this contract will convert ETH to WETH always
@@ -59,6 +59,10 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         __Ownable_init();
     }
 
+    function getOauth() external view returns (IOauth) {
+        return oauth;
+    }
+
     /// @notice Execute a function on an external contract
     /// @param target Address of the contract to call
     /// @param value Amount of ETH to send
@@ -76,7 +80,7 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         address target = txData.target;
         EmailWalletCore core = EmailWalletCore(payable(owner()));
         bytes32 nonceHash = oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
-        oauth.validateSignature(txData.epheAddr, _hashEphemeralTx(txData), txData.signature);
+        oauth.validateSignature(txData.epheAddr, hashEphemeralTx(txData), txData.signature);
         require(
             target != owner() &&
                 target != address(core.relayerHandler()) &&
@@ -110,8 +114,10 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     /// @param newImplementation Address of the new implementation
     function _authorizeUpgrade(address newImplementation) internal override ownerOrSelf {}
 
-    function _hashEphemeralTx(EphemeralTx calldata txData) internal pure returns (bytes32) {
-        return keccak256(abi.encode(txData));
+    function hashEphemeralTx(EphemeralTx calldata txData) public pure returns (bytes32) {
+        EphemeralTx memory txDataTmp = txData;
+        txDataTmp.signature = "";
+        return keccak256(abi.encode(txDataTmp));
     }
 
     function _execute(address target, uint256 value, bytes calldata data) internal {

@@ -33,7 +33,7 @@ contract EmailWalletCoreTestHelper is Test {
     TokenRegistry tokenRegistry;
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
-    IOauth oauthCore;
+    OauthCore oauthCore;
     WETH9 weth;
     TestExtension defaultExt;
 
