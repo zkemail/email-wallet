@@ -9,12 +9,12 @@ from core import (
 )
 
 
-stub = modal.Stub("email-wallet-relayer-v1.1")
+app = modal.App("email-wallet-relayer-v1.1.2")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 
 
-@stub.function(
+@app.function(
     image=image,
     mounts=[
         modal.Mount.from_local_python_packages("core"),

@@ -27,7 +27,7 @@ WORKDIR /root
 # RUN cp /email-wallet/packages/prover/params/email_sender.wasm /root/params
 RUN mkdir params
 WORKDIR /root/params
-RUN gdown "https://drive.google.com/uc?id=1T1VvuaZhm1pSQoUkjaZptRbjq1XX8aT8"
+RUN gdown "https://drive.google.com/uc?id=1F1cw9eTlgJwPcXR4wF8kQrWPMhRsFnIy"
 RUN unzip params.zip
 WORKDIR /root
 RUN ls params
