@@ -7,6 +7,8 @@ use ethers::prelude::*;
 use ethers::signers::Signer;
 use futures::future::BoxFuture;
 
+use self::wallet::EphemeralTx;
+
 const CONFIRMATIONS: usize = 1;
 
 #[derive(Default, Debug)]
@@ -750,5 +752,49 @@ impl ChainClient {
 
     pub async fn get_latest_block_number(&self) -> U64 {
         self.client.get_block_number().await.unwrap()
+    }
+
+    pub async fn register_ephe_addr_for_wallet(
+        &self,
+        wallet_addr: Address,
+        username: String,
+        ephe_addr: Address,
+        signature: Bytes,
+    ) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
+        let wallet = WalletContract::new(wallet_addr, self.client.clone());
+        let oauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
+        let call = oauth.register_ephe_addr(username, ephe_addr, signature);
+        let tx = call.send().await?;
+
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
+    }
+
+    pub async fn execute_ephemeral_tx(&self, tx: EphemeralTx) -> Result<String> {
+        let wallet_addr = tx.wallet_addr;
+        let wallet = WalletContract::new(wallet_addr, self.client.clone());
+        let call = wallet.execute_ephemeral_tx(tx);
+        let tx = call.send().await?;
+
+        let receipt = tx
+            .log()
+            .confirmations(CONFIRMATIONS)
+            .await?
+            .ok_or(anyhow!("No receipt"))?;
+
+        let tx_hash = receipt.transaction_hash;
+        let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
+        Ok(tx_hash)
     }
 }

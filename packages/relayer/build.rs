@@ -20,6 +20,12 @@ fn main() {
     .unwrap()
     .write_to_file("./src/abis/email_wallet_core.rs")
     .unwrap();
+    Abigen::new("Wallet", "../contracts/artifacts/Wallet.sol/Wallet.json")
+        .unwrap()
+        .generate()
+        .unwrap()
+        .write_to_file("./src/abis/wallet.rs")
+        .unwrap();
     Abigen::new("ERC20", "../contracts/artifacts/ERC20.sol/ERC20.json")
         .unwrap()
         .generate()
@@ -114,5 +120,12 @@ fn main() {
         .generate()
         .unwrap()
         .write_to_file("./src/abis/erc_721.rs")
+        .unwrap();
+
+    Abigen::new("IOauth", "../contracts/artifacts/IOauth.sol/IOauth.json")
+        .unwrap()
+        .generate()
+        .unwrap()
+        .write_to_file("./src/abis/ioauth.rs")
         .unwrap();
 }
