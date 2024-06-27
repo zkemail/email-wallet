@@ -2517,10 +2517,10 @@
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
 
-"@zk-email/relayer-utils@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@zk-email/relayer-utils/-/relayer-utils-0.2.0.tgz#0239cb09bca6e239837c863f035968388f72f64a"
-  integrity sha512-qn+nOLWRseSwfjOIBceBEt1lxNcJD0iAuFj2CAugzDw6FF+k/pxO7kSGmsYDHLuVviKtCPORR0DIrYJZ+vjYEA==
+"@zk-email/relayer-utils@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@zk-email/relayer-utils/-/relayer-utils-0.2.3.tgz#4a3885bd5841be2330bdb9ed61f3d6afb457b261"
+  integrity sha512-yTxB86cvF5OTgXYZ+if1SGS+i89O08x5G/9mojQZqMaE7BYXi8bWxqU040Jc5rjiB3CyifFVus2NueCs0CN9iQ==
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0"
     cargo-cp-artifact "^0.1"

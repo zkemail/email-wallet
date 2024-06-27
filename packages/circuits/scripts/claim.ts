@@ -14,7 +14,7 @@ const snarkjs = require("snarkjs");
 program
   .requiredOption("--email-addr <string>", "User's email address")
   .requiredOption("--email-addr-rand <string>", "Randomness for the email address commitment")
-  .requiredOption("--account-key <string>", "User's account key")
+  .requiredOption("--account-code <string>", "User's account code")
   .requiredOption("--input-file <string>", "Path of a json file to write the generated input")
   .option("--silent", "No console logs")
   .option("--prove", "Also generate proof");

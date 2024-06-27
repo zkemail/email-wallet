@@ -13,7 +13,7 @@ const snarkjs = require("snarkjs");
 
 program
   .requiredOption("--email-file <string>", "Path to an email file")
-  .requiredOption("--account-key <string>", "Sender's account key")
+  .requiredOption("--account-code <string>", "Sender's account code")
   .requiredOption("--input-file <string>", "Path of a json file to write the generated input")
   .option("--silent", "No console logs")
   .option("--prove", "Also generate proof");
