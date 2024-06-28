@@ -95,7 +95,13 @@ pub async fn compute_psi_point(
 
     let mut proc = tokio::process::Command::new("yarn")
         .args(command_str.split_whitespace())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
         .spawn()?;
+
+    let output = proc.wait_with_output().await?;
+    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
 
     let status = proc.wait().await?;
     info!(LOG, "status: {:?}", status);
