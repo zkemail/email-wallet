@@ -24,12 +24,12 @@ pub mod i_oauth {
                             ),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("nonceHash"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
+                                    name: ::std::borrow::ToOwned::to_owned("nonce"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
                                     ),
                                     internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bytes32"),
+                                        ::std::borrow::ToOwned::to_owned("uint256"),
                                     ),
                                 },
                                 ::ethers::core::abi::ethabi::Param {
@@ -207,17 +207,7 @@ pub mod i_oauth {
                                     ),
                                 },
                             ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("nonceHash"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bytes32"),
-                                    ),
-                                },
-                            ],
+                            outputs: ::std::vec![],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
                         },
@@ -260,7 +250,153 @@ pub mod i_oauth {
                     ],
                 ),
             ]),
-            events: ::std::collections::BTreeMap::new(),
+            events: ::core::convert::From::from([
+                (
+                    ::std::borrow::ToOwned::to_owned("ReducedTokenAllowance"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Event {
+                            name: ::std::borrow::ToOwned::to_owned(
+                                "ReducedTokenAllowance",
+                            ),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("token"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("amount"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("nonce"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: false,
+                                },
+                            ],
+                            anonymous: false,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned("RegisteredEpheAddr"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Event {
+                            name: ::std::borrow::ToOwned::to_owned("RegisteredEpheAddr"),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("epheAddr"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("nonce"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("username"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                    indexed: false,
+                                },
+                            ],
+                            anonymous: false,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned("Signin"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Event {
+                            name: ::std::borrow::ToOwned::to_owned("Signin"),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("username"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("nonce"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("expiry"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    indexed: false,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("tokenAllowances"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Array(
+                                        ::std::boxed::Box::new(
+                                            ::ethers::core::abi::ethabi::ParamType::Tuple(
+                                                ::std::vec![
+                                                    ::ethers::core::abi::ethabi::ParamType::Address,
+                                                    ::ethers::core::abi::ethabi::ParamType::Uint(256usize),
+                                                ],
+                                            ),
+                                        ),
+                                    ),
+                                    indexed: false,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("isSudo"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
+                                    indexed: false,
+                                },
+                            ],
+                            anonymous: false,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned("Signup"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Event {
+                            name: ::std::borrow::ToOwned::to_owned("Signup"),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("username"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                    indexed: true,
+                                },
+                            ],
+                            anonymous: false,
+                        },
+                    ],
+                ),
+            ]),
             errors: ::std::collections::BTreeMap::new(),
             receive: false,
             fallback: false,
@@ -307,15 +443,15 @@ pub mod i_oauth {
                 ),
             )
         }
-        ///Calls the contract's `reduceTokenAllowance` (0xcddb4d66) function
+        ///Calls the contract's `reduceTokenAllowance` (0xf0e384a5) function
         pub fn reduce_token_allowance(
             &self,
-            nonce_hash: [u8; 32],
+            nonce: ::ethers::core::types::U256,
             token: ::ethers::core::types::Address,
             amount: ::ethers::core::types::U256,
         ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
-                .method_hash([205, 219, 77, 102], (nonce_hash, token, amount))
+                .method_hash([240, 227, 132, 165], (nonce, token, amount))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `registerEpheAddr` (0x385ec107) function
@@ -361,7 +497,7 @@ pub mod i_oauth {
             ephe_addr: ::ethers::core::types::Address,
             nonce: ::ethers::core::types::U256,
             is_sudo: bool,
-        ) -> ::ethers::contract::builders::ContractCall<M, [u8; 32]> {
+        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
                 .method_hash([16, 106, 76, 248], (wallet, ephe_addr, nonce, is_sudo))
                 .expect("method not found (this should never happen)")
@@ -377,6 +513,44 @@ pub mod i_oauth {
                 .method_hash([151, 22, 4, 198], (ephe_addr, hash, signature))
                 .expect("method not found (this should never happen)")
         }
+        ///Gets the contract's `ReducedTokenAllowance` event
+        pub fn reduced_token_allowance_filter(
+            &self,
+        ) -> ::ethers::contract::builders::Event<
+            ::std::sync::Arc<M>,
+            M,
+            ReducedTokenAllowanceFilter,
+        > {
+            self.0.event()
+        }
+        ///Gets the contract's `RegisteredEpheAddr` event
+        pub fn registered_ephe_addr_filter(
+            &self,
+        ) -> ::ethers::contract::builders::Event<
+            ::std::sync::Arc<M>,
+            M,
+            RegisteredEpheAddrFilter,
+        > {
+            self.0.event()
+        }
+        ///Gets the contract's `Signin` event
+        pub fn signin_filter(
+            &self,
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, SigninFilter> {
+            self.0.event()
+        }
+        ///Gets the contract's `Signup` event
+        pub fn signup_filter(
+            &self,
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, SignupFilter> {
+            self.0.event()
+        }
+        /// Returns an `Event` builder for all the events of this contract.
+        pub fn events(
+            &self,
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, IOauthEvents> {
+            self.0.event_with_filter(::core::default::Default::default())
+        }
     }
     impl<M: ::ethers::providers::Middleware> From<::ethers::contract::Contract<M>>
     for IOauth<M> {
@@ -384,7 +558,156 @@ pub mod i_oauth {
             Self::new(contract.address(), contract.client())
         }
     }
-    ///Container type for all input parameters for the `reduceTokenAllowance` function with signature `reduceTokenAllowance(bytes32,address,uint256)` and selector `0xcddb4d66`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthEvent,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethevent(
+        name = "ReducedTokenAllowance",
+        abi = "ReducedTokenAllowance(address,address,uint256,uint256)"
+    )]
+    pub struct ReducedTokenAllowanceFilter {
+        #[ethevent(indexed)]
+        pub wallet: ::ethers::core::types::Address,
+        #[ethevent(indexed)]
+        pub token: ::ethers::core::types::Address,
+        #[ethevent(indexed)]
+        pub amount: ::ethers::core::types::U256,
+        pub nonce: ::ethers::core::types::U256,
+    }
+    #[derive(
+        Clone,
+        ::ethers::contract::EthEvent,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethevent(
+        name = "RegisteredEpheAddr",
+        abi = "RegisteredEpheAddr(address,address,uint256,string)"
+    )]
+    pub struct RegisteredEpheAddrFilter {
+        #[ethevent(indexed)]
+        pub wallet: ::ethers::core::types::Address,
+        #[ethevent(indexed)]
+        pub ephe_addr: ::ethers::core::types::Address,
+        #[ethevent(indexed)]
+        pub nonce: ::ethers::core::types::U256,
+        pub username: ::std::string::String,
+    }
+    #[derive(
+        Clone,
+        ::ethers::contract::EthEvent,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethevent(
+        name = "Signin",
+        abi = "Signin(address,string,uint256,uint256,(address,uint256)[],bool)"
+    )]
+    pub struct SigninFilter {
+        #[ethevent(indexed)]
+        pub wallet: ::ethers::core::types::Address,
+        #[ethevent(indexed)]
+        pub username: ::ethers::core::types::H256,
+        #[ethevent(indexed)]
+        pub nonce: ::ethers::core::types::U256,
+        pub expiry: ::ethers::core::types::U256,
+        pub token_allowances: ::std::vec::Vec<TokenAllowance>,
+        pub is_sudo: bool,
+    }
+    #[derive(
+        Clone,
+        ::ethers::contract::EthEvent,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethevent(name = "Signup", abi = "Signup(address,string)")]
+    pub struct SignupFilter {
+        #[ethevent(indexed)]
+        pub wallet: ::ethers::core::types::Address,
+        #[ethevent(indexed)]
+        pub username: ::ethers::core::types::H256,
+    }
+    ///Container type for all of the contract's events
+    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    pub enum IOauthEvents {
+        ReducedTokenAllowanceFilter(ReducedTokenAllowanceFilter),
+        RegisteredEpheAddrFilter(RegisteredEpheAddrFilter),
+        SigninFilter(SigninFilter),
+        SignupFilter(SignupFilter),
+    }
+    impl ::ethers::contract::EthLogDecode for IOauthEvents {
+        fn decode_log(
+            log: &::ethers::core::abi::RawLog,
+        ) -> ::core::result::Result<Self, ::ethers::core::abi::Error> {
+            if let Ok(decoded) = ReducedTokenAllowanceFilter::decode_log(log) {
+                return Ok(IOauthEvents::ReducedTokenAllowanceFilter(decoded));
+            }
+            if let Ok(decoded) = RegisteredEpheAddrFilter::decode_log(log) {
+                return Ok(IOauthEvents::RegisteredEpheAddrFilter(decoded));
+            }
+            if let Ok(decoded) = SigninFilter::decode_log(log) {
+                return Ok(IOauthEvents::SigninFilter(decoded));
+            }
+            if let Ok(decoded) = SignupFilter::decode_log(log) {
+                return Ok(IOauthEvents::SignupFilter(decoded));
+            }
+            Err(::ethers::core::abi::Error::InvalidData)
+        }
+    }
+    impl ::core::fmt::Display for IOauthEvents {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+            match self {
+                Self::ReducedTokenAllowanceFilter(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
+                Self::RegisteredEpheAddrFilter(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
+                Self::SigninFilter(element) => ::core::fmt::Display::fmt(element, f),
+                Self::SignupFilter(element) => ::core::fmt::Display::fmt(element, f),
+            }
+        }
+    }
+    impl ::core::convert::From<ReducedTokenAllowanceFilter> for IOauthEvents {
+        fn from(value: ReducedTokenAllowanceFilter) -> Self {
+            Self::ReducedTokenAllowanceFilter(value)
+        }
+    }
+    impl ::core::convert::From<RegisteredEpheAddrFilter> for IOauthEvents {
+        fn from(value: RegisteredEpheAddrFilter) -> Self {
+            Self::RegisteredEpheAddrFilter(value)
+        }
+    }
+    impl ::core::convert::From<SigninFilter> for IOauthEvents {
+        fn from(value: SigninFilter) -> Self {
+            Self::SigninFilter(value)
+        }
+    }
+    impl ::core::convert::From<SignupFilter> for IOauthEvents {
+        fn from(value: SignupFilter) -> Self {
+            Self::SignupFilter(value)
+        }
+    }
+    ///Container type for all input parameters for the `reduceTokenAllowance` function with signature `reduceTokenAllowance(uint256,address,uint256)` and selector `0xf0e384a5`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -397,10 +720,10 @@ pub mod i_oauth {
     )]
     #[ethcall(
         name = "reduceTokenAllowance",
-        abi = "reduceTokenAllowance(bytes32,address,uint256)"
+        abi = "reduceTokenAllowance(uint256,address,uint256)"
     )]
     pub struct ReduceTokenAllowanceCall {
-        pub nonce_hash: [u8; 32],
+        pub nonce: ::ethers::core::types::U256,
         pub token: ::ethers::core::types::Address,
         pub amount: ::ethers::core::types::U256,
     }
@@ -610,20 +933,6 @@ pub mod i_oauth {
         fn from(value: ValidateSignatureCall) -> Self {
             Self::ValidateSignature(value)
         }
-    }
-    ///Container type for all return fields from the `validateEpheAddr` function with signature `validateEpheAddr(address,address,uint256,bool)` and selector `0x106a4cf8`
-    #[derive(
-        Clone,
-        ::ethers::contract::EthAbiType,
-        ::ethers::contract::EthAbiCodec,
-        Default,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash
-    )]
-    pub struct ValidateEpheAddrReturn {
-        pub nonce_hash: [u8; 32],
     }
     ///`TokenAllowance(address,uint256)`
     #[derive(

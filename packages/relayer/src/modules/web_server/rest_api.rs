@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 
 use crate::{
-    error, handle_email, handle_email_event, render_html, trace, EmailMessage, EmailWalletEvent,
-    SafeRequest,
+    error, handle_email, handle_email_event, render_html, trace, wallet::EphemeralTx, EmailMessage,
+    EmailWalletEvent, ExecuteEphemeralTxRequest, RegisterEpheAddrRequest, SafeRequest,
 };
-use ethers::types::{Address, U256};
+use ethers::types::{Address, Bytes, U256};
 use relayer_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountCode, AccountSalt, PaddedEmailAddr},
@@ -362,4 +362,47 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
         }
     });
     Ok(())
+}
+
+pub async fn register_ephe_addr(payload: String) -> Result<U256> {
+    let request = serde_json::from_str::<RegisterEpheAddrRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+    let wallet_addr = Address::from_str(&request.wallet_addr)?;
+    let ephe_addr = Address::from_str(&request.ephe_addr)?;
+    let signature = Bytes::from_str(&request.signature)?;
+    let (tx_hash, nonce) = CLIENT
+        .register_ephe_addr_for_wallet(wallet_addr, request.username.clone(), ephe_addr, signature)
+        .await?;
+    trace!(
+        LOG,
+        "Register ephe addr tx hash: {}, nonce: {}, request: {:?}",
+        tx_hash,
+        nonce,
+        request
+    );
+    Ok(nonce)
+}
+
+pub async fn execute_ephemeral_tx(payload: String) -> Result<String> {
+    let request = serde_json::from_str::<ExecuteEphemeralTxRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+    let tx = EphemeralTx {
+        wallet_addr: Address::from_str(&request.wallet_addr)?,
+        tx_nonce: U256::from_str_radix(&request.tx_nonce, 10)?,
+        ephe_addr: Address::from_str(&request.ephe_addr)?,
+        ephe_addr_nonce: U256::from_str_radix(&request.ephe_addr_nonce, 10)?,
+        target: Address::from_str(&request.target)?,
+        eth_value: U256::from_str_radix(&request.eth_value, 10)?,
+        data: Bytes::from_str(&request.data)?,
+        token_amount: U256::from_str_radix(&request.token_amount, 10)?,
+        signature: Bytes::from_str(&request.signature)?,
+    };
+    let tx_hash = CLIENT.execute_ephemeral_tx(tx).await?;
+    trace!(
+        LOG,
+        "Execute ephemeral tx hash: {}, request: {:?}",
+        tx_hash,
+        request
+    );
+    Ok(tx_hash)
 }

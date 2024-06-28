@@ -754,13 +754,14 @@ impl ChainClient {
         self.client.get_block_number().await.unwrap()
     }
 
+    #[named]
     pub async fn register_ephe_addr_for_wallet(
         &self,
         wallet_addr: Address,
         username: String,
         ephe_addr: Address,
         signature: Bytes,
-    ) -> Result<String> {
+    ) -> Result<(String, U256)> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
@@ -778,10 +779,28 @@ impl ChainClient {
 
         let tx_hash = receipt.transaction_hash;
         let tx_hash = format!("0x{}", hex::encode(tx_hash.as_bytes()));
-        Ok(tx_hash)
+
+        for log in receipt.logs.into_iter() {
+            if let Ok(decoded) = IOauthEvents::decode_log(&RawLog::from(log)) {
+                match decoded {
+                    IOauthEvents::RegisteredEpheAddrFilter(event) => {
+                        info!(LOG, "event {:?}", event; "func" => function_name!());
+                        return Ok((tx_hash, event.nonce));
+                    }
+                    _ => {
+                        continue;
+                    }
+                }
+            }
+        }
+        Err(anyhow!("no EmailOpHandled event found in the receipt"))
     }
 
     pub async fn execute_ephemeral_tx(&self, tx: EphemeralTx) -> Result<String> {
+        // Mutex is used to prevent nonce conflicts.
+        let mut mutex = SHARED_MUTEX.lock().await;
+        *mutex += 1;
+
         let wallet_addr = tx.wallet_addr;
         let wallet = WalletContract::new(wallet_addr, self.client.clone());
         let call = wallet.execute_ephemeral_tx(tx);

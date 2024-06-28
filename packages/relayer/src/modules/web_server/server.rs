@@ -46,6 +46,27 @@ pub struct SafeRequest {
     pub safe_addr: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RegisterEpheAddrRequest {
+    pub wallet_addr: String,
+    pub username: String,
+    pub ephe_addr: String,
+    pub signature: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ExecuteEphemeralTxRequest {
+    pub wallet_addr: String,
+    pub tx_nonce: String,
+    pub ephe_addr: String,
+    pub ephe_addr_nonce: String,
+    pub target: String,
+    pub eth_value: String,
+    pub data: String,
+    pub token_amount: String,
+    pub signature: String,
+}
+
 #[named]
 async fn unclaim(payload: UnclaimRequest) -> Result<String> {
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
@@ -291,6 +312,33 @@ pub async fn run_server() -> Result<()> {
                 Ok(_) => "Request processed".to_string(),
                 Err(err) => {
                     error!(LOG, "Failed to complete the receive email request: {}", err);
+                    err.to_string()
+                }
+            }
+        }),
+    )
+    .route(
+        "/api/registerEpheAddr",
+        axum::routing::post(move |payload: String| async move {
+            info!(LOG, "Register ephemeral address payload: {}", payload);
+            match register_ephe_addr(payload).await {
+                Ok(nonce) => nonce.to_string(),
+                Err(err) => {
+                    error!(LOG, "Failed to complete the register ephemeral address request: {}", err);
+                    err.to_string()
+                }
+            }
+
+        }),
+    )
+    .route(
+        "/api/executeEphemeralTx",
+        axum::routing::post(move |payload: String| async move {
+            info!(LOG, "Execute ephemeral tx payload: {}", payload);
+            match execute_ephemeral_tx(payload).await {
+                Ok(tx_hash) => tx_hash,
+                Err(err) => {
+                    error!(LOG, "Failed to complete the execute ephemeral tx request: {}", err);
                     err.to_string()
                 }
             }
