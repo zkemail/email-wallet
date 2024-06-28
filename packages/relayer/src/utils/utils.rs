@@ -77,9 +77,11 @@ pub async fn compute_psi_point(
     email_addr: &str,
     rand: &str,
 ) -> Result<Point> {
+    info!(LOG, "compute_psi_point, path {:?}", circuits_dir_path);
     let input_file_name = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(email_addr.to_string() + "psi" + ".json");
+    info!(LOG, "input_file_name: {:?}", input_file_name);
 
     let command_str = format!(
         "--cwd {} psi-step1 --email-addr {} --client-rand {} --output {}",
@@ -89,11 +91,14 @@ pub async fn compute_psi_point(
         input_file_name.to_str().unwrap()
     );
 
+    info!(LOG, "command_str: {}", command_str);
+
     let mut proc = tokio::process::Command::new("yarn")
         .args(command_str.split_whitespace())
         .spawn()?;
 
     let status = proc.wait().await?;
+    info!(LOG, "status: {:?}", status);
     assert!(status.success());
 
     let result = read_to_string(&input_file_name).await?;
