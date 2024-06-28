@@ -169,8 +169,26 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             is_first: _,
             tx_hash,
         } => {
-            let assets_msgs = vec!["ERC20: 100 TEST".to_string()];
-            let assets = search_user_assets(&email_addr).await?;
+            // let assets_msgs = vec!["ERC20: 100 TEST".to_string()];
+            let assets_msgs = vec![];
+            let mut assets = search_user_assets(&email_addr).await?;
+            for asset in assets.iter_mut() {
+                if let Asset::ERC20 {
+                    token_addr,
+                    token_name,
+                    amount,
+                    amount_str,
+                } = asset
+                {
+                    if token_name == "TEST" {
+                        *amount += U256::from(100);
+                        let token_decimal =
+                            CLIENT.query_decimals_of_erc20_address(*token_addr).await?;
+                        *amount_str =
+                            uint_to_decimal_string(amount.as_u128(), token_decimal as usize);
+                    }
+                }
+            }
 
             let invitation_code_hex = &field2hex(&account_code.0)[2..];
             let subject = format!(
