@@ -203,7 +203,14 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     is_announced: true,
                     is_seen: false,
                 };
-                claim_unclaims(claim.clone()).await?;
+                match claim_unclaims(claim.clone()).await {
+                    Ok(value) => {
+                        if let Err(e) = handle_email_event(value).await {
+                            error!(LOG, "Error handling email event: {}", e; "func" => function_name!());
+                        }
+                    }
+                    Err(e) => error!(LOG, "Error claiming: {}", e; "func" => function_name!()),
+                }
                 Ok(())
             }) as Pin<Box<dyn Future<Output = Result<()>> + Send>> // Add + Send here
         };
@@ -228,7 +235,14 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                     is_announced: true,
                     is_seen: false,
                 };
-                claim_unclaims(claim.clone()).await?;
+                match claim_unclaims(claim.clone()).await {
+                    Ok(value) => {
+                        if let Err(e) = handle_email_event(value).await {
+                            error!(LOG, "Error handling email event: {}", e; "func" => function_name!());
+                        }
+                    }
+                    Err(e) => error!(LOG, "Error claiming: {}", e; "func" => function_name!()),
+                }
                 Ok(())
             }) as Pin<Box<dyn Future<Output = Result<()>> + Send>> // Add + Send here
         };
@@ -291,7 +305,14 @@ async fn catch_claims_in_db_fn() -> Result<()> {
     let claims = DB.get_claims_unexpired(now).await?;
     for claim in claims {
         info!(LOG, "Claiming claim for : {}", claim.email_address; "func" => function_name!());
-        claim_unclaims(claim.clone()).await?;
+        match claim_unclaims(claim.clone()).await {
+            Ok(value) => {
+                if let Err(e) = handle_email_event(value).await {
+                    error!(LOG, "Error handling email event: {}", e; "func" => function_name!());
+                }
+            }
+            Err(e) => trace!(LOG, "Error claiming: {}", e; "func" => function_name!()),
+        }
     }
     let claims = DB.get_claims_expired(now).await?;
     for claim in claims {

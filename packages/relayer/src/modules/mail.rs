@@ -23,7 +23,7 @@ pub enum EmailWalletEvent {
         email_op: EmailOp,
         tx_hash: String,
     },
-    AccountNotCreated {
+    Invitation {
         email_addr: String,
         account_code: AccountCode,
         // claim: Claim,
@@ -162,14 +162,25 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             };
             send_email(email).await?;
         }
-        EmailWalletEvent::AccountNotCreated {
+        EmailWalletEvent::Invitation {
             email_addr,
             account_code,
             // claim,
             is_first: _,
             tx_hash,
         } => {
-            let subject = format!("Your Email Wallet account is ready to be deployed.",);
+            let assets_msgs = vec!["ERC20: 100 TEST".to_string()];
+            let assets = search_user_assets(&email_addr).await?;
+
+            let invitation_code_hex = &field2hex(&account_code.0)[2..];
+            let subject = format!(
+                "Your Email Wallet Account is ready to be deployed. Code {}",
+                invitation_code_hex
+            );
+
+            let (assets_list_plain, assets_list_html) =
+                generate_asset_list_body(&assets, assets_msgs).await?;
+
             let account_salt =
                 AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
@@ -177,8 +188,9 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                             "Hi {}!\nYour Email Wallet account is ready to be deployed. Your wallet address: {}/address/{}.\nPlease reply to this email to start using Email Wallet. You don't have to add any message in the reply 😄.",
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
                         );
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr": wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
-            let body_html = render_html("account_not_created.html", render_data).await?;
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr": wallet_addr, "assetsList": assets_list_html, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+            println!("render_data: {:?}", render_data);
+            let body_html = render_html("invitation.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr.to_string(),
                 subject,

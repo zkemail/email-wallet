@@ -71,7 +71,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
             &format!("0x{}", hex::encode(wallet_addr.as_bytes())),
         )
         .await?;
-        return Ok(EmailWalletEvent::AccountNotCreated {
+        return Ok(EmailWalletEvent::Invitation {
             email_addr: claim.email_address,
             account_code,
             is_first: true,
@@ -87,7 +87,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
         .check_if_account_created_by_account_code(&claim.email_address, &account_code_str)
         .await?;
     if !is_seen && !is_account_created {
-        return Ok(EmailWalletEvent::AccountNotCreated {
+        return Ok(EmailWalletEvent::Invitation {
             email_addr: claim.email_address,
             account_code: AccountCode(hex2field(&account_code_str)?),
             is_first: false,
