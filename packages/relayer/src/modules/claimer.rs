@@ -49,18 +49,18 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     if need_creation && !DB.contains_user(&claim.email_address).await.unwrap() {
         let account_code = AccountCode::new(rand::thread_rng());
         let account_code_str = field2hex(&account_code.0);
-        let psi_point = compute_psi_point(
-            CIRCUITS_DIR_PATH.get().unwrap(),
-            &claim.email_address,
-            &account_code_str,
-        )
-        .await?;
+        // let psi_point = compute_psi_point(
+        //     CIRCUITS_DIR_PATH.get().unwrap(),
+        //     &claim.email_address,
+        //     &account_code_str,
+        // )
+        // .await?;
         let account_salt = AccountSalt::new(
             &PaddedEmailAddr::from_email_addr(&claim.email_address),
             account_code,
         )?;
-        let tx_hash = CLIENT.register_psi_point(&psi_point, &account_salt).await?;
-        info!(LOG, "register psi point tx hash: {}", tx_hash; "func" => function_name!());
+        // let tx_hash = CLIENT.register_psi_point(&psi_point, &account_salt).await?;
+        // info!(LOG, "register psi point tx hash: {}", tx_hash; "func" => function_name!());
         let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
 
         DB.insert_user(
@@ -75,7 +75,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
             email_addr: claim.email_address,
             account_code,
             is_first: true,
-            tx_hash,
+            tx_hash: "".to_string(),
         });
     }
     let account_code_str = if let Some(key) = DB.get_account_code(&claim.email_address).await? {
