@@ -24,7 +24,7 @@ pub struct Claim {
 
 #[named]
 pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
-    let mut need_creation = false;
+    let mut need_creation = true;
     let is_seen = claim.is_seen;
     if DB
         .get_claims_by_id(&claim.id)
@@ -37,14 +37,14 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     {
         claim.is_seen = true;
         DB.insert_claim(&claim).await?;
-        let psi_client = PSIClient::new(
-            claim.email_address.to_string(),
-            claim.tx_hash.clone(),
-            claim.id,
-            claim.is_fund,
-        )
-        .await?;
-        need_creation = psi_client.check_and_reveal().await?;
+        // let psi_client = PSIClient::new(
+        //     claim.email_address.to_string(),
+        //     claim.tx_hash.clone(),
+        //     claim.id,
+        //     claim.is_fund,
+        // )
+        // .await?;
+        // need_creation = psi_client.check_and_reveal().await?;
     }
     if need_creation && !DB.contains_user(&claim.email_address).await.unwrap() {
         let account_code = AccountCode::new(rand::thread_rng());
