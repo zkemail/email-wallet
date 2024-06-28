@@ -71,7 +71,14 @@ async fn unclaim(payload: UnclaimRequest) -> Result<String> {
         is_announced: false,
         is_seen: false,
     };
-    claim_unclaims(claim).await?;
+    match claim_unclaims(claim.clone()).await {
+        Ok(value) => {
+            if let Err(e) = handle_email_event(value).await {
+                error!(LOG, "Error handling email event: {}", e; "func" => function_name!());
+            }
+        }
+        Err(e) => error!(LOG, "Error claiming: {}", e; "func" => function_name!()),
+    }
     trace!(LOG, "Unclaimed {} for {} is accepted", if payload.is_fund { "fund" } else { "state" }, payload.email_address; "func" => function_name!());
 
     Ok(format!(

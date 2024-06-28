@@ -84,7 +84,14 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
             let claims = DB.get_claims_by_email_addr(&from_addr).await?;
             for claim in claims {
-                claim_unclaims(claim).await?;
+                match claim_unclaims(claim.clone()).await {
+                    Ok(value) => {
+                        if let Err(e) = handle_email_event(value).await {
+                            error!(LOG, "Error handling email event: {}", e; "func" => function_name!());
+                        }
+                    }
+                    Err(e) => error!(LOG, "Error claiming: {}", e; "func" => function_name!()),
+                }
             }
             return Ok(EmailWalletEvent::AccountCreated {
                 email_addr: from_addr,
@@ -347,7 +354,14 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             is_announced: false,
             is_seen: false,
         };
-        claim_unclaims(claim).await?;
+        match claim_unclaims(claim.clone()).await {
+            Ok(value) => {
+                if let Err(e) = handle_email_event(value).await {
+                    error!(LOG, "Error handling email event: {}", e; "func" => function_name!());
+                }
+            }
+            Err(e) => error!(LOG, "Error claiming: {}", e; "func" => function_name!()),
+        }
         trace!(LOG, "Added claim"; "func" => function_name!());
     }
     let message_id = parsed_email.get_message_id()?;
