@@ -103,9 +103,9 @@ pub async fn compute_psi_point(
     println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
     println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
 
-    let status = proc.wait().await?;
-    info!(LOG, "status: {:?}", status);
-    assert!(status.success());
+    // let status = proc.wait().await?;
+    // info!(LOG, "status: {:?}", status);
+    // assert!(status.success());
 
     let result = read_to_string(&input_file_name).await?;
     remove_file(input_file_name).await?;
