@@ -26,16 +26,11 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         __Ownable_init();
     }
 
-    function validateEpheAddr(
-        address wallet,
-        address epheAddr,
-        uint256 nonce,
-        bool isSudo
-    ) external view override returns (bytes32 nonceHash) {
+    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view override {
         require(wallet != address(0), "invalid wallet");
         require(epheAddr != address(0), "invalid epheAddr");
         require(nonce < nextNonceOfWallet[wallet], "too large nonce");
-        nonceHash = _computeNonceHash(wallet, nonce);
+        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
         require(
             epheAddrOfNonceHash[nonceHash] == epheAddr,
             "epheAddr is not registered for the given wallet and nonce"
@@ -49,9 +44,11 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         require(signer == epheAddr, "invalid signature");
     }
 
-    function reduceTokenAllowance(bytes32 nonceHash, address token, uint256 amount) external override {
+    function reduceTokenAllowance(uint256 nonce, address token, uint256 amount) external override {
+        bytes32 nonceHash = _computeNonceHash(msg.sender, nonce);
         require(tokenAllowancesOfNonceHash[nonceHash][token] >= amount, "insufficient token allowance");
         tokenAllowancesOfNonceHash[nonceHash][token] -= amount;
+        emit ReducedTokenAllowance(msg.sender, token, amount, nonce);
     }
 
     function signup(string memory username) external override {
@@ -60,6 +57,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         require(bytes(usernameOfWallet[wallet]).length == 0, "wallet already takes a username");
         usernameOfWallet[wallet] = username;
         walletOfUsername[username] = wallet;
+        emit Signup(wallet, username);
     }
 
     function signin(
@@ -84,6 +82,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         for (uint8 i = 0; i < tokenAllowances.length; i++) {
             tokenAllowancesOfNonceHash[nonceHash][tokenAllowances[i].tokenAddr] = tokenAllowances[i].amount;
         }
+        emit Signin(wallet, username, nonce, expiry, tokenAllowances, isSudo);
     }
 
     function registerEpheAddr(string memory username, address epheAddr, bytes calldata signature) external {
@@ -99,6 +98,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         require(epheAddrOfNonceHash[nonceHash] == address(0), "nonce already used");
         epheAddrOfNonceHash[nonceHash] = epheAddr;
         nextNonceOfWallet[wallet]++;
+        emit RegisteredEpheAddr(wallet, epheAddr, nonce, username);
     }
 
     /// @notice Hash of the register epheAddr

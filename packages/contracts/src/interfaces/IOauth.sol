@@ -4,18 +4,24 @@ pragma solidity ^0.8.12;
 import "./Types.sol";
 
 interface IOauth {
+    event Signup(address indexed wallet, string indexed username);
+    event Signin(
+        address indexed wallet,
+        string indexed username,
+        uint256 indexed nonce,
+        uint256 expiry,
+        TokenAllowance[] tokenAllowances,
+        bool isSudo
+    );
+    event RegisteredEpheAddr(address indexed wallet, address indexed epheAddr, uint256 indexed nonce, string username);
+    event ReducedTokenAllowance(address indexed wallet, address indexed token, uint256 indexed amount, uint256 nonce);
+
     /// @notice Validate if the given ephemeral address is valid.
     /// @param wallet Address of the wallet.
     /// @param epheAddr Address of the ephemeral address.
     /// @param nonce Nonce of the ephemeral address.
     /// @param isSudo Whether the ephemeral address is sudo or not.
-    /// @return nonceHash Hash of the wallet + nonce.
-    function validateEpheAddr(
-        address wallet,
-        address epheAddr,
-        uint256 nonce,
-        bool isSudo
-    ) external view returns (bytes32 nonceHash);
+    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view;
 
     /// @notice Validate the signature of the ephemeral address.
     /// @param epheAddr Address of the ephemeral address.
@@ -24,10 +30,10 @@ interface IOauth {
     function validateSignature(address epheAddr, bytes32 hash, bytes memory signature) external view;
 
     /// @notice Reduce the token allowance of the ephemeral address.
-    /// @param nonceHash Hash of the wallet + nonce.
+    /// @param nonce Nonce of the ephemeral address.
     /// @param token Address of the token.
     /// @param amount Amount of the token to reduce.
-    function reduceTokenAllowance(bytes32 nonceHash, address token, uint256 amount) external;
+    function reduceTokenAllowance(uint256 nonce, address token, uint256 amount) external;
 
     /// @notice Signup a username for the wallet.
     /// @param username Username to signup.
