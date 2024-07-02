@@ -6,67 +6,6 @@ use axum::Router;
 use serde::{Deserialize, Serialize};
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
-#[derive(Serialize, Deserialize)]
-pub struct EmailAddrCommitRequest {
-    pub email_address: String,
-    pub random: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct UnclaimRequest {
-    pub email_address: String,
-    pub random: String,
-    pub expiry_time: i64,
-    pub is_fund: bool,
-    pub tx_hash: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct AccountRegistrationRequest {
-    pub email_address: String,
-    pub account_code: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct AccountRegistrationResponse {
-    pub account_code: String,
-    pub wallet_addr: String,
-    pub tx_hash: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct StatResponse {
-    pub onboarding_tokens_distributed: u32,
-    pub onboarding_tokens_left: u32,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SafeRequest {
-    pub wallet_addr: String,
-    pub safe_addr: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RegisterEpheAddrRequest {
-    pub wallet_addr: String,
-    pub username: String,
-    pub ephe_addr: String,
-    pub signature: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ExecuteEphemeralTxRequest {
-    pub wallet_addr: String,
-    pub tx_nonce: String,
-    pub ephe_addr: String,
-    pub ephe_addr_nonce: String,
-    pub target: String,
-    pub eth_value: String,
-    pub data: String,
-    pub token_amount: String,
-    pub signature: String,
-}
-
 #[named]
 async fn unclaim(payload: UnclaimRequest) -> Result<String> {
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
@@ -316,6 +255,36 @@ pub async fn run_server() -> Result<()> {
                 }
             }
         }),
+    )
+    .route("/api/signup",
+           axum::routing::post(move |payload: String| async move {
+               info!(LOG, "Signup payload: {}", payload);
+               match signup_api_fn(payload).await {
+                   Ok((request_id, email)) => {
+                       send_email(email).await.unwrap();
+                       request_id.to_string()
+                   }
+                   Err(err) => {
+                       error!(LOG, "Failed to accept signup: {}", err);
+                       err.to_string()
+                   }
+               }
+           }),
+    )
+    .route("/api/signin",
+              axum::routing::post(move |payload: String| async move {
+                info!(LOG, "Signin payload: {}", payload);
+                match signin_api_fn(payload).await {
+                     Ok((request_id, email)) => {
+                          send_email(email).await.unwrap();
+                          request_id.to_string()
+                     }
+                     Err(err) => {
+                          error!(LOG, "Failed to accept signin: {}", err);
+                          err.to_string()
+                     }
+                }
+              }),
     )
     .route(
         "/api/registerEpheAddr",
