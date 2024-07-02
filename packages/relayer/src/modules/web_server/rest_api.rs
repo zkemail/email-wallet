@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::{
     error, handle_email, handle_email_event, render_html, trace, wallet::EphemeralTx, EmailMessage,
-    EmailWalletEvent, ExecuteEphemeralTxRequest, RegisterEpheAddrRequest, SafeRequest,
+    EmailWalletEvent,
 };
 use ethers::types::{Address, Bytes, U256};
 use relayer_utils::{
@@ -56,6 +56,83 @@ pub struct GetWalletAddress {
 #[derive(Serialize, Deserialize)]
 pub struct RecoverAccountCode {
     pub email_addr: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EmailAddrCommitRequest {
+    pub email_address: String,
+    pub random: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UnclaimRequest {
+    pub email_address: String,
+    pub random: String,
+    pub expiry_time: i64,
+    pub is_fund: bool,
+    pub tx_hash: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct AccountRegistrationRequest {
+    pub email_address: String,
+    pub account_code: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct AccountRegistrationResponse {
+    pub account_code: String,
+    pub wallet_addr: String,
+    pub tx_hash: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct StatResponse {
+    pub onboarding_tokens_distributed: u32,
+    pub onboarding_tokens_left: u32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SafeRequest {
+    pub wallet_addr: String,
+    pub safe_addr: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SignupRequest {
+    pub email_addr: String,
+    pub username: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SigninRequest {
+    pub email_addr: String,
+    pub username: String,
+    pub nonce: String,
+    pub expiry_time: Option<Number>,
+    pub is_sudo: Option<bool>,
+    pub token_allowances: Option<Vec<(Number, String)>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RegisterEpheAddrRequest {
+    pub wallet_addr: String,
+    pub username: String,
+    pub ephe_addr: String,
+    pub signature: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ExecuteEphemeralTxRequest {
+    pub wallet_addr: String,
+    pub tx_nonce: String,
+    pub ephe_addr: String,
+    pub ephe_addr_nonce: String,
+    pub target: String,
+    pub eth_value: String,
+    pub data: String,
+    pub token_amount: String,
+    pub signature: String,
 }
 
 pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
@@ -362,6 +439,118 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
         }
     });
     Ok(())
+}
+
+pub async fn signup_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+    let request_id = rand::thread_rng().gen();
+    let request = serde_json::from_str::<SignupRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+    let subject = format!("Oauth Sign-up {}", request.username);
+    let account_code_str = DB.get_account_code(&request.email_addr).await?;
+    if account_code_str.is_none() {
+        let subject = "Email Wallet Error: Account Not Found".to_string();
+        let error_msg =
+            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+        let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+        let body_html = render_html("error.html", render_data).await?;
+        let email = EmailMessage {
+            subject,
+            to: request.email_addr,
+            body_plain: error_msg,
+            body_html,
+            reference: None,
+            reply_to: None,
+            body_attachments: None,
+        };
+        return Ok((request_id, email));
+    }
+    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_salt = AccountSalt::new(
+        &PaddedEmailAddr::from_email_addr(&request.email_addr),
+        account_code,
+    )?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+    let body_plain = format!(
+        "Hi {}! Please reply to this email to sign-up {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
+        request.email_addr, request.username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
+    );
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+    let body_html = render_html("send_request.html", render_data).await?;
+    let email = EmailMessage {
+        subject: subject.clone(),
+        body_html,
+        body_plain,
+        to: request.email_addr,
+        reference: None,
+        reply_to: None,
+        body_attachments: None,
+    };
+    Ok((request_id, email))
+}
+
+pub async fn signin_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+    let request_id = rand::thread_rng().gen();
+    let request = serde_json::from_str::<SigninRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+    let mut subject_words = vec!["Oauth".to_string()];
+    if request.is_sudo.unwrap_or(false) {
+        subject_words.push("Sudo".to_string());
+    }
+    subject_words.push("Sign-in".to_string());
+    subject_words.push(request.username.clone());
+    subject_words.push("at Nonce".to_string());
+    subject_words.push(request.nonce.clone());
+    if let Some(expiry_time) = request.expiry_time {
+        subject_words.push("until timestamp".to_string());
+        subject_words.push(expiry_time.to_string());
+    }
+    if let Some(token_allowances) = request.token_allowances {
+        subject_words.push("with approving".to_string());
+        for (amount, token_name) in token_allowances {
+            subject_words.push(format!("{} {}", amount.to_string(), token_name));
+        }
+    }
+    let subject = subject_words.join(" ");
+    let account_code_str = DB.get_account_code(&request.email_addr).await?;
+    if account_code_str.is_none() {
+        let subject = "Email Wallet Error: Account Not Found".to_string();
+        let error_msg =
+            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+        let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+        let body_html = render_html("error.html", render_data).await?;
+        let email = EmailMessage {
+            subject,
+            to: request.email_addr,
+            body_plain: error_msg,
+            body_html,
+            reference: None,
+            reply_to: None,
+            body_attachments: None,
+        };
+        return Ok((request_id, email));
+    }
+    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_salt = AccountSalt::new(
+        &PaddedEmailAddr::from_email_addr(&request.email_addr),
+        account_code,
+    )?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+    let body_plain = format!(
+        "Hi {}! Please reply to this email to sign-in {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
+        request.email_addr, request.username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
+    );
+    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+    let body_html = render_html("send_request.html", render_data).await?;
+    let email = EmailMessage {
+        subject: subject.clone(),
+        body_html,
+        body_plain,
+        to: request.email_addr,
+        reference: None,
+        reply_to: None,
+        body_attachments: None,
+    };
+    Ok((request_id, email))
 }
 
 pub async fn register_ephe_addr(payload: String) -> Result<U256> {
