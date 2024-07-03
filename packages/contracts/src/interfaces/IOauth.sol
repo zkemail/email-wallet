@@ -16,6 +16,34 @@ interface IOauth {
     event RegisteredEpheAddr(address indexed wallet, address indexed epheAddr, uint256 indexed nonce, string username);
     event ReducedTokenAllowance(address indexed wallet, address indexed token, uint256 indexed amount, uint256 nonce);
 
+    /// @notice Get the username of the wallet.
+    /// @param wallet Address of the wallet.
+    /// @return username of the wallet.
+    function getUsernameOfWallet(address wallet) external view returns (string memory);
+
+    /// @notice Get the wallet of the username.
+    /// @param username Username of the wallet.
+    /// @return wallet Address of the wallet.
+    function getWalletOfUsername(string memory username) external view returns (address);
+
+    /// @notice Get the oauth info for the wallet and nonce.
+    /// @param wallet Address of the wallet.
+    /// @param nonce Nonce of the ephemeral address.
+    /// @return epheAddr Address of the ephemeral address.
+    /// @return isSudo Whether the ephemeral address is sudo or not.
+    /// @return expiry Expiry of the ephemeral address.
+    function getInfoOfWalletAndNonce(address wallet, uint256 nonce) external view returns (address, bool, uint256);
+
+    /// @notice Get the token allowances of the wallet and nonce.
+    /// @param wallet Address of the wallet.
+    /// @param nonce Nonce of the ephemeral address.
+    /// @param tokenAddr Address of the token.
+    function getTokenAkkowancesOfWalletAndNonce(
+        address wallet,
+        uint256 nonce,
+        address tokenAddr
+    ) external view returns (uint256);
+
     /// @notice Validate if the given ephemeral address is valid.
     /// @param wallet Address of the wallet.
     /// @param epheAddr Address of the ephemeral address.

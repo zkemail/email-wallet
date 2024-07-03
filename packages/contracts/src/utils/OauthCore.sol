@@ -26,6 +26,28 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         __Ownable_init();
     }
 
+    function getUsernameOfWallet(address wallet) external view returns (string memory) {
+        return usernameOfWallet[wallet];
+    }
+
+    function getWalletOfUsername(string memory username) external view returns (address) {
+        return walletOfUsername[username];
+    }
+
+    function getInfoOfWalletAndNonce(address wallet, uint256 nonce) external view returns (address, bool, uint256) {
+        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
+        return (epheAddrOfNonceHash[nonceHash], isSudoOfNonceHash[nonceHash], expiryOfNonceHash[nonceHash]);
+    }
+
+    function getTokenAkkowancesOfWalletAndNonce(
+        address wallet,
+        uint256 nonce,
+        address tokenAddr
+    ) external view returns (uint256) {
+        bytes32 nonceHash = _computeNonceHash(wallet, nonce);
+        return tokenAllowancesOfNonceHash[nonceHash][tokenAddr];
+    }
+
     function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view override {
         require(wallet != address(0), "invalid wallet");
         require(epheAddr != address(0), "invalid epheAddr");

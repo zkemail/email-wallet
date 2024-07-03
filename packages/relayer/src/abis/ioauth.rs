@@ -16,6 +16,171 @@ pub mod i_oauth {
             constructor: ::core::option::Option::None,
             functions: ::core::convert::From::from([
                 (
+                    ::std::borrow::ToOwned::to_owned("getInfoOfWalletAndNonce"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Function {
+                            name: ::std::borrow::ToOwned::to_owned(
+                                "getInfoOfWalletAndNonce",
+                            ),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("address"),
+                                    ),
+                                },
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("nonce"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("uint256"),
+                                    ),
+                                },
+                            ],
+                            outputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::string::String::new(),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("address"),
+                                    ),
+                                },
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::string::String::new(),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("bool"),
+                                    ),
+                                },
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::string::String::new(),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("uint256"),
+                                    ),
+                                },
+                            ],
+                            constant: ::core::option::Option::None,
+                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned(
+                        "getTokenAkkowancesOfWalletAndNonce",
+                    ),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Function {
+                            name: ::std::borrow::ToOwned::to_owned(
+                                "getTokenAkkowancesOfWalletAndNonce",
+                            ),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("address"),
+                                    ),
+                                },
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("nonce"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("uint256"),
+                                    ),
+                                },
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("tokenAddr"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("address"),
+                                    ),
+                                },
+                            ],
+                            outputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::string::String::new(),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
+                                        256usize,
+                                    ),
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("uint256"),
+                                    ),
+                                },
+                            ],
+                            constant: ::core::option::Option::None,
+                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned("getUsernameOfWallet"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Function {
+                            name: ::std::borrow::ToOwned::to_owned(
+                                "getUsernameOfWallet",
+                            ),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("address"),
+                                    ),
+                                },
+                            ],
+                            outputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::string::String::new(),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("string"),
+                                    ),
+                                },
+                            ],
+                            constant: ::core::option::Option::None,
+                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                        },
+                    ],
+                ),
+                (
+                    ::std::borrow::ToOwned::to_owned("getWalletOfUsername"),
+                    ::std::vec![
+                        ::ethers::core::abi::ethabi::Function {
+                            name: ::std::borrow::ToOwned::to_owned(
+                                "getWalletOfUsername",
+                            ),
+                            inputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::borrow::ToOwned::to_owned("username"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("string"),
+                                    ),
+                                },
+                            ],
+                            outputs: ::std::vec![
+                                ::ethers::core::abi::ethabi::Param {
+                                    name: ::std::string::String::new(),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    internal_type: ::core::option::Option::Some(
+                                        ::std::borrow::ToOwned::to_owned("address"),
+                                    ),
+                                },
+                            ],
+                            constant: ::core::option::Option::None,
+                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                        },
+                    ],
+                ),
+                (
                     ::std::borrow::ToOwned::to_owned("reduceTokenAllowance"),
                     ::std::vec![
                         ::ethers::core::abi::ethabi::Function {
@@ -443,6 +608,51 @@ pub mod i_oauth {
                 ),
             )
         }
+        ///Calls the contract's `getInfoOfWalletAndNonce` (0xb5703a55) function
+        pub fn get_info_of_wallet_and_nonce(
+            &self,
+            wallet: ::ethers::core::types::Address,
+            nonce: ::ethers::core::types::U256,
+        ) -> ::ethers::contract::builders::ContractCall<
+            M,
+            (::ethers::core::types::Address, bool, ::ethers::core::types::U256),
+        > {
+            self.0
+                .method_hash([181, 112, 58, 85], (wallet, nonce))
+                .expect("method not found (this should never happen)")
+        }
+        ///Calls the contract's `getTokenAkkowancesOfWalletAndNonce` (0x96edff31) function
+        pub fn get_token_akkowances_of_wallet_and_nonce(
+            &self,
+            wallet: ::ethers::core::types::Address,
+            nonce: ::ethers::core::types::U256,
+            token_addr: ::ethers::core::types::Address,
+        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::U256> {
+            self.0
+                .method_hash([150, 237, 255, 49], (wallet, nonce, token_addr))
+                .expect("method not found (this should never happen)")
+        }
+        ///Calls the contract's `getUsernameOfWallet` (0x7218fda4) function
+        pub fn get_username_of_wallet(
+            &self,
+            wallet: ::ethers::core::types::Address,
+        ) -> ::ethers::contract::builders::ContractCall<M, ::std::string::String> {
+            self.0
+                .method_hash([114, 24, 253, 164], wallet)
+                .expect("method not found (this should never happen)")
+        }
+        ///Calls the contract's `getWalletOfUsername` (0x364da6af) function
+        pub fn get_wallet_of_username(
+            &self,
+            username: ::std::string::String,
+        ) -> ::ethers::contract::builders::ContractCall<
+            M,
+            ::ethers::core::types::Address,
+        > {
+            self.0
+                .method_hash([54, 77, 166, 175], username)
+                .expect("method not found (this should never happen)")
+        }
         ///Calls the contract's `reduceTokenAllowance` (0xf0e384a5) function
         pub fn reduce_token_allowance(
             &self,
@@ -707,6 +917,75 @@ pub mod i_oauth {
             Self::SignupFilter(value)
         }
     }
+    ///Container type for all input parameters for the `getInfoOfWalletAndNonce` function with signature `getInfoOfWalletAndNonce(address,uint256)` and selector `0xb5703a55`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthCall,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethcall(
+        name = "getInfoOfWalletAndNonce",
+        abi = "getInfoOfWalletAndNonce(address,uint256)"
+    )]
+    pub struct GetInfoOfWalletAndNonceCall {
+        pub wallet: ::ethers::core::types::Address,
+        pub nonce: ::ethers::core::types::U256,
+    }
+    ///Container type for all input parameters for the `getTokenAkkowancesOfWalletAndNonce` function with signature `getTokenAkkowancesOfWalletAndNonce(address,uint256,address)` and selector `0x96edff31`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthCall,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethcall(
+        name = "getTokenAkkowancesOfWalletAndNonce",
+        abi = "getTokenAkkowancesOfWalletAndNonce(address,uint256,address)"
+    )]
+    pub struct GetTokenAkkowancesOfWalletAndNonceCall {
+        pub wallet: ::ethers::core::types::Address,
+        pub nonce: ::ethers::core::types::U256,
+        pub token_addr: ::ethers::core::types::Address,
+    }
+    ///Container type for all input parameters for the `getUsernameOfWallet` function with signature `getUsernameOfWallet(address)` and selector `0x7218fda4`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthCall,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethcall(name = "getUsernameOfWallet", abi = "getUsernameOfWallet(address)")]
+    pub struct GetUsernameOfWalletCall {
+        pub wallet: ::ethers::core::types::Address,
+    }
+    ///Container type for all input parameters for the `getWalletOfUsername` function with signature `getWalletOfUsername(string)` and selector `0x364da6af`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthCall,
+        ::ethers::contract::EthDisplay,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    #[ethcall(name = "getWalletOfUsername", abi = "getWalletOfUsername(string)")]
+    pub struct GetWalletOfUsernameCall {
+        pub username: ::std::string::String,
+    }
     ///Container type for all input parameters for the `reduceTokenAllowance` function with signature `reduceTokenAllowance(uint256,address,uint256)` and selector `0xf0e384a5`
     #[derive(
         Clone,
@@ -825,6 +1104,10 @@ pub mod i_oauth {
     ///Container type for all of the contract's call
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum IOauthCalls {
+        GetInfoOfWalletAndNonce(GetInfoOfWalletAndNonceCall),
+        GetTokenAkkowancesOfWalletAndNonce(GetTokenAkkowancesOfWalletAndNonceCall),
+        GetUsernameOfWallet(GetUsernameOfWalletCall),
+        GetWalletOfUsername(GetWalletOfUsernameCall),
         ReduceTokenAllowance(ReduceTokenAllowanceCall),
         RegisterEpheAddr(RegisterEpheAddrCall),
         Signin(SigninCall),
@@ -837,6 +1120,26 @@ pub mod i_oauth {
             data: impl AsRef<[u8]>,
         ) -> ::core::result::Result<Self, ::ethers::core::abi::AbiError> {
             let data = data.as_ref();
+            if let Ok(decoded) = <GetInfoOfWalletAndNonceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
+                return Ok(Self::GetInfoOfWalletAndNonce(decoded));
+            }
+            if let Ok(decoded) = <GetTokenAkkowancesOfWalletAndNonceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
+                return Ok(Self::GetTokenAkkowancesOfWalletAndNonce(decoded));
+            }
+            if let Ok(decoded) = <GetUsernameOfWalletCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
+                return Ok(Self::GetUsernameOfWallet(decoded));
+            }
+            if let Ok(decoded) = <GetWalletOfUsernameCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
+                return Ok(Self::GetWalletOfUsername(decoded));
+            }
             if let Ok(decoded) = <ReduceTokenAllowanceCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
             ) {
@@ -873,6 +1176,18 @@ pub mod i_oauth {
     impl ::ethers::core::abi::AbiEncode for IOauthCalls {
         fn encode(self) -> Vec<u8> {
             match self {
+                Self::GetInfoOfWalletAndNonce(element) => {
+                    ::ethers::core::abi::AbiEncode::encode(element)
+                }
+                Self::GetTokenAkkowancesOfWalletAndNonce(element) => {
+                    ::ethers::core::abi::AbiEncode::encode(element)
+                }
+                Self::GetUsernameOfWallet(element) => {
+                    ::ethers::core::abi::AbiEncode::encode(element)
+                }
+                Self::GetWalletOfUsername(element) => {
+                    ::ethers::core::abi::AbiEncode::encode(element)
+                }
                 Self::ReduceTokenAllowance(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
@@ -893,6 +1208,18 @@ pub mod i_oauth {
     impl ::core::fmt::Display for IOauthCalls {
         fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             match self {
+                Self::GetInfoOfWalletAndNonce(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
+                Self::GetTokenAkkowancesOfWalletAndNonce(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
+                Self::GetUsernameOfWallet(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
+                Self::GetWalletOfUsername(element) => {
+                    ::core::fmt::Display::fmt(element, f)
+                }
                 Self::ReduceTokenAllowance(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
@@ -902,6 +1229,26 @@ pub mod i_oauth {
                 Self::ValidateEpheAddr(element) => ::core::fmt::Display::fmt(element, f),
                 Self::ValidateSignature(element) => ::core::fmt::Display::fmt(element, f),
             }
+        }
+    }
+    impl ::core::convert::From<GetInfoOfWalletAndNonceCall> for IOauthCalls {
+        fn from(value: GetInfoOfWalletAndNonceCall) -> Self {
+            Self::GetInfoOfWalletAndNonce(value)
+        }
+    }
+    impl ::core::convert::From<GetTokenAkkowancesOfWalletAndNonceCall> for IOauthCalls {
+        fn from(value: GetTokenAkkowancesOfWalletAndNonceCall) -> Self {
+            Self::GetTokenAkkowancesOfWalletAndNonce(value)
+        }
+    }
+    impl ::core::convert::From<GetUsernameOfWalletCall> for IOauthCalls {
+        fn from(value: GetUsernameOfWalletCall) -> Self {
+            Self::GetUsernameOfWallet(value)
+        }
+    }
+    impl ::core::convert::From<GetWalletOfUsernameCall> for IOauthCalls {
+        fn from(value: GetWalletOfUsernameCall) -> Self {
+            Self::GetWalletOfUsername(value)
         }
     }
     impl ::core::convert::From<ReduceTokenAllowanceCall> for IOauthCalls {
@@ -934,6 +1281,58 @@ pub mod i_oauth {
             Self::ValidateSignature(value)
         }
     }
+    ///Container type for all return fields from the `getInfoOfWalletAndNonce` function with signature `getInfoOfWalletAndNonce(address,uint256)` and selector `0xb5703a55`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        ::ethers::contract::EthAbiCodec,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    pub struct GetInfoOfWalletAndNonceReturn(
+        pub ::ethers::core::types::Address,
+        pub bool,
+        pub ::ethers::core::types::U256,
+    );
+    ///Container type for all return fields from the `getTokenAkkowancesOfWalletAndNonce` function with signature `getTokenAkkowancesOfWalletAndNonce(address,uint256,address)` and selector `0x96edff31`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        ::ethers::contract::EthAbiCodec,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    pub struct GetTokenAkkowancesOfWalletAndNonceReturn(pub ::ethers::core::types::U256);
+    ///Container type for all return fields from the `getUsernameOfWallet` function with signature `getUsernameOfWallet(address)` and selector `0x7218fda4`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        ::ethers::contract::EthAbiCodec,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    pub struct GetUsernameOfWalletReturn(pub ::std::string::String);
+    ///Container type for all return fields from the `getWalletOfUsername` function with signature `getWalletOfUsername(string)` and selector `0x364da6af`
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        ::ethers::contract::EthAbiCodec,
+        Default,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
+    pub struct GetWalletOfUsernameReturn(pub ::ethers::core::types::Address);
     ///`TokenAllowance(address,uint256)`
     #[derive(
         Clone,

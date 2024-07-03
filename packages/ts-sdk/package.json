@@ -1,0 +1,21 @@
+{
+  "name": "@zk-email/ts-sdk",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sora Suegami",
+  "license": "MIT",
+  "devDependencies": {
+    "@wagmi/cli": "^2.1.13",
+    "typescript": "^5.5.3",
+    "yarn": "^1.22.22"
+  },
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "axios": "^1.7.2",
+    "viem": "^2.16.5"
+  }
+}
