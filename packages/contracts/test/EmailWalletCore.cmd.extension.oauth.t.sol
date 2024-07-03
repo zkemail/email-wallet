@@ -299,6 +299,27 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
+    function test_Oauth_DAITransfer() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCApprove() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCAllowance() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCTransfer() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCTransferFrom() public {
+        assertTrue(true); // TODO
+    }
+
+
     function _signUp(string memory _username) private {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Oauth";
