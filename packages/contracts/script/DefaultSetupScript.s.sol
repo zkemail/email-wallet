@@ -10,6 +10,7 @@ import "../src/utils/UniswapTWAPOracle.sol";
 import "../src/extensions/NFTExtension.sol";
 import "../src/extensions/UniswapExtension.sol";
 import "../src/extensions/Safe2FAExtension.sol";
+import "../src/extensions/OauthExtension.sol";
 import "../src/EmailWalletCore.sol";
 
 contract TestERC20 is ERC20 {
@@ -69,6 +70,9 @@ contract Deploy is Script {
     Safe2FAExtension safeExt;
     Safe2FAExtension safeExtImpl;
 
+    OauthExtension oauthExt;
+    OauthExtension oauthExtImpl;
+
     uint256 constant emailValidityDuration = 14 days;
     uint256 constant unclaimedFundClaimGas = 450000;
     uint256 constant unclaimedStateClaimGas = 500000;
@@ -78,6 +82,7 @@ contract Deploy is Script {
     string[][] nftExtTemplates = new string[][](3);
     string[][] uniswapExtTemplates = new string[][](4);
     string[][] safeExtTemplates = new string[][](1);
+    string[][] oauthExtTemplates = new string[][](17);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -208,7 +213,7 @@ contract Deploy is Script {
         tokenRegistry.setChainId(chainName, chainId);
         tokenRegistry.setTokenAddress(chainId, tokenName, address(testToken));
 
-        bytes[] memory defaultExtensions = new bytes[](3);
+        bytes[] memory defaultExtensions = new bytes[](4);
 
         {
             nftExtImpl = new NFTExtension();
@@ -278,6 +283,208 @@ contract Deploy is Script {
         safeExtTemplates[0] = ["Safe", "Transaction:", "Approve", "{string}", "from", "{address}"];
         defaultExtensions[2] = abi.encode("Safe2FAExtension", address(safeExt), safeExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
+        {
+            oauthExtImpl = new OauthExtension();
+            bytes memory data = abi.encodeWithSelector(OauthExtension(oauthExtImpl).initialize.selector, address(core));
+            ERC1967Proxy proxy = new ERC1967Proxy(address(oauthExtImpl), data);
+            oauthExt = OauthExtension(payable(address(proxy)));
+        }
+        oauthExtTemplates[0] = ["Oauth", "Sign-up", "{string}"];
+        oauthExtTemplates[1] = ["Oauth", "Sign-in", "{string}", "at", "Nonce", "{uint}"];
+        oauthExtTemplates[2] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[3] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[4] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[5] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}"
+        ];
+        oauthExtTemplates[6] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[7] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[8] = [
+            "Oauth",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[9] = ["Oauth", "Sudo", "Sign-in", "{string}", "at", "Nonce", "{uint}"];
+        oauthExtTemplates[10] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[11] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[12] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[13] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}"
+        ];
+        oauthExtTemplates[14] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[15] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        oauthExtTemplates[16] = [
+            "Oauth",
+            "Sudo",
+            "Sign-in",
+            "{string}",
+            "at",
+            "Nonce",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "with",
+            "approving",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        defaultExtensions[3] = abi.encode("OauthExtension", address(oauthExt), oauthExtTemplates, 0.001 ether); // TODO: Check max exec gas
+
         core.initializeExtension(defaultExtensions);
 
         vm.stopBroadcast();
@@ -303,6 +510,10 @@ contract Deploy is Script {
         console.log("NFTExtension implementation deployed at: %s", address(nftExtImpl));
         console.log("UniswapExtension proxy deployed at: %s", address(uniExt));
         console.log("UniswapExtension implementation deployed at: %s", address(uniExtImpl));
+        console.log("Safe2FAExtension proxy deployed at: %s", address(safeExt));
+        console.log("Safe2FAExtension implementation deployed at: %s", address(safeExtImpl));
+        console.log("OauthExtension proxy deployed at: %s", address(oauthExt));
+        console.log("OauthExtension implementation deployed at: %s", address(oauthExtImpl));
         console.log("---- DONE ----");
     }
 }
