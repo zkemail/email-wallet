@@ -95,7 +95,7 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
         string memory tokenName = tokenRegistry.getTokenNameOfAddress(target);
         if (bytes(tokenName).length > 0) {
             require(txData.tokenAmount > 0, "token amount is 0");
-            if(_checkAllowanceReduction(txData.data)) {
+            if(_checkAllowanceReduction(txData.data, txData.tokenAmount)) {
                 oauth.reduceTokenAllowance(txData.epheAddrNonce, target, txData.tokenAmount);
             }
             curERC20Target = target;
@@ -128,20 +128,26 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
         return keccak256(abi.encode(txDataTmp));
     }
 
-    function _checkAllowanceReduction(bytes calldata data) internal view returns (bool) {
+    function _checkAllowanceReduction(bytes calldata data, uint256 tokenAmount) internal view returns (bool) {
         bool result = false;
-
+        uint256 calldataAmount;
         bytes4 functionSelector = bytes4(data[:4]);
         if (functionSelector == bytes4(keccak256("transfer(address,uint256)"))) {
+            (, calldataAmount) = abi.decode(data[4:], (address, uint256));
             result = true;
         } else if(functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
+            (, calldataAmount) = abi.decode(data[4:], (address, uint256));
             result = true;
         } else if(functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
-            (address from, , ) = abi.decode(data[4:], (address, address, uint256));
+            (address from, , uint256 amount) = abi.decode(data[4:], (address, address, uint256));
+            calldataAmount = amount;
             if(from == address(this)) {
                 result = true;
             }
         }
+
+        require(calldataAmount == tokenAmount, "invalid amount set");
+        
         return result;
     }
 
