@@ -162,18 +162,18 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
             } else if(functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
                 (address from, address to, uint256 amount) = abi.decode(data[4:], (address, address, uint256));
                 this.transferFrom(from, to, amount);
-            } else {
-                revert("invalid ERC20 function selector");
-            }
-        } else {
-            // Target is others
-            (bool success, bytes memory result) = target.call{value: value}(data);
-            if (!success) {
-                assembly {
-                    revert(add(result, 32), mload(result))
-                }
+            } 
+        } 
+
+        // Target is others or ERC20 but caller wants to call another ERC20 function, 
+        // except transfer, approve, allowance, transferFrom
+        (bool success, bytes memory result) = target.call{value: value}(data);
+        if (!success) {
+            assembly {
+                revert(add(result, 32), mload(result))
             }
         }
+        
     }
 
     /**
