@@ -147,7 +147,6 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
         }
 
         require(calldataAmount == tokenAmount, "invalid amount set");
-        
         return result;
     }
 
@@ -159,15 +158,19 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
             if (functionSelector == bytes4(keccak256("transfer(address,uint256)"))) {
                 (address to, uint256 amount) = abi.decode(data[4:], (address, uint256));
                 this.transfer(to, amount);
+                return;
             } else if(functionSelector == bytes4(keccak256("allowance(address,address)"))) {
                 (address owner, address spender) = abi.decode(data[4:], (address, address));
                 this.allowance(owner, spender);
+                return;
             } else if(functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
                 (address spender, uint256 amount) = abi.decode(data[4:], (address, uint256));
                 this.approve(spender, amount);
+                return;
             } else if(functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
                 (address from, address to, uint256 amount) = abi.decode(data[4:], (address, address, uint256));
                 this.transferFrom(from, to, amount);
+                return;
             } 
         } 
 
