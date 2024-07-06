@@ -319,6 +319,111 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         assertTrue(true); // TODO
     }
 
+    function test_RevertIf_Oauth_WETHTransferExceedAllowance() public {
+        vm.startPrank(walletAddr);
+        deal(address(walletAddr), 10 ether);
+        weth.deposit{value: 10 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        _signUp(username);
+        console.log("wallet of username", oauthCore.walletOfUsername(username));
+        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Oauth";
+        uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
+        emailOp.maskedSubject = string.concat(
+            "Oauth Sign-in ",
+            username,
+            " at Nonce ",
+            nonce.toString(),
+            " with approving 7 ETH"
+        );
+        emailOp.extensionName = "Oauth";
+        emailOp.extensionParams.subjectTemplateIndex = 2;
+        emailOp.hasEmailRecipient = false;
+        emailOp.extensionParams.subjectParams = new bytes[](3);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(username);
+        emailOp.extensionParams.subjectParams[1] = abi.encode(nonce);
+        emailOp.extensionParams.subjectParams[2] = abi.encode(uint256(7 ether), "ETH");
+        emailOp.emailNullifier = bytes32(uint256(93847));
+        (bool success, , , ) = core.handleEmailOp(emailOp);
+        assertTrue(success, "emailOp failed");
+
+        address recipient = vm.addr(110);
+        EphemeralTx memory txData = EphemeralTx({
+            walletAddr: walletAddr,
+            txNonce: 0,
+            target: address(weth),
+            ethValue: 0,
+            tokenAmount: 10 ether,
+            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 10 ether),
+            epheAddr: epheAddr,
+            epheAddrNonce: nonce,
+            signature: new bytes(0)
+        });
+        bytes32 txHash = Wallet(payable(walletAddr)).hashEphemeralTx(txData);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ephePrivKey, ECDSA.toEthSignedMessageHash(txHash));
+        txData.signature = abi.encodePacked(r, s, v);
+        vm.expectRevert("insufficient token allowance");
+        Wallet(payable(walletAddr)).executeEphemeralTx(txData);
+        require(WETH9(weth).balanceOf(recipient) == 0 ether, "invalid recipient balance");
+        require(WETH9(weth).balanceOf(walletAddr) == 10 ether, "invalid sender balance");
+        vm.stopPrank();
+    }
+
+    function test_RevertIf_Oauth_WETHTransferInvalidTokenAmountInTx() public {
+        vm.startPrank(walletAddr);
+        deal(address(walletAddr), 10 ether);
+        weth.deposit{value: 10 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        _signUp(username);
+        console.log("wallet of username", oauthCore.walletOfUsername(username));
+        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Oauth";
+        uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
+        emailOp.maskedSubject = string.concat(
+            "Oauth Sign-in ",
+            username,
+            " at Nonce ",
+            nonce.toString(),
+            " with approving 7 ETH"
+        );
+        emailOp.extensionName = "Oauth";
+        emailOp.extensionParams.subjectTemplateIndex = 2;
+        emailOp.hasEmailRecipient = false;
+        emailOp.extensionParams.subjectParams = new bytes[](3);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(username);
+        emailOp.extensionParams.subjectParams[1] = abi.encode(nonce);
+        emailOp.extensionParams.subjectParams[2] = abi.encode(uint256(7 ether), "ETH");
+        emailOp.emailNullifier = bytes32(uint256(93847));
+        (bool success, , , ) = core.handleEmailOp(emailOp);
+        assertTrue(success, "emailOp failed");
+
+        address recipient = vm.addr(110);
+        EphemeralTx memory txData = EphemeralTx({
+            walletAddr: walletAddr,
+            txNonce: 0,
+            target: address(weth),
+            ethValue: 0,
+            tokenAmount: 10 ether,
+            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 7 ether),
+            epheAddr: epheAddr,
+            epheAddrNonce: nonce,
+            signature: new bytes(0)
+        });
+        bytes32 txHash = Wallet(payable(walletAddr)).hashEphemeralTx(txData);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ephePrivKey, ECDSA.toEthSignedMessageHash(txHash));
+        txData.signature = abi.encodePacked(r, s, v);
+        vm.expectRevert("invalid amount set");
+        Wallet(payable(walletAddr)).executeEphemeralTx(txData);
+        require(WETH9(weth).balanceOf(recipient) == 0 ether, "invalid recipient balance");
+        require(WETH9(weth).balanceOf(walletAddr) == 10 ether, "invalid sender balance");
+        vm.stopPrank();
+    }
 
     function _signUp(string memory _username) private {
         EmailOp memory emailOp = _getBaseEmailOp();

@@ -17,10 +17,9 @@ import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 /// @notice This wallet can `execute` any function on any contract provided calle is `owner`
 /// @notice The deployed is the `owner` by default (EmailWalletCore)
 /// @dev External contracts should use `call` to deposit ETH if needed
-contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IERC20 {
+contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
     uint256 public epheTxNonce;
-    address public curERC20Target;
 
     // Oauth core contract
     IOauth immutable oauth;
@@ -95,10 +94,9 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
         string memory tokenName = tokenRegistry.getTokenNameOfAddress(target);
         if (bytes(tokenName).length > 0) {
             require(txData.tokenAmount > 0, "token amount is 0");
-            if(_checkAllowanceReduction(txData.data, txData.tokenAmount)) {
+            if (_checkAllowanceReduction(txData.data, txData.tokenAmount)) {
                 oauth.reduceTokenAllowance(txData.epheAddrNonce, target, txData.tokenAmount);
             }
-            curERC20Target = target;
         }
         if (txData.ethValue > 0) {
             oauth.reduceTokenAllowance(txData.epheAddrNonce, weth, txData.ethValue);
@@ -107,7 +105,6 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
         _execute(txData.target, txData.ethValue, txData.data);
 
         // Finalization
-        curERC20Target = address(0);
         epheTxNonce++;
     }
 
@@ -135,13 +132,13 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
         if (functionSelector == bytes4(keccak256("transfer(address,uint256)"))) {
             (, calldataAmount) = abi.decode(data[4:], (address, uint256));
             result = true;
-        } else if(functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
+        } else if (functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
             (, calldataAmount) = abi.decode(data[4:], (address, uint256));
             result = true;
-        } else if(functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
+        } else if (functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
             (address from, , uint256 amount) = abi.decode(data[4:], (address, address, uint256));
             calldataAmount = amount;
-            if(from == address(this)) {
+            if (from == address(this)) {
                 result = true;
             }
         }
@@ -151,67 +148,11 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable, IE
     }
 
     function _execute(address target, uint256 value, bytes calldata data) internal {
-        if(curERC20Target == target) {
-            // Traget is ERC20 contract.
-            // In that case, call the function of this contract itself
-            bytes4 functionSelector = bytes4(data[:4]);
-            if (functionSelector == bytes4(keccak256("transfer(address,uint256)"))) {
-                (address to, uint256 amount) = abi.decode(data[4:], (address, uint256));
-                this.transfer(to, amount);
-                return;
-            } else if(functionSelector == bytes4(keccak256("allowance(address,address)"))) {
-                (address owner, address spender) = abi.decode(data[4:], (address, address));
-                this.allowance(owner, spender);
-                return;
-            } else if(functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
-                (address spender, uint256 amount) = abi.decode(data[4:], (address, uint256));
-                this.approve(spender, amount);
-                return;
-            } else if(functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
-                (address from, address to, uint256 amount) = abi.decode(data[4:], (address, address, uint256));
-                this.transferFrom(from, to, amount);
-                return;
-            } 
-        } 
-
-        // Target is others or ERC20 but caller wants to call another ERC20 function, 
-        // except transfer, approve, allowance, transferFrom
         (bool success, bytes memory result) = target.call{value: value}(data);
         if (!success) {
             assembly {
                 revert(add(result, 32), mload(result))
             }
         }
-        
-    }
-
-    /**
-     * ERC20 implementation
-     */ 
-
-    // Dummy logic
-    function totalSupply() external override pure returns (uint256) {
-        return 0;  
-    }
-
-    // Dummy logic
-    function balanceOf(address account) external override pure returns (uint256) {
-        return 0;
-    }
-
-    function transfer(address to, uint256 amount) external override returns (bool) {
-        return IERC20(curERC20Target).transfer(to, amount);
-    }
-
-    function allowance(address owner, address spender) external override view returns (uint256) {
-        return IERC20(curERC20Target).allowance(owner, spender);
-    }
-
-    function approve(address spender, uint256 amount) external override returns (bool) {
-        return IERC20(curERC20Target).approve(spender, amount);
-    }
-
-    function transferFrom(address from, address to, uint256 amount) external override returns (bool) {
-        return IERC20(curERC20Target).transferFrom(from, to, amount);
     }
 }
