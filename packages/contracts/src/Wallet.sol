@@ -10,6 +10,7 @@ import {EphemeralTx} from "./interfaces/Types.sol";
 import {IWETHWithdraw} from "./interfaces/IWETHWithdraw.sol";
 import {TokenRegistry} from "./utils/TokenRegistry.sol";
 import {EmailWalletCore} from "./EmailWalletCore.sol";
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 /// @title EmailWallet
 /// @notice Simple Wallet contract to be used as the EmailWallet for users
@@ -93,14 +94,18 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         string memory tokenName = tokenRegistry.getTokenNameOfAddress(target);
         if (bytes(tokenName).length > 0) {
             require(txData.tokenAmount > 0, "token amount is 0");
-            oauth.reduceTokenAllowance(txData.epheAddrNonce, target, txData.tokenAmount);
+            if (_checkAllowanceReduction(txData.data, txData.tokenAmount)) {
+                oauth.reduceTokenAllowance(txData.epheAddrNonce, target, txData.tokenAmount);
+            }
         }
         if (txData.ethValue > 0) {
             oauth.reduceTokenAllowance(txData.epheAddrNonce, weth, txData.ethValue);
             IWETHWithdraw(weth).withdraw(txData.ethValue);
         }
-        epheTxNonce++;
         _execute(txData.target, txData.ethValue, txData.data);
+
+        // Finalization
+        epheTxNonce++;
     }
 
     /// @notice Convert ETH to WETH
@@ -120,9 +125,30 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         return keccak256(abi.encode(txDataTmp));
     }
 
+    function _checkAllowanceReduction(bytes calldata data, uint256 tokenAmount) internal view returns (bool) {
+        bool result = false;
+        uint256 calldataAmount;
+        bytes4 functionSelector = bytes4(data[:4]);
+        if (functionSelector == bytes4(keccak256("transfer(address,uint256)"))) {
+            (, calldataAmount) = abi.decode(data[4:], (address, uint256));
+            result = true;
+        } else if (functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
+            (, calldataAmount) = abi.decode(data[4:], (address, uint256));
+            result = true;
+        } else if (functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
+            (address from, , uint256 amount) = abi.decode(data[4:], (address, address, uint256));
+            calldataAmount = amount;
+            if (from == address(this)) {
+                result = true;
+            }
+        }
+
+        require(calldataAmount == tokenAmount, "invalid amount set");
+        return result;
+    }
+
     function _execute(address target, uint256 value, bytes calldata data) internal {
         (bool success, bytes memory result) = target.call{value: value}(data);
-
         if (!success) {
             assembly {
                 revert(add(result, 32), mload(result))
