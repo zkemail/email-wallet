@@ -35,7 +35,6 @@ export default class RelayerApis {
         username: string,
         nonce: string,
         expiry_time: number | null,
-        is_sudo: boolean | null,
         token_allowances: [number, string][] | null
     ): Promise<string> {
         const url = `${this.relayerHost}/api/login`;
@@ -44,7 +43,6 @@ export default class RelayerApis {
             username: string;
             nonce: string;
             expiry_time?: number;
-            is_sudo?: boolean;
             token_allowances?: [number, string][];
         } = {
             email_addr: emailAddr,
@@ -53,9 +51,6 @@ export default class RelayerApis {
         };
         if (expiry_time !== null) {
             requestData.expiry_time = expiry_time;
-        }
-        if (is_sudo !== null) {
-            requestData.is_sudo = is_sudo;
         }
         if (token_allowances !== null) {
             requestData.token_allowances = token_allowances;

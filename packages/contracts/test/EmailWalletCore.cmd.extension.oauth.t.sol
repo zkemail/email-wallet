@@ -4,7 +4,8 @@ pragma solidity ^0.8.12;
 import "./helpers/EmailWalletCoreTestHelper.sol";
 import {IOauth} from "../src/interfaces/IOauth.sol";
 import {OauthCore} from "../src/utils/OauthCore.sol";
-import {OauthExtension} from "../src/extensions/OauthExtension.sol";
+import {OauthSignupExtension} from "../src/extensions/OauthSignupExtension.sol";
+import {OauthSigninExtension} from "../src/extensions/OauthSigninExtension.sol";
 import {StringUtils} from "../src/libraries/StringUtils.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./mocks/TestERC20.sol";
@@ -13,8 +14,10 @@ import "./mocks/TestERC20.sol";
 contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
     using StringUtils for *;
 
-    OauthExtension oauthExtension;
-    string[][] public oauthExtTemplates = new string[][](17);
+    OauthSignupExtension oauthUpExtension;
+    string[][] public oauthUpExtTemplates = new string[][](1);
+    OauthSigninExtension oauthInExtension;
+    string[][] public oauthInExtTemplates = new string[][](8);
     uint256 ephePrivKey = 777;
     address epheAddr = vm.addr(ephePrivKey);
     string username = "alice";
@@ -30,221 +33,116 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
 
         // Publish and install extension
         {
-            OauthExtension oauthExtensionImpl = new OauthExtension();
+            OauthSignupExtension oauthUpExtensionImpl = new OauthSignupExtension();
             ERC1967Proxy proxy = new ERC1967Proxy(
-                address(oauthExtensionImpl),
-                abi.encodeCall(oauthExtensionImpl.initialize, (address(core)))
+                address(oauthUpExtensionImpl),
+                abi.encodeCall(oauthUpExtensionImpl.initialize, (address(core)))
             );
-            oauthExtension = OauthExtension(payable(address(proxy)));
+            oauthUpExtension = OauthSignupExtension(payable(address(proxy)));
+            oauthUpExtTemplates[0] = ["Sign-up", "{string}"];
+            extensionHandler.publishExtension("OauthSignup", address(oauthUpExtension), oauthUpExtTemplates, 0.1 ether);
 
-            oauthExtTemplates[0] = ["Oauth", "Sign-up", "{string}"];
-            oauthExtTemplates[1] = ["Oauth", "Sign-in", "{string}", "at", "Nonce", "{uint}"];
-            oauthExtTemplates[2] = [
-                "Oauth",
+            OauthSigninExtension oauthInExtensionImpl = new OauthSigninExtension();
+            proxy = new ERC1967Proxy(
+                address(oauthInExtensionImpl),
+                abi.encodeCall(oauthInExtensionImpl.initialize, (address(core)))
+            );
+            oauthInExtension = OauthSigninExtension(payable(address(proxy)));
+            // (0,0) = 0
+            oauthInExtTemplates[0] = ["Sign-in", "{string}", "on", "device", "{uint}"];
+            // (0,1) = 1
+            oauthInExtTemplates[1] = ["Sign-in", "{string}", "on", "device", "{uint}", "for", "{tokenAmount}"];
+            // (0,2) = 2
+            oauthInExtTemplates[2] = [
                 "Sign-in",
                 "{string}",
-                "at",
-                "Nonce",
+                "on",
+                "device",
                 "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}"
-            ];
-            oauthExtTemplates[3] = [
-                "Oauth",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "with",
-                "approving",
+                "for",
                 "{tokenAmount}",
                 "{tokenAmount}"
             ];
-            oauthExtTemplates[4] = [
-                "Oauth",
+            // (0,3) = 3
+            oauthInExtTemplates[3] = [
                 "Sign-in",
                 "{string}",
-                "at",
-                "Nonce",
+                "on",
+                "device",
                 "{uint}",
-                "with",
-                "approving",
+                "for",
                 "{tokenAmount}",
                 "{tokenAmount}",
                 "{tokenAmount}"
             ];
-            oauthExtTemplates[5] = [
-                "Oauth",
+            // (1,0) = 4
+            oauthInExtTemplates[4] = ["Sign-in", "{string}", "on", "device", "{uint}", "until", "timestamp", "{uint}"];
+            // (1,1) = 4 + 1 = 5
+            oauthInExtTemplates[5] = [
                 "Sign-in",
                 "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "until",
-                "timestamp",
-                "{uint}"
-            ];
-            oauthExtTemplates[6] = [
-                "Oauth",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
+                "on",
+                "device",
                 "{uint}",
                 "until",
                 "timestamp",
                 "{uint}",
-                "with",
-                "approving",
+                "for",
                 "{tokenAmount}"
             ];
-            oauthExtTemplates[7] = [
-                "Oauth",
+            // (1,2) = 4 + 2 = 6
+            oauthInExtTemplates[6] = [
                 "Sign-in",
                 "{string}",
-                "at",
-                "Nonce",
+                "on",
+                "device",
                 "{uint}",
                 "until",
                 "timestamp",
                 "{uint}",
-                "with",
-                "approving",
+                "for",
                 "{tokenAmount}",
                 "{tokenAmount}"
             ];
-            oauthExtTemplates[8] = [
-                "Oauth",
+            // (1,3) = 4 + 3 = 7
+            oauthInExtTemplates[7] = [
                 "Sign-in",
                 "{string}",
-                "at",
-                "Nonce",
+                "on",
+                "device",
                 "{uint}",
                 "until",
                 "timestamp",
                 "{uint}",
-                "with",
-                "approving",
+                "for",
                 "{tokenAmount}",
                 "{tokenAmount}",
                 "{tokenAmount}"
             ];
-            oauthExtTemplates[9] = ["Oauth", "Sudo", "Sign-in", "{string}", "at", "Nonce", "{uint}"];
-            oauthExtTemplates[10] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}"
-            ];
-            oauthExtTemplates[11] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}",
-                "{tokenAmount}"
-            ];
-            oauthExtTemplates[12] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}",
-                "{tokenAmount}",
-                "{tokenAmount}"
-            ];
-            oauthExtTemplates[13] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "until",
-                "timestamp",
-                "{uint}"
-            ];
-            oauthExtTemplates[14] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "until",
-                "timestamp",
-                "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}"
-            ];
-            oauthExtTemplates[15] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "until",
-                "timestamp",
-                "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}",
-                "{tokenAmount}"
-            ];
-            oauthExtTemplates[16] = [
-                "Oauth",
-                "Sudo",
-                "Sign-in",
-                "{string}",
-                "at",
-                "Nonce",
-                "{uint}",
-                "until",
-                "timestamp",
-                "{uint}",
-                "with",
-                "approving",
-                "{tokenAmount}",
-                "{tokenAmount}",
-                "{tokenAmount}"
-            ];
-            extensionHandler.publishExtension("Oauth", address(oauthExtension), oauthExtTemplates, 0.1 ether);
+            extensionHandler.publishExtension("OauthSignin", address(oauthInExtension), oauthInExtTemplates, 0.1 ether);
         }
+
+        vm.startPrank(relayer);
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
-        emailOp.extensionName = "Oauth";
-        emailOp.maskedSubject = "Install extension Oauth";
-        emailOp.emailNullifier = bytes32(uint256(93845));
-
-        vm.startPrank(relayer);
+        emailOp.extensionName = "OauthSignup";
+        emailOp.maskedSubject = "Install extension OauthSignup";
+        emailOp.emailNullifier = bytes32(uint256(93844));
         (bool success, , , ) = core.handleEmailOp(emailOp);
+        require(success, "installing OauthSignup failed");
+
+        emailOp = _getBaseEmailOp();
+        emailOp.command = Commands.INSTALL_EXTENSION;
+        emailOp.extensionName = "OauthSignin";
+        emailOp.maskedSubject = "Install extension OauthSignin";
+        emailOp.emailNullifier = bytes32(uint256(93845));
+        (success, , , ) = core.handleEmailOp(emailOp);
+        require(success, "installing OauthSignup failed");
+
         vm.stopPrank();
 
-        assertTrue(success, "failed to register safe2FA extension");
+        assertTrue(success, "failed to register oauth extensions");
     }
 
     function test_Oauth_WETHTransfer() public {
@@ -258,17 +156,11 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         console.log("wallet of username", oauthCore.walletOfUsername(username));
         _registerEpheAddr(ephePrivKey, username, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
-        emailOp.command = "Oauth";
+        emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
-        emailOp.maskedSubject = string.concat(
-            "Oauth Sign-in ",
-            username,
-            " at Nonce ",
-            nonce.toString(),
-            " with approving 7 ETH"
-        );
-        emailOp.extensionName = "Oauth";
-        emailOp.extensionParams.subjectTemplateIndex = 2;
+        emailOp.maskedSubject = string.concat("Sign-in ", username, " on device ", nonce.toString(), " for 7 ETH");
+        emailOp.extensionName = "OauthSignin";
+        emailOp.extensionParams.subjectTemplateIndex = 1;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](3);
         emailOp.extensionParams.subjectParams[0] = abi.encode(username);
@@ -299,11 +191,125 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
+    function test_Oauth_DAITransfer() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCApprove() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCAllowance() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCTransfer() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_Oauth_USDCTransferFrom() public {
+        assertTrue(true); // TODO
+    }
+
+    function test_RevertIf_Oauth_WETHTransferExceedAllowance() public {
+        vm.startPrank(walletAddr);
+        deal(address(walletAddr), 10 ether);
+        weth.deposit{value: 10 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        _signUp(username);
+        console.log("wallet of username", oauthCore.walletOfUsername(username));
+        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Sign-in";
+        uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
+        emailOp.maskedSubject = string.concat("Sign-in ", username, " on device ", nonce.toString(), " for 7 ETH");
+        emailOp.extensionName = "OauthSignin";
+        emailOp.extensionParams.subjectTemplateIndex = 1;
+        emailOp.hasEmailRecipient = false;
+        emailOp.extensionParams.subjectParams = new bytes[](3);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(username);
+        emailOp.extensionParams.subjectParams[1] = abi.encode(nonce);
+        emailOp.extensionParams.subjectParams[2] = abi.encode(uint256(7 ether), "ETH");
+        emailOp.emailNullifier = bytes32(uint256(93847));
+        (bool success, , , ) = core.handleEmailOp(emailOp);
+        assertTrue(success, "emailOp failed");
+
+        address recipient = vm.addr(110);
+        EphemeralTx memory txData = EphemeralTx({
+            walletAddr: walletAddr,
+            txNonce: 0,
+            target: address(weth),
+            ethValue: 0,
+            tokenAmount: 10 ether,
+            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 10 ether),
+            epheAddr: epheAddr,
+            epheAddrNonce: nonce,
+            signature: new bytes(0)
+        });
+        bytes32 txHash = Wallet(payable(walletAddr)).hashEphemeralTx(txData);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ephePrivKey, ECDSA.toEthSignedMessageHash(txHash));
+        txData.signature = abi.encodePacked(r, s, v);
+        vm.expectRevert("insufficient token allowance");
+        Wallet(payable(walletAddr)).executeEphemeralTx(txData);
+        require(WETH9(weth).balanceOf(recipient) == 0 ether, "invalid recipient balance");
+        require(WETH9(weth).balanceOf(walletAddr) == 10 ether, "invalid sender balance");
+        vm.stopPrank();
+    }
+
+    function test_RevertIf_Oauth_WETHTransferInvalidTokenAmountInTx() public {
+        vm.startPrank(walletAddr);
+        deal(address(walletAddr), 10 ether);
+        weth.deposit{value: 10 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        _signUp(username);
+        console.log("wallet of username", oauthCore.walletOfUsername(username));
+        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Sign-in";
+        uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
+        emailOp.maskedSubject = string.concat("Sign-in ", username, " on device ", nonce.toString(), " for 7 ETH");
+        emailOp.extensionName = "OauthSignin";
+        emailOp.extensionParams.subjectTemplateIndex = 1;
+        emailOp.hasEmailRecipient = false;
+        emailOp.extensionParams.subjectParams = new bytes[](3);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(username);
+        emailOp.extensionParams.subjectParams[1] = abi.encode(nonce);
+        emailOp.extensionParams.subjectParams[2] = abi.encode(uint256(7 ether), "ETH");
+        emailOp.emailNullifier = bytes32(uint256(93847));
+        (bool success, , , ) = core.handleEmailOp(emailOp);
+        assertTrue(success, "emailOp failed");
+
+        address recipient = vm.addr(110);
+        EphemeralTx memory txData = EphemeralTx({
+            walletAddr: walletAddr,
+            txNonce: 0,
+            target: address(weth),
+            ethValue: 0,
+            tokenAmount: 10 ether,
+            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 7 ether),
+            epheAddr: epheAddr,
+            epheAddrNonce: nonce,
+            signature: new bytes(0)
+        });
+        bytes32 txHash = Wallet(payable(walletAddr)).hashEphemeralTx(txData);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ephePrivKey, ECDSA.toEthSignedMessageHash(txHash));
+        txData.signature = abi.encodePacked(r, s, v);
+        vm.expectRevert("invalid amount set");
+        Wallet(payable(walletAddr)).executeEphemeralTx(txData);
+        require(WETH9(weth).balanceOf(recipient) == 0 ether, "invalid recipient balance");
+        require(WETH9(weth).balanceOf(walletAddr) == 10 ether, "invalid sender balance");
+        vm.stopPrank();
+    }
+
     function _signUp(string memory _username) private {
         EmailOp memory emailOp = _getBaseEmailOp();
-        emailOp.command = "Oauth";
-        emailOp.maskedSubject = string.concat("Oauth Sign-up ", _username);
-        emailOp.extensionName = "Oauth";
+        emailOp.command = "Sign-up";
+        emailOp.maskedSubject = string.concat("Sign-up ", _username);
+        emailOp.extensionName = "OauthSignup";
         emailOp.extensionParams.subjectTemplateIndex = 0;
         emailOp.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](1);

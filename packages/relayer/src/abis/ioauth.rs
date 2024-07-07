@@ -50,13 +50,6 @@ pub mod i_oauth {
                                 },
                                 ::ethers::core::abi::ethabi::Param {
                                     name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bool"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
                                     kind: ::ethers::core::abi::ethabi::ParamType::Uint(
                                         256usize,
                                     ),
@@ -301,13 +294,6 @@ pub mod i_oauth {
                                         ::std::borrow::ToOwned::to_owned("struct TokenAllowance[]"),
                                     ),
                                 },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("isSudo"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bool"),
-                                    ),
-                                },
                             ],
                             outputs: ::std::vec![],
                             constant: ::core::option::Option::None,
@@ -362,13 +348,6 @@ pub mod i_oauth {
                                     ),
                                     internal_type: ::core::option::Option::Some(
                                         ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("isSudo"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bool"),
                                     ),
                                 },
                             ],
@@ -530,11 +509,6 @@ pub mod i_oauth {
                                     ),
                                     indexed: false,
                                 },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("isSudo"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bool,
-                                    indexed: false,
-                                },
                             ],
                             anonymous: false,
                         },
@@ -615,7 +589,7 @@ pub mod i_oauth {
             nonce: ::ethers::core::types::U256,
         ) -> ::ethers::contract::builders::ContractCall<
             M,
-            (::ethers::core::types::Address, bool, ::ethers::core::types::U256),
+            (::ethers::core::types::Address, ::ethers::core::types::U256),
         > {
             self.0
                 .method_hash([181, 112, 58, 85], (wallet, nonce))
@@ -675,19 +649,18 @@ pub mod i_oauth {
                 .method_hash([56, 94, 193, 7], (username, ephe_addr, signature))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `signin` (0x933a96a9) function
+        ///Calls the contract's `signin` (0x5dcb7f88) function
         pub fn signin(
             &self,
             username: ::std::string::String,
             nonce: ::ethers::core::types::U256,
             expiry: ::ethers::core::types::U256,
             token_allowances: ::std::vec::Vec<TokenAllowance>,
-            is_sudo: bool,
         ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
                 .method_hash(
-                    [147, 58, 150, 169],
-                    (username, nonce, expiry, token_allowances, is_sudo),
+                    [93, 203, 127, 136],
+                    (username, nonce, expiry, token_allowances),
                 )
                 .expect("method not found (this should never happen)")
         }
@@ -700,16 +673,15 @@ pub mod i_oauth {
                 .method_hash([81, 156, 99, 119], username)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `validateEpheAddr` (0x106a4cf8) function
+        ///Calls the contract's `validateEpheAddr` (0xf6434da5) function
         pub fn validate_ephe_addr(
             &self,
             wallet: ::ethers::core::types::Address,
             ephe_addr: ::ethers::core::types::Address,
             nonce: ::ethers::core::types::U256,
-            is_sudo: bool,
         ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
-                .method_hash([16, 106, 76, 248], (wallet, ephe_addr, nonce, is_sudo))
+                .method_hash([246, 67, 77, 165], (wallet, ephe_addr, nonce))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `validateSignature` (0x971604c6) function
@@ -826,7 +798,7 @@ pub mod i_oauth {
     )]
     #[ethevent(
         name = "Signin",
-        abi = "Signin(address,string,uint256,uint256,(address,uint256)[],bool)"
+        abi = "Signin(address,string,uint256,uint256,(address,uint256)[])"
     )]
     pub struct SigninFilter {
         #[ethevent(indexed)]
@@ -837,7 +809,6 @@ pub mod i_oauth {
         pub nonce: ::ethers::core::types::U256,
         pub expiry: ::ethers::core::types::U256,
         pub token_allowances: ::std::vec::Vec<TokenAllowance>,
-        pub is_sudo: bool,
     }
     #[derive(
         Clone,
@@ -1023,7 +994,7 @@ pub mod i_oauth {
         pub ephe_addr: ::ethers::core::types::Address,
         pub signature: ::ethers::core::types::Bytes,
     }
-    ///Container type for all input parameters for the `signin` function with signature `signin(string,uint256,uint256,(address,uint256)[],bool)` and selector `0x933a96a9`
+    ///Container type for all input parameters for the `signin` function with signature `signin(string,uint256,uint256,(address,uint256)[])` and selector `0x5dcb7f88`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1036,14 +1007,13 @@ pub mod i_oauth {
     )]
     #[ethcall(
         name = "signin",
-        abi = "signin(string,uint256,uint256,(address,uint256)[],bool)"
+        abi = "signin(string,uint256,uint256,(address,uint256)[])"
     )]
     pub struct SigninCall {
         pub username: ::std::string::String,
         pub nonce: ::ethers::core::types::U256,
         pub expiry: ::ethers::core::types::U256,
         pub token_allowances: ::std::vec::Vec<TokenAllowance>,
-        pub is_sudo: bool,
     }
     ///Container type for all input parameters for the `signup` function with signature `signup(string)` and selector `0x519c6377`
     #[derive(
@@ -1060,7 +1030,7 @@ pub mod i_oauth {
     pub struct SignupCall {
         pub username: ::std::string::String,
     }
-    ///Container type for all input parameters for the `validateEpheAddr` function with signature `validateEpheAddr(address,address,uint256,bool)` and selector `0x106a4cf8`
+    ///Container type for all input parameters for the `validateEpheAddr` function with signature `validateEpheAddr(address,address,uint256)` and selector `0xf6434da5`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1073,13 +1043,12 @@ pub mod i_oauth {
     )]
     #[ethcall(
         name = "validateEpheAddr",
-        abi = "validateEpheAddr(address,address,uint256,bool)"
+        abi = "validateEpheAddr(address,address,uint256)"
     )]
     pub struct ValidateEpheAddrCall {
         pub wallet: ::ethers::core::types::Address,
         pub ephe_addr: ::ethers::core::types::Address,
         pub nonce: ::ethers::core::types::U256,
-        pub is_sudo: bool,
     }
     ///Container type for all input parameters for the `validateSignature` function with signature `validateSignature(address,bytes32,bytes)` and selector `0x971604c6`
     #[derive(
@@ -1294,7 +1263,6 @@ pub mod i_oauth {
     )]
     pub struct GetInfoOfWalletAndNonceReturn(
         pub ::ethers::core::types::Address,
-        pub bool,
         pub ::ethers::core::types::U256,
     );
     ///Container type for all return fields from the `getTokenAkkowancesOfWalletAndNonce` function with signature `getTokenAkkowancesOfWalletAndNonce(address,uint256,address)` and selector `0x96edff31`

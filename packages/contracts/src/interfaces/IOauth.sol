@@ -10,8 +10,7 @@ interface IOauth {
         string indexed username,
         uint256 indexed nonce,
         uint256 expiry,
-        TokenAllowance[] tokenAllowances,
-        bool isSudo
+        TokenAllowance[] tokenAllowances
     );
     event RegisteredEpheAddr(address indexed wallet, address indexed epheAddr, uint256 indexed nonce, string username);
     event ReducedTokenAllowance(address indexed wallet, address indexed token, uint256 indexed amount, uint256 nonce);
@@ -30,9 +29,8 @@ interface IOauth {
     /// @param wallet Address of the wallet.
     /// @param nonce Nonce of the ephemeral address.
     /// @return epheAddr Address of the ephemeral address.
-    /// @return isSudo Whether the ephemeral address is sudo or not.
     /// @return expiry Expiry of the ephemeral address.
-    function getInfoOfWalletAndNonce(address wallet, uint256 nonce) external view returns (address, bool, uint256);
+    function getInfoOfWalletAndNonce(address wallet, uint256 nonce) external view returns (address, uint256);
 
     /// @notice Get the token allowances of the wallet and nonce.
     /// @param wallet Address of the wallet.
@@ -48,8 +46,7 @@ interface IOauth {
     /// @param wallet Address of the wallet.
     /// @param epheAddr Address of the ephemeral address.
     /// @param nonce Nonce of the ephemeral address.
-    /// @param isSudo Whether the ephemeral address is sudo or not.
-    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view;
+    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce) external view;
 
     /// @notice Validate the signature of the ephemeral address.
     /// @param epheAddr Address of the ephemeral address.
@@ -72,13 +69,11 @@ interface IOauth {
     /// @param nonce Nonce of the signin.
     /// @param expiry Expiry of the signin.
     /// @param tokenAllowances Array of token allowances.
-    /// @param isSudo Whether the signin is sudo or not.
     function signin(
         string memory username,
         uint256 nonce,
         uint256 expiry,
-        TokenAllowance[] memory tokenAllowances,
-        bool isSudo
+        TokenAllowance[] memory tokenAllowances
     ) external;
 
     /// @notice Register the ephemeral address for the wallet.
