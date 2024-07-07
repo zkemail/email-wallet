@@ -77,10 +77,9 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     function executeEphemeralTx(EphemeralTx calldata txData) external {
         require(txData.walletAddr == address(this), "invalid wallet address");
         require(txData.txNonce == epheTxNonce, "invalid nonce");
-        bool isSudo = txData.target == address(this);
         address target = txData.target;
         EmailWalletCore core = EmailWalletCore(payable(owner()));
-        oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce, isSudo);
+        oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce);
         oauth.validateSignature(txData.epheAddr, hashEphemeralTx(txData), txData.signature);
         require(
             target != owner() &&

@@ -85,7 +85,6 @@ export default class OauthCore {
 
     public async oauthSignin(
         expiry_time: number | null,
-        is_sudo: boolean | null,
         token_allowances: [number, string][] | null
     ) {
         if (this.userEmailAddr === null || this.userWallet === null) {
@@ -103,7 +102,7 @@ export default class OauthCore {
         });
         const epheAddrNonce = await this.relayerApis.registerEpheAddr(this.userWallet.address, username, epheAddr, signature);
         this.epheAddrNonce = BigInt(epheAddrNonce);
-        const requestId = await this.relayerApis.signin(this.userEmailAddr, username, epheAddrNonce, expiry_time, is_sudo, token_allowances);
+        const requestId = await this.relayerApis.signin(this.userEmailAddr, username, epheAddrNonce, expiry_time, token_allowances);
         console.log(`Request ID: ${requestId}`);
     }
 

@@ -110,7 +110,6 @@ pub struct SigninRequest {
     pub username: String,
     pub nonce: String,
     pub expiry_time: Option<Number>,
-    pub is_sudo: Option<bool>,
     pub token_allowances: Option<Vec<(Number, String)>>,
 }
 
@@ -445,7 +444,7 @@ pub async fn signup_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
     let request = serde_json::from_str::<SignupRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let subject = format!("Oauth Sign-up {}", request.username);
+    let subject = format!("Sign-up {}", request.username);
     let account_code_str = DB.get_account_code(&request.email_addr).await?;
     if account_code_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
@@ -492,20 +491,16 @@ pub async fn signin_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
     let request = serde_json::from_str::<SigninRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let mut subject_words = vec!["Oauth".to_string()];
-    if request.is_sudo.unwrap_or(false) {
-        subject_words.push("Sudo".to_string());
-    }
-    subject_words.push("Sign-in".to_string());
+    let mut subject_words = vec!["Sign-in".to_string()];
     subject_words.push(request.username.clone());
-    subject_words.push("at Nonce".to_string());
+    subject_words.push("on device".to_string());
     subject_words.push(request.nonce.clone());
     if let Some(expiry_time) = request.expiry_time {
         subject_words.push("until timestamp".to_string());
         subject_words.push(expiry_time.to_string());
     }
     if let Some(token_allowances) = request.token_allowances {
-        subject_words.push("with approving".to_string());
+        subject_words.push("for".to_string());
         for (amount, token_name) in token_allowances {
             subject_words.push(format!("{} {}", amount.to_string(), token_name));
         }

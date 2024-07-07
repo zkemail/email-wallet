@@ -16,7 +16,6 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
     mapping(bytes32 => address) public epheAddrOfNonceHash;
     mapping(bytes32 => uint256) public expiryOfNonceHash;
     mapping(bytes32 => mapping(address => uint256)) public tokenAllowancesOfNonceHash;
-    mapping(bytes32 => bool) public isSudoOfNonceHash;
 
     constructor() {
         _disableInitializers();
@@ -34,9 +33,9 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         return walletOfUsername[username];
     }
 
-    function getInfoOfWalletAndNonce(address wallet, uint256 nonce) external view returns (address, bool, uint256) {
+    function getInfoOfWalletAndNonce(address wallet, uint256 nonce) external view returns (address, uint256) {
         bytes32 nonceHash = _computeNonceHash(wallet, nonce);
-        return (epheAddrOfNonceHash[nonceHash], isSudoOfNonceHash[nonceHash], expiryOfNonceHash[nonceHash]);
+        return (epheAddrOfNonceHash[nonceHash], expiryOfNonceHash[nonceHash]);
     }
 
     function getTokenAkkowancesOfWalletAndNonce(
@@ -48,7 +47,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         return tokenAllowancesOfNonceHash[nonceHash][tokenAddr];
     }
 
-    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce, bool isSudo) external view override {
+    function validateEpheAddr(address wallet, address epheAddr, uint256 nonce) external view override {
         require(wallet != address(0), "invalid wallet");
         require(epheAddr != address(0), "invalid epheAddr");
         require(nonce < nextNonceOfWallet[wallet], "too large nonce");
@@ -58,7 +57,6 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
             "epheAddr is not registered for the given wallet and nonce"
         );
         require(expiryOfNonceHash[nonceHash] > block.timestamp, "expired epheAddr");
-        require(isSudoOfNonceHash[nonceHash] == isSudo, "invalid isSudo");
     }
 
     function validateSignature(address epheAddr, bytes32 hash, bytes memory signature) external pure override {
@@ -86,8 +84,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         string memory username,
         uint256 nonce,
         uint256 expiry,
-        TokenAllowance[] memory tokenAllowances,
-        bool isSudo
+        TokenAllowance[] memory tokenAllowances
     ) external override {
         address wallet = msg.sender;
         require(walletOfUsername[username] == wallet, "invalid username");
@@ -100,11 +97,10 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         require(expiryOfNonceHash[nonceHash] == 0, "nonce already used for sign-in");
 
         expiryOfNonceHash[nonceHash] = expiry;
-        isSudoOfNonceHash[nonceHash] = isSudo;
         for (uint8 i = 0; i < tokenAllowances.length; i++) {
             tokenAllowancesOfNonceHash[nonceHash][tokenAllowances[i].tokenAddr] = tokenAllowances[i].amount;
         }
-        emit Signin(wallet, username, nonce, expiry, tokenAllowances, isSudo);
+        emit Signin(wallet, username, nonce, expiry, tokenAllowances);
     }
 
     function registerEpheAddr(string memory username, address epheAddr, bytes calldata signature) external {
