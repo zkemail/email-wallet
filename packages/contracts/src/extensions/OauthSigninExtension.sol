@@ -158,7 +158,7 @@ contract OauthSigninExtension is Extension, Initializable, UUPSUpgradeable, Owna
         string memory tokenName;
         TokenRegistry tokenRegistry = core.tokenRegistry();
         for (uint8 i = 0; i < numTokenAllowances; i++) {
-            (tokenAmount, tokenName) = abi.decode(subjectParams[lastSubjectParamIdx + i], (uint256, string));
+            (tokenAmount, tokenName) = abi.decode(subjectParams[lastSubjectParamIdx], (uint256, string));
             require(tokenAmount > 0, "invalid tokenAmount");
             tokenAllowances[i] = TokenAllowance({
                 tokenAddr: tokenRegistry.getTokenAddress(tokenName),
