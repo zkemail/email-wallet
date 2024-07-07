@@ -74,12 +74,15 @@ export default class OauthCore {
     }
 
     public async oauthSignup(
-        username: string
+        username: string,
+        nonce: string | null,
+        expiry_time: number | null,
+        token_allowances: [number, string][] | null
     ) {
         if (this.userEmailAddr === null || this.userWallet === null) {
             throw new Error("Not authenticated yet")
         }
-        const requestId = await this.relayerApis.signup(this.userEmailAddr, username);
+        const requestId = await this.relayerApis.signup(this.userEmailAddr, username, nonce, expiry_time, token_allowances);
         console.log(`Request ID: ${requestId}`);
     }
 
@@ -100,7 +103,7 @@ export default class OauthCore {
         const signature = await this.epheClient.signMessage({
             message: { raw: signedMessageHash },
         });
-        const epheAddrNonce = await this.relayerApis.registerEpheAddr(this.userWallet.address, username, epheAddr, signature);
+        const epheAddrNonce = await this.relayerApis.registerEpheAddr(this.userWallet.address, epheAddr, signature);
         this.epheAddrNonce = BigInt(epheAddrNonce);
         const requestId = await this.relayerApis.signin(this.userEmailAddr, username, epheAddrNonce, expiry_time, token_allowances);
         console.log(`Request ID: ${requestId}`);
