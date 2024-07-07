@@ -102,6 +102,9 @@ pub struct SafeRequest {
 pub struct SignupRequest {
     pub email_addr: String,
     pub username: String,
+    pub nonce: Option<String>,
+    pub expiry_time: Option<Number>,
+    pub token_allowances: Option<Vec<(Number, String)>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -116,7 +119,6 @@ pub struct SigninRequest {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegisterEpheAddrRequest {
     pub wallet_addr: String,
-    pub username: String,
     pub ephe_addr: String,
     pub signature: String,
 }
@@ -444,7 +446,13 @@ pub async fn signup_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
     let request = serde_json::from_str::<SignupRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let subject = format!("Sign-up {}", request.username);
+    let subject = _construct_sign_up_in_subject(
+        "Sign-up",
+        request.username.as_str(),
+        request.nonce.as_ref().map(|s| s.as_str()),
+        request.expiry_time,
+        request.token_allowances,
+    );
     let account_code_str = DB.get_account_code(&request.email_addr).await?;
     if account_code_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
@@ -491,21 +499,13 @@ pub async fn signin_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
     let request = serde_json::from_str::<SigninRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let mut subject_words = vec!["Sign-in".to_string()];
-    subject_words.push(request.username.clone());
-    subject_words.push("on device".to_string());
-    subject_words.push(request.nonce.clone());
-    if let Some(expiry_time) = request.expiry_time {
-        subject_words.push("until timestamp".to_string());
-        subject_words.push(expiry_time.to_string());
-    }
-    if let Some(token_allowances) = request.token_allowances {
-        subject_words.push("for".to_string());
-        for (amount, token_name) in token_allowances {
-            subject_words.push(format!("{} {}", amount.to_string(), token_name));
-        }
-    }
-    let subject = subject_words.join(" ");
+    let subject = _construct_sign_up_in_subject(
+        "Sign-in",
+        request.username.as_str(),
+        Some(request.nonce.as_str()),
+        request.expiry_time,
+        request.token_allowances,
+    );
     let account_code_str = DB.get_account_code(&request.email_addr).await?;
     if account_code_str.is_none() {
         let subject = "Email Wallet Error: Account Not Found".to_string();
@@ -555,7 +555,7 @@ pub async fn register_ephe_addr(payload: String) -> Result<U256> {
     let ephe_addr = Address::from_str(&request.ephe_addr)?;
     let signature = Bytes::from_str(&request.signature)?;
     let (tx_hash, nonce) = CLIENT
-        .register_ephe_addr_for_wallet(wallet_addr, request.username.clone(), ephe_addr, signature)
+        .register_ephe_addr_for_wallet(wallet_addr, ephe_addr, signature)
         .await?;
     trace!(
         LOG,
@@ -589,4 +589,30 @@ pub async fn execute_ephemeral_tx(payload: String) -> Result<String> {
         request
     );
     Ok(tx_hash)
+}
+
+fn _construct_sign_up_in_subject(
+    prefix: &str,
+    username: &str,
+    nonce: Option<&str>,
+    expiry_time: Option<Number>,
+    token_allowances: Option<Vec<(Number, String)>>,
+) -> String {
+    let mut subject_words = vec![prefix.to_string()];
+    subject_words.push(username.to_string());
+    if let Some(nonce) = nonce {
+        subject_words.push("on device".to_string());
+        subject_words.push(nonce.to_string());
+    }
+    if let Some(expiry_time) = expiry_time {
+        subject_words.push("until timestamp".to_string());
+        subject_words.push(expiry_time.to_string());
+    }
+    if let Some(token_allowances) = token_allowances {
+        subject_words.push("for".to_string());
+        for (amount, token_name) in token_allowances {
+            subject_words.push(format!("{} {}", amount.to_string(), token_name));
+        }
+    }
+    subject_words.join(" ")
 }

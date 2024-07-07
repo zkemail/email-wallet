@@ -15,7 +15,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
     using StringUtils for *;
 
     OauthSignupExtension oauthUpExtension;
-    string[][] public oauthUpExtTemplates = new string[][](1);
+    string[][] public oauthUpExtTemplates = new string[][](9);
     OauthSigninExtension oauthInExtension;
     string[][] public oauthInExtTemplates = new string[][](8);
     uint256 ephePrivKey = 777;
@@ -40,6 +40,77 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
             );
             oauthUpExtension = OauthSignupExtension(payable(address(proxy)));
             oauthUpExtTemplates[0] = ["Sign-up", "{string}"];
+            // (0,0) = 0
+            oauthUpExtTemplates[1] = ["Sign-up", "{string}", "on", "device", "{uint}"];
+            // (0,1) = 1
+            oauthUpExtTemplates[2] = ["Sign-up", "{string}", "on", "device", "{uint}", "for", "{tokenAmount}"];
+            // (0,2) = 2
+            oauthUpExtTemplates[3] = [
+                "Sign-up",
+                "{string}",
+                "on",
+                "device",
+                "{uint}",
+                "for",
+                "{tokenAmount}",
+                "{tokenAmount}"
+            ];
+            // (0,3) = 3
+            oauthUpExtTemplates[4] = [
+                "Sign-up",
+                "{string}",
+                "on",
+                "device",
+                "{uint}",
+                "for",
+                "{tokenAmount}",
+                "{tokenAmount}",
+                "{tokenAmount}"
+            ];
+            // (1,0) = 4
+            oauthUpExtTemplates[5] = ["Sign-up", "{string}", "on", "device", "{uint}", "until", "timestamp", "{uint}"];
+            // (1,1) = 4 + 1 = 5
+            oauthUpExtTemplates[6] = [
+                "Sign-up",
+                "{string}",
+                "on",
+                "device",
+                "{uint}",
+                "until",
+                "timestamp",
+                "{uint}",
+                "for",
+                "{tokenAmount}"
+            ];
+            // (1,2) = 4 + 2 = 6
+            oauthUpExtTemplates[7] = [
+                "Sign-up",
+                "{string}",
+                "on",
+                "device",
+                "{uint}",
+                "until",
+                "timestamp",
+                "{uint}",
+                "for",
+                "{tokenAmount}",
+                "{tokenAmount}"
+            ];
+            // (1,3) = 4 + 3 = 7
+            oauthUpExtTemplates[8] = [
+                "Sign-up",
+                "{string}",
+                "on",
+                "device",
+                "{uint}",
+                "until",
+                "timestamp",
+                "{uint}",
+                "for",
+                "{tokenAmount}",
+                "{tokenAmount}",
+                "{tokenAmount}"
+            ];
             extensionHandler.publishExtension("OauthSignup", address(oauthUpExtension), oauthUpExtTemplates, 0.1 ether);
 
             OauthSigninExtension oauthInExtensionImpl = new OauthSigninExtension();
@@ -141,8 +212,51 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         require(success, "installing OauthSignup failed");
 
         vm.stopPrank();
+    }
 
-        assertTrue(success, "failed to register oauth extensions");
+    function test_Oauth_WETHTransferInSignup() public {
+        vm.startPrank(walletAddr);
+        deal(address(walletAddr), 10 ether);
+        weth.deposit{value: 10 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(relayer);
+        console.log("wallet of username", oauthCore.walletOfUsername(username));
+        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
+        uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Sign-up";
+        emailOp.maskedSubject = string.concat("Sign-up ", username, " on device ", nonce.toString(), " for 7 ETH");
+        emailOp.extensionName = "OauthSignup";
+        emailOp.extensionParams.subjectTemplateIndex = 2;
+        emailOp.hasEmailRecipient = false;
+        emailOp.extensionParams.subjectParams = new bytes[](3);
+        emailOp.extensionParams.subjectParams[0] = abi.encode(username);
+        emailOp.extensionParams.subjectParams[1] = abi.encode(nonce);
+        emailOp.extensionParams.subjectParams[2] = abi.encode(uint256(7 ether), "ETH");
+        emailOp.emailNullifier = bytes32(uint256(93847));
+        (bool success, , , ) = core.handleEmailOp(emailOp);
+        assertTrue(success, "emailOp failed");
+
+        address recipient = vm.addr(110);
+        EphemeralTx memory txData = EphemeralTx({
+            walletAddr: walletAddr,
+            txNonce: 0,
+            target: address(weth),
+            ethValue: 0,
+            tokenAmount: 7 ether,
+            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 7 ether),
+            epheAddr: epheAddr,
+            epheAddrNonce: nonce,
+            signature: new bytes(0)
+        });
+        bytes32 txHash = Wallet(payable(walletAddr)).hashEphemeralTx(txData);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ephePrivKey, ECDSA.toEthSignedMessageHash(txHash));
+        txData.signature = abi.encodePacked(r, s, v);
+        Wallet(payable(walletAddr)).executeEphemeralTx(txData);
+        require(WETH9(weth).balanceOf(recipient) == 7 ether, "invalid recipient balance");
+        require(WETH9(weth).balanceOf(walletAddr) == 3 ether, "invalid sender balance");
+        vm.stopPrank();
     }
 
     function test_Oauth_WETHTransfer() public {
@@ -154,7 +268,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -220,7 +334,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -267,10 +381,11 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
+
         emailOp.maskedSubject = string.concat("Sign-in ", username, " on device ", nonce.toString(), " for 7 ETH");
         emailOp.extensionName = "OauthSignin";
         emailOp.extensionParams.subjectTemplateIndex = 1;
@@ -282,6 +397,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         emailOp.emailNullifier = bytes32(uint256(93847));
         (bool success, , , ) = core.handleEmailOp(emailOp);
         assertTrue(success, "emailOp failed");
+        assertEq(oauthCore.walletOfUsername(username), walletAddr);
 
         address recipient = vm.addr(110);
         EphemeralTx memory txData = EphemeralTx({
@@ -289,8 +405,8 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
             txNonce: 0,
             target: address(weth),
             ethValue: 0,
-            tokenAmount: 10 ether,
-            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 7 ether),
+            tokenAmount: 7 ether,
+            data: abi.encodeWithSignature("transfer(address,uint256)", recipient, 10 ether),
             epheAddr: epheAddr,
             epheAddrNonce: nonce,
             signature: new bytes(0)
@@ -318,11 +434,11 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         assertTrue(success, "emailOp failed");
     }
 
-    function _registerEpheAddr(uint256 _privKey, string memory _username, address _epheAddr) private {
-        bytes32 hash = oauthCore.hashOfRegisterEpheAddr(_username, _epheAddr);
+    function _registerEpheAddr(uint256 _privKey, address _wallet, address _epheAddr) private {
+        bytes32 hash = oauthCore.hashOfRegisterEpheAddr(_wallet, _epheAddr);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(_privKey, ECDSA.toEthSignedMessageHash(hash));
         bytes memory signature = abi.encodePacked(r, s, v);
-        oauthCore.registerEpheAddr(_username, _epheAddr, signature);
+        oauthCore.registerEpheAddr(_wallet, _epheAddr, signature);
     }
     // function test_Safe2FAExtension_AuthETHTransferByEOA() public {
     //     deal(address(safeAccount), 10 ether);

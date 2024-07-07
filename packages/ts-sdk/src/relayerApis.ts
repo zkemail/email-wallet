@@ -24,9 +24,34 @@ export default class RelayerApis {
         await axios.post(url, { email_addr: emailAddr });
     }
 
-    public async signup(emailAddr: string, username: string): Promise<string> {
+    public async signup(
+        emailAddr: string,
+        username: string,
+        nonce: string | null,
+        expiry_time: number | null,
+        token_allowances: [number, string][] | null
+    ): Promise<string> {
         const url = `${this.relayerHost}/api/signup`;
-        const res = await axios.post(url, { email_addr: emailAddr, username });
+        const requestData: {
+            email_addr: string;
+            username: string;
+            nonce?: string;
+            expiry_time?: number;
+            token_allowances?: [number, string][];
+        } = {
+            email_addr: emailAddr,
+            username,
+        };
+        if (nonce !== null) {
+            requestData.nonce = nonce;
+        }
+        if (expiry_time !== null) {
+            requestData.expiry_time = expiry_time;
+        }
+        if (token_allowances !== null) {
+            requestData.token_allowances = token_allowances;
+        }
+        const res = await axios.post(url, requestData);
         return res.data;
     }
 
@@ -61,12 +86,11 @@ export default class RelayerApis {
 
     public async registerEpheAddr(
         walletAddr: Address,
-        username: string,
         epheAddr: Address,
         signature: string
     ): Promise<string> {
         const url = `${this.relayerHost}/api/registerEpheAddr`;
-        const res = await axios.post(url, { wallet_addr: walletAddr, username, ephe_addr: epheAddr, signature });
+        const res = await axios.post(url, { wallet_addr: walletAddr, ephe_addr: epheAddr, signature });
         return res.data;
     }
 

@@ -220,10 +220,10 @@ pub mod i_oauth {
                             name: ::std::borrow::ToOwned::to_owned("registerEpheAddr"),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("username"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                    name: ::std::borrow::ToOwned::to_owned("wallet"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
                                     internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
+                                        ::std::borrow::ToOwned::to_owned("address"),
                                     ),
                                 },
                                 ::ethers::core::abi::ethabi::Param {
@@ -638,15 +638,15 @@ pub mod i_oauth {
                 .method_hash([240, 227, 132, 165], (nonce, token, amount))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `registerEpheAddr` (0x385ec107) function
+        ///Calls the contract's `registerEpheAddr` (0x4cf47aed) function
         pub fn register_ephe_addr(
             &self,
-            username: ::std::string::String,
+            wallet: ::ethers::core::types::Address,
             ephe_addr: ::ethers::core::types::Address,
             signature: ::ethers::core::types::Bytes,
         ) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
-                .method_hash([56, 94, 193, 7], (username, ephe_addr, signature))
+                .method_hash([76, 244, 122, 237], (wallet, ephe_addr, signature))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `signin` (0x5dcb7f88) function
@@ -977,7 +977,7 @@ pub mod i_oauth {
         pub token: ::ethers::core::types::Address,
         pub amount: ::ethers::core::types::U256,
     }
-    ///Container type for all input parameters for the `registerEpheAddr` function with signature `registerEpheAddr(string,address,bytes)` and selector `0x385ec107`
+    ///Container type for all input parameters for the `registerEpheAddr` function with signature `registerEpheAddr(address,address,bytes)` and selector `0x4cf47aed`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -988,9 +988,12 @@ pub mod i_oauth {
         Eq,
         Hash
     )]
-    #[ethcall(name = "registerEpheAddr", abi = "registerEpheAddr(string,address,bytes)")]
+    #[ethcall(
+        name = "registerEpheAddr",
+        abi = "registerEpheAddr(address,address,bytes)"
+    )]
     pub struct RegisterEpheAddrCall {
-        pub username: ::std::string::String,
+        pub wallet: ::ethers::core::types::Address,
         pub ephe_addr: ::ethers::core::types::Address,
         pub signature: ::ethers::core::types::Bytes,
     }

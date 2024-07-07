@@ -758,7 +758,7 @@ impl ChainClient {
     pub async fn register_ephe_addr_for_wallet(
         &self,
         wallet_addr: Address,
-        username: String,
+        // username: String,
         ephe_addr: Address,
         signature: Bytes,
     ) -> Result<(String, U256)> {
@@ -768,7 +768,7 @@ impl ChainClient {
 
         let wallet = WalletContract::new(wallet_addr, self.client.clone());
         let oauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
-        let call = oauth.register_ephe_addr(username, ephe_addr, signature);
+        let call = oauth.register_ephe_addr(wallet_addr, ephe_addr, signature);
         let tx = call.send().await?;
 
         let receipt = tx
