@@ -10,7 +10,7 @@ INPUT_FILE="${SCRIPT_DIR}/../build_integration/claim_input.json"
 yarn workspace @email-wallet/circom gen-claim-input \
     --email-addr $EMAIL_ADDR \
     --email-addr-rand $EMAIL_ADDR_RAND \
-    --account-key $ACCOUNT_CODE \
+    --account-code $ACCOUNT_CODE \
     --input-file $INPUT_FILE \
     --prove
 exit 0

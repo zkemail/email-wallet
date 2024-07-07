@@ -8,7 +8,7 @@ WORKSPACE_DIR="${SCRIPT_DIR}/../../"
 INPUT_FILE="${SCRIPT_DIR}/../build_integration/email_sender_input.json"
 yarn workspace @email-wallet/circom gen-email-sender-input \
     --email-file $EMAIL_FILE_PATH \
-    --account-key $ACCOUNT_CODE \
+    --account-code $ACCOUNT_CODE \
     --input-file $INPUT_FILE \
     --prove
 exit 0
