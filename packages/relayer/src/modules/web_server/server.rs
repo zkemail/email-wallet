@@ -286,6 +286,24 @@ pub async fn run_server() -> Result<()> {
                }
            }),
     )
+    .route("/api/epheAddrStatus",
+    axum::routing::post(move |payload: String| async move {
+        info!(LOG, "epheAddrStatus payload: {}", payload);
+        match ephe_addr_status_api_fn(payload).await {
+            Ok(res) => {
+                axum::Json(res)
+            }
+            Err(err) => {
+                error!(LOG, "Failed to accept signup: {}", err);
+                axum::Json(EpheAddrStatusResponse {
+                    is_activated:false,
+                    wallet_addr: None,
+                    nonce: None,
+                })
+            }
+        }
+    }),
+    )
     // .route(
     //     "/api/registerEpheAddr",
     //     axum::routing::post(move |payload: String| async move {

@@ -12,7 +12,7 @@ export default class OauthCore {
     // accountCode: string | null = null;
     userWallet: GetContractReturnType<typeof walletAbi, PublicClient> | null = null;
     epheClient: PrivateKeyAccount;
-    // epheAddrNonce: bigint | null = null;
+    epheAddrNonce: string | null = null;
 
 
     constructor(
@@ -48,97 +48,35 @@ export default class OauthCore {
         username: string | null,
         expiryTime: number | null,
         tokenAllowances: [number, string][] | null
-    ) {
+    ): Promise<string> {
         this.userEmailAddr = userEmailAddr;
-        await this.relayerApis.signupOrIn(userEmailAddr, this.epheClient.address, username, expiryTime, tokenAllowances);
+        return await this.relayerApis.signupOrIn(userEmailAddr, this.epheClient.address, username, expiryTime, tokenAllowances);
     }
 
-    // public async loadAccountCode(
-    //     accountCode: string
-    // ) {
-    //     if (this.userEmailAddr === null) {
-    //         throw new Error("Not setup yet")
-    //     }
-    //     const walletAddr = await this.relayerApis.getWalletAddress(this.userEmailAddr, accountCode);
-    //     this.userWallet = getContract({
-    //         address: walletAddr,
-    //         abi: walletAbi,
-    //         client: this.publicClient
-    //     });
-    // }
-
-
-    // public async requestEmailAuthentication(
-    //     userEmailAddr: string,
-    // ) {
-    //     if (this.userEmailAddr !== null) {
-    //         throw new Error("Already requested")
-    //     }
-    //     this.userEmailAddr = userEmailAddr;
-    //     await this.relayerApis.recoverAccountCode(userEmailAddr);
-    // }
-
-    // public async completeEmailAuthentication(
-    //     accountCode: string,
-    // ) {
-    //     if (this.userEmailAddr === null) {
-    //         throw new Error("Not requested yet")
-    //     }
-    //     if (this.accountCode !== null) {
-    //         throw new Error("Already completed")
-    //     }
-    //     this.accountCode = accountCode;
-    //     const walletAddr = await this.relayerApis.getWalletAddress(this.userEmailAddr, accountCode);
-    //     this.userWallet = getContract({
-    //         address: walletAddr,
-    //         abi: walletAbi,
-    //         client: this.publicClient
-    //     });
-    // }
-
-    public async getOauthUsername(): Promise<string> {
-        if (this.userWallet === null) {
-            throw new Error("An account code is not loaded")
+    public async waitEpheAddrActivated(
+        requestId: string
+    ): Promise<boolean> {
+        if (this.userEmailAddr === null) {
+            throw new Error("Not setup yet")
         }
-        const username = await this.oauth.read.getUsernameOfWallet([this.userWallet.address]);
-        return username;
+        const signedMsg = `${this.relayerApis.relayerHost}/api/epheAddrStatus/${requestId}`;
+        const signature = await this.epheClient.signMessage({
+            message: signedMsg,
+        });
+
+        let res = await this.relayerApis.epheAddrStatus(requestId, signature);
+        while (!res.is_activated) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            res = await this.relayerApis.epheAddrStatus(requestId, signature);
+        }
+        this.userWallet = getContract({
+            address: res.wallet_addr as `0x${string}`,
+            abi: walletAbi,
+            client: this.publicClient
+        });
+        this.epheAddrNonce = res.nonce as string;
+        return true;
     }
-
-    // public async oauthSignup(
-    //     username: string,
-    //     nonce: string | null,
-    //     expiry_time: number | null,
-    //     token_allowances: [number, string][] | null
-    // ) {
-    //     if (this.userEmailAddr === null || this.userWallet === null) {
-    //         throw new Error("Not authenticated yet")
-    //     }
-    //     const requestId = await this.relayerApis.signup(this.userEmailAddr, username, nonce, expiry_time, token_allowances);
-    //     console.log(`Request ID: ${requestId}`);
-    // }
-
-    // public async oauthSignin(
-    //     expiry_time: number | null,
-    //     token_allowances: [number, string][] | null
-    // ) {
-    //     if (this.userEmailAddr === null || this.userWallet === null) {
-    //         throw new Error("Not authenticated yet")
-    //     }
-    //     const username = await this.getOauthUsername();
-    //     if (username === "") {
-    //         throw new Error("Not signed up yet")
-    //     }
-    //     const epheAddr = this.epheClient.address;
-    //     const chainId = await this.publicClient.getChainId();
-    //     const signedMessageHash = encodePacked(["address", "uint256", "address", "string"], [this.oauth.address, BigInt(chainId), epheAddr, username]);
-    //     const signature = await this.epheClient.signMessage({
-    //         message: { raw: signedMessageHash },
-    //     });
-    //     const epheAddrNonce = await this.relayerApis.registerEpheAddr(this.userWallet.address, epheAddr, signature);
-    //     this.epheAddrNonce = BigInt(epheAddrNonce);
-    //     const requestId = await this.relayerApis.signin(this.userEmailAddr, username, epheAddrNonce, expiry_time, token_allowances);
-    //     console.log(`Request ID: ${requestId}`);
-    // }
 
     public async oauthExecuteTx(
         target: Address,
@@ -157,7 +95,7 @@ export default class OauthCore {
             walletAddr: this.userWallet.address,
             txNonce,
             epheAddr: this.epheClient.address,
-            epheAddrNonce: this.epheAddrNonce,
+            epheAddrNonce: BigInt(this.epheAddrNonce),
             target,
             ethValue: ethValue === null ? 0n : ethValue,
             data,
@@ -170,13 +108,13 @@ export default class OauthCore {
         });
         const txHash = await this.relayerApis.executeEphemeralTx(
             tx.walletAddr,
-            tx.txNonce,
+            tx.txNonce.toString(),
             tx.epheAddr,
-            tx.epheAddrNonce,
+            this.epheAddrNonce,
             tx.target,
-            tx.ethValue,
+            tx.ethValue.toString(),
             tx.data,
-            tx.tokenAmount,
+            tx.tokenAmount.toString(),
             signature
         );
         return txHash;

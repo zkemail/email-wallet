@@ -5,20 +5,18 @@ use crate::{
     EmailWalletEvent,
 };
 use ethers::{
-    etherscan::account,
-    types::{Address, Bytes, U256},
+   etherscan::account, types::{Address, Bytes, Signature, U256}, utils::{hash_message, keccak256}
 };
 use relayer_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountCode, AccountSalt, PaddedEmailAddr},
     ParsedEmail, LOG,
 };
-
-use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
+use crate::{CHAIN_RPC_EXPLORER, WEB_SERVER_ADDRESS,CLIENT, DB};
 use hex::encode;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use serde_json::Number;
+use serde_json::{from_str, Number};
 use serde_json::Value;
 use std::str::FromStr;
 
@@ -125,6 +123,20 @@ pub struct SignupOrInRequest {
 //     pub ephe_addr: String,
 //     pub signature: String,
 // }
+
+#[derive(Serialize, Deserialize)]
+pub struct EpheAddrStatusRequest {
+    pub request_id: String,
+    pub signature: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EpheAddrStatusResponse {
+    pub is_activated: bool,
+    pub wallet_addr: Option<String>,
+    pub nonce: Option<String>,
+}
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExecuteEphemeralTxRequest {
@@ -471,7 +483,10 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
 }
 
 pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
-    let request_id = rand::thread_rng().gen();
+    let mut request_id: u64 = rand::thread_rng().gen();
+    while DB.get_ephe_addr_info(&request_id.to_string()).await?.is_some() {
+        request_id = rand::thread_rng().gen();
+    }
     let request = serde_json::from_str::<SignupOrInRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
     let account_code_str = DB.get_account_code(&request.email_addr).await?;
@@ -545,8 +560,9 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)>
             request
         );
         nonce = Some(got_nonce);
+        DB.insert_ephe_addr_info(&request_id.to_string(), &wallet_addr.to_string(),&ephe_addr.to_string(), &got_nonce.to_string()).await?;
     }
-  
+    
 
     let prefix = if is_signup { "Sign-up" } else { "Sign-in" };
     let used_username = if is_signup {
@@ -661,6 +677,47 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)>
 //     );
 //     Ok(nonce)
 // }
+
+pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusResponse> {
+    let request = serde_json::from_str::<EpheAddrStatusRequest>(&payload)
+        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+    let ephe_addr_info = DB.get_ephe_addr_info(&request.request_id).await?;
+    let signature = Signature::from_str(&request.signature)?;
+    if ephe_addr_info.is_none() {
+        return Ok(EpheAddrStatusResponse {
+            is_activated: false,
+            wallet_addr: None,
+            nonce: None,
+        });
+    }
+    let (wallet_addr_str, ephe_addr_str, nonce) = ephe_addr_info.unwrap();
+    let wallet_addr = Address::from_str(&wallet_addr_str)?;
+    let ephe_addr = Address::from_str(&ephe_addr_str)?;
+    // verify if request.signature
+    let signed_msg = format!("{}/api/epheAddrStatus/{}", WEB_SERVER_ADDRESS.get().unwrap(),request.request_id);
+    let signed_msg_hash = hash_message(signed_msg);
+    let recovered_addr = signature.recover(signed_msg_hash)?;
+    if recovered_addr != ephe_addr {
+        return Ok(EpheAddrStatusResponse {
+            is_activated: false,
+            wallet_addr: None,
+            nonce: None,
+        });
+    }
+    if CLIENT.validate_ephe_addr(wallet_addr, ephe_addr, U256::from_str(&nonce)?).await.is_err() {
+        return Ok(EpheAddrStatusResponse {
+            is_activated: false,
+            wallet_addr: None,
+            nonce: None,
+        });
+    }
+    
+    Ok(EpheAddrStatusResponse {
+        is_activated: true,
+        wallet_addr: Some(wallet_addr_str),
+        nonce: Some(nonce),
+    })
+}
 
 pub async fn execute_ephemeral_tx(payload: String) -> Result<String> {
     let request = serde_json::from_str::<ExecuteEphemeralTxRequest>(&payload)

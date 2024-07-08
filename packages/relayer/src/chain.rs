@@ -816,6 +816,20 @@ impl ChainClient {
         Err(anyhow!("no EmailOpHandled event found in the receipt"))
     }
 
+    pub async fn validate_ephe_addr(
+        &self,
+        wallet_addr: Address,
+        ephe_addr: Address,
+        nonce: U256,
+    ) -> Result<()> {
+        let wallet_impl = self.account_handler.wallet_implementation().await?;
+        let wallet = WalletContract::new(wallet_impl, self.client.clone());
+        let oauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
+        let call = oauth.validate_ephe_addr(wallet_addr, ephe_addr, nonce);
+        call.call().await?;
+        Ok(())
+    }
+
     pub async fn execute_ephemeral_tx(&self, tx: EphemeralTx) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;

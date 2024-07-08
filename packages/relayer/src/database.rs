@@ -68,6 +68,17 @@ impl Database {
         .execute(&self.db)
         .await?;
 
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS ephe_addr_info (
+                request_id TEXT PRIMARY KEY,
+                wallet_addr TEXT NOT NULL,
+                ephe_addr TEXT NOT NULL,
+                nonce TEXT NOT NULL
+            );",
+        )
+        .execute(&self.db)
+        .await?;
+
         Ok(())
     }
 
@@ -431,5 +442,46 @@ impl Database {
             .await?;
 
         Ok(result.is_some())
+    }
+
+    pub async fn get_ephe_addr_info(
+        &self,
+        request_id: &str,
+    ) -> Result<Option<(String, String, String)>> {
+        let row = sqlx::query(
+            "SELECT email_address, ephe_addr, nonce FROM ephe_addr_info WHERE request_id = $1",
+        )
+        .bind(request_id)
+        .fetch_optional(&self.db)
+        .await?;
+
+        match row {
+            Some(row) => {
+                let wallet_addr: String = row.get("wallet_addr");
+                let ephe_addr: String = row.get("ephe_addr");
+                let nonce = row.get("nonce");
+                Ok(Some((wallet_addr, ephe_addr, nonce)))
+            }
+            None => Ok(None),
+        }
+    }
+
+    pub async fn insert_ephe_addr_info(
+        &self,
+        request_id: &str,
+        wallet_addr: &str,
+        ephe_addr: &str,
+        nonce: &str,
+    ) -> Result<()> {
+        sqlx::query(
+            "INSERT INTO ephe_addr_info (request_id, wallet_addr, ephe_addr, nonce) VALUES ($1, $2, $3, $4) RETURNING *",
+        )
+        .bind(request_id)
+        .bind(wallet_addr)
+        .bind(ephe_addr)
+        .bind(nonce)
+        .fetch_one(&self.db)
+        .await?;
+        Ok(())
     }
 }

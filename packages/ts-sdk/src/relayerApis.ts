@@ -66,6 +66,19 @@ export default class RelayerApis {
         return res.data;
     }
 
+    public async epheAddrStatus(
+        requestId: string,
+        signature: string
+    ): Promise<{
+        is_activated: boolean;
+        wallet_addr?: string;
+        nonce?: string;
+    }> {
+        const url = `${this.relayerHost}/api/epheAddrStatus`;
+        const res = await axios.post(url, { request_id: requestId, signature });
+        return res.data;
+    }
+
     // public async signin(
     //     emailAddr: string,
     //     username: string,
@@ -107,25 +120,25 @@ export default class RelayerApis {
 
     public async executeEphemeralTx(
         walletAddr: Address,
-        txNonce: bigint,
+        txNonce: string,
         epheAddr: Address,
-        epheAddrNonce: bigint,
+        epheAddrNonce: string,
         target: Address,
-        ethValue: bigint,
+        ethValue: string,
         data: string,
-        tokenAmount: bigint,
+        tokenAmount: string,
         signature: string
     ): Promise<string> {
         const url = `${this.relayerHost}/api/executeEphemeralTx`;
         const res = await axios.post(url, {
             wallet_addr: walletAddr,
-            tx_nonce: txNonce.toString(),
+            tx_nonce: txNonce,
             ephe_addr: epheAddr,
-            ephe_addr_nonce: epheAddrNonce.toString(),
+            ephe_addr_nonce: epheAddrNonce,
             target,
-            eth_value: ethValue.toString(),
+            eth_value: ethValue,
             data,
-            token_amount: tokenAmount.toString(),
+            token_amount: tokenAmount,
             signature,
         });
         return res.data;
