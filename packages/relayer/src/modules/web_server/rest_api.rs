@@ -4,7 +4,10 @@ use crate::{
     error, handle_email, handle_email_event, render_html, trace, wallet::EphemeralTx, EmailMessage,
     EmailWalletEvent,
 };
-use ethers::types::{Address, Bytes, U256};
+use ethers::{
+    etherscan::account,
+    types::{Address, Bytes, U256},
+};
 use relayer_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountCode, AccountSalt, PaddedEmailAddr},
@@ -99,29 +102,29 @@ pub struct SafeRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SignupRequest {
+pub struct SignupOrInRequest {
     pub email_addr: String,
-    pub username: String,
-    pub nonce: Option<String>,
+    pub ephe_addr: Option<String>,
+    pub username: Option<String>,
     pub expiry_time: Option<Number>,
     pub token_allowances: Option<Vec<(Number, String)>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct SigninRequest {
-    pub email_addr: String,
-    pub username: String,
-    pub nonce: String,
-    pub expiry_time: Option<Number>,
-    pub token_allowances: Option<Vec<(Number, String)>>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct SigninRequest {
+//     pub email_addr: String,
+//     pub username: String,
+//     pub nonce: String,
+//     pub expiry_time: Option<Number>,
+//     pub token_allowances: Option<Vec<(Number, String)>>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RegisterEpheAddrRequest {
-    pub wallet_addr: String,
-    pub ephe_addr: String,
-    pub signature: String,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct RegisterEpheAddrRequest {
+//     pub wallet_addr: String,
+//     pub ephe_addr: String,
+//     pub signature: String,
+// }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExecuteEphemeralTxRequest {
@@ -197,6 +200,11 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         body_attachments: Some(vec![]),
     };
     Ok((request_id, email))
+}
+
+pub async fn gen_account_code_api_fn() -> Result<String> {
+    let account_code = AccountCode::new(rand::thread_rng());
+    Ok(field2hex(&account_code.0))
 }
 
 pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMessage)> {
@@ -417,12 +425,32 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
             }
         }
         match handle_email(email.clone()).await {
-            Ok(event) => match handle_email_event(event).await {
-                Ok(_) => {}
-                Err(e) => {
-                    error!(LOG, "Error handling email event: {:?}", e);
+            Ok((event, is_replay)) => {
+                match handle_email_event(event.clone()).await {
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!(LOG, "Error handling email event: {:?}", e);
+                    }
+                };
+                if is_replay {
+                    let event2 = match handle_email(email.clone()).await {
+                        Ok((event2, _)) => event2,
+                        Err(e) => {
+                            let error_event = EmailWalletEvent::Error {
+                                email_addr: from_addr,
+                                error: e.to_string(),
+                            };
+                            error_event
+                        }
+                    };
+                    match handle_email_event(event2).await {
+                        Ok(_) => {}
+                        Err(e) => {
+                            error!(LOG, "Error handling email event: {:?}", e);
+                        }
+                    }
                 }
-            },
+            }
             Err(e) => {
                 error!(LOG, "Error handling email: {:?}", e);
                 match handle_email_event(EmailWalletEvent::Error {
@@ -442,22 +470,33 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
     Ok(())
 }
 
-pub async fn signup_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     let request_id = rand::thread_rng().gen();
-    let request = serde_json::from_str::<SignupRequest>(&payload)
+    let request = serde_json::from_str::<SignupOrInRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let subject = _construct_sign_up_in_subject(
-        "Sign-up",
-        request.username.as_str(),
-        request.nonce.as_ref().map(|s| s.as_str()),
-        request.expiry_time,
-        request.token_allowances,
-    );
     let account_code_str = DB.get_account_code(&request.email_addr).await?;
-    if account_code_str.is_none() {
-        let subject = "Email Wallet Error: Account Not Found".to_string();
-        let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+    let (account_code, code_in_email) = if let Some(code_str) = account_code_str {
+        (AccountCode(hex2field(&code_str)?), None)
+    } else {
+        let account_code = AccountCode::new(rand::thread_rng());
+        (
+            account_code,
+            Some(field2hex(&account_code.0)[2..].to_string()),
+        )
+    };
+    let account_salt = AccountSalt::new(
+        &PaddedEmailAddr::from_email_addr(&request.email_addr),
+        account_code,
+    )?;
+    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+    trace!(LOG, "Account salt: {:?}", account_salt);
+    let registered_username = CLIENT.get_username_from_wallet(&account_salt).await?;
+    trace!(LOG, "Registered Username: {:?}", registered_username);
+    let is_signup = registered_username.len() == 0;
+    
+    if is_signup && request.username.is_none() {
+        let subject = "Email Wallet Error: No username in the sign-up request".to_string();
+        let error_msg = "Please specify a username when you sign-up".to_string();
         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
         let body_html = render_html("error.html", render_data).await?;
         let email = EmailMessage {
@@ -471,15 +510,69 @@ pub async fn signup_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
         };
         return Ok((request_id, email));
     }
-    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
-    let account_salt = AccountSalt::new(
-        &PaddedEmailAddr::from_email_addr(&request.email_addr),
-        account_code,
-    )?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+    if !is_signup && request.ephe_addr.is_none() {
+        let subject = "Email Wallet Error: No ephemeral address in the sign-in request".to_string();
+        let error_msg = format!(
+            "Please specify an ephemeral address when you sign-in {}",
+            &registered_username
+        );
+        let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+        let body_html = render_html("error.html", render_data).await?;
+        let email = EmailMessage {
+            subject,
+            to: request.email_addr,
+            body_plain: error_msg,
+            body_html,
+            reference: None,
+            reply_to: None,
+            body_attachments: None,
+        };
+        return Ok((request_id, email));
+    }
+
+    let mut nonce = None;
+    // register ephe addr
+    if let Some(ephe_addr) = request.ephe_addr.as_ref() {
+        let ephe_addr = Address::from_str(ephe_addr)?;
+        let (tx_hash, got_nonce) = CLIENT
+            .register_ephe_addr_for_wallet(wallet_addr, ephe_addr)
+            .await?;
+        trace!(
+            LOG,
+            "Register ephe addr tx hash: {}, nonce: {}, request: {:?}",
+            tx_hash,
+            got_nonce,
+            request
+        );
+        nonce = Some(got_nonce);
+    }
+  
+
+    let prefix = if is_signup { "Sign-up" } else { "Sign-in" };
+    let used_username = if is_signup {
+        request.username.as_ref().unwrap()
+    } else {
+        &registered_username
+    };
+    let mut subject = _construct_sign_up_in_subject(
+        prefix,
+        used_username,
+        nonce.map(|s| {
+             s.to_string()
+            }),
+        request.expiry_time,
+        request.token_allowances,
+    );
+    if let Some(code) = code_in_email {
+        subject = format!("{} Code {}", subject, code);
+    }
+
+
     let body_plain = format!(
-        "Hi {}! Please reply to this email to sign-up {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
-        request.email_addr, request.username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
+        "Hi {}! Please reply to this email to {} {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
+        request.email_addr, 
+        if is_signup { "sign-up" } else { "sign-in" },
+        used_username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
     );
     let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
     let body_html = render_html("send_request.html", render_data).await?;
@@ -495,77 +588,79 @@ pub async fn signup_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
     Ok((request_id, email))
 }
 
-pub async fn signin_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
-    let request_id = rand::thread_rng().gen();
-    let request = serde_json::from_str::<SigninRequest>(&payload)
-        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let subject = _construct_sign_up_in_subject(
-        "Sign-in",
-        request.username.as_str(),
-        Some(request.nonce.as_str()),
-        request.expiry_time,
-        request.token_allowances,
-    );
-    let account_code_str = DB.get_account_code(&request.email_addr).await?;
-    if account_code_str.is_none() {
-        let subject = "Email Wallet Error: Account Not Found".to_string();
-        let error_msg =
-            "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
-        let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
-        let body_html = render_html("error.html", render_data).await?;
-        let email = EmailMessage {
-            subject,
-            to: request.email_addr,
-            body_plain: error_msg,
-            body_html,
-            reference: None,
-            reply_to: None,
-            body_attachments: None,
-        };
-        return Ok((request_id, email));
-    }
-    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
-    let account_salt = AccountSalt::new(
-        &PaddedEmailAddr::from_email_addr(&request.email_addr),
-        account_code,
-    )?;
-    let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
-    let body_plain = format!(
-        "Hi {}! Please reply to this email to sign-in {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
-        request.email_addr, request.username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
-    );
-    let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
-    let body_html = render_html("send_request.html", render_data).await?;
-    let email = EmailMessage {
-        subject: subject.clone(),
-        body_html,
-        body_plain,
-        to: request.email_addr,
-        reference: None,
-        reply_to: None,
-        body_attachments: None,
-    };
-    Ok((request_id, email))
-}
 
-pub async fn register_ephe_addr(payload: String) -> Result<U256> {
-    let request = serde_json::from_str::<RegisterEpheAddrRequest>(&payload)
-        .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let wallet_addr = Address::from_str(&request.wallet_addr)?;
-    let ephe_addr = Address::from_str(&request.ephe_addr)?;
-    let signature = Bytes::from_str(&request.signature)?;
-    let (tx_hash, nonce) = CLIENT
-        .register_ephe_addr_for_wallet(wallet_addr, ephe_addr, signature)
-        .await?;
-    trace!(
-        LOG,
-        "Register ephe addr tx hash: {}, nonce: {}, request: {:?}",
-        tx_hash,
-        nonce,
-        request
-    );
-    Ok(nonce)
-}
+
+// pub async fn signin_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
+//     let request_id = rand::thread_rng().gen();
+//     let request = serde_json::from_str::<SigninRequest>(&payload)
+//         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+//     let subject = _construct_sign_up_in_subject(
+//         "Sign-in",
+//         request.username.as_str(),
+//         Some(request.nonce.as_str()),
+//         request.expiry_time,
+//         request.token_allowances,
+//     );
+//     let account_code_str = DB.get_account_code(&request.email_addr).await?;
+//     if account_code_str.is_none() {
+//         let subject = "Email Wallet Error: Account Not Found".to_string();
+//         let error_msg =
+//             "Your wallet is not yet created. Please create your Email Wallet first on https://emailwallet.org.".to_string();
+//         let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "errorMsg": error_msg.clone(), "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+//         let body_html = render_html("error.html", render_data).await?;
+//         let email = EmailMessage {
+//             subject,
+//             to: request.email_addr,
+//             body_plain: error_msg,
+//             body_html,
+//             reference: None,
+//             reply_to: None,
+//             body_attachments: None,
+//         };
+//         return Ok((request_id, email));
+//     }
+//     let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+//     let account_salt = AccountSalt::new(
+//         &PaddedEmailAddr::from_email_addr(&request.email_addr),
+//         account_code,
+//     )?;
+//     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
+//     let body_plain = format!(
+//         "Hi {}! Please reply to this email to sign-in {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
+//         request.email_addr, request.username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
+//     );
+//     let render_data = serde_json::json!({"userEmailAddr": request.email_addr, "originalSubject": subject, "walletAddr": wallet_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+//     let body_html = render_html("send_request.html", render_data).await?;
+//     let email = EmailMessage {
+//         subject: subject.clone(),
+//         body_html,
+//         body_plain,
+//         to: request.email_addr,
+//         reference: None,
+//         reply_to: None,
+//         body_attachments: None,
+//     };
+//     Ok((request_id, email))
+// }
+
+// pub async fn register_ephe_addr(payload: String) -> Result<U256> {
+//     let request = serde_json::from_str::<RegisterEpheAddrRequest>(&payload)
+//         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
+//     let wallet_addr = Address::from_str(&request.wallet_addr)?;
+//     let ephe_addr = Address::from_str(&request.ephe_addr)?;
+//     let signature = Bytes::from_str(&request.signature)?;
+//     let (tx_hash, nonce) = CLIENT
+//         .register_ephe_addr_for_wallet(wallet_addr, ephe_addr, signature)
+//         .await?;
+//     trace!(
+//         LOG,
+//         "Register ephe addr tx hash: {}, nonce: {}, request: {:?}",
+//         tx_hash,
+//         nonce,
+//         request
+//     );
+//     Ok(nonce)
+// }
 
 pub async fn execute_ephemeral_tx(payload: String) -> Result<String> {
     let request = serde_json::from_str::<ExecuteEphemeralTxRequest>(&payload)
@@ -594,7 +689,7 @@ pub async fn execute_ephemeral_tx(payload: String) -> Result<String> {
 fn _construct_sign_up_in_subject(
     prefix: &str,
     username: &str,
-    nonce: Option<&str>,
+    nonce: Option<String>,
     expiry_time: Option<Number>,
     token_allowances: Option<Vec<(Number, String)>>,
 ) -> String {

@@ -9,10 +9,10 @@ export default class OauthCore {
     oauth: GetContractReturnType<typeof iOauthAbi, PublicClient>;
     relayerApis: RelayerApis;
     userEmailAddr: string | null = null;
-    accountCode: string | null = null;
+    // accountCode: string | null = null;
     userWallet: GetContractReturnType<typeof walletAbi, PublicClient> | null = null;
     epheClient: PrivateKeyAccount;
-    epheAddrNonce: bigint | null = null;
+    // epheAddrNonce: bigint | null = null;
 
 
     constructor(
@@ -36,78 +36,109 @@ export default class OauthCore {
         this.epheClient = privateKeyToAccount(generatePrivateKey());
     }
 
-
-    public async requestEmailAuthentication(
+    public async isAccountCreated(
         userEmailAddr: string,
-    ) {
-        if (this.userEmailAddr !== null) {
-            throw new Error("Already requested")
-        }
-        this.userEmailAddr = userEmailAddr;
-        await this.relayerApis.recoverAccountCode(userEmailAddr);
+    ): Promise<boolean> {
+        return await this.relayerApis.isAccountCreated(userEmailAddr);
     }
 
-    public async completeEmailAuthentication(
-        accountCode: string,
+
+    public async setup(
+        userEmailAddr: string,
+        username: string | null,
+        expiryTime: number | null,
+        tokenAllowances: [number, string][] | null
     ) {
-        if (this.userEmailAddr === null) {
-            throw new Error("Not requested yet")
-        }
-        if (this.accountCode !== null) {
-            throw new Error("Already completed")
-        }
-        this.accountCode = accountCode;
-        const walletAddr = await this.relayerApis.getWalletAddress(this.userEmailAddr, accountCode);
-        this.userWallet = getContract({
-            address: walletAddr,
-            abi: walletAbi,
-            client: this.publicClient
-        });
+        this.userEmailAddr = userEmailAddr;
+        await this.relayerApis.signupOrIn(userEmailAddr, this.epheClient.address, username, expiryTime, tokenAllowances);
     }
+
+    // public async loadAccountCode(
+    //     accountCode: string
+    // ) {
+    //     if (this.userEmailAddr === null) {
+    //         throw new Error("Not setup yet")
+    //     }
+    //     const walletAddr = await this.relayerApis.getWalletAddress(this.userEmailAddr, accountCode);
+    //     this.userWallet = getContract({
+    //         address: walletAddr,
+    //         abi: walletAbi,
+    //         client: this.publicClient
+    //     });
+    // }
+
+
+    // public async requestEmailAuthentication(
+    //     userEmailAddr: string,
+    // ) {
+    //     if (this.userEmailAddr !== null) {
+    //         throw new Error("Already requested")
+    //     }
+    //     this.userEmailAddr = userEmailAddr;
+    //     await this.relayerApis.recoverAccountCode(userEmailAddr);
+    // }
+
+    // public async completeEmailAuthentication(
+    //     accountCode: string,
+    // ) {
+    //     if (this.userEmailAddr === null) {
+    //         throw new Error("Not requested yet")
+    //     }
+    //     if (this.accountCode !== null) {
+    //         throw new Error("Already completed")
+    //     }
+    //     this.accountCode = accountCode;
+    //     const walletAddr = await this.relayerApis.getWalletAddress(this.userEmailAddr, accountCode);
+    //     this.userWallet = getContract({
+    //         address: walletAddr,
+    //         abi: walletAbi,
+    //         client: this.publicClient
+    //     });
+    // }
 
     public async getOauthUsername(): Promise<string> {
         if (this.userWallet === null) {
-            throw new Error("Not authenticated yet")
+            throw new Error("An account code is not loaded")
         }
         const username = await this.oauth.read.getUsernameOfWallet([this.userWallet.address]);
         return username;
     }
 
-    public async oauthSignup(
-        username: string,
-        nonce: string | null,
-        expiry_time: number | null,
-        token_allowances: [number, string][] | null
-    ) {
-        if (this.userEmailAddr === null || this.userWallet === null) {
-            throw new Error("Not authenticated yet")
-        }
-        const requestId = await this.relayerApis.signup(this.userEmailAddr, username, nonce, expiry_time, token_allowances);
-        console.log(`Request ID: ${requestId}`);
-    }
+    // public async oauthSignup(
+    //     username: string,
+    //     nonce: string | null,
+    //     expiry_time: number | null,
+    //     token_allowances: [number, string][] | null
+    // ) {
+    //     if (this.userEmailAddr === null || this.userWallet === null) {
+    //         throw new Error("Not authenticated yet")
+    //     }
+    //     const requestId = await this.relayerApis.signup(this.userEmailAddr, username, nonce, expiry_time, token_allowances);
+    //     console.log(`Request ID: ${requestId}`);
+    // }
 
-    public async oauthSignin(
-        expiry_time: number | null,
-        token_allowances: [number, string][] | null
-    ) {
-        if (this.userEmailAddr === null || this.userWallet === null) {
-            throw new Error("Not authenticated yet")
-        }
-        const username = await this.getOauthUsername();
-        if (username === "") {
-            throw new Error("Not signed up yet")
-        }
-        const epheAddr = this.epheClient.address;
-        const chainId = await this.publicClient.getChainId();
-        const signedMessageHash = encodePacked(["address", "uint256", "address", "string"], [this.oauth.address, BigInt(chainId), epheAddr, username]);
-        const signature = await this.epheClient.signMessage({
-            message: { raw: signedMessageHash },
-        });
-        const epheAddrNonce = await this.relayerApis.registerEpheAddr(this.userWallet.address, epheAddr, signature);
-        this.epheAddrNonce = BigInt(epheAddrNonce);
-        const requestId = await this.relayerApis.signin(this.userEmailAddr, username, epheAddrNonce, expiry_time, token_allowances);
-        console.log(`Request ID: ${requestId}`);
-    }
+    // public async oauthSignin(
+    //     expiry_time: number | null,
+    //     token_allowances: [number, string][] | null
+    // ) {
+    //     if (this.userEmailAddr === null || this.userWallet === null) {
+    //         throw new Error("Not authenticated yet")
+    //     }
+    //     const username = await this.getOauthUsername();
+    //     if (username === "") {
+    //         throw new Error("Not signed up yet")
+    //     }
+    //     const epheAddr = this.epheClient.address;
+    //     const chainId = await this.publicClient.getChainId();
+    //     const signedMessageHash = encodePacked(["address", "uint256", "address", "string"], [this.oauth.address, BigInt(chainId), epheAddr, username]);
+    //     const signature = await this.epheClient.signMessage({
+    //         message: { raw: signedMessageHash },
+    //     });
+    //     const epheAddrNonce = await this.relayerApis.registerEpheAddr(this.userWallet.address, epheAddr, signature);
+    //     this.epheAddrNonce = BigInt(epheAddrNonce);
+    //     const requestId = await this.relayerApis.signin(this.userEmailAddr, username, epheAddrNonce, expiry_time, token_allowances);
+    //     console.log(`Request ID: ${requestId}`);
+    // }
 
     public async oauthExecuteTx(
         target: Address,

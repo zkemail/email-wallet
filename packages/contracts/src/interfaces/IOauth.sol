@@ -79,7 +79,6 @@ interface IOauth {
     /// @notice Register the ephemeral address for the wallet.
     /// @param wallet Address of the wallet.
     /// @param epheAddr Address of the ephemeral address.
-    /// @param signature Signature of the ephemeral address.
     /// @dev This function MUST allows that the same `epheAddr` is used more than once; otherwise, an adversary can post the same `epheAddr` to block the user's registration.
-    function registerEpheAddr(address wallet, address epheAddr, bytes calldata signature) external;
+    function registerEpheAddr(address wallet, address epheAddr) external;
 }

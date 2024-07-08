@@ -222,7 +222,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
 
         vm.startPrank(relayer);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
+        _registerEpheAddr(walletAddr, epheAddr);
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-up";
@@ -268,7 +268,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
+        _registerEpheAddr(walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -334,7 +334,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
+        _registerEpheAddr(walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -381,7 +381,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, walletAddr, epheAddr);
+        _registerEpheAddr(walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -434,11 +434,8 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         assertTrue(success, "emailOp failed");
     }
 
-    function _registerEpheAddr(uint256 _privKey, address _wallet, address _epheAddr) private {
-        bytes32 hash = oauthCore.hashOfRegisterEpheAddr(_wallet, _epheAddr);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_privKey, ECDSA.toEthSignedMessageHash(hash));
-        bytes memory signature = abi.encodePacked(r, s, v);
-        oauthCore.registerEpheAddr(_wallet, _epheAddr, signature);
+    function _registerEpheAddr(address _wallet, address _epheAddr) private {
+        oauthCore.registerEpheAddr(_wallet, _epheAddr);
     }
     // function test_Safe2FAExtension_AuthETHTransferByEOA() public {
     //     deal(address(safeAccount), 10 ether);
