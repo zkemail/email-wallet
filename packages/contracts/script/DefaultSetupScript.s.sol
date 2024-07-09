@@ -472,6 +472,7 @@ contract Deploy is Script {
         console.log("AllVerifiers implementation deployed at: %s", address(verifierImpl));
         console.log("ECDSAOwnedDKIMRegistry deployed at: %s", address(dkim));
         console.log("Wallet implementation deployed at: %s", address(walletImpl));
+        console.log("Oauth core deployed at: %s", address(oauthCore));
         console.log("RelayerHandler proxy deployed at: %s", address(relayerHandler));
         console.log("RelayerHandler implementation deployed at: %s", address(relayerHandlerImpl));
         console.log("ExtensionHandler proxy deployed at: %s", address(extensionHandler));

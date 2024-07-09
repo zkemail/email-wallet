@@ -86,7 +86,8 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
                 target != address(core.relayerHandler()) &&
                 target != address(core.accountHandler()) &&
                 target != address(core.extensionHandler()) &&
-                target != address(oauth),
+                target != address(oauth) &&
+                target != address(this),
             "invalid target"
         );
         TokenRegistry tokenRegistry = core.tokenRegistry();

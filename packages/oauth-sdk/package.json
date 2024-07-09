@@ -1,12 +1,18 @@
 {
-  "name": "@zk-email/ts-sdk",
+  "name": "@zk-email/oauth-sdk",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist",
   "scripts": {
     "build": "tsc",
+    "prepublish": "yarn build",
+    "publish": "yarn npm publish --access=public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "author": "Sora Suegami",
   "license": "MIT",
   "devDependencies": {

@@ -51,12 +51,6 @@ export default class OauthClient<chain extends Chain> {
         }
     }
 
-    public async isAccountCreated(
-        userEmailAddr: string,
-    ): Promise<boolean> {
-        return await this.relayerApis.isAccountCreated(userEmailAddr);
-    }
-
 
     public async setup(
         userEmailAddr: string,
