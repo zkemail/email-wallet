@@ -449,7 +449,7 @@ impl Database {
         request_id: &str,
     ) -> Result<Option<(String, String, String)>> {
         let row = sqlx::query(
-            "SELECT email_address, ephe_addr, nonce FROM ephe_addr_info WHERE request_id = $1",
+            "SELECT wallet_addr, ephe_addr, nonce FROM ephe_addr_info WHERE request_id = $1",
         )
         .bind(request_id)
         .fetch_optional(&self.db)

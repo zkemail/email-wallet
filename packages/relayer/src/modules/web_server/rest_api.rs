@@ -1,11 +1,12 @@
 use anyhow::{anyhow, Result};
+use lettre::error;
 
 use crate::{
     error, handle_email, handle_email_event, render_html, trace, wallet::EphemeralTx, EmailMessage,
     EmailWalletEvent,
 };
 use ethers::{
-   etherscan::account, types::{Address, Bytes, Signature, U256}, utils::{hash_message, keccak256}
+   etherscan::account, types::{Address, Bytes, Signature, U256}, utils::{hash_message, keccak256, to_checksum}
 };
 use relayer_utils::{
     converters::{field2hex, hex2field},
@@ -126,7 +127,7 @@ pub struct SignupOrInRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct EpheAddrStatusRequest {
-    pub request_id: String,
+    pub request_id: Number,
     pub signature: String,
 }
 
@@ -482,8 +483,8 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
     Ok(())
 }
 
-pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
-    let mut request_id: u64 = rand::thread_rng().gen();
+pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)> {
+    let mut request_id: u32 = rand::thread_rng().gen();
     while DB.get_ephe_addr_info(&request_id.to_string()).await?.is_some() {
         request_id = rand::thread_rng().gen();
     }
@@ -547,8 +548,8 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)>
 
     let mut nonce = None;
     // register ephe addr
-    if let Some(ephe_addr) = request.ephe_addr.as_ref() {
-        let ephe_addr = Address::from_str(ephe_addr)?;
+    if let Some(ephe_addr_str) = request.ephe_addr.as_ref() {
+        let ephe_addr = Address::from_str(ephe_addr_str)?;
         let (tx_hash, got_nonce) = CLIENT
             .register_ephe_addr_for_wallet(wallet_addr, ephe_addr)
             .await?;
@@ -560,7 +561,9 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)>
             request
         );
         nonce = Some(got_nonce);
-        DB.insert_ephe_addr_info(&request_id.to_string(), &wallet_addr.to_string(),&ephe_addr.to_string(), &got_nonce.to_string()).await?;
+        println!("request_id int: {}",request_id);
+        println!("request_id string: {}",request_id.to_string());
+        DB.insert_ephe_addr_info(&request_id.to_string(), &encode(&wallet_addr.0),&ephe_addr_str, &got_nonce.to_string()).await?;
     }
     
 
@@ -681,30 +684,40 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u64, EmailMessage)>
 pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusResponse> {
     let request = serde_json::from_str::<EpheAddrStatusRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let ephe_addr_info = DB.get_ephe_addr_info(&request.request_id).await?;
-    let signature = Signature::from_str(&request.signature)?;
+    let ephe_addr_info = DB.get_ephe_addr_info(&request.request_id.to_string()).await?;
     if ephe_addr_info.is_none() {
+        error!(LOG, "Ephe addr info not found");
         return Ok(EpheAddrStatusResponse {
             is_activated: false,
             wallet_addr: None,
             nonce: None,
         });
     }
+    trace!(LOG, "Ephe addr info: {:?}", ephe_addr_info);
     let (wallet_addr_str, ephe_addr_str, nonce) = ephe_addr_info.unwrap();
+    trace!(LOG, "Wallet addr str: {}", &wallet_addr_str);
     let wallet_addr = Address::from_str(&wallet_addr_str)?;
+    trace!(LOG, "Wallet addr: {}", wallet_addr);
     let ephe_addr = Address::from_str(&ephe_addr_str)?;
+    trace!(LOG, "Ephe addr: {}", ephe_addr);
     // verify if request.signature
     let signed_msg = format!("{}/api/epheAddrStatus/{}", WEB_SERVER_ADDRESS.get().unwrap(),request.request_id);
-    let signed_msg_hash = hash_message(signed_msg);
+    trace!(LOG, "Signed msg: {}", signed_msg);
+    let signed_msg_hash = hash_message(&signed_msg);
+    let signature = Signature::from_str(&request.signature)?;
+    trace!(LOG, "signature: {:?}", signature);
     let recovered_addr = signature.recover(signed_msg_hash)?;
+    trace!(LOG, "Recovered address: {:?}", recovered_addr);
     if recovered_addr != ephe_addr {
+        error!(LOG, "Recovered address does not match ephe addr");
         return Ok(EpheAddrStatusResponse {
             is_activated: false,
             wallet_addr: None,
             nonce: None,
         });
     }
-    if CLIENT.validate_ephe_addr(wallet_addr, ephe_addr, U256::from_str(&nonce)?).await.is_err() {
+    if CLIENT.validate_ephe_addr(wallet_addr, ephe_addr, U256::from_str_radix(&nonce,10)?).await.is_err() {
+        trace!(LOG, "Ephe addr not activated");
         return Ok(EpheAddrStatusResponse {
             is_activated: false,
             wallet_addr: None,
@@ -712,9 +725,10 @@ pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusRe
         });
     }
     
+    let wallet_addr_checksumed = to_checksum(&wallet_addr, None);
     Ok(EpheAddrStatusResponse {
         is_activated: true,
-        wallet_addr: Some(wallet_addr_str),
+        wallet_addr: Some(wallet_addr_checksumed),
         nonce: Some(nonce),
     })
 }

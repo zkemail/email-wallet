@@ -1,39 +1,54 @@
-import { Address, GetContractReturnType, PrivateKeyAccount, PublicClient, WalletClient, getContract, encodePacked } from 'viem'
+import { Address, GetContractReturnType, PrivateKeyAccount, PublicClient, WalletClient, Chain, getContract, encodePacked, Transport } from 'viem'
 import { emailWalletCoreAbi, walletAbi, iOauthAbi } from './generated'
 import { privateKeyToAccount, generatePrivateKey, sign } from 'viem/accounts'
 import RelayerApis from "./relayerApis";
+import { getAddress } from 'viem'
 
-export default class OauthCore {
-    publicClient: PublicClient;
-    core: GetContractReturnType<typeof emailWalletCoreAbi, PublicClient>;
-    oauth: GetContractReturnType<typeof iOauthAbi, PublicClient>;
+export default class OauthClient<chain extends Chain> {
+    publicClient: PublicClient<Transport, chain>;
+    core: any;// GetContractReturnType<typeof emailWalletCoreAbi, PublicClient<Transport, chain>>;
+    oauth: any; // GetContractReturnType<typeof iOauthAbi, PublicClient<Transport, chain>>;
     relayerApis: RelayerApis;
     userEmailAddr: string | null = null;
     // accountCode: string | null = null;
-    userWallet: GetContractReturnType<typeof walletAbi, PublicClient> | null = null;
+    userWallet: any = null; //GetContractReturnType<typeof walletAbi, PublicClient<Transport, chain>> | null = null;
     epheClient: PrivateKeyAccount;
     epheAddrNonce: string | null = null;
 
 
     constructor(
-        client: PublicClient,
+        client: PublicClient<Transport, chain>,
         coreAddress: Address,
-        ioauthAddress: Address,
+        oauthAddress: Address,
         relayerHost: string,
+        userEmailAddr?: string,
+        userWallet?: any,
+        epheAddrNonce?: string
     ) {
         this.publicClient = client;
         this.core = getContract({
             address: coreAddress,
             abi: emailWalletCoreAbi,
-            client,
+            client: {
+                "public": client
+            },
         });
         this.oauth = getContract({
-            address: ioauthAddress,
+            address: oauthAddress,
             abi: iOauthAbi,
             client,
         })
         this.relayerApis = new RelayerApis(relayerHost);
         this.epheClient = privateKeyToAccount(generatePrivateKey());
+        if (userEmailAddr !== undefined) {
+            this.userEmailAddr = userEmailAddr;
+        }
+        if (userWallet !== undefined) {
+            this.userWallet = userWallet;
+        }
+        if (epheAddrNonce !== undefined) {
+            this.epheAddrNonce = epheAddrNonce;
+        }
     }
 
     public async isAccountCreated(
@@ -48,18 +63,24 @@ export default class OauthCore {
         username: string | null,
         expiryTime: number | null,
         tokenAllowances: [number, string][] | null
-    ): Promise<string> {
+    ): Promise<number> {
+        if (this.userEmailAddr !== null) {
+            return 0;
+        }
         this.userEmailAddr = userEmailAddr;
         return await this.relayerApis.signupOrIn(userEmailAddr, this.epheClient.address, username, expiryTime, tokenAllowances);
     }
 
     public async waitEpheAddrActivated(
-        requestId: string
+        requestId: number
     ): Promise<boolean> {
+        if (this.userWallet !== null || this.epheAddrNonce !== null) {
+            return true;
+        }
         if (this.userEmailAddr === null) {
             throw new Error("Not setup yet")
         }
-        const signedMsg = `${this.relayerApis.relayerHost}/api/epheAddrStatus/${requestId}`;
+        const signedMsg = `${this.relayerApis.relayerHost.replace(/^https?:\/\//, '')}/api/epheAddrStatus/${requestId}`;
         const signature = await this.epheClient.signMessage({
             message: signedMsg,
         });
@@ -68,6 +89,7 @@ export default class OauthCore {
         while (!res.is_activated) {
             await new Promise(resolve => setTimeout(resolve, 1000));
             res = await this.relayerApis.epheAddrStatus(requestId, signature);
+            console.log(res);
         }
         this.userWallet = getContract({
             address: res.wallet_addr as `0x${string}`,
@@ -80,7 +102,7 @@ export default class OauthCore {
 
     public async oauthExecuteTx(
         target: Address,
-        data: `0x{string}`,
+        data: `0x${string}`,
         ethValue: bigint | null,
         token_amount: bigint | null
     ): Promise<string> {

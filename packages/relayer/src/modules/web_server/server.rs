@@ -294,7 +294,7 @@ pub async fn run_server() -> Result<()> {
                 axum::Json(res)
             }
             Err(err) => {
-                error!(LOG, "Failed to accept signup: {}", err);
+                error!(LOG, "Invalid epheAddrStatus query: {}", err);
                 axum::Json(EpheAddrStatusResponse {
                     is_activated:false,
                     wallet_addr: None,

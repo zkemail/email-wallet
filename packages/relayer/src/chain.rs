@@ -824,7 +824,14 @@ impl ChainClient {
     ) -> Result<()> {
         let wallet_impl = self.account_handler.wallet_implementation().await?;
         let wallet = WalletContract::new(wallet_impl, self.client.clone());
-        let oauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
+        let oauth = OauthCore::new(wallet.get_oauth().await?, self.client.clone());
+        trace!(LOG, "wallet_addr {}", wallet_addr);
+        trace!(
+            LOG,
+            "nextNonceOfWallet {}",
+            oauth.next_nonce_of_wallet(wallet_addr).await?
+        );
+        trace!(LOG, "nonce {}", nonce);
         let call = oauth.validate_ephe_addr(wallet_addr, ephe_addr, nonce);
         call.call().await?;
         Ok(())

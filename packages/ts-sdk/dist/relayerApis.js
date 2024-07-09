@@ -1,53 +1,32 @@
-import axios from 'axios';
-import { Address } from 'viem';
-
-export default class RelayerApis {
-    relayerHost: string;
-
-    constructor(relayerHost: string) {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const axios_1 = __importDefault(require("axios"));
+class RelayerApis {
+    constructor(relayerHost) {
         this.relayerHost = relayerHost;
     }
-
-
-    public async getWalletAddress(
-        emailAddr: string,
-        accountCode: string
-    ): Promise<Address> {
+    async getWalletAddress(emailAddr, accountCode) {
         const url = `${this.relayerHost}/api/getWalletAddress`;
-        const res = await axios.post(url, { email_addr: emailAddr, account_code: accountCode });
+        const res = await axios_1.default.post(url, { email_addr: emailAddr, account_code: accountCode });
         return res.data;
     }
-
-    public async isAccountCreated(
-        emailAddr: string
-    ): Promise<boolean> {
+    async isAccountCreated(emailAddr) {
         const url = `${this.relayerHost}/api/isAccountCreated`;
-        const res = await axios.post(url, { email_addr: emailAddr });
+        const res = await axios_1.default.post(url, { email_addr: emailAddr });
         return res.data === "true";
     }
-
     // public async recoverAccountCode(
     //     emailAddr: string,
     // ): Promise<void> {
     //     const url = `${this.relayerHost}/api/recoverAccountCode`;
     //     await axios.post(url, { email_addr: emailAddr });
     // }
-
-    public async signupOrIn(
-        emailAddr: string,
-        epheAddr: string | null,
-        username: string | null,
-        expiryTime: number | null,
-        tokenAllowances: [number, string][] | null
-    ): Promise<number> {
+    async signupOrIn(emailAddr, epheAddr, username, expiryTime, tokenAllowances) {
         const url = `${this.relayerHost}/api/signupOrIn`;
-        const requestData: {
-            email_addr: string;
-            ephe_addr?: string;
-            username?: string;
-            expiry_time?: number;
-            token_allowances?: [number, string][];
-        } = {
+        const requestData = {
             email_addr: emailAddr,
         };
         if (epheAddr !== null) {
@@ -62,23 +41,14 @@ export default class RelayerApis {
         if (tokenAllowances !== null) {
             requestData.token_allowances = tokenAllowances;
         }
-        const res = await axios.post(url, requestData);
+        const res = await axios_1.default.post(url, requestData);
         return res.data;
     }
-
-    public async epheAddrStatus(
-        requestId: number,
-        signature: string
-    ): Promise<{
-        is_activated: boolean;
-        wallet_addr?: string;
-        nonce?: string;
-    }> {
+    async epheAddrStatus(requestId, signature) {
         const url = `${this.relayerHost}/api/epheAddrStatus`;
-        const res = await axios.post(url, { request_id: requestId, signature });
+        const res = await axios_1.default.post(url, { request_id: requestId, signature });
         return res.data;
     }
-
     // public async signin(
     //     emailAddr: string,
     //     username: string,
@@ -107,7 +77,6 @@ export default class RelayerApis {
     //     const res = await axios.post(url, requestData);
     //     return res.data;
     // }
-
     // public async registerEpheAddr(
     //     walletAddr: Address,
     //     epheAddr: Address,
@@ -117,20 +86,9 @@ export default class RelayerApis {
     //     const res = await axios.post(url, { wallet_addr: walletAddr, ephe_addr: epheAddr, signature });
     //     return res.data;
     // }
-
-    public async executeEphemeralTx(
-        walletAddr: Address,
-        txNonce: string,
-        epheAddr: Address,
-        epheAddrNonce: string,
-        target: Address,
-        ethValue: string,
-        data: string,
-        tokenAmount: string,
-        signature: string
-    ): Promise<string> {
+    async executeEphemeralTx(walletAddr, txNonce, epheAddr, epheAddrNonce, target, ethValue, data, tokenAmount, signature) {
         const url = `${this.relayerHost}/api/executeEphemeralTx`;
-        const res = await axios.post(url, {
+        const res = await axios_1.default.post(url, {
             wallet_addr: walletAddr,
             tx_nonce: txNonce,
             ephe_addr: epheAddr,
@@ -143,5 +101,6 @@ export default class RelayerApis {
         });
         return res.data;
     }
-
 }
+exports.default = RelayerApis;
+//# sourceMappingURL=relayerApis.js.map

@@ -128,4 +128,14 @@ fn main() {
         .unwrap()
         .write_to_file("./src/abis/ioauth.rs")
         .unwrap();
+
+    Abigen::new(
+        "OauthCore",
+        "../contracts/artifacts/OauthCore.sol/OauthCore.json",
+    )
+    .unwrap()
+    .generate()
+    .unwrap()
+    .write_to_file("./src/abis/oauth_core.rs")
+    .unwrap();
 }
