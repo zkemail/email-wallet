@@ -12,6 +12,7 @@ export default class OauthClient<chain extends Chain> {
     userEmailAddr: string | null = null;
     // accountCode: string | null = null;
     userWallet: any = null; //GetContractReturnType<typeof walletAbi, PublicClient<Transport, chain>> | null = null;
+    ephePrivateKey: `0x${string}`;
     epheClient: PrivateKeyAccount;
     epheAddrNonce: string | null = null;
 
@@ -22,7 +23,8 @@ export default class OauthClient<chain extends Chain> {
         oauthAddress: Address,
         relayerHost: string,
         userEmailAddr?: string,
-        userWallet?: any,
+        userWalletAddr?: Address,
+        ephePrivateKey?: `0x${string}`,
         epheAddrNonce?: string
     ) {
         this.publicClient = client;
@@ -39,16 +41,43 @@ export default class OauthClient<chain extends Chain> {
             client,
         })
         this.relayerApis = new RelayerApis(relayerHost);
-        this.epheClient = privateKeyToAccount(generatePrivateKey());
+        if (ephePrivateKey === undefined) {
+            ephePrivateKey = generatePrivateKey();
+        }
+        this.ephePrivateKey = ephePrivateKey;
+        this.epheClient = privateKeyToAccount(ephePrivateKey);
         if (userEmailAddr !== undefined) {
             this.userEmailAddr = userEmailAddr;
         }
-        if (userWallet !== undefined) {
-            this.userWallet = userWallet;
+        if (userWalletAddr !== undefined) {
+            this.userWallet = getContract({
+                address: userWalletAddr,
+                abi: walletAbi,
+                client: this.publicClient
+            });
         }
         if (epheAddrNonce !== undefined) {
             this.epheAddrNonce = epheAddrNonce;
         }
+    }
+
+    public getPublicClient(): PublicClient<Transport, chain> {
+        return this.publicClient;
+    }
+
+    public getWalletAddress(): Address | null {
+        if (this.userWallet === null) {
+            return null;
+        }
+        return this.userWallet.address;
+    }
+
+    public getEphePrivateKey(): `0x${string}` {
+        return this.ephePrivateKey;
+    }
+
+    public getEpheAddrNonce(): string | null {
+        return this.epheAddrNonce;
     }
 
 
@@ -75,6 +104,7 @@ export default class OauthClient<chain extends Chain> {
             throw new Error("Not setup yet")
         }
         const signedMsg = `${this.relayerApis.relayerHost.replace(/^https?:\/\//, '')}/api/epheAddrStatus/${requestId}`;
+        console.log(`signedMsg: ${signedMsg}`);
         const signature = await this.epheClient.signMessage({
             message: signedMsg,
         });
@@ -86,7 +116,7 @@ export default class OauthClient<chain extends Chain> {
             console.log(res);
         }
         this.userWallet = getContract({
-            address: res.wallet_addr as `0x${string}`,
+            address: res.wallet_addr as `0x${string} `,
             abi: walletAbi,
             client: this.publicClient
         });
