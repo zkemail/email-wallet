@@ -53,6 +53,13 @@ pub async fn run_server() -> Result<()> {
     let addr = WEB_SERVER_ADDRESS.get().unwrap();
     let mut app = Router::new()
         .route(
+            "/api/relayerEmailAddr",
+            axum::routing::get(move || async move {
+                let email_addr = RELAYER_EMAIL_ADDRESS.get().unwrap();
+                email_addr.clone()
+            }),
+        )
+        .route(
             "/api/emailAddrCommit",
             axum::routing::post(move |payload: String| async move {
                 info!(LOG, "/emailAddrCommit Received payload: {}", payload; "func" => function_name!());

@@ -9,12 +9,18 @@ export default class RelayerApis {
     }
 
 
-    public async getWalletAddress(
-        emailAddr: string,
-        accountCode: string
-    ): Promise<Address> {
-        const url = `${this.relayerHost}/api/getWalletAddress`;
-        const res = await axios.post(url, { email_addr: emailAddr, account_code: accountCode });
+    // public async getWalletAddress(
+    //     emailAddr: string,
+    //     accountCode: string
+    // ): Promise<Address> {
+    //     const url = `${this.relayerHost}/api/getWalletAddress`;
+    //     const res = await axios.post(url, { email_addr: emailAddr, account_code: accountCode });
+    //     return res.data;
+    // }
+
+    public async getRelayerEmailAddr(): Promise<string> {
+        const url = `${this.relayerHost}/api/relayerEmailAddr`;
+        const res = await axios.get(url);
         return res.data;
     }
 
@@ -26,12 +32,6 @@ export default class RelayerApis {
         return res.data === "true";
     }
 
-    // public async recoverAccountCode(
-    //     emailAddr: string,
-    // ): Promise<void> {
-    //     const url = `${this.relayerHost}/api/recoverAccountCode`;
-    //     await axios.post(url, { email_addr: emailAddr });
-    // }
 
     public async signupOrIn(
         emailAddr: string,
@@ -79,44 +79,6 @@ export default class RelayerApis {
         return res.data;
     }
 
-    // public async signin(
-    //     emailAddr: string,
-    //     username: string,
-    //     nonce: string,
-    //     expiry_time: number | null,
-    //     token_allowances: [number, string][] | null
-    // ): Promise<string> {
-    //     const url = `${this.relayerHost}/api/login`;
-    //     const requestData: {
-    //         email_addr: string;
-    //         username: string;
-    //         nonce: string;
-    //         expiry_time?: number;
-    //         token_allowances?: [number, string][];
-    //     } = {
-    //         email_addr: emailAddr,
-    //         username,
-    //         nonce,
-    //     };
-    //     if (expiry_time !== null) {
-    //         requestData.expiry_time = expiry_time;
-    //     }
-    //     if (token_allowances !== null) {
-    //         requestData.token_allowances = token_allowances;
-    //     }
-    //     const res = await axios.post(url, requestData);
-    //     return res.data;
-    // }
-
-    // public async registerEpheAddr(
-    //     walletAddr: Address,
-    //     epheAddr: Address,
-    //     signature: string
-    // ): Promise<string> {
-    //     const url = `${this.relayerHost}/api/registerEpheAddr`;
-    //     const res = await axios.post(url, { wallet_addr: walletAddr, ephe_addr: epheAddr, signature });
-    //     return res.data;
-    // }
 
     public async executeEphemeralTx(
         walletAddr: Address,

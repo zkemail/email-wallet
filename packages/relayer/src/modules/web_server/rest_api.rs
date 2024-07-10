@@ -3,7 +3,7 @@ use lettre::error;
 
 use crate::{
     error, handle_email, handle_email_event, render_html, trace, wallet::EphemeralTx, EmailMessage,
-    EmailWalletEvent,
+    EmailWalletEvent, RELAYER_EMAIL_ADDRESS,
 };
 use ethers::{
    etherscan::account, types::{Address, Bytes, Signature, U256}, utils::{hash_message, keccak256, to_checksum}
@@ -500,6 +500,8 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
             Some(field2hex(&account_code.0)[2..].to_string()),
         )
     };
+    trace!(LOG, "Account code: {:?}", account_code);
+    trace!(LOG, "Code in email: {:?}", code_in_email);
     let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
         account_code,
@@ -701,7 +703,7 @@ pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusRe
     let ephe_addr = Address::from_str(&ephe_addr_str)?;
     trace!(LOG, "Ephe addr: {}", ephe_addr);
     // verify if request.signature
-    let signed_msg = format!("{}/api/epheAddrStatus/{}", WEB_SERVER_ADDRESS.get().unwrap(),request.request_id);
+    let signed_msg = format!("{}:/api/epheAddrStatus/{}", RELAYER_EMAIL_ADDRESS.get().unwrap(),request.request_id);
     trace!(LOG, "Signed msg: {}", signed_msg);
     let signed_msg_hash = hash_message(&signed_msg);
     let signature = Signature::from_str(&request.signature)?;

@@ -103,7 +103,8 @@ export default class OauthClient<chain extends Chain> {
         if (this.userEmailAddr === null) {
             throw new Error("Not setup yet")
         }
-        const signedMsg = `${this.relayerApis.relayerHost.replace(/^https?:\/\//, '')}/api/epheAddrStatus/${requestId}`;
+        const relayerEmailAddr = await this.relayerApis.getRelayerEmailAddr();
+        const signedMsg = `${relayerEmailAddr}:/api/epheAddrStatus/${requestId}`;
         console.log(`signedMsg: ${signedMsg}`);
         const signature = await this.epheClient.signMessage({
             message: signedMsg,
