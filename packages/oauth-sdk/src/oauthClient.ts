@@ -167,5 +167,13 @@ export default class OauthClient<chain extends Chain> {
         return txHash;
     }
 
-
+    public async getTokenAllowance(
+        tokenAddr: Address
+    ): Promise<bigint> {
+        if (this.userWallet === null || this.epheAddrNonce === null) {
+            throw new Error("Not signed in yet")
+        }
+        const res = await this.oauth.read.getTokenAllowancesOfWalletAndNonce([this.userWallet.address, this.epheAddrNonce, tokenAddr]);
+        return BigInt(res);
+    }
 }

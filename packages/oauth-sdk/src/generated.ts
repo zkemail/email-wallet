@@ -389,7 +389,7 @@ export const iOauthAbi = [
       { name: 'nonce', internalType: 'uint256', type: 'uint256' },
       { name: 'tokenAddr', internalType: 'address', type: 'address' },
     ],
-    name: 'getTokenAkkowancesOfWalletAndNonce',
+    name: 'getTokenAllowancesOfWalletAndNonce',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },

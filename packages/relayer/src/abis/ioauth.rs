@@ -65,12 +65,12 @@ pub mod i_oauth {
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned(
-                        "getTokenAkkowancesOfWalletAndNonce",
+                        "getTokenAllowancesOfWalletAndNonce",
                     ),
                     ::std::vec![
                         ::ethers::core::abi::ethabi::Function {
                             name: ::std::borrow::ToOwned::to_owned(
-                                "getTokenAkkowancesOfWalletAndNonce",
+                                "getTokenAllowancesOfWalletAndNonce",
                             ),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
@@ -588,15 +588,15 @@ pub mod i_oauth {
                 .method_hash([181, 112, 58, 85], (wallet, nonce))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getTokenAkkowancesOfWalletAndNonce` (0x96edff31) function
-        pub fn get_token_akkowances_of_wallet_and_nonce(
+        ///Calls the contract's `getTokenAllowancesOfWalletAndNonce` (0xeb1202ff) function
+        pub fn get_token_allowances_of_wallet_and_nonce(
             &self,
             wallet: ::ethers::core::types::Address,
             nonce: ::ethers::core::types::U256,
             token_addr: ::ethers::core::types::Address,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::U256> {
             self.0
-                .method_hash([150, 237, 255, 49], (wallet, nonce, token_addr))
+                .method_hash([235, 18, 2, 255], (wallet, nonce, token_addr))
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `getUsernameOfWallet` (0x7218fda4) function
@@ -899,7 +899,7 @@ pub mod i_oauth {
         pub wallet: ::ethers::core::types::Address,
         pub nonce: ::ethers::core::types::U256,
     }
-    ///Container type for all input parameters for the `getTokenAkkowancesOfWalletAndNonce` function with signature `getTokenAkkowancesOfWalletAndNonce(address,uint256,address)` and selector `0x96edff31`
+    ///Container type for all input parameters for the `getTokenAllowancesOfWalletAndNonce` function with signature `getTokenAllowancesOfWalletAndNonce(address,uint256,address)` and selector `0xeb1202ff`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -911,10 +911,10 @@ pub mod i_oauth {
         Hash
     )]
     #[ethcall(
-        name = "getTokenAkkowancesOfWalletAndNonce",
-        abi = "getTokenAkkowancesOfWalletAndNonce(address,uint256,address)"
+        name = "getTokenAllowancesOfWalletAndNonce",
+        abi = "getTokenAllowancesOfWalletAndNonce(address,uint256,address)"
     )]
-    pub struct GetTokenAkkowancesOfWalletAndNonceCall {
+    pub struct GetTokenAllowancesOfWalletAndNonceCall {
         pub wallet: ::ethers::core::types::Address,
         pub nonce: ::ethers::core::types::U256,
         pub token_addr: ::ethers::core::types::Address,
@@ -1065,7 +1065,7 @@ pub mod i_oauth {
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum IOauthCalls {
         GetInfoOfWalletAndNonce(GetInfoOfWalletAndNonceCall),
-        GetTokenAkkowancesOfWalletAndNonce(GetTokenAkkowancesOfWalletAndNonceCall),
+        GetTokenAllowancesOfWalletAndNonce(GetTokenAllowancesOfWalletAndNonceCall),
         GetUsernameOfWallet(GetUsernameOfWalletCall),
         GetWalletOfUsername(GetWalletOfUsernameCall),
         ReduceTokenAllowance(ReduceTokenAllowanceCall),
@@ -1085,10 +1085,10 @@ pub mod i_oauth {
             ) {
                 return Ok(Self::GetInfoOfWalletAndNonce(decoded));
             }
-            if let Ok(decoded) = <GetTokenAkkowancesOfWalletAndNonceCall as ::ethers::core::abi::AbiDecode>::decode(
+            if let Ok(decoded) = <GetTokenAllowancesOfWalletAndNonceCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
             ) {
-                return Ok(Self::GetTokenAkkowancesOfWalletAndNonce(decoded));
+                return Ok(Self::GetTokenAllowancesOfWalletAndNonce(decoded));
             }
             if let Ok(decoded) = <GetUsernameOfWalletCall as ::ethers::core::abi::AbiDecode>::decode(
                 data,
@@ -1139,7 +1139,7 @@ pub mod i_oauth {
                 Self::GetInfoOfWalletAndNonce(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::GetTokenAkkowancesOfWalletAndNonce(element) => {
+                Self::GetTokenAllowancesOfWalletAndNonce(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::GetUsernameOfWallet(element) => {
@@ -1171,7 +1171,7 @@ pub mod i_oauth {
                 Self::GetInfoOfWalletAndNonce(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
-                Self::GetTokenAkkowancesOfWalletAndNonce(element) => {
+                Self::GetTokenAllowancesOfWalletAndNonce(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
                 Self::GetUsernameOfWallet(element) => {
@@ -1196,9 +1196,9 @@ pub mod i_oauth {
             Self::GetInfoOfWalletAndNonce(value)
         }
     }
-    impl ::core::convert::From<GetTokenAkkowancesOfWalletAndNonceCall> for IOauthCalls {
-        fn from(value: GetTokenAkkowancesOfWalletAndNonceCall) -> Self {
-            Self::GetTokenAkkowancesOfWalletAndNonce(value)
+    impl ::core::convert::From<GetTokenAllowancesOfWalletAndNonceCall> for IOauthCalls {
+        fn from(value: GetTokenAllowancesOfWalletAndNonceCall) -> Self {
+            Self::GetTokenAllowancesOfWalletAndNonce(value)
         }
     }
     impl ::core::convert::From<GetUsernameOfWalletCall> for IOauthCalls {
@@ -1256,7 +1256,7 @@ pub mod i_oauth {
         pub ::ethers::core::types::Address,
         pub ::ethers::core::types::U256,
     );
-    ///Container type for all return fields from the `getTokenAkkowancesOfWalletAndNonce` function with signature `getTokenAkkowancesOfWalletAndNonce(address,uint256,address)` and selector `0x96edff31`
+    ///Container type for all return fields from the `getTokenAllowancesOfWalletAndNonce` function with signature `getTokenAllowancesOfWalletAndNonce(address,uint256,address)` and selector `0xeb1202ff`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -1267,7 +1267,7 @@ pub mod i_oauth {
         Eq,
         Hash
     )]
-    pub struct GetTokenAkkowancesOfWalletAndNonceReturn(pub ::ethers::core::types::U256);
+    pub struct GetTokenAllowancesOfWalletAndNonceReturn(pub ::ethers::core::types::U256);
     ///Container type for all return fields from the `getUsernameOfWallet` function with signature `getUsernameOfWallet(address)` and selector `0x7218fda4`
     #[derive(
         Clone,
