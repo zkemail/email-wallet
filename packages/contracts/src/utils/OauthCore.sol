@@ -38,7 +38,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         return (epheAddrOfNonceHash[nonceHash], expiryOfNonceHash[nonceHash]);
     }
 
-    function getTokenAkkowancesOfWalletAndNonce(
+    function getTokenAllowancesOfWalletAndNonce(
         address wallet,
         uint256 nonce,
         address tokenAddr

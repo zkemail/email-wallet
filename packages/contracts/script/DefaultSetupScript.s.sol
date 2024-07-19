@@ -39,6 +39,7 @@ contract Deploy is Script {
 
     ECDSAOwnedDKIMRegistry dkim;
 
+    OauthCore oauthCoreImpl;
     OauthCore oauthCore;
 
     Wallet walletImpl;
@@ -139,7 +140,12 @@ contract Deploy is Script {
 
         dkim = new ECDSAOwnedDKIMRegistry(signer);
 
-        oauthCore = new OauthCore();
+        {
+            oauthCoreImpl = new OauthCore();
+            bytes memory data = abi.encodeWithSelector(OauthCore(oauthCoreImpl).initialize.selector);
+            ERC1967Proxy proxy = new ERC1967Proxy(address(oauthCoreImpl), data);
+            oauthCore = OauthCore(payable(address(proxy)));
+        }
 
         walletImpl = new Wallet(address(weth), address(oauthCore));
 

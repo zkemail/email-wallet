@@ -36,7 +36,7 @@ interface IOauth {
     /// @param wallet Address of the wallet.
     /// @param nonce Nonce of the ephemeral address.
     /// @param tokenAddr Address of the token.
-    function getTokenAkkowancesOfWalletAndNonce(
+    function getTokenAllowancesOfWalletAndNonce(
         address wallet,
         uint256 nonce,
         address tokenAddr
