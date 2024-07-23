@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@adraffy/ens-normalize@1.10.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.0.tgz#d2a39395c587e092d77cbbc80acf956a54f38bf7"
-  integrity sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==
-
 "@adraffy/ens-normalize@1.10.1":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.1.tgz#63430d04bd8c5e74f8d7d049338f1cd9d4f02069"
@@ -2484,12 +2479,13 @@
     fast-url-parser "^1.1.3"
     tslib "^2.3.1"
 
-"@zk-email/circuits@^3.2.3":
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-3.2.3.tgz#24e16706bc1f46eab5b6e51185faf8d8afe28175"
-  integrity sha512-dAOaEul2iq86f69FFaXK/u3ec+Lk6B3vpbapyJ9oKGgWeINilWJQaEP1WSJyeVV52zPRVE5uDkIVhIguU7jk2g==
+"@zk-email/circuits@^6.1.1":
+  version "6.1.3"
+  resolved "https://registry.yarnpkg.com/@zk-email/circuits/-/circuits-6.1.3.tgz#8323990a8d499778eb36feeae85dea0e1e399bb9"
+  integrity sha512-7yKFUNCWAK1iLmeE+Dhv5+TvLb8/U9Q9qDoc+QQt6z83lzNJ0fXNuV5JjLk4aEF1AAvaNJBulW1tmKeKUm35Iw==
   dependencies:
-    "@zk-email/zk-regex-circom" "^1.1.1"
+    "@zk-email/zk-regex-circom" "^2.1.0"
+    circomlib "^2.0.5"
 
 "@zk-email/contracts@^4.1.0":
   version "4.1.0"
@@ -2499,45 +2495,60 @@
     "@openzeppelin/contracts" "^4.9.3"
     dotenv "^16.3.1"
 
-"@zk-email/helpers@^3.1.3":
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/@zk-email/helpers/-/helpers-3.1.3.tgz#c3e603955ea794b9506968e910249b990b1b536a"
-  integrity sha512-a6iyWugDkm5RKnXd3q0bAqXWuJ4nKtRinQD8jt5UhiDKD2OJ8SAc+tvgeHOTyZx90nKP6mDolGEy+tWAWpdVMg==
+"@zk-email/ether-email-auth-circom@file:../ether-email-auth/packages/circuits":
+  version "1.0.0"
+  dependencies:
+    "@zk-email/circuits" "^6.1.1"
+    "@zk-email/relayer-utils" "^0.2.4"
+    "@zk-email/zk-regex-circom" "^2.1.0"
+    commander "^11.0.0"
+    snarkjs "^0.7.0"
+
+"@zk-email/helpers@^6.1.1":
+  version "6.1.3"
+  resolved "https://registry.yarnpkg.com/@zk-email/helpers/-/helpers-6.1.3.tgz#d763050757ff6a96c3973a00e0751a6710ca089f"
+  integrity sha512-UVnd33qJGO1seisIfhIo5m5gMalmU2y0S5wLCwAO8h2TZ6YBWJnmSKy2KeY5qVxPZn+WschnKEbW23Em7cj5QA==
   dependencies:
     addressparser "^1.0.1"
     atob "^2.1.2"
     circomlibjs "^0.1.7"
-    ethers "^6.8.0"
     libmime "^5.2.1"
     localforage "^1.10.0"
-    lodash "^4.17.21"
     node-forge "^1.3.1"
     pako "^2.1.0"
-    pki "^1.1.0"
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
 
-"@zk-email/relayer-utils@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@zk-email/relayer-utils/-/relayer-utils-0.2.3.tgz#4a3885bd5841be2330bdb9ed61f3d6afb457b261"
-  integrity sha512-yTxB86cvF5OTgXYZ+if1SGS+i89O08x5G/9mojQZqMaE7BYXi8bWxqU040Jc5rjiB3CyifFVus2NueCs0CN9iQ==
+"@zk-email/relayer-utils@/Users/suegamisora/codes/relayer-utils":
+  version "0.2.5"
+  dependencies:
+    "@mapbox/node-pre-gyp" "^1.0"
+    "@zk-email/relayer-utils" "github:zkemail/relayer-utils"
+    cargo-cp-artifact "^0.1"
+    node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
+
+"@zk-email/relayer-utils@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@zk-email/relayer-utils/-/relayer-utils-0.2.4.tgz#5f452bb2867e1efe8700a19351dbb7796f9a081f"
+  integrity sha512-T1N4hBL2NI7omerONdgS2HIYydNP0cRSKpyKEMRzWxelgam7HP3TgG7jYbehQn9BlCyL7o4ifNnyH9sQPaC0zA==
+  dependencies:
+    "@mapbox/node-pre-gyp" "^1.0"
+    "@zk-email/relayer-utils" "github:zkemail/relayer-utils"
+    cargo-cp-artifact "^0.1"
+    node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
+
+"@zk-email/relayer-utils@github:zkemail/relayer-utils":
+  version "0.2.4"
+  resolved "https://codeload.github.com/zkemail/relayer-utils/tar.gz/58e72b7d100eb8243a10df72bfe242f13ddcfdb8"
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0"
     cargo-cp-artifact "^0.1"
     node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
 
-"@zk-email/zk-regex-circom@^1.1.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.2.1.tgz#ea1adc832e8d855c9568abc438567a524a0ac962"
-  integrity sha512-+AoH5PdKZxatTWfwYWGkpuQ0xGaax6FwBHvdYXugkPDdgtJQYyxhItQtM79bo0djCmuwEK2X1rnYlFHBDClQeA==
-  dependencies:
-    commander "^11.0.0"
-    snarkjs "^0.7.0"
-
-"@zk-email/zk-regex-circom@^1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-1.2.2.tgz#d1ea2731b4308e8f7c7b08ca2ff2d41934c6ce5e"
-  integrity sha512-IZy1xAG9EDELlPyoWNBswHVSKt2X311ZybVLv4sRTtrhaS+W3wQMEE7T+hlgtP6lJioeJrGLBS4Xp30HSazb/Q==
+"@zk-email/zk-regex-circom@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@zk-email/zk-regex-circom/-/zk-regex-circom-2.1.0.tgz#cc2f1d93fb130a9f8ac88114d3559a296df97538"
+  integrity sha512-Ayq0Hk4m7w1UHPPx2c5bUWLdKUPnuK62AZFOyiIvA7x4NgRyvjxe+S4D5KFH5FIz4PgEnXVxgscSSbe5p/GCvQ==
   dependencies:
     commander "^11.0.0"
     snarkjs "^0.7.0"
@@ -4532,19 +4543,6 @@ ethers@^6.12.1:
   integrity sha512-j6wcVoZf06nqEcBbDWkKg8Fp895SS96dSnTCjiXT+8vt2o02raTn4Lo9ERUuIVU5bAjoPYeA+7ytQFexFmLuVw==
   dependencies:
     "@adraffy/ens-normalize" "1.10.1"
-    "@noble/curves" "1.2.0"
-    "@noble/hashes" "1.3.2"
-    "@types/node" "18.15.13"
-    aes-js "4.0.0-beta.5"
-    tslib "2.4.0"
-    ws "8.5.0"
-
-ethers@^6.8.0:
-  version "6.8.1"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-6.8.1.tgz#ee2a1a39b5f62a13678f90ccd879175391d0a2b4"
-  integrity sha512-iEKm6zox5h1lDn6scuRWdIdFJUCGg3+/aQWu0F4K0GVyEZiktFkqrJbRjTn1FlYEPz7RKA707D6g5Kdk6j7Ljg==
-  dependencies:
-    "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.2.0"
     "@noble/hashes" "1.3.2"
     "@types/node" "18.15.13"
@@ -7218,9 +7216,9 @@ node-int64@^0.4.0:
   resolved "https://registry.yarnpkg.com/node-int64/-/node-int64-0.4.0.tgz#87a9065cdb355d3182d8f94ce11188b825c68a3b"
   integrity sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==
 
-"node-pre-gyp-github@git+https://github.com/ultamatt/node-pre-gyp-github.git":
+"node-pre-gyp-github@https://github.com/ultamatt/node-pre-gyp-github.git":
   version "1.4.3"
-  resolved "git+https://github.com/ultamatt/node-pre-gyp-github.git#e4961827f77751489bc8d4760a0479f3f985f34f"
+  resolved "https://github.com/ultamatt/node-pre-gyp-github.git#e4961827f77751489bc8d4760a0479f3f985f34f"
   dependencies:
     "@octokit/rest" "^15.9.5"
     commander "^2.17.0"
@@ -7542,11 +7540,6 @@ pkg-dir@^4.2.0:
   integrity sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   dependencies:
     find-up "^4.0.0"
-
-pki@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/pki/-/pki-1.1.0.tgz#abd7c257816ceb2a0c0afef5642180227355d173"
-  integrity sha512-OzMMXAo8sI7X3+EW46eIfGfOnuM0d0Cef0iVp7UUCsh2VV7RvsUztLTc6xacBwgsz16Vp6qQuQA8Lep5bxeuOA==
 
 pluralize@^8.0.0:
   version "8.0.0"

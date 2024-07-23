@@ -1,9 +1,9 @@
 pragma circom 2.1.5;
 
 include "circomlib/circuits/poseidon.circom";
-include "./utils/constants.circom";
-include "./utils/email_addr_commit.circom";
-include "./utils/bytes2ints.circom";
+include "@zk-email/ether-email-auth-circom/src/utils/constants.circom";
+include "@zk-email/ether-email-auth-circom/src/utils/email_addr_commit.circom";
+include "@zk-email/ether-email-auth-circom/src/utils/bytes2ints.circom";
 
 // Prove the commitment to an email address using a randomness
 // Can be used to register unclaimed funds with announcement
