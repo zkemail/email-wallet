@@ -2519,29 +2519,19 @@
     psl "^1.9.0"
     snarkjs "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
 
-"@zk-email/relayer-utils@/Users/suegamisora/codes/relayer-utils":
-  version "0.2.5"
-  dependencies:
-    "@mapbox/node-pre-gyp" "^1.0"
-    "@zk-email/relayer-utils" "github:zkemail/relayer-utils"
-    cargo-cp-artifact "^0.1"
-    node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
-
-"@zk-email/relayer-utils@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@zk-email/relayer-utils/-/relayer-utils-0.2.4.tgz#5f452bb2867e1efe8700a19351dbb7796f9a081f"
-  integrity sha512-T1N4hBL2NI7omerONdgS2HIYydNP0cRSKpyKEMRzWxelgam7HP3TgG7jYbehQn9BlCyL7o4ifNnyH9sQPaC0zA==
-  dependencies:
-    "@mapbox/node-pre-gyp" "^1.0"
-    "@zk-email/relayer-utils" "github:zkemail/relayer-utils"
-    cargo-cp-artifact "^0.1"
-    node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
-
-"@zk-email/relayer-utils@github:zkemail/relayer-utils":
+"@zk-email/relayer-utils@^0.2.4", "@zk-email/relayer-utils@github:zkemail/relayer-utils":
   version "0.2.4"
   resolved "https://codeload.github.com/zkemail/relayer-utils/tar.gz/58e72b7d100eb8243a10df72bfe242f13ddcfdb8"
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0"
+    cargo-cp-artifact "^0.1"
+    node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
+
+"@zk-email/relayer-utils@file:../relayer-utils-1":
+  version "0.2.5"
+  dependencies:
+    "@mapbox/node-pre-gyp" "^1.0"
+    "@zk-email/relayer-utils" "github:zkemail/relayer-utils"
     cargo-cp-artifact "^0.1"
     node-pre-gyp-github "https://github.com/ultamatt/node-pre-gyp-github.git"
 

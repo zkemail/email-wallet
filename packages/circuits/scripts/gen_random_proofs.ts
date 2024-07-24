@@ -8,10 +8,11 @@ import { program } from "commander";
 import fs from "fs";
 import { promisify } from "util";
 import path from "path";
-import { genAccountCreationInput } from "../helpers/account_creation";
+// import { genAccountCreationInput } from "../helpers/account_creation";
 import { genClaimInput } from "../helpers/claim";
 import { genEmailSenderInput } from "../helpers/email_sender";
 import { genAnnouncementInput } from "../helpers/announcement";
+import { genPsiPointsInput } from "../helpers/psi_points";
 const snarkjs = require("snarkjs");
 const emailWalletUtils = require("@zk-email/relayer-utils");
 
@@ -39,26 +40,26 @@ async function exec() {
   // const phase1Path = path.join(buildDir, "powersOfTau28_hez_final_22.ptau");
   const emailAddr = "suegamisora@gmail.com";
   const relayerRand = emailWalletUtils.genRelayerRand();
-  const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
-  const newRelayerRand = emailWalletUtils.genRelayerRand();
+  // const relayerRandHash = emailWalletUtils.relayerRandHash(relayerRand);
+  // const newRelayerRand = emailWalletUtils.genRelayerRand();
   // const newRelayerRandHash = emailWalletUtils.relayerRandHash(newRelayerRand);
   const accountCode = emailWalletUtils.genAccountCode();
   const emailAddrRand = emailWalletUtils.emailAddrCommitRand();
   const emailSenderEmailPath = path.join(__dirname, "../tests/emails/email_sender_test1.eml");
 
-  const accountCreationInput = await genAccountCreationInput(emailAddr, relayerRand);
-  await promisify(fs.writeFile)(
-    path.join(buildDir, "account_creation_input.json"),
-    JSON.stringify(accountCreationInput, null, 2),
-  );
-  await prove(
-    accountCreationInput,
-    path.join(buildDir, "account_creation_js", "account_creation.wasm"),
-    path.join(buildDir, "account_creation.zkey"),
-    path.join(buildDir, "account_creation_proof.json"),
-    path.join(buildDir, "account_creation_public.json"),
-  );
-  log("✓ Proof for account creation circuit generated");
+  // const accountCreationInput = await genAccountCreationInput(emailAddr, relayerRand);
+  // await promisify(fs.writeFile)(
+  //   path.join(buildDir, "account_creation_input.json"),
+  //   JSON.stringify(accountCreationInput, null, 2),
+  // );
+  // await prove(
+  //   accountCreationInput,
+  //   path.join(buildDir, "account_creation_js", "account_creation.wasm"),
+  //   path.join(buildDir, "account_creation.zkey"),
+  //   path.join(buildDir, "account_creation_proof.json"),
+  //   path.join(buildDir, "account_creation_public.json"),
+  // );
+  // log("✓ Proof for account creation circuit generated");
 
   const claimInput = await genClaimInput(emailAddr, emailAddrRand, accountCode);
   await promisify(fs.writeFile)(path.join(buildDir, "claim_input.json"), JSON.stringify(claimInput, null, 2));
@@ -98,6 +99,20 @@ async function exec() {
     path.join(buildDir, "announcement_public.json"),
   );
   log("✓ Proof for email sender circuit generated");
+
+  const psiPointsInput = await genPsiPointsInput(emailAddr, accountCode, relayerRand);
+  await promisify(fs.writeFile)(
+    path.join(buildDir, "psi_points_input.json"),
+    JSON.stringify(psiPointsInput, null, 2),
+  );
+  await prove(
+    psiPointsInput,
+    path.join(buildDir, "psi_points_js", "psi_points.wasm"),
+    path.join(buildDir, "psi_points.zkey"),
+    path.join(buildDir, "psi_points_proof.json"),
+    path.join(buildDir, "psi_points_public.json"),
+  );
+  log("✓ Proof for psi points circuit generated");
 }
 
 exec()

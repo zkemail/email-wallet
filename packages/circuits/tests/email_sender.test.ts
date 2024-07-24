@@ -10,6 +10,11 @@ import { readFileSync } from "fs";
 
 jest.setTimeout(2440000);
 describe("Email Sender", () => {
+  let circuit: any;
+  beforeAll(async () => {
+    circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
+
+  });
   it("Verify a sent email whose subject has an email address", async () => {
     const emailFilePath = path.join(__dirname, "./emails/email_sender_test1.eml");
     const emailRaw = readFileSync(emailFilePath, "utf8");
@@ -17,7 +22,7 @@ describe("Email Sender", () => {
     console.log(parsedEmail.canonicalizedHeader);
     const accountCode = await emailWalletUtils.genAccountCode();
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
-    const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
+    console.log(circuitInputs);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const domainName = "gmail.com";
@@ -41,14 +46,15 @@ describe("Email Sender", () => {
     const senderEmailAddr = "suegamisora@gmail.com";
     const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
     expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
-    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
     const recipientEmailAddr = "alice@gmail.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
       recipientEmailAddr,
       parsedEmail.signature,
     );
     expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(
-      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2],
+      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 3],
     );
   });
 
@@ -59,7 +65,6 @@ describe("Email Sender", () => {
     console.log(parsedEmail.canonicalizedHeader);
     const accountCode = await emailWalletUtils.genAccountCode();
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
-    const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const domainName = "gmail.com";
@@ -85,6 +90,7 @@ describe("Email Sender", () => {
     expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
     expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
+    expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 3]);
   });
 
   it("Verify a sent email whose from field has a dummy email address name", async () => {
@@ -94,7 +100,6 @@ describe("Email Sender", () => {
     console.log(parsedEmail.canonicalizedHeader);
     const accountCode = await emailWalletUtils.genAccountCode();
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
-    const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const domainName = "gmail.com";
@@ -118,14 +123,15 @@ describe("Email Sender", () => {
     const senderEmailAddr = "suegamisora@gmail.com";
     const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
     expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
-    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
     const recipientEmailAddr = "bob@example.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
       recipientEmailAddr,
       parsedEmail.signature,
     );
     expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(
-      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2],
+      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 3],
     );
   });
 
@@ -136,7 +142,6 @@ describe("Email Sender", () => {
     console.log(parsedEmail.canonicalizedHeader);
     const accountCode = await emailWalletUtils.genAccountCode();
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
-    const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const domainName = "gmail.com";
@@ -160,14 +165,15 @@ describe("Email Sender", () => {
     const senderEmailAddr = "suegamisora@gmail.com";
     const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
     expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
-    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
     const recipientEmailAddr = "bob@example.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
       recipientEmailAddr,
       parsedEmail.signature,
     );
     expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(
-      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2],
+      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 3],
     );
   });
 
@@ -178,7 +184,6 @@ describe("Email Sender", () => {
     console.log(parsedEmail.canonicalizedHeader);
     const accountCode = await emailWalletUtils.genAccountCode();
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
-    const circuit = await wasm_tester(path.join(__dirname, "../src/email_sender.circom"), option);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const domainName = "gmail.com";
@@ -202,14 +207,15 @@ describe("Email Sender", () => {
     const senderEmailAddr = "suegamisora@gmail.com";
     const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
     expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
-    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
     const recipientEmailAddr = "alice@gmail.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
       recipientEmailAddr,
       parsedEmail.signature,
     );
     expect(BigInt(expectedRecipientEmailAddrCommit)).toEqual(
-      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2],
+      witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 3],
     );
   });
 

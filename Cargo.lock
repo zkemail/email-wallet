@@ -3821,7 +3821,7 @@ dependencies = [
  "num-traits",
  "rand",
  "regex",
- "relayer-utils",
+ "relayer-utils 0.1.0",
  "reqwest",
  "serde",
  "serde_json",
@@ -3837,6 +3837,39 @@ dependencies = [
 name = "relayer-utils"
 version = "0.1.0"
 source = "git+https://github.com/zkemail/relayer-utils?rev=fba0e90#fba0e90671cce14bf041b2f5b8253aaddebac8f6"
+dependencies = [
+ "anyhow",
+ "base64 0.21.7",
+ "cfdkim",
+ "ethers",
+ "fancy-regex",
+ "file-rotate",
+ "halo2curves 0.4.0",
+ "hex",
+ "itertools 0.10.5",
+ "lazy_static",
+ "neon",
+ "num-bigint",
+ "num-traits",
+ "once_cell",
+ "poseidon-rs",
+ "rand_core",
+ "rsa",
+ "serde",
+ "serde_json",
+ "serde_regex",
+ "sha2 0.10.8",
+ "slog",
+ "slog-async",
+ "slog-json",
+ "slog-term",
+ "tokio",
+ "zk-regex-apis",
+]
+
+[[package]]
+name = "relayer-utils"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "base64 0.21.7",
