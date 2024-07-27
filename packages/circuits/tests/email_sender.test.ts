@@ -19,10 +19,8 @@ describe("Email Sender", () => {
     const emailFilePath = path.join(__dirname, "./emails/email_sender_test1.eml");
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
-    console.log(parsedEmail.canonicalizedHeader);
     const accountCode = await emailWalletUtils.genAccountCode();
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
-    console.log(circuitInputs);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const domainName = "gmail.com";
@@ -182,7 +180,7 @@ describe("Email Sender", () => {
     const emailRaw = readFileSync(emailFilePath, "utf8");
     const parsedEmail = await emailWalletUtils.parseEmail(emailRaw);
     console.log(parsedEmail.canonicalizedHeader);
-    const accountCode = await emailWalletUtils.genAccountCode();
+    const accountCode = "0x01eb9b204cc24c3baee11accc37d253a9c53e92b1a2cc07763475c135d575b76";
     const circuitInputs = await genEmailSenderInput(emailFilePath, accountCode);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
@@ -207,7 +205,7 @@ describe("Email Sender", () => {
     const senderEmailAddr = "suegamisora@gmail.com";
     const accountSalt = emailWalletUtils.accountSalt(senderEmailAddr, accountCode);
     expect(BigInt(accountSalt)).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length]);
-    expect(0n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
+    expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 1]);
     expect(1n).toEqual(witness[1 + domainFields.length + 3 + maskedSubjectFields.length + 2]);
     const recipientEmailAddr = "alice@gmail.com";
     const expectedRecipientEmailAddrCommit = emailWalletUtils.emailAddrCommitWithSignature(
