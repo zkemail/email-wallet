@@ -62,7 +62,6 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal output is_code_exist;
     signal output has_email_recipient;
     signal output recipient_email_addr_commit;
-    signal output psi_point[2];
 
     (domain_name, public_key_hash, email_nullifier, timestamp, masked_subject, sender_account_salt, is_code_exist, has_email_recipient, recipient_email_addr_commit) <== EmailAuth(n, k, max_header_bytes, max_subject_bytes, 1)(padded_header, public_key, signature, padded_header_len, sender_account_code, from_addr_idx, subject_idx, domain_idx, timestamp_idx, code_idx, recipient_email_idx);
 }

@@ -7,7 +7,7 @@
 import { program } from "commander";
 import fs from "fs";
 import { promisify } from "util";
-import { genPsiPointsInput } from "../helpers/psi_points";
+import { genPsiPointInput } from "../helpers/psi_point";
 import path from "path";
 const snarkjs = require("snarkjs");
 
@@ -35,7 +35,7 @@ async function generate() {
 
     log("Generating Inputs for:", args);
 
-    const circuitInputs = await genPsiPointsInput(args.emailAddr, args.accountCode, args.relayerRand);
+    const circuitInputs = await genPsiPointInput(args.emailAddr, args.accountCode, args.relayerRand);
 
     log("\n\nGenerated Inputs:", circuitInputs, "\n\n");
 
@@ -47,13 +47,13 @@ async function generate() {
         const dir = path.dirname(args.inputFile);
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(
             circuitInputs,
-            path.join(dir, "psi_points.wasm"),
-            path.join(dir, "psi_points.zkey"),
+            path.join(dir, "psi_point.wasm"),
+            path.join(dir, "psi_point.zkey"),
             console,
         );
-        await promisify(fs.writeFile)(path.join(dir, "psi_points_proof.json"), JSON.stringify(proof, null, 2));
-        await promisify(fs.writeFile)(path.join(dir, "psi_points_public.json"), JSON.stringify(publicSignals, null, 2));
-        log("✓ Proof for psi_points circuit generated");
+        await promisify(fs.writeFile)(path.join(dir, "psi_point_proof.json"), JSON.stringify(proof, null, 2));
+        await promisify(fs.writeFile)(path.join(dir, "psi_point_public.json"), JSON.stringify(publicSignals, null, 2));
+        log("✓ Proof for psi_point circuit generated");
     }
     process.exit(0);
 }

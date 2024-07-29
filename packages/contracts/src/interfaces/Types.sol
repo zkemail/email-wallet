@@ -8,16 +8,8 @@ struct RelayerConfig {
 
 // Struct to represent an operation from the user
 struct EmailOp {
-    bytes32 accountSalt; // emailAddrPointer of sender's account
     string command; // Command name (like "wallet", "swap")
-    bytes32 emailNullifier; // Nullifier of email to prevent re-run
-    string emailDomain; // Domain name of the sender's email
-    bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
-    string maskedSubject; // Subject string with email address masked
     uint256 skipSubjectPrefix; // Number of bytes to skip in the subject
-    uint256 timestamp; // Timestamp of the email
-    bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
-    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
     uint256 numRecipientEmailAddrBytes; // Number of bytes of recipient's email address if `hasEmailRecipient` is true
     address recipientETHAddr; // ETH address of recipient - only used if `hasEmailRecipient` is false
     string feeTokenName; // Name of the token to pay the fee
@@ -28,7 +20,7 @@ struct EmailOp {
     address newDkimRegistry; // Address of the new dkim registry if the command is "DKIM"
     WalletParams walletParams; // Params when command = "Send"
     ExtensionParams extensionParams; // Serialized params for the extension based on the template
-    bytes emailProof; // ZK Proof of Email receipt
+    EmailProof emailProof; // ZK Proof of Email receipt
 }
 
 // When command = "Send"
@@ -64,10 +56,15 @@ struct UnclaimedState {
 // A struct to represent commong args in a proof of email
 // Useful for methods thats need fewer inputs to avoid stack too deep error
 struct EmailProof {
-    string domain; // Domain name of the sender's email
-    uint256 timestamp; // Timestamp of the email
-    bytes32 nullifier; // Nullifier of email to prevent re-run
+    string emailDomain; // Domain name of the sender's email
     bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
+    uint256 timestamp; // Timestamp of the email
+    bytes32 emailNullifier; // Nullifier of email to prevent re-run
+    string maskedSubject; // Subject string with email address masked
+    bytes32 accountSalt; // sender's account salt, i.e., CREATE2 salt of the sender's wallet.
+    bool isCodeExist; // a flag whether the email contains an invitation code
+    bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
+    bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
     bytes proof; // ZK Proof of Email
 }
 

@@ -1,6 +1,6 @@
 const emailWalletUtils = require("@zk-email/relayer-utils");
 
-export async function genPsiPointsInput(
+export async function genPsiPointInput(
     emailAddr: string,
     accountCode: string,
     relayerRand: string,

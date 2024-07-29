@@ -141,39 +141,39 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function validateEmailOp(EmailOp memory emailOp) public view {
         (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "relayer not registered");
-        require(emailOp.accountSalt != bytes32(0), "wallet salt not set");
+        require(emailOp.emailProof.accountSalt != bytes32(0), "wallet salt not set");
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
-        require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
-        require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
+        require(emailNullifiers[emailOp.emailProof.emailNullifier] == false, "email nullified");
+        require(accountHandler.emailNullifiers(emailOp.emailProof.emailNullifier) == false, "email nullified");
         require(
             accountHandler.isDKIMPublicKeyHashValid(
-                emailOp.accountSalt,
-                emailOp.emailDomain,
-                emailOp.dkimPublicKeyHash
+                emailOp.emailProof.accountSalt,
+                emailOp.emailProof.emailDomain,
+                emailOp.emailProof.dkimPublicKeyHash
             ),
             "invalid DKIM public key"
         );
 
-        if (emailOp.timestamp != 0) {
-            require(emailOp.timestamp + emailValidityDuration > block.timestamp, "email expired");
+        if (emailOp.emailProof.timestamp != 0) {
+            require(emailOp.emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         }
 
-        if (emailOp.hasEmailRecipient) {
+        if (emailOp.emailProof.hasEmailRecipient) {
             require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
-            require(emailOp.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
+            require(emailOp.emailProof.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
         } else {
-            require(emailOp.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
+            require(emailOp.emailProof.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
         }
 
         // Validate computed subject = passed subject
         (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
             emailOp,
-            accountHandler.getWalletOfSalt(emailOp.accountSalt),
+            accountHandler.getWalletOfSalt(emailOp.emailProof.accountSalt),
             this // Core contract to read some states
         );
-        bytes memory maskedSubjectBytes = bytes(emailOp.maskedSubject);
+        bytes memory maskedSubjectBytes = bytes(emailOp.emailProof.maskedSubject);
         require(emailOp.skipSubjectPrefix < maskedSubjectBytes.length, "skipSubjectPrefix too high");
         bytes memory skippedSubjectBytes = new bytes(maskedSubjectBytes.length - emailOp.skipSubjectPrefix);
         for (uint i = 0; i < skippedSubjectBytes.length; i++) {
@@ -187,15 +187,16 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         // Verify proof
         require(
             verifier.verifyEmailOpProof(
-                emailOp.emailDomain,
-                emailOp.dkimPublicKeyHash,
-                emailOp.timestamp,
-                emailOp.emailNullifier,
-                emailOp.maskedSubject,
-                emailOp.accountSalt,
-                emailOp.hasEmailRecipient,
-                emailOp.recipientEmailAddrCommit,
-                emailOp.emailProof
+                emailOp.emailProof.emailDomain,
+                emailOp.emailProof.dkimPublicKeyHash,
+                emailOp.emailProof.timestamp,
+                emailOp.emailProof.emailNullifier,
+                emailOp.emailProof.maskedSubject,
+                emailOp.emailProof.accountSalt,
+                emailOp.emailProof.isCodeExist,
+                emailOp.emailProof.hasEmailRecipient,
+                emailOp.emailProof.recipientEmailAddrCommit,
+                emailOp.emailProof.proof
             ),
             "invalid email proof"
         );
@@ -217,13 +218,13 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 initialGas = gasleft();
 
         // Set context for this EmailOp
-        currContext.recipientEmailAddrCommit = emailOp.recipientEmailAddrCommit;
-        currContext.walletAddr = accountHandler.getWalletOfSalt(emailOp.accountSalt);
+        currContext.recipientEmailAddrCommit = emailOp.emailProof.recipientEmailAddrCommit;
+        currContext.walletAddr = accountHandler.getWalletOfSalt(emailOp.emailProof.accountSalt);
 
         // Validate emailOp - will revert on failure. Relayer should ensure validate pass by simulation.
         validateEmailOp(emailOp);
 
-        emailNullifiers[emailOp.emailNullifier] = true;
+        emailNullifiers[emailOp.emailProof.emailNullifier] = true;
 
         // Execute EmailOp - wont revert on failure. Relayer will be compensated for gas even in failure.
         (success, err) = _executeEmailOp(emailOp);
@@ -286,9 +287,9 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         emit EmailWalletEvents.EmailOpHandled(
             success,
             registeredUnclaimId,
-            emailOp.emailNullifier,
-            emailOp.accountSalt,
-            emailOp.recipientEmailAddrCommit,
+            emailOp.emailProof.emailNullifier,
+            emailOp.emailProof.accountSalt,
+            emailOp.emailProof.recipientEmailAddrCommit,
             emailOp.recipientETHAddr,
             err
         );
@@ -384,7 +385,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             address tokenAddr = tokenRegistry.getTokenAddress(emailOp.walletParams.tokenName);
 
             // Register unclaimed fund if the recipient is email wallet user + move tokens to unclaims handler
-            if (emailOp.hasEmailRecipient) {
+            if (emailOp.emailProof.hasEmailRecipient) {
                 (success, returnData) = _transferERC20FromUserWallet(
                     currContext.walletAddr,
                     address(unclaimsHandler),
@@ -400,13 +401,13 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
                 currContext.registeredUnclaimId = unclaimsHandler.registerUnclaimedFundInternal(
                     currContext.walletAddr,
-                    emailOp.recipientEmailAddrCommit,
+                    emailOp.emailProof.recipientEmailAddrCommit,
                     tokenAddr,
                     walletParams.amount
                 );
             }
 
-            if (!emailOp.hasEmailRecipient) {
+            if (!emailOp.emailProof.hasEmailRecipient) {
                 // If sending ETH to external wallet, use ETH instead of WETH
                 if (Strings.equal(emailOp.walletParams.tokenName, "ETH")) {
                     Wallet wallet = Wallet(payable(currContext.walletAddr));
@@ -485,7 +486,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
         // Set DKIM registry
         else if (Strings.equal(emailOp.command, Commands.DKIM)) {
-            accountHandler.updateDKIMRegistryOfAccountSalt(emailOp.accountSalt, emailOp.newDkimRegistry);
+            accountHandler.updateDKIMRegistryOfAccountSalt(emailOp.emailProof.accountSalt, emailOp.newDkimRegistry);
             success = true;
         }
         // The command is for an extension
@@ -528,9 +529,9 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                     emailOp.extensionParams.subjectTemplateIndex,
                     emailOp.extensionParams.subjectParams,
                     currContext.walletAddr,
-                    emailOp.hasEmailRecipient,
+                    emailOp.emailProof.hasEmailRecipient,
                     emailOp.recipientETHAddr,
-                    emailOp.emailNullifier
+                    emailOp.emailProof.emailNullifier
                 )
             {
                 success = true;

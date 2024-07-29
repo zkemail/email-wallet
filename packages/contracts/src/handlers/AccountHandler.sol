@@ -81,25 +81,21 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     /// @notice Create new account and wallet for a user
-    /// @param accountSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
-    /// @param psiPoint PSI point of the user under the relayer
     /// @param emailProof Proof and instances of the email proof
-    function createAccount(
-        bytes32 accountSalt,
-        bytes calldata psiPoint,
-        EmailProof calldata emailProof
-    ) public returns (Wallet wallet) {
-        require(accountSalt != bytes32(0), "invalid wallet salt");
+    /// @param psiPoint PSI point of the user under the relayer
+    function createAccount(EmailProof calldata emailProof, bytes calldata psiPoint) public returns (Wallet wallet) {
+        require(emailProof.accountSalt != bytes32(0), "invalid wallet salt");
         require(
-            accountSaltOfPSIPoint[psiPoint] == bytes32(0) || accountSaltOfPSIPoint[psiPoint] == accountSalt,
+            accountSaltOfPSIPoint[psiPoint] == bytes32(0) || accountSaltOfPSIPoint[psiPoint] == emailProof.accountSalt,
             "PSI point exists for another wallet salt"
         );
-        require(Address.isContract(getWalletOfSalt(accountSalt)) == false, "wallet already deployed");
-        require(emailNullifiers[emailProof.nullifier] == false, "email already nullified");
+        require(Address.isContract(getWalletOfSalt(emailProof.accountSalt)) == false, "wallet already deployed");
+        require(emailNullifiers[emailProof.emailNullifier] == false, "email already nullified");
         require(
-            isDKIMPublicKeyHashValid(accountSalt, emailProof.domain, emailProof.dkimPublicKeyHash),
+            isDKIMPublicKeyHashValid(emailProof.accountSalt, emailProof.emailDomain, emailProof.dkimPublicKeyHash),
             "invalid DKIM public key hash"
         );
+        require(emailProof.isCodeExist == true, "the invitation code must exist");
 
         (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
@@ -109,24 +105,27 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         require(
-            verifier.verifyAccountCreationProof(
-                emailProof.domain,
+            verifier.verifyEmailOpProof(
+                emailProof.emailDomain,
                 emailProof.dkimPublicKeyHash,
-                emailProof.nullifier,
                 emailProof.timestamp,
-                accountSalt,
-                psiPoint,
+                emailProof.emailNullifier,
+                emailProof.maskedSubject,
+                emailProof.accountSalt,
+                emailProof.isCodeExist,
+                emailProof.hasEmailRecipient,
+                emailProof.recipientEmailAddrCommit,
                 emailProof.proof
             ),
             "invalid account creation proof"
         );
 
-        accountSaltOfPSIPoint[psiPoint] = accountSalt;
-        emailNullifiers[emailProof.nullifier] = true;
+        accountSaltOfPSIPoint[psiPoint] = emailProof.accountSalt;
+        emailNullifiers[emailProof.emailNullifier] = true;
 
-        wallet = _deployWallet(accountSalt);
+        wallet = _deployWallet(emailProof.accountSalt);
 
-        emit EmailWalletEvents.AccountCreated(accountSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(emailProof.accountSalt, psiPoint);
     }
 
     /// @notice Return true iff the wallet is deployed for the given wallet salt

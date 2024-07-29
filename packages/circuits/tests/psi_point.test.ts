@@ -1,7 +1,7 @@
 const ff = require("ffjavascript");
 const emailWalletUtils = require("@zk-email/relayer-utils");
 import { hash_to_curve, point_scalar_mul } from "circom-grumpkin";
-import { genPsiPointsInput } from "../helpers/psi_points";
+import { genPsiPointInput } from "../helpers/psi_point";
 const circom_tester = require("circom_tester");
 const wasm_tester = circom_tester.wasm;
 import * as path from "path";
@@ -13,7 +13,7 @@ jest.setTimeout(120000);
 describe("PSI point", () => {
   let circuit: any;
   beforeAll(async () => {
-    circuit = await wasm_tester(path.join(__dirname, "../src/psi_points.circom"), option);
+    circuit = await wasm_tester(path.join(__dirname, "../src/psi_point.circom"), option);
   });
 
   it("psi point calculation test", async () => {
@@ -36,7 +36,7 @@ describe("PSI point", () => {
     const emailAddr = "suegamisora@gmail.com";
     const accountCode = emailWalletUtils.genAccountCode();
     const relayerRand = emailWalletUtils.genRelayerRand();
-    const circuitInputs = await genPsiPointsInput(emailAddr, accountCode, relayerRand);
+    const circuitInputs = await genPsiPointInput(emailAddr, accountCode, relayerRand);
     const witness = await circuit.calculateWitness(circuitInputs);
     await circuit.checkConstraints(witness);
     const expectedAccountSalt = emailWalletUtils.accountSalt(emailAddr, accountCode);

@@ -12,7 +12,7 @@ import path from "path";
 import { genClaimInput } from "../helpers/claim";
 import { genEmailSenderInput } from "../helpers/email_sender";
 import { genAnnouncementInput } from "../helpers/announcement";
-import { genPsiPointsInput } from "../helpers/psi_points";
+import { genPsiPointsInput } from "../helpers/psi_point";
 const snarkjs = require("snarkjs");
 const emailWalletUtils = require("@zk-email/relayer-utils");
 

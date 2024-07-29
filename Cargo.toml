@@ -2,7 +2,7 @@
 members = [
     "packages/relayer",
     "packages/scripts",
-    "node_modules/@zk-email/relayer-utils",
+    "packages/circuits/node_modules/@zk-email/relayer-utils",
 ]
 exclude = ["node_modules/*"]
 resolver = "2"

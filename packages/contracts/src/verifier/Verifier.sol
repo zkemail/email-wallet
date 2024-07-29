@@ -2,15 +2,15 @@
 pragma solidity ^0.8.9;
 
 import "../interfaces/IVerifier.sol";
-import "./AccountCreationVerifier.sol";
 import "./ClaimVerifier.sol";
 import "./EmailSenderVerifier.sol";
+import "./PsiPointVerifier.sol";
 import "./AnnouncementVerifier.sol";
 
 contract AllVerifiers is IVerifier {
-    AccountCreationVerifier public immutable accountCreationVerifier;
     ClaimVerifier public immutable claimVerifier;
     EmailSenderVerifier public immutable emailSenderVerifier;
+    PsiPointVerifier public immutable psiPointVerifier;
     AnnouncementVerifier public immutable announcementVerifier;
 
     uint256 public constant DOMAIN_BYTES = 255;
@@ -21,42 +21,42 @@ contract AllVerifiers is IVerifier {
     uint256 public constant EMAIL_ADDR_FIELDS = 9;
 
     constructor() {
-        accountCreationVerifier = new AccountCreationVerifier();
         claimVerifier = new ClaimVerifier();
         emailSenderVerifier = new EmailSenderVerifier();
+        psiPointVerifier = new PsiPointVerifier();
         announcementVerifier = new AnnouncementVerifier();
     }
 
-    /// @inheritdoc IVerifier
-    function verifyAccountCreationProof(
-        string memory emailDomain,
-        bytes32 dkimPublicKeyHash,
-        bytes32 emailNullifier,
-        uint256 emailTimestamp,
-        bytes32 accountSalt,
-        bytes memory psiPoint,
-        bytes memory proof
-    ) external view returns (bool) {
-        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
-            proof,
-            (uint256[2], uint256[2][2], uint256[2])
-        );
-        uint256[DOMAIN_FIELDS + 6] memory pubSignals;
-        uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
-            pubSignals[i] = domainFields[i];
-        }
+    // /// @inheritdoc IVerifier
+    // function verifyAccountCreationProof(
+    //     string memory emailDomain,
+    //     bytes32 dkimPublicKeyHash,
+    //     bytes32 emailNullifier,
+    //     uint256 emailTimestamp,
+    //     bytes32 accountSalt,
+    //     bytes memory psiPoint,
+    //     bytes memory proof
+    // ) external view returns (bool) {
+    //     (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+    //         proof,
+    //         (uint256[2], uint256[2][2], uint256[2])
+    //     );
+    //     uint256[DOMAIN_FIELDS + 6] memory pubSignals;
+    //     uint256[] memory domainFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
+    //     for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
+    //         pubSignals[i] = domainFields[i];
+    //     }
 
-        pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
-        pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
-        pubSignals[DOMAIN_FIELDS + 2] = uint256(emailTimestamp);
-        pubSignals[DOMAIN_FIELDS + 3] = uint256(accountSalt);
+    //     pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
+    //     pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
+    //     pubSignals[DOMAIN_FIELDS + 2] = uint256(emailTimestamp);
+    //     pubSignals[DOMAIN_FIELDS + 3] = uint256(accountSalt);
 
-        (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
-        pubSignals[DOMAIN_FIELDS + 4] = x;
-        pubSignals[DOMAIN_FIELDS + 5] = y;
-        return accountCreationVerifier.verifyProof(pA, pB, pC, pubSignals);
-    }
+    //     (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
+    //     pubSignals[DOMAIN_FIELDS + 4] = x;
+    //     pubSignals[DOMAIN_FIELDS + 5] = y;
+    //     return accountCreationVerifier.verifyProof(pA, pB, pC, pubSignals);
+    // }
 
     /// @inheritdoc IVerifier
     function verifyEmailOpProof(
@@ -66,6 +66,7 @@ contract AllVerifiers is IVerifier {
         bytes32 emailNullifier,
         string memory maskedSubject,
         bytes32 accountSalt,
+        bool isCodeExist,
         bool hasEmailRecipient,
         bytes32 recipientEmailAddrCommit,
         bytes memory proof
@@ -75,7 +76,7 @@ contract AllVerifiers is IVerifier {
             (uint256[2], uint256[2][2], uint256[2])
         );
 
-        uint256[SUBJECT_FIELDS + DOMAIN_FIELDS + 6] memory pubSignals;
+        uint256[SUBJECT_FIELDS + DOMAIN_FIELDS + 7] memory pubSignals;
 
         uint256[] memory stringFields;
         stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
@@ -94,9 +95,9 @@ contract AllVerifiers is IVerifier {
         }
 
         pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS] = uint256(accountSalt);
-        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1] = hasEmailRecipient ? 1 : 0;
-        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2] = uint256(recipientEmailAddrCommit);
-
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1] = isCodeExist ? 1 : 0;
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2] = hasEmailRecipient ? 1 : 0;
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 3] = uint256(recipientEmailAddrCommit);
         return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
@@ -114,6 +115,24 @@ contract AllVerifiers is IVerifier {
         pubSignals[0] = uint256(recipientEmailAddrCommit);
         pubSignals[1] = uint256(recipientAccountSalt);
         return claimVerifier.verifyProof(pA, pB, pC, pubSignals);
+    }
+
+    /// @inheritdoc IVerifier
+    function verifyPsiPointProof(
+        bytes32 accountSalt,
+        bytes memory psiPoint,
+        bytes memory proof
+    ) external view returns (bool) {
+        (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
+            proof,
+            (uint256[2], uint256[2][2], uint256[2])
+        );
+        uint256[3] memory pubSignals;
+        pubSignals[0] = uint256(accountSalt);
+        (uint256 x, uint256 y) = abi.decode(psiPoint, (uint256, uint256));
+        pubSignals[1] = x;
+        pubSignals[2] = y;
+        return psiPointVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 
     function verifyAnnouncementProof(

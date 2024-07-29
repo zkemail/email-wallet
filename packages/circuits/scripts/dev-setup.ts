@@ -105,6 +105,7 @@ async function generateKeys(
   vKeyPath: string,
   solidityVerifierPath: string
 ) {
+  console.log(zKey);
   log(`✓ Generating ZKey for ${r1cPath}`);
   await zKey.newZKey(r1cPath, phase1Path, zKeyPath + ".step1", console);
   log("✓ Partial ZKey generated");
@@ -140,12 +141,12 @@ async function exec() {
   await downloadPhase1(phase1Path);
   log("✓ Phase 1:", phase1Path);
 
-  const accountCreationR1csPath = path.join(buildDir, "account_creation/account_creation.r1cs");
-  if (!fs.existsSync(accountCreationR1csPath)) {
-    throw new Error(`${accountCreationR1csPath} does not exist.`);
-  }
-  await generateKeys(phase1Path, accountCreationR1csPath, path.join(buildDir, "account_creation.zkey"), path.join(buildDir, "account_creation.vkey"), path.join(buildDir, "AccountCreationVerifier.sol"));
-  log("✓ Keys for account creation circuit generated");
+  // const accountCreationR1csPath = path.join(buildDir, "account_creation/account_creation.r1cs");
+  // if (!fs.existsSync(accountCreationR1csPath)) {
+  //   throw new Error(`${accountCreationR1csPath} does not exist.`);
+  // }
+  // await generateKeys(phase1Path, accountCreationR1csPath, path.join(buildDir, "account_creation.zkey"), path.join(buildDir, "account_creation.vkey"), path.join(buildDir, "AccountCreationVerifier.sol"));
+  // log("✓ Keys for account creation circuit generated");
 
   // const accountInitR1csPath = path.join(buildDir, "account_init/account_init.r1cs");
   // if (!fs.existsSync(accountInitR1csPath)) {
@@ -167,6 +168,13 @@ async function exec() {
   }
   await generateKeys(phase1Path, claimR1csPath, path.join(buildDir, "claim.zkey"), path.join(buildDir, "claim.vkey"), path.join(buildDir, "ClaimVerifier.sol"));
   log("✓ Keys for claim circuit generated");
+
+  const psiPointR1csPath = path.join(buildDir, "psi_point/psi_point.r1cs");
+  if (!fs.existsSync(psiPointR1csPath)) {
+    throw new Error(`${psiPointR1csPath} does not exist.`);
+  }
+  await generateKeys(phase1Path, psiPointR1csPath, path.join(buildDir, "psi_point.zkey"), path.join(buildDir, "psi_point.vkey"), path.join(buildDir, "PsiPointVerifier.sol"));
+  log("✓ Keys for psi_point circuit generated");
 
   const emailSenderR1csPath = path.join(buildDir, "email_sender/email_sender.r1cs");
   if (!fs.existsSync(emailSenderR1csPath)) {

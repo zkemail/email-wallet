@@ -27,6 +27,10 @@ packages/contracts/test/build_integration/*.zkey
 packages/contracts/test/build_integration/*.wasm
 packages/contracts/test/build_integration/*.txt
 packages/contracts/zkout
+packages/contracts/artifacts-zk
+packages/contracts/deployments
+packages/contracts/cache-zk
+
 
 # Relayer
 packages/relayer/sendgrid.env
