@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: restart-deployment
+  namespace: email-wallet
+spec:
+  schedule: "0 0 * * 0" # Runs every Sunday at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  kubectl rollout restart deployment relayer -n email-wallet
+          restartPolicy: OnFailure
