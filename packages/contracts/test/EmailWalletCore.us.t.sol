@@ -47,14 +47,14 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOpNFT = _getBaseEmailOp();
         emailOpNFT.command = Commands.INSTALL_EXTENSION;
         emailOpNFT.extensionName = "NFT Wallet";
-        emailOpNFT.maskedSubject = "Install extension NFT Wallet";
-        emailOpNFT.emailNullifier = bytes32(uint256(93845));
+        emailOpNFT.emailProof.maskedSubject = "Install extension NFT Wallet";
+        emailOpNFT.emailProof.emailNullifier = bytes32(uint256(93845));
 
         EmailOp memory emailOpTestExt = _getBaseEmailOp();
         emailOpTestExt.command = Commands.INSTALL_EXTENSION;
         emailOpTestExt.extensionName = "TestExtension";
-        emailOpTestExt.maskedSubject = "Install extension TestExtension";
-        emailOpTestExt.emailNullifier = bytes32(uint256(4234));
+        emailOpTestExt.emailProof.maskedSubject = "Install extension TestExtension";
+        emailOpTestExt.emailProof.emailNullifier = bytes32(uint256(4234));
 
         vm.startPrank(relayer);
         core.handleEmailOp(emailOpNFT);
@@ -67,10 +67,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
-        emailOp.maskedSubject = string.concat("NFT Send 55 of APE to ");
+        emailOp.emailProof.maskedSubject = string.concat("NFT Send 55 of APE to ");
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(55);
@@ -143,13 +143,13 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = string.concat(
+        emailOp.emailProof.maskedSubject = string.concat(
             "Test Register Unclaimed State to ",
             SubjectUtils.addressToChecksumHexString(address(anotherExtension))
         );
         emailOp.extensionParams.subjectTemplateIndex = 3;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](1);
         emailOp.extensionParams.subjectParams[0] = abi.encode(address(anotherExtension));
@@ -178,10 +178,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
-        emailOp.maskedSubject = string.concat("NFT Send 55 of APE to ");
+        emailOp.emailProof.maskedSubject = string.concat("NFT Send 55 of APE to ");
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(55);
@@ -205,10 +205,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
-        emailOp.maskedSubject = string.concat("NFT Send 55 of APE to ");
+        emailOp.emailProof.maskedSubject = string.concat("NFT Send 55 of APE to ");
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(55);
@@ -227,10 +227,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
-        emailOp.maskedSubject = string.concat("NFT Send 55 of APE to ");
+        emailOp.emailProof.maskedSubject = string.concat("NFT Send 55 of APE to ");
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(55);
@@ -238,15 +238,15 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp2 = _getBaseEmailOp();
         emailOp2.command = "NFT";
-        emailOp2.maskedSubject = string.concat("NFT Send 22 of APE to ");
+        emailOp2.emailProof.maskedSubject = string.concat("NFT Send 22 of APE to ");
         emailOp2.extensionParams.subjectTemplateIndex = 0;
-        emailOp2.hasEmailRecipient = true;
+        emailOp2.emailProof.hasEmailRecipient = true;
         emailOp2.feeTokenName = "DAI";
-        emailOp2.recipientEmailAddrCommit = recipientEmailAddrCommit; // Use same emailAddrCommit
+        emailOp2.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit; // Use same emailAddrCommit
         emailOp2.extensionParams.subjectParams = new bytes[](2);
         emailOp2.extensionParams.subjectParams[0] = abi.encode(22);
         emailOp2.extensionParams.subjectParams[1] = abi.encode("APE");
-        emailOp2.emailNullifier = bytes32(uint256(1212123));
+        emailOp2.emailProof.emailNullifier = bytes32(uint256(1212123));
 
         dummyNFT.freeMint(walletAddr, 55);
         vm.deal(relayer, 2 * unclaimedStateClaimGas * maxFeePerGas);
@@ -269,10 +269,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test"; // We are using the TestExtension to make multiple unclaimed state registration
-        emailOp.maskedSubject = "Test Register Unclaimed State Twice";
+        emailOp.emailProof.maskedSubject = "Test Register Unclaimed State Twice";
         emailOp.extensionParams.subjectTemplateIndex = 1;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
 
         daiToken.freeMint(walletAddr, 20 ether); // For fee reibursement
@@ -293,10 +293,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Test";
-        emailOp.maskedSubject = "Test Register Empty Unclaimed State";
+        emailOp.emailProof.maskedSubject = "Test Register Empty Unclaimed State";
         emailOp.extensionParams.subjectTemplateIndex = 2;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
 
         daiToken.freeMint(walletAddr, 20 ether); // For fee reibursement
@@ -517,10 +517,10 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "NFT";
-        emailOp.maskedSubject = string.concat("NFT Send 55 of APE to ");
+        emailOp.emailProof.maskedSubject = string.concat("NFT Send 55 of APE to ");
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
         emailOp.feeTokenName = "DAI";
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(55);
@@ -640,15 +640,20 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newAccountSalt,
-            newPSIPoint,
             EmailProof({
-                nullifier: emailNullifier2,
-                proof: mockProof,
+                emailDomain: emailDomain,
                 dkimPublicKeyHash: mockDKIMHash,
-                domain: emailDomain,
-                timestamp: block.timestamp
-            })
+                timestamp: block.timestamp,
+                emailNullifier: emailNullifier2,
+                maskedSubject: "",
+                accountSalt: newAccountSalt,
+                isCodeExist: true,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(uint256(0)),
+                proof: mockProof
+            }),
+            newPSIPoint,
+            mockProof
         );
 
         vm.expectEmit(true, true, true, true);
@@ -693,17 +698,21 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newAccountSalt,
-            newPSIPoint,
             EmailProof({
-                nullifier: emailNullifier2,
-                proof: mockProof,
+                emailDomain: emailDomain,
                 dkimPublicKeyHash: mockDKIMHash,
-                domain: emailDomain,
-                timestamp: block.timestamp
-            })
+                timestamp: block.timestamp,
+                emailNullifier: emailNullifier2,
+                maskedSubject: "",
+                accountSalt: newAccountSalt,
+                isCodeExist: true,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(uint256(0)),
+                proof: mockProof
+            }),
+            newPSIPoint,
+            mockProof
         );
-
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newAccountSalt, mockProof);
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newAccountSalt, mockProof);
         vm.stopPrank();
@@ -836,17 +845,21 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // Relayer claim the unclaimed State to a newly created account, but not initialized
         vm.startPrank(relayer);
         accountHandler.createAccount(
-            newAccountSalt,
-            newPSI,
             EmailProof({
-                nullifier: emailNullifier2,
-                proof: mockProof,
+                emailDomain: emailDomain,
                 dkimPublicKeyHash: mockDKIMHash,
-                domain: emailDomain,
-                timestamp: block.timestamp
-            })
+                timestamp: block.timestamp,
+                emailNullifier: emailNullifier2,
+                maskedSubject: "",
+                accountSalt: newAccountSalt,
+                isCodeExist: true,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(uint256(0)),
+                proof: mockProof
+            }),
+            newPSI,
+            mockProof
         );
-
         // vm.expectRevert("account not initialized");
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);
         vm.stopPrank();

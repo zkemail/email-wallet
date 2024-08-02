@@ -21,7 +21,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         vm.warp(1641070800);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.timestamp = block.timestamp - 1 days; // Core contract accept only emails up to 1 hour
+        emailOp.emailProof.timestamp = block.timestamp - 1 days; // Core contract accept only emails up to 1 hour
         emailOp.command = "Send 1 ETH to someone@sample.com";
 
         vm.startPrank(relayer);
@@ -34,7 +34,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.emailDomain = "random.com";
+        emailOp.emailProof.emailDomain = "random.com";
         emailOp.command = "Send 1 ETH to someone@sample.com";
 
         vm.startPrank(relayer);
@@ -77,7 +77,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
+        emailOp.emailProof.emailNullifier = emailNullifier; // This nullifier already used for account initialization
 
         vm.startPrank(relayer);
         vm.expectRevert("email nullified");
@@ -115,9 +115,9 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.hasEmailRecipient = true;
+        emailOp.emailProof.hasEmailRecipient = true;
         emailOp.recipientETHAddr = vm.addr(5);
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot have both recipient types");
@@ -129,8 +129,8 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(0);
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(0);
 
         vm.startPrank(relayer);
         vm.expectRevert("recipientEmailAddrCommit not found");
@@ -143,9 +143,12 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.hasEmailRecipient = false;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
+        emailOp.emailProof.hasEmailRecipient = false;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.emailProof.maskedSubject = string.concat(
+            "Send 1 DAI to ",
+            SubjectUtils.addressToChecksumHexString(recipient)
+        );
 
         vm.startPrank(relayer);
         vm.expectRevert("recipientEmailAddrCommit not allowed");
@@ -158,7 +161,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         daiToken.freeMint(walletAddr, 1 ether);
 
         EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.emailProof = proof; // this proof is not valid as per TestVerifier.sol
+        emailOp.emailProof.proof = proof; // this proof is not valid as per TestVerifier.sol
 
         vm.startPrank(relayer);
         vm.expectRevert("invalid email proof");
@@ -177,7 +180,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.deal(relayer, 1 ether);
 
@@ -209,7 +212,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "ETH"; // User will pay in WETH
         emailOp.feePerGas = maxFeePerGas;
 
@@ -236,7 +239,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
         emailOp.feePerGas = maxFeePerGas;
 
@@ -264,7 +267,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
         emailOp.feePerGas = feePerGas; // Custom fee per gas < maxFeePerGas
 
@@ -292,9 +295,9 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(552323));
-        emailOp.hasEmailRecipient = true;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(552323));
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
         emailOp.feePerGas = maxFeePerGas;
 
@@ -322,7 +325,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
+        emailOp.emailProof.maskedSubject = string.concat("Execute 0x", SubjectUtils.bytesToHexString(emailOpCalldata));
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);
@@ -349,7 +352,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
         emailOp.feePerGas = maxFeePerGas;
 

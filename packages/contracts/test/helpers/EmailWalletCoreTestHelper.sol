@@ -222,15 +222,20 @@ contract EmailWalletCoreTestHelper is Test {
         vm.startPrank(relayer);
 
         accountHandler.createAccount(
-            accountSalt,
-            psiPoint,
             EmailProof({
-                proof: mockProof,
-                domain: emailDomain,
+                emailDomain: emailDomain,
                 dkimPublicKeyHash: mockDKIMHash,
-                nullifier: emailNullifier,
-                timestamp: block.timestamp
-            })
+                emailNullifier: emailNullifier,
+                timestamp: block.timestamp,
+                maskedSubject: "",
+                accountSalt: accountSalt,
+                isCodeExist: true,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(0),
+                proof: mockProof
+            }),
+            psiPoint,
+            mockProof
         );
         vm.stopPrank();
     }
@@ -239,27 +244,30 @@ contract EmailWalletCoreTestHelper is Test {
     function _getBaseEmailOp() internal view returns (EmailOp memory) {
         return
             EmailOp({
-                accountSalt: accountSalt,
-                hasEmailRecipient: false,
-                recipientEmailAddrCommit: bytes32(0),
+                command: "",
+                skipSubjectPrefix: 0,
                 numRecipientEmailAddrBytes: 0,
                 recipientETHAddr: address(0),
-                command: "",
-                emailNullifier: bytes32(uint256(13981239)),
-                emailDomain: emailDomain,
-                dkimPublicKeyHash: mockDKIMHash,
-                timestamp: block.timestamp,
-                maskedSubject: "",
-                skipSubjectPrefix: 0,
                 feeTokenName: "ETH",
                 feePerGas: 0,
                 executeCallData: abi.encodePacked(""),
-                newWalletOwner: address(0),
-                walletParams: WalletParams({tokenName: "", amount: 0}),
                 extensionName: "",
-                extensionParams: ExtensionParams({subjectTemplateIndex: 0, subjectParams: new bytes[](0)}),
+                newWalletOwner: address(0),
                 newDkimRegistry: address(0),
-                emailProof: mockProof
+                walletParams: WalletParams({tokenName: "", amount: 0}),
+                extensionParams: ExtensionParams({subjectTemplateIndex: 0, subjectParams: new bytes[](0)}),
+                emailProof: EmailProof({
+                    emailDomain: emailDomain,
+                    dkimPublicKeyHash: mockDKIMHash,
+                    emailNullifier: bytes32(uint256(13981239)),
+                    timestamp: block.timestamp,
+                    maskedSubject: "",
+                    accountSalt: accountSalt,
+                    isCodeExist: false,
+                    hasEmailRecipient: false,
+                    recipientEmailAddrCommit: bytes32(0),
+                    proof: mockProof
+                })
             });
     }
 
@@ -267,9 +275,9 @@ contract EmailWalletCoreTestHelper is Test {
         EmailOp memory emailOp = _getBaseEmailOp();
 
         emailOp.command = "Send";
-        emailOp.maskedSubject = "Send 1 DAI to ";
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(3333));
+        emailOp.emailProof.maskedSubject = "Send 1 DAI to ";
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(3333));
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
 

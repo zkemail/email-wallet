@@ -36,7 +36,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.extensionName = extensionName;
 
         vm.startPrank(relayer);
@@ -65,7 +65,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
-        emailOp.maskedSubject = "Install extension Custom";
+        emailOp.emailProof.maskedSubject = "Install extension Custom";
         emailOp.extensionName = "Custom";
 
         vm.startPrank(relayer);
@@ -81,7 +81,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.extensionName = extensionName;
 
         vm.startPrank(relayer);
@@ -95,14 +95,14 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOpInstall = _getBaseEmailOp();
         emailOpInstall.command = Commands.INSTALL_EXTENSION;
-        emailOpInstall.maskedSubject = string.concat("Install extension ", extensionName);
+        emailOpInstall.emailProof.maskedSubject = string.concat("Install extension ", extensionName);
         emailOpInstall.extensionName = extensionName;
 
         EmailOp memory emailOpUninstall = _getBaseEmailOp();
         emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
-        emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
+        emailOpUninstall.emailProof.maskedSubject = string.concat("Uninstall extension ", extensionName);
         emailOpUninstall.extensionName = extensionName;
-        emailOpUninstall.emailNullifier = bytes32(uint256(93845));
+        emailOpUninstall.emailProof.emailNullifier = bytes32(uint256(93845));
 
         vm.startPrank(relayer);
         core.handleEmailOp(emailOpInstall);
@@ -118,7 +118,7 @@ contract InstallExtensionCommandTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOpUninstall = _getBaseEmailOp();
         emailOpUninstall.command = Commands.UNINSTALL_EXTENSION;
-        emailOpUninstall.maskedSubject = string.concat("Uninstall extension ", extensionName);
+        emailOpUninstall.emailProof.maskedSubject = string.concat("Uninstall extension ", extensionName);
         emailOpUninstall.extensionName = extensionName;
 
         vm.startPrank(relayer);

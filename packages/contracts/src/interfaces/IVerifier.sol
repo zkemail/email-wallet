@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "./Types.sol";
+
 interface IVerifier {
     // /// @notice Verify the proof to create an account
     // /// @notice Verifies email from a user that contains `accountSalt` in the email header
@@ -29,28 +31,8 @@ interface IVerifier {
     ///         is DKIM signed by public key whose hash is `dkimPublicKeyHash`,
     ///         the subject is same as `maskedSubject` with email address masked (if any),
     ///         and email address in subject is used to derive `recipientEmailAddrCommit`
-    /// @param emailDomain The domain of the user's email address
-    /// @param dkimPublicKeyHash The hash of the DKIM public key of `emailDomain`
-    /// @param emailNullifier The nullifier computed for the email
-    /// @param timestamp The timestamp of the email
-    /// @param maskedSubject The subject of the email with (any) email address masked
-    /// @param accountSalt The accountSalt used to derive user's account address - hash(emailAddress, accountSalt)
-    /// @param isCodeExist Whether the email contains an invitation code
-    /// @param hasEmailRecipient Whether the email subject has a recipient (email address)
-    /// @param recipientEmailAddrCommit The hash of recipeint's email address (from subject) and a randomness
-    /// @dev `emailAddrPointer`, `dkimPublicKeyHash` should be the values previously stored in the contract
-    function verifyEmailOpProof(
-        string memory emailDomain,
-        bytes32 dkimPublicKeyHash,
-        uint256 timestamp,
-        bytes32 emailNullifier,
-        string memory maskedSubject,
-        bytes32 accountSalt,
-        bool isCodeExist,
-        bool hasEmailRecipient,
-        bytes32 recipientEmailAddrCommit,
-        bytes memory proof
-    ) external view returns (bool);
+    /// @param emailProof The email proof
+    function verifyEmailProof(EmailProof calldata emailProof) external view returns (bool);
 
     /// @notice Verify the proof to claim and unclaimed to a recipient account
     /// @notice This verify that same email address is used in `recipientEmailAddrPointer` and `recipientEmailAddrCommit`

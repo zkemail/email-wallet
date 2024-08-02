@@ -25,7 +25,7 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.DKIM;
         emailOp.newDkimRegistry = dkimRegistryAddr;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
@@ -46,7 +46,7 @@ contract DKIMRegistryCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.DKIM;
         emailOp.newDkimRegistry = dkimRegistryAddr;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);

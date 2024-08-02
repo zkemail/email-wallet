@@ -70,9 +70,12 @@ abstract contract IntegrationTestHelper is Test {
     address constant UNISWAP_V3_FACTORY = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     address constant UNISWAP_V3_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
-    uint256 constant DOMAIN_FIELDS = 9;
-    uint256 constant SUBJECT_FIELDS = 17;
-    uint256 constant EMAIL_ADDR_FIELDS = 9;
+    uint256 public constant DOMAIN_BYTES = 255;
+    uint256 public constant DOMAIN_FIELDS = 9;
+    uint256 public constant SUBJECT_BYTES = 605;
+    uint256 public constant SUBJECT_FIELDS = 20;
+    uint256 public constant EMAIL_ADDR_BYTES = 256;
+    uint256 public constant EMAIL_ADDR_FIELDS = 9;
 
     uint256 maxFeePerGas = 10 ** 9;
     uint256 emailValidityDuration = 10 days;
@@ -274,20 +277,51 @@ abstract contract IntegrationTestHelper is Test {
     function accountCreation(
         string memory emailFile,
         string memory emailAddr,
+        bytes32 accountCode,
         bytes32 relayerRand,
         string memory emailDomain
     ) internal returns (Wallet wallet) {
+        EmailProof memory emailProof;
+        (emailProof, ) = genEmailProof(emailFile, accountCode, emailDomain, emailAddr);
+
         string memory projectRoot = vm.projectRoot();
         string[] memory inputGenerationInput = new string[](3);
-        inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/account_creation.sh");
-        inputGenerationInput[1] = emailFile;
-        inputGenerationInput[2] = uint256(relayerRand).toHexString(32);
+        inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/psi_point.sh");
+        inputGenerationInput[1] = emailAddr;
+        inputGenerationInput[2] = uint256(accountCode).toHexString(32);
+        inputGenerationInput[3] = uint256(relayerRand).toHexString(32);
         vm.ffi(inputGenerationInput);
 
         string memory publicInputFile = vm.readFile(
-            string.concat(projectRoot, "/test/build_integration/account_creation_public.json")
+            string.concat(vm.projectRoot(), "/test/build_integration/psi_point_public.json")
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        bytes memory psiPoint;
+        {
+            bytes32 x = bytes32(vm.parseUint(pubSignals[1]));
+            bytes32 y = bytes32(vm.parseUint(pubSignals[2]));
+            psiPoint = abi.encode(x, y);
+        }
+
+        // string memory publicInputFile = vm.readFile(
+        //     string.concat(projectRoot, "/test/build_integration/email_sender_public.json")
+        // );
+        // string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
+        // EmailProof memory emailProof;
+        /* 
+         string emailDomain; // Domain name of the sender's email
+        bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
+        uint256 timestamp; // Timestamp of the email
+        bytes32 emailNullifier; // Nullifier of email to prevent re-run
+        string maskedSubject; // Subject string with email address masked
+        bytes32 accountSalt; // sender's account salt, i.e., CREATE2 salt of the sender's wallet.
+        bool isCodeExist; // a flag whether the email contains an invitation code
+        bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
+        bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
+        bytes proof; // ZK Proof of Email
+        */
+        // emailProof.emailDomain = "gmail.com";
+        // emailProof.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
 
         // bytes32 domain = bytes32(vm.parseUint(pubSignals[0]));
 
@@ -295,38 +329,26 @@ abstract contract IntegrationTestHelper is Test {
         // console.logBytes32(domain);
         // console.logString(string(abi.encode(domain))); //  -> moc.liamg
 
-        bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
-        bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
-        uint emailTimestamp = vm.parseUint(pubSignals[11]);
-        bytes32 accountSalt = bytes32(vm.parseUint(pubSignals[12]));
-        console.logString("function accountCreation");
-        console.logString("emailAddr");
-        console.logString(emailAddr);
-        console.logString("accountSalt");
-        console.logBytes32(accountSalt);
-        bytes memory psiPoint;
-        {
-            bytes32 x = bytes32(vm.parseUint(pubSignals[13]));
-            bytes32 y = bytes32(vm.parseUint(pubSignals[14]));
-            psiPoint = abi.encode(x, y);
-        }
+        // bytes32 publicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
+        // bytes32 emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
+        // uint emailTimestamp = vm.parseUint(pubSignals[11]);
+        // bytes32 accountSalt = bytes32(vm.parseUint(pubSignals[12]));
+        // console.logString("function accountCreation");
+        // console.logString("emailAddr");
+        // console.logString(emailAddr);
+        // console.logString("accountSalt");
+        // console.logBytes32(accountSalt);
+        // bytes memory psiPoint;
+        // {
+        //     bytes32 x = bytes32(vm.parseUint(pubSignals[13]));
+        //     bytes32 y = bytes32(vm.parseUint(pubSignals[14]));
+        //     psiPoint = abi.encode(x, y);
+        // }
 
-        bytes memory proof = proofToBytes(
-            string.concat(projectRoot, "/test/build_integration/account_creation_proof.json")
+        bytes memory psiProof = proofToBytes(
+            string.concat(projectRoot, "/test/build_integration/psi_point_proof.json")
         );
-        {
-            wallet = accountHandler.createAccount(
-                accountSalt,
-                psiPoint,
-                EmailProof({
-                    proof: proof,
-                    domain: "gmail.com", // TODO fix later
-                    dkimPublicKeyHash: publicKeyHash,
-                    nullifier: emailNullifier,
-                    timestamp: emailTimestamp
-                })
-            );
-        }
+        wallet = accountHandler.createAccount(emailProof, psiPoint, psiProof);
     }
 
     function genEmailOpPartial(
@@ -337,6 +359,20 @@ abstract contract IntegrationTestHelper is Test {
         string memory emailDomain,
         string memory feeTokenName
     ) internal returns (EmailOp memory emailOp, bytes32 emailAddrRand) {
+        EmailProof memory emailProof;
+        (emailProof, emailAddrRand) = genEmailProof(emailFile, accountCode, emailDomain, maskedSubject);
+        emailOp.command = command;
+        emailOp.feeTokenName = feeTokenName;
+        emailOp.feePerGas = core.maxFeePerGas();
+        emailOp.emailProof = emailProof;
+    }
+
+    function genEmailProof(
+        string memory emailFile,
+        bytes32 accountCode,
+        string memory emailDomain,
+        string memory maskedSubject
+    ) internal returns (EmailProof memory emailProof, bytes32 emailAddrRand) {
         string[] memory inputGenerationInput = new string[](3);
         inputGenerationInput[0] = string.concat(vm.projectRoot(), "/test/bin/email_sender.sh");
         inputGenerationInput[1] = emailFile;
@@ -357,26 +393,52 @@ abstract contract IntegrationTestHelper is Test {
             string.concat(vm.projectRoot(), "/test/build_integration/email_sender_public.json")
         );
         string[] memory pubSignals = abi.decode(vm.parseJson(publicInputFile), (string[]));
-        emailOp.command = command;
-        emailOp.emailDomain = emailDomain;
-        emailOp.maskedSubject = maskedSubject;
-        emailOp.feeTokenName = feeTokenName;
-        emailOp.feePerGas = core.maxFeePerGas();
-        emailOp.emailProof = proofToBytes(
+
+        /* 
+        string emailDomain; // Domain name of the sender's email
+        bytes32 dkimPublicKeyHash; // Hash of the DKIM public key used in email/proof
+        uint256 timestamp; // Timestamp of the email
+        bytes32 emailNullifier; // Nullifier of email to prevent re-run
+        string maskedSubject; // Subject string with email address masked
+        bytes32 accountSalt; // sender's account salt, i.e., CREATE2 salt of the sender's wallet.
+        bool isCodeExist; // a flag whether the email contains an invitation code
+        bool hasEmailRecipient; // a flag whether the recipient's email address is included in the subject
+        bytes32 recipientEmailAddrCommit; // Commitment to recipient's email address if `hasEmailRecipient` is true
+        bytes proof; // ZK Proof of Email
+        */
+        emailProof.emailDomain = emailDomain;
+        emailProof.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS]));
+        emailProof.emailNullifier = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 1]));
+        emailProof.timestamp = vm.parseUint(pubSignals[DOMAIN_FIELDS + 2]);
+        emailProof.maskedSubject = maskedSubject;
+        emailProof.accountSalt = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS]));
+        emailProof.isCodeExist = vm.parseUint(pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1]) == 1;
+        emailProof.hasEmailRecipient = vm.parseUint(pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2]) == 1;
+        emailProof.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 3]));
+        emailProof.proof = proofToBytes(
             string.concat(vm.projectRoot(), "/test/build_integration/email_sender_proof.json")
         );
-        emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
-        emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
-        emailOp.timestamp = vm.parseUint(pubSignals[11]);
-        emailOp.accountSalt = bytes32(vm.parseUint(pubSignals[32]));
-        emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
-        emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
+
+        // emailOp.command = command;
+        // emailOp.emailDomain = emailDomain;
+        // emailOp.maskedSubject = maskedSubject;
+        // emailOp.feeTokenName = feeTokenName;
+        // emailOp.feePerGas = core.maxFeePerGas();
+        // emailOp.emailProof = proofToBytes(
+        //     string.concat(vm.projectRoot(), "/test/build_integration/email_sender_proof.json")
+        // );
+        // emailOp.dkimPublicKeyHash = bytes32(vm.parseUint(pubSignals[9]));
+        // emailOp.emailNullifier = bytes32(vm.parseUint(pubSignals[10]));
+        // emailOp.timestamp = vm.parseUint(pubSignals[11]);
+        // emailOp.accountSalt = bytes32(vm.parseUint(pubSignals[32]));
+        // emailOp.hasEmailRecipient = vm.parseUint(pubSignals[33]) == 1;
+        // emailOp.recipientEmailAddrCommit = bytes32(vm.parseUint(pubSignals[34]));
 
         console.logString("function genEmailOpPartial");
         console.logString("accountCode");
         console.logBytes32(accountCode);
-        console.logString("accountSalt");
-        console.logBytes32(emailOp.accountSalt);
+        // console.logString("accountSalt");
+        // console.logBytes32(emailOp.accountSalt);
     }
 
     function claimFund(

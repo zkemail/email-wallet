@@ -16,7 +16,10 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
+        emailOp.emailProof.maskedSubject = string.concat(
+            "Send 1 DAI to ",
+            SubjectUtils.addressToChecksumHexString(recipient)
+        );
         emailOp.recipientETHAddr = recipient;
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
@@ -31,7 +34,10 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = string.concat("Send 1 DAI to ", SubjectUtils.addressToChecksumHexString(recipient));
+        emailOp.emailProof.maskedSubject = string.concat(
+            "Send 1 DAI to ",
+            SubjectUtils.addressToChecksumHexString(recipient)
+        );
         emailOp.recipientETHAddr = recipient;
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
@@ -51,7 +57,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.recipientETHAddr = recipient;
         emailOp.walletParams.amount = 1 ether;
         emailOp.walletParams.tokenName = "DAI";
@@ -67,9 +73,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = "Send 2 DAI to ";
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.emailProof.maskedSubject = "Send 2 DAI to ";
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
         emailOp.walletParams.amount = 2 ether;
         emailOp.walletParams.tokenName = "DAI";
 
@@ -81,9 +87,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
     function test_RevertIf_TokenNameIsNotSupported() public {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = "Send 2 JUNK to ";
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.emailProof.maskedSubject = "Send 2 JUNK to ";
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
         emailOp.walletParams.amount = 2 ether;
         emailOp.walletParams.tokenName = "JUNK";
 
@@ -98,9 +104,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = "Send 2 DAI to ";
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.emailProof.maskedSubject = "Send 2 DAI to ";
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
         emailOp.walletParams.amount = 2 ether;
         emailOp.walletParams.tokenName = "DAI";
 
@@ -115,9 +121,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
 
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Send";
-        emailOp.maskedSubject = "Send 1.5 DAI to ";
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = bytes32(uint256(123));
+        emailOp.emailProof.maskedSubject = "Send 1.5 DAI to ";
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
         emailOp.walletParams.amount = 1.5 ether;
         emailOp.walletParams.tokenName = "DAI";
 
@@ -139,7 +145,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
@@ -161,7 +167,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 10.52 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
@@ -188,9 +194,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 65.4 ether;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
@@ -224,9 +230,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 65.4 ether;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
         emailOp.skipSubjectPrefix = 4;
 
@@ -261,9 +267,9 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 65.4 ether;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
         emailOp.skipSubjectPrefix = 3;
 
@@ -288,7 +294,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 50 ether;
         emailOp.recipientETHAddr = recipient;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, bytes memory reason, , ) = core.handleEmailOp(emailOp);

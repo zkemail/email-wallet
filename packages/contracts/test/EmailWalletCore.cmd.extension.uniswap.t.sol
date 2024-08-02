@@ -28,17 +28,28 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Publish and install extension
         {
             UniswapExtension uniExtensionImpl = new UniswapExtension();
-            ERC1967Proxy proxy = new ERC1967Proxy(address(uniExtensionImpl), abi.encodeCall(uniExtensionImpl.initialize, (
-                address(core), 
-                address(tokenRegistry), 
-                address(0), 
-                address(0)
-            )));
+            ERC1967Proxy proxy = new ERC1967Proxy(
+                address(uniExtensionImpl),
+                abi.encodeCall(
+                    uniExtensionImpl.initialize,
+                    (address(core), address(tokenRegistry), address(0), address(0))
+                )
+            );
             uniExtension = UniswapExtension(payable(address(proxy)));
 
             uniExtTemplates[0] = ["Swap", "{tokenAmount}", "to", "{string}"];
             uniExtTemplates[1] = ["Swap", "{tokenAmount}", "to", "{string}", "with", "{amount}", "slippage"];
-            uniExtTemplates[2] = ["Swap", "{tokenAmount}", "to", "{string}", "under", "{uint}", "sqrt", "price", "limit"];
+            uniExtTemplates[2] = [
+                "Swap",
+                "{tokenAmount}",
+                "to",
+                "{string}",
+                "under",
+                "{uint}",
+                "sqrt",
+                "price",
+                "limit"
+            ];
             uniExtTemplates[3] = [
                 "Swap",
                 "{tokenAmount}",
@@ -59,8 +70,8 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.INSTALL_EXTENSION;
         emailOp.extensionName = "Uniswap";
-        emailOp.maskedSubject = "Install extension Uniswap";
-        emailOp.emailNullifier = bytes32(uint256(93845));
+        emailOp.emailProof.maskedSubject = "Install extension Uniswap";
+        emailOp.emailProof.emailNullifier = bytes32(uint256(93845));
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
@@ -79,10 +90,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 0.2 ETH to DAI";
+        emailOp.emailProof.maskedSubject = "Swap 0.2 ETH to DAI";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(0.2 ether), "ETH");
         emailOp.extensionParams.subjectParams[1] = abi.encode("DAI");
@@ -126,10 +137,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 200 DAI to USDC";
+        emailOp.emailProof.maskedSubject = "Swap 200 DAI to USDC";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(200 ether), "DAI");
         emailOp.extensionParams.subjectParams[1] = abi.encode("USDC");
@@ -183,10 +194,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 200 USDC to ETH";
+        emailOp.emailProof.maskedSubject = "Swap 200 USDC to ETH";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(200 ether), "USDC");
         emailOp.extensionParams.subjectParams[1] = abi.encode("ETH");
@@ -240,10 +251,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 200 DAI to ETH";
+        emailOp.emailProof.maskedSubject = "Swap 200 DAI to ETH";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 0;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](2);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(200 ether), "DAI");
         emailOp.extensionParams.subjectParams[1] = abi.encode("ETH");
@@ -295,10 +306,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 0.2 ETH to DAI with 0.5 slippage";
+        emailOp.emailProof.maskedSubject = "Swap 0.2 ETH to DAI with 0.5 slippage";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 1;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](3);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(0.2 ether), "ETH");
         emailOp.extensionParams.subjectParams[1] = abi.encode("DAI");
@@ -341,10 +352,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 0.2 ETH to DAI under 1000000 sqrt price limit";
+        emailOp.emailProof.maskedSubject = "Swap 0.2 ETH to DAI under 1000000 sqrt price limit";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 2;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](3);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(0.2 ether), "ETH");
         emailOp.extensionParams.subjectParams[1] = abi.encode("DAI");
@@ -387,10 +398,10 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
         // Build email op
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Swap";
-        emailOp.maskedSubject = "Swap 0.2 ETH to DAI with 0.5 slippage under 1000000 sqrt price limit";
+        emailOp.emailProof.maskedSubject = "Swap 0.2 ETH to DAI with 0.5 slippage under 1000000 sqrt price limit";
         emailOp.extensionName = "Uniswap";
         emailOp.extensionParams.subjectTemplateIndex = 3;
-        emailOp.hasEmailRecipient = false;
+        emailOp.emailProof.hasEmailRecipient = false;
         emailOp.extensionParams.subjectParams = new bytes[](4);
         emailOp.extensionParams.subjectParams[0] = abi.encode(uint256(0.2 ether), "ETH");
         emailOp.extensionParams.subjectParams[1] = abi.encode("DAI");

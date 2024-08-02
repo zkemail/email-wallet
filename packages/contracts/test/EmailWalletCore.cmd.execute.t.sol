@@ -30,7 +30,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
@@ -56,7 +56,6 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
     //     vm.stopPrank();
     // }
 
-
     function test_ExecuteFailureShouldNotRevert() public {
         // Calling an invalid function
         bytes memory targetCalldata = abi.encodeWithSignature("invalid(uint256)", 90001);
@@ -67,7 +66,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         // Should not revert, but return false as this is not a validation error
         vm.startPrank(relayer);
@@ -84,7 +83,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on wallet");
@@ -99,7 +98,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on core or handlers");
@@ -114,7 +113,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on core or handlers");
@@ -133,7 +132,7 @@ contract ExecuteCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXECUTE;
         emailOp.executeCallData = emailOpCalldata;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         vm.expectRevert("cannot execute on token");

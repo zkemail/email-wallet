@@ -185,21 +185,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         );
 
         // Verify proof
-        require(
-            verifier.verifyEmailOpProof(
-                emailOp.emailProof.emailDomain,
-                emailOp.emailProof.dkimPublicKeyHash,
-                emailOp.emailProof.timestamp,
-                emailOp.emailProof.emailNullifier,
-                emailOp.emailProof.maskedSubject,
-                emailOp.emailProof.accountSalt,
-                emailOp.emailProof.isCodeExist,
-                emailOp.emailProof.hasEmailRecipient,
-                emailOp.emailProof.recipientEmailAddrCommit,
-                emailOp.emailProof.proof
-            ),
-            "invalid email proof"
-        );
+        require(verifier.verifyEmailProof(emailOp.emailProof), "invalid email proof");
     }
 
     /// @notice Handle an EmailOp - the main function relayer should call for each Email

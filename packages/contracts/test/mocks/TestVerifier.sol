@@ -7,34 +7,8 @@ import "../../src/interfaces/IVerifier.sol";
     A mock verifier that returns true if proof[0] == 0x01, otherwise false
  */
 contract TestVerifier is IVerifier {
-    function verifyAccountCreationProof(
-        string memory /* emailDomain */,
-        bytes32 /* dkimPublicKeyHash */,
-        bytes32 /* emailNullifier */,
-        uint256 /* emailTimestamp */,
-        bytes32 /* accountSalt */,
-        bytes memory /* psiPoint */,
-        bytes memory proof
-    ) external pure returns (bool) {
-        if (proof[0] == 0x01) {
-            return true;
-        }
-
-        return false;
-    }
-
-    function verifyEmailOpProof(
-        string memory /* emailDomain */,
-        bytes32 /* dkimPublicKeyHash */,
-        uint256 /* timestamp */,
-        bytes32 /* emailNullifier */,
-        string memory /* maskedSubject */,
-        bytes32 /* accountSalt */,
-        bool /* hasEmailRecipient */,
-        bytes32 /* recipientEmailAddrCommit */,
-        bytes memory proof
-    ) external pure returns (bool) {
-        if (proof[0] == 0x01) {
+    function verifyEmailProof(EmailProof calldata emailProof) external pure returns (bool) {
+        if (emailProof.proof[0] == 0x01) {
             return true;
         }
 
@@ -44,6 +18,18 @@ contract TestVerifier is IVerifier {
     function verifyClaimFundProof(
         bytes32 /* recipientEmailAddrCommit */,
         bytes32 /* recipientAccountSalt */,
+        bytes memory proof
+    ) external pure returns (bool) {
+        if (proof[0] == 0x01) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function verifyPsiPointProof(
+        bytes32 /*accountSalt*/,
+        bytes memory /*psiPoint*/,
         bytes memory proof
     ) external pure returns (bool) {
         if (proof[0] == 0x01) {

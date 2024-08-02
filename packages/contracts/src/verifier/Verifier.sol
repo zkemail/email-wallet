@@ -59,45 +59,38 @@ contract AllVerifiers is IVerifier {
     // }
 
     /// @inheritdoc IVerifier
-    function verifyEmailOpProof(
-        string memory emailDomain,
-        bytes32 dkimPublicKeyHash,
-        uint256 timestamp,
-        bytes32 emailNullifier,
-        string memory maskedSubject,
-        bytes32 accountSalt,
-        bool isCodeExist,
-        bool hasEmailRecipient,
-        bytes32 recipientEmailAddrCommit,
-        bytes memory proof
-    ) external view returns (bool) {
+    function verifyEmailProof(EmailProof calldata emailProof) external view returns (bool) {
         (uint256[2] memory pA, uint256[2][2] memory pB, uint256[2] memory pC) = abi.decode(
-            proof,
+            emailProof.proof,
             (uint256[2], uint256[2][2], uint256[2])
         );
 
         uint256[SUBJECT_FIELDS + DOMAIN_FIELDS + 7] memory pubSignals;
 
-        uint256[] memory stringFields;
-        stringFields = _packBytes2Fields(bytes(emailDomain), DOMAIN_BYTES);
-        for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
-            pubSignals[i] = stringFields[i];
-        }
-        delete stringFields;
-
-        pubSignals[DOMAIN_FIELDS] = uint256(dkimPublicKeyHash);
-        pubSignals[DOMAIN_FIELDS + 1] = uint256(emailNullifier);
-        pubSignals[DOMAIN_FIELDS + 2] = timestamp;
-
-        stringFields = _packBytes2Fields(bytes(maskedSubject), SUBJECT_BYTES);
-        for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
-            pubSignals[DOMAIN_FIELDS + 3 + i] = stringFields[i];
+        {
+            uint256[] memory stringFields;
+            stringFields = _packBytes2Fields(bytes(emailProof.emailDomain), DOMAIN_BYTES);
+            for (uint256 i = 0; i < DOMAIN_FIELDS; i++) {
+                pubSignals[i] = stringFields[i];
+            }
         }
 
-        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS] = uint256(accountSalt);
-        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1] = isCodeExist ? 1 : 0;
-        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2] = hasEmailRecipient ? 1 : 0;
-        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 3] = uint256(recipientEmailAddrCommit);
+        pubSignals[DOMAIN_FIELDS] = uint256(emailProof.dkimPublicKeyHash);
+        pubSignals[DOMAIN_FIELDS + 1] = uint256(emailProof.emailNullifier);
+        pubSignals[DOMAIN_FIELDS + 2] = emailProof.timestamp;
+
+        {
+            uint256[] memory stringFields;
+            stringFields = _packBytes2Fields(bytes(emailProof.maskedSubject), SUBJECT_BYTES);
+            for (uint256 i = 0; i < SUBJECT_FIELDS; i++) {
+                pubSignals[DOMAIN_FIELDS + 3 + i] = stringFields[i];
+            }
+        }
+
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS] = uint256(emailProof.accountSalt);
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 1] = emailProof.isCodeExist ? 1 : 0;
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 2] = emailProof.hasEmailRecipient ? 1 : 0;
+        pubSignals[DOMAIN_FIELDS + 3 + SUBJECT_FIELDS + 3] = uint256(emailProof.recipientEmailAddrCommit);
         return emailSenderVerifier.verifyProof(pA, pB, pC, pubSignals);
     }
 

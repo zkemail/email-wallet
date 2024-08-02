@@ -26,9 +26,9 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
@@ -93,9 +93,9 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         vm.expectRevert("incorrect ETH sent for unclaimed fund");
@@ -288,9 +288,9 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         emailOp.command = Commands.SEND;
         emailOp.walletParams.tokenName = "DAI";
         emailOp.walletParams.amount = 100 ether;
-        emailOp.hasEmailRecipient = true;
-        emailOp.recipientEmailAddrCommit = recipientEmailAddrCommit;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.hasEmailRecipient = true;
+        emailOp.emailProof.recipientEmailAddrCommit = recipientEmailAddrCommit;
+        emailOp.emailProof.maskedSubject = subject;
         emailOp.feeTokenName = "USDC";
 
         vm.startPrank(relayer);
@@ -388,15 +388,20 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newAccountSalt,
-            newPSIPoint,
             EmailProof({
+                emailDomain: emailDomain,
                 dkimPublicKeyHash: mockDKIMHash,
-                nullifier: emailNullifier2,
-                domain: emailDomain,
                 timestamp: block.timestamp,
+                emailNullifier: emailNullifier2,
+                maskedSubject: "",
+                accountSalt: newAccountSalt,
+                isCodeExist: true,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            })
+            }),
+            newPSIPoint,
+            mockProof
         );
 
         unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newAccountSalt, mockProof);
@@ -441,15 +446,20 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
         accountHandler.createAccount(
-            newAccountSalt,
-            newPSIPoint,
             EmailProof({
+                emailDomain: emailDomain,
                 dkimPublicKeyHash: mockDKIMHash,
-                nullifier: emailNullifier2,
-                domain: emailDomain,
                 timestamp: block.timestamp,
+                emailNullifier: emailNullifier2,
+                maskedSubject: "",
+                accountSalt: newAccountSalt,
+                isCodeExist: true,
+                hasEmailRecipient: false,
+                recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            })
+            }),
+            newPSIPoint,
+            mockProof
         );
 
         unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newAccountSalt, mockProof);

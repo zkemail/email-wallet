@@ -83,7 +83,12 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Create new account and wallet for a user
     /// @param emailProof Proof and instances of the email proof
     /// @param psiPoint PSI point of the user under the relayer
-    function createAccount(EmailProof calldata emailProof, bytes calldata psiPoint) public returns (Wallet wallet) {
+    /// @param psiProof Proof of the PSI point circuit
+    function createAccount(
+        EmailProof calldata emailProof,
+        bytes calldata psiPoint,
+        bytes calldata psiProof
+    ) public returns (Wallet wallet) {
         require(emailProof.accountSalt != bytes32(0), "invalid wallet salt");
         require(
             accountSaltOfPSIPoint[psiPoint] == bytes32(0) || accountSaltOfPSIPoint[psiPoint] == emailProof.accountSalt,
@@ -104,23 +109,15 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             require(emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         }
 
-        require(
-            verifier.verifyEmailOpProof(
-                emailProof.emailDomain,
-                emailProof.dkimPublicKeyHash,
-                emailProof.timestamp,
-                emailProof.emailNullifier,
-                emailProof.maskedSubject,
-                emailProof.accountSalt,
-                emailProof.isCodeExist,
-                emailProof.hasEmailRecipient,
-                emailProof.recipientEmailAddrCommit,
-                emailProof.proof
-            ),
-            "invalid account creation proof"
-        );
+        require(verifier.verifyEmailProof(emailProof), "invalid account creation proof");
 
-        accountSaltOfPSIPoint[psiPoint] = emailProof.accountSalt;
+        if (accountSaltOfPSIPoint[psiPoint] == bytes32(0)) {
+            require(
+                verifier.verifyPsiPointProof(emailProof.accountSalt, psiPoint, psiProof),
+                "invalid PSI point proof"
+            );
+            accountSaltOfPSIPoint[psiPoint] = emailProof.accountSalt;
+        }
         emailNullifiers[emailProof.emailNullifier] = true;
 
         wallet = _deployWallet(emailProof.accountSalt);

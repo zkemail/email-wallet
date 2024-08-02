@@ -37,6 +37,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -46,6 +47,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user2WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test2.eml"),
             user2.emailAddr,
+            user2.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -57,6 +59,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -95,6 +98,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user2WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test2.eml"),
             user2.emailAddr,
+            user2.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -117,6 +121,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -154,6 +159,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -164,6 +170,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user2WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test2.eml"),
             user2.emailAddr,
+            user2.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -262,6 +269,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -449,6 +457,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -508,6 +517,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -566,6 +576,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -621,6 +632,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user2WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test2.eml"),
             user2.emailAddr,
+            user2.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -638,6 +650,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -727,6 +740,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -744,6 +758,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );
@@ -813,6 +828,7 @@ contract IntegrationTest is IntegrationTestHelper {
         Wallet user1WalletContract = accountCreation(
             string.concat(vm.projectRoot(), "/test/emails/account_creation_test1.eml"),
             user1.emailAddr,
+            user1.accountCode,
             relayer1Rand,
             "gmail.com"
         );

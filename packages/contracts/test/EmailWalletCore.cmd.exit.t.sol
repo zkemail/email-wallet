@@ -21,7 +21,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXIT_EMAIL_WALLET;
         emailOp.newWalletOwner = newOwner;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
@@ -43,8 +43,8 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         sendEmailOp.walletParams.tokenName = "DAI";
         sendEmailOp.walletParams.amount = 100 ether;
         sendEmailOp.recipientETHAddr = recipient;
-        sendEmailOp.maskedSubject = sendSubject;
-        sendEmailOp.emailNullifier = bytes32(uint(9853094850));
+        sendEmailOp.emailProof.maskedSubject = sendSubject;
+        sendEmailOp.emailProof.emailNullifier = bytes32(uint(9853094850));
 
         vm.startPrank(relayer);
         (bool sendSuccess, bytes memory errData, , ) = core.handleEmailOp(sendEmailOp);
@@ -80,7 +80,7 @@ contract ExitCommandTest is EmailWalletCoreTestHelper {
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = Commands.EXIT_EMAIL_WALLET;
         emailOp.newWalletOwner = newOwner;
-        emailOp.maskedSubject = subject;
+        emailOp.emailProof.maskedSubject = subject;
 
         vm.startPrank(relayer);
         (bool success, , , ) = core.handleEmailOp(emailOp);
