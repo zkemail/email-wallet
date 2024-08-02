@@ -285,7 +285,7 @@ abstract contract IntegrationTestHelper is Test {
         (emailProof, ) = genEmailProof(emailFile, accountCode, emailDomain, emailAddr);
 
         string memory projectRoot = vm.projectRoot();
-        string[] memory inputGenerationInput = new string[](3);
+        string[] memory inputGenerationInput = new string[](4);
         inputGenerationInput[0] = string.concat(projectRoot, "/test/bin/psi_point.sh");
         inputGenerationInput[1] = emailAddr;
         inputGenerationInput[2] = uint256(accountCode).toHexString(32);

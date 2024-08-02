@@ -6,8 +6,8 @@ RELAYER_RAND=$3
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 WORKSPACE_DIR="${SCRIPT_DIR}/../../"
-INPUT_FILE="${SCRIPT_DIR}/../build_integration/psi_point.json"
-yarn workspace @email-wallet/circom psi-point-input \
+INPUT_FILE="${SCRIPT_DIR}/../build_integration/psi_point_input.json"
+yarn workspace @email-wallet/circom gen-psi-point-input \
     --email-addr $EMAIL_ADDR \
     --account-code $ACCOUNT_CODE \
     --relayer-rand $RELAYER_RAND \
