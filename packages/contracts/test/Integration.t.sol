@@ -39,7 +39,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         vm.stopPrank();
 
@@ -49,7 +50,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user2.emailAddr,
             user2.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         vm.stopPrank();
     }
@@ -61,7 +63,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -100,7 +103,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user2.emailAddr,
             user2.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user2Wallet = address(user2WalletContract);
         console.logString("Relayer1 address: ");
@@ -123,7 +127,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -146,10 +151,11 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.25 ether;
         emailOp.recipientETHAddr = recipient;
+        uint recipientPreBalance = recipient.balance;
         (bool success, bytes memory reason, , ) = core.handleEmailOp{value: 0}(emailOp);
         assertEq(success, true, string(reason));
         require(weth.balanceOf(user1Wallet) < 0.05 ether, "User1 wallet balance is too large");
-        require(recipient.balance == 0.25 ether, "Recipient address balance mismatch");
+        require(recipient.balance - recipientPreBalance == 0.25 ether, "Recipient address balance mismatch");
         require(weth.balanceOf(address(unclaimsHandler)) == 0, "Core contract balance mismatch");
         vm.stopPrank();
     }
@@ -161,7 +167,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -172,7 +179,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user2.emailAddr,
             user2.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user2Wallet = address(user2WalletContract);
         vm.stopPrank();
@@ -271,7 +279,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -459,7 +468,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         claimFund(registeredUnclaimId, user1.emailAddr, rand1, user1.accountCode);
@@ -501,13 +511,14 @@ contract IntegrationTest is IntegrationTestHelper {
         emailOp.walletParams.tokenName = "ETH";
         emailOp.walletParams.amount = 0.25 ether;
         emailOp.recipientETHAddr = recipient;
+        uint recipientPreBalance = recipient.balance;
         (success, reason, , ) = core.handleEmailOp{value: 0}(emailOp);
         assertEq(success, true, string(reason));
         require(
             weth.balanceOf(user1Wallet) < 0.15 ether,
             "User1 wallet balance after the second transaction is too large"
         );
-        require(recipient.balance == 0.25 ether, "Recipient eth balance mismatch");
+        require(recipient.balance - recipientPreBalance == 0.25 ether, "Recipient eth balance mismatch");
         require(weth.balanceOf(recipient) == 0, "Recipient weth balance must be zero");
         vm.stopPrank();
     }
@@ -519,7 +530,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -578,7 +590,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -634,7 +647,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user2.emailAddr,
             user2.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user2Wallet = address(user2WalletContract);
         vm.stopPrank();
@@ -652,7 +666,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -742,7 +757,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -760,7 +776,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();
@@ -830,7 +847,8 @@ contract IntegrationTest is IntegrationTestHelper {
             user1.emailAddr,
             user1.accountCode,
             relayer1Rand,
-            "gmail.com"
+            "gmail.com",
+            "Send 0.12 ETH to "
         );
         address user1Wallet = address(user1WalletContract);
         vm.stopPrank();

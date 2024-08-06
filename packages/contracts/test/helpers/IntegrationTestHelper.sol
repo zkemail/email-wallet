@@ -279,10 +279,11 @@ abstract contract IntegrationTestHelper is Test {
         string memory emailAddr,
         bytes32 accountCode,
         bytes32 relayerRand,
-        string memory emailDomain
+        string memory emailDomain,
+        string memory maskedSubject
     ) internal returns (Wallet wallet) {
         EmailProof memory emailProof;
-        (emailProof, ) = genEmailProof(emailFile, accountCode, emailDomain, emailAddr);
+        (emailProof, ) = genEmailProof(emailFile, accountCode, emailDomain, maskedSubject);
 
         string memory projectRoot = vm.projectRoot();
         string[] memory inputGenerationInput = new string[](4);
