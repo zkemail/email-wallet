@@ -93,7 +93,7 @@ pub async fn compute_psi_point(
 
     info!(LOG, "command_str: {}", command_str);
 
-    let mut proc = tokio::process::Command::new("yarn")
+    let proc = tokio::process::Command::new("yarn")
         .args(command_str.split_whitespace())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())

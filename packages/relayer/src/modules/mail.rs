@@ -46,6 +46,7 @@ pub enum EmailWalletEvent {
     },
     Error {
         email_addr: String,
+        error_subject: String,
         error: String,
     },
     Ack {
@@ -296,15 +297,19 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             };
             send_email(email).await?;
         }
-        EmailWalletEvent::Error { email_addr, error } => {
+        EmailWalletEvent::Error {
+            email_addr,
+            error_subject,
+            error,
+        } => {
             let error = parse_error(error)?;
             if let Some(error) = error {
                 let subject = format!("Email Wallet Notification. Error occurred.");
                 let body_plain = format!("Hi {}!\nError occurred: {}", email_addr, error);
-                let render_data = serde_json::json!({"userEmailAddr": email_addr, "errorMsg": error, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
+                let render_data = serde_json::json!({"userEmailAddr": email_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                 let body_html = render_html("error.html", render_data).await?;
                 let email = EmailMessage {
-                    to: email_addr,
+                    to: email_addr.clone(),
                     subject,
                     body_plain,
                     body_html,
@@ -313,6 +318,25 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                     body_attachments: None,
                 };
                 send_email(email).await?;
+
+                // Send error email to team email addresses
+                let error_email_addresses = ERROR_EMAIL_ADDRESSES.get().unwrap();
+                for error_email_addr in error_email_addresses {
+                    let subject = format!("Email Wallet Notification. Error occurred.");
+                    let body_plain = format!("Error occurred");
+                    let render_data = serde_json::json!({"userEmailAddr": error_email_addr, "error": error, "subject": error_subject, "emailAddr": email_addr});
+                    let body_html = render_html("error_alert.html", render_data).await?;
+                    let email = EmailMessage {
+                        to: error_email_addr.clone(),
+                        subject: subject.clone(),
+                        body_plain: body_plain.clone(),
+                        body_html: body_html.clone(),
+                        reference: None,
+                        reply_to: None,
+                        body_attachments: None,
+                    };
+                    send_email(email).await?;
+                }
             }
         }
         EmailWalletEvent::Ack {
