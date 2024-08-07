@@ -30,9 +30,16 @@ pub mod email_wallet_events {
                                     indexed: true,
                                 },
                                 ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("psiPoint"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
-                                    indexed: false,
+                                    name: ::std::borrow::ToOwned::to_owned("emailNullifier"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
+                                        32usize,
+                                    ),
+                                    indexed: true,
+                                },
+                                ::ethers::core::abi::ethabi::EventParam {
+                                    name: ::std::borrow::ToOwned::to_owned("walletAddr"),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                    indexed: true,
                                 },
                             ],
                             anonymous: false,
@@ -478,13 +485,13 @@ pub mod email_wallet_events {
         ::ethers::core::abi::Abi,
     > = ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
-    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 t \xF9\x91\xDDkA\r\x99V\xD4\xF8\xA9\xC8\xE4\x1DBC\xC6)\x8F\xD1\x84:3\x87C\xD8\x1A\xA0\x95zdsolcC\0\x08\x19\x003";
+    const __BYTECODE: &[u8] = b"`V`7`\x0B\x82\x82\x829\x80Q`\0\x1A`s\x14`*WcNH{q`\xE0\x1B`\0R`\0`\x04R`$`\0\xFD[0`\0R`s\x81S\x82\x81\xF3\xFEs\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \x0C\xE5\x96\t\xD3\x8A\xA4\xBA\xD8r.\xC8\xD5o\xD0\x82>F\xF2x\xB53\xD3\xB7\xB0\xC6h\x91>\x97\x12\x0FdsolcC\0\x08\x1A\x003";
     /// The bytecode of the contract.
     pub static EMAILWALLETEVENTS_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __BYTECODE,
     );
     #[rustfmt::skip]
-    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 t \xF9\x91\xDDkA\r\x99V\xD4\xF8\xA9\xC8\xE4\x1DBC\xC6)\x8F\xD1\x84:3\x87C\xD8\x1A\xA0\x95zdsolcC\0\x08\x19\x003";
+    const __DEPLOYED_BYTECODE: &[u8] = b"s\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x000\x14`\x80`@R`\0\x80\xFD\xFE\xA2dipfsX\"\x12 \x0C\xE5\x96\t\xD3\x8A\xA4\xBA\xD8r.\xC8\xD5o\xD0\x82>F\xF2x\xB53\xD3\xB7\xB0\xC6h\x91>\x97\x12\x0FdsolcC\0\x08\x1A\x003";
     /// The deployed bytecode of the contract.
     pub static EMAILWALLETEVENTS_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
         __DEPLOYED_BYTECODE,
@@ -704,11 +711,14 @@ pub mod email_wallet_events {
         Eq,
         Hash
     )]
-    #[ethevent(name = "AccountCreated", abi = "AccountCreated(bytes32,bytes)")]
+    #[ethevent(name = "AccountCreated", abi = "AccountCreated(bytes32,bytes32,address)")]
     pub struct AccountCreatedFilter {
         #[ethevent(indexed)]
         pub account_salt: [u8; 32],
-        pub psi_point: ::ethers::core::types::Bytes,
+        #[ethevent(indexed)]
+        pub email_nullifier: [u8; 32],
+        #[ethevent(indexed)]
+        pub wallet_addr: ::ethers::core::types::Address,
     }
     #[derive(
         Clone,
