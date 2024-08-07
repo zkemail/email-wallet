@@ -639,6 +639,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        accountHandler.registerPSIPoint(newPSIPoint, newAccountSalt, mockProof);
         accountHandler.createAccount(
             EmailProof({
                 emailDomain: emailDomain,
@@ -651,9 +652,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            }),
-            newPSIPoint,
-            mockProof
+            })
         );
 
         vm.expectEmit(true, true, true, true);
@@ -697,6 +696,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        accountHandler.registerPSIPoint(newPSIPoint, newAccountSalt, mockProof);
         accountHandler.createAccount(
             EmailProof({
                 emailDomain: emailDomain,
@@ -709,9 +709,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            }),
-            newPSIPoint,
-            mockProof
+            })
         );
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId1, newAccountSalt, mockProof);
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId2, newAccountSalt, mockProof);
@@ -844,6 +842,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
 
         // Relayer claim the unclaimed State to a newly created account, but not initialized
         vm.startPrank(relayer);
+        accountHandler.registerPSIPoint(newPSI, newAccountSalt, mockProof);
         accountHandler.createAccount(
             EmailProof({
                 emailDomain: emailDomain,
@@ -856,9 +855,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            }),
-            newPSI,
-            mockProof
+            })
         );
         // vm.expectRevert("account not initialized");
         unclaimsHandler.claimUnclaimedState(registeredUnclaimId, newEmailAddrPointer, mockProof);

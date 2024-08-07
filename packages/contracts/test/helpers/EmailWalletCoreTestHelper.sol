@@ -220,7 +220,7 @@ contract EmailWalletCoreTestHelper is Test {
     // Register test user account - for using as sender when not testing accoung functionality
     function _createTestAccount() internal {
         vm.startPrank(relayer);
-
+        accountHandler.registerPSIPoint(psiPoint, accountSalt, mockProof);
         accountHandler.createAccount(
             EmailProof({
                 emailDomain: emailDomain,
@@ -233,9 +233,7 @@ contract EmailWalletCoreTestHelper is Test {
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(0),
                 proof: mockProof
-            }),
-            psiPoint,
-            mockProof
+            })
         );
         vm.stopPrank();
     }

@@ -349,7 +349,8 @@ abstract contract IntegrationTestHelper is Test {
         bytes memory psiProof = proofToBytes(
             string.concat(projectRoot, "/test/build_integration/psi_point_proof.json")
         );
-        wallet = accountHandler.createAccount(emailProof, psiPoint, psiProof);
+        accountHandler.registerPSIPoint(psiPoint, emailProof.accountSalt, psiProof);
+        wallet = accountHandler.createAccount(emailProof);
     }
 
     function genEmailOpPartial(

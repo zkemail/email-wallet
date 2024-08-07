@@ -11,8 +11,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
 
     function test_CreateAccount() public {
         vm.startPrank(relayer);
-        vm.expectEmit(true, true, true, true);
-
+        accountHandler.registerPSIPoint(psiPoint, accountSalt, mockProof);
         EmailProof memory emailProof = EmailProof({
             emailDomain: emailDomain,
             dkimPublicKeyHash: mockDKIMHash,
@@ -26,9 +25,9 @@ contract AccountTest is EmailWalletCoreTestHelper {
             proof: mockProof
         });
 
-        emit EmailWalletEvents.AccountCreated(accountSalt, psiPoint);
-
-        accountHandler.createAccount(emailProof, psiPoint, mockProof);
+        vm.expectEmit(true, true, true, true);
+        emit EmailWalletEvents.AccountCreated(accountSalt, emailNullifier, walletAddr);
+        accountHandler.createAccount(emailProof);
         vm.stopPrank();
 
         Wallet wallet = Wallet(payable(accountHandler.getWalletOfSalt(accountSalt)));
@@ -95,6 +94,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         bytes32 accountSalt2 = bytes32(uint256(3));
 
         vm.startPrank(relayer);
+        accountHandler.registerPSIPoint(psiPoint, accountSalt, mockProof);
         EmailProof memory emailProof = EmailProof({
             emailDomain: emailDomain,
             dkimPublicKeyHash: mockDKIMHash,
@@ -107,21 +107,22 @@ contract AccountTest is EmailWalletCoreTestHelper {
             recipientEmailAddrCommit: bytes32(0),
             proof: mockProof
         });
-        accountHandler.createAccount(emailProof, psiPoint, mockProof);
-        vm.expectRevert("PSI point exists for another wallet salt");
-        emailProof = EmailProof({
-            emailDomain: emailDomain,
-            dkimPublicKeyHash: mockDKIMHash,
-            timestamp: block.timestamp,
-            emailNullifier: emailNullifier,
-            maskedSubject: "",
-            accountSalt: accountSalt2,
-            isCodeExist: true,
-            hasEmailRecipient: false,
-            recipientEmailAddrCommit: bytes32(0),
-            proof: mockProof
-        });
-        accountHandler.createAccount(emailProof, psiPoint, mockProof);
+        accountHandler.createAccount(emailProof);
+        vm.expectRevert("PSI point exists");
+        accountHandler.registerPSIPoint(psiPoint, accountSalt2, mockProof);
+        // emailProof = EmailProof({
+        //     emailDomain: emailDomain,
+        //     dkimPublicKeyHash: mockDKIMHash,
+        //     timestamp: block.timestamp,
+        //     emailNullifier: emailNullifier,
+        //     maskedSubject: "",
+        //     accountSalt: accountSalt2,
+        //     isCodeExist: true,
+        //     hasEmailRecipient: false,
+        //     recipientEmailAddrCommit: bytes32(0),
+        //     proof: mockProof
+        // });
+        // accountHandler.createAccount(emailProof, psiPoint, mockProof);
         vm.stopPrank();
     }
 
@@ -142,6 +143,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         address predictedAddr = accountHandler.getWalletOfSalt(accountSalt);
 
         vm.startPrank(relayer);
+        accountHandler.registerPSIPoint(psiPoint, accountSalt, mockProof);
         EmailProof memory emailProof = EmailProof({
             emailDomain: emailDomain,
             dkimPublicKeyHash: mockDKIMHash,
@@ -154,7 +156,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             recipientEmailAddrCommit: bytes32(0),
             proof: mockProof
         });
-        address walletAddr = address(accountHandler.createAccount(emailProof, psiPoint, mockProof));
+        address walletAddr = address(accountHandler.createAccount(emailProof));
         vm.stopPrank();
 
         assertEq(walletAddr, predictedAddr);
@@ -165,6 +167,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         deployCodeTo("WETH9.sol", abi.encode(address(weth)), predictedAddr);
 
         vm.startPrank(relayer);
+        accountHandler.registerPSIPoint(psiPoint, accountSalt, mockProof);
         vm.expectRevert("wallet already deployed");
         EmailProof memory emailProof = EmailProof({
             emailDomain: emailDomain,
@@ -178,7 +181,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
             recipientEmailAddrCommit: bytes32(0),
             proof: mockProof
         });
-        accountHandler.createAccount(emailProof, psiPoint, mockProof);
+        accountHandler.createAccount(emailProof);
         vm.stopPrank();
     }
 

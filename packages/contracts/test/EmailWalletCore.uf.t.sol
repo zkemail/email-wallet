@@ -387,6 +387,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim
         vm.startPrank(relayer2);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        accountHandler.registerPSIPoint(newPSIPoint, newAccountSalt, mockProof);
         accountHandler.createAccount(
             EmailProof({
                 emailDomain: emailDomain,
@@ -399,9 +400,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            }),
-            newPSIPoint,
-            mockProof
+            })
         );
 
         unclaimsHandler.claimUnclaimedFund(registeredUnclaimId, newAccountSalt, mockProof);
@@ -445,6 +444,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
         // New relayer should be able to create account and claim both
         vm.startPrank(newRelayer);
         relayerHandler.registerRelayer("relayer3@test.com", "relayer3.com");
+        accountHandler.registerPSIPoint(newPSIPoint, newAccountSalt, mockProof);
         accountHandler.createAccount(
             EmailProof({
                 emailDomain: emailDomain,
@@ -457,9 +457,7 @@ contract UnclaimedFundTest is EmailWalletCoreTestHelper {
                 hasEmailRecipient: false,
                 recipientEmailAddrCommit: bytes32(uint256(0)),
                 proof: mockProof
-            }),
-            newPSIPoint,
-            mockProof
+            })
         );
 
         unclaimsHandler.claimUnclaimedFund(registeredUnclaimId1, newAccountSalt, mockProof);

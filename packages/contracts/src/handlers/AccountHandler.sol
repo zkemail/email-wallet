@@ -72,28 +72,19 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Register a PSI point before deploying the wallet in `createAccount`.
     /// @param psiPoint PSI point of the user
     /// @param accountSalt Wallet salt used to deploy the wallet - hash(emailAddr, accountSalt)
-    function registerPSIPoint(bytes memory psiPoint, bytes32 accountSalt) public {
+    function registerPSIPoint(bytes memory psiPoint, bytes32 accountSalt, bytes calldata proof) public {
         require(accountSalt != bytes32(0), "invalid wallet salt");
         require(accountSaltOfPSIPoint[psiPoint] == bytes32(0), "PSI point exists");
         (string memory relayerEmailAddr, ) = relayerHandler.relayers(msg.sender);
         require(bytes(relayerEmailAddr).length != 0, "caller is not a relayer");
+        require(verifier.verifyPsiPointProof(accountSalt, psiPoint, proof), "invalid PSI point proof");
         accountSaltOfPSIPoint[psiPoint] = accountSalt;
     }
 
     /// @notice Create new account and wallet for a user
     /// @param emailProof Proof and instances of the email proof
-    /// @param psiPoint PSI point of the user under the relayer
-    /// @param psiProof Proof of the PSI point circuit
-    function createAccount(
-        EmailProof calldata emailProof,
-        bytes calldata psiPoint,
-        bytes calldata psiProof
-    ) public returns (Wallet wallet) {
+    function createAccount(EmailProof calldata emailProof) public returns (Wallet wallet) {
         require(emailProof.accountSalt != bytes32(0), "invalid wallet salt");
-        require(
-            accountSaltOfPSIPoint[psiPoint] == bytes32(0) || accountSaltOfPSIPoint[psiPoint] == emailProof.accountSalt,
-            "PSI point exists for another wallet salt"
-        );
         require(Address.isContract(getWalletOfSalt(emailProof.accountSalt)) == false, "wallet already deployed");
         require(emailNullifiers[emailProof.emailNullifier] == false, "email already nullified");
         require(
@@ -110,19 +101,11 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         require(verifier.verifyEmailProof(emailProof), "invalid account creation proof");
-
-        if (accountSaltOfPSIPoint[psiPoint] == bytes32(0)) {
-            require(
-                verifier.verifyPsiPointProof(emailProof.accountSalt, psiPoint, psiProof),
-                "invalid PSI point proof"
-            );
-            accountSaltOfPSIPoint[psiPoint] = emailProof.accountSalt;
-        }
         emailNullifiers[emailProof.emailNullifier] = true;
 
         wallet = _deployWallet(emailProof.accountSalt);
 
-        emit EmailWalletEvents.AccountCreated(emailProof.accountSalt, psiPoint);
+        emit EmailWalletEvents.AccountCreated(emailProof.accountSalt, emailProof.emailNullifier, address(wallet));
     }
 
     /// @notice Return true iff the wallet is deployed for the given wallet salt

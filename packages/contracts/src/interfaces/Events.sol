@@ -6,7 +6,7 @@ library EmailWalletEvents {
 
     event RelayerConfigUpdated(address indexed addr, string hostname);
 
-    event AccountCreated(bytes32 indexed accountSalt, bytes psiPoint);
+    event AccountCreated(bytes32 indexed accountSalt, bytes32 indexed emailNullifier, address indexed walletAddr);
 
     event UnclaimedFundRegistered(
         uint256 indexed id,
