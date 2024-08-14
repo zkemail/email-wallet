@@ -86,6 +86,8 @@ This is a simplified flow, but underneath we use many parameters to ensure secur
 This is a mono-repo that contains the circom circuits, smart contracts, the relayer and a prover server.
 
 ### Circuits and Constraints:
+*Total Constraints Across All Circuits*: **3,999,432**
+
 - **Main Circuits:**
   - `Announcement.circom`: 459 constraints
   - `Claim.circom`: 921 constraints
@@ -104,8 +106,6 @@ This is a mono-repo that contains the circom circuits, smart contracts, the rela
 - **Regex:**
   - `Invitation_code_regex.circom`: 97 constraints
   - `Invitation_code_with_prefix_regex.circom`: 105 constraints
-
-**Total Constraints Across All Circuits:** **3,999,432**
 
 <br />
 
