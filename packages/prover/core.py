@@ -66,7 +66,7 @@ def load_proof(circuit_name: str, nonce: str) -> dict:
     cur_dir = get_cur_dir()
     build_dir = os.path.join(cur_dir, "build")
     json_file_path = os.path.join(
-        build_dir, "rapidsnark_proof_" + circuit_name + "_" + nonce + ".json"
+        build_dir, "tachyon_public_" + circuit_name + "_" + nonce + ".json"
     )
     with open(json_file_path, "r") as json_file:
         return json.loads(json_file.read())
@@ -76,7 +76,7 @@ def load_pub_signals(circuit_name: str, nonce: str) -> dict:
     cur_dir = get_cur_dir()
     build_dir = os.path.join(cur_dir, "build")
     json_file_path = os.path.join(
-        build_dir, "rapidsnark_public_" + circuit_name + "_" + nonce + ".json"
+        build_dir, "tachyon_public_" + circuit_name + "_" + nonce + ".json"
     )
     with open(json_file_path, "r") as json_file:
         return json.loads(json_file.read())
