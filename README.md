@@ -94,18 +94,6 @@ This is a mono-repo that contains the circom circuits, smart contracts, the rela
   - `Email_sender.circom`: 1,895,054 constraints
   - `Account_creation.circom`: 2,102,567 constraints
 
-- **Utils:**
-  - `Account_salt.circom`: 258 constraints
-  - `Bytes2ints.circom`: 0 constraints
-  - `Digit2int.circom`: 0 constraints
-  - `Email_addr_commit.circom`: 465 constraints
-  - `Email_nullifier.circom`: 213 constraints
-  - `Hash_sign.circom`: 213 constraints
-  - `Hext2int.circom`: 80 constraints
-
-- **Regex:**
-  - `Invitation_code_regex.circom`: 97 constraints
-  - `Invitation_code_with_prefix_regex.circom`: 105 constraints
 
 <br />
 

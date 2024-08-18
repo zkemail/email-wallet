@@ -104,6 +104,16 @@ Its instances are as follows:
 7. a flag whether the subject contains the recipient's email address `has_email_recipient` (0 or 1).
 8. the recipient's email address commitment `recipient_email_addr_commit`.
 9. a timestamp in the email header `timestamp`.
+    
+Constraint breakdown of the circuit is as follows:
+1. this file is a standard template designed for email verification `email-verifier.circom : 669650 constraints` .
+2. this circuit is designed to validate and extract email addresses from a given message `from_addr_regex.circom : 643296 constraints`.
+3. this circuit is designed to verify if a given input message conforms to a specific regex pattern that checks for email subjects `subject_all_regex.circom : 99208 constraints`.
+4. this circuit is designed to validate email addresses based on a specified regular expression. It checks if the input string (representing an email address) conforms to the defined pattern `email_addr_regex.circom : 92037  constraints`.
+5. this circuit is designed to validate an invitation code that may have a prefix. It uses a regular expression to check if the input message conforms to a specific pattern, which includes optional spaces and the word "code" followed by a hexadecimal string `invitation_code_with_prefix_regex.circom :  43494 constraints`.
+6. `email_domain_regex.circom :  38219 constraints`.
+7. this circuit is designed to validate a specific format of a DKIM (DomainKeys Identified Mail) signature within a given message`timestamp_regex.circom :  233872 constraints`.
+
 
 #### `announcement.circom`
 A circuit to verify that the given email address commitment is derived from the given email address and randomness. While it is not used in our core contracts, it is provided for third-party contracts to register unclaimed funds/states for the public email address and the randomness. 
