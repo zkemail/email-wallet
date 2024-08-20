@@ -64,7 +64,7 @@ RUN curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel
 RUN git clone https://github.com/kroma-network/tachyon /tachyon
 WORKDIR /tachyon
 # NOTE(whoisgautxm): Should remove after this is merged to main branch
-RUN git fetch origin && git checkout build/support-building-tachyon-based-on-python-3.10-docker-image
+RUN git fetch origin && git checkout main
 
 RUN echo build --config linux > .bazelrc.user && \
   echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user && \
