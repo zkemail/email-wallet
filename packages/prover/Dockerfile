@@ -7,7 +7,7 @@ FROM python:3.10
 RUN apt-get update && apt-get upgrade -y
 # Update the package list and install necessary dependencies
 RUN apt-get update && \
-  apt install -y  pkg-config gnupg libssl-dev libgmp-dev libsodium-dev python3 python3-pip zip git awscli gcc nodejs npm
+  apt install -y  pkg-config gnupg libssl-dev libgmp-dev libsodium-dev python3 python3-pip zip git awscli gcc nodejs npm build-essential
 
 # Node install
 RUN npm install -g n
@@ -62,11 +62,5 @@ RUN curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel
 
 # Clone and build Tachyon
 RUN git clone https://github.com/kroma-network/tachyon /tachyon
-WORKDIR /tachyon
-# NOTE(whoisgautxm): Should remove after this is merged to main branch
-RUN git fetch origin && git checkout main
-
-RUN echo build --config linux > .bazelrc.user && \
-  echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user && \
-  echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
-RUN bazel build //...
+WORKDIR /tachyon/vendors/circom
+RUN CARGO_BAZEL_REPIN=1 bazel sync --only=crate_index && bazel build --@kroma_network_tachyon//:has_openmp -c opt --config linux //:prover_main
