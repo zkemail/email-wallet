@@ -61,6 +61,6 @@ RUN curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel
 
 
 # Clone and build Tachyon
-RUN git clone --branch v0.3.0 https://github.com/kroma-network/tachyon /tachyon
-WORKDIR /tachyon/vendors/circom
+RUN git clone --branch v0.3.0 https://github.com/kroma-network/tachyon /root/tachyon
+WORKDIR /root/tachyon/vendors/circom
 RUN CARGO_BAZEL_REPIN=1 bazel sync --only=crate_index && bazel build --@kroma_network_tachyon//:has_openmp -c opt --config linux //:prover_main
