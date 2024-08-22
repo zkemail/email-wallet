@@ -9,7 +9,7 @@ from core import (
 )
 
 
-app = modal.App("email-wallet-relayer-v1.2")
+app = modal.App("email-wallet-relayer-v1.1.2")
 
 image = modal.Image.from_dockerfile("Dockerfile")
 

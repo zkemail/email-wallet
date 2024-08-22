@@ -22,8 +22,8 @@ SCRIPT_DIR=$(cd $(dirname $0); pwd)
 # build_dir="${zk_email_path}/build/${CIRCUIT_NAME}"
 input_path="${buildDir}/input_${circuitName}_${nonce}.json"
 witness_path="${buildDir}/witness_${circuitName}_${nonce}.wtns"
-proof_path="${buildDir}/tachyon_proof_${circuitName}_${nonce}.json"
-public_path="${buildDir}/tachyon_public_${circuitName}_${nonce}.json"
+proof_path="${buildDir}/rapidsnark_proof_${circuitName}_${nonce}.json"
+public_path="${buildDir}/rapidsnark_public_${circuitName}_${nonce}.json"
 
 cd "${SCRIPT_DIR}"
 echo "entered zk email path: ${SCRIPT_DIR}"
@@ -50,14 +50,14 @@ if [ $isLocal = 1 ]; then
     status_prover=$?
     echo "✓ Finished slow proofgen! Status: ${status_prover}"
 else
-    # TACHYON PROVER
-    echo "ldd ${SCRIPT_DIR}/tachyon/vendors/circom"
-    ldd "${SCRIPT_DIR}/tachyon/vendors/circom"
+    # RAPIDSNARK PROVER (10x FASTER)
+    echo "ldd ${SCRIPT_DIR}/rapidsnark/build/prover"
+    ldd "${SCRIPT_DIR}/rapidsnark/build/prover"
     status_lld=$?
     echo "✓ lld prover dependencies present! ${status_lld}"
 
-    echo "${SCRIPT_DIR}/tachyon/vendors/circom/bazel-bin/prover_main ${paramsDir}/${circuitName}.zkey ${witness_path} ${proof_path} ${public_path}"
-    "${SCRIPT_DIR}/tachyon/vendors/circom/bazel-bin/prover_main" "${paramsDir}/${circuitName}.zkey" "${witness_path}" "${proof_path}" "${public_path}"  | tee /dev/stderr
+    echo "${SCRIPT_DIR}/rapidsnark/build/prover ${paramsDir}/${circuitName}.zkey ${witness_path} ${proof_path} ${public_path}"
+    "${SCRIPT_DIR}/rapidsnark/build/prover" "${paramsDir}/${circuitName}.zkey" "${witness_path}" "${proof_path}" "${public_path}"  | tee /dev/stderr
     status_prover=$?
     echo "✓ Finished rapid proofgen! Status: ${status_prover}"
 fi
