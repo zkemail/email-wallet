@@ -52,9 +52,9 @@ if [ $isLocal = 1 ]; then
 else
     # TACHYON PROVER
     echo "ldd ${SCRIPT_DIR}/tachyon/vendors/circom"
-    ldd "${SCRIPT_DIR}/tachyon/vendors/circom"
-    status_lld=$?
-    echo "✓ lld prover dependencies present! ${status_lld}"
+    # ldd "${SCRIPT_DIR}/tachyon/vendors/circom"
+    # status_lld=$?
+    # echo "✓ lld prover dependencies present! ${status_lld}"
 
     echo "${SCRIPT_DIR}/tachyon/vendors/circom/bazel-bin/prover_main ${paramsDir}/${circuitName}.zkey ${witness_path} ${proof_path} ${public_path}"
     "${SCRIPT_DIR}/tachyon/vendors/circom/bazel-bin/prover_main" "${paramsDir}/${circuitName}.zkey" "${witness_path}" "${proof_path}" "${public_path}"  | tee /dev/stderr
