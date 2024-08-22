@@ -139,7 +139,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             email_op: _,
             tx_hash,
         } => {
-            let subject = format!("Your Email Wallet transaction is completed.",);
+            let subject = format!("Re: {}", original_subject);
             let account_salt = AccountSalt::new(
                 &PaddedEmailAddr::from_email_addr(&sender_email_addr),
                 account_code,
@@ -157,8 +157,8 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                 subject,
                 body_plain,
                 body_html,
-                reference: Some(message_id),
-                reply_to: Some(RELAYER_EMAIL_ADDRESS.get().unwrap().clone()),
+                reference: Some(message_id.clone()),
+                reply_to: Some(message_id),
                 body_attachments: None,
             };
             send_email(email).await?;
@@ -350,7 +350,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             );
             let render_data = serde_json::json!({"userEmailAddr": email_addr, "request": subject});
             let body_html = render_html("acknowledgement.html", render_data).await?;
-            let subject = format!("Email Wallet Notification. Acknowledgement.");
+            let subject = format!("Re: {}", subject);
             let email = EmailMessage {
                 to: email_addr,
                 subject,
