@@ -330,6 +330,7 @@ async fn catch_claims_in_db_fn() -> Result<()> {
                     email_addr,
                     error_subject: "Voiding claim".to_string(),
                     error: err.to_string(),
+                    email_headers: None,
                 }
             }
         };

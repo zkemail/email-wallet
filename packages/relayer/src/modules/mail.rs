@@ -1,6 +1,6 @@
 use crate::*;
 use handlebars::Handlebars;
-use relayer_utils::AccountCode;
+use relayer_utils::{AccountCode, EmailHeaders};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::atomic::Ordering;
@@ -48,6 +48,7 @@ pub enum EmailWalletEvent {
         email_addr: String,
         error_subject: String,
         error: String,
+        email_headers: Option<EmailHeaders>,
     },
     Ack {
         email_addr: String,
@@ -190,7 +191,6 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
                         );
             let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr": wallet_addr, "assetsList": assets_list_html, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
-            println!("render_data: {:?}", render_data);
             let body_html = render_html("invitation.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr.to_string(),
@@ -283,8 +283,9 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             email_addr,
             error_subject,
             error,
+            email_headers,
         } => {
-            let error = parse_error(error)?;
+            let error = parse_error(error, email_headers)?;
             if let Some(error) = error {
                 let subject = format!("Email Wallet Notification. Error occurred.");
                 let body_plain = format!("Hi {}!\nError occurred: {}", email_addr, error);
@@ -361,7 +362,7 @@ pub async fn render_html(template_name: &str, render_data: Value) -> Result<Stri
     Ok(reg.render_template(&email_template, &render_data)?)
 }
 
-pub fn parse_error(error: String) -> Result<Option<String>> {
+pub fn parse_error(error: String, email_headers: Option<EmailHeaders>) -> Result<Option<String>> {
     let mut error = error;
     if error.contains("Contract call reverted with data: ") {
         let revert_data = error
@@ -380,6 +381,17 @@ pub fn parse_error(error: String) -> Result<Option<String>> {
     match error.as_str() {
         "Account is already created" => Ok(Some(error)),
         "insufficient balance" => Ok(Some("You don't have sufficient balance".to_string())),
+        "The user of email address mailer-daemon@googlemail.com is not registered." => {
+            let failed_recipients = email_headers
+                .and_then(|headers| headers.get_header("X-Failed-Recipients"))
+                .and_then(|v| v.first().cloned())
+                .unwrap_or_else(|| "unknown recipient".to_string());
+
+            Ok(Some(format!(
+                "Failed to deliver email to {}. The address does not exist.",
+                failed_recipients
+            )))
+        }
         _ => Ok(Some(error)),
     }
 }
