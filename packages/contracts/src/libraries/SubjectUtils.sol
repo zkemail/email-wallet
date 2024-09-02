@@ -15,6 +15,18 @@ library SubjectUtils {
     bytes16 private constant LOWER_HEX_DIGITS = "0123456789abcdef";
     bytes16 private constant UPPER_HEX_DIGITS = "0123456789ABCDEF";
 
+    function addressToHexString(address addr, uint stringCase) internal pure returns (string memory) {
+        if (stringCase == 0) {
+            return addressToChecksumHexString(addr);
+        } else if (stringCase == 1) {
+            return Strings.toHexString(addr);
+        } else if (stringCase == 2) {
+            return lowerToUpperCase(Strings.toHexString(addr));
+        } else {
+            revert("invalid stringCase");
+        }
+    }
+
     function addressToChecksumHexString(address addr) internal pure returns (string memory) {
         string memory lowerCaseAddrWithOx = Strings.toHexString(addr);
 
@@ -54,6 +66,16 @@ library SubjectUtils {
         return string(result);
     }
 
+    function lowerToUpperCase(string memory hexStr) internal pure returns (string memory) {
+        bytes memory bytesStr = bytes(hexStr);
+        for (uint i = 0; i < bytesStr.length; i++) {
+            if (bytesStr[i] >= 0x61 && bytesStr[i] <= 0x66) {
+                bytesStr[i] = bytes1(uint8(bytesStr[i]) - 32);
+            }
+        }
+        return string(bytesStr);
+    }
+
     /// @notice Convert bytes to hex string without 0x prefix
     /// @param data bytes to convert
     function bytesToHexString(bytes memory data) public pure returns (string memory) {
@@ -74,11 +96,14 @@ library SubjectUtils {
     /// @param emailOp EmailOp to compute masked subject for
     /// @param walletAddr Address of the user's wallet
     /// @param core EmailWalletCore contract to read some states for validation
+    /// @param stringCase Case of the hex string to be used in the subject
     function computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp,
         address walletAddr,
-        EmailWalletCore core
+        EmailWalletCore core,
+        uint stringCase
     ) public view returns (string memory maskedSubject, bool isExtension) {
+        require(stringCase < 3, "invalid stringCase");
         ExtensionHandler extensionHandler = ExtensionHandler(core.extensionHandler());
 
         // Sample: Send 1 ETH to recipient@domain.com
@@ -100,7 +125,7 @@ library SubjectUtils {
             );
 
             if (emailOp.recipientETHAddr != address(0)) {
-                maskedSubject = string.concat(maskedSubject, addressToChecksumHexString(emailOp.recipientETHAddr));
+                maskedSubject = string.concat(maskedSubject, addressToHexString(emailOp.recipientETHAddr, stringCase));
             }
         }
         // Sample: Execute 0x000112aa..
@@ -157,7 +182,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.EXIT_EMAIL_WALLET,
                 " Email Wallet. Change ownership to ",
-                addressToChecksumHexString(emailOp.newWalletOwner)
+                addressToHexString(emailOp.newWalletOwner, stringCase)
             );
         }
         // Sample: DKIM registry as 0x000112aa..
@@ -167,7 +192,7 @@ library SubjectUtils {
             maskedSubject = string.concat(
                 Commands.DKIM,
                 " registry set to ",
-                addressToChecksumHexString(emailOp.newDkimRegistry)
+                addressToHexString(emailOp.newDkimRegistry, stringCase)
             );
         }
         // The command is for an extension
@@ -230,13 +255,13 @@ library SubjectUtils {
                 // {addres} for wallet address
                 else if (Strings.equal(matcher, Commands.ADDRESS_TEMPLATE)) {
                     address addr = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (address));
-                    value = addressToChecksumHexString(addr);
+                    value = addressToHexString(addr, stringCase);
                     nextParamIndex++;
                 }
                 // {recipient} is either the recipient's ETH address or zero bytes with the same length of the email address
                 else if (Strings.equal(matcher, Commands.RECIPIENT_TEMPLATE)) {
                     if (!emailOp.hasEmailRecipient) {
-                        value = addressToChecksumHexString(emailOp.recipientETHAddr);
+                        value = addressToHexString(emailOp.recipientETHAddr, stringCase);
                     } else {
                         bytes memory zeros = new bytes(emailOp.numRecipientEmailAddrBytes);
                         value = string(zeros);
