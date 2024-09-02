@@ -168,21 +168,43 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         // Validate computed subject = passed subject
-        (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
-            emailOp,
-            accountHandler.getWalletOfSalt(emailOp.accountSalt),
-            this // Core contract to read some states
-        );
+        // (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
+        //     emailOp,
+        //     accountHandler.getWalletOfSalt(emailOp.accountSalt),
+        //     this // Core contract to read some states
+        // );
         bytes memory maskedSubjectBytes = bytes(emailOp.maskedSubject);
         require(emailOp.skipSubjectPrefix < maskedSubjectBytes.length, "skipSubjectPrefix too high");
         bytes memory skippedSubjectBytes = new bytes(maskedSubjectBytes.length - emailOp.skipSubjectPrefix);
         for (uint i = 0; i < skippedSubjectBytes.length; i++) {
             skippedSubjectBytes[i] = maskedSubjectBytes[emailOp.skipSubjectPrefix + i];
         }
-        require(
-            Strings.equal(computedSubject, string(skippedSubjectBytes)),
-            string.concat("subject != ", computedSubject)
-        );
+        string memory computedSubject = "";
+        for (uint stringCase = 0; stringCase < 3; stringCase++) {
+            (computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
+                emailOp,
+                accountHandler.getWalletOfSalt(emailOp.accountSalt),
+                this, // Core contract to read some states
+                stringCase
+            );
+            if (Strings.equal(computedSubject, string(skippedSubjectBytes))) {
+                break;
+            }
+            if (stringCase == 2) {
+                revert(
+                    string.concat(
+                        "given subject: ",
+                        string(skippedSubjectBytes),
+                        "!= expected subject: ",
+                        computedSubject
+                    )
+                );
+            }
+        }
+        // require(
+        //     Strings.equal(computedSubject, string(skippedSubjectBytes)),
+        //     string.concat("subject != ", computedSubject)
+        // );
 
         // Verify proof
         require(

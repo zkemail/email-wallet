@@ -42,8 +42,8 @@ contract TransferTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
     }
 
-    // We only support addres in checksum format in the subject (not all lowercase)
-    function test_Revert_SendingToEthAddress_WithNonChecksumAddress() public {
+    // We support addres in lowercase format in the subject
+    function test_SendingToEthAddress_WithLowercaseAddress() public {
         address recipient = vm.addr(5);
         daiToken.freeMint(walletAddr, 1 ether);
         // vm.addr(5) in lowecase = 0xe1ab8145f7e55dc933d51a18c793f901a3a0b276
@@ -57,7 +57,25 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.walletParams.tokenName = "DAI";
 
         vm.startPrank(relayer);
-        vm.expectRevert("subject != Send 1 DAI to 0xe1AB8145F7E55DC933d51a18c793F901A3A0b276");
+        core.validateEmailOp(emailOp);
+        vm.stopPrank();
+    }
+
+    // We support addres in uppercase format in the subject
+    function test_SendingToEthAddress_WithUppercaseAddress() public {
+        address recipient = vm.addr(5);
+        daiToken.freeMint(walletAddr, 1 ether);
+        // vm.addr(5) in lowecase = 0xE1AB8145F7E55DC933D51A18C793F901A3A0B276
+        string memory subject = string.concat("Send 1 DAI to 0xE1AB8145F7E55DC933D51A18C793F901A3A0B276");
+
+        EmailOp memory emailOp = _getBaseEmailOp();
+        emailOp.command = "Send";
+        emailOp.maskedSubject = subject;
+        emailOp.recipientETHAddr = recipient;
+        emailOp.walletParams.amount = 1 ether;
+        emailOp.walletParams.tokenName = "DAI";
+
+        vm.startPrank(relayer);
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -268,7 +286,7 @@ contract TransferTest is EmailWalletCoreTestHelper {
         emailOp.skipSubjectPrefix = 3;
 
         vm.startPrank(relayer);
-        vm.expectRevert("subject != Send 65.4 DAI to ");
+        vm.expectRevert("given subject:  Send 65.4 DAI to != expected subject: Send 65.4 DAI to ");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
