@@ -75,7 +75,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             //     ),
             //     proof: email_proof,
             // };
-            info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
+            info!(LOG, "Account creation data {:?}", email_proof; "func" => function_name!());
             let res = CLIENT.create_account(email_proof).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
@@ -330,7 +330,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
         num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
         recipient_eth_addr,
         fee_token_name,
-        fee_per_gas,
+        fee_per_gas: *FEE_PER_GAS.get().unwrap(),
         execute_call_data,
         extension_name,
         new_wallet_owner,
