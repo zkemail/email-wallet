@@ -1,5 +1,6 @@
 // Config strings
 pub const SMTP_SERVER_KEY: &str = "SMTP_SERVER";
+pub const ERROR_EMAIL_ADDRESSES_KEY: &str = "ERROR_EMAIL_ADDRESSES";
 pub const DATABASE_PATH_KEY: &str = "DATABASE_URL";
 pub const WEB_SERVER_ADDRESS_KEY: &str = "WEB_SERVER_ADDRESS";
 pub const CIRCUITS_DIR_PATH_KEY: &str = "CIRCUITS_DIR_PATH";

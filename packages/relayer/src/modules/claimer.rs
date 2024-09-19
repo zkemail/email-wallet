@@ -24,7 +24,7 @@ pub struct Claim {
 
 #[named]
 pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
-    let mut need_creation = true;
+    let need_creation = true;
     let is_seen = claim.is_seen;
     if DB
         .get_claims_by_id(&claim.id)

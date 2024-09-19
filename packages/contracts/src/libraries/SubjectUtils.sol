@@ -96,6 +96,7 @@ library SubjectUtils {
     /// @param emailOp EmailOp to compute masked subject for
     /// @param walletAddr Address of the user's wallet
     /// @param core EmailWalletCore contract to read some states for validation
+    /// @param stringCase Case of the hex string to be used in the subject
     function computeMaskedSubjectForEmailOp(
         EmailOp memory emailOp,
         address walletAddr,

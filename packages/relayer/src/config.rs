@@ -7,6 +7,7 @@ use dotenv::dotenv;
 #[derive(Clone)]
 pub struct RelayerConfig {
     pub smtp_server: String,
+    pub error_email_addresses: Vec<String>,
     pub relayer_email_addr: String,
     pub db_path: String,
     pub web_server_address: String,
@@ -54,6 +55,11 @@ impl RelayerConfig {
 
         Self {
             smtp_server: env::var(SMTP_SERVER_KEY).unwrap(),
+            error_email_addresses: env::var(ERROR_EMAIL_ADDRESSES_KEY)
+                .unwrap()
+                .split(',')
+                .map(|s| s.to_string())
+                .collect(),
             relayer_email_addr: env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
             db_path: env::var(DATABASE_PATH_KEY).unwrap(),
             web_server_address: env::var(WEB_SERVER_ADDRESS_KEY).unwrap(),

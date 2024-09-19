@@ -146,7 +146,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
         };
         Ok((field2hex(&account_code.0), email))
     } else {
-        let subject = "Email Wallet Error: Account Already Exists".to_string();
+        let subject = "Sign in to your Email Wallet".to_string();
         let error_msg =
             "Your wallet is already created. Please use the login page instead.".to_string();
         // TODO: Get user's account address
@@ -349,6 +349,7 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
                 error!(LOG, "Error handling email: {:?}", e);
                 match handle_email_event(EmailWalletEvent::Error {
                     email_addr: from_addr,
+                    error_subject: parsed_email.get_subject_all().unwrap_or_default(),
                     error: e.to_string(),
                 })
                 .await

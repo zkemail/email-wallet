@@ -57,6 +57,7 @@ pub static ONBOARDING_REPLY_MSG: OnceLock<String> = OnceLock::new();
 pub static RELAYER_EMAIL_ADDRESS: OnceLock<String> = OnceLock::new();
 pub static SAFE_API_ENDPOINT: OnceLock<String> = OnceLock::new();
 pub static SMTP_SERVER: OnceLock<String> = OnceLock::new();
+pub static ERROR_EMAIL_ADDRESSES: OnceLock<Vec<String>> = OnceLock::new();
 
 lazy_static! {
     pub static ref DB: Arc<Database> = {
@@ -147,6 +148,9 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         .unwrap();
     SAFE_API_ENDPOINT.set(config.safe_api_endpoint).unwrap();
     SMTP_SERVER.set(config.smtp_server).unwrap();
+    ERROR_EMAIL_ADDRESSES
+        .set(config.error_email_addresses)
+        .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
     RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
@@ -324,6 +328,7 @@ async fn catch_claims_in_db_fn() -> Result<()> {
                 error!(LOG, "Error voider task: {}", err; "func" => function_name!());
                 EmailWalletEvent::Error {
                     email_addr,
+                    error_subject: "Voiding claim".to_string(),
                     error: err.to_string(),
                 }
             }
