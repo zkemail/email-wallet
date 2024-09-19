@@ -1,6 +1,6 @@
 import fs from "fs";
 import { promisify } from "util";
-const emailWalletUtils = require("@zk-email/relayer-utils");
+const relayerUtils = require("@zk-email/relayer-utils");
 
 export async function genEmailSenderInput(
   emailFilePath: string,
@@ -19,6 +19,44 @@ export async function genEmailSenderInput(
   recipient_email_idx: number;
 }> {
   const emailRaw = await promisify(fs.readFile)(emailFilePath, "utf8");
-  const jsonStr = await emailWalletUtils.genEmailSenderInput(emailRaw, accountCode);
-  return JSON.parse(jsonStr);
+  const options = {
+    maxHeaderLength: 1024,
+    ignoreBodyHashCheck: true,
+  }
+  const jsonStr = await relayerUtils.genEmailCircuitInput(emailRaw, accountCode, options);
+  const {
+    body_hash_idx,
+    precomputed_sha,
+    padded_body,
+    padded_body_len,
+    command_idx,
+    padded_cleaned_body,
+    account_code,
+    ...circuitInputsRelevant
+  } = JSON.parse(jsonStr);
+  const parsedEmail = await relayerUtils.parseEmail(emailRaw);
+  const subjectEmailIdxes = relayerUtils.extractSubjectAllIdxes(
+    parsedEmail.canonicalizedHeader
+  )[0];
+  const subject = parsedEmail.canonicalizedHeader.slice(
+    subjectEmailIdxes[0],
+    subjectEmailIdxes[1]
+  );
+  let recipientEmailIdx = 0;
+  try {
+    recipientEmailIdx = relayerUtils.extractEmailAddrIdxes(subject)[0][0];
+  } catch (e) {
+    console.log("No email address in subject");
+    recipientEmailIdx = 0;
+  }
+  console.log({
+    sender_account_code: account_code,
+    recipient_email_idx: recipientEmailIdx,
+    ...circuitInputsRelevant,
+  });
+  return {
+    sender_account_code: account_code,
+    recipient_email_idx: recipientEmailIdx,
+    ...circuitInputsRelevant,
+  };
 }

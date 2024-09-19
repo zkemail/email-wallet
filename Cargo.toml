@@ -1,8 +1,4 @@
 [workspace]
-members = [
-    "packages/relayer",
-    "packages/scripts",
-    "packages/circuits/node_modules/@zk-email/relayer-utils",
-]
-exclude = ["node_modules/*"]
+members = ["packages/relayer", "packages/scripts"]
+exclude = ["node_modules/*", "packages/circuits/node_modules/*"]
 resolver = "2"

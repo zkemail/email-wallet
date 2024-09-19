@@ -22,11 +22,10 @@
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
   },
   "dependencies": {
-    "@zk-email/circuits": "^6.1.1",
-    "@zk-email/ether-email-auth-circom": "/Users/suegamisora/codes/ether-email-auth/packages/circuits",
-    "@zk-email/helpers": "^6.1.1",
-    "@zk-email/relayer-utils": "/Users/suegamisora/codes/relayer-utils-1",
-    "@zk-email/zk-regex-circom": "^2.1.0",
+    "@zk-email/circuits": "=6.1.5",
+    "@zk-email/relayer-utils": "=0.3.7",
+    "@zk-email/zk-regex-circom": "=2.1.1",
+    "@zk-email/ether-email-auth-circom": "0.0.2-preview",
     "circom-grumpkin": "https://github.com/zkemail/circom-grumpkin.git",
     "commander": "^11.0.0",
     "snarkjs": "^0.7.0"

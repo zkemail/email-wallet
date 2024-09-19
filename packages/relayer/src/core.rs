@@ -1,8 +1,8 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::identity_op)]
 
+use crate::abis::email_wallet_core::EmailProof;
 use crate::*;
-
 use relayer_utils::*;
 
 use ethers::types::{Address, Bytes, U256};
@@ -22,6 +22,8 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     let from_addr = parsed_email.get_from_addr()?;
     let padded_from_addr = PaddedEmailAddr::from_email_addr(&from_addr);
     trace!(LOG, "From address: {}", from_addr; "func" => function_name!());
+    let original_subject = parsed_email.get_subject_all()?;
+    trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
     check_and_update_dkim(&email, &parsed_email).await?;
     if let Ok(invitation_code) = parsed_email.get_invitation_code() {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
@@ -46,25 +48,35 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             info!(LOG, "Account creation"; "func" => function_name!());
             let input =
                 generate_account_creation_input(&email, RELAYER_RAND.get().unwrap()).await?;
+            info!(LOG, "Account creation input {:?}", input; "func" => function_name!());
+            let (masked_subject, num_recipient_email_addr_bytes) =
+                get_masked_subject(&original_subject)?;
             let (proof, pub_signals) =
                 generate_proof(&input, "account_creation", PROVER_ADDRESS.get().unwrap()).await?;
-            let email_proof = EmailProof {
-                domain: parsed_email.get_email_domain()?,
+            let email_proof: EmailProof = EmailProof {
+                account_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
+                email_domain: parsed_email.get_email_domain()?,
                 timestamp: pub_signals[DOMAIN_FIELDS + 2],
-                nullifier: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]),
+                email_nullifier: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]),
                 dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
+                is_code_exist: true,
+                has_email_recipient: pub_signals[DOMAIN_FIELDS + SUBJECT_FIELDS + 5] == 1u8.into(),
+                masked_subject,
+                recipient_email_addr_commit: u256_to_bytes32(
+                    &pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5],
+                ),
                 proof: proof,
             };
-            let data = AccountCreationInput {
-                account_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
-                psi_point: get_psi_point_bytes(
-                    pub_signals[DOMAIN_FIELDS + 4],
-                    pub_signals[DOMAIN_FIELDS + 5],
-                ),
-                proof: email_proof,
-            };
+            // let data = AccountCreationInput {
+            //     account_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
+            //     psi_point: get_psi_point_bytes(
+            //         pub_signals[DOMAIN_FIELDS + 4],
+            //         pub_signals[DOMAIN_FIELDS + 5],
+            //     ),
+            //     proof: email_proof,
+            // };
             info!(LOG, "Account creation data {:?}", data; "func" => function_name!());
-            let res = CLIENT.create_account(data).await?;
+            let res = CLIENT.create_account(email_proof).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
             if let Some(_) = stored_account_code {
@@ -117,8 +129,6 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     trace!(LOG, "Wallet salt: {}", field2hex(&account_salt.0); "func" => function_name!());
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
-    let original_subject = parsed_email.get_subject_all()?;
-    trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
     let (command, skip_subject_prefix) =
         subject_templates::extract_command_from_subject(&original_subject, &account_salt).await?;
     let subject = original_subject[skip_subject_prefix..].to_string();
@@ -282,7 +292,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     trace!(LOG, "parameter constructed"; "func" => function_name!());
     let input = generate_email_sender_input(&email, &account_code_str).await?;
     trace!(LOG, "input generated"; "func" => function_name!());
-    let (email_proof, pub_signals) =
+    let (proof, pub_signals) =
         generate_proof(&input, "email_sender", PROVER_ADDRESS.get().unwrap()).await?;
     trace!(LOG, "proof generated"; "func" => function_name!());
     let has_email_recipient = pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 4] == 1u8.into();
@@ -302,21 +312,25 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
         "commit in pub_signals {:?}",
         bytes32_to_fr(&recipient_email_addr_commit)?; "func" => function_name!()
     );
-    let email_op = EmailOp {
-        account_salt: fr_to_bytes32(&account_salt.0)?,
-        has_email_recipient,
-        recipient_email_addr_commit,
-        num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
-        recipient_eth_addr,
-        command: command.clone(),
-        email_nullifier,
+    let email_proof = EmailProof {
         email_domain: parsed_email.get_email_domain()?,
         dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
-        timestamp,
+        email_nullifier: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]),
         masked_subject,
+        timestamp,
+        account_salt: fr_to_bytes32(&account_salt.0)?,
+        is_code_exist: pub_signals[DOMAIN_FIELDS + SUBJECT_FIELDS + 5] == 1u8.into(),
+        has_email_recipient,
+        recipient_email_addr_commit,
+        proof,
+    };
+    let email_op = EmailOp {
+        command: command.clone(),
         skip_subject_prefix: U256::from(skip_subject_prefix),
+        num_recipient_email_addr_bytes: U256::from(num_recipient_email_addr_bytes),
+        recipient_eth_addr,
         fee_token_name,
-        fee_per_gas: *FEE_PER_GAS.get().unwrap(),
+        fee_per_gas,
         execute_call_data,
         extension_name,
         new_wallet_owner,

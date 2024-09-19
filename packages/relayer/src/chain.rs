@@ -1,12 +1,13 @@
 use std::str::FromStr;
 
+use crate::abis::account_handler::EmailProof as AccountHandlerEmailProof;
+use crate::abis::email_wallet_core::EmailProof;
 use crate::*;
 use ethers::abi::RawLog;
 use ethers::middleware::Middleware;
 use ethers::prelude::*;
 use ethers::signers::Signer;
 use futures::future::BoxFuture;
-
 const CONFIRMATIONS: usize = 1;
 
 #[derive(Default, Debug)]
@@ -126,6 +127,7 @@ impl ChainClient {
         &self,
         point: &Point,
         account_salt: &AccountSalt,
+        proof: Bytes,
     ) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
@@ -137,6 +139,7 @@ impl ChainClient {
                 U256::from_str_radix(&point.y, 10)?,
             ),
             fr_to_bytes32(&account_salt.0)?,
+            proof,
         );
         let tx = call.send().await?;
         let receipt = tx
@@ -149,14 +152,23 @@ impl ChainClient {
         Ok(tx_hash)
     }
 
-    pub async fn create_account(&self, data: AccountCreationInput) -> Result<String> {
+    pub async fn create_account(&self, email_proof: EmailProof) -> Result<String> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
-
-        let call =
-            self.account_handler
-                .create_account(data.account_salt, data.psi_point, data.proof);
+        let email_proof = AccountHandlerEmailProof {
+            has_email_recipient: email_proof.has_email_recipient,
+            recipient_email_addr_commit: email_proof.recipient_email_addr_commit,
+            proof: email_proof.proof,
+            email_domain: email_proof.email_domain,
+            dkim_public_key_hash: email_proof.dkim_public_key_hash,
+            email_nullifier: email_proof.email_nullifier,
+            timestamp: email_proof.timestamp,
+            masked_subject: email_proof.masked_subject,
+            account_salt: email_proof.account_salt,
+            is_code_exist: email_proof.is_code_exist,
+        };
+        let call = self.account_handler.create_account(email_proof);
         let tx = call.send().await?;
         let receipt = tx
             .log()
@@ -318,7 +330,7 @@ impl ChainClient {
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
-        let value = if !email_op.has_email_recipient {
+        let value = if !email_op.email_proof.has_email_recipient {
             U256::zero()
         } else if email_op.command == SEND_COMMAND {
             let gas = self.unclaims_handler.unclaimed_fund_claim_gas().await?;
