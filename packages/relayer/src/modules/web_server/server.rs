@@ -54,7 +54,7 @@ async fn unclaim(payload: UnclaimRequest) -> Result<String> {
         "padded email address fields: {:?}",
         padded_email_addr.to_email_addr_fields(); "func" => function_name!()
     );
-    let commit = padded_email_addr.to_commitment(&hex2field(&payload.random)?)?;
+    let commit = padded_email_addr.to_commitment(&hex_to_field(&payload.random)?)?;
     info!(LOG, "commit {:?}", commit; "func" => function_name!());
     let id = CLIENT
         .get_unclaim_id_from_tx_hash(&payload.tx_hash, payload.is_fund)
@@ -65,7 +65,7 @@ async fn unclaim(payload: UnclaimRequest) -> Result<String> {
         id,
         email_address: payload.email_address.clone(),
         random: payload.random.clone(),
-        commit: field2hex(&commit),
+        commit: field_to_hex(&commit),
         expiry_time: payload.expiry_time,
         is_fund: payload.is_fund,
         is_announced: false,
@@ -101,10 +101,10 @@ pub async fn run_server() -> Result<()> {
                     .unwrap();
                 let padded_email_addr = PaddedEmailAddr::from_email_addr(&json.email_address);
                 let commit = padded_email_addr
-                    .to_commitment(&hex2field(&json.random).unwrap())
+                    .to_commitment(&hex_to_field(&json.random).unwrap())
                     .unwrap();
                 info!(LOG, "commit {:?}", commit; "func" => function_name!());
-                field2hex(&commit)
+                field_to_hex(&commit)
             }),
         )
         .route(

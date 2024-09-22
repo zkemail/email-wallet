@@ -127,7 +127,7 @@ pub async fn safe_fn() -> Result<()> {
                 println!("Approving safe_txn_hash: {}", safe_txn_hash);
                 let email_addr = DB.get_email_by_wallet(&wallet_addr).await.unwrap();
                 let account_code_str = DB.get_account_code(&email_addr).await?;
-                let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+                let account_code = AccountCode(hex_to_field(&account_code_str.unwrap())?);
                 let account_salt =
                     AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
                 let subject = format!("Safe Transaction: Approve {} from {}", safe_txn_hash, safe);

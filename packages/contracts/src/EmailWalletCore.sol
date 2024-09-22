@@ -145,8 +145,11 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(bytes(emailOp.command).length != 0, "command cannot be empty");
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
-        require(emailNullifiers[emailOp.emailProof.emailNullifier] == false, "email nullified");
-        require(accountHandler.emailNullifiers(emailOp.emailProof.emailNullifier) == false, "email nullified");
+        require(
+            emailNullifiers[emailOp.emailProof.emailNullifier] == false &&
+                accountHandler.emailNullifiers(emailOp.emailProof.emailNullifier) == false,
+            "email nullified"
+        );
         require(
             accountHandler.isDKIMPublicKeyHashValid(
                 emailOp.emailProof.accountSalt,
@@ -160,19 +163,20 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             require(emailOp.emailProof.timestamp + emailValidityDuration > block.timestamp, "email expired");
         }
 
-        if (emailOp.emailProof.hasEmailRecipient) {
-            require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
-            require(emailOp.emailProof.recipientEmailAddrCommit != bytes32(0), "recipientEmailAddrCommit not found");
-        } else {
-            require(emailOp.emailProof.recipientEmailAddrCommit == bytes32(0), "recipientEmailAddrCommit not allowed");
-        }
+        // if (emailOp.emailProof.hasEmailRecipient) {
+        //     require(emailOp.recipientETHAddr == address(0), "cannot have both recipient types");
+        // }
+        require(
+            !emailOp.emailProof.hasEmailRecipient || emailOp.recipientETHAddr == address(0),
+            "Invalid recipientETHAddr"
+        );
+        require(
+            (emailOp.emailProof.hasEmailRecipient && emailOp.emailProof.recipientEmailAddrCommit != bytes32(0)) ||
+                (!emailOp.emailProof.hasEmailRecipient && emailOp.emailProof.recipientEmailAddrCommit == bytes32(0)),
+            "Invalid recipientEmailAddrCommit"
+        );
 
         // Validate computed subject = passed subject
-        // (string memory computedSubject, ) = SubjectUtils.computeMaskedSubjectForEmailOp(
-        //     emailOp,
-        //     accountHandler.getWalletOfSalt(emailOp.emailProof.accountSalt),
-        //     this // Core contract to read some states
-        // );
         bytes memory maskedSubjectBytes = bytes(emailOp.emailProof.maskedSubject);
         require(emailOp.skipSubjectPrefix < maskedSubjectBytes.length, "skipSubjectPrefix too high");
         bytes memory skippedSubjectBytes = new bytes(maskedSubjectBytes.length - emailOp.skipSubjectPrefix);
@@ -201,10 +205,6 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 );
             }
         }
-        // require(
-        //     Strings.equal(computedSubject, string(skippedSubjectBytes)),
-        //     string.concat("subject != ", computedSubject)
-        // );
 
         // Verify proof
         require(verifier.verifyEmailProof(emailOp.emailProof), "invalid email proof");
@@ -258,7 +258,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         else {
             require(
                 currContext.registeredUnclaimId == 0,
-                "registeredUnclaimId must be zero if no unclaimed fund/state is registered"
+                "registeredUnclaimId must be zero for no unclaimed fund/state"
             );
             payable(msg.sender).transfer(msg.value);
         }
@@ -372,12 +372,13 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             "target cannot be core or handlers"
         );
 
-        require(Address.isContract(target), "target is not a contract");
-
-        require(target != currContext.walletAddr, "target cannot be wallet");
-
         // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)
-        require(bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0, "target cannot be a token");
+        require(
+            Address.isContract(target) &&
+                target != currContext.walletAddr &&
+                bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0,
+            "invalid target for executeAsExtension"
+        );
 
         Wallet(payable(currContext.walletAddr)).execute(target, 0, data);
     }
@@ -461,7 +462,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 returnData = bytes(reason);
             } catch {
                 success = false;
-                returnData = bytes("err executing calldata on wallet");
+                returnData = bytes("err executing calldata");
             }
         }
         // Set custom extension for the user
@@ -489,7 +490,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
                 returnData = bytes(reason);
             } catch {
                 success = false;
-                returnData = bytes("err executing transferOwnership on wallet");
+                returnData = bytes("err executing transferOwnership");
             }
         }
         // Set DKIM registry
@@ -576,7 +577,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         } catch Error(string memory reason) {
             return (false, bytes(reason));
         } catch {
-            return (false, bytes("unknown wallet exec error"));
+            return (false, bytes("err unknown wallet exec"));
         }
     }
 
@@ -584,13 +585,15 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param tokenName Name of the token
     /// @return Conversion rate in wei format
     function _getFeeConversionRate(string memory tokenName) internal view returns (uint256) {
+        require(
+            Strings.equal(tokenName, "ETH") ||
+                Strings.equal(tokenName, "WETH") ||
+                Strings.equal(tokenName, "DAI") ||
+                Strings.equal(tokenName, "USDC"),
+            "unsupported fee token"
+        );
         if (Strings.equal(tokenName, "ETH") || Strings.equal(tokenName, "WETH")) {
             return 1 ether;
-        }
-
-        bool validToken = Strings.equal(tokenName, "DAI") || Strings.equal(tokenName, "USDC");
-        if (!validToken) {
-            return 0;
         }
 
         address tokenAddr = tokenRegistry.getTokenAddress(tokenName);

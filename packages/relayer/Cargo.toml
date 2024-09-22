@@ -15,12 +15,16 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.68"
 lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
 ethers = { version = "2.0.10", features = ["abigen"] }
-relayer-utils = { git = "https://github.com/zkemail/relayer-utils", rev = "fba0e90" }
+relayer-utils = { version = "0.3.7", git = "https://github.com/zkemail/relayer-utils.git" }
 slog = { version = "2.7.0", features = [
     "max_level_trace",
     "release_max_level_warn",
 ] }
-sqlx = { version = "=0.6.3", features = ["postgres", "runtime-tokio-native-tls"] }
+sqlx = { version = "=0.6.3", features = [
+    "postgres",
+    "runtime-tokio-native-tls",
+] }
+poseidon-rs = { git = "https://github.com/zkemail/poseidon-rs.git", version = "1.0.0" }
 regex = "1.10.2"
 axum = "0.6.20"
 rand = "0.8.5"

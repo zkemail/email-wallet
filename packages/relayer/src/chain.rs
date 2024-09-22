@@ -9,6 +9,7 @@ use ethers::prelude::*;
 use ethers::signers::Signer;
 use futures::future::BoxFuture;
 const CONFIRMATIONS: usize = 1;
+use poseidon_rs::Fr;
 
 #[derive(Default, Debug)]
 pub struct AccountCreationInput {
@@ -694,8 +695,8 @@ impl ChainClient {
 
     pub async fn check_if_point_registered(&self, point: Point) -> Result<bool> {
         let Point { x, y } = point;
-        let x = hex2field(&x)?;
-        let y = hex2field(&y)?;
+        let x = hex_to_field(&x)?;
+        let y = hex_to_field(&y)?;
         let x = U256::from_little_endian(&x.to_bytes());
         let y = U256::from_little_endian(&y.to_bytes());
         let account_salt = self
@@ -709,8 +710,8 @@ impl ChainClient {
 
     pub async fn check_if_account_created_by_point(&self, point: Point) -> Result<bool> {
         let Point { x, y } = point;
-        let x = hex2field(&x)?;
-        let y = hex2field(&y)?;
+        let x = hex_to_field(&x)?;
+        let y = hex_to_field(&y)?;
         let x = U256::from_little_endian(&x.to_bytes());
         let y = U256::from_little_endian(&y.to_bytes());
         let account_salt = self
@@ -731,7 +732,7 @@ impl ChainClient {
         email_addr: &str,
         account_code: &str,
     ) -> Result<bool> {
-        let account_code = AccountCode(hex2field(account_code)?);
+        let account_code = AccountCode(hex_to_field(account_code)?);
         let padded_email_addr = PaddedEmailAddr::from_email_addr(email_addr);
         let account_salt = AccountSalt::new(&padded_email_addr, account_code)?;
         let is_deployed = self

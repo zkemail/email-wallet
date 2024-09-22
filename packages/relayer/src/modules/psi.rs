@@ -4,6 +4,7 @@ use std::path::Path;
 
 use axum::Json;
 use ff::Field;
+use poseidon_rs::Fr;
 use serde::{Deserialize, Serialize};
 use tokio::fs::{read_to_string, remove_file};
 
@@ -49,7 +50,7 @@ impl PSIClient {
     pub async fn new(email_addr: String, tx_hash: String, id: U256, is_fund: bool) -> Result<Self> {
         let rng = rand::rngs::OsRng;
         let random = Fr::random(OsRng);
-        let random = field2hex(&random);
+        let random = field_to_hex(&random);
 
         let point = psi_step1(CIRCUITS_DIR_PATH.get().unwrap(), &email_addr, &random).await?;
 

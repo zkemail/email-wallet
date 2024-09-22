@@ -116,7 +116,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                            email address replaced respectively in the subject line.\n{}\nYour wallet address: {}/address/{}.\nCheck the transaction on etherscan: {}/tx/{}",
                            email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr, CHAIN_RPC_EXPLORER.get().unwrap(), tx_hash
                         );
-            let account_code_str = field2hex(&account_code.0);
+            let account_code_str = field_to_hex(&account_code.0);
             let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
@@ -191,7 +191,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                 }
             }
 
-            let invitation_code_hex = &field2hex(&account_code.0)[2..];
+            let invitation_code_hex = &field_to_hex(&account_code.0)[2..];
             let subject = format!(
                 "Your Email Wallet Account is ready to be deployed. Code {}",
                 invitation_code_hex
@@ -247,7 +247,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                             "Hi {}!\nCheck the transaction for you on etherscan: {}/tx/{}.\nNote that your wallet address is {}\n",
                             email_addr, CHAIN_RPC_EXPLORER.get().unwrap(), &tx_hash, wallet_addr
                         );
-            let account_code_str = field2hex(&recipient_account_code.0);
+            let account_code_str = field_to_hex(&recipient_account_code.0);
             let render_data = serde_json::json!({"userEmailAddr": email_addr, "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str});
             let body_html = render_html("claimed.html", render_data).await?;
             let email = EmailMessage {
@@ -274,7 +274,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                 .get_account_code(&claim.email_address)
                 .await?
                 .ok_or(anyhow!("Account not found"))?;
-            let account_code = AccountCode(hex2field(&account_code)?);
+            let account_code = AccountCode(hex_to_field(&account_code)?);
             let account_salt = AccountSalt::new(
                 &PaddedEmailAddr::from_email_addr(&claim.email_address),
                 account_code,

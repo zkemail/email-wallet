@@ -120,7 +120,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailProof.recipientEmailAddrCommit = bytes32(uint256(123));
 
         vm.startPrank(relayer);
-        vm.expectRevert("cannot have both recipient types");
+        vm.expectRevert("Invalid recipientETHAddr");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -133,7 +133,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.emailProof.recipientEmailAddrCommit = bytes32(0);
 
         vm.startPrank(relayer);
-        vm.expectRevert("recipientEmailAddrCommit not found");
+        vm.expectRevert("Invalid recipientEmailAddrCommit");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }
@@ -151,7 +151,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         );
 
         vm.startPrank(relayer);
-        vm.expectRevert("recipientEmailAddrCommit not allowed");
+        vm.expectRevert("Invalid recipientEmailAddrCommit");
         core.validateEmailOp(emailOp);
         vm.stopPrank();
     }

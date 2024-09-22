@@ -25,29 +25,32 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     let original_subject = parsed_email.get_subject_all()?;
     trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
     check_and_update_dkim(&email, &parsed_email).await?;
-    if let Ok(invitation_code) = parsed_email.get_invitation_code() {
+    if let Ok(invitation_code) = parsed_email.get_invitation_code(true) {
         trace!(LOG, "Email with invitation code"; "func" => function_name!());
-        let account_code = AccountCode::from(hex2field(&format!("0x{}", invitation_code))?);
-        trace!(LOG, "Account code: {}", field2hex(&account_code.0); "func" => function_name!());
+        let account_code = AccountCode::from(hex_to_field(&format!("0x{}", invitation_code))?);
+        trace!(LOG, "Account code: {}", field_to_hex(&account_code.0); "func" => function_name!());
         let stored_account_code = DB.get_account_code(&from_addr).await?;
         if let Some(stored_account_code) = stored_account_code.as_ref() {
-            if stored_account_code != &field2hex(&account_code.0) {
+            if stored_account_code != &field_to_hex(&account_code.0) {
                 return Err(anyhow!(
                     "Stored account key is not equal to one in the email: {} != {}",
                     stored_account_code,
-                    field2hex(&account_code.0)
+                    field_to_hex(&account_code.0)
                 ));
             }
         }
         let account_salt = AccountSalt::new(&padded_from_addr, account_code)?;
-        trace!(LOG, "Wallet salt: {}", field2hex(&account_salt.0); "func" => function_name!());
+        trace!(LOG, "Wallet salt: {}", field_to_hex(&account_salt.0); "func" => function_name!());
         if !CLIENT
-            .check_if_account_created_by_account_code(&from_addr, &field2hex(&account_code.0))
+            .check_if_account_created_by_account_code(&from_addr, &field_to_hex(&account_code.0))
             .await?
         {
             info!(LOG, "Account creation"; "func" => function_name!());
-            let input =
-                generate_account_creation_input(&email, RELAYER_RAND.get().unwrap()).await?;
+            let input = {
+                let all_input: EmailCircu = serde_json::from_str(
+                    &generate_email_circuit_input(&email, RELAYER_RAND.get().unwrap()).await?,
+                )?;
+            };
             info!(LOG, "Account creation input {:?}", input; "func" => function_name!());
             let (masked_subject, num_recipient_email_addr_bytes) =
                 get_masked_subject(&original_subject)?;
@@ -85,7 +88,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             } else {
                 DB.insert_user(
                     &from_addr,
-                    &field2hex(&account_code.0),
+                    &field_to_hex(&account_code.0),
                     &res,
                     true,
                     &format!("0x{}", hex::encode(wallet_addr.as_bytes())),
@@ -123,10 +126,10 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     {
         bail!("The user of email address {} is not registered.", from_addr);
     }
-    let account_code = AccountCode(hex2field(&account_code_str)?);
-    let relayer_rand = RelayerRand(hex2field(RELAYER_RAND.get().unwrap())?);
+    let account_code = AccountCode(hex_to_field(&account_code_str)?);
+    let relayer_rand = RelayerRand(hex_to_field(RELAYER_RAND.get().unwrap())?);
     let account_salt = AccountSalt::new(&padded_from_addr, account_code)?;
-    trace!(LOG, "Wallet salt: {}", field2hex(&account_salt.0); "func" => function_name!());
+    trace!(LOG, "Wallet salt: {}", field_to_hex(&account_salt.0); "func" => function_name!());
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
     let (command, skip_subject_prefix) =
@@ -362,7 +365,7 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
             id: registered_unclaim_id,
             email_address: email_addr.clone(),
             commit,
-            random: field2hex(&commit_rand),
+            random: field_to_hex(&commit_rand),
             expiry_time,
             is_fund,
             is_announced: false,

@@ -6,7 +6,7 @@ use crate::{
 };
 use ethers::types::{Address, U256};
 use relayer_utils::{
-    converters::{field2hex, hex2field},
+    converters::{field_to_hex, hex_to_field},
     cryptos::{AccountCode, AccountSalt, PaddedEmailAddr},
     ParsedEmail, LOG,
 };
@@ -86,7 +86,7 @@ pub async fn nft_transfer_api_fn(payload: String) -> Result<(u64, EmailMessage)>
         };
         return Ok((request_id, email));
     }
-    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_code = AccountCode(hex_to_field(&account_code_str.unwrap())?);
     let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
         account_code,
@@ -128,7 +128,7 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
     let account_code_str = DB.get_account_code(&email_addr).await?;
     if account_code_str.is_none() {
         let account_code = AccountCode::new(rand::thread_rng());
-        let invitation_code_hex = &field2hex(&account_code.0)[2..];
+        let invitation_code_hex = &field_to_hex(&account_code.0)[2..];
         let subject = format!(
             "Email Wallet Account Creation. Code {}",
             invitation_code_hex
@@ -144,13 +144,13 @@ pub async fn create_account_api_fn(payload: String) -> Result<(String, EmailMess
             reply_to: None,
             body_attachments: None,
         };
-        Ok((field2hex(&account_code.0), email))
+        Ok((field_to_hex(&account_code.0), email))
     } else {
         let subject = "Sign in to your Email Wallet".to_string();
         let error_msg =
             "Your wallet is already created. Please use the login page instead.".to_string();
         // TODO: Get user's account address
-        let account_code = AccountCode(hex2field(&account_code_str.clone().unwrap())?);
+        let account_code = AccountCode(hex_to_field(&account_code_str.clone().unwrap())?);
         let account_salt =
             AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
         let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
@@ -206,7 +206,7 @@ pub async fn send_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
         };
         return Ok((request_id, email));
     }
-    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
+    let account_code = AccountCode(hex_to_field(&account_code_str.unwrap())?);
     let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
         account_code,
@@ -240,7 +240,7 @@ pub async fn get_wallet_address_api_fn(payload: String) -> Result<String> {
             request.email_addr
         ));
     }
-    let account_code = AccountCode(hex2field(&request.account_code)?);
+    let account_code = AccountCode(hex_to_field(&request.account_code)?);
     let account_salt = AccountSalt::new(
         &PaddedEmailAddr::from_email_addr(&request.email_addr),
         account_code,
@@ -272,8 +272,8 @@ pub async fn recover_account_code_api_fn(payload: String) -> Result<(u64, EmailM
         };
         return Ok((request_id, email));
     }
-    let account_code = AccountCode(hex2field(&account_code_str.unwrap())?);
-    let account_code_hex = &field2hex(&account_code.0)[2..];
+    let account_code = AccountCode(hex_to_field(&account_code_str.unwrap())?);
+    let account_code_hex = &field_to_hex(&account_code.0)[2..];
     let account_salt =
         AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;

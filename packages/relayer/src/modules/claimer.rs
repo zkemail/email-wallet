@@ -4,7 +4,7 @@ use crate::*;
 
 use ethers::types::Address;
 use relayer_utils::{
-    field2hex, generate_claim_input, hex2field, u256_to_bytes32, AccountCode, AccountSalt,
+    field_to_hex, generate_claim_input, hex_to_field, u256_to_bytes32, AccountCode, AccountSalt,
     PaddedEmailAddr,
 };
 use serde::{Deserialize, Serialize};
@@ -48,7 +48,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     }
     if need_creation && !DB.contains_user(&claim.email_address).await.unwrap() {
         let account_code = AccountCode::new(rand::thread_rng());
-        let account_code_str = field2hex(&account_code.0);
+        let account_code_str = field_to_hex(&account_code.0);
         // let psi_point = compute_psi_point(
         //     CIRCUITS_DIR_PATH.get().unwrap(),
         //     &claim.email_address,
@@ -89,7 +89,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     if !is_seen && !is_account_created {
         return Ok(EmailWalletEvent::Invitation {
             email_addr: claim.email_address,
-            account_code: AccountCode(hex2field(&account_code_str)?),
+            account_code: AccountCode(hex_to_field(&account_code_str)?),
             is_first: false,
             tx_hash: "".to_string(),
         });
@@ -97,7 +97,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     } else if !is_account_created {
         return Err(anyhow!("Account not created"));
     }
-    let account_code = AccountCode(hex2field(&account_code_str)?);
+    let account_code = AccountCode(hex_to_field(&account_code_str)?);
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&claim.email_address);
     let account_salt = AccountSalt::new(&padded_email_addr, account_code)?;
     let now = now();
@@ -126,7 +126,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
     let input = generate_claim_input(
         &claim.email_address,
         &claim.random,
-        &field2hex(&account_code.0),
+        &field_to_hex(&account_code.0),
     )
     .await?;
     let (proof, pub_signals) =
@@ -171,7 +171,7 @@ async fn is_installed_extension(
 #[named]
 pub async fn void_unclaims(claim: Claim) -> Result<EmailWalletEvent> {
     let now = now();
-    let commit = hex2field(&claim.commit)?;
+    let commit = hex_to_field(&claim.commit)?;
     DB.delete_claim(&claim.id, claim.is_fund).await?;
     info!(LOG, "claim deleted id {}", claim.id; "func" => function_name!());
     let (reply_msg, sender, tx_hash) = if claim.is_fund {

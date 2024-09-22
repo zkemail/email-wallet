@@ -28,7 +28,7 @@ use anyhow::{anyhow, bail, Result};
 use dotenv::dotenv;
 use ethers::prelude::*;
 use lazy_static::lazy_static;
-use relayer_utils::{converters::*, cryptos::*, Fr, LOG};
+use relayer_utils::{converters::*, cryptos::*, LOG};
 use slog::{error, info, trace};
 use std::env;
 use std::path::PathBuf;
@@ -153,7 +153,7 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
         .unwrap();
 
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
-    RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
+    RELAYER_RAND.set(field_to_hex(&relayer_rand.0)).unwrap();
 
     let safe_task = tokio::task::spawn(async move {
         loop {
@@ -192,10 +192,10 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 if event.email_addr.is_empty() {
                     return Ok(());
                 }
-                let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
+                let random = field_to_hex(&bytes32_to_fr(&u256_to_bytes32(
                     &event.commitment_randomness,
                 ))?);
-                let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
+                let commit = field_to_hex(&bytes32_to_fr(&event.email_addr_commit)?);
                 let claim = Claim {
                     tx_hash: meta.transaction_hash.to_string(),
                     id: event.id,
@@ -224,10 +224,10 @@ pub async fn run(config: RelayerConfig) -> Result<()> {
                 if event.email_addr.is_empty() {
                     return Ok(());
                 }
-                let random = field2hex(&bytes32_to_fr(&u256_to_bytes32(
+                let random = field_to_hex(&bytes32_to_fr(&u256_to_bytes32(
                     &event.commitment_randomness,
                 ))?);
-                let commit = field2hex(&bytes32_to_fr(&event.email_addr_commit)?);
+                let commit = field_to_hex(&bytes32_to_fr(&event.email_addr_commit)?);
                 let claim = Claim {
                     tx_hash: meta.transaction_hash.to_string(),
                     id: event.id,

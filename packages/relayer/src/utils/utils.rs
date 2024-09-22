@@ -11,6 +11,7 @@ use relayer_utils::*;
 use serde_json::Value;
 
 use ::serde::Deserialize;
+use poseidon_rs::Fr;
 
 use std::path::Path;
 

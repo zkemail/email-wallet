@@ -442,7 +442,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
-        assertEq(string(reason), "target cannot be wallet", "invalid reason");
+        assertEq(string(reason), "invalid target for executeAsExtension", "invalid reason");
     }
 
     function test_RevertIf_ExecuteAsExtension_TargetIsToken() public {
@@ -461,7 +461,7 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertTrue(!success, "handleEmailOp should have failed");
-        assertEq(string(reason), "target cannot be a token", "invalid reason");
+        assertEq(string(reason), "invalid target for executeAsExtension", "invalid reason");
     }
 
     // Testing extension cannot execute when not part of an emailOp
