@@ -38,7 +38,7 @@ contract UniswapExtension is Extension, Initializable, UUPSUpgradeable, OwnableU
     }
 
     function initialize(address coreAddr, address _tokenReg, address _router, address _factory) initializer public {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         core = EmailWalletCore(payable(coreAddr));
         tokenRegistry = TokenRegistry(_tokenReg);
         router = ISwapRouter(_router);

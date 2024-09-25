@@ -91,7 +91,7 @@ contract EmailWalletCoreTestHelper is Test {
             tokenRegistry = TokenRegistry(payable(address(proxy)));
         }
 
-        dkimRegistry = new DKIMRegistry();
+        dkimRegistry = new DKIMRegistry(deployer);
         priceOracle = new TestOracle();
         weth = new WETH9();
 
@@ -168,18 +168,20 @@ contract EmailWalletCoreTestHelper is Test {
                 abi.encodeCall(
                     coreImpl.initialize,
                     (
-                        address(relayerHandler),
-                        address(accountHandler),
-                        address(unclaimsHandler),
-                        address(extensionHandler),
-                        address(verifier),
-                        address(tokenRegistry),
-                        address(priceOracle),
-                        address(weth),
-                        maxFeePerGas,
-                        emailValidityDuration,
-                        unclaimedFundClaimGas,
-                        unclaimedStateClaimGas
+                        InitParams({
+                            relayerHandler: address(relayerHandler),
+                            accountHandler: address(accountHandler),
+                            unclaimsHandler: address(unclaimsHandler),
+                            extensionHandler: address(extensionHandler),
+                            verifier: address(verifier),
+                            tokenRegistry: address(tokenRegistry),
+                            priceOracle: address(priceOracle),
+                            wethContract: address(weth),
+                            maxFeePerGas: maxFeePerGas,
+                            emailValidityDuration: emailValidityDuration,
+                            unclaimedFundClaimGas: unclaimedFundClaimGas,
+                            unclaimedStateClaimGas: unclaimedStateClaimGas
+                        })
                     )
                 )
             );

@@ -6,7 +6,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IDKIMRegistry} from "@zk-email/contracts/interfaces/IDKIMRegistry.sol";
-import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
+import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Wallet} from "../Wallet.sol";
 import {RelayerHandler} from "./RelayerHandler.sol";
@@ -58,7 +58,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         address _walletImplementation,
         uint _emailValidityDuration
     ) public initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         deployer = _msgSender();
         emailValidityDuration = _emailValidityDuration;
         defaultDkimRegistry = IDKIMRegistry(_defaultDkimRegistry);
@@ -85,7 +85,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param emailProof Proof and instances of the email proof
     function createAccount(EmailProof calldata emailProof) public returns (Wallet wallet) {
         require(emailProof.accountSalt != bytes32(0), "invalid wallet salt");
-        require(Address.isContract(getWalletOfSalt(emailProof.accountSalt)) == false, "wallet already deployed");
+        require(address(getWalletOfSalt(emailProof.accountSalt)).code.length == 0, "wallet already deployed");
         require(emailNullifiers[emailProof.emailNullifier] == false, "email already nullified");
         require(
             isDKIMPublicKeyHashValid(emailProof.accountSalt, emailProof.emailDomain, emailProof.dkimPublicKeyHash),
@@ -111,7 +111,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Return true iff the wallet is deployed for the given wallet salt
     /// @param accountSalt Salt used to deploy the wallet
     function isAccountSaltDeployed(bytes32 accountSalt) public view returns (bool) {
-        return Address.isContract(getWalletOfSalt(accountSalt));
+        return address(getWalletOfSalt(accountSalt)).code.length > 0;
     }
 
     /// @notice Return the DKIM public key hash for a given email domain and accountSalt
@@ -142,7 +142,7 @@ contract AccountHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @param salt Salt used to deploy the wallet
     function getWalletOfSalt(bytes32 salt) public view returns (address) {
         return
-            Create2Upgradeable.computeAddress(
+            Create2.computeAddress(
                 salt,
                 keccak256(
                     abi.encodePacked(

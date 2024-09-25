@@ -438,6 +438,6 @@ contract UniswapExtensionCommandTest is EmailWalletCoreTestHelper {
     function testUpgradeability() public {
         UniswapExtension implV2 = new UniswapExtension();
 
-        uniExtension.upgradeTo(address(implV2));
+        uniExtension.upgradeToAndCall(address(implV2), new bytes(0));
     }
 }

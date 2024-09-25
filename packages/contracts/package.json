@@ -8,8 +8,8 @@
     "lint": "solhint 'src/**/*.sol'"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.2",
-    "@openzeppelin/contracts-upgradeable": "^4.9.2",
+    "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.0",
     "@safe-global/safe-contracts": "1.4.1",
     "@uniswap/v3-core": "https://github.com/Uniswap/v3-core#0.8",
     "@uniswap/v3-periphery": "https://github.com/Uniswap/v3-periphery.git",

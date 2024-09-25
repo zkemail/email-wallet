@@ -14,7 +14,7 @@ contract Deploy is Script {
         }
 
         vm.startBroadcast(deployerPrivateKey);
-        DKIMRegistry dkim = new DKIMRegistry();
+        DKIMRegistry dkim = new DKIMRegistry(msg.sender);
         vm.stopBroadcast();
 
         console.log("DKIMRegistry deployed at: %s", address(dkim));

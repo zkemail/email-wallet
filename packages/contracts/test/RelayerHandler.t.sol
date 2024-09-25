@@ -84,7 +84,7 @@ contract RelayerTest is EmailWalletCoreTestHelper {
         RelayerHandler implV2 = new RelayerHandler();
 
         vm.startPrank(deployer);
-        relayerHandler.upgradeTo(address(implV2));
+        relayerHandler.upgradeToAndCall(address(implV2), new bytes(0));
         vm.stopPrank();
     }
 }

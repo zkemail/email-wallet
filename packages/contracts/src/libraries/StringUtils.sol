@@ -75,7 +75,7 @@ library StringUtils {
      * @dev Converts a `int256` to its ASCII `string` decimal representation.
      */
     function toString(int256 value) internal pure returns (string memory) {
-        return Strings.toString(value);
+        return Strings.toStringSigned(value);
     }
 
     /**

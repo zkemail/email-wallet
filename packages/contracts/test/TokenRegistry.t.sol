@@ -28,7 +28,7 @@ contract TokenRegistryTest is Test {
 
     function testUpgradeability() public {
         TokenRegistryV2 tokenRegistryV2Impl = new TokenRegistryV2();
-        tokenRegistry.upgradeTo(address(tokenRegistryV2Impl));
+        tokenRegistry.upgradeToAndCall(address(tokenRegistryV2Impl), new bytes(0));
         
         tokenRegistryV2 = TokenRegistryV2(address(proxy));
         address usdc = tokenRegistry.getTokenAddress(0, "USDC");

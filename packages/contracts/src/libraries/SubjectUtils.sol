@@ -135,7 +135,7 @@ library SubjectUtils {
             (address target, , bytes memory data) = abi.decode(emailOp.executeCallData, (address, uint256, bytes));
 
             require(target != address(0), "invalid execute target");
-            require(Address.isContract(target), "target is not a contract");
+            require(address(target).code.length > 0, "target is not a contract");
 
             require(
                 target != address(core) &&
@@ -249,7 +249,7 @@ library SubjectUtils {
                 // {int} for negative values
                 else if (Strings.equal(matcher, Commands.INT_TEMPLATE)) {
                     int256 num = abi.decode(emailOp.extensionParams.subjectParams[nextParamIndex], (int256));
-                    value = Strings.toString(num);
+                    value = Strings.toStringSigned(num);
                     nextParamIndex++;
                 }
                 // {addres} for wallet address

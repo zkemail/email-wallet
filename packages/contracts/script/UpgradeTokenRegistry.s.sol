@@ -27,7 +27,7 @@ contract Upgrade is Script {
         TokenRegistry tokenRegistryImpl = new TokenRegistry();
 
         TokenRegistry tokenRegistryProxy = TokenRegistry(payable(address(tokenRegistry)));
-        tokenRegistryProxy.upgradeTo(address(tokenRegistryImpl));
+        tokenRegistryProxy.upgradeToAndCall(address(tokenRegistryImpl), new bytes(0));
 
         // If you want to call some v2 function, refer to the following steps
         //

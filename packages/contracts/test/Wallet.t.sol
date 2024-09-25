@@ -2,7 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
+import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Wallet} from "../src/Wallet.sol";
 import {WETH9} from "./helpers/WETH9.sol";
@@ -39,7 +39,7 @@ contract WalletTest is Test {
 
     function _getWalletOfSalt(bytes32 salt) internal view returns (address) {
         return
-            Create2Upgradeable.computeAddress(
+            Create2.computeAddress(
                 salt,
                 keccak256(
                     abi.encodePacked(
@@ -98,7 +98,7 @@ contract WalletTest is Test {
         Wallet wallet = _deployWallet(salt);
 
         TestWallet newImplementation = new TestWallet(address(weth));
-        wallet.upgradeTo(address(newImplementation)); // Upgrade to new test implementation
+        wallet.upgradeToAndCall(address(newImplementation), new bytes(0)); // Upgrade to new test implementation
 
         TestWallet wallet2 = TestWallet(payable(address(wallet)));
         assertEq(wallet2.getName(), "Test"); // Test function from new implementation

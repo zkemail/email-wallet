@@ -26,7 +26,7 @@ contract TokenRegistry is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     function initialize() initializer public {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         chainIdOfName["mainnet"] = 0;
         chainIdOfName["optimism"] = 10;
         chainIdOfName["arbitrum"] = 42161;

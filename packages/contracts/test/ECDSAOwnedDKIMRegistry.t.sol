@@ -26,7 +26,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
     function test_SetDKIMPublicKeyHash() public {
         // vm.chainId(1);
         string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
@@ -36,7 +36,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
     function test_SetDKIMPublicKeyHashMultiDomain() public {
         // vm.chainId(1);
         string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
@@ -46,7 +46,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
         domainName = "example2.com";
         publicKeyHash = bytes32(uint256(2));
         signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        digest = bytes(signedMsg).toEthSignedMessageHash();
+        digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (v, r, s) = vm.sign(1, digest);
         signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
@@ -56,7 +56,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
     function test_RevokeDKIMPublicKeyHash() public {
         // vm.chainId(1);
         string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
@@ -68,7 +68,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
             domainName,
             publicKeyHash
         );
-        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, bytes(revokeMsg).toEthSignedMessageHash());
+        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, MessageHashUtils.toEthSignedMessageHash(bytes(revokeMsg)));
         bytes memory revokeSig = abi.encodePacked(r1, s1, v1);
         registry.revokeDKIMPublicKeyHash(selector, domainName, publicKeyHash, revokeSig);
 
@@ -78,7 +78,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
     function test_RevertIfDuplicated() public {
         // vm.chainId(1);
         string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
@@ -93,7 +93,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
     function test_RevertIfRevorked() public {
         // vm.chainId(1);
         string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         registry.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature);
@@ -106,7 +106,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
             domainName,
             publicKeyHash
         );
-        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, bytes(revokeMsg).toEthSignedMessageHash());
+        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(1, MessageHashUtils.toEthSignedMessageHash(bytes(revokeMsg)));
         bytes memory revokeSig = abi.encodePacked(r1, s1, v1);
         registry.revokeDKIMPublicKeyHash(selector, domainName, publicKeyHash, revokeSig);
         require(!registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash));
@@ -121,7 +121,7 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
     function test_RevertIfSignatureInvalid() public {
         // vm.chainId(1);
         string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), selector, domainName, publicKeyHash);
-        bytes32 digest = bytes(signedMsg).toEthSignedMessageHash();
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectRevert("Invalid signature");
@@ -140,7 +140,8 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
 
     function test_Dfinity_Oracle_Response() public {
         // vm.chainId(1);
-        registry = new ECDSAOwnedDKIMRegistry(0x69Bec2Dd161d6Bbcc91ec32AA44D9333EBc864c0);
+        vm.startPrank(vm.addr(9));
+        registry = new ECDSAOwnedDKIMRegistry(vm.addr(9));
         selector = "20230601";
         domainName = "gmail.com";
         publicKeyHash = 0x0ea9c777dc7110e5a9e89b13f0cfc540e3845ba120b2b6dc24024d61488d4788;
@@ -149,9 +150,10 @@ contract ECDSAOwnedDKIMRegistryTest is Test {
             domainName,
             publicKeyHash,
             vm.parseBytes(
-                "0xe5fb9c45bd6468877e8ec7e04063b03e8ac89206354060e757b15d6269f7754e6c515b5825fbb6be4e939f92d1ad62dc7f548607fe4349033ed51f8da8a18c4c1c"
+                "0xc6d01bb1b4072405ddf68ffee128d9ff246538c532fea04a35df4b6337581310570cfd0f5d9c1f3f3ccba813c318090ec53ce24d85b60c6953e9457a8012425f1b"
             )
         );
         require(registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash), "Invalid public key hash");
+        vm.stopPrank();
     }
 }

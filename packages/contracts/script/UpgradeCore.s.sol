@@ -27,7 +27,7 @@ contract Upgrade is Script {
         EmailWalletCore coreImpl = new EmailWalletCore();
 
         EmailWalletCore coreProxy = EmailWalletCore(payable(core));
-        coreProxy.upgradeTo(address(coreImpl));
+        coreProxy.upgradeToAndCall(address(coreImpl), new bytes(0));
 
         // If you want to call some v2 function, refer to the following steps
         //
