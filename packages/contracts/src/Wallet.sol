@@ -45,7 +45,7 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
 
     /// @notice Initialize the contract
     function initialize() public initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
     }
 
     /// @notice Execute a function on an external contract

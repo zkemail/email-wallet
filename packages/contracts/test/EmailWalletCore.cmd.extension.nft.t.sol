@@ -492,6 +492,6 @@ contract ExtensionCommandTest is EmailWalletCoreTestHelper {
     function testUpgradeability() public {
         NFTExtension implV2 = new NFTExtension();
 
-        nftExtension.upgradeTo(address(implV2));
+        nftExtension.upgradeToAndCall(address(implV2), new bytes(0));
     }
 }

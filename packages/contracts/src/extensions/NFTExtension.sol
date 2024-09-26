@@ -30,7 +30,7 @@ contract NFTExtension is Extension, IERC721Receiver, Initializable, UUPSUpgradea
     }
 
     function initialize(address coreAddr) initializer public {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         core = EmailWalletCore(payable(coreAddr));
         templates = new string[][](2);
         templates[0] = ["NFT", "Send", "{uint}", "of", "{string}", "to", "{recipient}"];

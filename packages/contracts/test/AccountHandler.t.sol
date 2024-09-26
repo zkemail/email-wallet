@@ -539,7 +539,7 @@ contract AccountTest is EmailWalletCoreTestHelper {
         AccountHandler implV2 = new AccountHandler();
 
         vm.startPrank(deployer);
-        accountHandler.upgradeTo(address(implV2));
+        accountHandler.upgradeToAndCall(address(implV2), new bytes(0));
         vm.stopPrank();
     }
 }

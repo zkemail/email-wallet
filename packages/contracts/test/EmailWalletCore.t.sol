@@ -15,7 +15,7 @@ contract EmailWalletCoreTest is EmailWalletCoreTestHelper {
         EmailWalletCore implV2 = new EmailWalletCore();
 
         vm.startPrank(deployer);
-        core.upgradeTo(address(implV2));
+        core.upgradeToAndCall(address(implV2), new bytes(0));
         vm.stopPrank();
     }
 }

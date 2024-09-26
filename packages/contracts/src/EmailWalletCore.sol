@@ -5,7 +5,6 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {Create2Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/Create2Upgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -27,6 +26,35 @@ import "./interfaces/Types.sol";
 import "./interfaces/Commands.sol";
 import "./interfaces/Events.sol";
 
+/// @notice Struct to store initialization parameters
+/// @dev This struct is used to initialize the EmailWalletCore contract
+/// @param _relayerHandler Address of the relayer handler contract
+/// @param _accountHandler Address of the account handler contract
+/// @param _unclaimsHandler Address of the unclaims handler contract
+/// @param _extensionHandler Address of the extension handler contract
+/// @param _verifier Address of the ZK proof verifier
+/// @param _tokenRegistry Address of the token registry contract
+/// @param _priceOracle Address of the price oracle contract
+/// @param _wethContract Address of the WETH contract
+/// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
+/// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
+/// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
+/// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
+
+struct InitParams {
+    address relayerHandler;
+    address accountHandler;
+    address unclaimsHandler;
+    address extensionHandler;
+    address verifier;
+    address tokenRegistry;
+    address priceOracle;
+    address wethContract;
+    uint256 maxFeePerGas;
+    uint256 emailValidityDuration;
+    uint256 unclaimedFundClaimGas;
+    uint256 unclaimedStateClaimGas;
+}
 contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
     // ZK proof verifier
@@ -77,45 +105,24 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     /// @notice Constructor
-    /// @param _relayerHandler Address of the relayer handler contract
-    /// @param _accountHandler Address of the account handler contract
-    /// @param _unclaimsHandler Address of the unclaims handler contract
-    /// @param _extensionHandler Address of the extension handler contract
-    /// @param _verifier Address of the ZK proof verifier
-    /// @param _tokenRegistry Address of the token registry contract
-    /// @param _priceOracle Address of the price oracle contract
-    /// @param _wethContract Address of the WETH contract
-    /// @param _maxFeePerGas Max fee per gas in wei that relayer can set in a UserOp
-    /// @param _emailValidityDuration Time period until which a email is valid for EmailOp based on the timestamp of the email signature
-    /// @param _unclaimedFundClaimGas Gas required to claim unclaimed funds
-    /// @param _unclaimedStateClaimGas Gas required to claim unclaimed state
+    /// @param initParams Initialization parameters
+    /// @dev This function is called by the proxy contract during deployment
     function initialize(
-        address _relayerHandler,
-        address _accountHandler,
-        address _unclaimsHandler,
-        address _extensionHandler,
-        address _verifier,
-        address _tokenRegistry,
-        address _priceOracle,
-        address _wethContract,
-        uint256 _maxFeePerGas,
-        uint256 _emailValidityDuration,
-        uint256 _unclaimedFundClaimGas,
-        uint256 _unclaimedStateClaimGas
+        InitParams memory initParams
     ) public initializer {
-        __Ownable_init();
-        relayerHandler = RelayerHandler(_relayerHandler);
-        accountHandler = AccountHandler(_accountHandler);
-        unclaimsHandler = UnclaimsHandler(payable(_unclaimsHandler));
-        extensionHandler = ExtensionHandler(_extensionHandler);
-        verifier = IVerifier(_verifier);
-        tokenRegistry = TokenRegistry(_tokenRegistry);
-        priceOracle = IPriceOracle(_priceOracle);
-        wethContract = _wethContract;
-        maxFeePerGas = _maxFeePerGas;
-        emailValidityDuration = _emailValidityDuration;
-        unclaimedFundClaimGas = _unclaimedFundClaimGas;
-        unclaimedStateClaimGas = _unclaimedStateClaimGas;
+        __Ownable_init(msg.sender);
+        relayerHandler = RelayerHandler(initParams.relayerHandler);
+        accountHandler = AccountHandler(initParams.accountHandler);
+        unclaimsHandler = UnclaimsHandler(payable(initParams.unclaimsHandler));
+        extensionHandler = ExtensionHandler(initParams.extensionHandler);
+        verifier = IVerifier(initParams.verifier);
+        tokenRegistry = TokenRegistry(initParams.tokenRegistry);
+        priceOracle = IPriceOracle(initParams.priceOracle);
+        wethContract = initParams.wethContract;
+        maxFeePerGas = initParams.maxFeePerGas;
+        emailValidityDuration = initParams.emailValidityDuration;
+        unclaimedFundClaimGas = initParams.unclaimedFundClaimGas;
+        unclaimedStateClaimGas = initParams.unclaimedStateClaimGas;
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -374,7 +381,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
         // Prevent extension from calling ERC20 tokens directly (tokenName should be empty)
         require(
-            Address.isContract(target) &&
+            address(target).code.length > 0 &&
                 target != currContext.walletAddr &&
                 bytes(tokenRegistry.getTokenNameOfAddress(target)).length == 0,
             "invalid target for executeAsExtension"
@@ -547,9 +554,15 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             } catch Error(string memory reason) {
                 success = false;
                 returnData = bytes(reason);
-            } catch {
-                success = false;
-                returnData = bytes("err executing extension");
+            } catch (bytes memory lowLevelData) {
+                bytes4 selector;
+                assembly {
+                    selector := mload(add(lowLevelData, 0x20))
+                }
+                if (selector == bytes4(keccak256("ERC721NonexistentToken(uint256)"))) {
+                    return (false, bytes("ERC721NonexistentToken"));
+                }
+                return (false, bytes("err executing extension"));
             }
         }
     }
@@ -576,7 +589,14 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
             success = true;
         } catch Error(string memory reason) {
             return (false, bytes(reason));
-        } catch {
+        } catch (bytes memory lowLevelData) {
+            bytes4 selector;
+            assembly {
+                selector := mload(add(lowLevelData, 0x20))
+            }
+            if (selector == bytes4(keccak256("ERC20InsufficientBalance(address,uint256,uint256)"))) {
+                return (false, bytes("ERC20InsufficientBalance"));
+            }
             return (false, bytes("err unknown wallet exec"));
         }
     }

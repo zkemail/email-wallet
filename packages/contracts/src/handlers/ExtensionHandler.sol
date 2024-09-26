@@ -43,7 +43,7 @@ contract ExtensionHandler is Initializable, UUPSUpgradeable, OwnableUpgradeable 
     }
 
     function initialize() initializer public {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         deployer = _msgSender();
     }
 

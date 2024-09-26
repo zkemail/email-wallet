@@ -357,7 +357,7 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
         emailOp.feePerGas = maxFeePerGas;
 
         vm.startPrank(relayer);
-        vm.expectRevert("fee reimbursement failed: ERC20: transfer amount exceeds balance");
+        vm.expectRevert("fee reimbursement failed: ERC20InsufficientBalance");
         core.handleEmailOp(emailOp);
         vm.stopPrank();
     }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.12;
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/Types.sol";
@@ -76,7 +76,7 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
         uint256 _unclaimsExpiryDuration,
         uint256 _maxFeePerGas
     ) public initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         deployer = _msgSender();
         relayerHandler = RelayerHandler(_relayerHandler);
         accountHandler = AccountHandler(_accountHandler);
@@ -294,7 +294,16 @@ contract UnclaimsHandler is ReentrancyGuard, Initializable, UUPSUpgradeable, Own
 
         try extension.registerUnclaimedState(us, false) {} catch Error(string memory reason) {
             revert(string.concat("unclaimed state reg err: ", reason));
-        } catch {
+        } catch (bytes memory lowLevelData) {
+            // Handle specific ERC721NonexistentToken error
+            bytes4 selector;
+            assembly {
+                selector := mload(add(lowLevelData, 0x20))
+            }
+            if (selector == bytes4(keccak256("ERC721NonexistentToken(uint256)"))) {
+                revert(string(abi.encodePacked("unclaimed state reg err: ERC721NonexistentToken()")));
+            }
+            // Handle other low-level errors
             revert("unclaimed state reg err");
         }
 

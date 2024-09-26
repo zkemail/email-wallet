@@ -1,4 +1,5 @@
 @openzeppelin/=../../node_modules/@openzeppelin
+@openzeppelin/contracts-upgradeable/=../../node_modules/@openzeppelin/contracts-upgradeable
 @zk-email/=../../node_modules/@zk-email
 @uniswap/=../../node_modules/@uniswap
 forge-std/=../../node_modules/forge-std/src

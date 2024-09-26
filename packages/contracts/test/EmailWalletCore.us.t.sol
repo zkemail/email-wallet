@@ -197,7 +197,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.stopPrank();
 
         assertEq(success, false, "handleEmailOp should fail");
-        assertEq(string(reason), "ERC721: invalid token ID", "reason mismatch");
+        assertEq(string(reason), "ERC721NonexistentToken", "reason mismatch");
     }
 
     function test_RevertIf_RegisterUnclaimedState_NotEnoughFee() public {
@@ -428,7 +428,7 @@ contract UnclaimedStateTest is EmailWalletCoreTestHelper {
         vm.deal(sender, unclaimedStateClaimGas * maxFeePerGas);
 
         vm.startPrank(sender);
-        vm.expectRevert("unclaimed state reg err: ERC721: invalid token ID");
+        vm.expectRevert("unclaimed state reg err: ERC721NonexistentToken()");
         unclaimsHandler.registerUnclaimedState{value: unclaimedStateClaimGas * maxFeePerGas}(
             recipientEmailAddrCommit,
             address(nftExtension),

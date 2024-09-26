@@ -157,3 +157,12 @@ mdbook serve
 <br />
 
 ☆ Built using [zk-email](https://github.com/zkemail/zk-email-verify) ☆
+
+NOTE:
+
+If you get an error with `yarn install`, try to install python-setuptools
+
+```
+# For macOS
+brew install python-setuptools
+```

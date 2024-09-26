@@ -7,7 +7,7 @@ import "forge-std/Script.sol";
 contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     constructor()
         ERC721("MyToken", "MTK")
-        Ownable()
+        Ownable(msg.sender)
     {}
 
     function safeMint(address to, uint256 tokenId, string memory uri)
@@ -36,10 +36,6 @@ contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-        super._burn(tokenId);
     }
 }
 

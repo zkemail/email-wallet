@@ -13,7 +13,7 @@ contract UnclaimsTest is EmailWalletCoreTestHelper {
         UnclaimsHandler implV2 = new UnclaimsHandler();
 
         vm.startPrank(deployer);
-        unclaimsHandler.upgradeTo(address(implV2));
+        unclaimsHandler.upgradeToAndCall(address(implV2), new bytes(0));
         vm.stopPrank();
     }
 }
