@@ -266,7 +266,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -359,7 +359,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -405,7 +405,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -444,7 +444,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         test_Oauth_DAIApprove();
 
         vm.startPrank(relayer);
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(walletAddr, epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -597,7 +597,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -672,7 +672,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -727,7 +727,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -789,7 +789,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -879,7 +879,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -927,7 +927,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -983,7 +983,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -1040,7 +1040,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -1103,7 +1103,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
@@ -1188,7 +1188,7 @@ contract OauthExtensionCommandTest is EmailWalletCoreTestHelper {
         vm.startPrank(relayer);
         _signUp(username);
         console.log("wallet of username", oauthCore.walletOfUsername(username));
-        _registerEpheAddr(ephePrivKey, username, epheAddr);
+        _registerEpheAddr(oauthCore.walletOfUsername(username), epheAddr);
         EmailOp memory emailOp = _getBaseEmailOp();
         emailOp.command = "Sign-in";
         uint nonce = oauthCore.nextNonceOfWallet(walletAddr) - 1;
