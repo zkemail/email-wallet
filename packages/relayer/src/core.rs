@@ -16,7 +16,7 @@ const SUBJECT_FIELDS: usize = 20;
 const EMAIL_ADDR_FIELDS: usize = 9;
 
 #[named]
-pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
+pub async fn handle_email(email: String) -> Result<(EmailWalletEvent, bool)> {
     let parsed_email = ParsedEmail::new_from_raw_email(&email).await?;
     trace!(LOG, "email: {}", email; "func" => function_name!());
     let from_addr = parsed_email.get_from_addr()?;
@@ -93,11 +93,24 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
                     Err(e) => error!(LOG, "Error claiming: {}", e; "func" => function_name!()),
                 }
             }
-            return Ok(EmailWalletEvent::AccountCreated {
-                email_addr: from_addr,
-                account_code: account_code,
-                tx_hash: res,
-            });
+            let original_subject = parsed_email.get_subject_all()?;
+            trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
+            let code_masked_subject = get_code_masked_subject(&original_subject)?;
+            trace!(LOG, "Code Masked Subject: {}", code_masked_subject; "func" => function_name!());
+            let is_replay = subject_templates::extract_command_from_subject(
+                &code_masked_subject,
+                &account_salt,
+            )
+            .await
+            .is_ok();
+            return Ok((
+                EmailWalletEvent::AccountCreated {
+                    email_addr: from_addr,
+                    account_code: account_code,
+                    tx_hash: res,
+                },
+                is_replay,
+            ));
         }
     }
     trace!(LOG, "Process as a normal email"; "func" => function_name!());
@@ -119,9 +132,12 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     info!(LOG, "Sender wallet address: {}", wallet_addr; "func" => function_name!());
     let original_subject = parsed_email.get_subject_all()?;
     trace!(LOG, "Original Subject: {}", original_subject; "func" => function_name!());
+    let code_masked_subject = get_code_masked_subject(&original_subject)?;
+    trace!(LOG, "Code Masked Subject: {}", code_masked_subject; "func" => function_name!());
     let (command, skip_subject_prefix) =
-        subject_templates::extract_command_from_subject(&original_subject, &account_salt).await?;
-    let subject = original_subject[skip_subject_prefix..].to_string();
+        subject_templates::extract_command_from_subject(&code_masked_subject, &account_salt)
+            .await?;
+    let subject = code_masked_subject[skip_subject_prefix..].to_string();
     trace!(LOG, "Command: {}", command; "func" => function_name!());
     trace!(LOG, "Skip Subject Prefix: {}", skip_subject_prefix; "func" => function_name!());
     trace!(LOG, "Prefix Skipped Subject: {}", subject; "func" => function_name!());
@@ -291,7 +307,8 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
         u256_to_bytes32(&pub_signals[SUBJECT_FIELDS + DOMAIN_FIELDS + 5]);
     let email_nullifier = u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]);
     let timestamp = pub_signals[DOMAIN_FIELDS + 2];
-    let (masked_subject, num_recipient_email_addr_bytes) = get_masked_subject(&original_subject)?;
+    let (masked_subject, num_recipient_email_addr_bytes) =
+        get_email_addr_masked_subject(&code_masked_subject)?;
     info!(LOG, "masked_subject {}", masked_subject; "func" => function_name!());
     info!(
         LOG,
@@ -366,19 +383,53 @@ pub async fn handle_email(email: String) -> Result<EmailWalletEvent> {
     }
     let message_id = parsed_email.get_message_id()?;
 
-    Ok(EmailWalletEvent::EmailHandled {
-        sender_email_addr: from_addr,
-        account_code: account_code,
-        recipient_email_addr: recipient_email_addr,
-        original_subject: original_subject,
-        message_id,
-        email_op: email_op,
-        tx_hash,
-    })
+    Ok((
+        EmailWalletEvent::EmailHandled {
+            sender_email_addr: from_addr,
+            account_code: account_code,
+            recipient_email_addr: recipient_email_addr,
+            original_subject: original_subject,
+            message_id,
+            email_op: email_op,
+            tx_hash,
+        },
+        false,
+    ))
 }
 
 #[named]
-pub fn get_masked_subject(subject: &str) -> Result<(String, usize)> {
+pub fn get_code_masked_subject(subject: &str) -> Result<String> {
+    match extract_substr_idxes(
+        subject,
+        &serde_json::from_str::<DecomposedRegexConfig>(include_str!(
+            "./invitation_code_with_prefix.json"
+        ))?,
+    ) {
+        Ok(extracts) => {
+            if extracts.len() != 1 {
+                return Err(anyhow!(
+                    "Invitation code in the subject must appear only once."
+                ));
+            }
+            let (start, end) = extracts[0];
+            info!(LOG, "start: {}, end: {}", start, end; "func" => function_name!());
+            if end == subject.len() {
+                Ok(subject[0..start].to_string())
+            } else {
+                let mut masked_subject_bytes = subject.as_bytes().to_vec();
+                masked_subject_bytes[start..end].copy_from_slice(vec![0u8; end - start].as_ref());
+                Ok(String::from_utf8(masked_subject_bytes)?)
+            }
+        }
+        Err(err) => {
+            info!(LOG, "Invitation code not found in the subject: {}", err; "func" => function_name!());
+            Ok(subject.to_string())
+        }
+    }
+}
+
+#[named]
+pub fn get_email_addr_masked_subject(subject: &str) -> Result<(String, usize)> {
     match extract_email_addr_idxes(subject) {
         Ok(extracts) => {
             if extracts.len() != 1 {

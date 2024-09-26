@@ -39,6 +39,7 @@ contract Deploy is Script {
 
     ECDSAOwnedDKIMRegistry dkim;
 
+    OauthCore oauthCoreImpl;
     OauthCore oauthCore;
 
     Wallet walletImpl;
@@ -86,7 +87,7 @@ contract Deploy is Script {
     string[][] nftExtTemplates = new string[][](3);
     string[][] uniswapExtTemplates = new string[][](4);
     string[][] safeExtTemplates = new string[][](1);
-    string[][] oauthUpExtTemplates = new string[][](1);
+    string[][] oauthUpExtTemplates = new string[][](9);
     string[][] oauthInExtTemplates = new string[][](8);
 
     function run() external {
@@ -139,7 +140,12 @@ contract Deploy is Script {
 
         dkim = new ECDSAOwnedDKIMRegistry(signer);
 
-        oauthCore = new OauthCore();
+        {
+            oauthCoreImpl = new OauthCore();
+            bytes memory data = abi.encodeWithSelector(OauthCore(oauthCoreImpl).initialize.selector);
+            ERC1967Proxy proxy = new ERC1967Proxy(address(oauthCoreImpl), data);
+            oauthCore = OauthCore(payable(address(proxy)));
+        }
 
         walletImpl = new Wallet(address(weth), address(oauthCore));
 
@@ -298,6 +304,77 @@ contract Deploy is Script {
             oauthUpExt = OauthSignupExtension(payable(address(proxy)));
         }
         oauthUpExtTemplates[0] = ["Sign-up", "{string}"];
+        // (0,0) = 0
+        oauthUpExtTemplates[1] = ["Sign-up", "{string}", "on", "device", "{uint}"];
+        // (0,1) = 1
+        oauthUpExtTemplates[2] = ["Sign-up", "{string}", "on", "device", "{uint}", "for", "{tokenAmount}"];
+        // (0,2) = 2
+        oauthUpExtTemplates[3] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (0,3) = 3
+        oauthUpExtTemplates[4] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (1,0) = 4
+        oauthUpExtTemplates[5] = ["Sign-up", "{string}", "on", "device", "{uint}", "until", "timestamp", "{uint}"];
+        // (1,1) = 4 + 1 = 5
+        oauthUpExtTemplates[6] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}"
+        ];
+        // (1,2) = 4 + 2 = 6
+        oauthUpExtTemplates[7] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (1,3) = 4 + 3 = 7
+        oauthUpExtTemplates[8] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
         defaultExtensions[3] = abi.encode(
             "OauthSignupExtension",
             address(oauthUpExt),
@@ -401,6 +478,7 @@ contract Deploy is Script {
         console.log("AllVerifiers implementation deployed at: %s", address(verifierImpl));
         console.log("ECDSAOwnedDKIMRegistry deployed at: %s", address(dkim));
         console.log("Wallet implementation deployed at: %s", address(walletImpl));
+        console.log("Oauth core deployed at: %s", address(oauthCore));
         console.log("RelayerHandler proxy deployed at: %s", address(relayerHandler));
         console.log("RelayerHandler implementation deployed at: %s", address(relayerHandlerImpl));
         console.log("ExtensionHandler proxy deployed at: %s", address(extensionHandler));

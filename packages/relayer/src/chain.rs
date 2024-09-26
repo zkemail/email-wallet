@@ -754,21 +754,41 @@ impl ChainClient {
         self.client.get_block_number().await.unwrap()
     }
 
+    pub async fn get_username_from_wallet(&self, account_salt: &AccountSalt) -> Result<String> {
+        let is_deployed = self
+            .account_handler
+            .is_account_salt_deployed(fr_to_bytes32(&account_salt.0)?)
+            .call()
+            .await?;
+        trace!(LOG, "is_deployed: {}", is_deployed);
+        if !is_deployed {
+            return Ok::<_, anyhow::Error>(String::new());
+        }
+        let wallet_addr = self
+            .account_handler
+            .get_wallet_of_salt(fr_to_bytes32(&account_salt.0)?)
+            .call()
+            .await?;
+        let wallet = WalletContract::new(wallet_addr, self.client.clone());
+        let ioauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
+        let username = ioauth.get_username_of_wallet(wallet_addr).await?;
+        Ok(username)
+    }
+
     #[named]
     pub async fn register_ephe_addr_for_wallet(
         &self,
         wallet_addr: Address,
-        username: String,
         ephe_addr: Address,
-        signature: Bytes,
     ) -> Result<(String, U256)> {
         // Mutex is used to prevent nonce conflicts.
         let mut mutex = SHARED_MUTEX.lock().await;
         *mutex += 1;
 
-        let wallet = WalletContract::new(wallet_addr, self.client.clone());
+        let wallet_impl = self.account_handler.wallet_implementation().await?;
+        let wallet = WalletContract::new(wallet_impl, self.client.clone());
         let oauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
-        let call = oauth.register_ephe_addr(username, ephe_addr, signature);
+        let call = oauth.register_ephe_addr(wallet_addr, ephe_addr);
         let tx = call.send().await?;
 
         let receipt = tx
@@ -794,6 +814,27 @@ impl ChainClient {
             }
         }
         Err(anyhow!("no EmailOpHandled event found in the receipt"))
+    }
+
+    pub async fn validate_ephe_addr(
+        &self,
+        wallet_addr: Address,
+        ephe_addr: Address,
+        nonce: U256,
+    ) -> Result<()> {
+        let wallet_impl = self.account_handler.wallet_implementation().await?;
+        let wallet = WalletContract::new(wallet_impl, self.client.clone());
+        let oauth = IOauth::new(wallet.get_oauth().await?, self.client.clone());
+        trace!(LOG, "wallet_addr {}", wallet_addr);
+        // trace!(
+        //     LOG,
+        //     "nextNonceOfWallet {}",
+        //     oauth.next_nonce_of_wallet(wallet_addr).await?
+        // );
+        trace!(LOG, "nonce {}", nonce);
+        let call = oauth.validate_ephe_addr(wallet_addr, ephe_addr, nonce);
+        call.call().await?;
+        Ok(())
     }
 
     pub async fn execute_ephemeral_tx(&self, tx: EphemeralTx) -> Result<String> {

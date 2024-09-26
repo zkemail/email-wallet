@@ -53,6 +53,13 @@ pub async fn run_server() -> Result<()> {
     let addr = WEB_SERVER_ADDRESS.get().unwrap();
     let mut app = Router::new()
         .route(
+            "/api/relayerEmailAddr",
+            axum::routing::get(move || async move {
+                let email_addr = RELAYER_EMAIL_ADDRESS.get().unwrap();
+                email_addr.clone()
+            }),
+        )
+        .route(
             "/api/emailAddrCommit",
             axum::routing::post(move |payload: String| async move {
                 info!(LOG, "/emailAddrCommit Received payload: {}", payload; "func" => function_name!());
@@ -173,6 +180,21 @@ pub async fn run_server() -> Result<()> {
             }),
         )
         .route(
+            "/api/genAccountCode",
+            axum::routing::get::<_, _, (), _>(move || async move {
+                match gen_account_code_api_fn().await {
+                    Ok(code) => {
+                        info!(LOG, "Generated account code: {}", code);
+                        code
+                    }
+                    Err(err) => {
+                        error!(LOG, "Failed to accept create account: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
             "/api/createAccount",
             axum::routing::post::<_, _, (), _>(move |payload: String| async move {
                 info!(LOG, "Create account payload: {}", payload);
@@ -256,10 +278,10 @@ pub async fn run_server() -> Result<()> {
             }
         }),
     )
-    .route("/api/signup",
+    .route("/api/signupOrIn",
            axum::routing::post(move |payload: String| async move {
                info!(LOG, "Signup payload: {}", payload);
-               match signup_api_fn(payload).await {
+               match signup_or_in_api_fn(payload).await {
                    Ok((request_id, email)) => {
                        send_email(email).await.unwrap();
                        request_id.to_string()
@@ -271,35 +293,38 @@ pub async fn run_server() -> Result<()> {
                }
            }),
     )
-    .route("/api/signin",
-              axum::routing::post(move |payload: String| async move {
-                info!(LOG, "Signin payload: {}", payload);
-                match signin_api_fn(payload).await {
-                     Ok((request_id, email)) => {
-                          send_email(email).await.unwrap();
-                          request_id.to_string()
-                     }
-                     Err(err) => {
-                          error!(LOG, "Failed to accept signin: {}", err);
-                          err.to_string()
-                     }
-                }
-              }),
-    )
-    .route(
-        "/api/registerEpheAddr",
-        axum::routing::post(move |payload: String| async move {
-            info!(LOG, "Register ephemeral address payload: {}", payload);
-            match register_ephe_addr(payload).await {
-                Ok(nonce) => nonce.to_string(),
-                Err(err) => {
-                    error!(LOG, "Failed to complete the register ephemeral address request: {}", err);
-                    err.to_string()
-                }
+    .route("/api/epheAddrStatus",
+    axum::routing::post(move |payload: String| async move {
+        info!(LOG, "epheAddrStatus payload: {}", payload);
+        match ephe_addr_status_api_fn(payload).await {
+            Ok(res) => {
+                axum::Json(res)
             }
-
-        }),
+            Err(err) => {
+                error!(LOG, "Invalid epheAddrStatus query: {}", err);
+                axum::Json(EpheAddrStatusResponse {
+                    is_activated:false,
+                    wallet_addr: None,
+                    nonce: None,
+                })
+            }
+        }
+    }),
     )
+    // .route(
+    //     "/api/registerEpheAddr",
+    //     axum::routing::post(move |payload: String| async move {
+    //         info!(LOG, "Register ephemeral address payload: {}", payload);
+    //         match register_ephe_addr(payload).await {
+    //             Ok(nonce) => nonce.to_string(),
+    //             Err(err) => {
+    //                 error!(LOG, "Failed to complete the register ephemeral address request: {}", err);
+    //                 err.to_string()
+    //             }
+    //         }
+
+    //     }),
+    // )
     .route(
         "/api/executeEphemeralTx",
         axum::routing::post(move |payload: String| async move {

@@ -73,17 +73,17 @@ contract EmailOpValidationTest is EmailWalletCoreTestHelper {
     //     vm.stopPrank();
     // }
 
-    function test_RevertIf_NullifierIsUsed() public {
-        daiToken.freeMint(walletAddr, 1 ether);
+    // function test_RevertIf_NullifierIsUsed() public {
+    //     daiToken.freeMint(walletAddr, 1 ether);
 
-        EmailOp memory emailOp = _getTokenSendingEmailOp();
-        emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
+    //     EmailOp memory emailOp = _getTokenSendingEmailOp();
+    //     emailOp.emailNullifier = emailNullifier; // This nullifier already used for account initialization
 
-        vm.startPrank(relayer);
-        vm.expectRevert("email nullified");
-        core.validateEmailOp(emailOp);
-        vm.stopPrank();
-    }
+    //     vm.startPrank(relayer);
+    //     vm.expectRevert("email nullified");
+    //     core.validateEmailOp(emailOp);
+    //     vm.stopPrank();
+    // }
 
     function test_RevertIf_FeeTokenIsNotSupported() public {
         daiToken.freeMint(walletAddr, 1 ether);

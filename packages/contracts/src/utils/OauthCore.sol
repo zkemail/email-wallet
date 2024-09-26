@@ -38,7 +38,7 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         return (epheAddrOfNonceHash[nonceHash], expiryOfNonceHash[nonceHash]);
     }
 
-    function getTokenAkkowancesOfWalletAndNonce(
+    function getTokenAllowancesOfWalletAndNonce(
         address wallet,
         uint256 nonce,
         address tokenAddr
@@ -103,28 +103,16 @@ contract OauthCore is Initializable, UUPSUpgradeable, OwnableUpgradeable, IOauth
         emit Signin(wallet, username, nonce, expiry, tokenAllowances);
     }
 
-    function registerEpheAddr(string memory username, address epheAddr, bytes calldata signature) external {
-        require(bytes(username).length > 0, "invalid username");
+    function registerEpheAddr(address wallet, address epheAddr) external {
+        require(wallet != address(0), "invalid wallet");
         require(epheAddr != address(0), "invalid epheAddr");
-        bytes32 hash = hashOfRegisterEpheAddr(username, epheAddr);
-        address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(hash), signature);
-        require(signer == epheAddr, "invalid signature");
-        address wallet = walletOfUsername[username];
-        require(wallet != address(0), "username is not registered");
         uint256 nonce = nextNonceOfWallet[wallet];
         bytes32 nonceHash = _computeNonceHash(wallet, nonce);
         require(epheAddrOfNonceHash[nonceHash] == address(0), "nonce already used");
         epheAddrOfNonceHash[nonceHash] = epheAddr;
         nextNonceOfWallet[wallet]++;
+        string memory username = usernameOfWallet[wallet];
         emit RegisteredEpheAddr(wallet, epheAddr, nonce, username);
-    }
-
-    /// @notice Hash of the register epheAddr
-    /// @param username Username of the wallet
-    /// @param epheAddr Address of the ephemeral address
-    /// @return Hash of the register epheAddr
-    function hashOfRegisterEpheAddr(string memory username, address epheAddr) public view returns (bytes32) {
-        return keccak256(abi.encodePacked(address(this), block.chainid, epheAddr, username));
     }
 
     function _computeNonceHash(address wallet, uint256 nonce) private view returns (bytes32) {
