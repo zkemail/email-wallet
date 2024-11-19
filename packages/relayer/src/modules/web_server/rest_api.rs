@@ -451,6 +451,7 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
                         Err(e) => {
                             let error_event = EmailWalletEvent::Error {
                                 email_addr: from_addr,
+                                error_subject: parsed_email.get_subject_all().unwrap_or_default(),
                                 error: e.to_string(),
                             };
                             error_event
