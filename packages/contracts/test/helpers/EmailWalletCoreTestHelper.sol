@@ -17,6 +17,8 @@ import {WETH9} from "../helpers/WETH9.sol";
 import {Extension} from "../../src/interfaces/Extension.sol";
 import {EmailWalletEvents} from "../../src/interfaces/Events.sol";
 import {IPriceOracle} from "../../src/interfaces/IPriceOracle.sol";
+import {IOauth} from "../../src/interfaces/IOauth.sol";
+import {OauthCore} from "../../src/utils/OauthCore.sol";
 import {RelayerHandler} from "../../src/handlers/RelayerHandler.sol";
 import {AccountHandler} from "../../src/handlers/AccountHandler.sol";
 import {UnclaimsHandler} from "../../src/handlers/UnclaimsHandler.sol";
@@ -31,7 +33,17 @@ contract EmailWalletCoreTestHelper is Test {
     TokenRegistry tokenRegistry;
     DKIMRegistry dkimRegistry;
     IPriceOracle priceOracle;
+    OauthCore oauthCore;
     WETH9 weth;
+    TestExtension defaultExt;
+
+    TokenRegistry tokenRegistryImpl;
+    RelayerHandler relayerHandlerImpl;
+    ExtensionHandler extensionHandlerImpl;
+    AccountHandler accountHandlerImpl;
+    UnclaimsHandler unclaimsHandlerImpl;
+    EmailWalletCore coreImpl;
+    Wallet walletImpl;
 
     TestERC20 daiToken;
     TestERC20 usdcToken;
@@ -68,6 +80,7 @@ contract EmailWalletCoreTestHelper is Test {
     string[][] _defaultExtTemplates = new string[][](1);
 
     address defaultExtAddr;
+    bytes[] defaultExtensions;
 
     RelayerHandler relayerHandler;
     AccountHandler accountHandler;
@@ -83,130 +96,162 @@ contract EmailWalletCoreTestHelper is Test {
         verifier = new TestVerifier();
 
         {
-            TokenRegistry tokenRegistryImpl = new TokenRegistry();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(tokenRegistryImpl),
-                abi.encodeCall(tokenRegistryImpl.initialize, ())
-            );
-            tokenRegistry = TokenRegistry(payable(address(proxy)));
-        }
-
-        dkimRegistry = new DKIMRegistry();
-        priceOracle = new TestOracle();
-        weth = new WETH9();
-
-        Wallet walletImp = new Wallet(address(weth));
-
-        // Deploy a test extension with command "DEF" - only for testing defaultExtensions
-        TestExtension defaultExt = new TestExtension(address(0), address(0), address(0));
-        defaultExtAddr = address(defaultExt);
-        bytes[] memory defaultExtensions = new bytes[](1);
-        _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
-        defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
-
-        {
-            RelayerHandler relayerHandlerImpl = new RelayerHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(relayerHandlerImpl),
-                abi.encodeCall(relayerHandlerImpl.initialize, ())
-            );
-            relayerHandler = RelayerHandler(payable(address(proxy)));
-        }
-
-        {
-            ExtensionHandler extensionHandlerImpl = new ExtensionHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(extensionHandlerImpl),
-                abi.encodeCall(extensionHandlerImpl.initialize, ())
-            );
-            extensionHandler = ExtensionHandler(payable(address(proxy)));
-        }
-
-        {
-            AccountHandler accountHandlerImpl = new AccountHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(accountHandlerImpl),
-                abi.encodeCall(
-                    accountHandlerImpl.initialize,
-                    (
-                        address(relayerHandler),
-                        address(dkimRegistry),
-                        address(verifier),
-                        address(walletImp),
-                        emailValidityDuration
+            tokenRegistryImpl = new TokenRegistry();
+            tokenRegistry = TokenRegistry(
+                payable(
+                    address(
+                        new ERC1967Proxy(address(tokenRegistryImpl), abi.encodeCall(tokenRegistryImpl.initialize, ()))
                     )
                 )
             );
-            accountHandler = AccountHandler(payable(address(proxy)));
         }
 
         {
-            UnclaimsHandler unclaimsHandlerImpl = new UnclaimsHandler();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(unclaimsHandlerImpl),
-                abi.encodeCall(
-                    unclaimsHandlerImpl.initialize,
-                    (
-                        address(relayerHandler),
-                        address(accountHandler),
-                        address(verifier),
-                        unclaimedFundClaimGas,
-                        unclaimedStateClaimGas,
-                        unclaimsExpiryDuration,
-                        maxFeePerGas
+            dkimRegistry = new DKIMRegistry();
+            priceOracle = new TestOracle();
+            oauthCore = new OauthCore();
+            weth = new WETH9();
+
+            walletImpl = new Wallet(address(weth), address(oauthCore));
+        }
+
+        {
+            // Deploy a test extension with command "DEF" - only for testing defaultExtensions
+            defaultExt = new TestExtension(address(0), address(0), address(0));
+            defaultExtAddr = address(defaultExt);
+            defaultExtensions = new bytes[](1);
+            _defaultExtTemplates[0] = ["DEF_EXT", "NOOP"];
+            defaultExtensions[0] = abi.encode("DEF_EXT_NAME", address(defaultExt), _defaultExtTemplates, 1 ether);
+        }
+
+        {
+            relayerHandlerImpl = new RelayerHandler();
+            relayerHandler = RelayerHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(address(relayerHandlerImpl), abi.encodeCall(relayerHandlerImpl.initialize, ()))
                     )
                 )
             );
-            unclaimsHandler = UnclaimsHandler(payable(address(proxy)));
+        }
+
+        {
+            extensionHandlerImpl = new ExtensionHandler();
+            extensionHandler = ExtensionHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(extensionHandlerImpl),
+                            abi.encodeCall(extensionHandlerImpl.initialize, ())
+                        )
+                    )
+                )
+            );
+        }
+
+        {
+            accountHandlerImpl = new AccountHandler();
+            accountHandler = AccountHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(accountHandlerImpl),
+                            abi.encodeCall(
+                                accountHandlerImpl.initialize,
+                                (
+                                    address(relayerHandler),
+                                    address(dkimRegistry),
+                                    address(verifier),
+                                    address(walletImpl),
+                                    emailValidityDuration
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        {
+            unclaimsHandlerImpl = new UnclaimsHandler();
+            unclaimsHandler = UnclaimsHandler(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(unclaimsHandlerImpl),
+                            abi.encodeCall(
+                                unclaimsHandlerImpl.initialize,
+                                (
+                                    address(relayerHandler),
+                                    address(accountHandler),
+                                    address(verifier),
+                                    unclaimedFundClaimGas,
+                                    unclaimedStateClaimGas,
+                                    unclaimsExpiryDuration,
+                                    maxFeePerGas
+                                )
+                            )
+                        )
+                    )
+                )
+            );
         }
 
         // Deploy core contract as proxy
         {
-            EmailWalletCore coreImpl = new EmailWalletCore();
-            ERC1967Proxy proxy = new ERC1967Proxy(
-                address(coreImpl),
-                abi.encodeCall(
-                    coreImpl.initialize,
-                    (
-                        address(relayerHandler),
-                        address(accountHandler),
-                        address(unclaimsHandler),
-                        address(extensionHandler),
-                        address(verifier),
-                        address(tokenRegistry),
-                        address(priceOracle),
-                        address(weth),
-                        maxFeePerGas,
-                        emailValidityDuration,
-                        unclaimedFundClaimGas,
-                        unclaimedStateClaimGas
+            coreImpl = new EmailWalletCore();
+
+            core = EmailWalletCore(
+                payable(
+                    address(
+                        new ERC1967Proxy(
+                            address(coreImpl),
+                            abi.encodeCall(
+                                coreImpl.initialize,
+                                (
+                                    address(relayerHandler),
+                                    address(accountHandler),
+                                    address(unclaimsHandler),
+                                    address(extensionHandler),
+                                    address(verifier),
+                                    address(tokenRegistry),
+                                    address(priceOracle),
+                                    // address(oauthCore),
+                                    address(weth),
+                                    maxFeePerGas,
+                                    emailValidityDuration,
+                                    unclaimedFundClaimGas,
+                                    unclaimedStateClaimGas
+                                )
+                            )
+                        )
                     )
                 )
             );
-
-            core = EmailWalletCore(payable(address(proxy)));
         }
 
-        relayerHandler.transferOwnership(address(core));
-        accountHandler.transferOwnership(address(core));
-        unclaimsHandler.transferOwnership(address(core));
-        extensionHandler.transferOwnership(address(core));
+        {
+            relayerHandler.transferOwnership(address(core));
+            accountHandler.transferOwnership(address(core));
+            unclaimsHandler.transferOwnership(address(core));
+            extensionHandler.transferOwnership(address(core));
 
-        core.initializeExtension(defaultExtensions);
+            core.initializeExtension(defaultExtensions);
+        }
+        {
+            // Set test sender's wallet addr
+            walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(accountSalt);
 
-        // Set test sender's wallet addr
-        walletAddr = AccountHandler(core.accountHandler()).getWalletOfSalt(accountSalt);
+            // Set a mock DKIM public key hash for test sender's emailDomain
+            dkimRegistry.setDKIMPublicKeyHash(emailDomain, mockDKIMHash);
 
-        // Set a mock DKIM public key hash for test sender's emailDomain
-        dkimRegistry.setDKIMPublicKeyHash(emailDomain, mockDKIMHash);
-
-        // Deploy some ERC20 test tokens and add them to registry
-        daiToken = new TestERC20("DAI", "DAI");
-        usdcToken = new TestERC20("USDC", "USDC");
-        tokenRegistry.setTokenAddress("WETH", address(weth));
-        tokenRegistry.setTokenAddress("DAI", address(daiToken));
-        tokenRegistry.setTokenAddress("USDC", address(usdcToken));
-
+            // Deploy some ERC20 test tokens and add them to registry
+            daiToken = new TestERC20("DAI", "DAI");
+            usdcToken = new TestERC20("USDC", "USDC");
+            tokenRegistry.setTokenAddress("WETH", address(weth));
+            tokenRegistry.setTokenAddress("DAI", address(daiToken));
+            tokenRegistry.setTokenAddress("USDC", address(usdcToken));
+        }
         vm.stopPrank();
     }
 

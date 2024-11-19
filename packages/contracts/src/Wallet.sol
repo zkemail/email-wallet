@@ -5,6 +5,12 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol";
+import {IOauth} from "./interfaces/IOauth.sol";
+import {EphemeralTx} from "./interfaces/Types.sol";
+import {IWETHWithdraw} from "./interfaces/IWETHWithdraw.sol";
+import {TokenRegistry} from "./utils/TokenRegistry.sol";
+import {EmailWalletCore} from "./EmailWalletCore.sol";
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 /// @title EmailWallet
 /// @notice Simple Wallet contract to be used as the EmailWallet for users
@@ -13,6 +19,10 @@ import "accountabstraction/contracts/samples/callback/TokenCallbackHandler.sol";
 /// @dev External contracts should use `call` to deposit ETH if needed
 contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     address immutable weth;
+    uint256 public epheTxNonce;
+
+    // Oauth core contract
+    IOauth immutable oauth;
 
     /// @notice Fallback function to receive ETH
     /// @notice For convenience, this contract will convert ETH to WETH always
@@ -39,8 +49,10 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     /// @param wethAddress Address of the WETH contract
-    constructor(address wethAddress) {
+    /// @param oauthAddress Address of the Oauth contract
+    constructor(address wethAddress, address oauthAddress) {
         weth = wethAddress;
+        oauth = IOauth(oauthAddress);
     }
 
     /// @notice Initialize the contract
@@ -48,18 +60,52 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
         __Ownable_init();
     }
 
+    function getOauth() external view returns (IOauth) {
+        return oauth;
+    }
+
     /// @notice Execute a function on an external contract
     /// @param target Address of the contract to call
     /// @param value Amount of ETH to send
     /// @param data Encoded data of the function to call
     function execute(address target, uint256 value, bytes calldata data) external ownerOrSelf {
-        (bool success, bytes memory result) = target.call{value: value}(data);
+        _execute(target, value, data);
+    }
 
-        if (!success) {
-            assembly {
-                revert(add(result, 32), mload(result))
+    /// @notice Execute a transaction from an ephemeral address
+    /// @param txData Data of the ephemeral transaction
+    function executeEphemeralTx(EphemeralTx calldata txData) external {
+        require(txData.walletAddr == address(this), "invalid wallet address");
+        require(txData.txNonce == epheTxNonce, "invalid nonce");
+        address target = txData.target;
+        EmailWalletCore core = EmailWalletCore(payable(owner()));
+        oauth.validateEpheAddr(address(this), txData.epheAddr, txData.epheAddrNonce);
+        oauth.validateSignature(txData.epheAddr, hashEphemeralTx(txData), txData.signature);
+        require(
+            target != owner() &&
+                target != address(core.relayerHandler()) &&
+                target != address(core.accountHandler()) &&
+                target != address(core.extensionHandler()) &&
+                target != address(oauth) &&
+                target != address(this),
+            "invalid target"
+        );
+        TokenRegistry tokenRegistry = core.tokenRegistry();
+        string memory tokenName = tokenRegistry.getTokenNameOfAddress(target);
+        if (bytes(tokenName).length > 0) {
+            require(txData.tokenAmount > 0, "token amount is 0");
+            if (_checkAllowanceReduction(txData.data, txData.tokenAmount)) {
+                oauth.reduceTokenAllowance(txData.epheAddrNonce, target, txData.tokenAmount);
             }
         }
+        if (txData.ethValue > 0) {
+            oauth.reduceTokenAllowance(txData.epheAddrNonce, weth, txData.ethValue);
+            IWETHWithdraw(weth).withdraw(txData.ethValue);
+        }
+        _execute(txData.target, txData.ethValue, txData.data);
+
+        // Finalization
+        epheTxNonce++;
     }
 
     /// @notice Convert ETH to WETH
@@ -72,4 +118,41 @@ contract Wallet is TokenCallbackHandler, OwnableUpgradeable, UUPSUpgradeable {
     /// @notice Upgrade the implementation of the proxy
     /// @param newImplementation Address of the new implementation
     function _authorizeUpgrade(address newImplementation) internal override ownerOrSelf {}
+
+    function hashEphemeralTx(EphemeralTx calldata txData) public pure returns (bytes32) {
+        EphemeralTx memory txDataTmp = txData;
+        txDataTmp.signature = "";
+        return keccak256(abi.encode(txDataTmp));
+    }
+
+    function _checkAllowanceReduction(bytes calldata data, uint256 tokenAmount) internal view returns (bool) {
+        bool result = false;
+        uint256 calldataAmount;
+        bytes4 functionSelector = bytes4(data[:4]);
+        if (functionSelector == bytes4(keccak256("transfer(address,uint256)"))) {
+            (, calldataAmount) = abi.decode(data[4:], (address, uint256));
+            result = true;
+        } else if (functionSelector == bytes4(keccak256("approve(address,uint256)"))) {
+            (, calldataAmount) = abi.decode(data[4:], (address, uint256));
+            result = true;
+        } else if (functionSelector == bytes4(keccak256("transferFrom(address,address,uint256)"))) {
+            (address from, , uint256 amount) = abi.decode(data[4:], (address, address, uint256));
+            calldataAmount = amount;
+            if (from == address(this)) {
+                result = true;
+            }
+        }
+
+        require(calldataAmount == tokenAmount, "invalid amount set");
+        return result;
+    }
+
+    function _execute(address target, uint256 value, bytes calldata data) internal {
+        (bool success, bytes memory result) = target.call{value: value}(data);
+        if (!success) {
+            assembly {
+                revert(add(result, 32), mload(result))
+            }
+        }
+    }
 }

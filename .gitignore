@@ -63,3 +63,7 @@ book
 
 # Vs code settings
 .vscode
+
+# Oauth-sdk
+packages/oauth-sdk/.env
+packages/oauth-sdk/dist

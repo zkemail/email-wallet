@@ -6,46 +6,6 @@ use axum::Router;
 use serde::{Deserialize, Serialize};
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
-#[derive(Serialize, Deserialize)]
-pub struct EmailAddrCommitRequest {
-    pub email_address: String,
-    pub random: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct UnclaimRequest {
-    pub email_address: String,
-    pub random: String,
-    pub expiry_time: i64,
-    pub is_fund: bool,
-    pub tx_hash: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct AccountRegistrationRequest {
-    pub email_address: String,
-    pub account_code: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct AccountRegistrationResponse {
-    pub account_code: String,
-    pub wallet_addr: String,
-    pub tx_hash: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct StatResponse {
-    pub onboarding_tokens_distributed: u32,
-    pub onboarding_tokens_left: u32,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SafeRequest {
-    pub wallet_addr: String,
-    pub safe_addr: String,
-}
-
 #[named]
 async fn unclaim(payload: UnclaimRequest) -> Result<String> {
     let padded_email_addr = PaddedEmailAddr::from_email_addr(&payload.email_address);
@@ -92,6 +52,13 @@ async fn unclaim(payload: UnclaimRequest) -> Result<String> {
 pub async fn run_server() -> Result<()> {
     let addr = WEB_SERVER_ADDRESS.get().unwrap();
     let mut app = Router::new()
+        .route(
+            "/api/relayerEmailAddr",
+            axum::routing::get(move || async move {
+                let email_addr = RELAYER_EMAIL_ADDRESS.get().unwrap();
+                email_addr.clone()
+            }),
+        )
         .route(
             "/api/emailAddrCommit",
             axum::routing::post(move |payload: String| async move {
@@ -213,6 +180,21 @@ pub async fn run_server() -> Result<()> {
             }),
         )
         .route(
+            "/api/genAccountCode",
+            axum::routing::get::<_, _, (), _>(move || async move {
+                match gen_account_code_api_fn().await {
+                    Ok(code) => {
+                        info!(LOG, "Generated account code: {}", code);
+                        code
+                    }
+                    Err(err) => {
+                        error!(LOG, "Failed to accept create account: {}", err);
+                        err.to_string()
+                    }
+                }
+            }),
+        )
+        .route(
             "/api/createAccount",
             axum::routing::post::<_, _, (), _>(move |payload: String| async move {
                 info!(LOG, "Create account payload: {}", payload);
@@ -291,6 +273,66 @@ pub async fn run_server() -> Result<()> {
                 Ok(_) => "Request processed".to_string(),
                 Err(err) => {
                     error!(LOG, "Failed to complete the receive email request: {}", err);
+                    err.to_string()
+                }
+            }
+        }),
+    )
+    .route("/api/signupOrIn",
+           axum::routing::post(move |payload: String| async move {
+               info!(LOG, "Signup payload: {}", payload);
+               match signup_or_in_api_fn(payload).await {
+                   Ok((request_id, email)) => {
+                       send_email(email).await.unwrap();
+                       request_id.to_string()
+                   }
+                   Err(err) => {
+                       error!(LOG, "Failed to accept signup: {}", err);
+                       err.to_string()
+                   }
+               }
+           }),
+    )
+    .route("/api/epheAddrStatus",
+    axum::routing::post(move |payload: String| async move {
+        info!(LOG, "epheAddrStatus payload: {}", payload);
+        match ephe_addr_status_api_fn(payload).await {
+            Ok(res) => {
+                axum::Json(res)
+            }
+            Err(err) => {
+                error!(LOG, "Invalid epheAddrStatus query: {}", err);
+                axum::Json(EpheAddrStatusResponse {
+                    is_activated:false,
+                    wallet_addr: None,
+                    nonce: None,
+                })
+            }
+        }
+    }),
+    )
+    // .route(
+    //     "/api/registerEpheAddr",
+    //     axum::routing::post(move |payload: String| async move {
+    //         info!(LOG, "Register ephemeral address payload: {}", payload);
+    //         match register_ephe_addr(payload).await {
+    //             Ok(nonce) => nonce.to_string(),
+    //             Err(err) => {
+    //                 error!(LOG, "Failed to complete the register ephemeral address request: {}", err);
+    //                 err.to_string()
+    //             }
+    //         }
+
+    //     }),
+    // )
+    .route(
+        "/api/executeEphemeralTx",
+        axum::routing::post(move |payload: String| async move {
+            info!(LOG, "Execute ephemeral tx payload: {}", payload);
+            match execute_ephemeral_tx(payload).await {
+                Ok(tx_hash) => tx_hash,
+                Err(err) => {
+                    error!(LOG, "Failed to complete the execute ephemeral tx request: {}", err);
                     err.to_string()
                 }
             }

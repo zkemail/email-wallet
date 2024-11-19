@@ -146,7 +146,7 @@ contract EmailWalletCore is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(_getFeeConversionRate(emailOp.feeTokenName) != 0, "unsupported fee token");
         require(emailOp.feePerGas <= maxFeePerGas, "fee per gas too high");
         require(emailNullifiers[emailOp.emailNullifier] == false, "email nullified");
-        require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
+        // require(accountHandler.emailNullifiers(emailOp.emailNullifier) == false, "email nullified");
         require(
             accountHandler.isDKIMPublicKeyHashValid(
                 emailOp.accountSalt,

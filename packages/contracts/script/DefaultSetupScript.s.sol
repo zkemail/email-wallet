@@ -4,11 +4,14 @@ pragma solidity ^0.8.13;
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
 import "../src/verifier/Verifier.sol";
+import "../src/utils/OauthCore.sol";
 import "../src/utils/ECDSAOwnedDKIMRegistry.sol";
 import "../src/utils/UniswapTWAPOracle.sol";
 import "../src/extensions/NFTExtension.sol";
 import "../src/extensions/UniswapExtension.sol";
 import "../src/extensions/Safe2FAExtension.sol";
+import "../src/extensions/OauthSignupExtension.sol";
+import "../src/extensions/OauthSigninExtension.sol";
 import "../src/EmailWalletCore.sol";
 
 contract TestERC20 is ERC20 {
@@ -35,6 +38,9 @@ contract Deploy is Script {
     AllVerifiers verifierImpl;
 
     ECDSAOwnedDKIMRegistry dkim;
+
+    OauthCore oauthCoreImpl;
+    OauthCore oauthCore;
 
     Wallet walletImpl;
 
@@ -66,6 +72,12 @@ contract Deploy is Script {
     Safe2FAExtension safeExt;
     Safe2FAExtension safeExtImpl;
 
+    OauthSignupExtension oauthUpExt;
+    OauthSignupExtension oauthUpExtImpl;
+
+    OauthSigninExtension oauthInExt;
+    OauthSigninExtension oauthInExtImpl;
+
     uint256 constant emailValidityDuration = 14 days;
     uint256 constant unclaimedFundClaimGas = 450000;
     uint256 constant unclaimedStateClaimGas = 500000;
@@ -75,6 +87,8 @@ contract Deploy is Script {
     string[][] nftExtTemplates = new string[][](3);
     string[][] uniswapExtTemplates = new string[][](4);
     string[][] safeExtTemplates = new string[][](1);
+    string[][] oauthUpExtTemplates = new string[][](9);
+    string[][] oauthInExtTemplates = new string[][](8);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -126,7 +140,14 @@ contract Deploy is Script {
 
         dkim = new ECDSAOwnedDKIMRegistry(signer);
 
-        walletImpl = new Wallet(address(weth));
+        {
+            oauthCoreImpl = new OauthCore();
+            bytes memory data = abi.encodeWithSelector(OauthCore(oauthCoreImpl).initialize.selector);
+            ERC1967Proxy proxy = new ERC1967Proxy(address(oauthCoreImpl), data);
+            oauthCore = OauthCore(payable(address(proxy)));
+        }
+
+        walletImpl = new Wallet(address(weth), address(oauthCore));
 
         {
             relayerHandlerImpl = new RelayerHandler();
@@ -203,7 +224,7 @@ contract Deploy is Script {
         tokenRegistry.setChainId(chainName, chainId);
         tokenRegistry.setTokenAddress(chainId, tokenName, address(testToken));
 
-        bytes[] memory defaultExtensions = new bytes[](3);
+        bytes[] memory defaultExtensions = new bytes[](5);
 
         {
             nftExtImpl = new NFTExtension();
@@ -273,6 +294,181 @@ contract Deploy is Script {
         safeExtTemplates[0] = ["Safe", "Transaction:", "Approve", "{string}", "from", "{address}"];
         defaultExtensions[2] = abi.encode("Safe2FAExtension", address(safeExt), safeExtTemplates, 0.001 ether); // TODO: Check max exec gas
 
+        {
+            oauthUpExtImpl = new OauthSignupExtension();
+            bytes memory data = abi.encodeWithSelector(
+                OauthSignupExtension(oauthUpExtImpl).initialize.selector,
+                address(core)
+            );
+            ERC1967Proxy proxy = new ERC1967Proxy(address(oauthUpExtImpl), data);
+            oauthUpExt = OauthSignupExtension(payable(address(proxy)));
+        }
+        oauthUpExtTemplates[0] = ["Sign-up", "{string}"];
+        // (0,0) = 0
+        oauthUpExtTemplates[1] = ["Sign-up", "{string}", "on", "device", "{uint}"];
+        // (0,1) = 1
+        oauthUpExtTemplates[2] = ["Sign-up", "{string}", "on", "device", "{uint}", "for", "{tokenAmount}"];
+        // (0,2) = 2
+        oauthUpExtTemplates[3] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (0,3) = 3
+        oauthUpExtTemplates[4] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (1,0) = 4
+        oauthUpExtTemplates[5] = ["Sign-up", "{string}", "on", "device", "{uint}", "until", "timestamp", "{uint}"];
+        // (1,1) = 4 + 1 = 5
+        oauthUpExtTemplates[6] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}"
+        ];
+        // (1,2) = 4 + 2 = 6
+        oauthUpExtTemplates[7] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (1,3) = 4 + 3 = 7
+        oauthUpExtTemplates[8] = [
+            "Sign-up",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        defaultExtensions[3] = abi.encode(
+            "OauthSignupExtension",
+            address(oauthUpExt),
+            oauthUpExtTemplates,
+            0.001 ether
+        ); // TODO: Check max exec gas
+
+        {
+            oauthInExtImpl = new OauthSigninExtension();
+            bytes memory data = abi.encodeWithSelector(
+                OauthSigninExtension(oauthInExtImpl).initialize.selector,
+                address(core)
+            );
+            ERC1967Proxy proxy = new ERC1967Proxy(address(oauthInExtImpl), data);
+            oauthInExt = OauthSigninExtension(payable(address(proxy)));
+        }
+        // (0,0) = 0
+        oauthInExtTemplates[0] = ["Sign-in", "{string}", "on", "device", "{uint}"];
+        // (0,1) = 1
+        oauthInExtTemplates[1] = ["Sign-in", "{string}", "on", "device", "{uint}", "for", "{tokenAmount}"];
+        // (0,2) = 2
+        oauthInExtTemplates[2] = [
+            "Sign-in",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (0,3) = 3
+        oauthInExtTemplates[3] = [
+            "Sign-in",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (1,0) = 4
+        oauthInExtTemplates[4] = ["Sign-in", "{string}", "on", "device", "{uint}", "until", "timestamp", "{uint}"];
+        // (1,1) = 4 + 1 = 5
+        oauthInExtTemplates[5] = [
+            "Sign-in",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}"
+        ];
+        // (1,2) = 4 + 2 = 6
+        oauthInExtTemplates[6] = [
+            "Sign-in",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        // (1,3) = 4 + 3 = 7
+        oauthInExtTemplates[7] = [
+            "Sign-in",
+            "{string}",
+            "on",
+            "device",
+            "{uint}",
+            "until",
+            "timestamp",
+            "{uint}",
+            "for",
+            "{tokenAmount}",
+            "{tokenAmount}",
+            "{tokenAmount}"
+        ];
+        defaultExtensions[4] = abi.encode(
+            "OauthSigninExtension",
+            address(oauthInExt),
+            oauthInExtTemplates,
+            0.001 ether
+        ); // TODO: Check max exec gas
+
         core.initializeExtension(defaultExtensions);
 
         vm.stopBroadcast();
@@ -282,6 +478,7 @@ contract Deploy is Script {
         console.log("AllVerifiers implementation deployed at: %s", address(verifierImpl));
         console.log("ECDSAOwnedDKIMRegistry deployed at: %s", address(dkim));
         console.log("Wallet implementation deployed at: %s", address(walletImpl));
+        console.log("Oauth core deployed at: %s", address(oauthCore));
         console.log("RelayerHandler proxy deployed at: %s", address(relayerHandler));
         console.log("RelayerHandler implementation deployed at: %s", address(relayerHandlerImpl));
         console.log("ExtensionHandler proxy deployed at: %s", address(extensionHandler));
@@ -298,6 +495,12 @@ contract Deploy is Script {
         console.log("NFTExtension implementation deployed at: %s", address(nftExtImpl));
         console.log("UniswapExtension proxy deployed at: %s", address(uniExt));
         console.log("UniswapExtension implementation deployed at: %s", address(uniExtImpl));
+        console.log("Safe2FAExtension proxy deployed at: %s", address(safeExt));
+        console.log("Safe2FAExtension implementation deployed at: %s", address(safeExtImpl));
+        console.log("OauthSignupExtension proxy deployed at: %s", address(oauthUpExt));
+        console.log("OauthSignupExtension implementation deployed at: %s", address(oauthUpExtImpl));
+        console.log("OauthSigninExtension proxy deployed at: %s", address(oauthInExt));
+        console.log("OauthSigninExtension implementation deployed at: %s", address(oauthInExtImpl));
         console.log("---- DONE ----");
     }
 }

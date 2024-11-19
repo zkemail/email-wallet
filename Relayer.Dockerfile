@@ -1,8 +1,11 @@
 # Use the base image
-FROM bisht13/relayer-base:latest
+FROM sorasue/relayer:latest
 
 # Copy the project files
 COPY packages/relayer /relayer/packages/relayer
+
+# Copy the rust-toolchain.toml file
+COPY rust-toolchain.toml /relayer/packages/relayer/rust-toolchain.toml
 
 # Set the working directory for the Rust project
 WORKDIR /relayer/packages/relayer
