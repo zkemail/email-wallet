@@ -83,7 +83,7 @@ This is a simplified flow, but underneath we use many parameters to ensure secur
 <br />
 
 ## ☞ Directory structure
-This is a mono-repo that contains the circom circuits, smart contracts, the relayer and a prover server. The frontend code is located in a separate repository at [emailwallet.org](https://github.com/zkemail/emailwallet.org).
+This is a mono-repo that contains the circom circuits, smart contracts, the relayer and a prover server. The frontend code for emailwallet.org is located in a separate [github repository](https://github.com/zkemail/emailwallet.org).
 
 - `packages/circuits` contains the circom circuits, tests, scripts to generate zkeys, vkeys, and helper functions to generate circuit inputs.
 - `packages/contracts` contains the solidity contracts, tests, and scripts to deploy the wallet.
