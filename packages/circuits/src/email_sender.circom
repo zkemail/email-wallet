@@ -57,7 +57,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal output has_email_recipient;
     signal output recipient_email_addr_commit;
     
-    // Verify Email Signature
+    // VERIFY EMAIL SIGNATURE : 669650 constraints
     component email_verifier = EmailVerifier(max_header_bytes, 0, n, k, 1);
     email_verifier.in_padded <== in_padded;
     email_verifier.pubkey <== pubkey;
@@ -66,19 +66,21 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     signal header_hash[256] <== email_verifier.sha;
     pubkey_hash <== email_verifier.pubkey_hash;
 
-    // FROM HEADER REGEX
+    // FROM HEADER REGEX : 643296 constraints
     signal from_regex_out, from_regex_reveal[max_header_bytes];
     (from_regex_out, from_regex_reveal) <== FromAddrRegex(max_header_bytes)(in_padded);
     from_regex_out === 1;
     signal sender_email_addr[email_max_bytes];
     sender_email_addr <== VarShiftMaskedStr(max_header_bytes, email_max_bytes)(from_regex_reveal, sender_email_idx);
 
-    // SUBJECT HEADER REGEX
+    // SUBJECT HEADER REGEX : 99208 constraints
     signal subject_regex_out, subject_regex_reveal[max_header_bytes];
     (subject_regex_out, subject_regex_reveal) <== SubjectAllRegex(max_header_bytes)(in_padded);
     subject_regex_out === 1;
     signal subject_all[max_subject_bytes];
     subject_all <== VarShiftMaskedStr(max_header_bytes, max_subject_bytes)(subject_regex_reveal, subject_idx);
+
+    // EMAIL ADDRESS REGEX : 92037 constraints
     signal recipient_email_regex_out, recipient_email_regex_reveal[max_subject_bytes];
     (recipient_email_regex_out, recipient_email_regex_reveal) <== EmailAddrRegex(max_subject_bytes)(subject_all);
     has_email_recipient <== IsZero()(recipient_email_regex_out-1);
@@ -97,6 +99,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
         recipient_email_addr[i] <== shifted_email_addr[i] * has_email_recipient;
     }
     
+    // INVITATION CODE REGEX WITH PREFIX : 43494 constraints
     signal code_regex_out, code_regex_reveal[max_subject_bytes];
     (code_regex_out, code_regex_reveal) <== InvitationCodeWithPrefixRegex(max_subject_bytes)(subject_all);
     signal has_code <== IsZero()(code_regex_out-1);
@@ -113,7 +116,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
     }
     masked_subject_str <== Bytes2Ints(max_subject_bytes)(masked_subject_bytes);
 
-    // DOMAIN NAME HEADER REGEX
+    // DOMAIN NAME HEADER REGEX : 38219 constraints
     signal domain_regex_out, domain_regex_reveal[email_max_bytes];
     (domain_regex_out, domain_regex_reveal) <== EmailDomainRegex(email_max_bytes)(sender_email_addr);
     domain_regex_out === 1;
@@ -129,7 +132,7 @@ template EmailSender(n, k, max_header_bytes, max_subject_bytes) {
 
     email_nullifier <== EmailNullifier()(sign_hash);
 
-    // Timestamp regex + convert to decimal format
+    // Timestamp regex + convert to decimal format : 233872 constraints
     signal timestamp_regex_out, timestamp_regex_reveal[max_header_bytes];
     (timestamp_regex_out, timestamp_regex_reveal) <== TimestampRegex(max_header_bytes)(in_padded);
     // timestamp_regex_out === 1;
