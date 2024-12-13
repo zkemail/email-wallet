@@ -7,7 +7,7 @@ pub use token_registry::*;
     clippy::upper_case_acronyms,
     clippy::type_complexity,
     dead_code,
-    non_camel_case_types,
+    non_camel_case_types
 )]
 pub mod token_registry {
     #[allow(deprecated)]
@@ -19,100 +19,78 @@ pub mod token_registry {
             functions: ::core::convert::From::from([
                 (
                     ::std::borrow::ToOwned::to_owned("addressOfTokenName"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("addressOfTokenName"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("addressOfTokenName"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("string"),
+                                ),
+                            },
+                        ],
+                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("address"),
+                            ),
+                        },],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("chainIdOfName"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("chainIdOfName"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("chainIdOfName"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::String,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("string"),
+                            ),
+                        },],
+                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("uint256"),
+                            ),
+                        },],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("getChainIdOfName"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("getChainIdOfName"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("chainName"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("getChainIdOfName"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::borrow::ToOwned::to_owned("chainName"),
+                            kind: ::ethers::core::abi::ethabi::ParamType::String,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("string"),
+                            ),
+                        },],
+                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("uint256"),
+                            ),
+                        },],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("getTokenAddress"),
@@ -122,9 +100,7 @@ pub mod token_registry {
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
                                     name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
                                     internal_type: ::core::option::Option::Some(
                                         ::std::borrow::ToOwned::to_owned("uint256"),
                                     ),
@@ -137,15 +113,13 @@ pub mod token_registry {
                                     ),
                                 },
                             ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
+                            outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address"),
+                                ),
+                            },],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
                         },
@@ -167,38 +141,32 @@ pub mod token_registry {
                                     ),
                                 },
                             ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
+                            outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address"),
+                                ),
+                            },],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
                         },
                         ::ethers::core::abi::ethabi::Function {
                             name: ::std::borrow::ToOwned::to_owned("getTokenAddress"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("tokenName"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
+                            inputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("tokenName"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("string"),
+                                ),
+                            },],
+                            outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address"),
+                                ),
+                            },],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
                         },
@@ -208,15 +176,11 @@ pub mod token_registry {
                     ::std::borrow::ToOwned::to_owned("getTokenNameOfAddress"),
                     ::std::vec![
                         ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned(
-                                "getTokenNameOfAddress",
-                            ),
+                            name: ::std::borrow::ToOwned::to_owned("getTokenNameOfAddress",),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
                                     name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
                                     internal_type: ::core::option::Option::Some(
                                         ::std::borrow::ToOwned::to_owned("uint256"),
                                     ),
@@ -229,40 +193,32 @@ pub mod token_registry {
                                     ),
                                 },
                             ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
+                            outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("string"),
+                                ),
+                            },],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
                         },
                         ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned(
-                                "getTokenNameOfAddress",
-                            ),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("addr"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
+                            name: ::std::borrow::ToOwned::to_owned("getTokenNameOfAddress",),
+                            inputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("addr"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address"),
+                                ),
+                            },],
+                            outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("string"),
+                                ),
+                            },],
                             constant: ::core::option::Option::None,
                             state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
                         },
@@ -270,98 +226,80 @@ pub mod token_registry {
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("initialize"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("initialize"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("initialize"),
+                        inputs: ::std::vec![],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("owner"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("owner"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("owner"),
+                        inputs: ::std::vec![],
+                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("address"),
+                            ),
+                        },],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("proxiableUUID"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("proxiableUUID"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(
-                                        32usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bytes32"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("proxiableUUID"),
+                        inputs: ::std::vec![],
+                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(32usize,),
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("bytes32"),
+                            ),
+                        },],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("renounceOwnership"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("renounceOwnership"),
-                            inputs: ::std::vec![],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("renounceOwnership"),
+                        inputs: ::std::vec![],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("setChainId"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("setChainId"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("chainName"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("setChainId"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("chainName"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("string"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("chainId"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                            },
+                        ],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("setTokenAddress"),
@@ -386,16 +324,15 @@ pub mod token_registry {
                             ],
                             outputs: ::std::vec![],
                             constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                            state_mutability:
+                                ::ethers::core::abi::ethabi::StateMutability::NonPayable,
                         },
                         ::ethers::core::abi::ethabi::Function {
                             name: ::std::borrow::ToOwned::to_owned("setTokenAddress"),
                             inputs: ::std::vec![
                                 ::ethers::core::abi::ethabi::Param {
                                     name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
+                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
                                     internal_type: ::core::option::Option::Some(
                                         ::std::borrow::ToOwned::to_owned("uint256"),
                                     ),
@@ -417,302 +354,257 @@ pub mod token_registry {
                             ],
                             outputs: ::std::vec![],
                             constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                            state_mutability:
+                                ::ethers::core::abi::ethabi::StateMutability::NonPayable,
                         },
                     ],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("setTokenAddresses"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("setTokenAddresses"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("setTokenAddresses"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("chainId"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("tokenNames"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Array(
+                                    ::std::boxed::Box::new(
+                                        ::ethers::core::abi::ethabi::ParamType::String,
                                     ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("string[]"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("addrs"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Array(
+                                    ::std::boxed::Box::new(
+                                        ::ethers::core::abi::ethabi::ParamType::Address,
                                     ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("tokenNames"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Array(
-                                        ::std::boxed::Box::new(
-                                            ::ethers::core::abi::ethabi::ParamType::String,
-                                        ),
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string[]"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("addrs"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Array(
-                                        ::std::boxed::Box::new(
-                                            ::ethers::core::abi::ethabi::ParamType::Address,
-                                        ),
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address[]"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
+                                ),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address[]"),
+                                ),
+                            },
+                        ],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("tokenNameOfAddress"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("tokenNameOfAddress"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("uint256"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::string::String::new(),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("string"),
-                                    ),
-                                },
-                            ],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("tokenNameOfAddress"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("uint256"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::string::String::new(),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address"),
+                                ),
+                            },
+                        ],
+                        outputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::string::String::new(),
+                            kind: ::ethers::core::abi::ethabi::ParamType::String,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("string"),
+                            ),
+                        },],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::View,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("transferOwnership"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("transferOwnership"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("newOwner"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("transferOwnership"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::borrow::ToOwned::to_owned("newOwner"),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("address"),
+                            ),
+                        },],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("upgradeTo"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("upgradeTo"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("newImplementation"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("upgradeTo"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::Param {
+                            name: ::std::borrow::ToOwned::to_owned("newImplementation"),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                            internal_type: ::core::option::Option::Some(
+                                ::std::borrow::ToOwned::to_owned("address"),
+                            ),
+                        },],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::NonPayable,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("upgradeToAndCall"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Function {
-                            name: ::std::borrow::ToOwned::to_owned("upgradeToAndCall"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("newImplementation"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("address"),
-                                    ),
-                                },
-                                ::ethers::core::abi::ethabi::Param {
-                                    name: ::std::borrow::ToOwned::to_owned("data"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
-                                    internal_type: ::core::option::Option::Some(
-                                        ::std::borrow::ToOwned::to_owned("bytes"),
-                                    ),
-                                },
-                            ],
-                            outputs: ::std::vec![],
-                            constant: ::core::option::Option::None,
-                            state_mutability: ::ethers::core::abi::ethabi::StateMutability::Payable,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Function {
+                        name: ::std::borrow::ToOwned::to_owned("upgradeToAndCall"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("newImplementation"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("address"),
+                                ),
+                            },
+                            ::ethers::core::abi::ethabi::Param {
+                                name: ::std::borrow::ToOwned::to_owned("data"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Bytes,
+                                internal_type: ::core::option::Option::Some(
+                                    ::std::borrow::ToOwned::to_owned("bytes"),
+                                ),
+                            },
+                        ],
+                        outputs: ::std::vec![],
+                        constant: ::core::option::Option::None,
+                        state_mutability: ::ethers::core::abi::ethabi::StateMutability::Payable,
+                    },],
                 ),
             ]),
             events: ::core::convert::From::from([
                 (
                     ::std::borrow::ToOwned::to_owned("AdminChanged"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("AdminChanged"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("previousAdmin"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: false,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("newAdmin"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: false,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("AdminChanged"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("previousAdmin"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                indexed: false,
+                            },
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("newAdmin"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                indexed: false,
+                            },
+                        ],
+                        anonymous: false,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("BeaconUpgraded"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("BeaconUpgraded"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("beacon"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("BeaconUpgraded"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::EventParam {
+                            name: ::std::borrow::ToOwned::to_owned("beacon"),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                            indexed: true,
+                        },],
+                        anonymous: false,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("ChainRegistered"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("ChainRegistered"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("chainName"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("ChainRegistered"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("chainName"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                indexed: true,
+                            },
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("chainId"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                indexed: true,
+                            },
+                        ],
+                        anonymous: false,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("Initialized"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("Initialized"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("version"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(8usize),
-                                    indexed: false,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("Initialized"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::EventParam {
+                            name: ::std::borrow::ToOwned::to_owned("version"),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Uint(8usize),
+                            indexed: false,
+                        },],
+                        anonymous: false,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("OwnershipTransferred"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned(
-                                "OwnershipTransferred",
-                            ),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("previousOwner"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("newOwner"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("OwnershipTransferred",),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("previousOwner"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                indexed: true,
+                            },
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("newOwner"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                indexed: true,
+                            },
+                        ],
+                        anonymous: false,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("TokenRegistered"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("TokenRegistered"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("chainId"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Uint(
-                                        256usize,
-                                    ),
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("tokenName"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::String,
-                                    indexed: true,
-                                },
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("addr"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("TokenRegistered"),
+                        inputs: ::std::vec![
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("chainId"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                indexed: true,
+                            },
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("tokenName"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::String,
+                                indexed: true,
+                            },
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("addr"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                                indexed: true,
+                            },
+                        ],
+                        anonymous: false,
+                    },],
                 ),
                 (
                     ::std::borrow::ToOwned::to_owned("Upgraded"),
-                    ::std::vec![
-                        ::ethers::core::abi::ethabi::Event {
-                            name: ::std::borrow::ToOwned::to_owned("Upgraded"),
-                            inputs: ::std::vec![
-                                ::ethers::core::abi::ethabi::EventParam {
-                                    name: ::std::borrow::ToOwned::to_owned("implementation"),
-                                    kind: ::ethers::core::abi::ethabi::ParamType::Address,
-                                    indexed: true,
-                                },
-                            ],
-                            anonymous: false,
-                        },
-                    ],
+                    ::std::vec![::ethers::core::abi::ethabi::Event {
+                        name: ::std::borrow::ToOwned::to_owned("Upgraded"),
+                        inputs: ::std::vec![::ethers::core::abi::ethabi::EventParam {
+                            name: ::std::borrow::ToOwned::to_owned("implementation"),
+                            kind: ::ethers::core::abi::ethabi::ParamType::Address,
+                            indexed: true,
+                        },],
+                        anonymous: false,
+                    },],
                 ),
             ]),
             errors: ::std::collections::BTreeMap::new(),
@@ -721,21 +613,18 @@ pub mod token_registry {
         }
     }
     ///The parsed JSON ABI of the contract.
-    pub static TOKENREGISTRY_ABI: ::ethers::contract::Lazy<::ethers::core::abi::Abi> = ::ethers::contract::Lazy::new(
-        __abi,
-    );
+    pub static TOKENREGISTRY_ABI: ::ethers::contract::Lazy<::ethers::core::abi::Abi> =
+        ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
     const __BYTECODE: &[u8] = b"`\xA0`@R0`\x80R4\x80\x15a\0\x14W`\0\x80\xFD[Pa\0\x1Da\0\"V[a\0\xE1V[`\0Ta\x01\0\x90\x04`\xFF\x16\x15a\0\x8EW`@QbF\x1B\xCD`\xE5\x1B\x81R` `\x04\x82\x01R`'`$\x82\x01R\x7FInitializable: contract is initi`D\x82\x01Rfalizing`\xC8\x1B`d\x82\x01R`\x84\x01`@Q\x80\x91\x03\x90\xFD[`\0T`\xFF\x90\x81\x16\x14a\0\xDFW`\0\x80T`\xFF\x19\x16`\xFF\x90\x81\x17\x90\x91U`@Q\x90\x81R\x7F\x7F&\xB8?\xF9n\x1F+jh/\x138R\xF6y\x8A\t\xC4e\xDA\x95\x92\x14`\xCE\xFB8G@$\x98\x90` \x01`@Q\x80\x91\x03\x90\xA1[V[`\x80Qa)>a\x01\x18`\09`\0\x81\x81a\x07y\x01R\x81\x81a\x08.\x01R\x81\x81a\t\x83\x01R\x81\x81a\n3\x01Ra\x0Bx\x01Ra)>`\0\xF3\xFE`\x80`@R`\x046\x10a\x01_W`\x005`\xE0\x1C\x80c\x81)\xFC\x1C\x11a\0\xC0W\x80c\xC3[uG\x11a\0tW\x80c\xE0\xAB\xD9\x1B\x11a\0YW\x80c\xE0\xAB\xD9\x1B\x14a\x03\xFFW\x80c\xE5\xBE\x9D\xEC\x14a\x04\x1FW\x80c\xF2\xFD\xE3\x8B\x14a\x04?W`\0\x80\xFD[\x80c\xC3[uG\x14a\x03\xBFW\x80c\xC4\t\x126\x14a\x03\xDFW`\0\x80\xFD[\x80c\x8D\xA5\xCB[\x11a\0\xA5W\x80c\x8D\xA5\xCB[\x14a\x03TW\x80c\xA2\xA7\x86.\x14a\x03\x7FW\x80c\xB3\x99\xDEN\x14a\x03\x9FW`\0\x80\xFD[\x80c\x81)\xFC\x1C\x14a\x03\x1FW\x80c\x8Cz\xF0\x80\x14a\x034W`\0\x80\xFD[\x80cO\x1E\xF2\x86\x11a\x01\x17W\x80cg\xCB\xCB2\x11a\0\xFCW\x80cg\xCB\xCB2\x14a\x02fW\x80ciy\xE2{\x14a\x02\xEAW\x80cqP\x18\xA6\x14a\x03\nW`\0\x80\xFD[\x80cO\x1E\xF2\x86\x14a\x02>W\x80cR\xD1\x90-\x14a\x02QW`\0\x80\xFD[\x80c%\x15\xD6`\x11a\x01HW\x80c%\x15\xD6`\x14a\x01\xD1W\x80c0L\xD0@\x14a\x01\xFEW\x80c6Y\xCF\xE6\x14a\x02\x1EW`\0\x80\xFD[\x80c\x17EnV\x14a\x01dW\x80c\x1B\xD5\x13\x0F\x14a\x01\x86W[`\0\x80\xFD[4\x80\x15a\x01pW`\0\x80\xFD[Pa\x01\x84a\x01\x7F6`\x04a\"{V[a\x04_V[\0[4\x80\x15a\x01\x92W`\0\x80\xFD[Pa\x01\xBEa\x01\xA16`\x04a\"\xC9V[\x80Q` \x81\x83\x01\x81\x01\x80Q`g\x82R\x92\x82\x01\x91\x90\x93\x01 \x91RT\x81V[`@Q\x90\x81R` \x01[`@Q\x80\x91\x03\x90\xF3[4\x80\x15a\x01\xDDW`\0\x80\xFD[Pa\x01\xF1a\x01\xEC6`\x04a\"\xFEV[a\x04vV[`@Qa\x01\xC8\x91\x90a#EV[4\x80\x15a\x02\nW`\0\x80\xFD[Pa\x01\xBEa\x02\x196`\x04a\"\xC9V[a\x07:V[4\x80\x15a\x02*W`\0\x80\xFD[Pa\x01\x84a\x0296`\x04a#\x96V[a\x07bV[a\x01\x84a\x02L6`\x04a#\xB1V[a\tlV[4\x80\x15a\x02]W`\0\x80\xFD[Pa\x01\xBEa\x0B^V[4\x80\x15a\x02rW`\0\x80\xFD[Pa\x02\xC5a\x02\x816`\x04a$\x13V[`e` \x90\x81R`\0\x92\x83R`@\x90\x92 \x81Q\x80\x83\x01\x84\x01\x80Q\x92\x81R\x90\x84\x01\x92\x90\x93\x01\x91\x90\x91 \x91RTs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x81V[`@Qs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x90\x91\x16\x81R` \x01a\x01\xC8V[4\x80\x15a\x02\xF6W`\0\x80\xFD[Pa\x01\x84a\x03\x056`\x04a$PV[a\x0CJV[4\x80\x15a\x03\x16W`\0\x80\xFD[Pa\x01\x84a\x0EmV[4\x80\x15a\x03+W`\0\x80\xFD[Pa\x01\x84a\x0E\x81V[4\x80\x15a\x03@W`\0\x80\xFD[Pa\x02\xC5a\x03O6`\x04a$\x13V[a\x10\xD5V[4\x80\x15a\x03`W`\0\x80\xFD[P`3Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16a\x02\xC5V[4\x80\x15a\x03\x8BW`\0\x80\xFD[Pa\x01\xF1a\x03\x9A6`\x04a\"\xFEV[a\x14\x8DV[4\x80\x15a\x03\xABW`\0\x80\xFD[Pa\x01\xF1a\x03\xBA6`\x04a#\x96V[a\x152V[4\x80\x15a\x03\xCBW`\0\x80\xFD[Pa\x02\xC5a\x03\xDA6`\x04a$\x95V[a\x15>V[4\x80\x15a\x03\xEBW`\0\x80\xFD[Pa\x02\xC5a\x03\xFA6`\x04a\"\xC9V[a\x15\xF7V[4\x80\x15a\x04\x0BW`\0\x80\xFD[Pa\x01\x84a\x04\x1A6`\x04a%\x80V[a\x16\x03V[4\x80\x15a\x04+W`\0\x80\xFD[Pa\x01\x84a\x04:6`\x04a&lV[a\x16\xF2V[4\x80\x15a\x04KW`\0\x80\xFD[Pa\x01\x84a\x04Z6`\x04a#\x96V[a\x196V[a\x04ga\x19\xEAV[a\x04rF\x83\x83a\x16\xF2V[PPV[``a\x04\xB7\x83`@Q\x80`@\x01`@R\x80`\x04\x81R` \x01\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RPa\x10\xD5V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x03a\x05#WP`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x82\x01Ra\x074V[a\x05b\x83`@Q\x80`@\x01`@R\x80`\x03\x81R` \x01\x7FDAI\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RPa\x10\xD5V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x03a\x05\xCEWP`@\x80Q\x80\x82\x01\x90\x91R`\x03\x81R\x7FDAI\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x82\x01Ra\x074V[a\x06\r\x83`@Q\x80`@\x01`@R\x80`\x04\x81R` \x01\x7FUSDC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RPa\x10\xD5V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x03a\x06yWP`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FUSDC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x82\x01Ra\x074V[`\0\x83\x81R`f` \x90\x81R`@\x80\x83 s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x86\x16\x84R\x90\x91R\x90 \x80Ta\x06\xB3\x90a&\xC3V[\x80`\x1F\x01` \x80\x91\x04\x02` \x01`@Q\x90\x81\x01`@R\x80\x92\x91\x90\x81\x81R` \x01\x82\x80Ta\x06\xDF\x90a&\xC3V[\x80\x15a\x07,W\x80`\x1F\x10a\x07\x01Wa\x01\0\x80\x83T\x04\x02\x83R\x91` \x01\x91a\x07,V[\x82\x01\x91\x90`\0R` `\0 \x90[\x81T\x81R\x90`\x01\x01\x90` \x01\x80\x83\x11a\x07\x0FW\x82\x90\x03`\x1F\x16\x82\x01\x91[PPPPP\x90P[\x92\x91PPV[`\0`g\x82`@Qa\x07L\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T\x90P\x91\x90PV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x160\x03a\x08,W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Fdelegatecall\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01[`@Q\x80\x91\x03\x90\xFD[\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16a\x08\xA1\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBCTs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x90V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x14a\tDW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Factive proxy\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\tM\x81a\x1AkV[`@\x80Q`\0\x80\x82R` \x82\x01\x90\x92Ra\ti\x91\x83\x91\x90a\x1AsV[PV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x160\x03a\n1W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Fdelegatecall\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16a\n\xA6\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBCTs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x90V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x14a\x0BIW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Factive proxy\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\x0BR\x82a\x1AkV[a\x04r\x82\x82`\x01a\x1AsV[`\x000s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x16\x14a\x0C%W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`8`$\x82\x01R\x7FUUPSUpgradeable: must not be cal`D\x82\x01R\x7Fled through delegatecall\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[P\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBC\x90V[a\x0CRa\x19\xEAV[\x80`\0\x03a\x0C\xBCW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x14`$\x82\x01R\x7Fchain id cannot be 0\0\0\0\0\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[`@\x80Q\x80\x82\x01\x90\x91R`\x07\x81R\x7Fmainnet\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F{\xEA\xFA\x94\xC8\xBF\xB8\xF1\xC1\xA41\x04\xA3Or\xC5$&\x8A\xAF\xBF\xE8;\xFF\x17HU94\\f\xFF\x03a\r\x7FW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x1B`$\x82\x01R\x7Fcannot set mainnet chain id\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[`g\x82`@Qa\r\x8F\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T`\0\x14a\x0E\x07W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x14`$\x82\x01R\x7Fchain id already set\0\0\0\0\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[\x80`g\x83`@Qa\x0E\x18\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 \x81\x90UP\x80\x82`@Qa\x0E9\x91\x90a'\x16V[`@Q\x90\x81\x90\x03\x81 \x90\x7F\x86\xA4(l\xD1~\x83w\x05\xC9\x98\x8BbB\xB5\xCD\xD7 \xD82 \x8D\xD8\x85f\x8F\xF0\x0EQM(\xDF\x90`\0\x90\xA3PPV[a\x0Eua\x19\xEAV[a\x0E\x7F`\0a\x1CwV[V[`\0Ta\x01\0\x90\x04`\xFF\x16\x15\x80\x80\x15a\x0E\xA1WP`\0T`\x01`\xFF\x90\x91\x16\x10[\x80a\x0E\xBBWP0;\x15\x80\x15a\x0E\xBBWP`\0T`\xFF\x16`\x01\x14[a\x0FGW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`.`$\x82\x01R\x7FInitializable: contract is alrea`D\x82\x01R\x7Fdy initialized\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[`\0\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\x16`\x01\x17\x90U\x80\x15a\x0F\xA5W`\0\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\xFF\x16a\x01\0\x17\x90U[a\x0F\xADa\x1C\xEEV[`\0`g`@Qa\x0F\xE1\x90\x7Fmainnet\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R`\x07\x01\x90V[\x90\x81R`@Q\x90\x81\x90\x03` \x01\x81 \x91\x90\x91U\x7Foptimism\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R`\n\x90`g\x90`\x08\x01\x90\x81R`@Q\x90\x81\x90\x03` \x01\x81 \x91\x90\x91U\x7Farbitrum\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81Ra\xA4\xB1\x90`g\x90`\x08\x01\x90\x81R`@Q\x90\x81\x90\x03` \x01\x90 U\x80\x15a\tiW`\0\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\xFF\x16\x90U`@Q`\x01\x81R\x7F\x7F&\xB8?\xF9n\x1F+jh/\x138R\xF6y\x8A\t\xC4e\xDA\x95\x92\x14`\xCE\xFB8G@$\x98\x90` \x01`@Q\x80\x91\x03\x90\xA1PV[`@\x80Q\x80\x82\x01\x90\x91R`\x03\x81R\x7FETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x81Q\x90\x82\x01 `\0\x90\x7F\xAA\xAE\xBE\xBA8\x10\xB1\xE6\xB7\x07\x81\xF1K-r\xC1\xCB\x89\xC0\xB2\xB3 \xC4;\xB6\x7F\xF7\x9FV/_\xF4\x03a\x11rW`@Q\x80`@\x01`@R\x80`\x04\x81R` \x01\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RP\x91P[`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F\x0F\x8A\x19?\xF4dCD\x86\xC0\xDA\xF7\xDB*\x89X\x846]+\xC8K\xA4zh\xFC\xF8\x9C\x1B\x14\xB5\xB8\x03a\x12bW\x82`\0\x03a\x11\xF6WPs\xC0*\xAA9\xB2#\xFE\x8D\n\x0E\\O'\xEA\xD9\x08<ul\xC2a\x074V[\x82`\n\x03a\x12\x19WPsB\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x06a\x074V[\x82a\xA4\xB1\x03a\x12=WPs\x82\xAFID}\x8A\x07\xE3\xBD\x95\xBD\rV\xF3RAR?\xBA\xB1a\x074V[\x82b\xAA6\xA7\x03a\x12bWPs\xFF\xF9\x97g\x82\xD4l\xC0V0\xD1\xF6\xEB\xAB\x18\xB22Mk\x14a\x074V[`@\x80Q\x80\x82\x01\x90\x91R`\x03\x81R\x7FDAI\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F\xA5\xE9/>\xFBh&\x15_\x1Fr\x8E\x16*\xF9\xD7\xCD\xA3:WJ\x11S\xB5\x8F\x03\xEA\x01\xCC7\xE5h\x03a\x13RW\x82`\0\x03a\x12\xE6WPsk\x17Tt\xE8\x90\x94\xC4M\xA9\x8B\x95N\xED\xEA\xC4\x95'\x1D\x0Fa\x074V[\x82`\n\x03a\x13\tWPs\xDA\x10\0\x9C\xBD]\x07\xDD\x0C\xEC\xC6aa\xFC\x93\xD7\xC9\0\r\xA1a\x074V[\x82a\xA4\xB1\x03a\x13-WPs\xDA\x10\0\x9C\xBD]\x07\xDD\x0C\xEC\xC6aa\xFC\x93\xD7\xC9\0\r\xA1a\x074V[\x82b\xAA6\xA7\x03a\x13RWPs\xFF4\xB3\xD4\xAE\xE8\xDD\xCDo\x9A\xFF\xFBo\xE4\x9B\xD3q\xB8\xA3Wa\x074V[`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FUSDC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F\xD6\xAC\xA1\xBE\x97)\xC1=gs5\x16\x13!d\x9C\xCC\xAEjY\x15Tw%\x16p\x0F\x98o\x94.\xAA\x03a\x14BW\x82`\0\x03a\x13\xD6WPs\xA0\xB8i\x91\xC6!\x8B6\xC1\xD1\x9DJ.\x9E\xB0\xCE6\x06\xEBHa\x074V[\x82`\n\x03a\x13\xF9WPs\x7F\\vL\xBC\x14\xF9f\x9B\x88\x83|\xA1I\x0C\xCA\x17\xC3\x16\x07a\x074V[\x82a\xA4\xB1\x03a\x14\x1DWPs\xAF\x88\xD0e\xE7|\x8C\xC2#\x93'\xC5\xED\xB3\xA42&\x8EX1a\x074V[\x82b\xAA6\xA7\x03a\x14BWPs\x1C}K\x19l\xB0\xC7\xB0\x1Dt?\xBCa\x16\xA9\x027\x9Cr8a\x074V[`\0\x83\x81R`e` R`@\x90\x81\x90 \x90Qa\x14_\x90\x84\x90a'\x16V[\x90\x81R`@Q\x90\x81\x90\x03` \x01\x90 Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x90P\x92\x91PPV[`f` \x90\x81R`\0\x92\x83R`@\x80\x84 \x90\x91R\x90\x82R\x90 \x80Ta\x14\xB1\x90a&\xC3V[\x80`\x1F\x01` \x80\x91\x04\x02` \x01`@Q\x90\x81\x01`@R\x80\x92\x91\x90\x81\x81R` \x01\x82\x80Ta\x14\xDD\x90a&\xC3V[\x80\x15a\x15*W\x80`\x1F\x10a\x14\xFFWa\x01\0\x80\x83T\x04\x02\x83R\x91` \x01\x91a\x15*V[\x82\x01\x91\x90`\0R` `\0 \x90[\x81T\x81R\x90`\x01\x01\x90` \x01\x80\x83\x11a\x15\rW\x82\x90\x03`\x1F\x16\x82\x01\x91[PPPPP\x81V[``a\x074F\x83a\x04vV[`\0`g\x83`@Qa\x15P\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T`\0\x03a\x15\xC8W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x12`$\x82\x01R\x7Funknown chain name\0\0\0\0\0\0\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[a\x15\xF0`g\x84`@Qa\x15\xDB\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T\x83a\x10\xD5V[\x93\x92PPPV[`\0a\x074F\x83a\x10\xD5V[a\x16\x0Ba\x19\xEAV[\x80Q\x82Q\x14a\x16\x9BW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`$\x80\x82\x01R\x7FtokenNames and addrs length mism`D\x82\x01R\x7Fatch\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[`\0[\x82Q\x81\x10\x15a\x16\xECWa\x16\xE4\x84\x84\x83\x81Q\x81\x10a\x16\xBDWa\x16\xBDa'2V[` \x02` \x01\x01Q\x84\x84\x81Q\x81\x10a\x16\xD7Wa\x16\xD7a'2V[` \x02` \x01\x01Qa\x16\xF2V[`\x01\x01a\x16\x9EV[PPPPV[a\x16\xFAa\x19\xEAV[`\0\x83\x81R`e` R`@\x80\x82 \x90Qa\x17\x16\x90\x85\x90a'\x16V[\x90\x81R`@Q\x90\x81\x90\x03` \x01\x90 Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x14a\x17\xA3W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x18`$\x82\x01R\x7FToken already registered\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[`\0\x83\x81R`f` \x90\x81R`@\x80\x83 s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x85\x16\x84R\x90\x91R\x90 \x80Ta\x17\xDD\x90a&\xC3V[\x15\x90Pa\x18FW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x1A`$\x82\x01R\x7FAddress already registered\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[\x80`e`\0\x85\x81R` \x01\x90\x81R` \x01`\0 \x83`@Qa\x18h\x91\x90a'\x16V[\x90\x81R`@\x80Q` \x92\x81\x90\x03\x83\x01\x90 \x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x16s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x94\x85\x16\x17\x90U`\0\x86\x81R`f\x83R\x81\x81 \x93\x85\x16\x81R\x92\x90\x91R\x90 a\x18\xD9\x83\x82a'\xAFV[P\x80s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82`@Qa\x18\xFF\x91\x90a'\x16V[`@Q\x90\x81\x90\x03\x81 \x90\x85\x90\x7Fi$\xCDB\xAC\x86\x94\xED_A\xAA29\xEE\x8E\xD5\x9C\xDB90\x13\xC2\x97u\xF1\xEF\xF5\xF4\xE0\xA6\xBC\xF9\x90`\0\x90\xA4PPPV[a\x19>a\x19\xEAV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x16a\x19\xE1W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`&`$\x82\x01R\x7FOwnable: new owner is the zero a`D\x82\x01R\x7Fddress\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\ti\x81a\x1CwV[`3Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x163\x14a\x0E\x7FW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01\x81\x90R`$\x82\x01R\x7FOwnable: caller is not the owner`D\x82\x01R`d\x01a\x08#V[a\tia\x19\xEAV[\x7FI\x10\xFD\xFA\x16\xFE\xD3&\x0E\xD0\xE7\x14\x7F|\xC6\xDA\x11\xA6\x02\x08\xB5\xB9@m\x12\xA65aO\xFD\x91CT`\xFF\x16\x15a\x1A\xABWa\x1A\xA6\x83a\x1D\x8DV[PPPV[\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16cR\xD1\x90-`@Q\x81c\xFF\xFF\xFF\xFF\x16`\xE0\x1B\x81R`\x04\x01` `@Q\x80\x83\x03\x81\x86Z\xFA\x92PPP\x80\x15a\x1B0WP`@\x80Q`\x1F=\x90\x81\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16\x82\x01\x90\x92Ra\x1B-\x91\x81\x01\x90a(\xC8V[`\x01[a\x1B\xBCW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`.`$\x82\x01R\x7FERC1967Upgrade: new implementati`D\x82\x01R\x7Fon is not UUPS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBC\x81\x14a\x1CkW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`)`$\x82\x01R\x7FERC1967Upgrade: unsupported prox`D\x82\x01R\x7FiableUUID\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[Pa\x1A\xA6\x83\x83\x83a\x1E\x97V[`3\x80Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x83\x81\x16\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x83\x16\x81\x17\x90\x93U`@Q\x91\x16\x91\x90\x82\x90\x7F\x8B\xE0\x07\x9CS\x16Y\x14\x13D\xCD\x1F\xD0\xA4\xF2\x84\x19I\x7F\x97\"\xA3\xDA\xAF\xE3\xB4\x18okdW\xE0\x90`\0\x90\xA3PPV[`\0Ta\x01\0\x90\x04`\xFF\x16a\x1D\x85W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`+`$\x82\x01R\x7FInitializable: contract is not i`D\x82\x01R\x7Fnitializing\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\x0E\x7Fa\x1E\xBCV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x16;a\x1E1W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`-`$\x82\x01R\x7FERC1967: new implementation is n`D\x82\x01R\x7Fot a contract\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBC\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x16s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x92\x90\x92\x16\x91\x90\x91\x17\x90UV[a\x1E\xA0\x83a\x1F\\V[`\0\x82Q\x11\x80a\x1E\xADWP\x80[\x15a\x1A\xA6Wa\x16\xEC\x83\x83a\x1F\xA9V[`\0Ta\x01\0\x90\x04`\xFF\x16a\x1FSW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`+`$\x82\x01R\x7FInitializable: contract is not i`D\x82\x01R\x7Fnitializing\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\x0E\x7F3a\x1CwV[a\x1Fe\x81a\x1D\x8DV[`@Qs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x82\x16\x90\x7F\xBC|\xD7Z \xEE'\xFD\x9A\xDE\xBA\xB3 A\xF7U!M\xBCk\xFF\xA9\x0C\xC0\"[9\xDA.\\-;\x90`\0\x90\xA2PV[``a\x15\xF0\x83\x83`@Q\x80``\x01`@R\x80`'\x81R` \x01a(\xE2`'\x919```\0\x80\x85s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x85`@Qa\x1F\xF3\x91\x90a'\x16V[`\0`@Q\x80\x83\x03\x81\x85Z\xF4\x91PP=\x80`\0\x81\x14a .W`@Q\x91P`\x1F\x19`?=\x01\x16\x82\x01`@R=\x82R=`\0` \x84\x01>a 3V[``\x91P[P\x91P\x91Pa D\x86\x83\x83\x87a NV[\x96\x95PPPPPPV[``\x83\x15a \xE4W\x82Q`\0\x03a \xDDWs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x85\x16;a \xDDW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x1D`$\x82\x01R\x7FAddress: call to non-contract\0\0\0`D\x82\x01R`d\x01a\x08#V[P\x81a \xEEV[a \xEE\x83\x83a \xF6V[\x94\x93PPPPV[\x81Q\x15a!\x06W\x81Q\x80\x83` \x01\xFD[\x80`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R`\x04\x01a\x08#\x91\x90a#EV[\x7FNH{q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`\0R`A`\x04R`$`\0\xFD[`@Q`\x1F\x82\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16\x81\x01g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x82\x82\x10\x17\x15a!\xB0Wa!\xB0a!:V[`@R\x91\x90PV[`\0\x80g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x84\x11\x15a!\xD3Wa!\xD3a!:V[P`\x1F\x83\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16` \x01a\"\x06\x81a!iV[\x91PP\x82\x81R\x83\x83\x83\x01\x11\x15a\"\x1BW`\0\x80\xFD[\x82\x82` \x83\x017`\0` \x84\x83\x01\x01R\x93\x92PPPV[`\0\x82`\x1F\x83\x01\x12a\"CW`\0\x80\xFD[a\x15\xF0\x83\x835` \x85\x01a!\xB8V[\x805s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x16\x81\x14a\"vW`\0\x80\xFD[\x91\x90PV[`\0\x80`@\x83\x85\x03\x12\x15a\"\x8EW`\0\x80\xFD[\x825g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a\"\xA5W`\0\x80\xFD[a\"\xB1\x85\x82\x86\x01a\"2V[\x92PPa\"\xC0` \x84\x01a\"RV[\x90P\x92P\x92\x90PV[`\0` \x82\x84\x03\x12\x15a\"\xDBW`\0\x80\xFD[\x815g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a\"\xF2W`\0\x80\xFD[a \xEE\x84\x82\x85\x01a\"2V[`\0\x80`@\x83\x85\x03\x12\x15a#\x11W`\0\x80\xFD[\x825\x91Pa\"\xC0` \x84\x01a\"RV[`\0[\x83\x81\x10\x15a#<W\x81\x81\x01Q\x83\x82\x01R` \x01a#$V[PP`\0\x91\x01RV[` \x81R`\0\x82Q\x80` \x84\x01Ra#d\x81`@\x85\x01` \x87\x01a#!V[`\x1F\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16\x91\x90\x91\x01`@\x01\x92\x91PPV[`\0` \x82\x84\x03\x12\x15a#\xA8W`\0\x80\xFD[a\x15\xF0\x82a\"RV[`\0\x80`@\x83\x85\x03\x12\x15a#\xC4W`\0\x80\xFD[a#\xCD\x83a\"RV[\x91P` \x83\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a#\xE9W`\0\x80\xFD[\x83\x01`\x1F\x81\x01\x85\x13a#\xFAW`\0\x80\xFD[a$\t\x85\x825` \x84\x01a!\xB8V[\x91PP\x92P\x92\x90PV[`\0\x80`@\x83\x85\x03\x12\x15a$&W`\0\x80\xFD[\x825\x91P` \x83\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$DW`\0\x80\xFD[a$\t\x85\x82\x86\x01a\"2V[`\0\x80`@\x83\x85\x03\x12\x15a$cW`\0\x80\xFD[\x825g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$zW`\0\x80\xFD[a$\x86\x85\x82\x86\x01a\"2V[\x95` \x94\x90\x94\x015\x94PPPPV[`\0\x80`@\x83\x85\x03\x12\x15a$\xA8W`\0\x80\xFD[\x825g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$\xBFW`\0\x80\xFD[a$\xCB\x85\x82\x86\x01a\"2V[\x92PP` \x83\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$DW`\0\x80\xFD[`\0g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x82\x11\x15a%\x02Wa%\x02a!:V[P`\x05\x1B` \x01\x90V[`\0\x82`\x1F\x83\x01\x12a%\x1DW`\0\x80\xFD[\x815a%0a%+\x82a$\xE8V[a!iV[\x80\x82\x82R` \x82\x01\x91P` \x83`\x05\x1B\x86\x01\x01\x92P\x85\x83\x11\x15a%RW`\0\x80\xFD[` \x85\x01[\x83\x81\x10\x15a%vWa%h\x81a\"RV[\x83R` \x92\x83\x01\x92\x01a%WV[P\x95\x94PPPPPV[`\0\x80`\0``\x84\x86\x03\x12\x15a%\x95W`\0\x80\xFD[\x835\x92P` \x84\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a%\xB3W`\0\x80\xFD[\x84\x01`\x1F\x81\x01\x86\x13a%\xC4W`\0\x80\xFD[\x805a%\xD2a%+\x82a$\xE8V[\x80\x82\x82R` \x82\x01\x91P` \x83`\x05\x1B\x85\x01\x01\x92P\x88\x83\x11\x15a%\xF4W`\0\x80\xFD[` \x84\x01[\x83\x81\x10\x15a&6W\x805g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a&\x18W`\0\x80\xFD[a&'\x8B` \x83\x89\x01\x01a\"2V[\x84RP` \x92\x83\x01\x92\x01a%\xF9V[P\x94PPPP`@\x84\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a&VW`\0\x80\xFD[a&b\x86\x82\x87\x01a%\x0CV[\x91PP\x92P\x92P\x92V[`\0\x80`\0``\x84\x86\x03\x12\x15a&\x81W`\0\x80\xFD[\x835\x92P` \x84\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a&\x9FW`\0\x80\xFD[a&\xAB\x86\x82\x87\x01a\"2V[\x92PPa&\xBA`@\x85\x01a\"RV[\x90P\x92P\x92P\x92V[`\x01\x81\x81\x1C\x90\x82\x16\x80a&\xD7W`\x7F\x82\x16\x91P[` \x82\x10\x81\x03a'\x10W\x7FNH{q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`\0R`\"`\x04R`$`\0\xFD[P\x91\x90PV[`\0\x82Qa'(\x81\x84` \x87\x01a#!V[\x91\x90\x91\x01\x92\x91PPV[\x7FNH{q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`\0R`2`\x04R`$`\0\xFD[`\x1F\x82\x11\x15a\x1A\xA6W\x80`\0R` `\0 `\x1F\x84\x01`\x05\x1C\x81\x01` \x85\x10\x15a'\x88WP\x80[`\x1F\x84\x01`\x05\x1C\x82\x01\x91P[\x81\x81\x10\x15a'\xA8W`\0\x81U`\x01\x01a'\x94V[PPPPPV[\x81Qg\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a'\xC9Wa'\xC9a!:V[a'\xDD\x81a'\xD7\x84Ta&\xC3V[\x84a'aV[` `\x1F\x82\x11`\x01\x81\x14a(/W`\0\x83\x15a'\xF9WP\x84\x82\x01Q[\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF`\x03\x85\x90\x1B\x1C\x19\x16`\x01\x84\x90\x1B\x17\x84Ua'\xA8V[`\0\x84\x81R` \x81 \x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x85\x16\x91[\x82\x81\x10\x15a(}W\x87\x85\x01Q\x82U` \x94\x85\x01\x94`\x01\x90\x92\x01\x91\x01a(]V[P\x84\x82\x10\x15a(\xB9W\x86\x84\x01Q\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF`\x03\x87\x90\x1B`\xF8\x16\x1C\x19\x16\x81U[PPPP`\x01\x90\x81\x1B\x01\x90UPV[`\0` \x82\x84\x03\x12\x15a(\xDAW`\0\x80\xFD[PQ\x91\x90PV\xFEAddress: low-level delegate call failed\xA2dipfsX\"\x12 \x11P\xF1J \x83\xE6\\}\x19\xFF\xB5\x95\xC4\x90\x0E\xBA\xCF=N\xFF\x1D/\xB2\n\x9Bt\xE9)y]|dsolcC\0\x08\x1A\x003";
     /// The bytecode of the contract.
-    pub static TOKENREGISTRY_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
-        __BYTECODE,
-    );
+    pub static TOKENREGISTRY_BYTECODE: ::ethers::core::types::Bytes =
+        ::ethers::core::types::Bytes::from_static(__BYTECODE);
     #[rustfmt::skip]
     const __DEPLOYED_BYTECODE: &[u8] = b"`\x80`@R`\x046\x10a\x01_W`\x005`\xE0\x1C\x80c\x81)\xFC\x1C\x11a\0\xC0W\x80c\xC3[uG\x11a\0tW\x80c\xE0\xAB\xD9\x1B\x11a\0YW\x80c\xE0\xAB\xD9\x1B\x14a\x03\xFFW\x80c\xE5\xBE\x9D\xEC\x14a\x04\x1FW\x80c\xF2\xFD\xE3\x8B\x14a\x04?W`\0\x80\xFD[\x80c\xC3[uG\x14a\x03\xBFW\x80c\xC4\t\x126\x14a\x03\xDFW`\0\x80\xFD[\x80c\x8D\xA5\xCB[\x11a\0\xA5W\x80c\x8D\xA5\xCB[\x14a\x03TW\x80c\xA2\xA7\x86.\x14a\x03\x7FW\x80c\xB3\x99\xDEN\x14a\x03\x9FW`\0\x80\xFD[\x80c\x81)\xFC\x1C\x14a\x03\x1FW\x80c\x8Cz\xF0\x80\x14a\x034W`\0\x80\xFD[\x80cO\x1E\xF2\x86\x11a\x01\x17W\x80cg\xCB\xCB2\x11a\0\xFCW\x80cg\xCB\xCB2\x14a\x02fW\x80ciy\xE2{\x14a\x02\xEAW\x80cqP\x18\xA6\x14a\x03\nW`\0\x80\xFD[\x80cO\x1E\xF2\x86\x14a\x02>W\x80cR\xD1\x90-\x14a\x02QW`\0\x80\xFD[\x80c%\x15\xD6`\x11a\x01HW\x80c%\x15\xD6`\x14a\x01\xD1W\x80c0L\xD0@\x14a\x01\xFEW\x80c6Y\xCF\xE6\x14a\x02\x1EW`\0\x80\xFD[\x80c\x17EnV\x14a\x01dW\x80c\x1B\xD5\x13\x0F\x14a\x01\x86W[`\0\x80\xFD[4\x80\x15a\x01pW`\0\x80\xFD[Pa\x01\x84a\x01\x7F6`\x04a\"{V[a\x04_V[\0[4\x80\x15a\x01\x92W`\0\x80\xFD[Pa\x01\xBEa\x01\xA16`\x04a\"\xC9V[\x80Q` \x81\x83\x01\x81\x01\x80Q`g\x82R\x92\x82\x01\x91\x90\x93\x01 \x91RT\x81V[`@Q\x90\x81R` \x01[`@Q\x80\x91\x03\x90\xF3[4\x80\x15a\x01\xDDW`\0\x80\xFD[Pa\x01\xF1a\x01\xEC6`\x04a\"\xFEV[a\x04vV[`@Qa\x01\xC8\x91\x90a#EV[4\x80\x15a\x02\nW`\0\x80\xFD[Pa\x01\xBEa\x02\x196`\x04a\"\xC9V[a\x07:V[4\x80\x15a\x02*W`\0\x80\xFD[Pa\x01\x84a\x0296`\x04a#\x96V[a\x07bV[a\x01\x84a\x02L6`\x04a#\xB1V[a\tlV[4\x80\x15a\x02]W`\0\x80\xFD[Pa\x01\xBEa\x0B^V[4\x80\x15a\x02rW`\0\x80\xFD[Pa\x02\xC5a\x02\x816`\x04a$\x13V[`e` \x90\x81R`\0\x92\x83R`@\x90\x92 \x81Q\x80\x83\x01\x84\x01\x80Q\x92\x81R\x90\x84\x01\x92\x90\x93\x01\x91\x90\x91 \x91RTs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x81V[`@Qs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x90\x91\x16\x81R` \x01a\x01\xC8V[4\x80\x15a\x02\xF6W`\0\x80\xFD[Pa\x01\x84a\x03\x056`\x04a$PV[a\x0CJV[4\x80\x15a\x03\x16W`\0\x80\xFD[Pa\x01\x84a\x0EmV[4\x80\x15a\x03+W`\0\x80\xFD[Pa\x01\x84a\x0E\x81V[4\x80\x15a\x03@W`\0\x80\xFD[Pa\x02\xC5a\x03O6`\x04a$\x13V[a\x10\xD5V[4\x80\x15a\x03`W`\0\x80\xFD[P`3Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16a\x02\xC5V[4\x80\x15a\x03\x8BW`\0\x80\xFD[Pa\x01\xF1a\x03\x9A6`\x04a\"\xFEV[a\x14\x8DV[4\x80\x15a\x03\xABW`\0\x80\xFD[Pa\x01\xF1a\x03\xBA6`\x04a#\x96V[a\x152V[4\x80\x15a\x03\xCBW`\0\x80\xFD[Pa\x02\xC5a\x03\xDA6`\x04a$\x95V[a\x15>V[4\x80\x15a\x03\xEBW`\0\x80\xFD[Pa\x02\xC5a\x03\xFA6`\x04a\"\xC9V[a\x15\xF7V[4\x80\x15a\x04\x0BW`\0\x80\xFD[Pa\x01\x84a\x04\x1A6`\x04a%\x80V[a\x16\x03V[4\x80\x15a\x04+W`\0\x80\xFD[Pa\x01\x84a\x04:6`\x04a&lV[a\x16\xF2V[4\x80\x15a\x04KW`\0\x80\xFD[Pa\x01\x84a\x04Z6`\x04a#\x96V[a\x196V[a\x04ga\x19\xEAV[a\x04rF\x83\x83a\x16\xF2V[PPV[``a\x04\xB7\x83`@Q\x80`@\x01`@R\x80`\x04\x81R` \x01\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RPa\x10\xD5V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x03a\x05#WP`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x82\x01Ra\x074V[a\x05b\x83`@Q\x80`@\x01`@R\x80`\x03\x81R` \x01\x7FDAI\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RPa\x10\xD5V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x03a\x05\xCEWP`@\x80Q\x80\x82\x01\x90\x91R`\x03\x81R\x7FDAI\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x82\x01Ra\x074V[a\x06\r\x83`@Q\x80`@\x01`@R\x80`\x04\x81R` \x01\x7FUSDC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RPa\x10\xD5V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x03a\x06yWP`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FUSDC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x82\x01Ra\x074V[`\0\x83\x81R`f` \x90\x81R`@\x80\x83 s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x86\x16\x84R\x90\x91R\x90 \x80Ta\x06\xB3\x90a&\xC3V[\x80`\x1F\x01` \x80\x91\x04\x02` \x01`@Q\x90\x81\x01`@R\x80\x92\x91\x90\x81\x81R` \x01\x82\x80Ta\x06\xDF\x90a&\xC3V[\x80\x15a\x07,W\x80`\x1F\x10a\x07\x01Wa\x01\0\x80\x83T\x04\x02\x83R\x91` \x01\x91a\x07,V[\x82\x01\x91\x90`\0R` `\0 \x90[\x81T\x81R\x90`\x01\x01\x90` \x01\x80\x83\x11a\x07\x0FW\x82\x90\x03`\x1F\x16\x82\x01\x91[PPPPP\x90P[\x92\x91PPV[`\0`g\x82`@Qa\x07L\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T\x90P\x91\x90PV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x160\x03a\x08,W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Fdelegatecall\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01[`@Q\x80\x91\x03\x90\xFD[\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16a\x08\xA1\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBCTs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x90V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x14a\tDW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Factive proxy\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\tM\x81a\x1AkV[`@\x80Q`\0\x80\x82R` \x82\x01\x90\x92Ra\ti\x91\x83\x91\x90a\x1AsV[PV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x160\x03a\n1W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Fdelegatecall\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16a\n\xA6\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBCTs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x90V[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x14a\x0BIW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`,`$\x82\x01R\x7FFunction must be called through `D\x82\x01R\x7Factive proxy\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\x0BR\x82a\x1AkV[a\x04r\x82\x82`\x01a\x1AsV[`\x000s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x16\x14a\x0C%W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`8`$\x82\x01R\x7FUUPSUpgradeable: must not be cal`D\x82\x01R\x7Fled through delegatecall\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[P\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBC\x90V[a\x0CRa\x19\xEAV[\x80`\0\x03a\x0C\xBCW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x14`$\x82\x01R\x7Fchain id cannot be 0\0\0\0\0\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[`@\x80Q\x80\x82\x01\x90\x91R`\x07\x81R\x7Fmainnet\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F{\xEA\xFA\x94\xC8\xBF\xB8\xF1\xC1\xA41\x04\xA3Or\xC5$&\x8A\xAF\xBF\xE8;\xFF\x17HU94\\f\xFF\x03a\r\x7FW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x1B`$\x82\x01R\x7Fcannot set mainnet chain id\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[`g\x82`@Qa\r\x8F\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T`\0\x14a\x0E\x07W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x14`$\x82\x01R\x7Fchain id already set\0\0\0\0\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[\x80`g\x83`@Qa\x0E\x18\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 \x81\x90UP\x80\x82`@Qa\x0E9\x91\x90a'\x16V[`@Q\x90\x81\x90\x03\x81 \x90\x7F\x86\xA4(l\xD1~\x83w\x05\xC9\x98\x8BbB\xB5\xCD\xD7 \xD82 \x8D\xD8\x85f\x8F\xF0\x0EQM(\xDF\x90`\0\x90\xA3PPV[a\x0Eua\x19\xEAV[a\x0E\x7F`\0a\x1CwV[V[`\0Ta\x01\0\x90\x04`\xFF\x16\x15\x80\x80\x15a\x0E\xA1WP`\0T`\x01`\xFF\x90\x91\x16\x10[\x80a\x0E\xBBWP0;\x15\x80\x15a\x0E\xBBWP`\0T`\xFF\x16`\x01\x14[a\x0FGW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`.`$\x82\x01R\x7FInitializable: contract is alrea`D\x82\x01R\x7Fdy initialized\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[`\0\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\x16`\x01\x17\x90U\x80\x15a\x0F\xA5W`\0\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\xFF\x16a\x01\0\x17\x90U[a\x0F\xADa\x1C\xEEV[`\0`g`@Qa\x0F\xE1\x90\x7Fmainnet\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R`\x07\x01\x90V[\x90\x81R`@Q\x90\x81\x90\x03` \x01\x81 \x91\x90\x91U\x7Foptimism\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R`\n\x90`g\x90`\x08\x01\x90\x81R`@Q\x90\x81\x90\x03` \x01\x81 \x91\x90\x91U\x7Farbitrum\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81Ra\xA4\xB1\x90`g\x90`\x08\x01\x90\x81R`@Q\x90\x81\x90\x03` \x01\x90 U\x80\x15a\tiW`\0\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\xFF\x16\x90U`@Q`\x01\x81R\x7F\x7F&\xB8?\xF9n\x1F+jh/\x138R\xF6y\x8A\t\xC4e\xDA\x95\x92\x14`\xCE\xFB8G@$\x98\x90` \x01`@Q\x80\x91\x03\x90\xA1PV[`@\x80Q\x80\x82\x01\x90\x91R`\x03\x81R\x7FETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x81Q\x90\x82\x01 `\0\x90\x7F\xAA\xAE\xBE\xBA8\x10\xB1\xE6\xB7\x07\x81\xF1K-r\xC1\xCB\x89\xC0\xB2\xB3 \xC4;\xB6\x7F\xF7\x9FV/_\xF4\x03a\x11rW`@Q\x80`@\x01`@R\x80`\x04\x81R` \x01\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81RP\x91P[`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FWETH\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F\x0F\x8A\x19?\xF4dCD\x86\xC0\xDA\xF7\xDB*\x89X\x846]+\xC8K\xA4zh\xFC\xF8\x9C\x1B\x14\xB5\xB8\x03a\x12bW\x82`\0\x03a\x11\xF6WPs\xC0*\xAA9\xB2#\xFE\x8D\n\x0E\\O'\xEA\xD9\x08<ul\xC2a\x074V[\x82`\n\x03a\x12\x19WPsB\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x06a\x074V[\x82a\xA4\xB1\x03a\x12=WPs\x82\xAFID}\x8A\x07\xE3\xBD\x95\xBD\rV\xF3RAR?\xBA\xB1a\x074V[\x82b\xAA6\xA7\x03a\x12bWPs\xFF\xF9\x97g\x82\xD4l\xC0V0\xD1\xF6\xEB\xAB\x18\xB22Mk\x14a\x074V[`@\x80Q\x80\x82\x01\x90\x91R`\x03\x81R\x7FDAI\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F\xA5\xE9/>\xFBh&\x15_\x1Fr\x8E\x16*\xF9\xD7\xCD\xA3:WJ\x11S\xB5\x8F\x03\xEA\x01\xCC7\xE5h\x03a\x13RW\x82`\0\x03a\x12\xE6WPsk\x17Tt\xE8\x90\x94\xC4M\xA9\x8B\x95N\xED\xEA\xC4\x95'\x1D\x0Fa\x074V[\x82`\n\x03a\x13\tWPs\xDA\x10\0\x9C\xBD]\x07\xDD\x0C\xEC\xC6aa\xFC\x93\xD7\xC9\0\r\xA1a\x074V[\x82a\xA4\xB1\x03a\x13-WPs\xDA\x10\0\x9C\xBD]\x07\xDD\x0C\xEC\xC6aa\xFC\x93\xD7\xC9\0\r\xA1a\x074V[\x82b\xAA6\xA7\x03a\x13RWPs\xFF4\xB3\xD4\xAE\xE8\xDD\xCDo\x9A\xFF\xFBo\xE4\x9B\xD3q\xB8\xA3Wa\x074V[`@\x80Q\x80\x82\x01\x90\x91R`\x04\x81R\x7FUSDC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0` \x91\x82\x01R\x82Q\x90\x83\x01 \x7F\xD6\xAC\xA1\xBE\x97)\xC1=gs5\x16\x13!d\x9C\xCC\xAEjY\x15Tw%\x16p\x0F\x98o\x94.\xAA\x03a\x14BW\x82`\0\x03a\x13\xD6WPs\xA0\xB8i\x91\xC6!\x8B6\xC1\xD1\x9DJ.\x9E\xB0\xCE6\x06\xEBHa\x074V[\x82`\n\x03a\x13\xF9WPs\x7F\\vL\xBC\x14\xF9f\x9B\x88\x83|\xA1I\x0C\xCA\x17\xC3\x16\x07a\x074V[\x82a\xA4\xB1\x03a\x14\x1DWPs\xAF\x88\xD0e\xE7|\x8C\xC2#\x93'\xC5\xED\xB3\xA42&\x8EX1a\x074V[\x82b\xAA6\xA7\x03a\x14BWPs\x1C}K\x19l\xB0\xC7\xB0\x1Dt?\xBCa\x16\xA9\x027\x9Cr8a\x074V[`\0\x83\x81R`e` R`@\x90\x81\x90 \x90Qa\x14_\x90\x84\x90a'\x16V[\x90\x81R`@Q\x90\x81\x90\x03` \x01\x90 Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x90P\x92\x91PPV[`f` \x90\x81R`\0\x92\x83R`@\x80\x84 \x90\x91R\x90\x82R\x90 \x80Ta\x14\xB1\x90a&\xC3V[\x80`\x1F\x01` \x80\x91\x04\x02` \x01`@Q\x90\x81\x01`@R\x80\x92\x91\x90\x81\x81R` \x01\x82\x80Ta\x14\xDD\x90a&\xC3V[\x80\x15a\x15*W\x80`\x1F\x10a\x14\xFFWa\x01\0\x80\x83T\x04\x02\x83R\x91` \x01\x91a\x15*V[\x82\x01\x91\x90`\0R` `\0 \x90[\x81T\x81R\x90`\x01\x01\x90` \x01\x80\x83\x11a\x15\rW\x82\x90\x03`\x1F\x16\x82\x01\x91[PPPPP\x81V[``a\x074F\x83a\x04vV[`\0`g\x83`@Qa\x15P\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T`\0\x03a\x15\xC8W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x12`$\x82\x01R\x7Funknown chain name\0\0\0\0\0\0\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[a\x15\xF0`g\x84`@Qa\x15\xDB\x91\x90a'\x16V[\x90\x81R` \x01`@Q\x80\x91\x03\x90 T\x83a\x10\xD5V[\x93\x92PPPV[`\0a\x074F\x83a\x10\xD5V[a\x16\x0Ba\x19\xEAV[\x80Q\x82Q\x14a\x16\x9BW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`$\x80\x82\x01R\x7FtokenNames and addrs length mism`D\x82\x01R\x7Fatch\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[`\0[\x82Q\x81\x10\x15a\x16\xECWa\x16\xE4\x84\x84\x83\x81Q\x81\x10a\x16\xBDWa\x16\xBDa'2V[` \x02` \x01\x01Q\x84\x84\x81Q\x81\x10a\x16\xD7Wa\x16\xD7a'2V[` \x02` \x01\x01Qa\x16\xF2V[`\x01\x01a\x16\x9EV[PPPPV[a\x16\xFAa\x19\xEAV[`\0\x83\x81R`e` R`@\x80\x82 \x90Qa\x17\x16\x90\x85\x90a'\x16V[\x90\x81R`@Q\x90\x81\x90\x03` \x01\x90 Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x14a\x17\xA3W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x18`$\x82\x01R\x7FToken already registered\0\0\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[`\0\x83\x81R`f` \x90\x81R`@\x80\x83 s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x85\x16\x84R\x90\x91R\x90 \x80Ta\x17\xDD\x90a&\xC3V[\x15\x90Pa\x18FW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x1A`$\x82\x01R\x7FAddress already registered\0\0\0\0\0\0`D\x82\x01R`d\x01a\x08#V[\x80`e`\0\x85\x81R` \x01\x90\x81R` \x01`\0 \x83`@Qa\x18h\x91\x90a'\x16V[\x90\x81R`@\x80Q` \x92\x81\x90\x03\x83\x01\x90 \x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x16s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x94\x85\x16\x17\x90U`\0\x86\x81R`f\x83R\x81\x81 \x93\x85\x16\x81R\x92\x90\x91R\x90 a\x18\xD9\x83\x82a'\xAFV[P\x80s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x82`@Qa\x18\xFF\x91\x90a'\x16V[`@Q\x90\x81\x90\x03\x81 \x90\x85\x90\x7Fi$\xCDB\xAC\x86\x94\xED_A\xAA29\xEE\x8E\xD5\x9C\xDB90\x13\xC2\x97u\xF1\xEF\xF5\xF4\xE0\xA6\xBC\xF9\x90`\0\x90\xA4PPPV[a\x19>a\x19\xEAV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x16a\x19\xE1W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`&`$\x82\x01R\x7FOwnable: new owner is the zero a`D\x82\x01R\x7Fddress\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\ti\x81a\x1CwV[`3Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x163\x14a\x0E\x7FW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01\x81\x90R`$\x82\x01R\x7FOwnable: caller is not the owner`D\x82\x01R`d\x01a\x08#V[a\tia\x19\xEAV[\x7FI\x10\xFD\xFA\x16\xFE\xD3&\x0E\xD0\xE7\x14\x7F|\xC6\xDA\x11\xA6\x02\x08\xB5\xB9@m\x12\xA65aO\xFD\x91CT`\xFF\x16\x15a\x1A\xABWa\x1A\xA6\x83a\x1D\x8DV[PPPV[\x82s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16cR\xD1\x90-`@Q\x81c\xFF\xFF\xFF\xFF\x16`\xE0\x1B\x81R`\x04\x01` `@Q\x80\x83\x03\x81\x86Z\xFA\x92PPP\x80\x15a\x1B0WP`@\x80Q`\x1F=\x90\x81\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16\x82\x01\x90\x92Ra\x1B-\x91\x81\x01\x90a(\xC8V[`\x01[a\x1B\xBCW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`.`$\x82\x01R\x7FERC1967Upgrade: new implementati`D\x82\x01R\x7Fon is not UUPS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBC\x81\x14a\x1CkW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`)`$\x82\x01R\x7FERC1967Upgrade: unsupported prox`D\x82\x01R\x7FiableUUID\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[Pa\x1A\xA6\x83\x83\x83a\x1E\x97V[`3\x80Ts\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x83\x81\x16\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x83\x16\x81\x17\x90\x93U`@Q\x91\x16\x91\x90\x82\x90\x7F\x8B\xE0\x07\x9CS\x16Y\x14\x13D\xCD\x1F\xD0\xA4\xF2\x84\x19I\x7F\x97\"\xA3\xDA\xAF\xE3\xB4\x18okdW\xE0\x90`\0\x90\xA3PPV[`\0Ta\x01\0\x90\x04`\xFF\x16a\x1D\x85W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`+`$\x82\x01R\x7FInitializable: contract is not i`D\x82\x01R\x7Fnitializing\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\x0E\x7Fa\x1E\xBCV[s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x16;a\x1E1W`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`-`$\x82\x01R\x7FERC1967: new implementation is n`D\x82\x01R\x7Fot a contract\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[\x7F6\x08\x94\xA1;\xA1\xA3!\x06g\xC8(I-\xB9\x8D\xCA> v\xCC75\xA9 \xA3\xCAP]8+\xBC\x80T\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x16s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x92\x90\x92\x16\x91\x90\x91\x17\x90UV[a\x1E\xA0\x83a\x1F\\V[`\0\x82Q\x11\x80a\x1E\xADWP\x80[\x15a\x1A\xA6Wa\x16\xEC\x83\x83a\x1F\xA9V[`\0Ta\x01\0\x90\x04`\xFF\x16a\x1FSW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`+`$\x82\x01R\x7FInitializable: contract is not i`D\x82\x01R\x7Fnitializing\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`d\x82\x01R`\x84\x01a\x08#V[a\x0E\x7F3a\x1CwV[a\x1Fe\x81a\x1D\x8DV[`@Qs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x82\x16\x90\x7F\xBC|\xD7Z \xEE'\xFD\x9A\xDE\xBA\xB3 A\xF7U!M\xBCk\xFF\xA9\x0C\xC0\"[9\xDA.\\-;\x90`\0\x90\xA2PV[``a\x15\xF0\x83\x83`@Q\x80``\x01`@R\x80`'\x81R` \x01a(\xE2`'\x919```\0\x80\x85s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x16\x85`@Qa\x1F\xF3\x91\x90a'\x16V[`\0`@Q\x80\x83\x03\x81\x85Z\xF4\x91PP=\x80`\0\x81\x14a .W`@Q\x91P`\x1F\x19`?=\x01\x16\x82\x01`@R=\x82R=`\0` \x84\x01>a 3V[``\x91P[P\x91P\x91Pa D\x86\x83\x83\x87a NV[\x96\x95PPPPPPV[``\x83\x15a \xE4W\x82Q`\0\x03a \xDDWs\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x85\x16;a \xDDW`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R` `\x04\x82\x01R`\x1D`$\x82\x01R\x7FAddress: call to non-contract\0\0\0`D\x82\x01R`d\x01a\x08#V[P\x81a \xEEV[a \xEE\x83\x83a \xF6V[\x94\x93PPPPV[\x81Q\x15a!\x06W\x81Q\x80\x83` \x01\xFD[\x80`@Q\x7F\x08\xC3y\xA0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x81R`\x04\x01a\x08#\x91\x90a#EV[\x7FNH{q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`\0R`A`\x04R`$`\0\xFD[`@Q`\x1F\x82\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16\x81\x01g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x82\x82\x10\x17\x15a!\xB0Wa!\xB0a!:V[`@R\x91\x90PV[`\0\x80g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x84\x11\x15a!\xD3Wa!\xD3a!:V[P`\x1F\x83\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16` \x01a\"\x06\x81a!iV[\x91PP\x82\x81R\x83\x83\x83\x01\x11\x15a\"\x1BW`\0\x80\xFD[\x82\x82` \x83\x017`\0` \x84\x83\x01\x01R\x93\x92PPPV[`\0\x82`\x1F\x83\x01\x12a\"CW`\0\x80\xFD[a\x15\xF0\x83\x835` \x85\x01a!\xB8V[\x805s\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x16\x81\x14a\"vW`\0\x80\xFD[\x91\x90PV[`\0\x80`@\x83\x85\x03\x12\x15a\"\x8EW`\0\x80\xFD[\x825g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a\"\xA5W`\0\x80\xFD[a\"\xB1\x85\x82\x86\x01a\"2V[\x92PPa\"\xC0` \x84\x01a\"RV[\x90P\x92P\x92\x90PV[`\0` \x82\x84\x03\x12\x15a\"\xDBW`\0\x80\xFD[\x815g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a\"\xF2W`\0\x80\xFD[a \xEE\x84\x82\x85\x01a\"2V[`\0\x80`@\x83\x85\x03\x12\x15a#\x11W`\0\x80\xFD[\x825\x91Pa\"\xC0` \x84\x01a\"RV[`\0[\x83\x81\x10\x15a#<W\x81\x81\x01Q\x83\x82\x01R` \x01a#$V[PP`\0\x91\x01RV[` \x81R`\0\x82Q\x80` \x84\x01Ra#d\x81`@\x85\x01` \x87\x01a#!V[`\x1F\x01\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x16\x91\x90\x91\x01`@\x01\x92\x91PPV[`\0` \x82\x84\x03\x12\x15a#\xA8W`\0\x80\xFD[a\x15\xF0\x82a\"RV[`\0\x80`@\x83\x85\x03\x12\x15a#\xC4W`\0\x80\xFD[a#\xCD\x83a\"RV[\x91P` \x83\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a#\xE9W`\0\x80\xFD[\x83\x01`\x1F\x81\x01\x85\x13a#\xFAW`\0\x80\xFD[a$\t\x85\x825` \x84\x01a!\xB8V[\x91PP\x92P\x92\x90PV[`\0\x80`@\x83\x85\x03\x12\x15a$&W`\0\x80\xFD[\x825\x91P` \x83\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$DW`\0\x80\xFD[a$\t\x85\x82\x86\x01a\"2V[`\0\x80`@\x83\x85\x03\x12\x15a$cW`\0\x80\xFD[\x825g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$zW`\0\x80\xFD[a$\x86\x85\x82\x86\x01a\"2V[\x95` \x94\x90\x94\x015\x94PPPPV[`\0\x80`@\x83\x85\x03\x12\x15a$\xA8W`\0\x80\xFD[\x825g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$\xBFW`\0\x80\xFD[a$\xCB\x85\x82\x86\x01a\"2V[\x92PP` \x83\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a$DW`\0\x80\xFD[`\0g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x82\x11\x15a%\x02Wa%\x02a!:V[P`\x05\x1B` \x01\x90V[`\0\x82`\x1F\x83\x01\x12a%\x1DW`\0\x80\xFD[\x815a%0a%+\x82a$\xE8V[a!iV[\x80\x82\x82R` \x82\x01\x91P` \x83`\x05\x1B\x86\x01\x01\x92P\x85\x83\x11\x15a%RW`\0\x80\xFD[` \x85\x01[\x83\x81\x10\x15a%vWa%h\x81a\"RV[\x83R` \x92\x83\x01\x92\x01a%WV[P\x95\x94PPPPPV[`\0\x80`\0``\x84\x86\x03\x12\x15a%\x95W`\0\x80\xFD[\x835\x92P` \x84\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a%\xB3W`\0\x80\xFD[\x84\x01`\x1F\x81\x01\x86\x13a%\xC4W`\0\x80\xFD[\x805a%\xD2a%+\x82a$\xE8V[\x80\x82\x82R` \x82\x01\x91P` \x83`\x05\x1B\x85\x01\x01\x92P\x88\x83\x11\x15a%\xF4W`\0\x80\xFD[` \x84\x01[\x83\x81\x10\x15a&6W\x805g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a&\x18W`\0\x80\xFD[a&'\x8B` \x83\x89\x01\x01a\"2V[\x84RP` \x92\x83\x01\x92\x01a%\xF9V[P\x94PPPP`@\x84\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a&VW`\0\x80\xFD[a&b\x86\x82\x87\x01a%\x0CV[\x91PP\x92P\x92P\x92V[`\0\x80`\0``\x84\x86\x03\x12\x15a&\x81W`\0\x80\xFD[\x835\x92P` \x84\x015g\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a&\x9FW`\0\x80\xFD[a&\xAB\x86\x82\x87\x01a\"2V[\x92PPa&\xBA`@\x85\x01a\"RV[\x90P\x92P\x92P\x92V[`\x01\x81\x81\x1C\x90\x82\x16\x80a&\xD7W`\x7F\x82\x16\x91P[` \x82\x10\x81\x03a'\x10W\x7FNH{q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`\0R`\"`\x04R`$`\0\xFD[P\x91\x90PV[`\0\x82Qa'(\x81\x84` \x87\x01a#!V[\x91\x90\x91\x01\x92\x91PPV[\x7FNH{q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0`\0R`2`\x04R`$`\0\xFD[`\x1F\x82\x11\x15a\x1A\xA6W\x80`\0R` `\0 `\x1F\x84\x01`\x05\x1C\x81\x01` \x85\x10\x15a'\x88WP\x80[`\x1F\x84\x01`\x05\x1C\x82\x01\x91P[\x81\x81\x10\x15a'\xA8W`\0\x81U`\x01\x01a'\x94V[PPPPPV[\x81Qg\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x81\x11\x15a'\xC9Wa'\xC9a!:V[a'\xDD\x81a'\xD7\x84Ta&\xC3V[\x84a'aV[` `\x1F\x82\x11`\x01\x81\x14a(/W`\0\x83\x15a'\xF9WP\x84\x82\x01Q[\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF`\x03\x85\x90\x1B\x1C\x19\x16`\x01\x84\x90\x1B\x17\x84Ua'\xA8V[`\0\x84\x81R` \x81 \x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xE0\x85\x16\x91[\x82\x81\x10\x15a(}W\x87\x85\x01Q\x82U` \x94\x85\x01\x94`\x01\x90\x92\x01\x91\x01a(]V[P\x84\x82\x10\x15a(\xB9W\x86\x84\x01Q\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF`\x03\x87\x90\x1B`\xF8\x16\x1C\x19\x16\x81U[PPPP`\x01\x90\x81\x1B\x01\x90UPV[`\0` \x82\x84\x03\x12\x15a(\xDAW`\0\x80\xFD[PQ\x91\x90PV\xFEAddress: low-level delegate call failed\xA2dipfsX\"\x12 \x11P\xF1J \x83\xE6\\}\x19\xFF\xB5\x95\xC4\x90\x0E\xBA\xCF=N\xFF\x1D/\xB2\n\x9Bt\xE9)y]|dsolcC\0\x08\x1A\x003";
     /// The deployed bytecode of the contract.
-    pub static TOKENREGISTRY_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes = ::ethers::core::types::Bytes::from_static(
-        __DEPLOYED_BYTECODE,
-    );
+    pub static TOKENREGISTRY_DEPLOYED_BYTECODE: ::ethers::core::types::Bytes =
+        ::ethers::core::types::Bytes::from_static(__DEPLOYED_BYTECODE);
     pub struct TokenRegistry<M>(::ethers::contract::Contract<M>);
     impl<M> ::core::clone::Clone for TokenRegistry<M> {
         fn clone(&self) -> Self {
@@ -767,13 +656,11 @@ pub mod token_registry {
             address: T,
             client: ::std::sync::Arc<M>,
         ) -> Self {
-            Self(
-                ::ethers::contract::Contract::new(
-                    address.into(),
-                    TOKENREGISTRY_ABI.clone(),
-                    client,
-                ),
-            )
+            Self(::ethers::contract::Contract::new(
+                address.into(),
+                TOKENREGISTRY_ABI.clone(),
+                client,
+            ))
         }
         /// Constructs the general purpose `Deployer` instance based on the provided constructor arguments and sends it.
         /// Returns a new instance of a deployer that returns an instance of this contract after sending the transaction
@@ -819,10 +706,7 @@ pub mod token_registry {
             &self,
             p0: ::ethers::core::types::U256,
             p1: ::std::string::String,
-        ) -> ::ethers::contract::builders::ContractCall<
-            M,
-            ::ethers::core::types::Address,
-        > {
+        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
             self.0
                 .method_hash([103, 203, 203, 50], (p0, p1))
                 .expect("method not found (this should never happen)")
@@ -850,10 +734,7 @@ pub mod token_registry {
             &self,
             chain_id: ::ethers::core::types::U256,
             token_name: ::std::string::String,
-        ) -> ::ethers::contract::builders::ContractCall<
-            M,
-            ::ethers::core::types::Address,
-        > {
+        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
             self.0
                 .method_hash([140, 122, 240, 128], (chain_id, token_name))
                 .expect("method not found (this should never happen)")
@@ -863,10 +744,7 @@ pub mod token_registry {
             &self,
             chain_name: ::std::string::String,
             token_name: ::std::string::String,
-        ) -> ::ethers::contract::builders::ContractCall<
-            M,
-            ::ethers::core::types::Address,
-        > {
+        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
             self.0
                 .method_hash([195, 91, 117, 71], (chain_name, token_name))
                 .expect("method not found (this should never happen)")
@@ -875,10 +753,7 @@ pub mod token_registry {
         pub fn get_token_address(
             &self,
             token_name: ::std::string::String,
-        ) -> ::ethers::contract::builders::ContractCall<
-            M,
-            ::ethers::core::types::Address,
-        > {
+        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
             self.0
                 .method_hash([196, 9, 18, 54], token_name)
                 .expect("method not found (this should never happen)")
@@ -911,26 +786,19 @@ pub mod token_registry {
         ///Calls the contract's `owner` (0x8da5cb5b) function
         pub fn owner(
             &self,
-        ) -> ::ethers::contract::builders::ContractCall<
-            M,
-            ::ethers::core::types::Address,
-        > {
+        ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
             self.0
                 .method_hash([141, 165, 203, 91], ())
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `proxiableUUID` (0x52d1902d) function
-        pub fn proxiable_uuid(
-            &self,
-        ) -> ::ethers::contract::builders::ContractCall<M, [u8; 32]> {
+        pub fn proxiable_uuid(&self) -> ::ethers::contract::builders::ContractCall<M, [u8; 32]> {
             self.0
                 .method_hash([82, 209, 144, 45], ())
                 .expect("method not found (this should never happen)")
         }
         ///Calls the contract's `renounceOwnership` (0x715018a6) function
-        pub fn renounce_ownership(
-            &self,
-        ) -> ::ethers::contract::builders::ContractCall<M, ()> {
+        pub fn renounce_ownership(&self) -> ::ethers::contract::builders::ContractCall<M, ()> {
             self.0
                 .method_hash([113, 80, 24, 166], ())
                 .expect("method not found (this should never happen)")
@@ -1018,86 +886,63 @@ pub mod token_registry {
         ///Gets the contract's `AdminChanged` event
         pub fn admin_changed_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            AdminChangedFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, AdminChangedFilter>
+        {
             self.0.event()
         }
         ///Gets the contract's `BeaconUpgraded` event
         pub fn beacon_upgraded_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            BeaconUpgradedFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, BeaconUpgradedFilter>
+        {
             self.0.event()
         }
         ///Gets the contract's `ChainRegistered` event
         pub fn chain_registered_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            ChainRegisteredFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, ChainRegisteredFilter>
+        {
             self.0.event()
         }
         ///Gets the contract's `Initialized` event
         pub fn initialized_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            InitializedFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, InitializedFilter>
+        {
             self.0.event()
         }
         ///Gets the contract's `OwnershipTransferred` event
         pub fn ownership_transferred_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            OwnershipTransferredFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, OwnershipTransferredFilter>
+        {
             self.0.event()
         }
         ///Gets the contract's `TokenRegistered` event
         pub fn token_registered_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            TokenRegisteredFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, TokenRegisteredFilter>
+        {
             self.0.event()
         }
         ///Gets the contract's `Upgraded` event
         pub fn upgraded_filter(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            UpgradedFilter,
-        > {
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, UpgradedFilter> {
             self.0.event()
         }
         /// Returns an `Event` builder for all the events of this contract.
         pub fn events(
             &self,
-        ) -> ::ethers::contract::builders::Event<
-            ::std::sync::Arc<M>,
-            M,
-            TokenRegistryEvents,
-        > {
-            self.0.event_with_filter(::core::default::Default::default())
+        ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, TokenRegistryEvents>
+        {
+            self.0
+                .event_with_filter(::core::default::Default::default())
         }
     }
     impl<M: ::ethers::providers::Middleware> From<::ethers::contract::Contract<M>>
-    for TokenRegistry<M> {
+        for TokenRegistry<M>
+    {
         fn from(contract: ::ethers::contract::Contract<M>) -> Self {
             Self::new(contract.address(), contract.client())
         }
@@ -1110,7 +955,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(name = "AdminChanged", abi = "AdminChanged(address,address)")]
     pub struct AdminChangedFilter {
@@ -1125,7 +970,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(name = "BeaconUpgraded", abi = "BeaconUpgraded(address)")]
     pub struct BeaconUpgradedFilter {
@@ -1140,7 +985,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(name = "ChainRegistered", abi = "ChainRegistered(string,uint256)")]
     pub struct ChainRegisteredFilter {
@@ -1157,7 +1002,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(name = "Initialized", abi = "Initialized(uint8)")]
     pub struct InitializedFilter {
@@ -1171,7 +1016,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(
         name = "OwnershipTransferred",
@@ -1191,7 +1036,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(
         name = "TokenRegistered",
@@ -1213,7 +1058,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethevent(name = "Upgraded", abi = "Upgraded(address)")]
     pub struct UpgradedFilter {
@@ -1262,22 +1107,12 @@ pub mod token_registry {
     impl ::core::fmt::Display for TokenRegistryEvents {
         fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             match self {
-                Self::AdminChangedFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::BeaconUpgradedFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::ChainRegisteredFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
+                Self::AdminChangedFilter(element) => ::core::fmt::Display::fmt(element, f),
+                Self::BeaconUpgradedFilter(element) => ::core::fmt::Display::fmt(element, f),
+                Self::ChainRegisteredFilter(element) => ::core::fmt::Display::fmt(element, f),
                 Self::InitializedFilter(element) => ::core::fmt::Display::fmt(element, f),
-                Self::OwnershipTransferredFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
-                Self::TokenRegisteredFilter(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
+                Self::OwnershipTransferredFilter(element) => ::core::fmt::Display::fmt(element, f),
+                Self::TokenRegisteredFilter(element) => ::core::fmt::Display::fmt(element, f),
                 Self::UpgradedFilter(element) => ::core::fmt::Display::fmt(element, f),
             }
         }
@@ -1326,13 +1161,13 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
-    #[ethcall(name = "addressOfTokenName", abi = "addressOfTokenName(uint256,string)")]
-    pub struct AddressOfTokenNameCall(
-        pub ::ethers::core::types::U256,
-        pub ::std::string::String,
-    );
+    #[ethcall(
+        name = "addressOfTokenName",
+        abi = "addressOfTokenName(uint256,string)"
+    )]
+    pub struct AddressOfTokenNameCall(pub ::ethers::core::types::U256, pub ::std::string::String);
     ///Container type for all input parameters for the `chainIdOfName` function with signature `chainIdOfName(string)` and selector `0x1bd5130f`
     #[derive(
         Clone,
@@ -1342,7 +1177,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "chainIdOfName", abi = "chainIdOfName(string)")]
     pub struct ChainIdOfNameCall(pub ::std::string::String);
@@ -1355,7 +1190,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "getChainIdOfName", abi = "getChainIdOfName(string)")]
     pub struct GetChainIdOfNameCall {
@@ -1370,7 +1205,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "getTokenAddress", abi = "getTokenAddress(uint256,string)")]
     pub struct GetTokenAddressWithChainIdCall {
@@ -1386,7 +1221,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "getTokenAddress", abi = "getTokenAddress(string,string)")]
     pub struct GetTokenAddressWithChainNameCall {
@@ -1402,7 +1237,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "getTokenAddress", abi = "getTokenAddress(string)")]
     pub struct GetTokenAddressCall {
@@ -1417,7 +1252,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(
         name = "getTokenNameOfAddress",
@@ -1436,7 +1271,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "getTokenNameOfAddress", abi = "getTokenNameOfAddress(address)")]
     pub struct GetTokenNameOfAddressCall {
@@ -1451,7 +1286,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "initialize", abi = "initialize()")]
     pub struct InitializeCall;
@@ -1464,7 +1299,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "owner", abi = "owner()")]
     pub struct OwnerCall;
@@ -1477,7 +1312,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "proxiableUUID", abi = "proxiableUUID()")]
     pub struct ProxiableUUIDCall;
@@ -1490,7 +1325,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "renounceOwnership", abi = "renounceOwnership()")]
     pub struct RenounceOwnershipCall;
@@ -1503,7 +1338,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "setChainId", abi = "setChainId(string,uint256)")]
     pub struct SetChainIdCall {
@@ -1519,7 +1354,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "setTokenAddress", abi = "setTokenAddress(string,address)")]
     pub struct SetTokenAddressCall {
@@ -1535,9 +1370,12 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
-    #[ethcall(name = "setTokenAddress", abi = "setTokenAddress(uint256,string,address)")]
+    #[ethcall(
+        name = "setTokenAddress",
+        abi = "setTokenAddress(uint256,string,address)"
+    )]
     pub struct SetTokenAddressWithChainIdAndTokenNameCall {
         pub chain_id: ::ethers::core::types::U256,
         pub token_name: ::std::string::String,
@@ -1552,7 +1390,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(
         name = "setTokenAddresses",
@@ -1572,9 +1410,12 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
-    #[ethcall(name = "tokenNameOfAddress", abi = "tokenNameOfAddress(uint256,address)")]
+    #[ethcall(
+        name = "tokenNameOfAddress",
+        abi = "tokenNameOfAddress(uint256,address)"
+    )]
     pub struct TokenNameOfAddressCall(
         pub ::ethers::core::types::U256,
         pub ::ethers::core::types::Address,
@@ -1588,7 +1429,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "transferOwnership", abi = "transferOwnership(address)")]
     pub struct TransferOwnershipCall {
@@ -1603,7 +1444,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "upgradeTo", abi = "upgradeTo(address)")]
     pub struct UpgradeToCall {
@@ -1618,7 +1459,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     #[ethcall(name = "upgradeToAndCall", abi = "upgradeToAndCall(address,bytes)")]
     pub struct UpgradeToAndCallCall {
@@ -1642,9 +1483,7 @@ pub mod token_registry {
         RenounceOwnership(RenounceOwnershipCall),
         SetChainId(SetChainIdCall),
         SetTokenAddress(SetTokenAddressCall),
-        SetTokenAddressWithChainIdAndTokenName(
-            SetTokenAddressWithChainIdAndTokenNameCall,
-        ),
+        SetTokenAddressWithChainIdAndTokenName(SetTokenAddressWithChainIdAndTokenNameCall),
         SetTokenAddresses(SetTokenAddressesCall),
         TokenNameOfAddress(TokenNameOfAddressCall),
         TransferOwnership(TransferOwnershipCall),
@@ -1656,74 +1495,68 @@ pub mod token_registry {
             data: impl AsRef<[u8]>,
         ) -> ::core::result::Result<Self, ::ethers::core::abi::AbiError> {
             let data = data.as_ref();
-            if let Ok(decoded) = <AddressOfTokenNameCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <AddressOfTokenNameCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::AddressOfTokenName(decoded));
             }
-            if let Ok(decoded) = <ChainIdOfNameCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) = <ChainIdOfNameCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::ChainIdOfName(decoded));
             }
-            if let Ok(decoded) = <GetChainIdOfNameCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <GetChainIdOfNameCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::GetChainIdOfName(decoded));
             }
-            if let Ok(decoded) = <GetTokenAddressWithChainIdCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <GetTokenAddressWithChainIdCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::GetTokenAddressWithChainId(decoded));
             }
-            if let Ok(decoded) = <GetTokenAddressWithChainNameCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <GetTokenAddressWithChainNameCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::GetTokenAddressWithChainName(decoded));
             }
-            if let Ok(decoded) = <GetTokenAddressCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <GetTokenAddressCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::GetTokenAddress(decoded));
             }
-            if let Ok(decoded) = <GetTokenNameOfAddressWithChainIdCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <GetTokenNameOfAddressWithChainIdCall as ::ethers::core::abi::AbiDecode>::decode(
+                    data,
+                )
+            {
                 return Ok(Self::GetTokenNameOfAddressWithChainId(decoded));
             }
-            if let Ok(decoded) = <GetTokenNameOfAddressCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <GetTokenNameOfAddressCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::GetTokenNameOfAddress(decoded));
             }
-            if let Ok(decoded) = <InitializeCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) = <InitializeCall as ::ethers::core::abi::AbiDecode>::decode(data) {
                 return Ok(Self::Initialize(decoded));
             }
-            if let Ok(decoded) = <OwnerCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) = <OwnerCall as ::ethers::core::abi::AbiDecode>::decode(data) {
                 return Ok(Self::Owner(decoded));
             }
-            if let Ok(decoded) = <ProxiableUUIDCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) = <ProxiableUUIDCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::ProxiableUUID(decoded));
             }
-            if let Ok(decoded) = <RenounceOwnershipCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <RenounceOwnershipCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::RenounceOwnership(decoded));
             }
-            if let Ok(decoded) = <SetChainIdCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) = <SetChainIdCall as ::ethers::core::abi::AbiDecode>::decode(data) {
                 return Ok(Self::SetChainId(decoded));
             }
-            if let Ok(decoded) = <SetTokenAddressCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <SetTokenAddressCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::SetTokenAddress(decoded));
             }
             if let Ok(decoded) = <SetTokenAddressWithChainIdAndTokenNameCall as ::ethers::core::abi::AbiDecode>::decode(
@@ -1731,29 +1564,27 @@ pub mod token_registry {
             ) {
                 return Ok(Self::SetTokenAddressWithChainIdAndTokenName(decoded));
             }
-            if let Ok(decoded) = <SetTokenAddressesCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <SetTokenAddressesCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::SetTokenAddresses(decoded));
             }
-            if let Ok(decoded) = <TokenNameOfAddressCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <TokenNameOfAddressCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::TokenNameOfAddress(decoded));
             }
-            if let Ok(decoded) = <TransferOwnershipCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <TransferOwnershipCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::TransferOwnership(decoded));
             }
-            if let Ok(decoded) = <UpgradeToCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) = <UpgradeToCall as ::ethers::core::abi::AbiDecode>::decode(data) {
                 return Ok(Self::UpgradeTo(decoded));
             }
-            if let Ok(decoded) = <UpgradeToAndCallCall as ::ethers::core::abi::AbiDecode>::decode(
-                data,
-            ) {
+            if let Ok(decoded) =
+                <UpgradeToAndCallCall as ::ethers::core::abi::AbiDecode>::decode(data)
+            {
                 return Ok(Self::UpgradeToAndCall(decoded));
             }
             Err(::ethers::core::abi::Error::InvalidData.into())
@@ -1765,75 +1596,47 @@ pub mod token_registry {
                 Self::AddressOfTokenName(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::ChainIdOfName(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::GetChainIdOfName(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
+                Self::ChainIdOfName(element) => ::ethers::core::abi::AbiEncode::encode(element),
+                Self::GetChainIdOfName(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::GetTokenAddressWithChainId(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::GetTokenAddressWithChainName(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::GetTokenAddress(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
+                Self::GetTokenAddress(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::GetTokenNameOfAddressWithChainId(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
                 Self::GetTokenNameOfAddress(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::Initialize(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
+                Self::Initialize(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::Owner(element) => ::ethers::core::abi::AbiEncode::encode(element),
-                Self::ProxiableUUID(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::RenounceOwnership(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::SetChainId(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::SetTokenAddress(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
+                Self::ProxiableUUID(element) => ::ethers::core::abi::AbiEncode::encode(element),
+                Self::RenounceOwnership(element) => ::ethers::core::abi::AbiEncode::encode(element),
+                Self::SetChainId(element) => ::ethers::core::abi::AbiEncode::encode(element),
+                Self::SetTokenAddress(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::SetTokenAddressWithChainIdAndTokenName(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::SetTokenAddresses(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
+                Self::SetTokenAddresses(element) => ::ethers::core::abi::AbiEncode::encode(element),
                 Self::TokenNameOfAddress(element) => {
                     ::ethers::core::abi::AbiEncode::encode(element)
                 }
-                Self::TransferOwnership(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::UpgradeTo(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
-                Self::UpgradeToAndCall(element) => {
-                    ::ethers::core::abi::AbiEncode::encode(element)
-                }
+                Self::TransferOwnership(element) => ::ethers::core::abi::AbiEncode::encode(element),
+                Self::UpgradeTo(element) => ::ethers::core::abi::AbiEncode::encode(element),
+                Self::UpgradeToAndCall(element) => ::ethers::core::abi::AbiEncode::encode(element),
             }
         }
     }
     impl ::core::fmt::Display for TokenRegistryCalls {
         fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
             match self {
-                Self::AddressOfTokenName(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
+                Self::AddressOfTokenName(element) => ::core::fmt::Display::fmt(element, f),
                 Self::ChainIdOfName(element) => ::core::fmt::Display::fmt(element, f),
                 Self::GetChainIdOfName(element) => ::core::fmt::Display::fmt(element, f),
-                Self::GetTokenAddressWithChainId(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
+                Self::GetTokenAddressWithChainId(element) => ::core::fmt::Display::fmt(element, f),
                 Self::GetTokenAddressWithChainName(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
@@ -1841,9 +1644,7 @@ pub mod token_registry {
                 Self::GetTokenNameOfAddressWithChainId(element) => {
                     ::core::fmt::Display::fmt(element, f)
                 }
-                Self::GetTokenNameOfAddress(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
+                Self::GetTokenNameOfAddress(element) => ::core::fmt::Display::fmt(element, f),
                 Self::Initialize(element) => ::core::fmt::Display::fmt(element, f),
                 Self::Owner(element) => ::core::fmt::Display::fmt(element, f),
                 Self::ProxiableUUID(element) => ::core::fmt::Display::fmt(element, f),
@@ -1854,9 +1655,7 @@ pub mod token_registry {
                     ::core::fmt::Display::fmt(element, f)
                 }
                 Self::SetTokenAddresses(element) => ::core::fmt::Display::fmt(element, f),
-                Self::TokenNameOfAddress(element) => {
-                    ::core::fmt::Display::fmt(element, f)
-                }
+                Self::TokenNameOfAddress(element) => ::core::fmt::Display::fmt(element, f),
                 Self::TransferOwnership(element) => ::core::fmt::Display::fmt(element, f),
                 Self::UpgradeTo(element) => ::core::fmt::Display::fmt(element, f),
                 Self::UpgradeToAndCall(element) => ::core::fmt::Display::fmt(element, f),
@@ -1893,8 +1692,7 @@ pub mod token_registry {
             Self::GetTokenAddress(value)
         }
     }
-    impl ::core::convert::From<GetTokenNameOfAddressWithChainIdCall>
-    for TokenRegistryCalls {
+    impl ::core::convert::From<GetTokenNameOfAddressWithChainIdCall> for TokenRegistryCalls {
         fn from(value: GetTokenNameOfAddressWithChainIdCall) -> Self {
             Self::GetTokenNameOfAddressWithChainId(value)
         }
@@ -1934,8 +1732,7 @@ pub mod token_registry {
             Self::SetTokenAddress(value)
         }
     }
-    impl ::core::convert::From<SetTokenAddressWithChainIdAndTokenNameCall>
-    for TokenRegistryCalls {
+    impl ::core::convert::From<SetTokenAddressWithChainIdAndTokenNameCall> for TokenRegistryCalls {
         fn from(value: SetTokenAddressWithChainIdAndTokenNameCall) -> Self {
             Self::SetTokenAddressWithChainIdAndTokenName(value)
         }
@@ -1974,7 +1771,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct AddressOfTokenNameReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `chainIdOfName` function with signature `chainIdOfName(string)` and selector `0x1bd5130f`
@@ -1986,7 +1783,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct ChainIdOfNameReturn(pub ::ethers::core::types::U256);
     ///Container type for all return fields from the `getChainIdOfName` function with signature `getChainIdOfName(string)` and selector `0x304cd040`
@@ -1998,7 +1795,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct GetChainIdOfNameReturn(pub ::ethers::core::types::U256);
     ///Container type for all return fields from the `getTokenAddress` function with signature `getTokenAddress(uint256,string)` and selector `0x8c7af080`
@@ -2010,7 +1807,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct GetTokenAddressWithChainIdReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `getTokenAddress` function with signature `getTokenAddress(string,string)` and selector `0xc35b7547`
@@ -2022,7 +1819,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct GetTokenAddressWithChainNameReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `getTokenAddress` function with signature `getTokenAddress(string)` and selector `0xc4091236`
@@ -2034,7 +1831,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct GetTokenAddressReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `getTokenNameOfAddress` function with signature `getTokenNameOfAddress(uint256,address)` and selector `0x2515d660`
@@ -2046,7 +1843,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct GetTokenNameOfAddressWithChainIdReturn(pub ::std::string::String);
     ///Container type for all return fields from the `getTokenNameOfAddress` function with signature `getTokenNameOfAddress(address)` and selector `0xb399de4e`
@@ -2058,7 +1855,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct GetTokenNameOfAddressReturn(pub ::std::string::String);
     ///Container type for all return fields from the `owner` function with signature `owner()` and selector `0x8da5cb5b`
@@ -2070,7 +1867,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct OwnerReturn(pub ::ethers::core::types::Address);
     ///Container type for all return fields from the `proxiableUUID` function with signature `proxiableUUID()` and selector `0x52d1902d`
@@ -2082,7 +1879,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct ProxiableUUIDReturn(pub [u8; 32]);
     ///Container type for all return fields from the `tokenNameOfAddress` function with signature `tokenNameOfAddress(uint256,address)` and selector `0xa2a7862e`
@@ -2094,7 +1891,7 @@ pub mod token_registry {
         Debug,
         PartialEq,
         Eq,
-        Hash
+        Hash,
     )]
     pub struct TokenNameOfAddressReturn(pub ::std::string::String);
 }
