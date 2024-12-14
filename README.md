@@ -43,7 +43,7 @@ This is first proposed at [ICBC2023](https://speakerdeck.com/sorasuegami/icbc202
 #### Features:
 - ✓ No need to install any browser extension or mobile app.
 - ✓ No need to remember any seed phrase or private key.
-- ✓ Operate the wallet by sending human readable emails.
+- ✓ Operate the wallet by sending human-readable emails.
 - ✓ Hide link from an email address to a wallet address.
 - ✓ Pay fee in ERC20 tokens.
 - ✓ Developers can build extensions to add new functionalities.
