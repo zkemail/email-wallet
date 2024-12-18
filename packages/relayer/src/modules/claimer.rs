@@ -117,7 +117,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
             && is_installed_extension(unclaimed_state.extension_addr, &account_salt).await?
         {
             return Err(anyhow!(
-                "Unclaimed state anounces the email address but its extension is not installed."
+                "Unclaimed state announces the email address but its extension is not installed."
             ));
         }
         (None, Some(unclaimed_state))
