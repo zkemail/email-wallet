@@ -67,3 +67,6 @@ book
 # Oauth-sdk
 packages/oauth-sdk/.env
 packages/oauth-sdk/dist
+
+# abi
+packages/relayer/src/abi
