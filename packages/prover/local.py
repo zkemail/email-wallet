@@ -69,6 +69,10 @@ def prove_claim():
 def prove_email_sender():
     req = request.get_json()
     input = req["input"]
+    # Clean the email address
+    if "email" in input:
+        input["email"] = clean_email(input["email"])
+
     nonce = random.randint(
         0,
         sys.maxsize,
@@ -76,6 +80,10 @@ def prove_email_sender():
     proof = gen_email_sender_proof(str(nonce), True, input)
     return jsonify(proof)
 
+def clean_email(email):
+    local_part, domain_part = email.split('@', 1)
+    cleaned_local_part = local_part.split('+', 1)[0]
+    return f"{cleaned_local_part}@{domain_part}"
 
 if __name__ == "__main__":
     from waitress import serve
