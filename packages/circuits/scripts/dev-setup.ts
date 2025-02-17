@@ -109,7 +109,7 @@ async function generateKeys(
   await zKey.newZKey(r1cPath, phase1Path, zKeyPath + ".step1", console);
   log("✓ Partial ZKey generated");
 
-  await zKey.contribute(zKeyPath + ".step1", zKeyPath + ".step2", "Contributer 1", ZKEY_ENTROPY, console);
+  await zKey.contribute(zKeyPath + ".step1", zKeyPath + ".step2", "`Contributor 1", ZKEY_ENTROPY, console);
   log("✓ First contribution completed");
 
   // await askBeacon();

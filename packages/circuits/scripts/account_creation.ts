@@ -1,6 +1,6 @@
 /**
  * 
- * This script is for generating input for the account inititalization circuit.
+ * This script is for generating input for the account initialization circuit.
  * 
  */
 
