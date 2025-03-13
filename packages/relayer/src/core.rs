@@ -494,13 +494,13 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
     info!(LOG, "public_key_hash {:?}", public_key_hash; "func" => function_name!());
     let domain = parsed_email.get_email_domain()?;
     info!(LOG, "domain {:?}", domain; "func" => function_name!());
-    // if CLIENT
-    //     .check_if_dkim_public_key_hash_valid(domain.clone(), fr_to_bytes32(&public_key_hash)?)
-    //     .await?
-    // {
-    //     info!(LOG, "public key registered"; "func" => function_name!());
-    //     return Ok(());
-    // }
+    if CLIENT
+        .check_if_dkim_public_key_hash_valid(domain.clone(), fr_to_bytes32(&public_key_hash)?)
+        .await?
+    {
+        info!(LOG, "public key registered"; "func" => function_name!());
+        return Ok(());
+    }
     let selector_decomposed_def =
         serde_json::from_str(include_str!("./selector_def.json")).unwrap();
     let selector = {
