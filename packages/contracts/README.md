@@ -1,4 +1,52 @@
-## Contract Architecture
+## Deploy Contracts (Project Organization is next section)
+
+You can either deploy all contracts at once or deploy each contract separately.
+
+### Deploy all contracts at once (Recommended)
+
+##### Create .env
+
+```sh
+cp .env.sample .env
+```
+
+Set `PRIVATE_KEY`, `RPC_URL`, `CHAIN_ID`, `CHAIN_NAME` in `.env` file. 
+
+Other default values work for base sepolia. But adjust them if you are deploying to a different chain.
+
+##### Run 
+
+```
+source .env
+
+forge script script/DefaultSetupScript.s.sol:Deploy \
+--rpc-url $RPC_URL \
+--chain-id $CHAIN_ID \
+--broadcast \
+-vvvv
+```
+
+You'll get a response like this:
+
+```
+== Logs ==
+  TokenRegistry proxy deployed at: 0xB895744454C62e9052A4332C29c4F19048054B56
+  TokenRegistry implementation deployed at: 0xee62Ca2257E98284eEBf66c8849cA00489Ff1E03
+  AllVerifiers implementation deployed at: 0x8350e89C182dD211180A8773cd91F79f2822BC9a
+  ECDSAOwnedDKIMRegistry deployed at: 0xA11D302310bAd2Da10216B0FA91e5A1bca631c19
+  Wallet implementation deployed at: 0x7a6361d28b1121EB8a030778f597A85443833cc9
+  Oauth core deployed at: 0x50bba18c7289bf4189E2d8e5ed40Ae86be020567
+  RelayerHandler proxy deployed at: 0x9F68880B9A760d15734872EbA3D519549C3996BB
+  RelayerHandler implementation deployed at: 0x9e119689Fc87be723886dA2dD012bF43D66c7BA4
+  ExtensionHandler proxy deployed at: 0x6D6bA7Ee9Ed199F67C6C26dfb3B6E56b60D9fdef
+  <TRUNCATED>
+```
+
+Save these you'll need them for setting up the relayer.
+
+**Note: You can ignore the rest of this document if you've deployed all contracts at once and that's all you wanted to do.**
+
+## Project Organization
 
 #### Core
 
@@ -71,29 +119,6 @@ Run each integration tests **one by one** as each test will consume lot of memor
 Eg: forge test --match-test 'testIntegration_Swap_Tokens' -vvv --ffi
 ```
 
-## Deploy Contracts
-
-You can either deploy all contracts at once or deploy each contract separately.
-
-### Deploy all contracts at once
-
-##### Create .env
-
-```sh
-cp .env.sample .env
-```
-
-##### Run 
-
-```
-source .env
-
-forge script script/DefaultSetupScript.s.sol:Deploy \
---rpc-url $RPC_URL \
---chain-id $CHAIN_ID \
---broadcast \
--vvvv
-```
 
 ### Deploy each contract separately
 
@@ -256,6 +281,7 @@ forge script script/DeployECDSAOwnedDKIMRegistry.s.sol:Deploy \
 ```
 
 Copy the address from log `ECDSAOwnedDKIMRegistry deployed at: 0xB50a02E2Da524feC1209542985b2ae2917aF7265`
+
 
 ## Upgrade Contracts
 
