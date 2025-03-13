@@ -2,6 +2,15 @@
 
 You can either deploy all contracts at once or deploy each contract separately.
 
+#### Node
+node version 18
+
+if using nvm, run `nvm use` to switch to node version 18
+```bash
+nvm use 18
+```
+
+
 ### Deploy all contracts at once (Recommended)
 
 ##### Create .env
@@ -13,6 +22,12 @@ cp .env.sample .env
 Set `PRIVATE_KEY`, `RPC_URL`, `CHAIN_ID`, `CHAIN_NAME` in `.env` file. 
 
 Other default values work for base sepolia. But adjust them if you are deploying to a different chain.
+
+#### Build everything
+
+```bash
+forge build --skip test --skip script
+```
 
 ##### Run 
 
