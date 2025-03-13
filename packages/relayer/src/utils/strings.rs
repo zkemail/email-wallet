@@ -50,3 +50,4 @@ pub const SAFE_COMMAND: &str = "Safe";
 pub const CANISTER_ID_KEY: &str = "CANISTER_ID";
 pub const PEM_PATH_KEY: &str = "PEM_PATH";
 pub const IC_REPLICA_URL_KEY: &str = "IC_REPLICA_URL";
+pub const WALLET_CANISTER_ID_KEY: &str = "WALLET_CANISTER_ID";

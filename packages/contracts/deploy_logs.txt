@@ -1,0 +1,100 @@
+01 - forge script script/01_DeployTokenRegistry.s.sol --rpc-url $RPC_URL --broadcast
+
+== Logs ==
+  TokenRegistry proxy deployed at: 0x3d50027dD563F27b1D2AD8D477C72F795a9b8B3d
+  TokenRegistry implementation deployed at: 0xCE156710C2f41CecAA1a9d032789b77824D24c86
+  ---- DONE ----
+
+
+02 - forge script script/02_DeployAllVerifiers.s.sol --rpc-url $RPC_URL --broadcast
+
+== Logs ==
+  AllVerifiers implementation deployed at: 0xd39CC56A376851821249317e5da6B0a2bf65edFF
+  Please add this address into .env
+  ---- DONE ----
+
+03 - orge script script/03_DeployDKIMRegistry.s.sol --rpc-url $RPC_URL --broadcast
+
+== Logs ==
+  DKIMRegistry deployed at: 0xB0289ECe0e351734C38E8eCa80325ca32529d88c
+  Please add this address into .env
+  ---- DONE ----
+
+03.5 - forge script script/03.5_DeployOauthCore.s.sol --rpc-url $RPC_URL
+
+== Logs ==
+  OauthCore implementation deployed at: 0x5fAD6eae61CE80958b404Bc1b30B5D5E988D988c
+  OauthCore proxy deployed at: 0xa74eDD8A151219B22A3A1edE965294df8e0e762e
+  OauthCore deployed and initialized successfully
+  ---- DONE ----
+  Set this in your .env file:
+  OAUTH=0xa74eDD8A151219B22A3A1edE965294df8e0e762e
+
+4 -  forge script script/04_DeployWallet.s.sol --rpc-url $RPC_URL --broadcast
+
+== Logs ==
+  Wallet implementation deployed at: 0x5fAD6eae61CE80958b404Bc1b30B5D5E988D988c
+  Please add this address into .env
+  ---- DONE ----
+
+5 - forge script script/05_DeployHandlers.s.sol --rpc-url $RPC_URL
+
+== Logs ==
+  RelayerHandler proxy deployed at: 0x5710311cd87842328627Eeed14349E0af7D4A8D7
+  RelayerHandler implementation deployed at: 0xa74eDD8A151219B22A3A1edE965294df8e0e762e
+  ExtensionHandler proxy deployed at: 0x7AA5D23C0f8eB5C6A0f3344584CA93C0B23731aA
+  ExtensionHandler implementation deployed at: 0x6114b8Bd77Ee8c8b0716d445E2AF53B6EFE885e5
+  AccountHandler proxy deployed at: 0x078D33666C78956aaD09950B8a686e9BCFc9EF3d
+  AccountHandler implementation deployed at: 0x194380B1F7056056cAe5005Bd110b1eFBa1fb5d8
+  UnclaimsHandler proxy deployed at: 0xF3AA7BcF326ffC3DF878967316E44451b9A1CA9E
+  UnclaimsHandler implementation deployed at: 0x6C8adDf924c2ED9E315B2a8A22670ec27896Ad89
+  Please add these addresses into .env
+  ---- DONE ----
+
+
+Default deploy script:
+forge script script/DefaultSetupScript.s.sol --tc Deploy --rpc-url $RPC_URL --broadcast
+[⠒] Compiling...
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  TokenRegistry proxy deployed at: 0x194380B1F7056056cAe5005Bd110b1eFBa1fb5d8
+  TokenRegistry implementation deployed at: 0x7AA5D23C0f8eB5C6A0f3344584CA93C0B23731aA
+  AllVerifiers implementation deployed at: 0x078D33666C78956aaD09950B8a686e9BCFc9EF3d
+  ECDSAOwnedDKIMRegistry deployed at: 0x6C8adDf924c2ED9E315B2a8A22670ec27896Ad89
+  Wallet implementation deployed at: 0x03624D9fd1a8908ef3966F066E27519F667B3C87
+  Oauth core deployed at: 0xc3c77279C09239702E8F840189587e900bB52752
+  RelayerHandler proxy deployed at: 0x94B9bC759BAEA04Cef812dCD81499675EE05f466
+  RelayerHandler implementation deployed at: 0x582eeC95cfB9cFeB9ad7FbB2cc07ab2C0Aec0B2a
+  ExtensionHandler proxy deployed at: 0x73E6178B0ff2b848e9685f7B1b96d15D13432caf
+  ExtensionHandler implementation deployed at: 0xa2bE0087310E4879F1461489665F8bf0A264ebd8
+  AccountHandler proxy deployed at: 0xa04bd18C375c28ff92744379ED820f084474C4F6
+  AccountHandler implementation deployed at: 0x38567A08B2D6F3CB72824bD6BC58fb875208ad10
+  UnclaimsHandler proxy deployed at: 0xeC201a583817204B09052aF914DcFF81AdC8E28B
+  UnclaimsHandler implementation deployed at: 0x51F15e1398f870cd8b0ff52D60e3D25aBdAE0D70
+  UniswapTWAPOracle deployed at: 0xCD5cFD73177af1cD01444935808a37b751b67836
+  TestERC20 deployed at: 0xc40A736b48B35b7857CCa0b2DE465C0b83f582A5
+  EmailWalletCore proxy deployed at: 0x3B4C08E81223884AB5756b2a3A66C7792413df1a
+  EmailWalletCore implementation deployed at: 0xEff6b3Ee9b0aE202e64641E648a36acd25Bf0533
+  NFTExtension proxy deployed at: 0xc33717E4748763Dc3C57BD6F010030922AC2653D
+  NFTExtension implementation deployed at: 0xF7915F87E909e0245f460E783101De4A2181A558
+  UniswapExtension proxy deployed at: 0x02f771c1cA2a28C9aDef0DF36716422306441C73
+  UniswapExtension implementation deployed at: 0xF97DDA6fE954A0f146e0cA070A80B30E78549C43
+  Safe2FAExtension proxy deployed at: 0x067B06BC817e7863866a89FD33571368C746173B
+  Safe2FAExtension implementation deployed at: 0x86a44fd4005Cc9a198dBadd403e49C0b01F824CB
+  OauthSignupExtension proxy deployed at: 0xae2107a19a2F2078dd4458a6924C692107d89a87
+  OauthSignupExtension implementation deployed at: 0xeB91d08E0501083930662D311a03F51425D8f349
+  OauthSigninExtension proxy deployed at: 0x0D226851E0272dab59400559b553dc6Ec3266902
+  OauthSigninExtension implementation deployed at: 0xb809C1BfCA4478EcDCD4b31940b35723CAa4278b
+  ---- DONE ----
+
+00 TestToken:
+
+forge script script/DeployTestToken.s.sol --tc Deploy --rpc-url $RPC_URL --broadcast
+[⠒] Compiling...
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  TestERC20 deployed at: 0x12Cee57B10AadAb156F61F757Aaf61FeE7d5f0Cb

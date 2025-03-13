@@ -494,13 +494,13 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
     info!(LOG, "public_key_hash {:?}", public_key_hash; "func" => function_name!());
     let domain = parsed_email.get_email_domain()?;
     info!(LOG, "domain {:?}", domain; "func" => function_name!());
-    if CLIENT
-        .check_if_dkim_public_key_hash_valid(domain.clone(), fr_to_bytes32(&public_key_hash)?)
-        .await?
-    {
-        info!(LOG, "public key registered"; "func" => function_name!());
-        return Ok(());
-    }
+    // if CLIENT
+    //     .check_if_dkim_public_key_hash_valid(domain.clone(), fr_to_bytes32(&public_key_hash)?)
+    //     .await?
+    // {
+    //     info!(LOG, "public key registered"; "func" => function_name!());
+    //     return Ok(());
+    // }
     let selector_decomposed_def =
         serde_json::from_str(include_str!("./selector_def.json")).unwrap();
     let selector = {
@@ -510,11 +510,17 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
         str
     };
     info!(LOG, "selector {}", selector; "func" => function_name!());
-    let ic_agent = DkimOracleClient::gen_agent(
-        &env::var(PEM_PATH_KEY).unwrap(),
-        &env::var(IC_REPLICA_URL_KEY).unwrap(),
-    )?;
-    let oracle_client = DkimOracleClient::new(&env::var(CANISTER_ID_KEY).unwrap(), &ic_agent)?;
+    let pem_path = env::var(PEM_PATH_KEY).unwrap_or_else(|_| ".ic.pem".to_string());
+    let ic_replica_url = env::var(IC_REPLICA_URL_KEY)
+        .map_err(|e| anyhow!("Failed to read IC_REPLICA_URL_KEY: {}", e))?;
+    let ic_agent = DkimOracleClient::gen_agent(&pem_path, &ic_replica_url)?;
+
+    let canister_id =
+        env::var(CANISTER_ID_KEY).map_err(|e| anyhow!("Failed to read CANISTER_ID_KEY: {}", e))?;
+    let wallet_canister_id = env::var(WALLET_CANISTER_ID_KEY)
+        .map_err(|e| anyhow!("Failed to read WALLET_CANISTER_ID_KEY: {}", e))?;
+    let oracle_client = DkimOracleClient::new(&canister_id, &wallet_canister_id, &ic_agent).await?;
+
     let oracle_result = oracle_client.request_signature(&selector, &domain).await?;
     info!(LOG, "DKIM oracle result {:?}", oracle_result; "func" => function_name!());
     let public_key_hash = hex::decode(&oracle_result.public_key_hash[2..])?;
