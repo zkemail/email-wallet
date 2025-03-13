@@ -44,7 +44,25 @@ You'll get a response like this:
 
 Save these you'll need them for setting up the relayer.
 
-**Note: You can ignore the rest of this document if you've deployed all contracts at once and that's all you wanted to do.**
+
+Before proceeding to deploying the relayer, you need to register the relayer data in the `RelayerHandler` contract.
+
+For this, set the following env variables first:
+
+```
+RPC_URL= # the RPC URL of the chain where you deployed the contracts
+PRIVATE_KEY= # this is the relayer's private key
+RELAYER_HANDLER= # this is the address of the RelayerHandler contract from the previous step
+RELAYER_EMAIL=email@example.com
+RELAYER_HOSTNAME=example.com
+```
+
+Then run the following command:
+```
+forge script script/RegisterRelayer.s.sol --rpc-url $RPC_URL --broadcast
+```
+
+**Note: You can ignore the rest of this document if you've deployed all contracts at once and that's all you wanted to do. and you can move onto deploying the relayer**
 
 ## Project Organization
 
