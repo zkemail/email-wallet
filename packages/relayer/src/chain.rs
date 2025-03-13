@@ -89,7 +89,8 @@ impl ChainClient {
                 .await?,
             client.clone(),
         );
-        Ok(Self {
+
+        let chain_client = Self {
             client,
             core,
             token_registry,
@@ -100,7 +101,11 @@ impl ChainClient {
             ecdsa_owned_dkim_registry,
             test_erc20,
             nft_extension,
-        })
+        };
+
+        println!("{:?}", chain_client);
+
+        Ok(chain_client)
     }
 
     pub fn self_eth_addr(&self) -> Address {

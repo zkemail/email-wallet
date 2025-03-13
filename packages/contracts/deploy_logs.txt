@@ -53,40 +53,42 @@
 
 
 Default deploy script:
-forge script script/DefaultSetupScript.s.sol --tc Deploy --rpc-url $RPC_URL --broadcast
+ forge script script/DefaultSetupScript.s.sol --tc Deploy --rpc-url $RPC_URL --broadcast
 [⠒] Compiling...
-No files changed, compilation skipped
+[⠒] Compiling 2 files with Solc 0.8.28
+[⠢] Solc 0.8.28 finished in 3.87s
+Compiler run successful!
 Script ran successfully.
 
 == Logs ==
-  TokenRegistry proxy deployed at: 0x194380B1F7056056cAe5005Bd110b1eFBa1fb5d8
-  TokenRegistry implementation deployed at: 0x7AA5D23C0f8eB5C6A0f3344584CA93C0B23731aA
-  AllVerifiers implementation deployed at: 0x078D33666C78956aaD09950B8a686e9BCFc9EF3d
-  ECDSAOwnedDKIMRegistry deployed at: 0x6C8adDf924c2ED9E315B2a8A22670ec27896Ad89
-  Wallet implementation deployed at: 0x03624D9fd1a8908ef3966F066E27519F667B3C87
-  Oauth core deployed at: 0xc3c77279C09239702E8F840189587e900bB52752
-  RelayerHandler proxy deployed at: 0x94B9bC759BAEA04Cef812dCD81499675EE05f466
-  RelayerHandler implementation deployed at: 0x582eeC95cfB9cFeB9ad7FbB2cc07ab2C0Aec0B2a
-  ExtensionHandler proxy deployed at: 0x73E6178B0ff2b848e9685f7B1b96d15D13432caf
-  ExtensionHandler implementation deployed at: 0xa2bE0087310E4879F1461489665F8bf0A264ebd8
-  AccountHandler proxy deployed at: 0xa04bd18C375c28ff92744379ED820f084474C4F6
-  AccountHandler implementation deployed at: 0x38567A08B2D6F3CB72824bD6BC58fb875208ad10
-  UnclaimsHandler proxy deployed at: 0xeC201a583817204B09052aF914DcFF81AdC8E28B
-  UnclaimsHandler implementation deployed at: 0x51F15e1398f870cd8b0ff52D60e3D25aBdAE0D70
-  UniswapTWAPOracle deployed at: 0xCD5cFD73177af1cD01444935808a37b751b67836
-  TestERC20 deployed at: 0xc40A736b48B35b7857CCa0b2DE465C0b83f582A5
-  EmailWalletCore proxy deployed at: 0x3B4C08E81223884AB5756b2a3A66C7792413df1a
-  EmailWalletCore implementation deployed at: 0xEff6b3Ee9b0aE202e64641E648a36acd25Bf0533
-  NFTExtension proxy deployed at: 0xc33717E4748763Dc3C57BD6F010030922AC2653D
-  NFTExtension implementation deployed at: 0xF7915F87E909e0245f460E783101De4A2181A558
-  UniswapExtension proxy deployed at: 0x02f771c1cA2a28C9aDef0DF36716422306441C73
-  UniswapExtension implementation deployed at: 0xF97DDA6fE954A0f146e0cA070A80B30E78549C43
-  Safe2FAExtension proxy deployed at: 0x067B06BC817e7863866a89FD33571368C746173B
-  Safe2FAExtension implementation deployed at: 0x86a44fd4005Cc9a198dBadd403e49C0b01F824CB
-  OauthSignupExtension proxy deployed at: 0xae2107a19a2F2078dd4458a6924C692107d89a87
-  OauthSignupExtension implementation deployed at: 0xeB91d08E0501083930662D311a03F51425D8f349
-  OauthSigninExtension proxy deployed at: 0x0D226851E0272dab59400559b553dc6Ec3266902
-  OauthSigninExtension implementation deployed at: 0xb809C1BfCA4478EcDCD4b31940b35723CAa4278b
+  TokenRegistry proxy deployed at: 0xB895744454C62e9052A4332C29c4F19048054B56
+  TokenRegistry implementation deployed at: 0xee62Ca2257E98284eEBf66c8849cA00489Ff1E03
+  AllVerifiers implementation deployed at: 0x8350e89C182dD211180A8773cd91F79f2822BC9a
+  ECDSAOwnedDKIMRegistry deployed at: 0xA11D302310bAd2Da10216B0FA91e5A1bca631c19
+  Wallet implementation deployed at: 0x7a6361d28b1121EB8a030778f597A85443833cc9
+  Oauth core deployed at: 0x50bba18c7289bf4189E2d8e5ed40Ae86be020567
+  RelayerHandler proxy deployed at: 0x9F68880B9A760d15734872EbA3D519549C3996BB
+  RelayerHandler implementation deployed at: 0x9e119689Fc87be723886dA2dD012bF43D66c7BA4
+  ExtensionHandler proxy deployed at: 0x6D6bA7Ee9Ed199F67C6C26dfb3B6E56b60D9fdef
+  ExtensionHandler implementation deployed at: 0x9A9F0719E2cc6bD19D1Be9300f7F6279C836164C
+  AccountHandler proxy deployed at: 0x6F7119D3751056C16F9D3f3d7350bc321Fb6fF0e
+  AccountHandler implementation deployed at: 0x77CCb1A6738bF1126c28227150Ed7F951aA63415
+  UnclaimsHandler proxy deployed at: 0x2a0079dB0d3037D663E6C98E761796127e59E2c2
+  UnclaimsHandler implementation deployed at: 0xf1e3C6e1ACb7f4c3A721d4b5406B550CbFd52DA6
+  UniswapTWAPOracle deployed at: 0xF85f8E55e9C2612e049ec778E372d5bc3f5c7700
+  TestERC20 deployed at: 0x5635e6A652bE734F858dAA769e215cdb516eaca4
+  EmailWalletCore proxy deployed at: 0xeA1001AE28da904744fdd5167A4EbF1f2f546fab
+  EmailWalletCore implementation deployed at: 0x279307616c14CCf2c7C319b37A93A3aCb49F41fe
+  NFTExtension proxy deployed at: 0xbBf3f30d20Cf685750d422e2337A251833441FbE
+  NFTExtension implementation deployed at: 0x716E697C0b4660Bcf47443D11d11A77Ba3B5Eb3E
+  UniswapExtension proxy deployed at: 0x4F8484D7c97AB3e114D5c1b4959EAE630b914d1d
+  UniswapExtension implementation deployed at: 0xdFCFc8DEc9646c725b577fAAEcd7Ef151DA82E21
+  Safe2FAExtension proxy deployed at: 0xC0F126b4a55970312313c38AEa426e5c924CF44D
+  Safe2FAExtension implementation deployed at: 0x462D3ab71A752e4FE7d4048D6419AbF8f9b69c71
+  OauthSignupExtension proxy deployed at: 0x5F1EAb2C00D64322e5FDb13Aad0528554Fbb4c13
+  OauthSignupExtension implementation deployed at: 0xB5693D538A96fDafdEE3e0E755E7516E6f96ccE0
+  OauthSigninExtension proxy deployed at: 0x2B6dD727693a0216De765e1032A63e494D7D29cc
+  OauthSigninExtension implementation deployed at: 0x985A4fF1315296738d989F65410F8D6ea2a3CBC0
   ---- DONE ----
 
 00 TestToken:
