@@ -103,13 +103,18 @@ pub async fn setup() -> Result<()> {
     let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
 
     let client = ChainClient::setup().await?;
-    let tx_hash = client
+    match client
         .register_relayer(
             env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
             env::var(RELAYER_HOSTNAME_KEY).unwrap(),
         )
-        .await?;
-    println!("Register relayer in {}", tx_hash);
+        .await
+    {
+        Ok(tx_hash) => println!("Register relayer in {}", tx_hash),
+        Err(e) => {
+            println!("Warning: Relayer failed to auto register itself. It is highly likely that it has been registered before. If not, please manually register the relayer. Error: (you can ask chatgpt to decode the given revert error) {:?}", e);
+        }
+    }
     Ok(())
 }
 
