@@ -1,23 +1,34 @@
-# Use the base image
-FROM sorasue/relayer:latest
+# Use Debian Bullseye as base image with Node.js 18
+FROM node:18-bullseye
 
-# Copy the project files
-COPY packages/relayer /relayer/packages/relayer
+# Install required tools and dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    git \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the rust-toolchain.toml file
-COPY rust-toolchain.toml /relayer/packages/relayer/rust-toolchain.toml
+# Install Foundry
+RUN curl -L https://foundry.paradigm.xyz | bash
+ENV PATH="/root/.foundry/bin:${PATH}"
+RUN foundryup
 
-# Set the working directory for the Rust project
-WORKDIR /relayer/packages/relayer
+# Set the working directory
+WORKDIR /app
 
-# Build the Rust project with caching
-RUN cargo build
+# Copy package files
+COPY package*.json yarn.lock ./
+COPY packages/contracts/package*.json ./packages/contracts/
 
-# Expose port
-EXPOSE 4500
+# Install dependencies
+RUN yarn install
+RUN cd packages/contracts && yarn install
 
-# Make sure the script is executable
-RUN chmod +x /relayer/packages/relayer/setup_and_run.sh
+# Copy the contracts directory
+COPY packages/contracts /app/packages/contracts
 
-# Run the script
-CMD ["/bin/bash", "/relayer/packages/relayer/setup_and_run.sh"]
+# Build the contracts
+RUN cd packages/contracts && forge build --skip tests --skip scripts
+
