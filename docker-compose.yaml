@@ -1,0 +1,95 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: emailWallet
+      POSTGRES_PASSWORD: emailWallet_password
+      POSTGRES_DB: emailWallet
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U emailWallet" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  smtp:
+    build:
+      context: .
+      dockerfile: SMTP.Dockerfile
+    environment:
+      - SERVER_HOST=${SMTP_INTERNAL_SERVER_HOST}
+      - SERVER_PORT=${SMTP_INTERNAL_SERVER_PORT}
+      - SMTP_DOMAIN_NAME=${SMTP_DOMAIN_NAME}
+      - SMTP_LOGIN_ID=${SMTP_LOGIN_ID}
+      - SMTP_LOGIN_PASSWORD=${SMTP_LOGIN_PASSWORD}
+      - MESSAGE_ID_DOMAIN=${SMTP_MESSAGE_ID_DOMAIN}
+      - JSON_LOGGER=${SMPT_JSON_LOGGER}
+    ports:
+      - "${SMTP_PORT}:${SMTP_INTERNAL_SERVER_PORT}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${SMTP_INTERNAL_SERVER_PORT}/api/ping" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  imap:
+    build:
+      context: .
+      dockerfile: IMAP.Dockerfile
+    environment:
+      - RELAYER_ENDPOINT=http://host.docker.internal:4500/api/receiveEmail
+      - IMAP_LOGIN_ID=${IMAP_LOGIN_ID}
+      - IMAP_LOGIN_PASSWORD=${IMAP_LOGIN_PASSWORD}
+      - IMAP_DOMAIN_NAME=${IMAP_DOMAIN_NAME}
+      - IMAP_PORT=${IMAP_PORT}
+      - AUTH_TYPE=${IMAP_AUTH_TYPE}
+      - JSON_LOGGER=${IMAP_JSON_LOGGER}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  # relayer:
+  #   build:
+  #     context: .
+  #     dockerfile: Relayer.Dockerfile
+  #   ports:
+  #     - "4500:4500"
+  #   environment:
+  #     - CORE_CONTRACT_ADDRESS=${CORE_CONTRACT_ADDRESS}
+  #     - PRIVATE_KEY=${PRIVATE_KEY}
+  #     - CHAIN_RPC_PROVIDER=${CHAIN_RPC_PROVIDER}
+  #     - CHAIN_RPC_EXPLORER=${CHAIN_RPC_EXPLORER}
+  #     - CHAIN_ID=${CHAIN_ID}
+  #     - CANISTER_ID=${CANISTER_ID}
+  #     - PEM_PATH=/app/.ic.pem
+  #     - IC_REPLICA_URL=${IC_REPLICA_URL}
+  #     - WALLET_CANISTER_ID=${WALLET_CANISTER_ID}
+  #     - SMTP_SERVER=http://smtp:${SMTP_INTERNAL_SERVER_PORT}/api/sendEmail
+  #     - ERROR_EMAIL_ADDRESSES=${ERROR_EMAIL_ADDRESSES}
+  #     - PROVER_ADDRESS=${PROVER_ADDRESS}
+  #     - FEE_PER_GAS=${FEE_PER_GAS}
+  #     - DATABASE_URL=postgres://emailWallet:emailWallet_password@db/emailWallet
+  #     - RELAYER_EMAIL_ADDR=${RELAYER_EMAIL_ADDR}
+  #     - RELAYER_HOSTNAME=${RELAYER_HOSTNAME}
+  #     - WEB_SERVER_ADDRESS=${WEB_SERVER_ADDRESS}
+  #     - CIRCUITS_DIR_PATH=${CIRCUITS_DIR_PATH}
+  #     - SUBGRAPH_URL=${SUBGRAPH_URL}
+  #     - INPUT_FILES_DIR_PATH=${INPUT_FILES_DIR_PATH}
+  #     - EMAIL_TEMPLATES_PATH=${EMAIL_TEMPLATES_PATH}
+  #     - ONBOARDING_TOKEN_ADDR=${ONBOARDING_TOKEN_ADDR}
+  #     - ONBOARDING_TOKEN_AMOUNT=${ONBOARDING_TOKEN_AMOUNT}
+  #     - ONBOARDING_TOKEN_DISTRIBUTION_LIMIT=${ONBOARDING_TOKEN_DISTRIBUTION_LIMIT}
+  #     - ONBOARDING_REPLY=${ONBOARDING_REPLY}
+  #     - SAFE_API_ENDPOINT=${SAFE_API_ENDPOINT}
+  #     - JSON_LOGGER=${JSON_LOGGER}
+  #   depends_on:
+  #     - smtp
+  #     - imap
+  #   volumes:
+  #     - ./.ic.pem:/app/.ic.pem:ro
+  #   command: [ "cargo", "run", "--release" ]
+
+volumes:
+  postgres_data:

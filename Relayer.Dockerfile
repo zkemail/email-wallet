@@ -1,5 +1,5 @@
 # Use Debian Bullseye as base image with Node.js 18
-FROM node:18-bullseye
+FROM node:18-bullseye AS contract-builder
 
 # Install required tools and dependencies
 RUN apt-get update && apt-get install -y \
@@ -32,3 +32,42 @@ COPY packages/contracts /app/packages/contracts
 # Build the contracts
 RUN cd packages/contracts && forge build --skip tests --skip scripts
 
+# Use the latest official Rust image as the base for the next stage
+FROM rust:latest AS rust-builder
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built contracts/artifacts from the previous stage
+COPY --from=contract-builder /app/packages/contracts/artifacts /app/packages/contracts/artifacts
+
+# Copy the packages/relayer directory
+COPY packages/relayer /app/packages/relayer
+
+# Set the working directory for relayer
+WORKDIR /app/packages/relayer
+
+RUN cargo build --release
+
+# for the final stage
+FROM debian:bookworm-slim
+
+# Install necessary runtime dependencies and setup SSL certificates
+RUN apt-get update && apt-get install -y \
+    libssl3 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates \
+    && mkdir -p /etc/ssl/certs \
+    && ln -s /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert.pem
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only the necessary target directory from the rust-builder stage
+COPY --from=rust-builder /app/packages/relayer/target/release/relayer /app/relayer
+
+# Copy the necessary directories from packages/relayer in the final stage
+COPY --from=rust-builder /app/packages/relayer/eml_templates /app/eml_templates
+COPY --from=rust-builder /app/packages/relayer/graphql /app/graphql
+COPY --from=rust-builder /app/packages/relayer/input_files /app/input_files
