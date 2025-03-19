@@ -404,6 +404,7 @@ pub fn get_code_masked_subject(subject: &str) -> Result<String> {
         &serde_json::from_str::<DecomposedRegexConfig>(include_str!(
             "./invitation_code_with_prefix.json"
         ))?,
+        false,
     ) {
         Ok(extracts) => {
             if extracts.len() != 1 {
@@ -504,8 +505,11 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
     let selector_decomposed_def =
         serde_json::from_str(include_str!("./selector_def.json")).unwrap();
     let selector = {
-        let idxes =
-            extract_substr_idxes(&parsed_email.canonicalized_header, &selector_decomposed_def)?[0];
+        let idxes = extract_substr_idxes(
+            &parsed_email.canonicalized_header,
+            &selector_decomposed_def,
+            false,
+        )?[0];
         let str = parsed_email.canonicalized_header[idxes.0..idxes.1].to_string();
         str
     };
