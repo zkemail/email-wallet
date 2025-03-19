@@ -17,7 +17,7 @@ services:
 
   smtp:
     build:
-      context: ./packages/relayer
+      context: .
       dockerfile: SMTP.Dockerfile
     environment:
       - SERVER_HOST=${SMTP_INTERNAL_SERVER_HOST}
@@ -38,7 +38,7 @@ services:
 
   imap:
     build:
-      context: ./packages/relayer
+      context: .
       dockerfile: IMAP.Dockerfile
     environment:
       - RELAYER_ENDPOINT=http://relayer:4500/api/receiveEmail
