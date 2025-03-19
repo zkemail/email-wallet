@@ -57,9 +57,7 @@ RUN apt-get update && apt-get install -y \
     libssl3 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && update-ca-certificates \
-    && mkdir -p /etc/ssl/certs \
-    && ln -s /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert.pem
+    && update-ca-certificates
 
 # Set the working directory
 WORKDIR /app
@@ -71,3 +69,5 @@ COPY --from=rust-builder /app/packages/relayer/target/release/relayer /app/relay
 COPY --from=rust-builder /app/packages/relayer/eml_templates /app/eml_templates
 COPY --from=rust-builder /app/packages/relayer/graphql /app/graphql
 COPY --from=rust-builder /app/packages/relayer/input_files /app/input_files
+
+CMD [ "/app/relayer" ]
