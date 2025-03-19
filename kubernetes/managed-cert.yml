@@ -2,7 +2,7 @@ apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
   name: managed-cert
-  namespace: email-wallet
+  namespace: email-wallet-v11
 spec:
   domains:
-    - relayerapi.emailwallet.org
+    - relayer.emailwallet.org
