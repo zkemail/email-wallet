@@ -49,6 +49,8 @@ WORKDIR /app/packages/relayer
 
 RUN cargo build --release
 
+# CMD [ "cargo", "run", "--release" ]
+
 # for the final stage
 FROM debian:bookworm-slim
 

@@ -2,12 +2,12 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: cronjob-service-account
-  namespace: email-wallet
+  namespace: email-wallet-v11
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: email-wallet
+  namespace: email-wallet-v11
   name: deployment-restart-role
 rules:
   - apiGroups: ["apps", "extensions"]
@@ -18,11 +18,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: deployment-restart-rolebinding
-  namespace: email-wallet
+  namespace: email-wallet-v11
 subjects:
   - kind: ServiceAccount
     name: cronjob-service-account
-    namespace: email-wallet
+    namespace: email-wallet-v11
 roleRef:
   kind: Role
   name: deployment-restart-role
@@ -32,7 +32,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: restart-deployment
-  namespace: email-wallet
+  namespace: email-wallet-v11
 spec:
   schedule: "0 * * * *"
   jobTemplate:

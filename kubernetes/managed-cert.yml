@@ -5,4 +5,4 @@ metadata:
   namespace: email-wallet-v11
 spec:
   domains:
-    - relayer.emailwallet.org
+    - ewrelayer.emailwallet.org

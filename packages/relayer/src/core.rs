@@ -502,8 +502,8 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
         info!(LOG, "public key registered"; "func" => function_name!());
         return Ok(());
     }
-    let selector_decomposed_def =
-        serde_json::from_str(include_str!("./selector_def.json")).unwrap();
+    let selector_decomposed_def = serde_json::from_str(include_str!("./selector_def.json"))
+        .expect("could not load selector_def.json");
     let selector = {
         let idxes = extract_substr_idxes(
             &parsed_email.canonicalized_header,
@@ -517,7 +517,14 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
     let pem_path = env::var(PEM_PATH_KEY).unwrap_or_else(|_| ".ic.pem".to_string());
     let ic_replica_url = env::var(IC_REPLICA_URL_KEY)
         .map_err(|e| anyhow!("Failed to read IC_REPLICA_URL_KEY: {}", e))?;
-    let ic_agent = DkimOracleClient::gen_agent(&pem_path, &ic_replica_url)?;
+    let ic_agent = DkimOracleClient::gen_agent(&pem_path, &ic_replica_url).map_err(|e| {
+        anyhow!(
+            "Failed to generate IC agent with pem_path '{}' and ic_replica_url '{}': {}",
+            pem_path,
+            ic_replica_url,
+            e
+        )
+    })?;
 
     let canister_id =
         env::var(CANISTER_ID_KEY).map_err(|e| anyhow!("Failed to read CANISTER_ID_KEY: {}", e))?;
