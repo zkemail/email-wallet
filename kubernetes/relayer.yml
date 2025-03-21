@@ -6,28 +6,28 @@ metadata:
   labels:
     app: relayer
 data:
-  CORE_CONTRACT_ADDRESS: "0xd9bd6903bB0D569e5236a58EcE7BF91831758978"
+  CORE_CONTRACT_ADDRESS: "" # Core contract address
   CHAIN_RPC_EXPLORER: "https://base-sepolia.blockscout.com/"
   CHAIN_ID: "84532"
-  CANISTER_ID: "fxmww-qiaaa-aaaaj-azu7a-cai"
+  CANISTER_ID: "" # Canister ID
   PEM_PATH: "/app/.ic.pem"
-  IC_REPLICA_URL: "https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=fxmww-qiaaa-aaaaj-azu7a-cai"
-  WALLET_CANISTER_ID: "7u4p3-qqaaa-aaaaf-qanbq-cai"
-  SMTP_SERVER: "http://smtp.email-wallet-v11.svc.cluster.local:3000/api/sendEmail"
-  ERROR_EMAIL_ADDRESSES: "thezdev1@gmail.com"
+  IC_REPLICA_URL: "" # IC replica URL
+  WALLET_CANISTER_ID: "" # Wallet canister ID
+  SMTP_SERVER: "http://relayer-smtp-svc.email-wallet-v11.svc.cluster.local:3000/api/sendEmail"
+  ERROR_EMAIL_ADDRESSES: "" # Error email addresses
   FEE_PER_GAS: "0"
-  RELAYER_EMAIL_ADDR: "thezdev2@gmail.com"
+  RELAYER_EMAIL_ADDR: "" # Relayer email address
   RELAYER_HOSTNAME: "gmail.com"
   WEB_SERVER_ADDRESS: "0.0.0.0:4500"
   CIRCUITS_DIR_PATH: "../circuits"
-  SUBGRAPH_URL: "https://gateway-arbitrum.network.thegraph.com/api/305a386d2d64a4b9f94a05cdc9f4112c/subgraphs/id/AFNg1WfLo4dv1tfixaKCvWTVnFGEsVhVKx2Kef1dbt9G"
+  SUBGRAPH_URL: "" # Subgraph URL
   INPUT_FILES_DIR_PATH: "./input_files/"
   EMAIL_TEMPLATES_PATH: "./eml_templates/"
-  ONBOARDING_TOKEN_ADDR: "0x12Cee57B10AadAb156F61F757Aaf61FeE7d5f0Cb"
+  ONBOARDING_TOKEN_ADDR: "" # Onboarding token address
   ONBOARDING_TOKEN_AMOUNT: "100"
   ONBOARDING_TOKEN_DISTRIBUTION_LIMIT: "10"
   ONBOARDING_REPLY: "You received 100 TEST!"
-  SAFE_API_ENDPOINT: "https://safe-transaction-base-sepolia.safe.global/api"
+  SAFE_API_ENDPOINT: "" # Safe API endpoint
   JSON_LOGGER: "false"
 
 ---
@@ -49,7 +49,8 @@ spec:
     spec:
       containers:
         - name: relayer-container
-          image: zkfr/email-wallet-relayer:latest
+          image: zkfr/email-wallet-relayer:logs
+          imagePullPolicy: Always
           ports:
             - containerPort: 4500
           envFrom:
@@ -71,7 +72,7 @@ spec:
             periodSeconds: 30
           volumeMounts:
             - name: pem-volume
-              mountPath: "/relayer/packages/relayer/.ic.pem"
+              mountPath: "/app/.ic.pem"
               subPath: ".ic.pem"
         - name: smtp-container
           image: zkfr/smtp:latest
@@ -99,16 +100,14 @@ kind: Service
 metadata:
   name: relayer-svc
   namespace: email-wallet-v11
-  annotations:
-    networking.gke.io/load-balancer-ip: "34.173.198.113"
 spec:
   selector:
     app: relayer
   ports:
     - protocol: TCP
-      port: 8080
+      port: 443
       targetPort: 4500
-  type: LoadBalancer
+  type: ClusterIP
 
 ---
 apiVersion: v1
@@ -121,6 +120,127 @@ spec:
     app: relayer
   ports:
     - protocol: TCP
-      port: 443
+      port: 3000
       targetPort: 3000
   type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: email-wallet-v11
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: email-wallet-v11
+  labels:
+    app: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "emailWallet"
+            - name: POSTGRES_USER
+              value: "emailWallet"
+            - name: POSTGRES_PASSWORD
+              value: "emailWallet_password"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: email-wallet-v11
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: relayer-secret
+  namespace: email-wallet-v11
+  labels:
+    app: relayer
+type: Opaque
+data:
+  PRIVATE_KEY: "" # Private key
+  PROVER_ADDRESS: "" # Prover address
+  CHAIN_RPC_PROVIDER: "" # Chain RPC provider
+  DATABASE_URL: "" # Database URL
+  ICPEM: "" # IC PEM
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: relayer-smtp-secret
+  namespace: email-wallet-v11
+  labels:
+    app: relayer
+type: Opaque
+data:
+  SERVER_HOST: "MC4wLjAuMA=="
+  SERVER_PORT: "MzAwMA=="
+  SMTP_DOMAIN_NAME: "" # SMTP domain name
+  SMTP_LOGIN_ID: "" # SMTP login ID
+  SMTP_LOGIN_PASSWORD: "" # SMTP login password
+  MESSAGE_ID_DOMAIN: "" # Message ID domain
+  SMTP_EMAIL_SENDER_NAME: "" # SMTP email sender name
+  JSON_LOGGER: "dHJ1ZQ=="
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: relayer-imap-secret
+  namespace: email-wallet-v11
+  labels:
+    app: relayer
+type: Opaque
+data:
+  RELAYER_ENDPOINT: "" # Relayer endpoint
+  IMAP_LOGIN_ID: "" # IMAP login ID
+  IMAP_LOGIN_PASSWORD: "" # IMAP login password
+  IMAP_PORT: "OTkz"
+  IMAP_DOMAIN_NAME: "" # IMAP domain name
+  SERVER_HOST: "MC4wLjAuMA=="
+  AUTH_TYPE: "cGFzc3dvcmQ="
+  JSON_LOGGER: "dHJ1ZQ=="

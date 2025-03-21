@@ -47,5 +47,5 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  kubectl rollout restart deployment relayer -n email-wallet
+                  kubectl rollout restart deployment relayer -n email-wallet-v11
           restartPolicy: OnFailure
