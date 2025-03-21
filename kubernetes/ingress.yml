@@ -2,14 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: managed-cert-ingress
-  namespace: email-wallet
+  namespace: email-wallet-v11
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: k8s-ingress
+    kubernetes.io/ingress.global-static-ip-name: email-wallet-relayer-v11
     networking.gke.io/managed-certificates: managed-cert
     ingressClassName: "gce"
 spec:
   rules:
-    - host: relayerapi.emailwallet.org
+    - host: ewrelayer.emailwallet.org
       http:
         paths:
           - pathType: Prefix

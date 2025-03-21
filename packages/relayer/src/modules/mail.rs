@@ -423,3 +423,14 @@ pub async fn send_email(email: EmailMessage) -> Result<()> {
 
     Ok(())
 }
+
+pub async fn read_email_template(template_name: &str) -> Result<String> {
+    let template_path = PathBuf::from(EMAIL_TEMPLATES.get().unwrap()).join(template_name);
+    read_to_string(&template_path).await.map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to read email template '{}': {}",
+            template_path.display(),
+            e
+        )
+    })
+}
