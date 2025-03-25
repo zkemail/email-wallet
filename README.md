@@ -72,7 +72,7 @@ forge build --skip test --skip script
 Run the deployment script:
 
 ```sh
-source .env
+source .env && \
 
 forge script script/DefaultSetupScript.s.sol:Deploy \
 --rpc-url $RPC_URL \
