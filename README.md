@@ -117,6 +117,7 @@ RELAYER_HOSTNAME=example.com
 Then run:
 
 ```sh
+source .env && \
 forge script script/RegisterRelayer.s.sol --rpc-url $RPC_URL --broadcast
 ```
 
