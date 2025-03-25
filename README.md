@@ -128,7 +128,7 @@ forge script script/RegisterRelayer.s.sol --rpc-url $RPC_URL --broadcast
 Navigate to the relayer directory:
 
 ```sh
-cd packages/relayer
+cd ../relayer
 ```
 
 Create a `.env` file:
