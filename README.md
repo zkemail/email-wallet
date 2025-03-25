@@ -78,7 +78,7 @@ forge script script/DefaultSetupScript.s.sol:Deploy \
 --rpc-url $RPC_URL \
 --chain-id $CHAIN_ID \
 --broadcast \
--vvvv
+-vvv
 ```
 
 You'll get a response with the addresses of all deployed contracts. Save these addresses as you'll need them for setting up the relayer.
