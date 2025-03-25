@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: relayer-env
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   labels:
     app: relayer
 data:
@@ -13,7 +13,7 @@ data:
   PEM_PATH: "/app/.ic.pem"
   IC_REPLICA_URL: "" # IC replica URL
   WALLET_CANISTER_ID: "" # Wallet canister ID
-  SMTP_SERVER: "http://relayer-smtp-svc.email-wallet-v11.svc.cluster.local:3000/api/sendEmail"
+  SMTP_SERVER: "http://relayer-smtp-svc.email-wallet-v1_1.svc.cluster.local:3000/api/sendEmail"
   ERROR_EMAIL_ADDRESSES: "" # Error email addresses
   FEE_PER_GAS: "0"
   RELAYER_EMAIL_ADDR: "" # Relayer email address
@@ -35,7 +35,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: relayer
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   labels:
     app: relayer
 spec:
@@ -99,7 +99,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: relayer-svc
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
 spec:
   selector:
     app: relayer
@@ -114,7 +114,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: relayer-smtp-svc
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
 spec:
   selector:
     app: relayer
@@ -129,7 +129,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
 spec:
   selector:
     app: postgres
@@ -144,7 +144,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   labels:
     app: postgres
 spec:
@@ -183,7 +183,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
 spec:
   accessModes:
     - ReadWriteOnce
@@ -196,7 +196,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: relayer-secret
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   labels:
     app: relayer
 type: Opaque
@@ -212,7 +212,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: relayer-smtp-secret
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   labels:
     app: relayer
 type: Opaque
@@ -231,7 +231,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: relayer-imap-secret
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   labels:
     app: relayer
 type: Opaque

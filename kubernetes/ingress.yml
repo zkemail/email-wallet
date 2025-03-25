@@ -2,9 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: managed-cert-ingress
-  namespace: email-wallet-v11
+  namespace: email-wallet-v1_1
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: email-wallet-relayer-v11
+    kubernetes.io/ingress.global-static-ip-name: email-wallet-relayer-v1_1
     networking.gke.io/managed-certificates: managed-cert
     ingressClassName: "gce"
 spec:
