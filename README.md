@@ -110,8 +110,8 @@ Set the following environment variables:
 RPC_URL=<the RPC URL of the chain where you deployed the contracts>
 PRIVATE_KEY=<this is the relayer's private key>
 RELAYER_HANDLER=<address of the RelayerHandler contract from the previous step>
-RELAYER_EMAIL=email@example.com # used for relayer communication later
-RELAYER_HOSTNAME=example.com
+RELAYER_EMAIL=<email@example.com # used for relayer communication later>
+RELAYER_HOSTNAME=<example.com>
 ```
 
 Then run:
