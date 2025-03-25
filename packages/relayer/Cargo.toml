@@ -15,7 +15,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.68"
 lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
 ethers = { version = "2.0.10", features = ["abigen"] }
-relayer-utils = { git = "https://github.com/zkemail/relayer-utils", branch="fix/zkregex-dep" }
+relayer-utils = { git = "https://github.com/zkemail/relayer-utils", rev = "cab4449" }
 slog = { version = "2.7.0", features = [
     "max_level_trace",
     "release_max_level_warn",
