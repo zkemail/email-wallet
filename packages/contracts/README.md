@@ -32,7 +32,7 @@ forge build --skip test --skip script
 ##### Run 
 
 ```
-source .env
+source .env && \
 
 forge script script/DefaultSetupScript.s.sol:Deploy \
 --rpc-url $RPC_URL \
@@ -74,6 +74,7 @@ RELAYER_HOSTNAME=example.com
 
 Then run the following command:
 ```
+source .env && \
 forge script script/RegisterRelayer.s.sol --rpc-url $RPC_URL --broadcast
 ```
 

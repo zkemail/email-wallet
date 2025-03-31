@@ -103,8 +103,6 @@ impl ChainClient {
             nft_extension,
         };
 
-        println!("{:?}", chain_client);
-
         Ok(chain_client)
     }
 
