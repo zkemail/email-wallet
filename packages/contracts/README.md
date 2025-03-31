@@ -38,7 +38,7 @@ forge script script/DefaultSetupScript.s.sol:Deploy \
 --rpc-url $RPC_URL \
 --chain-id $CHAIN_ID \
 --broadcast \
--vvvv
+-vvv
 ```
 
 You'll get a response like this:
@@ -161,7 +161,7 @@ Run the below commands to deploy each contracts. Ensure address of WETH and Unis
 ```
 PRIVATE_KEY="" \
 forge script script/01_DeployTokenRegistry.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -175,7 +175,7 @@ Copy the address from log `TokenRegistry implementation deployed at: 0x9f44be9F6
 ```
 PRIVATE_KEY="" \
 forge script script/02_DeployAllVerifiers.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -189,7 +189,7 @@ Copy the address from log `AllVerifiers implementation deployed at: 0x9f44be9F69
 ```
 PRIVATE_KEY="" \
 forge script script/03_DeployDKIMRegistry.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -206,7 +206,7 @@ PRIVATE_KEY="" \
 WETH=0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9 \
 UNISWAP_FACTORY=0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f \
 forge script script/DeployUniswapTWAPOracle.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -221,7 +221,7 @@ Copy the address from log `UniswapTWAPOracle deployed at: 0x00000000000000000000
 PRIVATE_KEY="" \
 WETH=0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9 \
 forge script script/04_DeployWallet.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -236,7 +236,7 @@ Copy the address from log `Wallet proxy deployed at: 0x0000000000000000000000000
 PRIVATE_KEY="" \
 WETH=0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9 \
 forge script script/05_DeployHandlers.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -262,7 +262,7 @@ TOKEN_REGISTRY=0x9f44be9F69aF1e049dCeCDb2d9296f36C49Ceafb \
 DKIM_REGISTRY=0xbE66454b0Fa9E6b3D53DC1b0f9D21978bb864531 \
 PRICE_ORACLE=0xF5f40B12aa15286F0DE5610C4e29d87a97997ee7 \
 forge script script/06_DeployEmailWalletCore.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -284,7 +284,7 @@ TOKEN_REGISTRY=0x9f44be9F69aF1e049dCeCDb2d9296f36C49Ceafb \
 DKIM_REGISTRY=0xbE66454b0Fa9E6b3D53DC1b0f9D21978bb864531 \
 PRICE_ORACLE=0xF5f40B12aa15286F0DE5610C4e29d87a97997ee7 \
 forge script script/07_SetDefaultExtensions.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -305,7 +305,7 @@ Set the `SIGNER` to the address of the Ethereum wallet who will be setting the D
 PRIVATE_KEY="" \
 SIGNER=0x2f6e79a6e1a982a49ca248b70b02f76e921af400 \
 forge script script/DeployECDSAOwnedDKIMRegistry.s.sol:Deploy \
--vvvv \
+-vvv \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
@@ -329,5 +329,5 @@ forge script script/XX_UpgradeTokenRegistry.s.sol:Deploy \
 --rpc-url https://ethereum-sepolia.publicnode.com	 \
 --chain-id 11155111 \
 --broadcast \
--vvvv
+-vvv
 ```
