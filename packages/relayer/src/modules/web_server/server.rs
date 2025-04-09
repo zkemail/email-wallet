@@ -3,7 +3,6 @@ use crate::*;
 use std::sync::atomic::Ordering;
 
 use axum::Router;
-use serde::{Deserialize, Serialize};
 use tower_http::cors::{AllowHeaders, AllowMethods, Any, CorsLayer};
 
 #[named]

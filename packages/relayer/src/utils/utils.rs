@@ -199,7 +199,7 @@ pub async fn search_user_assets(email_addr: &str) -> Result<Vec<Asset>> {
 }
 
 pub async fn get_nft_info(state: &[u8]) -> Result<(Address, U256, String, String)> {
-    let decoded = abi::decode(&[ParamType::Address, ParamType::Uint(256)], &state)?;
+    let decoded = abi::decode(&[ParamType::Address, ParamType::Uint(256)], state)?;
     let nft_addr = decoded[0].clone().into_address().unwrap();
     let nft_id = decoded[1].clone().into_uint().unwrap();
     let nft_name = CLIENT.query_nft_name_of_address(nft_addr).await?;

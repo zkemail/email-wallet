@@ -82,7 +82,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
             account_code,
             tx_hash,
         } => {
-            let subject = format!("Your Email Wallet Account is created.",);
+            let subject = "Your Email Wallet Account is created.".to_string();
             let account_salt =
                 AccountSalt::new(&PaddedEmailAddr::from_email_addr(&email_addr), account_code)?;
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
@@ -114,10 +114,10 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                            you can send any currency we support directly to an email address by
                            sending an email with the amount, currency name, and recipient's
                            email address replaced respectively in the subject line.\n{}\nYour wallet address: {}/address/{}.\nCheck the transaction on etherscan: {}/tx/{}",
-                           email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr, CHAIN_RPC_EXPLORER.get().unwrap(), tx_hash
+                           email_addr, RELAYER_EMAIL_ADDRESS.get().unwrap(), ONBOARDING_REPLY_MSG.get().unwrap_or(&String::new()), CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr, CHAIN_RPC_EXPLORER.get().unwrap(), tx_hash
                         );
             let account_code_str = field2hex(&account_code.0);
-            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().clone().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str});
+            let render_data = serde_json::json!({"userEmailAddr": email_addr, "relayerEmailAddr": RELAYER_EMAIL_ADDRESS.get().unwrap(), "faucetMessage": ONBOARDING_REPLY_MSG.get().unwrap_or(&String::new()), "walletAddr":wallet_addr, "transactionHash": tx_hash, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap(), "accountCode": account_code_str});
             let body_html = render_html("account_created.html", render_data).await?;
             let email = EmailMessage {
                 to: email_addr,
@@ -304,7 +304,7 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
         } => {
             let error = parse_error(error)?;
             if let Some(error) = error {
-                let subject = format!("Email Wallet Notification. Error occurred.");
+                let subject = "Email Wallet Notification. Error occurred.".to_string();
                 let body_plain = format!("Hi {}!\nError occurred: {}", email_addr, error);
                 let render_data = serde_json::json!({"userEmailAddr": email_addr, "chainRPCExplorer": CHAIN_RPC_EXPLORER.get().unwrap()});
                 let body_html = render_html("error.html", render_data).await?;
@@ -322,8 +322,8 @@ pub async fn handle_email_event(event: EmailWalletEvent) -> Result<()> {
                 // Send error email to team email addresses
                 let error_email_addresses = ERROR_EMAIL_ADDRESSES.get().unwrap();
                 for error_email_addr in error_email_addresses {
-                    let subject = format!("Email Wallet Notification. Error occurred.");
-                    let body_plain = format!("Error occurred");
+                    let subject = "Email Wallet Notification. Error occurred.".to_string();
+                    let body_plain = "Error occurred".to_string();
                     let render_data = serde_json::json!({"userEmailAddr": error_email_addr, "error": error, "subject": error_subject, "emailAddr": email_addr});
                     let body_html = render_html("error_alert.html", render_data).await?;
                     let email = EmailMessage {
@@ -390,7 +390,7 @@ pub fn parse_error(error: String) -> Result<Option<String>> {
         let revert_bytes = hex::decode(revert_data)
             .unwrap()
             .into_iter()
-            .filter(|&b| b >= 0x20 && b <= 0x7E)
+            .filter(|&b| (0x20..=0x7E).contains(&b))
             .collect();
         error = String::from_utf8(revert_bytes).unwrap().trim().to_string();
     }

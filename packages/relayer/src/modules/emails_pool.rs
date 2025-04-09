@@ -81,6 +81,12 @@ impl EmailsPool for FileEmailsPool {
     }
 }
 
+impl Default for FileEmailsPool {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FileEmailsPool {
     #[named]
     pub fn new() -> Self {

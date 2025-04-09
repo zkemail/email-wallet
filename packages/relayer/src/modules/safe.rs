@@ -116,7 +116,7 @@ pub async fn safe_fn() -> Result<()> {
                 let confirmations_required =
                     txn.confirmations_required.unwrap_or_default() as usize;
                 if confirmations_required <= txn.confirmations.as_ref().map_or(0, |c| c.len())
-                    || txn.confirmations.as_ref().map_or(false, |c| {
+                    || txn.confirmations.as_ref().is_some_and(|c| {
                         c.iter()
                             .any(|confirmation| confirmation.owner == wallet_addr)
                     })

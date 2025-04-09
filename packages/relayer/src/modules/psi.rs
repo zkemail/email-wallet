@@ -73,7 +73,7 @@ impl PSIClient {
             }
         }
         let (created_relayers, inited_relayers) = self.find().await?;
-        if inited_relayers.len() > 0 {
+        if !inited_relayers.is_empty() {
             self.reveal(inited_relayers).await?;
             Ok(false)
         } else {
