@@ -1,6 +1,6 @@
 root: ./
 structure:
-  readme: README.md
+  readme: DESIGN.md
 ignore:
   - docs/
   - packages/

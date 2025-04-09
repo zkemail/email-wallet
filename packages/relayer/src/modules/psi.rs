@@ -73,7 +73,7 @@ impl PSIClient {
             }
         }
         let (created_relayers, inited_relayers) = self.find().await?;
-        if inited_relayers.len() > 0 {
+        if !inited_relayers.is_empty() {
             self.reveal(inited_relayers).await?;
             Ok(false)
         } else {
@@ -243,7 +243,7 @@ pub async fn psi_step2(
     relayer_rand: &str,
 ) -> Result<Point> {
     let input_file_name = calculate_default_hash(&point.x);
-    let input_file_name = PathBuf::new()
+    let input_file_path = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(input_file_name + ".json");
 
@@ -253,27 +253,49 @@ pub async fn psi_step2(
         point.x,
         point.y,
         relayer_rand,
-        input_file_name.to_str().unwrap()
+        input_file_path.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
         .args(command_str.split_whitespace())
-        .spawn()?;
+        .spawn()
+        .map_err(|e| anyhow::anyhow!("Failed to spawn psi-step2 process: {}", e))?;
 
-    let status = proc.wait().await?;
+    let status = proc
+        .wait()
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to wait for psi-step2 process: {}", e))?;
     assert!(status.success());
 
-    let result = read_to_string(&input_file_name).await?;
-    remove_file(input_file_name).await?;
+    let result = read_to_string(&input_file_path).await.map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to read PSI result from file '{}': {}",
+            input_file_path.display(),
+            e
+        )
+    })?;
+    remove_file(&input_file_path).await.map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to remove temporary file '{}': {}",
+            input_file_path.display(),
+            e
+        )
+    })?;
 
-    let point: Point = serde_json::from_str(&result)?;
+    let point: Point = serde_json::from_str(&result).map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to parse PSI result from file '{}': {}",
+            input_file_path.display(),
+            e
+        )
+    })?;
 
     Ok(point)
 }
 
 pub async fn psi_step3(circuits_dir_path: &Path, point: Point, client_rand: &str) -> Result<Point> {
     let input_file_name = calculate_default_hash(&point.x);
-    let input_file_name = PathBuf::new()
+    let input_file_path = PathBuf::new()
         .join(INPUT_FILES_DIR.get().unwrap())
         .join(input_file_name + ".json");
 
@@ -283,20 +305,42 @@ pub async fn psi_step3(circuits_dir_path: &Path, point: Point, client_rand: &str
         point.x,
         point.y,
         client_rand,
-        input_file_name.to_str().unwrap()
+        input_file_path.to_str().unwrap()
     );
 
     let mut proc = tokio::process::Command::new("yarn")
         .args(command_str.split_whitespace())
-        .spawn()?;
+        .spawn()
+        .map_err(|e| anyhow::anyhow!("Failed to spawn psi-step3 process: {}", e))?;
 
-    let status = proc.wait().await?;
+    let status = proc
+        .wait()
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to wait for psi-step3 process: {}", e))?;
     assert!(status.success());
 
-    let result = read_to_string(&input_file_name).await?;
-    remove_file(input_file_name).await?;
+    let result = read_to_string(&input_file_path).await.map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to read PSI result from file '{}': {}",
+            input_file_path.display(),
+            e
+        )
+    })?;
+    remove_file(&input_file_path).await.map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to remove temporary file '{}': {}",
+            input_file_path.display(),
+            e
+        )
+    })?;
 
-    let point: Point = serde_json::from_str(&result)?;
+    let point: Point = serde_json::from_str(&result).map_err(|e| {
+        anyhow::anyhow!(
+            "Failed to parse PSI result from file '{}': {}",
+            input_file_path.display(),
+            e
+        )
+    })?;
 
     Ok(point)
 }

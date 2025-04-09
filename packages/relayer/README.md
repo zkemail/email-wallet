@@ -1,4 +1,71 @@
-## Overview
+## Quick Start
+
+**Note**: Before proceeding, ensure you have deployed the necessary contracts. Navigate to the [`packages/contracts`](../contracts) directory and follow the instructions in the README to deploy all contracts. Keep the addresses of the deployed contracts handy, as you will need to update the environment variables with these addresses here. Also make sure to register the relayer's data via the RelayerHander. Example output of a successfull deployement: 
+```
+== Logs ==
+  <TRUNCATED>
+  RelayerHandler proxy deployed at: 0x9F68880B9A760d15734872EbA3D519549C3996BB # used for registering relayer's info
+  <TRUNCATED>
+  TestERC20 deployed at: 0x5635e6A652bE734F858dAA769e215cdb516eaca4 # ONBOARDING_TOKEN_ADDR
+  EmailWalletCore proxy deployed at: 0xeA1001AE28da904744fdd5167A4EbF1f2f546fab # CORE_CONTRACT_ADDRESS
+  <TRUNCATED>
+  ---- DONE ----
+```
+
+Follow these steps to set up and run the Relayer locally:
+
+**Set Up Environment Variables**:
+   Copy the `.env.example` file to `.env` and update the necessary environment variables.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+  - `CORE_CONTRACT_ADDRESS` and `ONBOARDING_TOKEN_ADDR` come from previous step of deploying contracts. 
+  - `PRIVATE_KEY` this is the registered relayer's pk for the wallet used to submit on-chain transactions.
+  - `CHAIN{RPC_PROVIDER, RPC_EXPLORER, ID}` set according to the chain
+  - `CANISTER_ID`, `IC_REPLICA_URL` defaut values works
+  - `PEM_PATH` and `WALLET_CANISTER_ID` from this [doc](https://proofofemail.notion.site/How-to-setup-ICP-account-for-relayer-cf80ad6187e94219b25152fb875309db?pvs=73)
+  - `SMTP_SERVER`, `DATABASE_URL` For local testing and dvelopment default valueS work with the provided `docker-compose` file (see below for running DB, SMTP and IMAP)
+  - `ERROR_EMAIL_ADDRESSES`, `RELAYER_EMAIL_ADDR`, `RELAYER_HOSTNAME` fillout accordingly
+  - `PROVER_ADDRESS` default value works
+  - `SUBGRAPH_URL` Regarding to use thegraph, you need to get your own TheGraph API key.  
+After that, you can replace the subgraph url in the env file with your TheGraph API key.  
+See this URL https://thegraph.com/studio/apikeys/
+ - SMTP & IMAP Service env variables: these variables are used by the `docker-compose` to setup a local SMTP and IMAP.
+
+### Run docker compose for local db, imap and smtp:
+
+first make sure you have set proper values in .env for smtp and imap services. Then make sure you have `docker` and `docker compose` installed, then run:
+
+```
+docker compose up --build -d
+```
+
+### Confirm All Services Are Up and Running
+
+After running the `docker compose up --build -d` command, you need to confirm that all three services (DB, SMTP, and IMAP) are up and running. You can do this by checking the status of the Docker containers.
+
+Run the following command to list all running containers:
+```
+docker ps
+```
+
+you should see something like this:
+
+```bash
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS                   PORTS                    NAMES
+d0bb20274135   email-wallet-imap      "/app/relayer-imap"      7 seconds ago   Up 1 second                                       email-wallet-imap-1
+7672fc31b4f4   email-wallet-relayer   "/app/relayer"           7 seconds ago   Up 1 second              0.0.0.0:4500->4500/tcp   email-wallet-relayer-1
+27c9f2b26382   postgres:15            "docker-entrypoint.s…"   7 seconds ago   Up 7 seconds (healthy)   0.0.0.0:5432->5432/tcp   email-wallet-db-1
+9ccccc1dd244   email-wallet-smtp      "/app/relayer-smtp"      7 seconds ago   Up 7 seconds (healthy)   0.0.0.0:3000->3000/tcp   email-wallet-smtp-1
+```
+
+You can then run the front-end of email wallet [emailwallet.org](https://github.com/zkemail/emailwallet.org/tree/refactor/v1.1) repo to manually testout everything. 
+
+You can ignore the rest of the document if that's all you needed.
+
+## Design Overview (SOME PARTS OF THE DOCUMENT ARE DEPRICATED AND OUTDATED)
 
 The Relayer, a crucial system component, bridges email communication and blockchain transactions, ensuring secure information processing.
 

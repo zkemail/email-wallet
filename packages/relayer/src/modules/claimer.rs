@@ -31,9 +31,7 @@ pub async fn claim_unclaims(mut claim: Claim) -> Result<EmailWalletEvent> {
         .await?
         .into_iter()
         .filter(|c: &Claim| c.is_fund == claim.is_fund)
-        .collect::<Vec<_>>()
-        .len()
-        == 0
+        .collect::<Vec<_>>().is_empty()
     {
         claim.is_seen = true;
         DB.insert_claim(&claim).await?;

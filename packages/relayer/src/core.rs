@@ -53,7 +53,7 @@ pub async fn handle_email(email: String) -> Result<(EmailWalletEvent, bool)> {
                 timestamp: pub_signals[DOMAIN_FIELDS + 2],
                 nullifier: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 1]),
                 dkim_public_key_hash: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 0]),
-                proof: proof,
+                proof,
             };
             let data = AccountCreationInput {
                 account_salt: u256_to_bytes32(&pub_signals[DOMAIN_FIELDS + 3]),
@@ -67,7 +67,7 @@ pub async fn handle_email(email: String) -> Result<(EmailWalletEvent, bool)> {
             let res = CLIENT.create_account(data).await?;
             info!(LOG, "account creation tx hash: {}", res; "func" => function_name!());
             let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
-            if let Some(_) = stored_account_code {
+            if stored_account_code.is_some() {
                 DB.user_onborded(&from_addr, &res).await?;
                 trace!(LOG, "User onboarded"; "func" => function_name!());
             } else {
@@ -106,7 +106,7 @@ pub async fn handle_email(email: String) -> Result<(EmailWalletEvent, bool)> {
             return Ok((
                 EmailWalletEvent::AccountCreated {
                     email_addr: from_addr,
-                    account_code: account_code,
+                    account_code,
                     tx_hash: res,
                 },
                 is_replay,
@@ -386,11 +386,11 @@ pub async fn handle_email(email: String) -> Result<(EmailWalletEvent, bool)> {
     Ok((
         EmailWalletEvent::EmailHandled {
             sender_email_addr: from_addr,
-            account_code: account_code,
-            recipient_email_addr: recipient_email_addr,
-            original_subject: original_subject,
+            account_code,
+            recipient_email_addr,
+            original_subject,
             message_id,
-            email_op: email_op,
+            email_op,
             tx_hash,
         },
         false,
@@ -404,6 +404,7 @@ pub fn get_code_masked_subject(subject: &str) -> Result<String> {
         &serde_json::from_str::<DecomposedRegexConfig>(include_str!(
             "./invitation_code_with_prefix.json"
         ))?,
+        false,
     ) {
         Ok(extracts) => {
             if extracts.len() != 1 {
@@ -501,20 +502,36 @@ pub async fn check_and_update_dkim(email: &str, parsed_email: &ParsedEmail) -> R
         info!(LOG, "public key registered"; "func" => function_name!());
         return Ok(());
     }
-    let selector_decomposed_def =
-        serde_json::from_str(include_str!("./selector_def.json")).unwrap();
+    let selector_decomposed_def = serde_json::from_str(include_str!("./selector_def.json"))
+        .expect("could not load selector_def.json");
     let selector = {
-        let idxes =
-            extract_substr_idxes(&parsed_email.canonicalized_header, &selector_decomposed_def)?[0];
-        let str = parsed_email.canonicalized_header[idxes.0..idxes.1].to_string();
-        str
+        let idxes = extract_substr_idxes(
+            &parsed_email.canonicalized_header,
+            &selector_decomposed_def,
+            false,
+        )?[0];
+        
+        parsed_email.canonicalized_header[idxes.0..idxes.1].to_string()
     };
     info!(LOG, "selector {}", selector; "func" => function_name!());
-    let ic_agent = DkimOracleClient::gen_agent(
-        &env::var(PEM_PATH_KEY).unwrap(),
-        &env::var(IC_REPLICA_URL_KEY).unwrap(),
-    )?;
-    let oracle_client = DkimOracleClient::new(&env::var(CANISTER_ID_KEY).unwrap(), &ic_agent)?;
+    let pem_path = env::var(PEM_PATH_KEY).unwrap_or_else(|_| ".ic.pem".to_string());
+    let ic_replica_url = env::var(IC_REPLICA_URL_KEY)
+        .map_err(|e| anyhow!("Failed to read IC_REPLICA_URL_KEY: {}", e))?;
+    let ic_agent = DkimOracleClient::gen_agent(&pem_path, &ic_replica_url).map_err(|e| {
+        anyhow!(
+            "Failed to generate IC agent with pem_path '{}' and ic_replica_url '{}': {}",
+            pem_path,
+            ic_replica_url,
+            e
+        )
+    })?;
+
+    let canister_id =
+        env::var(CANISTER_ID_KEY).map_err(|e| anyhow!("Failed to read CANISTER_ID_KEY: {}", e))?;
+    let wallet_canister_id = env::var(WALLET_CANISTER_ID_KEY)
+        .map_err(|e| anyhow!("Failed to read WALLET_CANISTER_ID_KEY: {}", e))?;
+    let oracle_client = DkimOracleClient::new(&canister_id, &wallet_canister_id, &ic_agent).await?;
+
     let oracle_result = oracle_client.request_signature(&selector, &domain).await?;
     info!(LOG, "DKIM oracle result {:?}", oracle_result; "func" => function_name!());
     let public_key_hash = hex::decode(&oracle_result.public_key_hash[2..])?;

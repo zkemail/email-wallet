@@ -21,6 +21,12 @@ pub struct SubgraphClient {
     pub subgraph_api: String,
 }
 
+impl Default for SubgraphClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SubgraphClient {
     pub fn new() -> Self {
         Self {

@@ -1,24 +1,24 @@
 use anyhow::{anyhow, Result};
-use lettre::error;
 
 use crate::{
     error, handle_email, handle_email_event, render_html, trace, wallet::EphemeralTx, EmailMessage,
     EmailWalletEvent, RELAYER_EMAIL_ADDRESS,
 };
+use crate::{CHAIN_RPC_EXPLORER, CLIENT, DB};
 use ethers::{
-   etherscan::account, types::{Address, Bytes, Signature, U256}, utils::{hash_message, keccak256, to_checksum}
+    types::{Address, Bytes, Signature, U256},
+    utils::{hash_message, to_checksum},
 };
+use hex::encode;
+use rand::Rng;
 use relayer_utils::{
     converters::{field2hex, hex2field},
     cryptos::{AccountCode, AccountSalt, PaddedEmailAddr},
     ParsedEmail, LOG,
 };
-use crate::{CHAIN_RPC_EXPLORER, WEB_SERVER_ADDRESS,CLIENT, DB};
-use hex::encode;
-use rand::Rng;
 use serde::{Deserialize, Serialize};
-use serde_json::{from_str, Number};
 use serde_json::Value;
+use serde_json::Number;
 use std::str::FromStr;
 
 #[derive(Serialize, Deserialize)]
@@ -137,7 +137,6 @@ pub struct EpheAddrStatusResponse {
     pub wallet_addr: Option<String>,
     pub nonce: Option<String>,
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExecuteEphemeralTxRequest {
@@ -345,7 +344,7 @@ pub async fn get_wallet_address_api_fn(payload: String) -> Result<String> {
         account_code,
     )?;
     let wallet_addr = CLIENT.get_wallet_addr_from_salt(&account_salt.0).await?;
-    Ok("0x".to_string() + &encode(&wallet_addr.0))
+    Ok("0x".to_string() + &encode(wallet_addr.0))
 }
 
 pub async fn recover_account_code_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
@@ -449,12 +448,12 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
                     let event2 = match handle_email(email.clone()).await {
                         Ok((event2, _)) => event2,
                         Err(e) => {
-                            let error_event = EmailWalletEvent::Error {
+                            
+                            EmailWalletEvent::Error {
                                 email_addr: from_addr,
                                 error_subject: parsed_email.get_subject_all().unwrap_or_default(),
                                 error: e.to_string(),
-                            };
-                            error_event
+                            }
                         }
                     };
                     match handle_email_event(event2).await {
@@ -487,7 +486,11 @@ pub async fn receive_email_api_fn(email: String) -> Result<()> {
 
 pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)> {
     let mut request_id: u32 = rand::thread_rng().gen();
-    while DB.get_ephe_addr_info(&request_id.to_string()).await?.is_some() {
+    while DB
+        .get_ephe_addr_info(&request_id.to_string())
+        .await?
+        .is_some()
+    {
         request_id = rand::thread_rng().gen();
     }
     let request = serde_json::from_str::<SignupOrInRequest>(&payload)
@@ -512,8 +515,8 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
     trace!(LOG, "Account salt: {:?}", account_salt);
     let registered_username = CLIENT.get_username_from_wallet(&account_salt).await?;
     trace!(LOG, "Registered Username: {:?}", registered_username);
-    let is_signup = registered_username.len() == 0;
-    
+    let is_signup = registered_username.is_empty();
+
     if is_signup && request.username.is_none() {
         let subject = "Email Wallet Error: No username in the sign-up request".to_string();
         let error_msg = "Please specify a username when you sign-up".to_string();
@@ -565,11 +568,16 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
             request
         );
         nonce = Some(got_nonce);
-        println!("request_id int: {}",request_id);
-        println!("request_id string: {}",request_id.to_string());
-        DB.insert_ephe_addr_info(&request_id.to_string(), &encode(&wallet_addr.0),&ephe_addr_str, &got_nonce.to_string()).await?;
+        println!("request_id int: {}", request_id);
+        println!("request_id string: {}", request_id);
+        DB.insert_ephe_addr_info(
+            &request_id.to_string(),
+            &encode(wallet_addr.0),
+            ephe_addr_str,
+            &got_nonce.to_string(),
+        )
+        .await?;
     }
-    
 
     let prefix = if is_signup { "Sign-up" } else { "Sign-in" };
     let used_username = if is_signup {
@@ -580,9 +588,7 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
     let mut subject = _construct_sign_up_in_subject(
         prefix,
         used_username,
-        nonce.map(|s| {
-             s.to_string()
-            }),
+        nonce.map(|s| s.to_string()),
         request.expiry_time,
         request.token_allowances,
     );
@@ -590,10 +596,9 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
         subject = format!("{} Code {}", subject, code);
     }
 
-
     let body_plain = format!(
         "Hi {}! Please reply to this email to {} {}.\nYou don't have to add any message in the reply 😄.\nYour wallet address: {}/address/{}.",
-        request.email_addr, 
+        request.email_addr,
         if is_signup { "sign-up" } else { "sign-in" },
         used_username, CHAIN_RPC_EXPLORER.get().unwrap(), wallet_addr,
     );
@@ -610,8 +615,6 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
     };
     Ok((request_id, email))
 }
-
-
 
 // pub async fn signin_api_fn(payload: String) -> Result<(u64, EmailMessage)> {
 //     let request_id = rand::thread_rng().gen();
@@ -688,7 +691,9 @@ pub async fn signup_or_in_api_fn(payload: String) -> Result<(u32, EmailMessage)>
 pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusResponse> {
     let request = serde_json::from_str::<EpheAddrStatusRequest>(&payload)
         .map_err(|_| anyhow!("Invalid payload json".to_string()))?;
-    let ephe_addr_info = DB.get_ephe_addr_info(&request.request_id.to_string()).await?;
+    let ephe_addr_info = DB
+        .get_ephe_addr_info(&request.request_id.to_string())
+        .await?;
     if ephe_addr_info.is_none() {
         error!(LOG, "Ephe addr info not found");
         return Ok(EpheAddrStatusResponse {
@@ -705,7 +710,11 @@ pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusRe
     let ephe_addr = Address::from_str(&ephe_addr_str)?;
     trace!(LOG, "Ephe addr: {}", ephe_addr);
     // verify if request.signature
-    let signed_msg = format!("{}:/api/epheAddrStatus/{}", RELAYER_EMAIL_ADDRESS.get().unwrap(),request.request_id);
+    let signed_msg = format!(
+        "{}:/api/epheAddrStatus/{}",
+        RELAYER_EMAIL_ADDRESS.get().unwrap(),
+        request.request_id
+    );
     trace!(LOG, "Signed msg: {}", signed_msg);
     let signed_msg_hash = hash_message(&signed_msg);
     let signature = Signature::from_str(&request.signature)?;
@@ -720,7 +729,11 @@ pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusRe
             nonce: None,
         });
     }
-    if CLIENT.validate_ephe_addr(wallet_addr, ephe_addr, U256::from_str_radix(&nonce,10)?).await.is_err() {
+    if CLIENT
+        .validate_ephe_addr(wallet_addr, ephe_addr, U256::from_str_radix(&nonce, 10)?)
+        .await
+        .is_err()
+    {
         trace!(LOG, "Ephe addr not activated");
         return Ok(EpheAddrStatusResponse {
             is_activated: false,
@@ -728,7 +741,7 @@ pub async fn ephe_addr_status_api_fn(payload: String) -> Result<EpheAddrStatusRe
             nonce: None,
         });
     }
-    
+
     let wallet_addr_checksumed = to_checksum(&wallet_addr, None);
     Ok(EpheAddrStatusResponse {
         is_activated: true,
@@ -781,7 +794,7 @@ fn _construct_sign_up_in_subject(
     if let Some(token_allowances) = token_allowances {
         subject_words.push("for".to_string());
         for (amount, token_name) in token_allowances {
-            subject_words.push(format!("{} {}", amount.to_string(), token_name));
+            subject_words.push(format!("{} {}", amount, token_name));
         }
     }
     subject_words.join(" ")

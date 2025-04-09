@@ -89,7 +89,8 @@ impl ChainClient {
                 .await?,
             client.clone(),
         );
-        Ok(Self {
+
+        let chain_client = Self {
             client,
             core,
             token_registry,
@@ -100,7 +101,9 @@ impl ChainClient {
             ecdsa_owned_dkim_registry,
             test_erc20,
             nft_extension,
-        })
+        };
+
+        Ok(chain_client)
     }
 
     pub fn self_eth_addr(&self) -> Address {
@@ -257,7 +260,7 @@ impl ChainClient {
             amount,
             expiry_time,
             announce_commit_randomness.unwrap_or(U256::zero()),
-            announce_email_addr.unwrap_or(String::new()),
+            announce_email_addr.unwrap_or_default(),
         );
         let fee = {
             let gas = self.unclaims_handler.unclaimed_fund_claim_gas().await?;
@@ -295,7 +298,7 @@ impl ChainClient {
             state,
             expiry_time,
             announce_commit_randomness.unwrap_or(U256::zero()),
-            announce_email_addr.unwrap_or(String::new()),
+            announce_email_addr.unwrap_or_default(),
         );
         let fee = {
             let gas = self.unclaims_handler.unclaimed_state_claim_gas().await?;
