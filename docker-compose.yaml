@@ -87,7 +87,7 @@ services:
     ports:
       - "4500:4500"
     volumes:
-      - .ic.pem:/app/.ic.pem
+      - ${PWD}/.ic.pem:/app/.ic.pem:ro
     dns:
       - 8.8.8.8
       - 8.8.4.4
