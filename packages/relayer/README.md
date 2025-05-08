@@ -221,7 +221,7 @@ IC_REPLICA_URL="https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=i73e6-2qaaa-
 JSON_LOGGER=false
 ```
 
-### Buidling the Docker image
+### Building the Docker image
 
 - #### For local development
 ```bash
