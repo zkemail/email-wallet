@@ -64,20 +64,34 @@ lazy_static! {
         dotenv().ok();
         let db = tokio::task::block_in_place(|| {
             tokio::runtime::Runtime::new()
-                .unwrap()
-                .block_on(Database::open(&env::var(DATABASE_PATH_KEY).unwrap()))
+                .map_err(|e| format!("Failed to create tokio runtime: {}", e))
+                .and_then(|rt| {
+                    let database_path = env::var(DATABASE_PATH_KEY)
+                        .map_err(|e| format!("DATABASE_PATH environment variable not set: {}", e))?;
+                    rt.block_on(Database::open(&database_path))
+                        .map_err(|e| format!("Failed to open database: {}", e))
+                })
         })
-        .unwrap();
+        .unwrap_or_else(|e| {
+            eprintln!("Critical error during database initialization: {}", e);
+            std::process::exit(1);
+        });
         Arc::new(db)
     };
     pub static ref CLIENT: Arc<ChainClient> = {
         dotenv().ok();
         let client = tokio::task::block_in_place(|| {
             tokio::runtime::Runtime::new()
-                .unwrap()
-                .block_on(ChainClient::setup())
+                .map_err(|e| format!("Failed to create tokio runtime: {}", e))
+                .and_then(|rt| {
+                    rt.block_on(ChainClient::setup())
+                        .map_err(|e| format!("Failed to setup chain client: {}", e))
+                })
         })
-        .unwrap();
+        .unwrap_or_else(|e| {
+            eprintln!("Critical error during chain client initialization: {}", e);
+            std::process::exit(1);
+        });
         Arc::new(client)
     };
     pub static ref SHARED_MUTEX: Arc<Mutex<i32>> = Arc::new(Mutex::new(0));
@@ -85,29 +99,47 @@ lazy_static! {
 
 pub async fn setup() -> Result<()> {
     dotenv().ok();
-    PRIVATE_KEY.set(env::var(PRIVATE_KEY_KEY).unwrap()).unwrap();
-    CHAIN_ID
-        .set(env::var(CHAIN_ID_KEY).unwrap().parse().unwrap())
-        .unwrap();
-    CHAIN_RPC_PROVIDER
-        .set(env::var(CHAIN_RPC_PROVIDER_KEY).unwrap())
-        .unwrap();
-    CHAIN_RPC_EXPLORER
-        .set(env::var(CHAIN_RPC_EXPLORER_KEY).unwrap())
-        .unwrap();
-    CORE_CONTRACT_ADDRESS
-        .set(env::var(CORE_CONTRACT_ADDRESS_KEY).unwrap())
-        .unwrap();
+    
+    let private_key = env::var(PRIVATE_KEY_KEY)
+        .map_err(|e| anyhow!("PRIVATE_KEY environment variable not set: {}", e))?;
+    PRIVATE_KEY.set(private_key)
+        .map_err(|_| anyhow!("Failed to set PRIVATE_KEY"))?;
+    
+    let chain_id: u64 = env::var(CHAIN_ID_KEY)
+        .map_err(|e| anyhow!("CHAIN_ID environment variable not set: {}", e))?
+        .parse()
+        .map_err(|e| anyhow!("Failed to parse CHAIN_ID: {}", e))?;
+    CHAIN_ID.set(chain_id)
+        .map_err(|_| anyhow!("Failed to set CHAIN_ID"))?;
+    
+    let chain_rpc_provider = env::var(CHAIN_RPC_PROVIDER_KEY)
+        .map_err(|e| anyhow!("CHAIN_RPC_PROVIDER environment variable not set: {}", e))?;
+    CHAIN_RPC_PROVIDER.set(chain_rpc_provider)
+        .map_err(|_| anyhow!("Failed to set CHAIN_RPC_PROVIDER"))?;
+    
+    let chain_rpc_explorer = env::var(CHAIN_RPC_EXPLORER_KEY)
+        .map_err(|e| anyhow!("CHAIN_RPC_EXPLORER environment variable not set: {}", e))?;
+    CHAIN_RPC_EXPLORER.set(chain_rpc_explorer)
+        .map_err(|_| anyhow!("Failed to set CHAIN_RPC_EXPLORER"))?;
+    
+    let core_contract_address = env::var(CORE_CONTRACT_ADDRESS_KEY)
+        .map_err(|e| anyhow!("CORE_CONTRACT_ADDRESS environment variable not set: {}", e))?;
+    CORE_CONTRACT_ADDRESS.set(core_contract_address)
+        .map_err(|_| anyhow!("Failed to set CORE_CONTRACT_ADDRESS"))?;
 
-    let rng = OsRng;
-    let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
+    let private_key_for_rand = PRIVATE_KEY.get()
+        .ok_or_else(|| anyhow!("PRIVATE_KEY not initialized"))?;
+    let relayer_rand = derive_relayer_rand(private_key_for_rand)?;
 
     let client = ChainClient::setup().await?;
+    
+    let relayer_email = env::var(RELAYER_EMAIL_ADDR_KEY)
+        .map_err(|e| anyhow!("RELAYER_EMAIL_ADDR environment variable not set: {}", e))?;
+    let relayer_hostname = env::var(RELAYER_HOSTNAME_KEY)
+        .map_err(|e| anyhow!("RELAYER_HOSTNAME environment variable not set: {}", e))?;
+    
     let tx_hash = client
-        .register_relayer(
-            env::var(RELAYER_EMAIL_ADDR_KEY).unwrap(),
-            env::var(RELAYER_HOSTNAME_KEY).unwrap(),
-        )
+        .register_relayer(relayer_email, relayer_hostname)
         .await?;
     println!("Register relayer in {}", tx_hash);
     Ok(())
@@ -117,43 +149,52 @@ pub async fn setup() -> Result<()> {
 pub async fn run(config: RelayerConfig) -> Result<()> {
     info!(LOG, "Starting relayer"; "func" => function_name!());
 
-    CIRCUITS_DIR_PATH.set(config.circuits_dir_path).unwrap();
-    WEB_SERVER_ADDRESS.set(config.web_server_address).unwrap();
-    PROVER_ADDRESS.set(config.prover_address).unwrap();
-    PRIVATE_KEY.set(config.private_key).unwrap();
-    CHAIN_ID.set(config.chain_id).unwrap();
-    CHAIN_RPC_PROVIDER.set(config.chain_rpc_provider).unwrap();
-    CHAIN_RPC_EXPLORER.set(config.chain_rpc_explorer).unwrap();
-    CORE_CONTRACT_ADDRESS
-        .set(config.core_contract_address)
-        .unwrap();
-    FEE_PER_GAS.set(config.fee_per_gas).unwrap();
-    INPUT_FILES_DIR.set(config.input_files_dir).unwrap();
-    EMAIL_TEMPLATES.set(config.email_templates).unwrap();
-    SUBGRAPH_URL.set(config.subgraph_url).unwrap();
-    ONBOARDING_TOKEN_ADDR
-        .set(config.onboarding_token_addr)
-        .unwrap();
-    ONBOARDING_TOKEN_DISTRIBUTION_LIMIT
-        .set(config.onboarding_token_distribution_limit)
-        .unwrap();
-    ONBOARDING_TOKEN_AMOUNT
-        .set(config.onboarding_token_amount)
-        .unwrap();
-    ONBOARDING_REPLY_MSG
-        .set(config.onboarding_reply_msg)
-        .unwrap();
-    RELAYER_EMAIL_ADDRESS
-        .set(config.relayer_email_addr)
-        .unwrap();
-    SAFE_API_ENDPOINT.set(config.safe_api_endpoint).unwrap();
-    SMTP_SERVER.set(config.smtp_server).unwrap();
-    ERROR_EMAIL_ADDRESSES
-        .set(config.error_email_addresses)
-        .unwrap();
+    CIRCUITS_DIR_PATH.set(config.circuits_dir_path)
+        .map_err(|_| anyhow!("Failed to set CIRCUITS_DIR_PATH"))?;
+    WEB_SERVER_ADDRESS.set(config.web_server_address)
+        .map_err(|_| anyhow!("Failed to set WEB_SERVER_ADDRESS"))?;
+    PROVER_ADDRESS.set(config.prover_address)
+        .map_err(|_| anyhow!("Failed to set PROVER_ADDRESS"))?;
+    PRIVATE_KEY.set(config.private_key)
+        .map_err(|_| anyhow!("Failed to set PRIVATE_KEY"))?;
+    CHAIN_ID.set(config.chain_id)
+        .map_err(|_| anyhow!("Failed to set CHAIN_ID"))?;
+    CHAIN_RPC_PROVIDER.set(config.chain_rpc_provider)
+        .map_err(|_| anyhow!("Failed to set CHAIN_RPC_PROVIDER"))?;
+    CHAIN_RPC_EXPLORER.set(config.chain_rpc_explorer)
+        .map_err(|_| anyhow!("Failed to set CHAIN_RPC_EXPLORER"))?;
+    CORE_CONTRACT_ADDRESS.set(config.core_contract_address)
+        .map_err(|_| anyhow!("Failed to set CORE_CONTRACT_ADDRESS"))?;
+    FEE_PER_GAS.set(config.fee_per_gas)
+        .map_err(|_| anyhow!("Failed to set FEE_PER_GAS"))?;
+    INPUT_FILES_DIR.set(config.input_files_dir)
+        .map_err(|_| anyhow!("Failed to set INPUT_FILES_DIR"))?;
+    EMAIL_TEMPLATES.set(config.email_templates)
+        .map_err(|_| anyhow!("Failed to set EMAIL_TEMPLATES"))?;
+    SUBGRAPH_URL.set(config.subgraph_url)
+        .map_err(|_| anyhow!("Failed to set SUBGRAPH_URL"))?;
+    ONBOARDING_TOKEN_ADDR.set(config.onboarding_token_addr)
+        .map_err(|_| anyhow!("Failed to set ONBOARDING_TOKEN_ADDR"))?;
+    ONBOARDING_TOKEN_DISTRIBUTION_LIMIT.set(config.onboarding_token_distribution_limit)
+        .map_err(|_| anyhow!("Failed to set ONBOARDING_TOKEN_DISTRIBUTION_LIMIT"))?;
+    ONBOARDING_TOKEN_AMOUNT.set(config.onboarding_token_amount)
+        .map_err(|_| anyhow!("Failed to set ONBOARDING_TOKEN_AMOUNT"))?;
+    ONBOARDING_REPLY_MSG.set(config.onboarding_reply_msg)
+        .map_err(|_| anyhow!("Failed to set ONBOARDING_REPLY_MSG"))?;
+    RELAYER_EMAIL_ADDRESS.set(config.relayer_email_addr)
+        .map_err(|_| anyhow!("Failed to set RELAYER_EMAIL_ADDRESS"))?;
+    SAFE_API_ENDPOINT.set(config.safe_api_endpoint)
+        .map_err(|_| anyhow!("Failed to set SAFE_API_ENDPOINT"))?;
+    SMTP_SERVER.set(config.smtp_server)
+        .map_err(|_| anyhow!("Failed to set SMTP_SERVER"))?;
+    ERROR_EMAIL_ADDRESSES.set(config.error_email_addresses)
+        .map_err(|_| anyhow!("Failed to set ERROR_EMAIL_ADDRESSES"))?;
 
-    let relayer_rand = derive_relayer_rand(PRIVATE_KEY.get().unwrap())?;
-    RELAYER_RAND.set(field2hex(&relayer_rand.0)).unwrap();
+    let private_key_for_rand = PRIVATE_KEY.get()
+        .ok_or_else(|| anyhow!("PRIVATE_KEY not initialized"))?;
+    let relayer_rand = derive_relayer_rand(private_key_for_rand)?;
+    RELAYER_RAND.set(field2hex(&relayer_rand.0))
+        .map_err(|_| anyhow!("Failed to set RELAYER_RAND"))?;
 
     let safe_task = tokio::task::spawn(async move {
         loop {
